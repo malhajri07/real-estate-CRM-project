@@ -6,6 +6,15 @@ This is a full-stack Real Estate CRM application built with React frontend and E
 
 The application has been fully translated to Arabic language with proper Right-to-Left (RTL) layout support, making it suitable for Arabic-speaking users in the real estate market.
 
+### WhatsApp Integration
+Added WhatsApp messaging functionality linked to customer mobile numbers:
+- WhatsApp service integration using whatsapp-web.js (currently using mock service for development)
+- SMS/WhatsApp message storage in database
+- Send WhatsApp messages directly from lead management interface
+- Message status tracking (pending, sent, delivered, failed)
+- WhatsApp button available for leads with phone numbers
+- Arabic language support for all WhatsApp-related UI elements
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

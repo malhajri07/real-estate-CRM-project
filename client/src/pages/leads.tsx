@@ -1,18 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2, Edit, Eye, Plus } from "lucide-react";
+import { Trash2, Edit, Eye, Plus, MessageCircle } from "lucide-react";
 import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AddLeadModal from "@/components/modals/add-lead-modal";
+import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Lead } from "@shared/schema";
 
 export default function Leads() {
   const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
+  const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -39,12 +42,12 @@ export default function Leads() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
-      toast({ title: "Success", description: "Lead deleted successfully" });
+      toast({ title: "نجح", description: "تم حذف العميل المحتمل بنجاح" });
     },
     onError: () => {
       toast({ 
-        title: "Error", 
-        description: "Failed to delete lead",
+        title: "خطأ", 
+        description: "فشل في حذف العميل المحتمل",
         variant: "destructive" 
       });
     },
@@ -65,9 +68,22 @@ export default function Leads() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this lead?")) {
+    if (confirm("هل أنت متأكد من حذف هذا العميل المحتمل؟")) {
       deleteLeadMutation.mutate(id);
     }
+  };
+
+  const handleSendWhatsApp = (lead: Lead) => {
+    if (!lead.phone) {
+      toast({
+        title: "خطأ",
+        description: "هذا العميل لا يملك رقم هاتف",
+        variant: "destructive"
+      });
+      return;
+    }
+    setSelectedLead(lead);
+    setWhatsappModalOpen(true);
   };
 
   const exportLeads = () => {
@@ -103,13 +119,13 @@ export default function Leads() {
     a.click();
     window.URL.revokeObjectURL(url);
 
-    toast({ title: "Success", description: "Leads exported successfully" });
+    toast({ title: "نجح", description: "تم تصدير العملاء المحتملين بنجاح" });
   };
 
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">Loading leads...</div>
+        <div className="text-slate-500">جار تحميل العملاء المحتملين...</div>
       </div>
     );
   }
@@ -117,24 +133,24 @@ export default function Leads() {
   return (
     <>
       <Header 
-        title="Leads" 
+        title="العملاء المحتملين" 
         onAddClick={() => setAddLeadModalOpen(true)}
         onSearch={setSearchQuery}
-        searchPlaceholder="Search leads by name, email, or phone..."
+        searchPlaceholder="البحث في العملاء المحتملين بالاسم أو البريد الإلكتروني أو الهاتف..."
       />
       
       <main className="flex-1 overflow-y-auto p-6">
         <Card>
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between">
-              <CardTitle>All Leads ({displayLeads?.length || 0})</CardTitle>
-              <div className="flex items-center space-x-2">
+              <CardTitle>جميع العملاء المحتملين ({displayLeads?.length || 0})</CardTitle>
+              <div className="flex items-center space-x-2 space-x-reverse">
                 <Button variant="outline" onClick={exportLeads}>
-                  Export CSV
+                  تصدير CSV
                 </Button>
                 <Button onClick={() => setAddLeadModalOpen(true)}>
-                  <Plus className="mr-2" size={16} />
-                  Add Lead
+                  <Plus className="ml-2" size={16} />
+                  إضافة عميل محتمل
                 </Button>
               </div>
             </div>
@@ -143,12 +159,12 @@ export default function Leads() {
             {!displayLeads || displayLeads.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-slate-500 mb-4">
-                  {searchQuery ? "No leads found matching your search." : "No leads found. Create your first lead to get started."}
+                  {searchQuery ? "لا توجد عملاء محتملين يطابقون بحثك." : "لا توجد عملاء محتملين. أنشئ أول عميل محتمل للبدء."}
                 </div>
                 {!searchQuery && (
                   <Button onClick={() => setAddLeadModalOpen(true)}>
-                    <Plus className="mr-2" size={16} />
-                    Add Your First Lead
+                    <Plus className="ml-2" size={16} />
+                    إضافة أول عميل محتمل
                   </Button>
                 )}
               </div>
@@ -156,15 +172,15 @@ export default function Leads() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Lead Source</TableHead>
-                    <TableHead>Interest</TableHead>
-                    <TableHead>Budget</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="w-[100px]">Actions</TableHead>
+                    <TableHead>الاسم</TableHead>
+                    <TableHead>البريد الإلكتروني</TableHead>
+                    <TableHead>الهاتف</TableHead>
+                    <TableHead>الحالة</TableHead>
+                    <TableHead>مصدر العميل</TableHead>
+                    <TableHead>نوع الاهتمام</TableHead>
+                    <TableHead>الميزانية</TableHead>
+                    <TableHead>تاريخ الإنشاء</TableHead>
+                    <TableHead className="w-[160px]">الإجراءات</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -185,7 +201,18 @@ export default function Leads() {
                       <TableCell>{lead.budgetRange || '-'}</TableCell>
                       <TableCell>{new Date(lead.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 space-x-reverse">
+                          {lead.phone && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleSendWhatsApp(lead)}
+                              className="text-green-600 hover:text-green-700"
+                              title="إرسال رسالة WhatsApp"
+                            >
+                              <MessageCircle size={16} />
+                            </Button>
+                          )}
                           <Button variant="ghost" size="sm">
                             <Eye size={16} />
                           </Button>
@@ -212,6 +239,15 @@ export default function Leads() {
       </main>
 
       <AddLeadModal open={addLeadModalOpen} onOpenChange={setAddLeadModalOpen} />
+      {selectedLead && (
+        <SendWhatsAppModal 
+          open={whatsappModalOpen} 
+          onOpenChange={setWhatsappModalOpen}
+          leadId={selectedLead.id}
+          phoneNumber={selectedLead.phone || ""}
+          leadName={`${selectedLead.firstName} ${selectedLead.lastName}`}
+        />
+      )}
     </>
   );
 }

@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertLeadSchema, insertPropertySchema, insertDealSchema, insertActivitySchema } from "@shared/schema";
+import { insertLeadSchema, insertPropertySchema, insertDealSchema, insertActivitySchema, insertMessageSchema } from "@shared/schema";
+import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -270,6 +271,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch dashboard metrics" });
     }
+  });
+
+  // Message routes
+  app.get("/api/messages", async (req, res) => {
+    try {
+      const messages = await storage.getAllMessages();
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch messages" });
+    }
+  });
+
+  app.get("/api/messages/lead/:leadId", async (req, res) => {
+    try {
+      const { leadId } = req.params;
+      const messages = await storage.getMessagesByLead(leadId);
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch messages for lead" });
+    }
+  });
+
+  app.post("/api/messages", async (req, res) => {
+    try {
+      const messageData = insertMessageSchema.parse(req.body);
+      const message = await storage.createMessage(messageData);
+      
+      // Send WhatsApp message if the type is whatsapp
+      if (messageData.messageType === 'whatsapp') {
+        const success = await whatsappService.sendMessage(messageData.phoneNumber, messageData.message);
+        if (success) {
+          await storage.updateMessageStatus(message.id, 'sent');
+        } else {
+          await storage.updateMessageStatus(message.id, 'failed');
+        }
+      }
+      
+      res.json(message);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: error.errors });
+      } else {
+        res.status(500).json({ error: "Failed to create message" });
+      }
+    }
+  });
+
+  app.get("/api/whatsapp/status", (req, res) => {
+    res.json({ 
+      isReady: whatsappService.isClientReady(),
+      service: 'WhatsApp Web'
+    });
   });
 
   const httpServer = createServer(app);

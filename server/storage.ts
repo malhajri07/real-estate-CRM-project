@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Lead, type InsertLead, type Property, type InsertProperty, type Deal, type InsertDeal, type Activity, type InsertActivity } from "@shared/schema";
+import { type User, type InsertUser, type Lead, type InsertLead, type Property, type InsertProperty, type Deal, type InsertDeal, type Activity, type InsertActivity, type Message, type InsertMessage } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -37,12 +37,19 @@ export interface IStorage {
   updateActivity(id: string, activity: Partial<InsertActivity>): Promise<Activity | undefined>;
   deleteActivity(id: string): Promise<boolean>;
   getTodaysActivities(): Promise<Activity[]>;
+
+  // Message methods
+  getMessagesByLead(leadId: string): Promise<Message[]>;
+  createMessage(message: InsertMessage): Promise<Message>;
+  updateMessageStatus(id: string, status: string): Promise<Message | undefined>;
+  getAllMessages(): Promise<Message[]>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private leads: Map<string, Lead>;
   private properties: Map<string, Property>;
+  private messages: Map<string, Message>;
   private deals: Map<string, Deal>;
   private activities: Map<string, Activity>;
 
@@ -52,6 +59,7 @@ export class MemStorage implements IStorage {
     this.properties = new Map();
     this.deals = new Map();
     this.activities = new Map();
+    this.messages = new Map();
   }
 
   // User methods
@@ -287,6 +295,47 @@ export class MemStorage implements IStorage {
       const activityDate = new Date(activity.scheduledDate);
       return activityDate >= today && activityDate < tomorrow;
     });
+  }
+
+  // Message methods
+  async getMessagesByLead(leadId: string): Promise<Message[]> {
+    return Array.from(this.messages.values()).filter(
+      (message) => message.leadId === leadId
+    ).sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
+  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+    const id = randomUUID();
+    const now = new Date();
+    const message: Message = { 
+      ...insertMessage, 
+      id,
+      sentAt: null,
+      createdAt: now
+    };
+    this.messages.set(id, message);
+    return message;
+  }
+
+  async updateMessageStatus(id: string, status: string): Promise<Message | undefined> {
+    const message = this.messages.get(id);
+    if (!message) return undefined;
+    
+    const updatedMessage: Message = { 
+      ...message, 
+      status,
+      sentAt: status === 'sent' ? new Date() : message.sentAt
+    };
+    this.messages.set(id, updatedMessage);
+    return updatedMessage;
+  }
+
+  async getAllMessages(): Promise<Message[]> {
+    return Array.from(this.messages.values()).sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }
 }
 
