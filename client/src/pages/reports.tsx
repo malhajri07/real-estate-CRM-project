@@ -133,20 +133,20 @@ export default function Reports() {
     a.click();
     window.URL.revokeObjectURL(url);
 
-    toast({ title: "Success", description: "Report exported successfully" });
+    toast({ title: "نجح", description: "تم تصدير التقرير بنجاح" });
   };
 
   if (metricsLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">Loading reports...</div>
+        <div className="text-slate-500">جار تحميل التقارير...</div>
       </div>
     );
   }
 
   return (
     <>
-      <Header title="Reports" />
+      <Header title="التقارير" />
       
       <main className="flex-1 overflow-y-auto p-6">
         {/* Report Controls */}
@@ -154,60 +154,60 @@ export default function Reports() {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Calendar size={20} className="text-slate-500" />
-              <span className="text-sm font-medium text-slate-700">Report Period:</span>
+              <span className="text-sm font-medium text-slate-700">فترة التقرير:</span>
               <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="7">7 days</SelectItem>
-                  <SelectItem value="30">30 days</SelectItem>
-                  <SelectItem value="90">90 days</SelectItem>
-                  <SelectItem value="365">1 year</SelectItem>
+                  <SelectItem value="7">٧ أيام</SelectItem>
+                  <SelectItem value="30">٣٠ يوماً</SelectItem>
+                  <SelectItem value="90">٩٠ يوماً</SelectItem>
+                  <SelectItem value="365">سنة واحدة</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           
           <Button onClick={exportReport}>
-            <Download className="mr-2" size={16} />
-            Export Report
+            <Download className="ml-2" size={16} />
+            تصدير التقرير
           </Button>
         </div>
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricsCard
-            title="Leads Generated"
+            title="العملاء المحتملين المولدين"
             value={filteredLeads.length}
-            change={`${filteredLeads.length > 0 ? '+' : ''}${filteredLeads.length} in ${selectedPeriod} days`}
+            change={`${filteredLeads.length > 0 ? '+' : ''}${filteredLeads.length} في ${selectedPeriod} أيام`}
             changeType="positive"
             icon={Users}
             iconColor="bg-blue-100 text-blue-600"
           />
           
           <MetricsCard
-            title="Properties Listed"
+            title="العقارات المدرجة"
             value={filteredProperties.length}
-            change={`${filteredProperties.length > 0 ? '+' : ''}${filteredProperties.length} in ${selectedPeriod} days`}
+            change={`${filteredProperties.length > 0 ? '+' : ''}${filteredProperties.length} في ${selectedPeriod} أيام`}
             changeType="positive"
             icon={Building}
             iconColor="bg-green-100 text-green-600"
           />
           
           <MetricsCard
-            title="Conversion Rate"
+            title="معدل التحويل"
             value={`${calculateConversionRate()}%`}
-            change="Lead to closed deal ratio"
+            change="نسبة العميل المحتمل إلى الصفقة المكتملة"
             changeType="neutral"
             icon={TrendingUp}
             iconColor="bg-purple-100 text-purple-600"
           />
           
           <MetricsCard
-            title="Total Commission"
+            title="إجمالي العمولة"
             value={formatCurrency(calculateTotalCommission())}
-            change={`From ${filteredDeals.filter(d => d.stage === 'closed').length} closed deals`}
+            change={`من ${filteredDeals.filter(d => d.stage === 'closed').length} صفقة مكتملة`}
             changeType="positive"
             icon={DollarSign}
             iconColor="bg-yellow-100 text-yellow-600"
@@ -220,13 +220,13 @@ export default function Reports() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <PieChart size={20} />
-                <span>Lead Sources</span>
+                <span>مصادر العملاء المحتملين</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {getLeadSourceBreakdown().length === 0 ? (
                 <div className="text-center py-8 text-slate-500">
-                  No lead data available for the selected period.
+                  لا توجد بيانات عملاء محتملين متاحة للفترة المحددة.
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -256,13 +256,13 @@ export default function Reports() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <BarChart3 size={20} />
-                <span>Property Types</span>
+                <span>أنواع العقارات</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {getPropertyTypeBreakdown().length === 0 ? (
                 <div className="text-center py-8 text-slate-500">
-                  No property data available for the selected period.
+                  لا توجد بيانات عقارات متاحة للفترة المحددة.
                 </div>
               ) : (
                 <div className="space-y-3">

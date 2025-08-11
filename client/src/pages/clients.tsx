@@ -55,7 +55,7 @@ export default function Clients() {
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">Loading clients...</div>
+        <div className="text-slate-500">جار تحميل العملاء...</div>
       </div>
     );
   }
@@ -63,9 +63,9 @@ export default function Clients() {
   return (
     <>
       <Header 
-        title="Client Relations" 
+        title="علاقات العملاء" 
         onSearch={setSearchQuery}
-        searchPlaceholder="Search clients by name or email..."
+        searchPlaceholder="البحث في العملاء بالاسم أو البريد الإلكتروني..."
       />
       
       <main className="flex-1 overflow-y-auto p-6">
@@ -74,12 +74,12 @@ export default function Clients() {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader className="border-b border-slate-200">
-                <CardTitle>Clients ({filteredLeads.length})</CardTitle>
+                <CardTitle>العملاء ({filteredLeads.length})</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 {filteredLeads.length === 0 ? (
                   <div className="text-center py-8 text-slate-500">
-                    {searchQuery ? "No clients found matching your search." : "No clients found."}
+                    {searchQuery ? "لا توجد عملاء تطابق بحثك." : "لا توجد عملاء."}
                   </div>
                 ) : (
                   <div className="divide-y divide-slate-200">
@@ -129,8 +129,8 @@ export default function Clients() {
                 <CardContent className="flex items-center justify-center h-96">
                   <div className="text-center text-slate-500">
                     <MessageCircle size={48} className="mx-auto mb-4 text-slate-300" />
-                    <h3 className="text-lg font-medium mb-2">Select a Client</h3>
-                    <p>Choose a client from the list to view their details and activity history.</p>
+                    <h3 className="text-lg font-medium mb-2">اختر عميلاً</h3>
+                    <p>اختر عميلاً من القائمة لعرض تفاصيله وتاريخ نشاطه.</p>
                   </div>
                 </CardContent>
               </Card>

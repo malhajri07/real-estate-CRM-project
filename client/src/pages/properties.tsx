@@ -39,12 +39,12 @@ export default function Properties() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
-      toast({ title: "Success", description: "Property deleted successfully" });
+      toast({ title: "نجح", description: "تم حذف العقار بنجاح" });
     },
     onError: () => {
       toast({ 
-        title: "Error", 
-        description: "Failed to delete property",
+        title: "خطأ", 
+        description: "فشل في حذف العقار",
         variant: "destructive" 
       });
     },
@@ -73,7 +73,7 @@ export default function Properties() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this property?")) {
+    if (confirm("هل أنت متأكد من حذف هذا العقار؟")) {
       deletePropertyMutation.mutate(id);
     }
   };
@@ -81,7 +81,7 @@ export default function Properties() {
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">Loading properties...</div>
+        <div className="text-slate-500">جار تحميل العقارات...</div>
       </div>
     );
   }
@@ -89,20 +89,20 @@ export default function Properties() {
   return (
     <>
       <Header 
-        title="Properties" 
+        title="العقارات" 
         onAddClick={() => setAddPropertyModalOpen(true)}
         onSearch={setSearchQuery}
-        searchPlaceholder="Search properties by title, address, or city..."
+        searchPlaceholder="البحث في العقارات بالعنوان أو الموقع أو النوع..."
       />
       
       <main className="flex-1 overflow-y-auto p-6">
         <Card>
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between">
-              <CardTitle>All Properties ({displayProperties?.length || 0})</CardTitle>
+              <CardTitle>جميع العقارات ({displayProperties?.length || 0})</CardTitle>
               <Button onClick={() => setAddPropertyModalOpen(true)}>
-                <Plus className="mr-2" size={16} />
-                Add Property
+                <Plus className="ml-2" size={16} />
+                إضافة عقار
               </Button>
             </div>
           </CardHeader>
@@ -110,12 +110,12 @@ export default function Properties() {
             {!displayProperties || displayProperties.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-slate-500 mb-4">
-                  {searchQuery ? "No properties found matching your search." : "No properties found. Add your first property to get started."}
+                  {searchQuery ? "لا توجد عقارات تطابق بحثك." : "لا توجد عقارات. أضف أول عقار للبدء."}
                 </div>
                 {!searchQuery && (
                   <Button onClick={() => setAddPropertyModalOpen(true)}>
-                    <Plus className="mr-2" size={16} />
-                    Add Your First Property
+                    <Plus className="ml-2" size={16} />
+                    إضافة أول عقار
                   </Button>
                 )}
               </div>

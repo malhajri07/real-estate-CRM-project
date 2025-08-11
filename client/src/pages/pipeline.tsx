@@ -9,11 +9,11 @@ import { useToast } from "@/hooks/use-toast";
 import type { Deal, Lead } from "@shared/schema";
 
 const STAGES = [
-  { id: "lead", title: "Lead", color: "bg-slate-100" },
-  { id: "qualified", title: "Qualified", color: "bg-blue-100" },
-  { id: "showing", title: "Showing", color: "bg-yellow-100" },
-  { id: "negotiation", title: "Negotiation", color: "bg-orange-100" },
-  { id: "closed", title: "Closed", color: "bg-green-100" },
+  { id: "lead", title: "عميل محتمل", color: "bg-slate-100" },
+  { id: "qualified", title: "مؤهل", color: "bg-blue-100" },
+  { id: "showing", title: "معاينة", color: "bg-yellow-100" },
+  { id: "negotiation", title: "تفاوض", color: "bg-orange-100" },
+  { id: "closed", title: "مكتملة", color: "bg-green-100" },
 ];
 
 export default function Pipeline() {
@@ -36,12 +36,12 @@ export default function Pipeline() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/deals"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
-      toast({ title: "Success", description: "Deal stage updated successfully" });
+      toast({ title: "نجح", description: "تم تحديث مرحلة الصفقة بنجاح" });
     },
     onError: () => {
       toast({ 
-        title: "Error", 
-        description: "Failed to update deal stage",
+        title: "خطأ", 
+        description: "فشل في تحديث مرحلة الصفقة",
         variant: "destructive" 
       });
     },
@@ -61,11 +61,11 @@ export default function Pipeline() {
 
   const getLeadName = (leadId: string) => {
     const lead = leads?.find(l => l.id === leadId);
-    return lead ? `${lead.firstName} ${lead.lastName}` : "Unknown Lead";
+    return lead ? `${lead.firstName} ${lead.lastName}` : "عميل غير معروف";
   };
 
   const formatCurrency = (amount: string | null) => {
-    if (!amount) return "No value set";
+    if (!amount) return "لم يتم تحديد القيمة";
     const num = parseFloat(amount);
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -82,14 +82,14 @@ export default function Pipeline() {
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">Loading pipeline...</div>
+        <div className="text-slate-500">جار تحميل مراحل الصفقات...</div>
       </div>
     );
   }
 
   return (
     <>
-      <Header title="Deal Pipeline" />
+      <Header title="مراحل الصفقات" />
       
       <main className="flex-1 overflow-y-auto p-6">
         <DragDropContext onDragEnd={onDragEnd}>
@@ -107,7 +107,7 @@ export default function Pipeline() {
                       <CardTitle className="text-center">
                         <div className="text-lg font-semibold">{stage.title}</div>
                         <div className="text-sm text-slate-600">
-                          {stageDeals.length} deals • {formatCurrency(stageValue.toString())}
+                          {stageDeals.length} صفقة • {formatCurrency(stageValue.toString())}
                         </div>
                       </CardTitle>
                     </CardHeader>
@@ -143,7 +143,7 @@ export default function Pipeline() {
                                     
                                     {deal.expectedCloseDate && (
                                       <div className="text-sm text-slate-500">
-                                        Expected: {new Date(deal.expectedCloseDate).toLocaleDateString()}
+                                        متوقع: {new Date(deal.expectedCloseDate).toLocaleDateString()}
                                       </div>
                                     )}
                                     
