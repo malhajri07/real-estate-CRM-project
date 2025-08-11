@@ -63,7 +63,7 @@ export default function Dashboard() {
   if (metricsLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">Loading dashboard...</div>
+        <div className="text-slate-500">جار تحميل لوحة التحكم...</div>
       </div>
     );
   }
@@ -71,42 +71,42 @@ export default function Dashboard() {
   return (
     <>
       <Header 
-        title="Dashboard" 
+        title="لوحة التحكم" 
         onAddClick={() => setAddLeadModalOpen(true)}
-        searchPlaceholder="Search leads, properties..."
+        searchPlaceholder="البحث في العملاء المحتملين والعقارات..."
       />
       
       <main className="flex-1 overflow-y-auto p-6">
         {/* Dashboard Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricsCard
-            title="Total Leads"
+            title="إجمالي العملاء المحتملين"
             value={metrics?.totalLeads || 0}
-            change="12% from last month"
+            change="12% من الشهر الماضي"
             changeType="positive"
             icon={Users}
             iconColor="bg-blue-100 text-blue-600"
           />
           <MetricsCard
-            title="Active Properties"
+            title="العقارات النشطة"
             value={metrics?.activeProperties || 0}
-            change="8% from last month"
+            change="8% من الشهر الماضي"
             changeType="positive"
             icon={Building}
             iconColor="bg-green-100 text-green-600"
           />
           <MetricsCard
-            title="Deals in Pipeline"
+            title="الصفقات في المراحل"
             value={metrics?.dealsInPipeline || 0}
-            change="2% from last month"
+            change="2% من الشهر الماضي"
             changeType="negative"
             icon={Filter}
             iconColor="bg-purple-100 text-purple-600"
           />
           <MetricsCard
-            title="Monthly Revenue"
+            title="الإيرادات الشهرية"
             value={formatCurrency(metrics?.monthlyRevenue || 0)}
-            change="24% from last month"
+            change="24% من الشهر الماضي"
             changeType="positive"
             icon={DollarSign}
             iconColor="bg-yellow-100 text-yellow-600"
@@ -120,20 +120,20 @@ export default function Dashboard() {
             <Card>
               <CardHeader className="border-b border-slate-200">
                 <div className="flex items-center justify-between">
-                  <CardTitle>Recent Leads</CardTitle>
-                  <Button variant="link" className="text-primary">View All</Button>
+                  <CardTitle>العملاء المحتملين الجدد</CardTitle>
+                  <Button variant="link" className="text-primary">عرض الكل</Button>
                 </div>
               </CardHeader>
               <CardContent className="p-6">
                 {recentLeads.length === 0 ? (
                   <div className="text-center py-8 text-slate-500">
-                    No leads found. Create your first lead to get started.
+                    لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {recentLeads.map((lead) => (
                       <div key={lead.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-4 space-x-reverse">
                           <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                             <span className="text-primary-600 font-semibold">
                               {lead.firstName[0]}{lead.lastName[0]}
@@ -144,7 +144,7 @@ export default function Dashboard() {
                             <p className="text-sm text-slate-500">{lead.email}</p>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-3 space-x-reverse">
                           <Badge className={getStatusBadgeColor(lead.status)}>
                             {lead.status}
                           </Badge>
@@ -162,7 +162,7 @@ export default function Dashboard() {
             {/* Deal Pipeline Overview */}
             <Card>
               <CardHeader className="border-b border-slate-200">
-                <CardTitle>Deal Pipeline</CardTitle>
+                <CardTitle>مراحل الصفقات</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-5 gap-4">
@@ -171,9 +171,9 @@ export default function Dashboard() {
                       <div className="text-2xl font-bold text-slate-900">
                         {metrics?.pipelineByStage?.lead || 0}
                       </div>
-                      <div className="text-xs text-slate-500">Leads</div>
+                      <div className="text-xs text-slate-500">عملاء محتملين</div>
                     </div>
-                    <div className="text-sm font-medium text-slate-700">Lead</div>
+                    <div className="text-sm font-medium text-slate-700">عميل محتمل</div>
                   </div>
 
                   <div className="text-center">
@@ -181,9 +181,9 @@ export default function Dashboard() {
                       <div className="text-2xl font-bold text-blue-900">
                         {metrics?.pipelineByStage?.qualified || 0}
                       </div>
-                      <div className="text-xs text-blue-600">Qualified</div>
+                      <div className="text-xs text-blue-600">مؤهل</div>
                     </div>
-                    <div className="text-sm font-medium text-slate-700">Qualified</div>
+                    <div className="text-sm font-medium text-slate-700">مؤهل</div>
                   </div>
 
                   <div className="text-center">
@@ -191,9 +191,9 @@ export default function Dashboard() {
                       <div className="text-2xl font-bold text-yellow-900">
                         {metrics?.pipelineByStage?.showing || 0}
                       </div>
-                      <div className="text-xs text-yellow-600">Showing</div>
+                      <div className="text-xs text-yellow-600">عرض</div>
                     </div>
-                    <div className="text-sm font-medium text-slate-700">Showing</div>
+                    <div className="text-sm font-medium text-slate-700">عرض</div>
                   </div>
 
                   <div className="text-center">
@@ -201,9 +201,9 @@ export default function Dashboard() {
                       <div className="text-2xl font-bold text-orange-900">
                         {metrics?.pipelineByStage?.negotiation || 0}
                       </div>
-                      <div className="text-xs text-orange-600">Negotiation</div>
+                      <div className="text-xs text-orange-600">تفاوض</div>
                     </div>
-                    <div className="text-sm font-medium text-slate-700">Negotiation</div>
+                    <div className="text-sm font-medium text-slate-700">تفاوض</div>
                   </div>
 
                   <div className="text-center">
@@ -211,9 +211,9 @@ export default function Dashboard() {
                       <div className="text-2xl font-bold text-green-900">
                         {metrics?.pipelineByStage?.closed || 0}
                       </div>
-                      <div className="text-xs text-green-600">Closed</div>
+                      <div className="text-xs text-green-600">مغلق</div>
                     </div>
-                    <div className="text-sm font-medium text-slate-700">Closed</div>
+                    <div className="text-sm font-medium text-slate-700">مغلق</div>
                   </div>
                 </div>
               </CardContent>
@@ -225,7 +225,7 @@ export default function Dashboard() {
             {/* Quick Actions */}
             <Card>
               <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+                <CardTitle>إجراءات سريعة</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -234,24 +234,24 @@ export default function Dashboard() {
                     className="w-full justify-start"
                     onClick={() => setAddLeadModalOpen(true)}
                   >
-                    <Plus className="mr-3 text-primary" size={20} />
-                    Add New Lead
+                    <Plus className="ml-3 text-primary" size={20} />
+                    إضافة عميل محتمل جديد
                   </Button>
                   <Button 
                     variant="ghost" 
                     className="w-full justify-start"
                     onClick={() => setAddPropertyModalOpen(true)}
                   >
-                    <Home className="mr-3 text-green-500" size={20} />
-                    List Property
+                    <Home className="ml-3 text-green-500" size={20} />
+                    إدراج عقار
                   </Button>
                   <Button variant="ghost" className="w-full justify-start">
-                    <Calendar className="mr-3 text-blue-500" size={20} />
-                    Schedule Showing
+                    <Calendar className="ml-3 text-blue-500" size={20} />
+                    جدولة عرض
                   </Button>
                   <Button variant="ghost" className="w-full justify-start">
-                    <Download className="mr-3 text-purple-500" size={20} />
-                    Export Leads
+                    <Download className="ml-3 text-purple-500" size={20} />
+                    تصدير العملاء المحتملين
                   </Button>
                 </div>
               </CardContent>
@@ -260,17 +260,17 @@ export default function Dashboard() {
             {/* Today's Tasks */}
             <Card>
               <CardHeader>
-                <CardTitle>Today's Tasks</CardTitle>
+                <CardTitle>مهام اليوم</CardTitle>
               </CardHeader>
               <CardContent>
                 {!todaysActivities || todaysActivities.length === 0 ? (
                   <div className="text-center py-4 text-slate-500">
-                    No tasks scheduled for today
+                    لا توجد مهام مجدولة لهذا اليوم
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {todaysActivities.map((activity) => (
-                      <div key={activity.id} className="flex items-start space-x-3">
+                      <div key={activity.id} className="flex items-start space-x-3 space-x-reverse">
                         <input 
                           type="checkbox" 
                           checked={activity.completed}
@@ -281,7 +281,7 @@ export default function Dashboard() {
                             {activity.title}
                           </p>
                           <p className="text-xs text-slate-500">
-                            {activity.scheduledDate ? new Date(activity.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'No time set'}
+                            {activity.scheduledDate ? new Date(activity.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'لم يتم تحديد وقت'}
                           </p>
                         </div>
                       </div>

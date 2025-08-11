@@ -93,6 +93,7 @@ export class MemStorage implements IStorage {
       leadSource: insertLead.leadSource || null,
       interestType: insertLead.interestType || null,
       budgetRange: insertLead.budgetRange || null,
+      status: insertLead.status || "new",
       notes: insertLead.notes || null,
       createdAt: now,
       updatedAt: now

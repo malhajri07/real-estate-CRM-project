@@ -45,14 +45,14 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
-      toast({ title: "Success", description: "Lead created successfully" });
+      toast({ title: "نجح", description: "تم إنشاء العميل المحتمل بنجاح" });
       onOpenChange(false);
       form.reset();
     },
     onError: () => {
       toast({ 
-        title: "Error", 
-        description: "Failed to create lead",
+        title: "خطأ", 
+        description: "فشل في إنشاء العميل المحتمل",
         variant: "destructive" 
       });
     },
@@ -66,7 +66,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Add New Lead</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">إضافة عميل محتمل جديد</DialogTitle>
         </DialogHeader>
         
         <Form {...form}>
@@ -77,9 +77,9 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name *</FormLabel>
+                    <FormLabel>الاسم الأول *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter first name" {...field} />
+                      <Input placeholder="أدخل الاسم الأول" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -90,9 +90,9 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name *</FormLabel>
+                    <FormLabel>اسم العائلة *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter last name" {...field} />
+                      <Input placeholder="أدخل اسم العائلة" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -106,9 +106,9 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email *</FormLabel>
+                    <FormLabel>البريد الإلكتروني *</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="Enter email address" {...field} />
+                      <Input type="email" placeholder="أدخل عنوان البريد الإلكتروني" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -119,9 +119,9 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone</FormLabel>
+                    <FormLabel>الهاتف</FormLabel>
                     <FormControl>
-                      <Input type="tel" placeholder="Enter phone number" {...field} value={field.value || ""} />
+                      <Input type="tel" placeholder="أدخل رقم الهاتف" {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -134,19 +134,19 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
               name="leadSource"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Lead Source</FormLabel>
+                  <FormLabel>مصدر العميل المحتمل</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select lead source" />
+                        <SelectValue placeholder="اختر مصدر العميل المحتمل" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="website">Website</SelectItem>
-                      <SelectItem value="referral">Referral</SelectItem>
-                      <SelectItem value="social-media">Social Media</SelectItem>
-                      <SelectItem value="walk-in">Walk-in</SelectItem>
-                      <SelectItem value="cold-call">Cold Call</SelectItem>
+                      <SelectItem value="website">الموقع الإلكتروني</SelectItem>
+                      <SelectItem value="referral">إحالة</SelectItem>
+                      <SelectItem value="social-media">وسائل التواصل الاجتماعي</SelectItem>
+                      <SelectItem value="walk-in">زيارة مباشرة</SelectItem>
+                      <SelectItem value="cold-call">اتصال بارد</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -159,20 +159,20 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
               name="interestType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Interest Type</FormLabel>
+                  <FormLabel>نوع الاهتمام</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value || ""}
-                      className="flex space-x-6"
+                      className="flex space-x-6 space-x-reverse"
                     >
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 space-x-reverse">
                         <RadioGroupItem value="buying" id="buying" />
-                        <Label htmlFor="buying">Buying</Label>
+                        <Label htmlFor="buying">شراء</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 space-x-reverse">
                         <RadioGroupItem value="selling" id="selling" />
-                        <Label htmlFor="selling">Selling</Label>
+                        <Label htmlFor="selling">بيع</Label>
                       </div>
                     </RadioGroup>
                   </FormControl>
@@ -186,19 +186,19 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
               name="budgetRange"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Budget Range</FormLabel>
+                  <FormLabel>نطاق الميزانية</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select budget range" />
+                        <SelectValue placeholder="اختر نطاق الميزانية" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="under-200k">Under $200K</SelectItem>
-                      <SelectItem value="200k-400k">$200K - $400K</SelectItem>
-                      <SelectItem value="400k-600k">$400K - $600K</SelectItem>
-                      <SelectItem value="600k-800k">$600K - $800K</SelectItem>
-                      <SelectItem value="800k-plus">$800K+</SelectItem>
+                      <SelectItem value="under-200k">أقل من 200 ألف دولار</SelectItem>
+                      <SelectItem value="200k-400k">200 - 400 ألف دولار</SelectItem>
+                      <SelectItem value="400k-600k">400 - 600 ألف دولار</SelectItem>
+                      <SelectItem value="600k-800k">600 - 800 ألف دولار</SelectItem>
+                      <SelectItem value="800k-plus">أكثر من 800 ألف دولار</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -211,11 +211,11 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes</FormLabel>
+                  <FormLabel>ملاحظات</FormLabel>
                   <FormControl>
                     <Textarea
                       rows={3}
-                      placeholder="Additional notes about the lead"
+                      placeholder="ملاحظات إضافية حول العميل المحتمل"
                       {...field}
                       value={field.value || ""}
                     />
@@ -225,19 +225,19 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
               )}
             />
 
-            <div className="flex justify-end space-x-3 pt-4">
+            <div className="flex justify-end space-x-3 space-x-reverse pt-4">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                إلغاء
               </Button>
               <Button 
                 type="submit" 
                 disabled={createLeadMutation.isPending}
               >
-                {createLeadMutation.isPending ? "Saving..." : "Save Lead"}
+                {createLeadMutation.isPending ? "جار الحفظ..." : "حفظ العميل المحتمل"}
               </Button>
             </div>
           </form>

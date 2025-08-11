@@ -4,9 +4,12 @@
 
 This is a full-stack Real Estate CRM application built with React frontend and Express backend. The system manages leads, properties, deals, and client relationships with a modern, responsive interface using shadcn/ui components and Tailwind CSS styling.
 
+The application has been fully translated to Arabic language with proper Right-to-Left (RTL) layout support, making it suitable for Arabic-speaking users in the real estate market.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Application language: Arabic with RTL (Right-to-Left) layout support.
 
 ## System Architecture
 
@@ -15,8 +18,9 @@ Preferred communication style: Simple, everyday language.
 - **Routing**: Wouter for client-side routing
 - **State Management**: TanStack Query for server state management with React Query Client
 - **UI Library**: shadcn/ui components built on Radix UI primitives
-- **Styling**: Tailwind CSS with custom CSS variables for theming
+- **Styling**: Tailwind CSS with custom CSS variables for theming and RTL support
 - **Forms**: React Hook Form with Zod validation for type-safe form handling
+- **Internationalization**: Full Arabic language support with RTL layout using Noto Sans Arabic font
 
 The frontend follows a modular component structure with:
 - Pages for different CRM sections (dashboard, leads, properties, pipeline, clients, reports)

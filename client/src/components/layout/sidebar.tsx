@@ -3,17 +3,17 @@ import { Home, Users, Building, Filter, Handshake, BarChart3, Settings, LogOut }
 import { cn } from "@/lib/utils";
 
 const navigationItems = [
-  { path: "/", label: "Dashboard", icon: Home },
-  { path: "/leads", label: "Leads", icon: Users, badge: "24" },
-  { path: "/properties", label: "Properties", icon: Building, badge: "87" },
-  { path: "/pipeline", label: "Deal Pipeline", icon: Filter },
-  { path: "/clients", label: "Client Relations", icon: Handshake },
-  { path: "/reports", label: "Reports", icon: BarChart3 },
+  { path: "/", label: "لوحة التحكم", icon: Home },
+  { path: "/leads", label: "العملاء المحتملين", icon: Users, badge: "24" },
+  { path: "/properties", label: "العقارات", icon: Building, badge: "87" },
+  { path: "/pipeline", label: "مراحل الصفقات", icon: Filter },
+  { path: "/clients", label: "علاقات العملاء", icon: Handshake },
+  { path: "/reports", label: "التقارير", icon: BarChart3 },
 ];
 
 const bottomItems = [
-  { path: "/settings", label: "Settings", icon: Settings },
-  { path: "/logout", label: "Logout", icon: LogOut },
+  { path: "/settings", label: "الإعدادات", icon: Settings },
+  { path: "/logout", label: "تسجيل الخروج", icon: LogOut },
 ];
 
 export default function Sidebar() {
@@ -26,7 +26,7 @@ export default function Sidebar() {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <Home className="text-primary-foreground text-sm" size={16} />
           </div>
-          <h1 className="text-xl font-semibold">RealEstate CRM</h1>
+          <h1 className="text-xl font-semibold">نظام إدارة العقارات</h1>
         </div>
       </div>
       
@@ -41,7 +41,7 @@ export default function Sidebar() {
                 <Link
                   href={item.path}
                   className={cn(
-                    "flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors",
+                    "flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-lg transition-colors",
                     isActive
                       ? "bg-primary text-primary-foreground"
                       : "text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -50,7 +50,7 @@ export default function Sidebar() {
                   <Icon size={20} />
                   <span>{item.label}</span>
                   {item.badge && (
-                    <span className="ml-auto bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                    <span className="mr-auto bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
                       {item.badge}
                     </span>
                   )}
@@ -69,7 +69,7 @@ export default function Sidebar() {
                 <li key={item.path}>
                   <Link
                     href={item.path}
-                    className="flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                    className="flex items-center space-x-3 space-x-reverse px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
                   >
                     <Icon size={20} />
                     <span>{item.label}</span>
