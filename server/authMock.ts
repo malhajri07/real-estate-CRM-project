@@ -1,5 +1,6 @@
 import type { Express, RequestHandler } from "express";
 import { storage } from "./storage";
+import { seedDummyData } from "./seedData";
 
 // Simple mock authentication for development
 export async function setupMockAuth(app: Express) {
@@ -24,8 +25,11 @@ export async function setupMockAuth(app: Express) {
       lastName: "تجريبي",
       profileImageUrl: null,
     });
+
+    // Add dummy data on first setup
+    await seedDummyData();
   } catch (error) {
-    console.log("Mock user already exists or creation failed");
+    console.log("Mock user already exists or creation failed", error);
   }
 }
 
