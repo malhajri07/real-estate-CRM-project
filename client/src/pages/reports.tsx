@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Download, TrendingUp, Users, Building, DollarSign, Calendar, BarChart3, PieChart } from "lucide-react";
+import { Download, TrendingUp, Users, Building, Calendar, BarChart3, PieChart } from "lucide-react";
 import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -209,7 +209,7 @@ export default function Reports() {
             value={formatCurrency(calculateTotalCommission())}
             change={`من ${filteredDeals.filter(d => d.stage === 'closed').length} صفقة مكتملة`}
             changeType="positive"
-            icon={DollarSign}
+            icon={TrendingUp}
             iconColor="bg-yellow-100 text-yellow-600"
           />
         </div>

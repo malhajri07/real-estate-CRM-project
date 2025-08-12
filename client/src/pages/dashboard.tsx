@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Users, Building, Filter, DollarSign, Plus, Home, Calendar, Download } from "lucide-react";
+import { Users, Building, Filter, Plus, Home, Calendar, Download } from "lucide-react";
 import Header from "@/components/layout/header";
 import MetricsCard from "@/components/ui/metrics-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,7 +108,7 @@ export default function Dashboard() {
             value={formatCurrency(metrics?.monthlyRevenue || 0)}
             change="24% من الشهر الماضي"
             changeType="positive"
-            icon={DollarSign}
+            icon={Building}
             iconColor="bg-yellow-100 text-yellow-600"
           />
         </div>
