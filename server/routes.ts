@@ -4,8 +4,22 @@ import { storage } from "./storage";
 import { insertLeadSchema, insertPropertySchema, insertDealSchema, insertActivitySchema, insertMessageSchema } from "@shared/schema";
 import { whatsappService } from "./whatsapp";
 import { z } from "zod";
+import { setupMockAuth, isAuthenticated } from "./authMock";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup mock authentication for development
+  await setupMockAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const user = await storage.getUser(req.user.id);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
   // Lead routes
   app.get("/api/leads", async (req, res) => {
     try {

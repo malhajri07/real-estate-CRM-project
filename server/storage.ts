@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Lead, type InsertLead, type Property, type InsertProperty, type Deal, type InsertDeal, type Activity, type InsertActivity, type Message, type InsertMessage } from "@shared/schema";
+import { type User, type InsertUser, type UpsertUser, type Lead, type InsertLead, type Property, type InsertProperty, type Deal, type InsertDeal, type Activity, type InsertActivity, type Message, type InsertMessage } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -6,6 +6,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: UpsertUser): Promise<User>;
 
   // Lead methods
   getAllLeads(): Promise<Lead[]>;
@@ -71,15 +72,38 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    // For now, return undefined since we don't have username field in User type
+    return undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
     this.users.set(id, user);
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    if (!userData.id) {
+      throw new Error("User ID is required for upsert");
+    }
+    
+    const existingUser = this.users.get(userData.id);
+    const user: User = {
+      id: userData.id,
+      email: userData.email || null,
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
+      profileImageUrl: userData.profileImageUrl || null,
+      createdAt: existingUser?.createdAt || new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(userData.id, user);
     return user;
   }
 
@@ -315,6 +339,7 @@ export class MemStorage implements IStorage {
     const message: Message = { 
       ...insertMessage, 
       id,
+      status: insertMessage.status || "pending",
       sentAt: null,
       createdAt: now
     };
