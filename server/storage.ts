@@ -1,5 +1,7 @@
-import { type User, type InsertUser, type UpsertUser, type Lead, type InsertLead, type Property, type InsertProperty, type Deal, type InsertDeal, type Activity, type InsertActivity, type Message, type InsertMessage } from "@shared/schema";
+import { type User, type InsertUser, type UpsertUser, type Lead, type InsertLead, type Property, type InsertProperty, type Deal, type InsertDeal, type Activity, type InsertActivity, type Message, type InsertMessage, users, leads, properties, deals, activities, messages } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq, ilike, or, and, gte, lt } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -81,6 +83,10 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id,
+      email: insertUser.email ?? null,
+      firstName: insertUser.firstName ?? null,
+      lastName: insertUser.lastName ?? null,
+      profileImageUrl: insertUser.profileImageUrl ?? null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -373,4 +379,248 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  // User methods
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    // For now, return undefined since we don't have username field in User type
+    return undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    if (!userData.id) {
+      throw new Error("User ID is required for upsert");
+    }
+    
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          profileImageUrl: userData.profileImageUrl,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  // Lead methods
+  async getAllLeads(): Promise<Lead[]> {
+    return await db.select().from(leads).orderBy(leads.createdAt);
+  }
+
+  async getLead(id: string): Promise<Lead | undefined> {
+    const [lead] = await db.select().from(leads).where(eq(leads.id, id));
+    return lead || undefined;
+  }
+
+  async createLead(insertLead: InsertLead): Promise<Lead> {
+    const [lead] = await db
+      .insert(leads)
+      .values(insertLead)
+      .returning();
+    return lead;
+  }
+
+  async updateLead(id: string, leadUpdate: Partial<InsertLead>): Promise<Lead | undefined> {
+    const [lead] = await db
+      .update(leads)
+      .set({ ...leadUpdate, updatedAt: new Date() })
+      .where(eq(leads.id, id))
+      .returning();
+    return lead || undefined;
+  }
+
+  async deleteLead(id: string): Promise<boolean> {
+    const result = await db.delete(leads).where(eq(leads.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async searchLeads(query: string): Promise<Lead[]> {
+    return await db.select().from(leads).where(
+      or(
+        ilike(leads.firstName, `%${query}%`),
+        ilike(leads.lastName, `%${query}%`),
+        ilike(leads.email, `%${query}%`),
+        ilike(leads.phone, `%${query}%`)
+      )
+    );
+  }
+
+  // Property methods
+  async getAllProperties(): Promise<Property[]> {
+    return await db.select().from(properties).orderBy(properties.createdAt);
+  }
+
+  async getProperty(id: string): Promise<Property | undefined> {
+    const [property] = await db.select().from(properties).where(eq(properties.id, id));
+    return property || undefined;
+  }
+
+  async createProperty(insertProperty: InsertProperty): Promise<Property> {
+    const [property] = await db
+      .insert(properties)
+      .values(insertProperty)
+      .returning();
+    return property;
+  }
+
+  async updateProperty(id: string, propertyUpdate: Partial<InsertProperty>): Promise<Property | undefined> {
+    const [property] = await db
+      .update(properties)
+      .set({ ...propertyUpdate, updatedAt: new Date() })
+      .where(eq(properties.id, id))
+      .returning();
+    return property || undefined;
+  }
+
+  async deleteProperty(id: string): Promise<boolean> {
+    const result = await db.delete(properties).where(eq(properties.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async searchProperties(query: string): Promise<Property[]> {
+    return await db.select().from(properties).where(
+      or(
+        ilike(properties.title, `%${query}%`),
+        ilike(properties.address, `%${query}%`),
+        ilike(properties.city, `%${query}%`)
+      )
+    );
+  }
+
+  // Deal methods
+  async getAllDeals(): Promise<Deal[]> {
+    return await db.select().from(deals).orderBy(deals.createdAt);
+  }
+
+  async getDeal(id: string): Promise<Deal | undefined> {
+    const [deal] = await db.select().from(deals).where(eq(deals.id, id));
+    return deal || undefined;
+  }
+
+  async createDeal(insertDeal: InsertDeal): Promise<Deal> {
+    const [deal] = await db
+      .insert(deals)
+      .values(insertDeal)
+      .returning();
+    return deal;
+  }
+
+  async updateDeal(id: string, dealUpdate: Partial<InsertDeal>): Promise<Deal | undefined> {
+    const [deal] = await db
+      .update(deals)
+      .set({ ...dealUpdate, updatedAt: new Date() })
+      .where(eq(deals.id, id))
+      .returning();
+    return deal || undefined;
+  }
+
+  async deleteDeal(id: string): Promise<boolean> {
+    const result = await db.delete(deals).where(eq(deals.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async getDealsByStage(stage: string): Promise<Deal[]> {
+    return await db.select().from(deals).where(eq(deals.stage, stage));
+  }
+
+  // Activity methods
+  async getActivitiesByLead(leadId: string): Promise<Activity[]> {
+    return await db.select().from(activities)
+      .where(eq(activities.leadId, leadId))
+      .orderBy(activities.createdAt);
+  }
+
+  async createActivity(insertActivity: InsertActivity): Promise<Activity> {
+    const [activity] = await db
+      .insert(activities)
+      .values(insertActivity)
+      .returning();
+    return activity;
+  }
+
+  async updateActivity(id: string, activityUpdate: Partial<InsertActivity>): Promise<Activity | undefined> {
+    const [activity] = await db
+      .update(activities)
+      .set(activityUpdate)
+      .where(eq(activities.id, id))
+      .returning();
+    return activity || undefined;
+  }
+
+  async deleteActivity(id: string): Promise<boolean> {
+    const result = await db.delete(activities).where(eq(activities.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async getTodaysActivities(): Promise<Activity[]> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    return await db.select().from(activities).where(
+      and(
+        gte(activities.scheduledDate, today),
+        lt(activities.scheduledDate, tomorrow)
+      )
+    );
+  }
+
+  // Message methods
+  async getMessagesByLead(leadId: string): Promise<Message[]> {
+    return await db.select().from(messages)
+      .where(eq(messages.leadId, leadId))
+      .orderBy(messages.createdAt);
+  }
+
+  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+    const [message] = await db
+      .insert(messages)
+      .values(insertMessage)
+      .returning();
+    return message;
+  }
+
+  async updateMessageStatus(id: string, status: string): Promise<Message | undefined> {
+    const [message] = await db
+      .update(messages)
+      .set({ 
+        status,
+        sentAt: status === 'sent' ? new Date() : undefined
+      })
+      .where(eq(messages.id, id))
+      .returning();
+    return message || undefined;
+  }
+
+  async getAllMessages(): Promise<Message[]> {
+    return await db.select().from(messages).orderBy(messages.createdAt);
+  }
+
+  // Notification methods (basic implementation)
+  async getNotifications(): Promise<any[]> {
+    // For now, return empty array - this will be enhanced later
+    return [];
+  }
+}
+
+export const storage = new DatabaseStorage();
