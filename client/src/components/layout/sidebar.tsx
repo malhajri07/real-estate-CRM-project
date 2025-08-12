@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, Users, Building, Filter, Handshake, BarChart3, Settings, LogOut } from "lucide-react";
+import { Home, Users, Building, Filter, Handshake, BarChart3, Bell, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigationItems = [
@@ -8,6 +8,7 @@ const navigationItems = [
   { path: "/properties", label: "العقارات", icon: Building, badge: "87" },
   { path: "/pipeline", label: "مراحل الصفقات", icon: Filter },
   { path: "/clients", label: "علاقات العملاء", icon: Handshake },
+  { path: "/notifications", label: "الإشعارات والحملات", icon: Bell },
   { path: "/reports", label: "التقارير", icon: BarChart3 },
 ];
 

@@ -10,6 +10,7 @@ import Properties from "@/pages/properties";
 import Pipeline from "@/pages/pipeline";
 import Clients from "@/pages/clients";
 import Reports from "@/pages/reports";
+import Notifications from "@/pages/notifications";
 import Sidebar from "@/components/layout/sidebar";
 
 function Router() {
@@ -24,6 +25,7 @@ function Router() {
           <Route path="/pipeline" component={Pipeline} />
           <Route path="/clients" component={Clients} />
           <Route path="/reports" component={Reports} />
+          <Route path="/notifications" component={Notifications} />
           <Route component={NotFound} />
         </Switch>
       </div>

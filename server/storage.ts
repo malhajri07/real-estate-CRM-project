@@ -43,6 +43,9 @@ export interface IStorage {
   createMessage(message: InsertMessage): Promise<Message>;
   updateMessageStatus(id: string, status: string): Promise<Message | undefined>;
   getAllMessages(): Promise<Message[]>;
+  
+  // Notification methods (basic implementation for now)
+  getNotifications(): Promise<any[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -336,6 +339,12 @@ export class MemStorage implements IStorage {
     return Array.from(this.messages.values()).sort((a, b) => 
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
+  }
+
+  // Notification methods (basic implementation)
+  async getNotifications(): Promise<any[]> {
+    // For now, return empty array - this will be enhanced later
+    return [];
   }
 }
 
