@@ -133,6 +133,11 @@ export default function Properties() {
     setCurrentPage(1);
   };
 
+  // Reset page when filters change
+  const handleFilterChange = () => {
+    setCurrentPage(1);
+  };
+
   // Get unique values for filter options
   const uniqueCities = Array.from(new Set(properties?.map(p => p.city) || []));
   const uniquePropertyTypes = Array.from(new Set(properties?.map(p => p.propertyType) || []));
@@ -219,7 +224,10 @@ export default function Properties() {
                   {/* Status Filter */}
                   <div className="space-y-2">
                     <Label>الحالة</Label>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <Select value={statusFilter} onValueChange={(value) => {
+                      setStatusFilter(value);
+                      handleFilterChange();
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="اختر الحالة" />
                       </SelectTrigger>
@@ -236,7 +244,10 @@ export default function Properties() {
                   {/* Property Type Filter */}
                   <div className="space-y-2">
                     <Label>نوع العقار</Label>
-                    <Select value={propertyTypeFilter} onValueChange={setPropertyTypeFilter}>
+                    <Select value={propertyTypeFilter} onValueChange={(value) => {
+                      setPropertyTypeFilter(value);
+                      handleFilterChange();
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="اختر النوع" />
                       </SelectTrigger>
@@ -252,7 +263,10 @@ export default function Properties() {
                   {/* City Filter */}
                   <div className="space-y-2">
                     <Label>المدينة</Label>
-                    <Select value={cityFilter} onValueChange={setCityFilter}>
+                    <Select value={cityFilter} onValueChange={(value) => {
+                      setCityFilter(value);
+                      handleFilterChange();
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="اختر المدينة" />
                       </SelectTrigger>
@@ -268,7 +282,10 @@ export default function Properties() {
                   {/* Sort By */}
                   <div className="space-y-2">
                     <Label>ترتيب حسب</Label>
-                    <Select value={sortBy} onValueChange={setSortBy}>
+                    <Select value={sortBy} onValueChange={(value) => {
+                      setSortBy(value);
+                      handleFilterChange();
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="اختر الترتيب" />
                       </SelectTrigger>
@@ -292,7 +309,10 @@ export default function Properties() {
                       type="number"
                       placeholder="0"
                       value={minPrice}
-                      onChange={(e) => setMinPrice(e.target.value)}
+                      onChange={(e) => {
+                        setMinPrice(e.target.value);
+                        handleFilterChange();
+                      }}
                     />
                   </div>
                   
@@ -302,14 +322,20 @@ export default function Properties() {
                       type="number"
                       placeholder="1000000"
                       value={maxPrice}
-                      onChange={(e) => setMaxPrice(e.target.value)}
+                      onChange={(e) => {
+                        setMaxPrice(e.target.value);
+                        handleFilterChange();
+                      }}
                     />
                   </div>
 
                   {/* Minimum Bedrooms */}
                   <div className="space-y-2">
                     <Label>الحد الأدنى للغرف</Label>
-                    <Select value={minBedrooms} onValueChange={setMinBedrooms}>
+                    <Select value={minBedrooms} onValueChange={(value) => {
+                      setMinBedrooms(value);
+                      handleFilterChange();
+                    }}>
                       <SelectTrigger>
                         <SelectValue placeholder="أي عدد" />
                       </SelectTrigger>
