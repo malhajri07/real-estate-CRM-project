@@ -27,7 +27,7 @@ export default function Properties() {
   const [cityFilter, setCityFilter] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [minBedrooms, setMinBedrooms] = useState("");
+  const [minBedrooms, setMinBedrooms] = useState("any");
   const [sortBy, setSortBy] = useState("newest");
   
   const { toast } = useToast();
@@ -85,7 +85,7 @@ export default function Properties() {
     if (maxPrice && price > parseFloat(maxPrice)) return false;
     
     // Bedrooms filter
-    if (minBedrooms && (!property.bedrooms || property.bedrooms < parseInt(minBedrooms))) return false;
+    if (minBedrooms && minBedrooms !== "any" && (!property.bedrooms || property.bedrooms < parseInt(minBedrooms))) return false;
     
     return true;
   }) || [];
@@ -128,7 +128,7 @@ export default function Properties() {
     setCityFilter("all");
     setMinPrice("");
     setMaxPrice("");
-    setMinBedrooms("");
+    setMinBedrooms("any");
     setSortBy("newest");
     setCurrentPage(1);
   };
@@ -139,8 +139,8 @@ export default function Properties() {
   };
 
   // Get unique values for filter options
-  const uniqueCities = Array.from(new Set(properties?.map(p => p.city) || []));
-  const uniquePropertyTypes = Array.from(new Set(properties?.map(p => p.propertyType) || []));
+  const uniqueCities = Array.from(new Set(properties?.map(p => p.city) || [])).filter(city => city && city.trim() !== "");
+  const uniquePropertyTypes = Array.from(new Set(properties?.map(p => p.propertyType) || [])).filter(type => type && type.trim() !== "");
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -340,7 +340,7 @@ export default function Properties() {
                         <SelectValue placeholder="أي عدد" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">أي عدد</SelectItem>
+                        <SelectItem value="any">أي عدد</SelectItem>
                         <SelectItem value="1">1+</SelectItem>
                         <SelectItem value="2">2+</SelectItem>
                         <SelectItem value="3">3+</SelectItem>
