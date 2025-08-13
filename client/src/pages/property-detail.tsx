@@ -67,10 +67,10 @@ export default function PropertyDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background w-full">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
-        <div className="flex items-center justify-between p-4 border-b">
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+        <div className="flex items-center justify-between p-4 max-w-[1600px] mx-auto">
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
@@ -97,8 +97,8 @@ export default function PropertyDetail() {
         </div>
       </div>
 
-      <main className="p-8">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <main className="p-8 max-w-full">
+        <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Property Images */}
@@ -187,12 +187,7 @@ export default function PropertyDetail() {
                         <span className="text-muted-foreground">نوع العقار</span>
                         <span>{property.propertyType}</span>
                       </div>
-                      {property.yearBuilt && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">سنة البناء</span>
-                          <span>{property.yearBuilt}</span>
-                        </div>
-                      )}
+
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">تاريخ الإضافة</span>
                         <span>{new Date(property.createdAt).toLocaleDateString('ar-SA')}</span>

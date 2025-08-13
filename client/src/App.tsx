@@ -59,14 +59,7 @@ function Router() {
               </div>
             </div>
           )} />
-          <Route path="/properties/:id" component={() => (
-            <div className="flex h-screen bg-background">
-              <Sidebar />
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <PropertyDetail />
-              </div>
-            </div>
-          )} />
+          <Route path="/properties/:id" component={PropertyDetail} />
           <Route path="/pipeline" component={() => (
             <div className="flex h-screen bg-background">
               <Sidebar />
