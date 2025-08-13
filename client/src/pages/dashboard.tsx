@@ -71,12 +71,6 @@ export default function Dashboard() {
 
   return (
     <>
-      <Header 
-        title={t('dashboard.title')} 
-        onAddClick={() => setAddLeadModalOpen(true)}
-        searchPlaceholder="البحث في العملاء المحتملين والعقارات..."
-      />
-      
       <main className="flex-1 overflow-y-auto p-8 bg-background">
         {/* Dashboard Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
