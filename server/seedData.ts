@@ -1,7 +1,24 @@
 import { storage } from "./storage";
+import { populateDatabase } from "./populateDatabase";
 
 export async function seedDummyData() {
   console.log("إضافة البيانات التجريبية...");
+  
+  try {
+    // Use the new population script for hundreds of properties
+    const result = await populateDatabase();
+    
+    console.log("✅ تم إنشاء البيانات التجريبية بنجاح:");
+    console.log(`- ${result.leads} عملاء محتملين`);
+    console.log(`- ${result.properties} عقارات`);
+    console.log(`- ${result.deals} صفقات`);
+    console.log(`- ${result.activities} أنشطة`);
+    
+    return;
+  } catch (error) {
+    console.error("خطأ في إنشاء البيانات الضخمة، التراجع للبيانات الأساسية:", error);
+    // Fall back to original smaller dataset if population fails
+  }
 
   // إنشاء العملاء المحتملين (Leads)
   const leads = [
