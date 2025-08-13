@@ -51,7 +51,9 @@ export default function Properties() {
     },
   });
 
-  const displayProperties = searchQuery.trim() ? searchResults : properties;
+  // Limit to 12 properties maximum
+  const allProperties = searchQuery.trim() ? searchResults : properties;
+  const displayProperties = allProperties?.slice(0, 12);
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -100,7 +102,10 @@ export default function Properties() {
         <Card>
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between">
-              <CardTitle>جميع العقارات ({displayProperties?.length || 0})</CardTitle>
+              <CardTitle>
+                جميع العقارات ({displayProperties?.length || 0}
+                {allProperties && allProperties.length > 12 && ` من ${allProperties.length}`})
+              </CardTitle>
               <Button onClick={() => setAddPropertyModalOpen(true)}>
                 <Plus className="ml-2" size={16} />
                 إضافة عقار
