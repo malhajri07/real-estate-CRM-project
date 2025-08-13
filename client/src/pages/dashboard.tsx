@@ -5,6 +5,7 @@ import MetricsCard from "@/components/ui/metrics-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 import AddLeadModal from "@/components/modals/add-lead-modal";
 import AddPropertyModal from "@/components/modals/add-property-modal";
@@ -13,6 +14,7 @@ import type { Lead, Activity } from "@shared/schema";
 export default function Dashboard() {
   const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
   const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false);
+  const { t, dir } = useLanguage();
 
   const { data: metrics, isLoading: metricsLoading } = useQuery<{
     totalLeads: number;
@@ -63,7 +65,7 @@ export default function Dashboard() {
   if (metricsLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">جار تحميل لوحة التحكم...</div>
+        <div className="text-slate-500">{t('dashboard.loading') || 'جار تحميل لوحة التحكم...'}</div>
       </div>
     );
   }
@@ -71,7 +73,7 @@ export default function Dashboard() {
   return (
     <>
       <Header 
-        title="لوحة التحكم" 
+        title={t('dashboard.title')} 
         onAddClick={() => setAddLeadModalOpen(true)}
         searchPlaceholder="البحث في العملاء المحتملين والعقارات..."
       />
@@ -80,7 +82,7 @@ export default function Dashboard() {
         {/* Dashboard Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricsCard
-            title="إجمالي العملاء المحتملين"
+            title={t('dashboard.total_leads')}
             value={metrics?.totalLeads || 0}
             change="12% من الشهر الماضي"
             changeType="positive"
@@ -88,7 +90,7 @@ export default function Dashboard() {
             iconColor="bg-blue-100 text-blue-600"
           />
           <MetricsCard
-            title="العقارات النشطة"
+            title={t('dashboard.active_properties')}
             value={metrics?.activeProperties || 0}
             change="8% من الشهر الماضي"
             changeType="positive"
@@ -96,7 +98,7 @@ export default function Dashboard() {
             iconColor="bg-green-100 text-green-600"
           />
           <MetricsCard
-            title="الصفقات في المراحل"
+            title={t('dashboard.deals_in_pipeline')}
             value={metrics?.dealsInPipeline || 0}
             change="2% من الشهر الماضي"
             changeType="negative"
@@ -104,7 +106,7 @@ export default function Dashboard() {
             iconColor="bg-purple-100 text-purple-600"
           />
           <MetricsCard
-            title="الإيرادات الشهرية"
+            title={t('dashboard.monthly_revenue')}
             value={formatCurrency(metrics?.monthlyRevenue || 0)}
             change="24% من الشهر الماضي"
             changeType="positive"
@@ -120,14 +122,14 @@ export default function Dashboard() {
             <Card>
               <CardHeader className="border-b border-slate-200">
                 <div className="flex items-center justify-between">
-                  <CardTitle>العملاء المحتملين الجدد</CardTitle>
-                  <Button variant="link" className="text-primary">عرض الكل</Button>
+                  <CardTitle>{t('dashboard.recent_leads')}</CardTitle>
+                  <Button variant="link" className="text-primary">{t('form.view_all') || 'عرض الكل'}</Button>
                 </div>
               </CardHeader>
               <CardContent className="p-6">
                 {recentLeads.length === 0 ? (
                   <div className="text-center py-8 text-slate-500">
-                    لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.
+                    {t('dashboard.no_leads') || 'لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.'}
                   </div>
                 ) : (
                   <div className="space-y-4">
