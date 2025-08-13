@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Trash2, Edit, Eye, Plus, Bed, Bath, Square, Filter, SlidersHorizontal } from "lucide-react";
+import { useLocation } from "wouter";
 import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export default function Properties() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
+  const [, setLocation] = useLocation();
   
   // Filter states
   const [statusFilter, setStatusFilter] = useState("all");
@@ -370,7 +372,11 @@ export default function Properties() {
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {displayProperties.map((property) => (
-                    <Card key={property.id} className="overflow-hidden border border-border rounded-2xl apple-shadow-large apple-transition hover:scale-[1.02]">
+                    <Card 
+                      key={property.id} 
+                      className="apple-card overflow-hidden apple-transition hover:scale-[1.02] cursor-pointer"
+                      onClick={() => setLocation(`/properties/${property.id}`)}
+                    >
                       {property.photoUrls && property.photoUrls.length > 0 && (
                         <div className="aspect-video overflow-hidden relative">
                           <img 
@@ -437,16 +443,30 @@ export default function Properties() {
                           </div>
                           
                           <div className="flex items-center space-x-1">
-                            <Button variant="ghost" size="sm">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLocation(`/properties/${property.id}`);
+                              }}
+                            >
                               <Eye size={16} />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               <Edit size={16} />
                             </Button>
                             <Button 
                               variant="ghost" 
                               size="sm"
-                              onClick={() => handleDelete(property.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(property.id);
+                              }}
                               disabled={deletePropertyMutation.isPending}
                             >
                               <Trash2 size={16} />

@@ -15,6 +15,7 @@ import Pipeline from "@/pages/pipeline";
 import Clients from "@/pages/clients";
 import Reports from "@/pages/reports";
 import Notifications from "@/pages/notifications";
+import PropertyDetail from "@/pages/property-detail";
 import Sidebar from "@/components/layout/sidebar";
 
 function Router() {
@@ -55,6 +56,14 @@ function Router() {
               <Sidebar />
               <div className="flex-1 flex flex-col overflow-hidden">
                 <Properties />
+              </div>
+            </div>
+          )} />
+          <Route path="/properties/:id" component={() => (
+            <div className="flex h-screen bg-background">
+              <Sidebar />
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <PropertyDetail />
               </div>
             </div>
           )} />
