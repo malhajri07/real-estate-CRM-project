@@ -74,7 +74,7 @@ export default function Dashboard() {
       <main className="flex-1 overflow-y-auto p-8 bg-background">
         {/* Dashboard Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <div className="bg-card border border-border rounded-2xl p-6 apple-shadow-large apple-transition hover:scale-[1.02]">
+          <div className="apple-card p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
                 <Users className="text-blue-600" size={20} />
@@ -85,7 +85,7 @@ export default function Dashboard() {
             <p className="text-xs text-green-600 font-medium">+12% from last month</p>
           </div>
           
-          <div className="bg-card border border-border rounded-2xl p-6 apple-shadow-large apple-transition hover:scale-[1.02]">
+          <div className="apple-card p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
                 <Building className="text-green-600" size={20} />
@@ -96,7 +96,7 @@ export default function Dashboard() {
             <p className="text-xs text-green-600 font-medium">+8% from last month</p>
           </div>
           
-          <div className="bg-card border border-border rounded-2xl p-6 apple-shadow-large apple-transition hover:scale-[1.02]">
+          <div className="apple-card p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
                 <Filter className="text-purple-600" size={20} />
@@ -107,7 +107,7 @@ export default function Dashboard() {
             <p className="text-xs text-red-600 font-medium">-2% from last month</p>
           </div>
           
-          <div className="bg-card border border-border rounded-2xl p-6 apple-shadow-large apple-transition hover:scale-[1.02]">
+          <div className="apple-card p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center">
                 <DollarSign className="text-yellow-600" size={20} />
@@ -123,8 +123,8 @@ export default function Dashboard() {
           {/* Recent Leads & Activities */}
           <div className="lg:col-span-2 space-y-8">
             {/* Recent Leads */}
-            <Card className="border border-border rounded-2xl apple-shadow-large">
-              <CardHeader className="border-b border-border p-6">
+            <Card className="apple-card">
+              <CardHeader className="p-6">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-xl font-semibold tracking-tight">{t('dashboard.recent_leads')}</CardTitle>
                   <Button variant="ghost" className="text-primary hover:bg-primary/10 rounded-xl font-medium text-sm">
@@ -166,8 +166,8 @@ export default function Dashboard() {
             </Card>
 
             {/* Deal Pipeline Overview */}
-            <Card>
-              <CardHeader className="border-b border-slate-200">
+            <Card className="apple-card">
+              <CardHeader className="p-6">
                 <CardTitle>مراحل الصفقات</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -229,8 +229,8 @@ export default function Dashboard() {
           {/* Sidebar Widgets */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <Card>
-              <CardHeader>
+            <Card className="apple-card">
+              <CardHeader className="p-6">
                 <CardTitle>إجراءات سريعة</CardTitle>
               </CardHeader>
               <CardContent>
@@ -264,8 +264,8 @@ export default function Dashboard() {
             </Card>
 
             {/* Today's Tasks */}
-            <Card>
-              <CardHeader>
+            <Card className="apple-card">
+              <CardHeader className="p-6">
                 <CardTitle>مهام اليوم</CardTitle>
               </CardHeader>
               <CardContent>

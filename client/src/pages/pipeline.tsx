@@ -102,8 +102,8 @@ export default function Pipeline() {
 
               return (
                 <div key={stage.id} className="flex flex-col">
-                  <Card className="mb-4">
-                    <CardHeader className={`${stage.color} border-b`}>
+                  <Card className="apple-card mb-4">
+                    <CardHeader className={`${stage.color} p-4`}>
                       <CardTitle className="text-center">
                         <div className="text-lg font-semibold">{stage.title}</div>
                         <div className="text-sm text-slate-600">
@@ -127,7 +127,7 @@ export default function Pipeline() {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className="cursor-move hover:shadow-md transition-shadow"
+                                className="apple-card cursor-move"
                               >
                                 <CardContent className="p-4">
                                   <div className="space-y-2">
@@ -165,7 +165,7 @@ export default function Pipeline() {
                         {provided.placeholder}
                         
                         {stageDeals.length === 0 && (
-                          <div className="text-center py-8 text-slate-400 border-2 border-dashed border-slate-200 rounded-lg">
+                          <div className="text-center py-8 text-slate-400 bg-slate-50/50 rounded-2xl">
                             No deals in this stage
                           </div>
                         )}
@@ -179,8 +179,8 @@ export default function Pipeline() {
         </DragDropContext>
 
         {/* Pipeline Statistics */}
-        <Card className="mt-8">
-          <CardHeader>
+        <Card className="apple-card mt-8">
+          <CardHeader className="p-6">
             <CardTitle>Pipeline Statistics</CardTitle>
           </CardHeader>
           <CardContent>

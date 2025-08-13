@@ -19,7 +19,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* User info header - positioned at the top without overlap */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4">
           <div className={`flex items-center ${dir === 'rtl' ? 'space-x-reverse space-x-3' : 'space-x-3'}`}>
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center">
