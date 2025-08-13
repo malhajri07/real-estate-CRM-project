@@ -15,8 +15,11 @@ import type { Property } from "@shared/schema";
 export default function Properties() {
   const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  const PROPERTIES_PER_PAGE = 12;
 
   const { data: properties, isLoading } = useQuery<Property[]>({
     queryKey: ["/api/properties"],
@@ -51,9 +54,18 @@ export default function Properties() {
     },
   });
 
-  // Limit to 12 properties maximum
+  // Pagination logic
   const allProperties = searchQuery.trim() ? searchResults : properties;
-  const displayProperties = allProperties?.slice(0, 12);
+  const totalPages = Math.ceil((allProperties?.length || 0) / PROPERTIES_PER_PAGE);
+  const startIndex = (currentPage - 1) * PROPERTIES_PER_PAGE;
+  const endIndex = startIndex + PROPERTIES_PER_PAGE;
+  const displayProperties = allProperties?.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search changes
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -94,7 +106,7 @@ export default function Properties() {
       <Header 
         title="العقارات" 
         onAddClick={() => setAddPropertyModalOpen(true)}
-        onSearch={setSearchQuery}
+        onSearch={handleSearchChange}
         searchPlaceholder="البحث في العقارات بالعنوان أو الموقع أو النوع..."
       />
       
@@ -103,8 +115,8 @@ export default function Properties() {
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between">
               <CardTitle>
-                جميع العقارات ({displayProperties?.length || 0}
-                {allProperties && allProperties.length > 12 && ` من ${allProperties.length}`})
+                جميع العقارات ({allProperties?.length || 0})
+                {totalPages > 1 && ` - صفحة ${currentPage} من ${totalPages}`}
               </CardTitle>
               <Button onClick={() => setAddPropertyModalOpen(true)}>
                 <Plus className="ml-2" size={16} />
@@ -222,6 +234,64 @@ export default function Properties() {
                     </Card>
                   ))}
                 </div>
+                
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center space-x-2 mt-8 pb-6">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="apple-transition"
+                    >
+                      السابق
+                    </Button>
+                    
+                    <div className="flex items-center space-x-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                        // Show first page, last page, current page, and pages around current
+                        const showPage = page === 1 || page === totalPages || 
+                                        Math.abs(page - currentPage) <= 1;
+                        
+                        if (!showPage) {
+                          // Show ellipsis for gaps
+                          if (page === 2 && currentPage > 4) {
+                            return <span key={page} className="px-2 text-muted-foreground">...</span>;
+                          }
+                          if (page === totalPages - 1 && currentPage < totalPages - 3) {
+                            return <span key={page} className="px-2 text-muted-foreground">...</span>;
+                          }
+                          return null;
+                        }
+                        
+                        return (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className={`w-10 h-10 apple-transition ${
+                              currentPage === page ? 'apple-gradient text-white' : ''
+                            }`}
+                          >
+                            {page}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="apple-transition"
+                    >
+                      التالي
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
