@@ -102,10 +102,10 @@ export default function Properties() {
       case "size":
         return (b.squareFeet || 0) - (a.squareFeet || 0);
       case "oldest":
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
       case "newest":
       default:
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
     }
   });
 
@@ -134,8 +134,8 @@ export default function Properties() {
   };
 
   // Get unique values for filter options
-  const uniqueCities = [...new Set(properties?.map(p => p.city) || [])];
-  const uniquePropertyTypes = [...new Set(properties?.map(p => p.propertyType) || [])];
+  const uniqueCities = Array.from(new Set(properties?.map(p => p.city) || []));
+  const uniquePropertyTypes = Array.from(new Set(properties?.map(p => p.propertyType) || []));
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {

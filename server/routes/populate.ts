@@ -25,7 +25,7 @@ router.post("/populate", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "خطأ في إنشاء البيانات",
-      error: error.message
+      error: error instanceof Error ? error.message : "Unknown error"
     });
   }
 });
