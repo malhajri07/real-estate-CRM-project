@@ -185,13 +185,15 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const now = new Date();
     const property: Property = { 
-      ...insertProperty, 
+      ...insertProperty,
       id,
       description: insertProperty.description || null,
       bedrooms: insertProperty.bedrooms || null,
       bathrooms: insertProperty.bathrooms || null,
       squareFeet: insertProperty.squareFeet || null,
-      photoUrl: insertProperty.photoUrl || null,
+      latitude: insertProperty.latitude || null,
+      longitude: insertProperty.longitude || null,
+      photoUrls: insertProperty.photoUrls || null,
       features: insertProperty.features || null,
       status: insertProperty.status || "active",
       createdAt: now,
