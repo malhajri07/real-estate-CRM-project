@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { GoogleMap } from "@/components/ui/google-map";
 import AddPropertyModal from "@/components/modals/add-property-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -123,7 +124,7 @@ export default function Properties() {
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {displayProperties.map((property) => (
-                    <Card key={property.id} className="overflow-hidden">
+                    <Card key={property.id} className="overflow-hidden border border-border rounded-2xl apple-shadow-large apple-transition hover:scale-[1.02]">
                       {property.photoUrl && (
                         <div className="aspect-video overflow-hidden">
                           <img 
@@ -133,21 +134,32 @@ export default function Properties() {
                           />
                         </div>
                       )}
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-lg text-slate-900 line-clamp-1">
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-3">
+                          <h3 className="font-semibold text-lg text-foreground line-clamp-1 tracking-tight">
                             {property.title}
                           </h3>
-                          <Badge className={getStatusBadgeColor(property.status)}>
+                          <Badge className={`${getStatusBadgeColor(property.status)} rounded-full px-3 py-1 text-xs font-medium`}>
                             {property.status}
                           </Badge>
                         </div>
                         
-                        <p className="text-slate-600 text-sm mb-2">
+                        <p className="text-muted-foreground text-sm mb-4">
                           {property.address}, {property.city}, {property.state}
                         </p>
                         
-                        <div className="flex items-center space-x-4 text-sm text-slate-500 mb-3">
+                        {/* Google Map Small Box */}
+                        <div className="mb-4">
+                          <GoogleMap
+                            address={`${property.address}, ${property.city}, ${property.state}`}
+                            latitude={property.latitude}
+                            longitude={property.longitude}
+                            className="h-32 w-full"
+                            showLink={true}
+                          />
+                        </div>
+                        
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-4">
                           {property.bedrooms && (
                             <div className="flex items-center space-x-1">
                               <Bed size={14} />

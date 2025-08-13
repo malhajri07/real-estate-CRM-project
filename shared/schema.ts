@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, decimal, timestamp, boolean, jsonb, index } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, decimal, timestamp, boolean, jsonb, index, real } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -49,6 +49,8 @@ export const properties = pgTable("properties", {
   city: text("city").notNull(),
   state: text("state").notNull(),
   zipCode: text("zip_code").notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 8 }), // Added for Google Maps integration
+  longitude: decimal("longitude", { precision: 11, scale: 8 }), // Added for Google Maps integration
   price: decimal("price", { precision: 12, scale: 2 }).notNull(),
   propertyType: text("property_type").notNull(), // house, condo, apartment, commercial
   bedrooms: integer("bedrooms"),

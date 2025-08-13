@@ -29,6 +29,8 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
       city: "",
       state: "",
       zipCode: "",
+      latitude: "",
+      longitude: "",
       price: "0",
       propertyType: "",
       bedrooms: 0,
@@ -167,6 +169,53 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                     <FormLabel>State *</FormLabel>
                     <FormControl>
                       <Input placeholder="State" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Location Coordinates for Google Maps */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-muted/20 rounded-xl border border-border">
+              <div>
+                <h3 className="text-sm font-medium text-foreground mb-3">📍 Location Coordinates (Optional)</h3>
+                <p className="text-xs text-muted-foreground mb-3">Add coordinates to display property on Google Maps</p>
+              </div>
+              <div></div>
+              <FormField
+                control={form.control}
+                name="latitude"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Latitude</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number"
+                        step="any"
+                        placeholder="e.g. 24.7136" 
+                        {...field} 
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="longitude"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Longitude</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number"
+                        step="any"
+                        placeholder="e.g. 46.6753" 
+                        {...field} 
+                        value={field.value || ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
