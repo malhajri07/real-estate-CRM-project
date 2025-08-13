@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2, Edit, Eye, Plus, Bed, Bath, Square } from "lucide-react";
+import { Trash2, Edit, Eye, Plus, Bed, Bath, Square, Filter, SlidersHorizontal } from "lucide-react";
 import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { PropertyMap } from "@/components/ui/property-map";
 import AddPropertyModal from "@/components/modals/add-property-modal";
 import { apiRequest } from "@/lib/queryClient";
@@ -16,6 +19,17 @@ export default function Properties() {
   const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Filter states
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [propertyTypeFilter, setPropertyTypeFilter] = useState("all");
+  const [cityFilter, setCityFilter] = useState("all");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [minBedrooms, setMinBedrooms] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+  
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -54,18 +68,74 @@ export default function Properties() {
     },
   });
 
+  // Apply filters and sorting
+  const filteredProperties = (searchQuery.trim() ? searchResults : properties)?.filter(property => {
+    // Status filter
+    if (statusFilter !== "all" && property.status !== statusFilter) return false;
+    
+    // Property type filter
+    if (propertyTypeFilter !== "all" && property.propertyType !== propertyTypeFilter) return false;
+    
+    // City filter
+    if (cityFilter !== "all" && property.city !== cityFilter) return false;
+    
+    // Price range filter
+    const price = parseFloat(property.price);
+    if (minPrice && price < parseFloat(minPrice)) return false;
+    if (maxPrice && price > parseFloat(maxPrice)) return false;
+    
+    // Bedrooms filter
+    if (minBedrooms && (!property.bedrooms || property.bedrooms < parseInt(minBedrooms))) return false;
+    
+    return true;
+  }) || [];
+
+  // Sort properties
+  const sortedProperties = [...filteredProperties].sort((a, b) => {
+    switch (sortBy) {
+      case "price-low":
+        return parseFloat(a.price) - parseFloat(b.price);
+      case "price-high":
+        return parseFloat(b.price) - parseFloat(a.price);
+      case "bedrooms":
+        return (b.bedrooms || 0) - (a.bedrooms || 0);
+      case "size":
+        return (b.squareFeet || 0) - (a.squareFeet || 0);
+      case "oldest":
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      case "newest":
+      default:
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
+  });
+
   // Pagination logic
-  const allProperties = searchQuery.trim() ? searchResults : properties;
+  const allProperties = sortedProperties;
   const totalPages = Math.ceil((allProperties?.length || 0) / PROPERTIES_PER_PAGE);
   const startIndex = (currentPage - 1) * PROPERTIES_PER_PAGE;
   const endIndex = startIndex + PROPERTIES_PER_PAGE;
   const displayProperties = allProperties?.slice(startIndex, endIndex);
 
-  // Reset to page 1 when search changes
+  // Reset to page 1 when search or filters change
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
     setCurrentPage(1);
   };
+
+  const resetFilters = () => {
+    setStatusFilter("all");
+    setPropertyTypeFilter("all");
+    setCityFilter("all");
+    setMinPrice("");
+    setMaxPrice("");
+    setMinBedrooms("");
+    setSortBy("newest");
+    setCurrentPage(1);
+  };
+
+  // Get unique values for filter options
+  const uniqueCities = [...new Set(properties?.map(p => p.city) || [])];
+  const uniquePropertyTypes = [...new Set(properties?.map(p => p.propertyType) || [])];
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -113,16 +183,149 @@ export default function Properties() {
       <main className="flex-1 overflow-y-auto p-6">
         <Card>
           <CardHeader className="border-b border-slate-200">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <CardTitle>
                 جميع العقارات ({allProperties?.length || 0})
                 {totalPages > 1 && ` - صفحة ${currentPage} من ${totalPages}`}
               </CardTitle>
-              <Button onClick={() => setAddPropertyModalOpen(true)}>
-                <Plus className="ml-2" size={16} />
-                إضافة عقار
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="apple-transition"
+                >
+                  <SlidersHorizontal size={16} className="ml-2" />
+                  الفلاتر
+                </Button>
+                <Button onClick={() => setAddPropertyModalOpen(true)}>
+                  <Plus className="ml-2" size={16} />
+                  إضافة عقار
+                </Button>
+              </div>
             </div>
+
+            {/* Filters Panel */}
+            {showFilters && (
+              <div className="bg-muted/20 rounded-xl p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium text-foreground">فلاتر البحث</h3>
+                  <Button variant="ghost" size="sm" onClick={resetFilters}>
+                    إعادة تعيين
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Status Filter */}
+                  <div className="space-y-2">
+                    <Label>الحالة</Label>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر الحالة" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">جميع الحالات</SelectItem>
+                        <SelectItem value="active">نشط</SelectItem>
+                        <SelectItem value="pending">معلق</SelectItem>
+                        <SelectItem value="sold">مباع</SelectItem>
+                        <SelectItem value="withdrawn">مسحوب</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Property Type Filter */}
+                  <div className="space-y-2">
+                    <Label>نوع العقار</Label>
+                    <Select value={propertyTypeFilter} onValueChange={setPropertyTypeFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر النوع" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">جميع الأنواع</SelectItem>
+                        {uniquePropertyTypes.map(type => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* City Filter */}
+                  <div className="space-y-2">
+                    <Label>المدينة</Label>
+                    <Select value={cityFilter} onValueChange={setCityFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر المدينة" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">جميع المدن</SelectItem>
+                        {uniqueCities.map(city => (
+                          <SelectItem key={city} value={city}>{city}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Sort By */}
+                  <div className="space-y-2">
+                    <Label>ترتيب حسب</Label>
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر الترتيب" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="newest">الأحدث</SelectItem>
+                        <SelectItem value="oldest">الأقدم</SelectItem>
+                        <SelectItem value="price-low">السعر (من الأقل)</SelectItem>
+                        <SelectItem value="price-high">السعر (من الأعلى)</SelectItem>
+                        <SelectItem value="bedrooms">عدد الغرف</SelectItem>
+                        <SelectItem value="size">المساحة</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Price Range */}
+                  <div className="space-y-2">
+                    <Label>السعر الأدنى</Label>
+                    <Input
+                      type="number"
+                      placeholder="0"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>السعر الأعلى</Label>
+                    <Input
+                      type="number"
+                      placeholder="1000000"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Minimum Bedrooms */}
+                  <div className="space-y-2">
+                    <Label>الحد الأدنى للغرف</Label>
+                    <Select value={minBedrooms} onValueChange={setMinBedrooms}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="أي عدد" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">أي عدد</SelectItem>
+                        <SelectItem value="1">1+</SelectItem>
+                        <SelectItem value="2">2+</SelectItem>
+                        <SelectItem value="3">3+</SelectItem>
+                        <SelectItem value="4">4+</SelectItem>
+                        <SelectItem value="5">5+</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardHeader>
           <CardContent className="p-0">
             {!displayProperties || displayProperties.length === 0 ? (
