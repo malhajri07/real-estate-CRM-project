@@ -1,6 +1,7 @@
 import { Search, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 
 interface HeaderProps {
@@ -10,8 +11,11 @@ interface HeaderProps {
   searchPlaceholder?: string;
 }
 
-export default function Header({ title, onAddClick, onSearch, searchPlaceholder = "بحث..." }: HeaderProps) {
+export default function Header({ title, onAddClick, onSearch, searchPlaceholder }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const { t } = useLanguage();
+  
+  const defaultPlaceholder = searchPlaceholder || t('form.search') || "Search...";
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -20,12 +24,13 @@ export default function Header({ title, onAddClick, onSearch, searchPlaceholder 
   };
 
   return (
-    <header className="bg-white border-b border-slate-200 px-6 py-4">
+    <header className="bg-card/95 backdrop-blur-sm border-b border-border/50 px-8 py-6 apple-shadow">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4 space-x-reverse">
-          <h2 className="text-2xl font-semibold text-slate-900">{title}</h2>
-          <div className="flex items-center space-x-2 space-x-reverse text-sm text-slate-500">
-            <span>آخر تحديث: <span>منذ دقيقتين</span></span>
+        <div className="flex items-center space-x-6 space-x-reverse">
+          <h2 className="text-3xl font-bold text-foreground tracking-tight">{title}</h2>
+          <div className="flex items-center space-x-2 space-x-reverse text-sm text-muted-foreground">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span>Live updates</span>
           </div>
         </div>
         
@@ -34,29 +39,24 @@ export default function Header({ title, onAddClick, onSearch, searchPlaceholder 
           <div className="relative">
             <Input
               type="text"
-              placeholder={searchPlaceholder}
+              placeholder={defaultPlaceholder}
               value={searchQuery}
               onChange={handleSearchChange}
-              className="w-80 pr-10"
+              className="w-80 h-10 bg-muted/30 border-border/50 rounded-xl pl-10 pr-4 text-sm font-medium apple-transition focus:bg-background focus:border-primary/50"
             />
-            <Search className="absolute right-3 top-3 text-slate-400" size={16} />
+            <Search className="absolute left-3 top-3 text-muted-foreground" size={16} />
           </div>
           
           {/* Quick Actions */}
           {onAddClick && (
-            <Button onClick={onAddClick} className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button 
+              onClick={onAddClick} 
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-4 py-2 h-10 font-medium tracking-tight apple-transition hover:scale-105 apple-shadow"
+            >
               <Plus className="ml-2" size={16} />
-              إضافة عميل محتمل
+              {t('leads.add_lead') || 'Add New Lead'}
             </Button>
           )}
-          
-          {/* Profile */}
-          <div className="flex items-center space-x-3 space-x-reverse">
-            <div className="w-8 h-8 bg-slate-300 rounded-full flex items-center justify-center">
-              <span className="text-slate-600 text-sm font-medium">س ج</span>
-            </div>
-            <span className="text-sm font-medium text-slate-700">سارة جونسون</span>
-          </div>
         </div>
       </div>
     </header>

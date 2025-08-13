@@ -27,21 +27,24 @@ export default function Sidebar() {
   const bottomItems = getBottomItems(t);
 
   return (
-    <div className="w-64 bg-sidebar text-sidebar-foreground flex-shrink-0">
-      <div className="p-6">
-        <div className={cn("flex items-center", dir === 'rtl' ? 'space-x-reverse space-x-3' : 'space-x-3')}>
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Home className="text-primary-foreground text-sm" size={16} />
+    <div className="w-72 bg-sidebar text-sidebar-foreground flex-shrink-0 apple-shadow-large border-r border-sidebar-border">
+      <div className="p-8">
+        <div className={cn("flex items-center", dir === 'rtl' ? 'space-x-reverse space-x-4' : 'space-x-4')}>
+          <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center apple-shadow">
+            <Home className="text-primary-foreground" size={20} />
           </div>
-          <h1 className="text-xl font-semibold">{t('nav.system_title') || 'Real Estate CRM'}</h1>
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">{t('nav.system_title') || 'Real Estate CRM'}</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Property Management</p>
+          </div>
         </div>
-        <div className="mt-4">
+        <div className="mt-6">
           <LanguageToggle />
         </div>
       </div>
       
-      <nav className="px-4 pb-4">
-        <ul className="space-y-2">
+      <nav className="px-6 pb-6">
+        <ul className="space-y-1">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = location === item.path;
@@ -51,17 +54,22 @@ export default function Sidebar() {
                 <Link
                   href={item.path}
                   className={cn(
-                    "flex items-center px-4 py-3 rounded-lg transition-colors",
+                    "flex items-center px-4 py-3 rounded-xl apple-transition font-medium",
                     dir === 'rtl' ? 'space-x-reverse space-x-3' : 'space-x-3',
                     isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      ? "bg-primary text-primary-foreground apple-shadow"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <Icon size={20} />
-                  <span>{t(item.labelKey)}</span>
+                  <div className={cn(
+                    "w-6 h-6 flex items-center justify-center rounded-lg",
+                    isActive ? "text-primary-foreground" : "text-muted-foreground"
+                  )}>
+                    <Icon size={18} />
+                  </div>
+                  <span className="text-sm tracking-tight">{t(item.labelKey)}</span>
                   {item.badge && (
-                    <span className={cn("bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full",
+                    <span className={cn("bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full font-medium",
                       dir === 'rtl' ? 'mr-auto' : 'ml-auto'
                     )}>
                       {item.badge}
@@ -73,8 +81,8 @@ export default function Sidebar() {
           })}
         </ul>
         
-        <div className="mt-8 pt-8 border-t border-slate-700">
-          <ul className="space-y-2">
+        <div className="mt-8 pt-6 border-t border-sidebar-border">
+          <ul className="space-y-1">
             {bottomItems.map((item) => {
               const Icon = item.icon;
               
@@ -83,12 +91,14 @@ export default function Sidebar() {
                   <Link
                     href={item.path}
                     className={cn(
-                      "flex items-center px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors",
+                      "flex items-center px-4 py-3 rounded-xl apple-transition font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                       dir === 'rtl' ? 'space-x-reverse space-x-3' : 'space-x-3'
                     )}
                   >
-                    <Icon size={20} />
-                    <span>{t(item.labelKey)}</span>
+                    <div className="w-6 h-6 flex items-center justify-center rounded-lg">
+                      <Icon size={18} />
+                    </div>
+                    <span className="text-sm tracking-tight">{t(item.labelKey)}</span>
                   </Link>
                 </li>
               );

@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { Users, Building, Filter, Plus, Home, Calendar, Download } from "lucide-react";
+import { Users, Building, Filter, Plus, Home, Calendar, Download, DollarSign } from "lucide-react";
 import Header from "@/components/layout/header";
-import MetricsCard from "@/components/ui/metrics-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -78,71 +77,82 @@ export default function Dashboard() {
         searchPlaceholder="البحث في العملاء المحتملين والعقارات..."
       />
       
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-8 bg-background">
         {/* Dashboard Metrics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <MetricsCard
-            title={t('dashboard.total_leads')}
-            value={metrics?.totalLeads || 0}
-            change="12% من الشهر الماضي"
-            changeType="positive"
-            icon={Users}
-            iconColor="bg-blue-100 text-blue-600"
-          />
-          <MetricsCard
-            title={t('dashboard.active_properties')}
-            value={metrics?.activeProperties || 0}
-            change="8% من الشهر الماضي"
-            changeType="positive"
-            icon={Building}
-            iconColor="bg-green-100 text-green-600"
-          />
-          <MetricsCard
-            title={t('dashboard.deals_in_pipeline')}
-            value={metrics?.dealsInPipeline || 0}
-            change="2% من الشهر الماضي"
-            changeType="negative"
-            icon={Filter}
-            iconColor="bg-purple-100 text-purple-600"
-          />
-          <MetricsCard
-            title={t('dashboard.monthly_revenue')}
-            value={formatCurrency(metrics?.monthlyRevenue || 0)}
-            change="24% من الشهر الماضي"
-            changeType="positive"
-            icon={Building}
-            iconColor="bg-yellow-100 text-yellow-600"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <div className="bg-card border border-border rounded-2xl p-6 apple-shadow-large apple-transition hover:scale-[1.02]">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+                <Users className="text-blue-600" size={20} />
+              </div>
+              <div className="text-2xl font-bold tracking-tight">{metrics?.totalLeads || 0}</div>
+            </div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">{t('dashboard.total_leads')}</h3>
+            <p className="text-xs text-green-600 font-medium">+12% from last month</p>
+          </div>
+          
+          <div className="bg-card border border-border rounded-2xl p-6 apple-shadow-large apple-transition hover:scale-[1.02]">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
+                <Building className="text-green-600" size={20} />
+              </div>
+              <div className="text-2xl font-bold tracking-tight">{metrics?.activeProperties || 0}</div>
+            </div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">{t('dashboard.active_properties')}</h3>
+            <p className="text-xs text-green-600 font-medium">+8% from last month</p>
+          </div>
+          
+          <div className="bg-card border border-border rounded-2xl p-6 apple-shadow-large apple-transition hover:scale-[1.02]">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
+                <Filter className="text-purple-600" size={20} />
+              </div>
+              <div className="text-2xl font-bold tracking-tight">{metrics?.dealsInPipeline || 0}</div>
+            </div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">{t('dashboard.deals_in_pipeline')}</h3>
+            <p className="text-xs text-red-600 font-medium">-2% from last month</p>
+          </div>
+          
+          <div className="bg-card border border-border rounded-2xl p-6 apple-shadow-large apple-transition hover:scale-[1.02]">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center">
+                <DollarSign className="text-yellow-600" size={20} />
+              </div>
+              <div className="text-2xl font-bold tracking-tight">{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
+            </div>
+            <h3 className="text-sm font-medium text-muted-foreground mb-1">{t('dashboard.monthly_revenue')}</h3>
+            <p className="text-xs text-green-600 font-medium">+24% from last month</p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Leads & Activities */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-8">
             {/* Recent Leads */}
-            <Card>
-              <CardHeader className="border-b border-slate-200">
+            <Card className="border border-border rounded-2xl apple-shadow-large">
+              <CardHeader className="border-b border-border p-6">
                 <div className="flex items-center justify-between">
-                  <CardTitle>{t('dashboard.recent_leads')}</CardTitle>
-                  <Button variant="link" className="text-primary">{t('form.view_all') || 'عرض الكل'}</Button>
+                  <CardTitle className="text-xl font-semibold tracking-tight">{t('dashboard.recent_leads')}</CardTitle>
+                  <Button variant="ghost" className="text-primary hover:bg-primary/10 rounded-xl font-medium text-sm">
+                    {t('form.view_all') || 'عرض الكل'}
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent className="p-6">
                 {recentLeads.length === 0 ? (
-                  <div className="text-center py-8 text-slate-500">
+                  <div className="text-center py-12 text-muted-foreground">
                     {t('dashboard.no_leads') || 'لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.'}
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {recentLeads.map((lead) => (
-                      <div key={lead.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                      <div key={lead.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl hover:bg-muted/50 apple-transition">
                         <div className="flex items-center space-x-4 space-x-reverse">
-                          <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                            <span className="text-primary-600 font-semibold">
-                              {lead.firstName[0]}{lead.lastName[0]}
-                            </span>
+                          <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
+                            {lead.firstName[0]}{lead.lastName[0]}
                           </div>
                           <div>
-                            <p className="font-medium text-slate-900">{lead.firstName} {lead.lastName}</p>
+                            <p className="font-medium text-foreground tracking-tight">{lead.firstName} {lead.lastName}</p>
                             <p className="text-sm text-slate-500">{lead.email}</p>
                           </div>
                         </div>

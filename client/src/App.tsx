@@ -35,7 +35,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={() => (
-            <div className="flex h-screen bg-slate-50">
+            <div className="flex h-screen bg-background">
               <Sidebar />
               <div className="flex-1 flex flex-col overflow-hidden">
                 <Home />
@@ -43,7 +43,7 @@ function Router() {
             </div>
           )} />
           <Route path="/leads" component={() => (
-            <div className="flex h-screen bg-slate-50">
+            <div className="flex h-screen bg-background">
               <Sidebar />
               <div className="flex-1 flex flex-col overflow-hidden">
                 <Leads />
@@ -51,7 +51,7 @@ function Router() {
             </div>
           )} />
           <Route path="/properties" component={() => (
-            <div className="flex h-screen bg-slate-50">
+            <div className="flex h-screen bg-background">
               <Sidebar />
               <div className="flex-1 flex flex-col overflow-hidden">
                 <Properties />
@@ -59,7 +59,7 @@ function Router() {
             </div>
           )} />
           <Route path="/pipeline" component={() => (
-            <div className="flex h-screen bg-slate-50">
+            <div className="flex h-screen bg-background">
               <Sidebar />
               <div className="flex-1 flex flex-col overflow-hidden">
                 <Pipeline />
@@ -67,7 +67,7 @@ function Router() {
             </div>
           )} />
           <Route path="/clients" component={() => (
-            <div className="flex h-screen bg-slate-50">
+            <div className="flex h-screen bg-background">
               <Sidebar />
               <div className="flex-1 flex flex-col overflow-hidden">
                 <Clients />
@@ -75,7 +75,7 @@ function Router() {
             </div>
           )} />
           <Route path="/reports" component={() => (
-            <div className="flex h-screen bg-slate-50">
+            <div className="flex h-screen bg-background">
               <Sidebar />
               <div className="flex-1 flex flex-col overflow-hidden">
                 <Reports />
@@ -83,7 +83,7 @@ function Router() {
             </div>
           )} />
           <Route path="/notifications" component={() => (
-            <div className="flex h-screen bg-slate-50">
+            <div className="flex h-screen bg-background">
               <Sidebar />
               <div className="flex-1 flex flex-col overflow-hidden">
                 <Notifications />

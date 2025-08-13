@@ -79,6 +79,8 @@ const translations = {
     'form.delete': 'حذف',
     'form.add': 'إضافة',
     'form.required': 'مطلوب',
+    'form.search': 'البحث...',
+    'form.view_all': 'عرض الكل',
     
     // Status values
     'status.new': 'جديد',
@@ -190,6 +192,8 @@ const translations = {
     'form.delete': 'Delete',
     'form.add': 'Add',
     'form.required': 'Required',
+    'form.search': 'Search...',
+    'form.view_all': 'View All',
     
     // Status values
     'status.new': 'New',

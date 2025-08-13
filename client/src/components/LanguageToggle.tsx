@@ -11,14 +11,14 @@ export function LanguageToggle() {
 
   return (
     <Button 
-      variant="ghost" 
+      variant="outline" 
       size="sm" 
       onClick={toggleLanguage}
-      className="flex items-center gap-2"
+      className="flex items-center gap-2 h-9 px-3 bg-sidebar-accent hover:bg-sidebar-accent/80 border-sidebar-border apple-transition rounded-xl"
       data-testid="language-toggle"
     >
       <Globe className="h-4 w-4" />
-      <span className="text-sm">
+      <span className="text-xs font-medium tracking-tight">
         {language === 'ar' ? t('language.english') : t('language.arabic')}
       </span>
     </Button>
