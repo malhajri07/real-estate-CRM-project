@@ -10,17 +10,6 @@ interface GoogleMapProps {
 }
 
 export function GoogleMap({ address, latitude, longitude, className = "", showLink = true }: GoogleMapProps) {
-  // Create Google Maps URL for embedding
-  const getMapUrl = () => {
-    if (latitude && longitude) {
-      return `https://www.google.com/maps/embed/v1/view?key=YOUR_API_KEY&center=${latitude},${longitude}&zoom=15`;
-    } else if (address) {
-      const encodedAddress = encodeURIComponent(address);
-      return `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodedAddress}`;
-    }
-    return null;
-  };
-
   // Create Google Maps link for opening in new tab
   const getMapLink = () => {
     if (latitude && longitude) {
@@ -32,10 +21,21 @@ export function GoogleMap({ address, latitude, longitude, className = "", showLi
     return null;
   };
 
-  const mapUrl = getMapUrl();
-  const mapLink = getMapLink();
+  // Create embedded map URL using Google Maps Embed (no API key needed for basic embedding)
+  const getEmbedUrl = () => {
+    if (latitude && longitude) {
+      return `https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3000!2d${longitude}!3d${latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2s!4v1234567890!5m2!1sen!2s`;
+    } else if (address) {
+      const encodedAddress = encodeURIComponent(address);
+      return `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d0!3d0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s${encodedAddress}!5e0!3m2!1sen!2s!4v1234567890!5m2!1sen!2s`;
+    }
+    return null;
+  };
 
-  if (!mapUrl) {
+  const mapLink = getMapLink();
+  const embedUrl = getEmbedUrl();
+
+  if (!embedUrl) {
     return (
       <div className={`bg-muted/30 rounded-xl border border-border flex items-center justify-center p-4 ${className}`}>
         <div className="text-center text-muted-foreground">
@@ -48,11 +48,90 @@ export function GoogleMap({ address, latitude, longitude, className = "", showLi
 
   return (
     <div className={`relative rounded-xl overflow-hidden border border-border ${className}`}>
-      {/* Fallback static map preview */}
-      <div className="bg-gradient-to-br from-blue-50 to-green-50 h-full flex items-center justify-center">
+      {/* Embedded Google Map iframe */}
+      <iframe
+        src={embedUrl}
+        className="w-full h-full"
+        style={{ border: 0 }}
+        allowFullScreen
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title="Property Location Map"
+      />
+      
+      {/* Open in Google Maps link */}
+      {showLink && mapLink && (
+        <div className="absolute top-2 right-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 w-8 p-0 bg-background/90 hover:bg-background border-border/50 rounded-lg apple-shadow"
+            onClick={() => window.open(mapLink, '_blank')}
+            data-testid="button-open-map"
+          >
+            <ExternalLink size={14} />
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Enhanced Google Map component with better embed URLs
+export function StaticGoogleMap({ address, latitude, longitude, className = "", showLink = true }: GoogleMapProps) {
+  const getStaticMapUrl = () => {
+    if (latitude && longitude) {
+      // Using Google Static Maps API (no key needed for basic usage)
+      return `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=15&size=400x300&maptype=roadmap&markers=color:red%7C${latitude},${longitude}`;
+    }
+    return null;
+  };
+
+  const getMapLink = () => {
+    if (latitude && longitude) {
+      return `https://www.google.com/maps?q=${latitude},${longitude}`;
+    } else if (address) {
+      const encodedAddress = encodeURIComponent(address);
+      return `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+    }
+    return null;
+  };
+
+  const staticMapUrl = getStaticMapUrl();
+  const mapLink = getMapLink();
+
+  if (!staticMapUrl && !address) {
+    return (
+      <div className={`bg-muted/30 rounded-xl border border-border flex items-center justify-center p-4 ${className}`}>
+        <div className="text-center text-muted-foreground">
+          <MapPin className="mx-auto mb-2" size={24} />
+          <p className="text-sm">No location data available</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`relative rounded-xl overflow-hidden border border-border ${className}`}>
+      {staticMapUrl ? (
+        <img 
+          src={staticMapUrl} 
+          alt="Property location map"
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            // Fallback to address display if image fails
+            e.currentTarget.style.display = 'none';
+            const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+            if (fallback) fallback.style.display = 'flex';
+          }}
+        />
+      ) : null}
+      
+      {/* Fallback display */}
+      <div className="bg-gradient-to-br from-blue-50 to-green-50 h-full flex items-center justify-center" style={{ display: staticMapUrl ? 'none' : 'flex' }}>
         <div className="text-center text-muted-foreground">
           <MapPin className="mx-auto mb-2 text-primary" size={24} />
-          <p className="text-sm font-medium">Map Preview</p>
+          <p className="text-sm font-medium">Map Location</p>
           <p className="text-xs text-muted-foreground mt-1">
             {address || `${latitude}, ${longitude}`}
           </p>
@@ -65,55 +144,8 @@ export function GoogleMap({ address, latitude, longitude, className = "", showLi
           <Button
             variant="outline"
             size="sm"
-            className="h-8 w-8 p-0 bg-background/90 hover:bg-background border-border/50 rounded-lg"
+            className="h-8 w-8 p-0 bg-background/90 hover:bg-background border-border/50 rounded-lg apple-shadow"
             onClick={() => window.open(mapLink, '_blank')}
-            data-testid="button-open-map"
-          >
-            <ExternalLink size={14} />
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// For properties with full Google Maps API integration (when API key is provided)
-interface InteractiveMapProps extends GoogleMapProps {
-  apiKey?: string;
-}
-
-export function InteractiveMap({ address, latitude, longitude, className = "", showLink = true, apiKey }: InteractiveMapProps) {
-  if (!apiKey) {
-    return <GoogleMap address={address} latitude={latitude} longitude={longitude} className={className} showLink={showLink} />;
-  }
-
-  const mapUrl = latitude && longitude 
-    ? `https://www.google.com/maps/embed/v1/view?key=${apiKey}&center=${latitude},${longitude}&zoom=15`
-    : `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(address || '')}`;
-
-  return (
-    <div className={`relative rounded-xl overflow-hidden border border-border ${className}`}>
-      <iframe
-        src={mapUrl}
-        className="w-full h-full"
-        style={{ border: 0 }}
-        allowFullScreen
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-      />
-      
-      {showLink && (
-        <div className="absolute top-2 right-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 w-8 p-0 bg-background/90 hover:bg-background border-border/50 rounded-lg"
-            onClick={() => {
-              const link = latitude && longitude 
-                ? `https://www.google.com/maps?q=${latitude},${longitude}`
-                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address || '')}`;
-              window.open(link, '_blank');
-            }}
             data-testid="button-open-map"
           >
             <ExternalLink size={14} />
