@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2, Edit, Eye, Plus, MessageCircle } from "lucide-react";
+import { Trash2, Edit, Eye, Plus, MessageCircle, Upload } from "lucide-react";
 import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AddLeadModal from "@/components/modals/add-lead-modal";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
+import { CSVUploader } from "@/components/CSVUploader";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Lead } from "@shared/schema";
+import type { UploadResult } from "@uppy/core";
 
 export default function Leads() {
   const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
@@ -52,6 +54,80 @@ export default function Leads() {
       });
     },
   });
+
+  const csvProcessMutation = useMutation({
+    mutationFn: async (csvUrl: string) => {
+      const response = await fetch('/api/csv/process-leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ csvUrl }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'خطأ في معالجة ملف CSV');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
+      
+      if (data.results.errors.length > 0) {
+        toast({
+          title: "تم بنجاح مع أخطاء",
+          description: `${data.message}. تحقق من السجلات للتفاصيل.`,
+          variant: "default"
+        });
+        console.log("CSV Processing Errors:", data.results.errors);
+      } else {
+        toast({
+          title: "نجح",
+          description: data.message
+        });
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: "خطأ",
+        description: error instanceof Error ? error.message : "خطأ في رفع ملف CSV",
+        variant: "destructive"
+      });
+    },
+  });
+
+  const handleCSVUploadComplete = (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadedFile = result.successful[0];
+      const csvUrl = uploadedFile.uploadURL;
+      
+      if (csvUrl) {
+        csvProcessMutation.mutate(csvUrl);
+      }
+    }
+  };
+
+  const handleGetUploadParameters = async () => {
+    const response = await fetch('/api/csv/upload-url', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('خطأ في الحصول على رابط الرفع');
+    }
+    
+    const data = await response.json();
+    return {
+      method: 'PUT' as const,
+      url: data.uploadURL,
+    };
+  };
 
   const displayLeads = searchQuery.trim() ? searchResults : leads;
 
@@ -145,6 +221,14 @@ export default function Leads() {
             <div className="flex items-center justify-between">
               <CardTitle>جميع العملاء المحتملين ({displayLeads?.length || 0})</CardTitle>
               <div className="flex items-center space-x-2 space-x-reverse">
+                <CSVUploader
+                  onGetUploadParameters={handleGetUploadParameters}
+                  onComplete={handleCSVUploadComplete}
+                  buttonClassName="bg-green-600 hover:bg-green-700"
+                >
+                  <Upload className="ml-2" size={16} />
+                  رفع ملف CSV
+                </CSVUploader>
                 <Button variant="outline" onClick={exportLeads}>
                   تصدير CSV
                 </Button>
@@ -154,6 +238,14 @@ export default function Leads() {
                 </Button>
               </div>
             </div>
+            {csvProcessMutation.isPending && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center text-blue-700">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700 ml-2"></div>
+                  جار معالجة ملف CSV... يرجى الانتظار
+                </div>
+              </div>
+            )}
           </CardHeader>
           <CardContent className="p-0">
             {!displayLeads || displayLeads.length === 0 ? (
