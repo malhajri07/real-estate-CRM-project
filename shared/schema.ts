@@ -57,7 +57,7 @@ export const properties = pgTable("properties", {
   bathrooms: decimal("bathrooms", { precision: 3, scale: 1 }),
   squareFeet: integer("square_feet"),
   status: text("status").notNull().default("active"), // active, pending, sold, withdrawn
-  photoUrl: text("photo_url"),
+  photoUrls: text("photo_urls").array(), // Support up to 10 photos per property
   features: text("features").array(),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),

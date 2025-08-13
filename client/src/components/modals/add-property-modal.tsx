@@ -37,7 +37,7 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
       bathrooms: "0",
       squareFeet: 0,
       status: "active",
-      photoUrl: "",
+      photoUrls: [],
       features: [],
     },
   });
@@ -312,12 +312,53 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
               />
               <FormField
                 control={form.control}
-                name="photoUrl"
+                name="photoUrls"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Photo URL</FormLabel>
+                    <FormLabel>Photo URLs (Max 10)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Property photo URL" {...field} value={field.value || ""} />
+                      <div className="space-y-3">
+                        {(field.value || []).map((url: string, index: number) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <Input
+                              placeholder={`Photo URL ${index + 1}`}
+                              value={url}
+                              onChange={(e) => {
+                                const newUrls = [...(field.value || [])];
+                                newUrls[index] = e.target.value;
+                                field.onChange(newUrls);
+                              }}
+                              className="flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const newUrls = (field.value || []).filter((_: any, i: number) => i !== index);
+                                field.onChange(newUrls);
+                              }}
+                              className="h-10 w-10 p-0"
+                            >
+                              ×
+                            </Button>
+                          </div>
+                        ))}
+                        {(!field.value || field.value.length < 10) && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const newUrls = [...(field.value || []), ""];
+                              field.onChange(newUrls);
+                            }}
+                            className="w-full"
+                          >
+                            + Add Photo URL ({(field.value || []).length}/10)
+                          </Button>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

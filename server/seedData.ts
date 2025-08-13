@@ -112,7 +112,11 @@ export async function seedDummyData() {
       bathrooms: "2.5",
       squareFeet: 180,
       status: "active",
-      photoUrl: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+      photoUrls: [
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7",
+        "https://images.unsplash.com/photo-1615873968403-89e068629265"
+      ],
       features: ["موقف سيارات", "مصعد", "حمام سباحة", "صالة رياضية", "حديقة"]
     },
     {
@@ -130,7 +134,11 @@ export async function seedDummyData() {
       bathrooms: "4.0",
       squareFeet: 400,
       status: "active",
-      photoUrl: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9",
+      photoUrls: [
+        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9",
+        "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
+        "https://images.unsplash.com/photo-1505843513577-22bb7d21e455"
+      ],
       features: ["مسبح خاص", "حديقة", "غرفة خادمة", "مجلس", "صالة طعام", "مطبخ مجهز"]
     },
     {
@@ -148,7 +156,10 @@ export async function seedDummyData() {
       bathrooms: "3.0",
       squareFeet: 220,
       status: "pending",
-      photoUrl: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750",
+      photoUrls: [
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750",
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688"
+      ],
       features: ["إطلالة بحرية", "قريب من المولات", "موقف مظلل", "أمن وحراسة"]
     },
     {
@@ -166,7 +177,10 @@ export async function seedDummyData() {
       bathrooms: "2.0",
       squareFeet: 150,
       status: "active",
-      photoUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c",
+      photoUrls: [
+        "https://images.unsplash.com/photo-1497366216548-37526070297c",
+        "https://images.unsplash.com/photo-1497366811353-6870744d04b2"
+      ],
       features: ["مصاعد حديثة", "موقف مخصص", "قاعة اجتماعات", "استقبال"]
     },
     {
@@ -184,7 +198,10 @@ export async function seedDummyData() {
       bathrooms: "3.0",
       squareFeet: 300,
       status: "active",
-      photoUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+      photoUrls: [
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+        "https://images.unsplash.com/photo-1449824913935-59a10b8d2000"
+      ],
       features: ["إطلالة جبلية", "مسبح", "شواء", "حديقة واسعة", "هواء نقي"]
     },
     {
@@ -202,7 +219,9 @@ export async function seedDummyData() {
       bathrooms: "2.0",
       squareFeet: 120,
       status: "active",
-      photoUrl: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
+      photoUrls: [
+        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267"
+      ],
       features: ["مفروشة", "مطبخ مجهز", "إنترنت مجاني", "كهرباء مدفوعة"]
     }
   ];

@@ -125,13 +125,18 @@ export default function Properties() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {displayProperties.map((property) => (
                     <Card key={property.id} className="overflow-hidden border border-border rounded-2xl apple-shadow-large apple-transition hover:scale-[1.02]">
-                      {property.photoUrl && (
-                        <div className="aspect-video overflow-hidden">
+                      {property.photoUrls && property.photoUrls.length > 0 && (
+                        <div className="aspect-video overflow-hidden relative">
                           <img 
-                            src={property.photoUrl} 
+                            src={property.photoUrls[0]} 
                             alt={property.title}
                             className="w-full h-full object-cover hover:scale-105 transition-transform"
                           />
+                          {property.photoUrls.length > 1 && (
+                            <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded-md text-xs font-medium">
+                              +{property.photoUrls.length - 1} more
+                            </div>
+                          )}
                         </div>
                       )}
                       <CardContent className="p-6">
