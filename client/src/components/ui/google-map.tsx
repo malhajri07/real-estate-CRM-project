@@ -21,10 +21,11 @@ export function GoogleMap({ address, latitude, longitude, className = "", showLi
     return null;
   };
 
-  // Create embedded map URL using Google Maps Embed (no API key needed for basic embedding)
+  // Create embedded map URL with location marker
   const getEmbedUrl = () => {
     if (latitude && longitude) {
-      return `https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3000!2d${longitude}!3d${latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2s!4v1234567890!5m2!1sen!2s`;
+      // Create Google Maps embed URL with marker at the specific coordinates
+      return `https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1500!2d${longitude}!3d${latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zJTI3${latitude}%2C${longitude}!5e0!3m2!1sen!2s!4v1234567890!5m2!1sen!2s`;
     } else if (address) {
       const encodedAddress = encodeURIComponent(address);
       return `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d0!3d0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s${encodedAddress}!5e0!3m2!1sen!2s!4v1234567890!5m2!1sen!2s`;
@@ -81,8 +82,8 @@ export function GoogleMap({ address, latitude, longitude, className = "", showLi
 export function StaticGoogleMap({ address, latitude, longitude, className = "", showLink = true }: GoogleMapProps) {
   const getStaticMapUrl = () => {
     if (latitude && longitude) {
-      // Using Google Static Maps API (no key needed for basic usage)
-      return `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=15&size=400x300&maptype=roadmap&markers=color:red%7C${latitude},${longitude}`;
+      // Using Google Static Maps API with custom red marker
+      return `https://maps.googleapis.com/maps/api/staticmap?center=${latitude},${longitude}&zoom=16&size=400x300&maptype=roadmap&markers=color:red%7Csize:mid%7C${latitude},${longitude}&style=feature:poi%7Cvisibility:off`;
     }
     return null;
   };

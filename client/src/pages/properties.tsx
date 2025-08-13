@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { GoogleMap } from "@/components/ui/google-map";
+import { PropertyMap } from "@/components/ui/property-map";
 import AddPropertyModal from "@/components/modals/add-property-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -148,12 +148,12 @@ export default function Properties() {
                           {property.address}, {property.city}, {property.state}
                         </p>
                         
-                        {/* Google Map Small Box */}
+                        {/* Property Location Map with Marker */}
                         <div className="mb-4">
-                          <GoogleMap
+                          <PropertyMap
                             address={`${property.address}, ${property.city}, ${property.state}`}
-                            latitude={property.latitude}
-                            longitude={property.longitude}
+                            latitude={property.latitude ? parseFloat(property.latitude) : undefined}
+                            longitude={property.longitude ? parseFloat(property.longitude) : undefined}
                             className="h-32 w-full"
                             showLink={true}
                           />
