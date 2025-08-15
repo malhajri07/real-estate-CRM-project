@@ -36,58 +36,58 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={() => (
-            <div className="flex h-screen bg-background">
+            <div className="flex min-h-screen bg-background">
               <Sidebar />
-              <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 flex flex-col">
                 <Home />
               </div>
             </div>
           )} />
           <Route path="/leads" component={() => (
-            <div className="flex h-screen bg-background">
+            <div className="flex min-h-screen bg-background">
               <Sidebar />
-              <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 flex flex-col">
                 <Leads />
               </div>
             </div>
           )} />
           <Route path="/properties" component={() => (
-            <div className="flex h-screen bg-background">
+            <div className="flex min-h-screen bg-background">
               <Sidebar />
-              <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 flex flex-col">
                 <Properties />
               </div>
             </div>
           )} />
           <Route path="/properties/:id" component={PropertyDetail} />
           <Route path="/pipeline" component={() => (
-            <div className="flex h-screen bg-background">
+            <div className="flex min-h-screen bg-background">
               <Sidebar />
-              <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 flex flex-col">
                 <Pipeline />
               </div>
             </div>
           )} />
           <Route path="/clients" component={() => (
-            <div className="flex h-screen bg-background">
+            <div className="flex min-h-screen bg-background">
               <Sidebar />
-              <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 flex flex-col">
                 <Clients />
               </div>
             </div>
           )} />
           <Route path="/reports" component={() => (
-            <div className="flex h-screen bg-background">
+            <div className="flex min-h-screen bg-background">
               <Sidebar />
-              <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 flex flex-col">
                 <Reports />
               </div>
             </div>
           )} />
           <Route path="/notifications" component={() => (
-            <div className="flex h-screen bg-background">
+            <div className="flex min-h-screen bg-background">
               <Sidebar />
-              <div className="flex-1 flex flex-col overflow-hidden">
+              <div className="flex-1 flex flex-col">
                 <Notifications />
               </div>
             </div>
