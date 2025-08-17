@@ -269,11 +269,15 @@ export async function populateDatabase() {
       const propertyType = getRandomElement(propertyTypes);
       const status = getRandomElement(statuses);
       const coords = getRandomCoordinates(city);
-      const photoSet = getRandomElement(photoSets);
+      // Generate photos - 10 random properties will have no images for testing
+      let selectedPhotos: string[] = [];
+      const shouldHavePhotos = i >= 10; // First 10 properties will have no photos
       
-      // Ensure at least 3 photos, randomly select 3-5 photos from the set
-      const numPhotos = getRandomNumber(3, Math.min(5, photoSet.length));
-      const selectedPhotos = photoSet.slice(0, numPhotos);
+      if (shouldHavePhotos) {
+        const photoSet = getRandomElement(photoSets);
+        const numPhotos = getRandomNumber(3, Math.min(5, photoSet.length));
+        selectedPhotos = photoSet.slice(0, numPhotos);
+      }
       
       const propertyData = {
         title: `${getRandomElement(propertyTitles)} ${city}`,
@@ -290,7 +294,7 @@ export async function populateDatabase() {
         bathrooms: getRandomNumber(1, 4).toString() + (Math.random() > 0.5 ? ".5" : ".0"),
         squareFeet: getRandomNumber(80, 500),
         status: status,
-        photoUrls: selectedPhotos,
+        photoUrls: selectedPhotos.length > 0 ? selectedPhotos : null,
         features: getRandomElement(features)
       };
 
