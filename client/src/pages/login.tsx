@@ -48,7 +48,7 @@ export default function Login({ onLogin }: LoginProps) {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-slate-900">
-            نظام إدارة العقارات
+            برنامج عقاراتي
           </CardTitle>
           <p className="text-slate-600 mt-2">
             الرجاء تسجيل الدخول للوصول إلى لوحة التحكم
