@@ -167,19 +167,63 @@ export async function populateDatabase() {
     const createdProperties = [];
     const createdLeads = [];
 
-    // Create leads first
+    // Create realistic Arabic names and data
+    const arabicFirstNames = [
+      "محمد", "أحمد", "عبدالله", "فيصل", "خالد", "سعد", "عبدالرحمن", "يوسف", "عبدالعزيز", "بندر",
+      "فاطمة", "عائشة", "خديجة", "سارة", "نورا", "هدى", "مريم", "زينب", "رقية", "منى",
+      "عبدالإله", "طلال", "مساعد", "ناصر", "عمر", "علي", "إبراهيم", "عثمان", "صالح", "حسام",
+      "نوف", "رهف", "غدير", "لمى", "أمل", "ريم", "دانة", "شهد", "جود", "رغد",
+      "تركي", "عبدالملك", "فهد", "عادل", "ماجد", "رائد", "وليد", "محسن", "هشام", "كريم"
+    ];
+    
+    const arabicLastNames = [
+      "العتيبي", "الحربي", "القحطاني", "الدوسري", "الشمري", "العنزي", "الرشيد", "الغامدي", "المالكي", "الزهراني",
+      "السعد", "الأحمد", "المطيري", "الشهري", "العلي", "البقمي", "الجهني", "الثقفي", "الحازمي", "الصاعدي",
+      "المحمدي", "السلمي", "الحسيني", "الفهد", "الراشد", "العريفي", "الخثعمي", "البيشي", "الحمداني", "النجار",
+      "الصالح", "الحمود", "السديري", "الخالدي", "الفيصل", "النصار", "الحليسي", "الشريف", "البدري", "الكثيري",
+      "العوفي", "الرويلي", "المنصور", "الطويرقي", "الحمراني", "الدعجاني", "العايد", "البراك", "الشهواني", "الوهيبي"
+    ];
+    
+    const emailDomains = [
+      "gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "icloud.com",
+      "stc.com.sa", "mobily.com.sa", "zain.sa", "aramco.com", "sabic.com",
+      "ksu.edu.sa", "kau.edu.sa", "kfupm.edu.sa", "realestate.sa", "saudipost.com.sa"
+    ];
+
     console.log("👥 إنشاء العملاء المحتملين...");
     for (let i = 0; i < 50; i++) {
+      const firstName = getRandomElement(arabicFirstNames);
+      const lastName = getRandomElement(arabicLastNames);
+      const emailDomain = getRandomElement(emailDomains);
+      const emailPrefix = firstName.toLowerCase().replace(/[أإآ]/g, 'a').replace(/[ة]/g, 'h') + '.' + lastName.toLowerCase().replace(/ال/g, '').replace(/[أإآ]/g, 'a').replace(/[ة]/g, 'h');
+      
       const leadData = {
-        firstName: `عميل ${i + 1}`,
-        lastName: `الاختبار`,
-        email: `lead${i + 1}@example.com`,
-        phone: `+966${getRandomNumber(50, 59)}${getRandomNumber(1000000, 9999999)}`,
-        leadSource: getRandomElement(["موقع الكتروني", "إعلان", "إحالة", "وسائل التواصل"]),
-        interestType: getRandomElement(["شراء", "بيع"]),
-        budgetRange: getRandomElement(["100k-300k", "300k-500k", "500k-1M", "1M+"]),
-        status: getRandomElement(["new", "qualified", "showing", "negotiation"]),
-        notes: `ملاحظات العميل ${i + 1}`
+        firstName: firstName,
+        lastName: lastName,
+        email: `${emailPrefix}@${emailDomain}`,
+        phone: `966${getRandomNumber(50, 59)}${getRandomNumber(1000000, 9999999)}`,
+        leadSource: getRandomElement(["موقع الكتروني", "إعلان", "إحالة", "وسائل التواصل", "Facebook", "Instagram", "WhatsApp", "Google"]),
+        interestType: getRandomElement(["شراء", "بيع", "إيجار", "استثمار"]),
+        budgetRange: getRandomElement([
+          "300,000 - 500,000 ﷼",
+          "500,000 - 800,000 ﷼", 
+          "800,000 - 1,200,000 ﷼",
+          "1,200,000 - 1,500,000 ﷼",
+          "1,500,000 - 2,000,000 ﷼",
+          "2,000,000+ ﷼",
+          "3,000 - 5,000 ﷼ شهرياً",
+          "5,000 - 8,000 ﷼ شهرياً"
+        ]),
+        status: getRandomElement(["new", "qualified", "showing", "negotiation", "closed", "lost"]),
+        notes: `عميل ${firstName} ${lastName} - ${getRandomElement([
+          "مهتم بالعقارات في الرياض",
+          "يبحث عن فيلا للعائلة",
+          "مستثمر يريد عقارات تجارية", 
+          "يفضل الأحياء الراقية",
+          "عميل جاد ومتابع",
+          "لديه ميزانية محددة",
+          "يريد عقار جاهز للسكن"
+        ])}`
       };
 
       const [lead] = await db.insert(leads).values(leadData).returning();
