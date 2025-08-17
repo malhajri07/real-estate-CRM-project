@@ -27,8 +27,8 @@ export async function setupMockAuth(app: Express) {
     });
 
     // Add dummy data on first setup - temporarily disabled for debugging
-    console.log("Skipping dummy data creation temporarily for debugging");
-    // await seedDummyData();
+    // Create dummy data with Arabic content and English numbers
+    await seedDummyData();
   } catch (error) {
     console.log("Mock user already exists or creation failed", error);
   }

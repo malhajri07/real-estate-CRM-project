@@ -213,7 +213,7 @@ export default function Notifications() {
                                 <div className="flex items-center space-x-4 text-xs text-slate-500">
                                   <span>{lead.interestType || 'غير محدد'}</span>
                                   <span>{lead.budgetRange || 'غير محدد'}</span>
-                                  <span>تاريخ الإنشاء: {new Date(lead.createdAt).toLocaleDateString('ar-SA')}</span>
+                                  <span>تاريخ الإنشاء: {new Date(lead.createdAt).toLocaleDateString('en-US')}</span>
                                 </div>
                               </div>
                             </div>

@@ -25,7 +25,7 @@ export default function PropertyDetail() {
 
   const formatCurrency = (amount: string | number) => {
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return new Intl.NumberFormat('ar-SA', {
+    return new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(numAmount) + ' ريال';
@@ -188,11 +188,11 @@ export default function PropertyDetail() {
 
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">تاريخ الإضافة</span>
-                        <span>{new Date(property.createdAt).toLocaleDateString('ar-SA')}</span>
+                        <span>{new Date(property.createdAt).toLocaleDateString('en-US')}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">آخر تحديث</span>
-                        <span>{new Date(property.updatedAt).toLocaleDateString('ar-SA')}</span>
+                        <span>{new Date(property.updatedAt).toLocaleDateString('en-US')}</span>
                       </div>
                     </div>
                   </div>
