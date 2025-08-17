@@ -85,6 +85,15 @@ The database schema includes:
 - Updated application theme to match AQARATY logo colors (green primary colors)
 - Integrated company logo throughout the interface (login page and sidebar)
 
+**Complete Arabic Localization (August 17, 2025):**
+- Removed English language toggle and simplified system to Arabic-only
+- Eliminated all bilingual support for streamlined Arabic user experience
+- Replaced all dollar signs ($) with Saudi Riyal (ريال) currency formatting
+- Translated all status labels (new→جديد, qualified→مؤهل, showing→معاينة, negotiation→تفاوض, closed→مغلق, lost→مفقود)
+- Translated all interest type labels (buying→شراء, selling→بيع, renting→إيجار, investment→استثمار)
+- Updated currency formatting to use Arabic locale (ar-SA) with ريال suffix throughout application
+- System now exclusively displays in Arabic with proper RTL layout and Saudi market formatting
+
 ## External Dependencies
 
 ### Frontend Dependencies
