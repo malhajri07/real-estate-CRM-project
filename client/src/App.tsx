@@ -60,7 +60,7 @@ function Router() {
       <Route path="/" component={() => (
         <div className="min-h-screen bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="ml-72 flex flex-col">
+          <div className="mr-72 flex flex-col">
             <Dashboard />
           </div>
         </div>
@@ -68,7 +68,7 @@ function Router() {
       <Route path="/leads" component={() => (
         <div className="min-h-screen bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="ml-72 flex flex-col">
+          <div className="mr-72 flex flex-col">
             <Leads />
           </div>
         </div>
@@ -76,7 +76,7 @@ function Router() {
       <Route path="/properties" component={() => (
         <div className="min-h-screen bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="ml-72 flex flex-col">
+          <div className="mr-72 flex flex-col">
             <Properties />
           </div>
         </div>
@@ -85,7 +85,7 @@ function Router() {
       <Route path="/pipeline" component={() => (
         <div className="min-h-screen bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="ml-72 flex flex-col">
+          <div className="mr-72 flex flex-col">
             <Pipeline />
           </div>
         </div>
@@ -93,7 +93,7 @@ function Router() {
       <Route path="/clients" component={() => (
         <div className="min-h-screen bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="ml-72 flex flex-col">
+          <div className="mr-72 flex flex-col">
             <Clients />
           </div>
         </div>
@@ -101,7 +101,7 @@ function Router() {
       <Route path="/reports" component={() => (
         <div className="min-h-screen bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="ml-72 flex flex-col">
+          <div className="mr-72 flex flex-col">
             <Reports />
           </div>
         </div>
@@ -109,7 +109,7 @@ function Router() {
       <Route path="/notifications" component={() => (
         <div className="min-h-screen bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="ml-72 flex flex-col">
+          <div className="mr-72 flex flex-col">
             <Notifications />
           </div>
         </div>

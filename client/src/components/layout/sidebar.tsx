@@ -30,7 +30,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
   const bottomItems = getBottomItems(t);
 
   return (
-    <div className="w-72 bg-sidebar text-sidebar-foreground flex-shrink-0 apple-shadow-large border-r border-sidebar-border fixed h-full overflow-y-auto z-10">
+    <div className="w-72 bg-sidebar text-sidebar-foreground flex-shrink-0 apple-shadow-large border-l border-sidebar-border fixed h-full overflow-y-auto z-10 right-0">
       <div className="p-8">
         <div className={cn("flex items-center", dir === 'rtl' ? 'space-x-reverse space-x-4' : 'space-x-4')}>
           <img 
