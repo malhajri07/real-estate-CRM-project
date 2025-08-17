@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { PropertyMap } from "@/components/ui/property-map";
+import { PhotoCarousel } from "@/components/ui/photo-carousel";
 import AddPropertyModal from "@/components/modals/add-property-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -376,18 +377,12 @@ export default function Properties() {
                       onClick={() => setLocation(`/properties/${property.id}`)}
                     >
                       {property.photoUrls && property.photoUrls.length > 0 && (
-                        <div className="aspect-video overflow-hidden relative">
-                          <img 
-                            src={property.photoUrls[0]} 
-                            alt={property.title}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform"
-                          />
-                          {property.photoUrls.length > 1 && (
-                            <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded-md text-xs font-medium">
-                              +{property.photoUrls.length - 1} more
-                            </div>
-                          )}
-                        </div>
+                        <PhotoCarousel 
+                          photos={property.photoUrls} 
+                          alt={property.title}
+                          className="aspect-video"
+                          showIndicators={property.photoUrls.length > 1}
+                        />
                       )}
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-3">

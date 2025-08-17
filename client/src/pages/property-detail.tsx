@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PropertyMap } from "@/components/ui/property-map";
+import { PhotoCarousel } from "@/components/ui/photo-carousel";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Property } from "@shared/schema";
 
@@ -99,21 +100,15 @@ export default function PropertyDetail() {
         <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Property Images */}
+            {/* Property Images Carousel */}
             {property.photoUrls && property.photoUrls.length > 0 ? (
               <Card className="apple-card overflow-hidden">
-                <div className="aspect-video relative">
-                  <img
-                    src={property.photoUrls[0]}
-                    alt={property.title}
-                    className="w-full h-full object-cover"
-                  />
-                  {property.photoUrls.length > 1 && (
-                    <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur text-white px-3 py-1 rounded-full text-sm">
-                      +{property.photoUrls.length - 1} صورة إضافية
-                    </div>
-                  )}
-                </div>
+                <PhotoCarousel 
+                  photos={property.photoUrls} 
+                  alt={property.title}
+                  className="aspect-video"
+                  showIndicators={true}
+                />
               </Card>
             ) : (
               <Card className="apple-card">

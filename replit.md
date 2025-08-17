@@ -98,6 +98,9 @@ The database schema includes:
 - Updated dashboard to display phone numbers instead of emails for potential customers
 - Limited potential new customers display to maximum 10 entries
 - Enhanced quick action cards functionality for adding leads and properties
+- **Enhanced Property Photo Management:** Implemented scrollable photo carousel functionality with at least 3-5 photos per property
+- Created reusable PhotoCarousel component with navigation arrows, indicators, and photo counter
+- Updated property listing and detail pages with interactive photo browsing capabilities
 - System now exclusively displays in Arabic with proper RTL layout and Saudi market formatting
 
 ## External Dependencies
