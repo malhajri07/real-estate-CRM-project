@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, Lock, User } from "lucide-react";
+import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
 
 interface LoginProps {
   onLogin: () => void;
@@ -39,16 +40,18 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="bg-blue-600 text-white p-3 rounded-full">
-              <Building2 size={32} />
-            </div>
+            <img 
+              src={logoImage} 
+              alt="شعار عقاراتي" 
+              className="w-20 h-20 object-contain"
+            />
           </div>
           <CardTitle className="text-2xl font-bold text-slate-900">
-            برنامج عقاراتي
+            منصة عقاراتي
           </CardTitle>
           <p className="text-slate-600 mt-2">
             الرجاء تسجيل الدخول للوصول إلى لوحة التحكم
@@ -92,7 +95,7 @@ export default function Login({ onLogin }: LoginProps) {
             
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700"
+              className="w-full bg-green-600 hover:bg-green-700"
               disabled={isLoading}
               data-testid="button-login"
             >

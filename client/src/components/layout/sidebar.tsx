@@ -3,6 +3,7 @@ import { Home, Users, Building, Filter, Handshake, BarChart3, Bell, Settings, Lo
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
 
 interface SidebarProps {
   onLogout?: () => void;
@@ -33,12 +34,14 @@ export default function Sidebar({ onLogout }: SidebarProps) {
     <div className="w-72 bg-sidebar text-sidebar-foreground flex-shrink-0 apple-shadow-large border-r border-sidebar-border">
       <div className="p-8">
         <div className={cn("flex items-center", dir === 'rtl' ? 'space-x-reverse space-x-4' : 'space-x-4')}>
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center apple-shadow">
-            <Home className="text-primary-foreground" size={20} />
-          </div>
+          <img 
+            src={logoImage} 
+            alt="شعار عقاراتي" 
+            className="w-10 h-10 object-contain"
+          />
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">{t('nav.system_title') || 'Real Estate CRM'}</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">Property Management</p>
+            <h1 className="text-xl font-semibold tracking-tight">منصة عقاراتي</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">نظام إدارة العقارات</p>
           </div>
         </div>
         <div className="mt-6">
