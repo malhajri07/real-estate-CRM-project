@@ -239,10 +239,10 @@ export default function Properties() {
 
             {/* Filters Panel */}
             {showFilters && (
-              <div className="bg-muted/20 rounded-xl p-4 space-y-4">
+              <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-5 space-y-4 border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-foreground">فلاتر البحث</h3>
-                  <Button variant="ghost" size="sm" onClick={resetFilters}>
+                  <h3 className="font-semibold text-slate-800 dark:text-slate-200 text-lg">فلاتر البحث</h3>
+                  <Button variant="ghost" size="sm" onClick={resetFilters} className="text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
                     إعادة تعيين
                   </Button>
                 </div>
@@ -250,38 +250,38 @@ export default function Properties() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                   {/* Status Filter */}
                   <div className="space-y-2">
-                    <Label>الحالة</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">الحالة</Label>
                     <Select value={statusFilter} onValueChange={(value) => {
                       setStatusFilter(value);
                       handleFilterChange();
                     }}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر الحالة" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">جميع الحالات</SelectItem>
-                        <SelectItem value="active">نشط</SelectItem>
-                        <SelectItem value="pending">معلق</SelectItem>
-                        <SelectItem value="sold">مباع</SelectItem>
-                        <SelectItem value="withdrawn">مسحوب</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الحالات</SelectItem>
+                        <SelectItem value="active" className="hover:bg-slate-100 dark:hover:bg-slate-700">نشط</SelectItem>
+                        <SelectItem value="pending" className="hover:bg-slate-100 dark:hover:bg-slate-700">معلق</SelectItem>
+                        <SelectItem value="sold" className="hover:bg-slate-100 dark:hover:bg-slate-700">مباع</SelectItem>
+                        <SelectItem value="withdrawn" className="hover:bg-slate-100 dark:hover:bg-slate-700">مسحوب</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   {/* Property Type Filter */}
                   <div className="space-y-2">
-                    <Label>نوع العقار</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">نوع العقار</Label>
                     <Select value={propertyTypeFilter} onValueChange={(value) => {
                       setPropertyTypeFilter(value);
                       handleFilterChange();
                     }}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر النوع" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">جميع الأنواع</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الأنواع</SelectItem>
                         {uniquePropertyTypes.map(type => (
-                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                          <SelectItem key={type} value={type} className="hover:bg-slate-100 dark:hover:bg-slate-700">{type}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -289,18 +289,18 @@ export default function Properties() {
 
                   {/* City Filter */}
                   <div className="space-y-2">
-                    <Label>المدينة</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">المدينة</Label>
                     <Select value={cityFilter} onValueChange={(value) => {
                       setCityFilter(value);
                       handleFilterChange();
                     }}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر المدينة" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">جميع المدن</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع المدن</SelectItem>
                         {uniqueCities.map(city => (
-                          <SelectItem key={city} value={city}>{city}</SelectItem>
+                          <SelectItem key={city} value={city} className="hover:bg-slate-100 dark:hover:bg-slate-700">{city}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -308,39 +308,39 @@ export default function Properties() {
 
                   {/* Image Availability Filter */}
                   <div className="space-y-2">
-                    <Label>توفر الصور</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">توفر الصور</Label>
                     <Select value={imageAvailabilityFilter} onValueChange={(value) => {
                       setImageAvailabilityFilter(value);
                       handleFilterChange();
                     }}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر الحالة" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">جميع العقارات</SelectItem>
-                        <SelectItem value="with-images">مع الصور</SelectItem>
-                        <SelectItem value="without-images">بدون صور</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع العقارات</SelectItem>
+                        <SelectItem value="with-images" className="hover:bg-slate-100 dark:hover:bg-slate-700">مع الصور</SelectItem>
+                        <SelectItem value="without-images" className="hover:bg-slate-100 dark:hover:bg-slate-700">بدون صور</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   {/* Sort By */}
                   <div className="space-y-2">
-                    <Label>ترتيب حسب</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">ترتيب حسب</Label>
                     <Select value={sortBy} onValueChange={(value) => {
                       setSortBy(value);
                       handleFilterChange();
                     }}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر الترتيب" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="newest">الأحدث</SelectItem>
-                        <SelectItem value="oldest">الأقدم</SelectItem>
-                        <SelectItem value="price-low">السعر (من الأقل)</SelectItem>
-                        <SelectItem value="price-high">السعر (من الأعلى)</SelectItem>
-                        <SelectItem value="bedrooms">عدد الغرف</SelectItem>
-                        <SelectItem value="size">المساحة</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="newest" className="hover:bg-slate-100 dark:hover:bg-slate-700">الأحدث</SelectItem>
+                        <SelectItem value="oldest" className="hover:bg-slate-100 dark:hover:bg-slate-700">الأقدم</SelectItem>
+                        <SelectItem value="price-low" className="hover:bg-slate-100 dark:hover:bg-slate-700">السعر (من الأقل)</SelectItem>
+                        <SelectItem value="price-high" className="hover:bg-slate-100 dark:hover:bg-slate-700">السعر (من الأعلى)</SelectItem>
+                        <SelectItem value="bedrooms" className="hover:bg-slate-100 dark:hover:bg-slate-700">عدد الغرف</SelectItem>
+                        <SelectItem value="size" className="hover:bg-slate-100 dark:hover:bg-slate-700">المساحة</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -349,7 +349,7 @@ export default function Properties() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Price Range */}
                   <div className="space-y-2">
-                    <Label>السعر الأدنى</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">السعر الأدنى</Label>
                     <Input
                       type="number"
                       placeholder="0"
@@ -358,11 +358,12 @@ export default function Properties() {
                         setMinPrice(e.target.value);
                         handleFilterChange();
                       }}
+                      className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label>السعر الأعلى</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">السعر الأعلى</Label>
                     <Input
                       type="number"
                       placeholder="1000000"
@@ -371,26 +372,27 @@ export default function Properties() {
                         setMaxPrice(e.target.value);
                         handleFilterChange();
                       }}
+                      className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors"
                     />
                   </div>
 
                   {/* Minimum Bedrooms */}
                   <div className="space-y-2">
-                    <Label>الحد الأدنى للغرف</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">الحد الأدنى للغرف</Label>
                     <Select value={minBedrooms} onValueChange={(value) => {
                       setMinBedrooms(value);
                       handleFilterChange();
                     }}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="أي عدد" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="any">أي عدد</SelectItem>
-                        <SelectItem value="1">1+</SelectItem>
-                        <SelectItem value="2">2+</SelectItem>
-                        <SelectItem value="3">3+</SelectItem>
-                        <SelectItem value="4">4+</SelectItem>
-                        <SelectItem value="5">5+</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="any" className="hover:bg-slate-100 dark:hover:bg-slate-700">أي عدد</SelectItem>
+                        <SelectItem value="1" className="hover:bg-slate-100 dark:hover:bg-slate-700">1+</SelectItem>
+                        <SelectItem value="2" className="hover:bg-slate-100 dark:hover:bg-slate-700">2+</SelectItem>
+                        <SelectItem value="3" className="hover:bg-slate-100 dark:hover:bg-slate-700">3+</SelectItem>
+                        <SelectItem value="4" className="hover:bg-slate-100 dark:hover:bg-slate-700">4+</SelectItem>
+                        <SelectItem value="5" className="hover:bg-slate-100 dark:hover:bg-slate-700">5+</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

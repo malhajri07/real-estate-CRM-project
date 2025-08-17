@@ -206,10 +206,10 @@ export default function Customers() {
 
             {/* Filters Panel */}
             {showFilters && (
-              <div className="bg-muted/20 rounded-xl p-4 space-y-4">
+              <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-5 space-y-4 border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-foreground">فلاتر البحث</h3>
-                  <Button variant="ghost" size="sm" onClick={resetFilters}>
+                  <h3 className="font-semibold text-slate-800 dark:text-slate-200 text-lg">فلاتر البحث</h3>
+                  <Button variant="ghost" size="sm" onClick={resetFilters} className="text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
                     إعادة تعيين
                   </Button>
                 </div>
@@ -217,15 +217,15 @@ export default function Customers() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                   {/* Status Filter */}
                   <div className="space-y-2">
-                    <Label>الحالة</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">الحالة</Label>
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر الحالة" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">جميع الحالات</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الحالات</SelectItem>
                         {uniqueStatuses.map(status => (
-                          <SelectItem key={status} value={status}>
+                          <SelectItem key={status} value={status} className="hover:bg-slate-100 dark:hover:bg-slate-700">
                             {getStatusLabel(status)}
                           </SelectItem>
                         ))}
@@ -235,15 +235,15 @@ export default function Customers() {
 
                   {/* City Filter */}
                   <div className="space-y-2">
-                    <Label>المدينة</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">المدينة</Label>
                     <Select value={cityFilter} onValueChange={setCityFilter}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر المدينة" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">جميع المدن</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع المدن</SelectItem>
                         {uniqueCities.map(city => (
-                          <SelectItem key={city} value={city}>{city}</SelectItem>
+                          <SelectItem key={city} value={city} className="hover:bg-slate-100 dark:hover:bg-slate-700">{city}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -251,32 +251,32 @@ export default function Customers() {
 
                   {/* Age Range Filter */}
                   <div className="space-y-2">
-                    <Label>العمر</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">العمر</Label>
                     <Select value={ageRangeFilter} onValueChange={setAgeRangeFilter}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر الفئة العمرية" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">جميع الأعمار</SelectItem>
-                        <SelectItem value="20-30">20-30 سنة</SelectItem>
-                        <SelectItem value="31-40">31-40 سنة</SelectItem>
-                        <SelectItem value="41-50">41-50 سنة</SelectItem>
-                        <SelectItem value="51+">51+ سنة</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الأعمار</SelectItem>
+                        <SelectItem value="20-30" className="hover:bg-slate-100 dark:hover:bg-slate-700">20-30 سنة</SelectItem>
+                        <SelectItem value="31-40" className="hover:bg-slate-100 dark:hover:bg-slate-700">31-40 سنة</SelectItem>
+                        <SelectItem value="41-50" className="hover:bg-slate-100 dark:hover:bg-slate-700">41-50 سنة</SelectItem>
+                        <SelectItem value="51+" className="hover:bg-slate-100 dark:hover:bg-slate-700">51+ سنة</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   {/* Marital Status Filter */}
                   <div className="space-y-2">
-                    <Label>الحالة الاجتماعية</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">الحالة الاجتماعية</Label>
                     <Select value={maritalStatusFilter} onValueChange={setMaritalStatusFilter}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر الحالة" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">جميع الحالات</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الحالات</SelectItem>
                         {uniqueMaritalStatuses.map(status => (
-                          <SelectItem key={status} value={status}>{status}</SelectItem>
+                          <SelectItem key={status} value={status} className="hover:bg-slate-100 dark:hover:bg-slate-700">{status}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -284,15 +284,15 @@ export default function Customers() {
 
                   {/* Interest Type Filter */}
                   <div className="space-y-2">
-                    <Label>نوع الاهتمام</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">نوع الاهتمام</Label>
                     <Select value={interestTypeFilter} onValueChange={setInterestTypeFilter}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر النوع" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">جميع الأنواع</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الأنواع</SelectItem>
                         {uniqueInterestTypes.map(type => (
-                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                          <SelectItem key={type} value={type} className="hover:bg-slate-100 dark:hover:bg-slate-700">{type}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -300,16 +300,16 @@ export default function Customers() {
 
                   {/* Dependents Filter */}
                   <div className="space-y-2">
-                    <Label>عدد المُعالين</Label>
+                    <Label className="text-slate-700 dark:text-slate-300 font-medium">عدد المُعالين</Label>
                     <Select value={dependentsFilter} onValueChange={setDependentsFilter}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر العدد" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">جميع الأعداد</SelectItem>
-                        <SelectItem value="0">لا يوجد</SelectItem>
-                        <SelectItem value="1-2">1-2</SelectItem>
-                        <SelectItem value="3+">3 أو أكثر</SelectItem>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg">
+                        <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الأعداد</SelectItem>
+                        <SelectItem value="0" className="hover:bg-slate-100 dark:hover:bg-slate-700">لا يوجد</SelectItem>
+                        <SelectItem value="1-2" className="hover:bg-slate-100 dark:hover:bg-slate-700">1-2</SelectItem>
+                        <SelectItem value="3+" className="hover:bg-slate-100 dark:hover:bg-slate-700">3 أو أكثر</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
