@@ -11,6 +11,7 @@ import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { CSVUploader } from "@/components/CSVUploader";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Lead } from "@shared/schema";
 import type { UploadResult } from "@uppy/core";
 
@@ -20,6 +21,7 @@ export default function Leads() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
 
   const { data: leads, isLoading } = useQuery<Lead[]>({
@@ -285,11 +287,11 @@ export default function Leads() {
                       <TableCell>{lead.phone || '-'}</TableCell>
                       <TableCell>
                         <Badge className={getStatusBadgeColor(lead.status)}>
-                          {lead.status}
+                          {t(`status.${lead.status}`) || lead.status}
                         </Badge>
                       </TableCell>
                       <TableCell>{lead.leadSource || '-'}</TableCell>
-                      <TableCell>{lead.interestType || '-'}</TableCell>
+                      <TableCell>{lead.interestType ? (t(`interest.${lead.interestType}`) || lead.interestType) : '-'}</TableCell>
                       <TableCell>{lead.budgetRange || '-'}</TableCell>
                       <TableCell>{new Date(lead.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell>

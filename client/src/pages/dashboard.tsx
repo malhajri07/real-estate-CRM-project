@@ -53,12 +53,10 @@ export default function Dashboard() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat('ar-SA', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount);
+    }).format(amount) + ' ريال';
   };
 
   if (metricsLoading) {
@@ -152,7 +150,7 @@ export default function Dashboard() {
                         </div>
                         <div className="flex items-center space-x-3 space-x-reverse">
                           <Badge className={getStatusBadgeColor(lead.status)}>
-                            {lead.status}
+                            {t(`status.${lead.status}`) || lead.status}
                           </Badge>
                           <span className="text-sm text-slate-500">
                             {new Date(lead.createdAt).toLocaleDateString()}

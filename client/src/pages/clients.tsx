@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Lead, Activity } from "@shared/schema";
 
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const { data: leads, isLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
@@ -96,7 +98,7 @@ export default function Clients() {
                             {lead.firstName} {lead.lastName}
                           </h4>
                           <Badge className={getStatusBadgeColor(lead.status)}>
-                            {lead.status}
+                            {t(`status.${lead.status}`) || lead.status}
                           </Badge>
                         </div>
                         
@@ -107,7 +109,7 @@ export default function Clients() {
                         
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-xs text-slate-400">
-                            {lead.interestType && `${lead.interestType} • `}
+                            {lead.interestType && `${t(`interest.${lead.interestType}`) || lead.interestType} • `}
                             {lead.budgetRange}
                           </span>
                           <span className="text-xs text-slate-400">
