@@ -23,10 +23,10 @@ export async function seedDummyData() {
   // إنشاء العملاء المحتملين (Leads)
   const leads = [
     {
-      firstName: "أحمد",
-      lastName: "محمد",
-      email: "ahmed.mohamed@email.com",
-      phone: "+966501234567",
+      firstName: "محمد",
+      lastName: "العتيبي",
+      email: "mohammed.alotaibi@realestate.sa",
+      phone: "966501234567",
       leadSource: "Facebook",
       interestType: "شراء",
       budgetRange: "500,000 - 800,000 ﷼",
@@ -34,10 +34,10 @@ export async function seedDummyData() {
       notes: "مهتم بشقة في الرياض، يفضل الأحياء الراقية"
     },
     {
-      firstName: "فاطمة",
-      lastName: "العلي",
-      email: "fatima.alali@email.com", 
-      phone: "+966509876543",
+      firstName: "سارة",
+      lastName: "الحربي",
+      email: "sarah.alharbi@gmail.com", 
+      phone: "966509876543",
       leadSource: "Google",
       interestType: "بيع",
       budgetRange: "1,200,000 - 1,500,000 ﷼",
@@ -45,10 +45,10 @@ export async function seedDummyData() {
       notes: "تريد بيع فيلا في جدة، ملكية خاصة"
     },
     {
-      firstName: "خالد",
-      lastName: "الأحمد",
-      email: "khalid.ahmed@email.com",
-      phone: "+966555123456",
+      firstName: "عبدالرحمن",
+      lastName: "القحطاني",
+      email: "abdulrahman.alqahtani@outlook.com",
+      phone: "966555123456",
       leadSource: "إحالة",
       interestType: "استثمار",
       budgetRange: "2,000,000+ ﷼",
@@ -56,10 +56,10 @@ export async function seedDummyData() {
       notes: "مستثمر يبحث عن عقارات تجارية في الدمام"
     },
     {
-      firstName: "نورا",
-      lastName: "السعد",
-      email: "nora.alsaad@email.com",
-      phone: "+966502345678",
+      firstName: "نوف",
+      lastName: "الدوسري",
+      email: "nouf.aldosari@yahoo.com",
+      phone: "966502345678",
       leadSource: "موقع الويب",
       interestType: "شراء",
       budgetRange: "300,000 - 500,000 ﷼",
@@ -67,10 +67,10 @@ export async function seedDummyData() {
       notes: "عميلة جديدة تبحث عن شقة للسكن"
     },
     {
-      firstName: "سعد",
-      lastName: "الغامدي",
-      email: "saad.alghamdi@email.com",
-      phone: "+966507654321",
+      firstName: "فيصل",
+      lastName: "الشمري",
+      email: "faisal.alshamari@hotmail.com",
+      phone: "966507654321",
       leadSource: "Instagram",
       interestType: "شراء",
       budgetRange: "800,000 - 1,200,000 ﷼",
@@ -78,10 +78,10 @@ export async function seedDummyData() {
       notes: "يريد فيلا في الطائف، عائلة كبيرة"
     },
     {
-      firstName: "ريم",
-      lastName: "الشهري",
-      email: "reem.alshehri@email.com",
-      phone: "+966503456789",
+      firstName: "رهف",
+      lastName: "العنزي",
+      email: "rahaf.alanazi@gmail.com",
+      phone: "966503456789",
       leadSource: "WhatsApp",
       interestType: "إيجار",
       budgetRange: "3,000 - 5,000 ﷼ شهرياً",
@@ -89,10 +89,10 @@ export async function seedDummyData() {
       notes: "تبحث عن شقة مؤثثة للإيجار في الرياض"
     },
     {
-      firstName: "عبدالله",
-      lastName: "المطيري", 
-      email: "abdullah.almutairi@email.com",
-      phone: "+966508765432",
+      firstName: "بندر",
+      lastName: "الرشيد",
+      email: "bandar.alrashid@saudipost.com.sa",
+      phone: "966508765432",
       leadSource: "Twitter",
       interestType: "بيع",
       budgetRange: "900,000 - 1,100,000 ﷼",
@@ -100,15 +100,37 @@ export async function seedDummyData() {
       notes: "لم يكمل عملية البيع، وجد عرضاً أفضل"
     },
     {
-      firstName: "هدى",
-      lastName: "الزهراني",
-      email: "huda.alzahrani@email.com",
-      phone: "+966504567890",
+      firstName: "منى",
+      lastName: "الغامدي",
+      email: "muna.alghamdi@aramco.com",
+      phone: "966504567890",
       leadSource: "إحالة",
       interestType: "شراء",
       budgetRange: "1,500,000 - 2,000,000 ﷼",
       status: "closed",
       notes: "تم إتمام شراء فيلا في مكة بنجاح"
+    },
+    {
+      firstName: "عبدالعزيز",
+      lastName: "المالكي",
+      email: "abdulaziz.almalki@sabic.com",
+      phone: "966511223344",
+      leadSource: "LinkedIn",
+      interestType: "استثمار",
+      budgetRange: "3,000,000 - 5,000,000 ﷼",
+      status: "qualified",
+      notes: "مدير استثمار يبحث عن مجمعات سكنية"
+    },
+    {
+      firstName: "لمى",
+      lastName: "الزهراني",
+      email: "lama.alzahrani@ksu.edu.sa",
+      phone: "966515678901",
+      leadSource: "موقع الويب",
+      interestType: "شراء",
+      budgetRange: "400,000 - 600,000 ﷼",
+      status: "new",
+      notes: "أستاذة جامعية تبحث عن شقة قريبة من الجامعة"
     }
   ];
 

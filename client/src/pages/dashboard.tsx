@@ -39,7 +39,7 @@ export default function Dashboard() {
     queryKey: ["/api/activities/today"],
   });
 
-  const recentLeads = leads?.slice(0, 3) || [];
+  const recentLeads = leads?.slice(0, 10) || [];
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -124,16 +124,16 @@ export default function Dashboard() {
             <Card className="apple-card">
               <CardHeader className="p-6">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl font-semibold tracking-tight">{t('dashboard.recent_leads')}</CardTitle>
+                  <CardTitle className="text-xl font-semibold tracking-tight">العملاء المحتملين الجدد</CardTitle>
                   <Button variant="ghost" className="text-primary hover:bg-primary/10 rounded-xl font-medium text-sm">
-                    {t('form.view_all') || 'عرض الكل'}
+                    عرض الكل
                   </Button>
                 </div>
               </CardHeader>
               <CardContent className="p-6">
                 {recentLeads.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    {t('dashboard.no_leads') || 'لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.'}
+                    لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -145,12 +145,16 @@ export default function Dashboard() {
                           </div>
                           <div>
                             <p className="font-medium text-foreground tracking-tight">{lead.firstName} {lead.lastName}</p>
-                            <p className="text-sm text-slate-500">{lead.email}</p>
+                            <p className="text-sm text-slate-500">{lead.phone}</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-3 space-x-reverse">
                           <Badge className={getStatusBadgeColor(lead.status)}>
-                            {t(`status.${lead.status}`) || lead.status}
+                            {lead.status === 'new' ? 'جديد' : 
+                             lead.status === 'qualified' ? 'مؤهل' : 
+                             lead.status === 'showing' ? 'معاينة' : 
+                             lead.status === 'negotiation' ? 'تفاوض' : 
+                             lead.status === 'closed' ? 'مغلق' : 'مفقود'}
                           </Badge>
                           <span className="text-sm text-slate-500">
                             {new Date(lead.createdAt).toLocaleDateString()}
