@@ -4,6 +4,10 @@ import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageToggle } from "@/components/LanguageToggle";
 
+interface SidebarProps {
+  onLogout?: () => void;
+}
+
 const getNavigationItems = (t: (key: string) => string) => [
   { path: "/", labelKey: "nav.dashboard", icon: Home },
   { path: "/leads", labelKey: "nav.leads", icon: Users, badge: "24" },
@@ -16,10 +20,9 @@ const getNavigationItems = (t: (key: string) => string) => [
 
 const getBottomItems = (t: (key: string) => string) => [
   { path: "/settings", labelKey: "nav.settings", icon: Settings },
-  { path: "/logout", labelKey: "nav.logout", icon: LogOut },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onLogout }: SidebarProps) {
   const [location] = useLocation();
   const { t, dir } = useLanguage();
   
@@ -103,6 +106,23 @@ export default function Sidebar() {
                 </li>
               );
             })}
+            {onLogout && (
+              <li>
+                <button
+                  onClick={onLogout}
+                  className={cn(
+                    "w-full flex items-center px-4 py-3 rounded-xl apple-transition font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    dir === 'rtl' ? 'space-x-reverse space-x-3' : 'space-x-3'
+                  )}
+                  data-testid="button-logout"
+                >
+                  <div className="w-6 h-6 flex items-center justify-center rounded-lg">
+                    <LogOut size={18} />
+                  </div>
+                  <span className="text-sm tracking-tight">تسجيل الخروج</span>
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       </nav>
