@@ -26,8 +26,9 @@ export async function setupMockAuth(app: Express) {
       profileImageUrl: null,
     });
 
-    // Add dummy data on first setup
-    await seedDummyData();
+    // Add dummy data on first setup - temporarily disabled for debugging
+    console.log("Skipping dummy data creation temporarily for debugging");
+    // await seedDummyData();
   } catch (error) {
     console.log("Mock user already exists or creation failed", error);
   }
