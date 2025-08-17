@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import Leads from "@/pages/leads";
+import Customers from "@/pages/customers";
 import Properties from "@/pages/properties";
 import Pipeline from "@/pages/pipeline";
 import Clients from "@/pages/clients";
@@ -70,6 +71,14 @@ function Router() {
           <Sidebar onLogout={handleLogout} />
           <div className="mr-72 flex flex-col">
             <Leads />
+          </div>
+        </div>
+      )} />
+      <Route path="/customers" component={() => (
+        <div className="min-h-screen bg-background">
+          <Sidebar onLogout={handleLogout} />
+          <div className="mr-72 flex flex-col">
+            <Customers />
           </div>
         </div>
       )} />

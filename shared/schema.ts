@@ -32,6 +32,10 @@ export const leads = pgTable("leads", {
   lastName: text("last_name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
+  city: text("city"), // Customer's city
+  age: integer("age"), // Customer's age
+  maritalStatus: text("marital_status"), // single, married, divorced, widowed
+  numberOfDependents: integer("number_of_dependents").default(0), // Number of children/dependents
   leadSource: text("lead_source"),
   interestType: text("interest_type"), // buying, selling
   budgetRange: text("budget_range"),

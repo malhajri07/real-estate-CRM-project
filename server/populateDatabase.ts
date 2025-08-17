@@ -220,11 +220,20 @@ export async function populateDatabase() {
       const emailDomain = getRandomElement(emailDomains);
       const emailPrefix = firstName.toLowerCase().replace(/[أإآ]/g, 'a').replace(/[ة]/g, 'h') + '.' + lastName.toLowerCase().replace(/ال/g, '').replace(/[أإآ]/g, 'a').replace(/[ة]/g, 'h');
       
+      const customerAge = getRandomNumber(25, 65);
+      const maritalStatus = getRandomElement(["أعزب", "متزوج", "مطلق", "أرمل"]);
+      const numberOfDependents = maritalStatus === "متزوج" ? getRandomNumber(0, 5) : 
+                                maritalStatus === "مطلق" ? getRandomNumber(0, 3) : 0;
+      
       const leadData = {
         firstName: firstName,
         lastName: lastName,
         email: `${emailPrefix}@${emailDomain}`,
         phone: `966${getRandomNumber(50, 59)}${getRandomNumber(1000000, 9999999)}`,
+        city: getRandomElement(cities),
+        age: customerAge,
+        maritalStatus: maritalStatus,
+        numberOfDependents: numberOfDependents,
         leadSource: getRandomElement(["موقع الكتروني", "إعلان", "إحالة", "وسائل التواصل", "Facebook", "Instagram", "WhatsApp", "Google"]),
         interestType: getRandomElement(["شراء", "بيع", "إيجار", "استثمار"]),
         budgetRange: getRandomElement([

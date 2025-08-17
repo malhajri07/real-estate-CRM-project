@@ -11,6 +11,7 @@ interface SidebarProps {
 const getNavigationItems = (t: (key: string) => string) => [
   { path: "/", labelKey: "nav.dashboard", icon: Home },
   { path: "/leads", labelKey: "nav.leads", icon: Users, badge: "24" },
+  { path: "/customers", label: "العملاء المحتملين", icon: Users },
   { path: "/properties", labelKey: "nav.properties", icon: Building, badge: "87" },
   { path: "/pipeline", labelKey: "nav.pipeline", icon: Filter },
   { path: "/clients", labelKey: "nav.clients", icon: Handshake },
@@ -73,7 +74,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                   )}>
                     <Icon size={18} />
                   </div>
-                  <span className="text-sm tracking-tight">{t(item.labelKey)}</span>
+                  <span className="text-sm tracking-tight">{item.label || t(item.labelKey)}</span>
                   {item.badge && (
                     <span className={cn("bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full font-medium",
                       dir === 'rtl' ? 'mr-auto' : 'ml-auto'

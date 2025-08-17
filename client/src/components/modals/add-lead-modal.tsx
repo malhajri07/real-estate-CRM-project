@@ -29,6 +29,10 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
       lastName: "",
       email: "",
       phone: "",
+      city: "",
+      age: undefined,
+      maritalStatus: "",
+      numberOfDependents: 0,
       leadSource: "",
       interestType: "",
       budgetRange: "",
@@ -122,6 +126,102 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                     <FormLabel>الهاتف</FormLabel>
                     <FormControl>
                       <Input type="tel" placeholder="أدخل رقم الهاتف" {...field} value={field.value || ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>المدينة</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر المدينة" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="الرياض">الرياض</SelectItem>
+                        <SelectItem value="جدة">جدة</SelectItem>
+                        <SelectItem value="الدمام">الدمام</SelectItem>
+                        <SelectItem value="مكة المكرمة">مكة المكرمة</SelectItem>
+                        <SelectItem value="المدينة المنورة">المدينة المنورة</SelectItem>
+                        <SelectItem value="الطائف">الطائف</SelectItem>
+                        <SelectItem value="بريدة">بريدة</SelectItem>
+                        <SelectItem value="تبوك">تبوك</SelectItem>
+                        <SelectItem value="الخبر">الخبر</SelectItem>
+                        <SelectItem value="حائل">حائل</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="age"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>العمر</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="أدخل العمر" 
+                        {...field} 
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="maritalStatus"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>الحالة الاجتماعية</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر الحالة الاجتماعية" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="أعزب">أعزب</SelectItem>
+                        <SelectItem value="متزوج">متزوج</SelectItem>
+                        <SelectItem value="مطلق">مطلق</SelectItem>
+                        <SelectItem value="أرمل">أرمل</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="numberOfDependents"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>عدد المُعالين</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="أدخل عدد المُعالين" 
+                        {...field} 
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
+                        value={field.value || 0}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
