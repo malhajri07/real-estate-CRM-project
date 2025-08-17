@@ -28,7 +28,7 @@ export default function PropertyDetail() {
     return new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(numAmount) + ' ريال';
+    }).format(numAmount) + ' ﷼';
   };
 
   const getStatusBadgeColor = (status: string) => {

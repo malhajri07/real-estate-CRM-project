@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Users, Building, Filter, Plus, Home, Calendar, Download, DollarSign } from "lucide-react";
+import { Users, Building, Filter, Plus, Home, Calendar, Download, Banknote } from "lucide-react";
 import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,7 @@ export default function Dashboard() {
     return new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount) + ' ريال';
+    }).format(amount) + ' ﷼';
   };
 
   if (metricsLoading) {
@@ -108,7 +108,7 @@ export default function Dashboard() {
           <div className="apple-card p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center">
-                <DollarSign className="text-yellow-600" size={20} />
+                <Banknote className="text-yellow-600" size={20} />
               </div>
               <div className="text-2xl font-bold tracking-tight">{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
             </div>

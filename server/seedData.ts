@@ -29,7 +29,7 @@ export async function seedDummyData() {
       phone: "+966501234567",
       leadSource: "Facebook",
       interestType: "شراء",
-      budgetRange: "500,000 - 800,000 ريال",
+      budgetRange: "500,000 - 800,000 ﷼",
       status: "qualified",
       notes: "مهتم بشقة في الرياض، يفضل الأحياء الراقية"
     },
@@ -40,7 +40,7 @@ export async function seedDummyData() {
       phone: "+966509876543",
       leadSource: "Google",
       interestType: "بيع",
-      budgetRange: "1,200,000 - 1,500,000 ريال",
+      budgetRange: "1,200,000 - 1,500,000 ﷼",
       status: "showing",
       notes: "تريد بيع فيلا في جدة، ملكية خاصة"
     },
@@ -51,7 +51,7 @@ export async function seedDummyData() {
       phone: "+966555123456",
       leadSource: "إحالة",
       interestType: "استثمار",
-      budgetRange: "2,000,000+ ريال",
+      budgetRange: "2,000,000+ ﷼",
       status: "negotiation",
       notes: "مستثمر يبحث عن عقارات تجارية في الدمام"
     },
@@ -62,7 +62,7 @@ export async function seedDummyData() {
       phone: "+966502345678",
       leadSource: "موقع الويب",
       interestType: "شراء",
-      budgetRange: "300,000 - 500,000 ريال",
+      budgetRange: "300,000 - 500,000 ﷼",
       status: "new",
       notes: "عميلة جديدة تبحث عن شقة للسكن"
     },
@@ -73,7 +73,7 @@ export async function seedDummyData() {
       phone: "+966507654321",
       leadSource: "Instagram",
       interestType: "شراء",
-      budgetRange: "800,000 - 1,200,000 ريال",
+      budgetRange: "800,000 - 1,200,000 ﷼",
       status: "qualified",
       notes: "يريد فيلا في الطائف، عائلة كبيرة"
     },
@@ -84,7 +84,7 @@ export async function seedDummyData() {
       phone: "+966503456789",
       leadSource: "WhatsApp",
       interestType: "إيجار",
-      budgetRange: "3,000 - 5,000 ريال شهرياً",
+      budgetRange: "3,000 - 5,000 ﷼ شهرياً",
       status: "showing",
       notes: "تبحث عن شقة مؤثثة للإيجار في الرياض"
     },
@@ -95,7 +95,7 @@ export async function seedDummyData() {
       phone: "+966508765432",
       leadSource: "Twitter",
       interestType: "بيع",
-      budgetRange: "900,000 - 1,100,000 ريال",
+      budgetRange: "900,000 - 1,100,000 ﷼",
       status: "lost",
       notes: "لم يكمل عملية البيع، وجد عرضاً أفضل"
     },
@@ -106,7 +106,7 @@ export async function seedDummyData() {
       phone: "+966504567890",
       leadSource: "إحالة",
       interestType: "شراء",
-      budgetRange: "1,500,000 - 2,000,000 ريال",
+      budgetRange: "1,500,000 - 2,000,000 ﷼",
       status: "closed",
       notes: "تم إتمام شراء فيلا في مكة بنجاح"
     }
