@@ -206,7 +206,7 @@ export default function Customers() {
 
             {/* Filters Panel */}
             {showFilters && (
-              <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl p-5 space-y-4 border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
+              <div className="rounded-xl p-5 space-y-4 border border-slate-200/60 dark:border-slate-700/60 shadow-sm" style={{ backgroundColor: '#edf1ee' }}>
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-slate-800 dark:text-slate-200 text-lg">فلاتر البحث</h3>
                   <Button variant="ghost" size="sm" onClick={resetFilters} className="text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
