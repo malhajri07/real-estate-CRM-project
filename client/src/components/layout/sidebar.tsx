@@ -2,7 +2,6 @@ import { Link, useLocation } from "wouter";
 import { Home, Users, Building, Filter, Handshake, BarChart3, Bell, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { LanguageToggle } from "@/components/LanguageToggle";
 import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
 
 interface SidebarProps {
@@ -47,9 +46,6 @@ export default function Sidebar({ onLogout }: SidebarProps) {
             <h1 className="text-xl font-semibold tracking-tight">منصة عقاراتي</h1>
             <p className="text-xs text-muted-foreground mt-0.5">نظام إدارة العقارات</p>
           </div>
-        </div>
-        <div className="mt-6">
-          <LanguageToggle />
         </div>
       </div>
       

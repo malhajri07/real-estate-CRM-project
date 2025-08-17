@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import MetricsCard from "@/components/ui/metrics-card";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Lead, Property, Deal } from "@shared/schema";
 
 export default function Reports() {
   const [selectedPeriod, setSelectedPeriod] = useState("30");
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ["/api/dashboard/metrics"],
@@ -82,12 +84,10 @@ export default function Reports() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat('ar-SA', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount);
+    }).format(amount) + ' ريال';
   };
 
   const exportReport = () => {
@@ -146,7 +146,7 @@ export default function Reports() {
 
   return (
     <>
-      <Header title="التقارير" />
+      <Header title={t('reports.title')} />
       
       <main className="flex-1 overflow-y-auto p-6">
         {/* Report Controls */}
@@ -293,28 +293,28 @@ export default function Reports() {
           {/* Deal Pipeline Summary */}
           <Card>
             <CardHeader>
-              <CardTitle>Deal Pipeline Summary</CardTitle>
+              <CardTitle>{t('reports.deal_pipeline_summary')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Total Deals</span>
+                  <span className="text-sm text-slate-600">{t('reports.total_deals')}</span>
                   <span className="font-semibold">{filteredDeals.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Active Deals</span>
+                  <span className="text-sm text-slate-600">{t('reports.active_deals')}</span>
                   <span className="font-semibold">
                     {filteredDeals.filter(d => !['closed', 'lost'].includes(d.stage)).length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Closed Deals</span>
+                  <span className="text-sm text-slate-600">{t('reports.closed_deals')}</span>
                   <span className="font-semibold text-green-600">
                     {filteredDeals.filter(d => d.stage === 'closed').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Total Pipeline Value</span>
+                  <span className="text-sm text-slate-600">{t('reports.total_pipeline_value')}</span>
                   <span className="font-semibold">
                     {formatCurrency(
                       filteredDeals.reduce((sum, deal) => 
@@ -330,28 +330,28 @@ export default function Reports() {
           {/* Property Analytics */}
           <Card>
             <CardHeader>
-              <CardTitle>Property Analytics</CardTitle>
+              <CardTitle>{t('reports.property_analytics')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Total Properties</span>
+                  <span className="text-sm text-slate-600">{t('reports.total_properties')}</span>
                   <span className="font-semibold">{filteredProperties.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Active Listings</span>
+                  <span className="text-sm text-slate-600">{t('reports.active_listings')}</span>
                   <span className="font-semibold">
                     {filteredProperties.filter(p => p.status === 'active').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Sold Properties</span>
+                  <span className="text-sm text-slate-600">{t('reports.sold_properties')}</span>
                   <span className="font-semibold text-green-600">
                     {filteredProperties.filter(p => p.status === 'sold').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Average Price</span>
+                  <span className="text-sm text-slate-600">{t('reports.average_price')}</span>
                   <span className="font-semibold">
                     {formatCurrency(calculateAveragePropertyPrice())}
                   </span>
@@ -363,16 +363,16 @@ export default function Reports() {
           {/* Performance Metrics */}
           <Card>
             <CardHeader>
-              <CardTitle>Performance Metrics</CardTitle>
+              <CardTitle>{t('reports.performance_metrics')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Lead Conversion</span>
+                  <span className="text-sm text-slate-600">{t('reports.lead_conversion')}</span>
                   <span className="font-semibold">{calculateConversionRate()}%</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Avg. Deal Size</span>
+                  <span className="text-sm text-slate-600">{t('reports.avg_deal_size')}</span>
                   <span className="font-semibold">
                     {formatCurrency(
                       filteredDeals.length > 0 
@@ -384,7 +384,7 @@ export default function Reports() {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Commission Rate</span>
+                  <span className="text-sm text-slate-600">{t('reports.commission_rate')}</span>
                   <span className="font-semibold">
                     {filteredDeals.length > 0 
                       ? ((calculateTotalCommission() / 
@@ -395,7 +395,7 @@ export default function Reports() {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-slate-600">Monthly Revenue</span>
+                  <span className="text-sm text-slate-600">{t('dashboard.monthly_revenue')}</span>
                   <span className="font-semibold text-primary">
                     {formatCurrency(calculateTotalCommission())}
                   </span>

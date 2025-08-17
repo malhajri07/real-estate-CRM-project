@@ -67,12 +67,10 @@ export default function Pipeline() {
   const formatCurrency = (amount: string | null) => {
     if (!amount) return "لم يتم تحديد القيمة";
     const num = parseFloat(amount);
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat('ar-SA', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(num);
+    }).format(num) + ' ريال';
   };
 
   const getDealsByStage = (stage: string) => {

@@ -25,12 +25,10 @@ export default function PropertyDetail() {
 
   const formatCurrency = (amount: string | number) => {
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat('ar-SA', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(numAmount);
+    }).format(numAmount) + ' ريال';
   };
 
   const getStatusBadgeColor = (status: string) => {

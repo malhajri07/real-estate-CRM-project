@@ -156,12 +156,10 @@ export default function Properties() {
 
   const formatCurrency = (amount: string) => {
     const num = parseFloat(amount);
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat('ar-SA', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(num);
+    }).format(num) + ' ريال';
   };
 
   const handleDelete = (id: string) => {
