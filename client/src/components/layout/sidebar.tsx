@@ -37,7 +37,11 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           <img 
             src={logoImage} 
             alt="شعار عقاراتي" 
-            className="w-10 h-10 object-contain"
+            className="w-20 h-20 object-contain"
+            style={{ 
+              filter: 'drop-shadow(0 0 0 transparent)',
+              background: 'transparent'
+            }}
           />
           <div>
             <h1 className="text-xl font-semibold tracking-tight">منصة عقاراتي</h1>

@@ -47,7 +47,11 @@ export default function Login({ onLogin }: LoginProps) {
             <img 
               src={logoImage} 
               alt="شعار عقاراتي" 
-              className="w-20 h-20 object-contain"
+              className="w-40 h-40 object-contain"
+              style={{ 
+                filter: 'drop-shadow(0 0 0 transparent)',
+                background: 'transparent'
+              }}
             />
           </div>
           <CardTitle className="text-2xl font-bold text-slate-900">
