@@ -10,7 +10,6 @@ interface SidebarProps {
 
 const getNavigationItems = (t: (key: string) => string) => [
   { path: "/", labelKey: "nav.dashboard", icon: Home },
-  { path: "/leads", labelKey: "nav.leads", icon: Users, badge: "24" },
   { path: "/customers", label: "العملاء المحتملين", icon: Users },
   { path: "/properties", labelKey: "nav.properties", icon: Building, badge: "87" },
   { path: "/pipeline", labelKey: "nav.pipeline", icon: Filter },
@@ -31,7 +30,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
   const bottomItems = getBottomItems(t);
 
   return (
-    <div className="w-72 bg-sidebar text-sidebar-foreground flex-shrink-0 apple-shadow-large border-l border-sidebar-border fixed h-full overflow-y-auto z-10 right-0">
+    <div className="w-72 bg-sidebar text-sidebar-foreground flex-shrink-0 apple-shadow-large border-l border-sidebar-border fixed h-full overflow-y-auto z-50 right-0">
       <div className="p-8">
         <div className={cn("flex items-center", dir === 'rtl' ? 'space-x-reverse space-x-4' : 'space-x-4')}>
           <img 
@@ -74,7 +73,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                   )}>
                     <Icon size={18} />
                   </div>
-                  <span className="text-sm tracking-tight">{item.label || t(item.labelKey)}</span>
+                  <span className="text-sm tracking-tight">{item.label || t(item.labelKey || "")}</span>
                   {item.badge && (
                     <span className={cn("bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full font-medium",
                       dir === 'rtl' ? 'mr-auto' : 'ml-auto'

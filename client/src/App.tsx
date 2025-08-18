@@ -66,14 +66,7 @@ function Router() {
           </div>
         </div>
       )} />
-      <Route path="/leads" component={() => (
-        <div className="min-h-screen bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col">
-            <Leads />
-          </div>
-        </div>
-      )} />
+
       <Route path="/customers" component={() => (
         <div className="min-h-screen bg-background">
           <Sidebar onLogout={handleLogout} />
