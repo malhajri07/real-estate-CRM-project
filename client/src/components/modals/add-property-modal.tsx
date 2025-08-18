@@ -69,9 +69,9 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl" style={{ backgroundColor: '#edf1ee' }}>
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Add New Property</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">إضافة عقار جديد</DialogTitle>
         </DialogHeader>
         
         <Form {...form}>
@@ -82,9 +82,9 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Property Title *</FormLabel>
+                    <FormLabel>عنوان العقار *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter property title" {...field} />
+                      <Input placeholder="أدخل عنوان العقار" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -95,18 +95,18 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="propertyType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Property Type *</FormLabel>
+                    <FormLabel>نوع العقار *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select property type" />
+                          <SelectValue placeholder="اختر نوع العقار" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="house">House</SelectItem>
-                        <SelectItem value="condo">Condo</SelectItem>
-                        <SelectItem value="apartment">Apartment</SelectItem>
-                        <SelectItem value="commercial">Commercial</SelectItem>
+                        <SelectItem value="house">منزل</SelectItem>
+                        <SelectItem value="condo">شقة فاخرة</SelectItem>
+                        <SelectItem value="apartment">شقة</SelectItem>
+                        <SelectItem value="commercial">تجاري</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -120,11 +120,11 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>الوصف</FormLabel>
                   <FormControl>
                     <Textarea
                       rows={3}
-                      placeholder="Property description"
+                      placeholder="وصف العقار"
                       {...field}
                       value={field.value || ""}
                     />
@@ -140,9 +140,9 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Address *</FormLabel>
+                    <FormLabel>العنوان *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Street address" {...field} />
+                      <Input placeholder="عنوان الشارع" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -153,9 +153,9 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="city"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>City *</FormLabel>
+                    <FormLabel>المدينة *</FormLabel>
                     <FormControl>
-                      <Input placeholder="City" {...field} />
+                      <Input placeholder="المدينة" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -166,9 +166,9 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="state"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>State *</FormLabel>
+                    <FormLabel>المنطقة *</FormLabel>
                     <FormControl>
-                      <Input placeholder="State" {...field} />
+                      <Input placeholder="المنطقة" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -179,8 +179,8 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
             {/* Location Coordinates for Google Maps */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-muted/20 rounded-xl border border-border">
               <div>
-                <h3 className="text-sm font-medium text-foreground mb-3">📍 Location Coordinates (Optional)</h3>
-                <p className="text-xs text-muted-foreground mb-3">Add coordinates to display property on Google Maps</p>
+                <h3 className="text-sm font-medium text-foreground mb-3">📍 إحداثيات الموقع (اختياري)</h3>
+                <p className="text-xs text-muted-foreground mb-3">أضف الإحداثيات لعرض العقار على خرائط جوجل</p>
               </div>
               <div></div>
               <FormField
@@ -188,12 +188,12 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="latitude"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Latitude</FormLabel>
+                    <FormLabel>خط العرض</FormLabel>
                     <FormControl>
                       <Input 
                         type="number"
                         step="any"
-                        placeholder="e.g. 24.7136" 
+                        placeholder="مثال: 24.7136" 
                         {...field} 
                         value={field.value || ""}
                       />
@@ -207,12 +207,12 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="longitude"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Longitude</FormLabel>
+                    <FormLabel>خط الطول</FormLabel>
                     <FormControl>
                       <Input 
                         type="number"
                         step="any"
-                        placeholder="e.g. 46.6753" 
+                        placeholder="مثال: 46.6753" 
                         {...field} 
                         value={field.value || ""}
                       />
@@ -229,9 +229,9 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="zipCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>ZIP Code *</FormLabel>
+                    <FormLabel>الرمز البريدي *</FormLabel>
                     <FormControl>
-                      <Input placeholder="ZIP" {...field} />
+                      <Input placeholder="الرمز البريدي" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -242,9 +242,9 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price *</FormLabel>
+                    <FormLabel>السعر *</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Price" {...field} />
+                      <Input type="number" placeholder="السعر" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -255,11 +255,11 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="bedrooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Bedrooms</FormLabel>
+                    <FormLabel>غرف النوم</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
-                        placeholder="Bedrooms" 
+                        placeholder="غرف النوم" 
                         {...field}
                         value={field.value || ""}
                         onChange={e => field.onChange(parseInt(e.target.value) || 0)}
@@ -274,12 +274,12 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="bathrooms"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Bathrooms</FormLabel>
+                    <FormLabel>دورات المياه</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
                         step="0.5"
-                        placeholder="Bathrooms" 
+                        placeholder="دورات المياه" 
                         {...field}
                         value={field.value || ""}
                       />
@@ -296,11 +296,11 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="squareFeet"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Square Feet</FormLabel>
+                    <FormLabel>المساحة بالمتر المربع</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
-                        placeholder="Square feet" 
+                        placeholder="المساحة بالمتر المربع" 
                         {...field}
                         value={field.value || ""}
                         onChange={e => field.onChange(parseInt(e.target.value) || 0)}
@@ -315,13 +315,13 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                 name="photoUrls"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Photo URLs (Max 10)</FormLabel>
+                    <FormLabel>روابط الصور (الحد الأقصى 10)</FormLabel>
                     <FormControl>
                       <div className="space-y-3">
                         {(field.value || []).map((url: string, index: number) => (
                           <div key={index} className="flex items-center gap-2">
                             <Input
-                              placeholder={`Photo URL ${index + 1}`}
+                              placeholder={`رابط الصورة ${index + 1}`}
                               value={url}
                               onChange={(e) => {
                                 const newUrls = [...(field.value || [])];
@@ -355,7 +355,7 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                             }}
                             className="w-full"
                           >
-                            + Add Photo URL ({(field.value || []).length}/10)
+                            + إضافة رابط صورة ({(field.value || []).length}/10)
                           </Button>
                         )}
                       </div>
@@ -366,19 +366,19 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
               />
             </div>
 
-            <div className="flex justify-end space-x-3 pt-4">
+            <div className="flex justify-end space-x-3 space-x-reverse pt-4">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                إلغاء
               </Button>
               <Button 
                 type="submit" 
                 disabled={createPropertyMutation.isPending}
               >
-                {createPropertyMutation.isPending ? "Saving..." : "Save Property"}
+                {createPropertyMutation.isPending ? "جار الحفظ..." : "حفظ العقار"}
               </Button>
             </div>
           </form>
