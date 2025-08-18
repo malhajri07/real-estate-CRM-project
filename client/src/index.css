@@ -183,3 +183,36 @@ body {
     direction: rtl;
   }
 }
+
+/* Layout containment fixes for dropdown issues */
+.layout-container {
+  contain: layout style;
+  isolation: isolate;
+}
+
+/* Ensure dropdowns don't affect document flow */
+[data-radix-select-content] {
+  position: fixed !important;
+  z-index: 1000 !important;
+  contain: layout style paint !important;
+  will-change: transform !important;
+}
+
+/* Prevent ResizeObserver errors from affecting layout */
+.filter-container {
+  contain: layout;
+  transform: translateZ(0);
+  isolation: isolate;
+}
+
+/* Header stability */
+header {
+  contain: layout style;
+  isolation: isolate;
+}
+
+/* Main content isolation */
+main {
+  contain: layout style;
+  isolation: isolate;
+}

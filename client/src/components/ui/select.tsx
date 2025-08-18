@@ -75,22 +75,17 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "absolute z-[99999] max-h-96 min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-xl",
+        "fixed z-[100] max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-xl",
         className
       )}
       position="popper"
       side="bottom"
       align="start"
       sideOffset={4}
-      avoidCollisions={false}
-      style={{ 
-        position: 'absolute',
-        willChange: 'transform',
-        ...props.style 
-      }}
+      avoidCollisions={true}
       {...props}
     >
-      <SelectPrimitive.Viewport className="p-1 max-h-96">
+      <SelectPrimitive.Viewport className="p-1 max-h-96 overflow-y-auto">
         {children}
       </SelectPrimitive.Viewport>
     </SelectPrimitive.Content>
