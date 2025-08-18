@@ -59,59 +59,59 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={() => (
-        <div className="min-h-screen bg-background">
+        <div className="layout-lock bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col" style={{ contain: 'layout' }}>
+          <div className="mr-72 flex flex-col min-h-screen">
             <Dashboard />
           </div>
         </div>
       )} />
 
       <Route path="/customers" component={() => (
-        <div className="min-h-screen bg-background">
+        <div className="layout-lock bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col" style={{ contain: 'layout' }}>
+          <div className="mr-72 flex flex-col min-h-screen">
             <Customers />
           </div>
         </div>
       )} />
       <Route path="/properties" component={() => (
-        <div className="min-h-screen bg-background">
+        <div className="layout-lock bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col" style={{ contain: 'layout' }}>
+          <div className="mr-72 flex flex-col min-h-screen">
             <Properties />
           </div>
         </div>
       )} />
       <Route path="/properties/:id" component={PropertyDetail} />
       <Route path="/pipeline" component={() => (
-        <div className="min-h-screen bg-background">
+        <div className="layout-lock bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col" style={{ contain: 'layout' }}>
+          <div className="mr-72 flex flex-col min-h-screen">
             <Pipeline />
           </div>
         </div>
       )} />
       <Route path="/clients" component={() => (
-        <div className="min-h-screen bg-background">
+        <div className="layout-lock bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col" style={{ contain: 'layout' }}>
+          <div className="mr-72 flex flex-col min-h-screen">
             <Clients />
           </div>
         </div>
       )} />
       <Route path="/reports" component={() => (
-        <div className="min-h-screen bg-background">
+        <div className="layout-lock bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col" style={{ contain: 'layout' }}>
+          <div className="mr-72 flex flex-col min-h-screen">
             <Reports />
           </div>
         </div>
       )} />
       <Route path="/notifications" component={() => (
-        <div className="min-h-screen bg-background">
+        <div className="layout-lock bg-background">
           <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col" style={{ contain: 'layout' }}>
+          <div className="mr-72 flex flex-col min-h-screen">
             <Notifications />
           </div>
         </div>

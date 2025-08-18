@@ -212,7 +212,7 @@ export default function Properties() {
         searchPlaceholder="البحث في العقارات بالعنوان أو الموقع أو النوع..."
       />
       
-      <main className="flex-1 overflow-y-auto p-6" style={{ contain: 'layout style' }}>
+      <main className="flex-1 overflow-y-auto p-6 no-layout-shift">
         <Card>
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between mb-4">
@@ -239,7 +239,7 @@ export default function Properties() {
 
             {/* Filters Panel */}
             {showFilters && (
-              <div className="rounded-xl p-5 space-y-4 border border-slate-200/60 dark:border-slate-700/60 shadow-sm filter-container" style={{ backgroundColor: '#edf1ee' }}>
+              <div className="rounded-xl p-5 space-y-4 border border-slate-200/60 dark:border-slate-700/60 shadow-sm no-layout-shift" style={{ backgroundColor: '#edf1ee' }}>
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-slate-800 dark:text-slate-200 text-lg">فلاتر البحث</h3>
                   <Button variant="ghost" size="sm" onClick={resetFilters} className="text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">

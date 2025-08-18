@@ -184,35 +184,24 @@ body {
   }
 }
 
-/* Layout containment fixes for dropdown issues */
-.layout-container {
-  contain: layout style;
-  isolation: isolate;
-}
-
-/* Ensure dropdowns don't affect document flow */
-[data-radix-select-content] {
-  position: fixed !important;
-  z-index: 1000 !important;
-  contain: layout style paint !important;
-  will-change: transform !important;
-}
-
-/* Prevent ResizeObserver errors from affecting layout */
-.filter-container {
-  contain: layout;
+/* Layout stability fixes */
+.no-layout-shift {
   transform: translateZ(0);
-  isolation: isolate;
+  will-change: auto;
 }
 
-/* Header stability */
-header {
-  contain: layout style;
-  isolation: isolate;
+/* Absolute layout stability - prevent ALL movement */
+html, body {
+  overflow-x: hidden;
+  position: relative;
 }
 
-/* Main content isolation */
-main {
-  contain: layout style;
-  isolation: isolate;
+.layout-lock {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }

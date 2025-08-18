@@ -24,7 +24,7 @@ export default function Header({ title, onAddClick, onSearch, searchPlaceholder 
   };
 
   return (
-    <header className="bg-card border-b border-border/50 px-8 py-6 apple-shadow sticky top-0 z-40">
+    <header className="bg-card border-b border-border/50 px-8 py-6 apple-shadow relative z-10">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-6 space-x-reverse">
           <h2 className="text-3xl font-bold text-foreground tracking-tight">{title}</h2>
