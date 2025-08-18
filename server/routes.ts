@@ -5,12 +5,13 @@ import { insertLeadSchema, insertPropertySchema, insertDealSchema, insertActivit
 import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 import { setupMockAuth, isAuthenticated } from "./authMock";
+import { setupRealAuth, requireRole, requireTenantAccess } from "./realAuth";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { registerRoleBasedRoutes } from "./roleRoutes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup mock authentication for development
-  await setupMockAuth(app);
+  // Setup enhanced authentication system
+  await setupRealAuth(app);
 
   // Register role-based access control routes
   registerRoleBasedRoutes(app);
