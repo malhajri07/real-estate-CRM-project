@@ -206,7 +206,7 @@ export default function Customers() {
 
             {/* Filters Panel */}
             {showFilters && (
-              <div className="rounded-xl p-5 space-y-4 border border-slate-200/60 dark:border-slate-700/60 shadow-sm overflow-visible" style={{ backgroundColor: '#edf1ee' }}>
+              <div className="rounded-xl p-5 space-y-4 border border-slate-200/60 dark:border-slate-700/60 shadow-sm" style={{ backgroundColor: '#edf1ee', isolation: 'isolate' }}>
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-slate-800 dark:text-slate-200 text-lg">فلاتر البحث</h3>
                   <Button variant="ghost" size="sm" onClick={resetFilters} className="text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
@@ -214,7 +214,7 @@ export default function Customers() {
                   </Button>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 relative">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4" style={{ contain: 'layout' }}>
                   {/* Status Filter */}
                   <div className="space-y-2">
                     <Label className="text-slate-700 dark:text-slate-300 font-medium">الحالة</Label>
