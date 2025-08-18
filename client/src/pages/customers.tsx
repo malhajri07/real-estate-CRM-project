@@ -206,7 +206,7 @@ export default function Customers() {
 
             {/* Filters Panel */}
             {showFilters && (
-              <div className="rounded-xl p-5 space-y-4 border border-slate-200/60 dark:border-slate-700/60 shadow-sm" style={{ backgroundColor: '#edf1ee' }}>
+              <div className="rounded-xl p-5 space-y-4 border border-slate-200/60 dark:border-slate-700/60 shadow-sm overflow-visible" style={{ backgroundColor: '#edf1ee' }}>
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-slate-800 dark:text-slate-200 text-lg">فلاتر البحث</h3>
                   <Button variant="ghost" size="sm" onClick={resetFilters} className="text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200">
@@ -214,7 +214,7 @@ export default function Customers() {
                   </Button>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 relative">
                   {/* Status Filter */}
                   <div className="space-y-2">
                     <Label className="text-slate-700 dark:text-slate-300 font-medium">الحالة</Label>
@@ -222,7 +222,7 @@ export default function Customers() {
                       <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر الحالة" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-50" position="popper" sideOffset={4}>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-[9999]" position="popper" sideOffset={4} avoidCollisions={true}>
                         <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الحالات</SelectItem>
                         {uniqueStatuses.map(status => (
                           <SelectItem key={status} value={status} className="hover:bg-slate-100 dark:hover:bg-slate-700">
@@ -240,7 +240,7 @@ export default function Customers() {
                       <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر المدينة" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-50" position="popper" sideOffset={4}>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-[9999]" position="popper" sideOffset={4} avoidCollisions={true}>
                         <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع المدن</SelectItem>
                         {uniqueCities.map(city => (
                           <SelectItem key={city} value={city} className="hover:bg-slate-100 dark:hover:bg-slate-700">{city}</SelectItem>
@@ -256,7 +256,7 @@ export default function Customers() {
                       <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر الفئة العمرية" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-50" position="popper" sideOffset={4}>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-[9999]" position="popper" sideOffset={4} avoidCollisions={true}>
                         <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الأعمار</SelectItem>
                         <SelectItem value="20-30" className="hover:bg-slate-100 dark:hover:bg-slate-700">20-30 سنة</SelectItem>
                         <SelectItem value="31-40" className="hover:bg-slate-100 dark:hover:bg-slate-700">31-40 سنة</SelectItem>
@@ -273,7 +273,7 @@ export default function Customers() {
                       <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر الحالة" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-50" position="popper" sideOffset={4}>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-[9999]" position="popper" sideOffset={4} avoidCollisions={true}>
                         <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الحالات</SelectItem>
                         {uniqueMaritalStatuses.map(status => (
                           <SelectItem key={status} value={status} className="hover:bg-slate-100 dark:hover:bg-slate-700">{status}</SelectItem>
@@ -289,7 +289,7 @@ export default function Customers() {
                       <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر النوع" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-50" position="popper" sideOffset={4}>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-[9999]" position="popper" sideOffset={4} avoidCollisions={true}>
                         <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الأنواع</SelectItem>
                         {uniqueInterestTypes.map(type => (
                           <SelectItem key={type} value={type} className="hover:bg-slate-100 dark:hover:bg-slate-700">{type}</SelectItem>
@@ -305,7 +305,7 @@ export default function Customers() {
                       <SelectTrigger className="bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 shadow-sm hover:border-primary/50 transition-colors">
                         <SelectValue placeholder="اختر العدد" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-50" position="popper" sideOffset={4}>
+                      <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 shadow-lg z-[9999]" position="popper" sideOffset={4} avoidCollisions={true}>
                         <SelectItem value="all" className="hover:bg-slate-100 dark:hover:bg-slate-700">جميع الأعداد</SelectItem>
                         <SelectItem value="0" className="hover:bg-slate-100 dark:hover:bg-slate-700">لا يوجد</SelectItem>
                         <SelectItem value="1-2" className="hover:bg-slate-100 dark:hover:bg-slate-700">1-2</SelectItem>
