@@ -120,54 +120,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Leads & Activities */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Recent Leads */}
-            <Card className="apple-card">
-              <CardHeader className="p-6">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl font-semibold tracking-tight">العملاء المحتملين الجدد</CardTitle>
-                  <Button variant="ghost" className="text-primary hover:bg-primary/10 rounded-xl font-medium text-sm">
-                    عرض الكل
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                {recentLeads.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground">
-                    لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {recentLeads.map((lead) => (
-                      <div key={lead.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl hover:bg-muted/50 apple-transition">
-                        <div className="flex items-center space-x-4 space-x-reverse">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
-                            {lead.firstName[0]}{lead.lastName[0]}
-                          </div>
-                          <div>
-                            <p className="font-medium text-foreground tracking-tight">{lead.firstName} {lead.lastName}</p>
-                            <p className="text-sm text-slate-500">{lead.phone}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-3 space-x-reverse">
-                          <Badge className={getStatusBadgeColor(lead.status)}>
-                            {lead.status === 'new' ? 'جديد' : 
-                             lead.status === 'qualified' ? 'مؤهل' : 
-                             lead.status === 'showing' ? 'معاينة' : 
-                             lead.status === 'negotiation' ? 'تفاوض' : 
-                             lead.status === 'closed' ? 'مغلق' : 'مفقود'}
-                          </Badge>
-                          <span className="text-sm text-slate-500">
-                            {new Date(lead.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Deal Pipeline Overview */}
+            {/* Deal Pipeline Overview - Moved to Top */}
             <Card className="apple-card">
               <CardHeader className="p-6">
                 <CardTitle>مراحل الصفقات</CardTitle>
@@ -226,6 +179,55 @@ export default function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Recent Leads */}
+            <Card className="apple-card">
+              <CardHeader className="p-6">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-xl font-semibold tracking-tight">العملاء المحتملين الجدد</CardTitle>
+                  <Button variant="ghost" className="text-primary hover:bg-primary/10 rounded-xl font-medium text-sm">
+                    عرض الكل
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                {recentLeads.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recentLeads.map((lead) => (
+                      <div key={lead.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl hover:bg-muted/50 apple-transition">
+                        <div className="flex items-center space-x-4 space-x-reverse">
+                          <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
+                            {lead.firstName[0]}{lead.lastName[0]}
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground tracking-tight">{lead.firstName} {lead.lastName}</p>
+                            <p className="text-sm text-slate-500">{lead.phone}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-3 space-x-reverse">
+                          <Badge className={getStatusBadgeColor(lead.status)}>
+                            {lead.status === 'new' ? 'جديد' : 
+                             lead.status === 'qualified' ? 'مؤهل' : 
+                             lead.status === 'showing' ? 'معاينة' : 
+                             lead.status === 'negotiation' ? 'تفاوض' : 
+                             lead.status === 'closed' ? 'مغلق' : 'مفقود'}
+                          </Badge>
+                          <span className="text-sm text-slate-500">
+                            {new Date(lead.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+
           </div>
 
           {/* Sidebar Widgets */}
