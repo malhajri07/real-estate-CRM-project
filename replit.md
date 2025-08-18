@@ -111,6 +111,8 @@ The database schema includes:
 - Improved sidebar stability by increasing z-index to prevent interference with dropdown menus
 - Updated routing to use unified "/customers" path for potential customer management
 - Enhanced filter panel styling with subtle borders, shadows, and better typography
+- **Fixed dropdown layout shift issue**: Added `position="popper"` and `sideOffset={4}` to prevent content movement when dropdowns open/close
+- Implemented consistent dropdown positioning across all filter sections in Properties and Customers pages
 
 ## External Dependencies
 
