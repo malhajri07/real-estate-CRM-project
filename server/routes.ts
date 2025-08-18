@@ -6,10 +6,14 @@ import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 import { setupMockAuth, isAuthenticated } from "./authMock";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { registerRoleBasedRoutes } from "./roleRoutes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup mock authentication for development
   await setupMockAuth(app);
+
+  // Register role-based access control routes
+  registerRoleBasedRoutes(app);
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {

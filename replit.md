@@ -42,14 +42,18 @@ The frontend follows a modular component structure with:
 - **Runtime**: Node.js with Express.js framework
 - **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
 - **Schema Management**: Shared schema definitions between frontend and backend using Drizzle Zod
-- **Storage Pattern**: Repository pattern with in-memory storage for development and database storage for production
+- **Storage Pattern**: Repository pattern with database storage and multi-tenant data isolation
 - **API Design**: RESTful API endpoints with proper HTTP status codes and error handling
+- **Authentication**: Role-based access control with JWT-style user validation and permission checking
+- **Multi-Tenancy**: Comprehensive tenant isolation system with hierarchical user management
 
 The backend implements a clean separation of concerns:
-- Route handlers for API endpoints
-- Storage abstraction layer for data persistence
+- Route handlers for API endpoints with role-based authorization
+- Storage abstraction layer with tenant-aware data persistence
+- Authentication middleware with permission validation
+- Role-based API routes for user and account management
 - Shared schema validation between client and server
-- Middleware for request logging and error handling
+- Middleware for request logging, error handling, and tenant access control
 
 ### Data Storage Solutions
 - **Primary Database**: PostgreSQL accessed through Neon serverless connection (✅ **ACTIVE**)
@@ -65,12 +69,18 @@ The backend implements a clean separation of concerns:
 - Replaced MemStorage with DatabaseStorage class using Drizzle ORM operations
 - Verified data persistence and API functionality with real database integration
 
-The database schema includes:
-- Users table for authentication
-- Leads table for prospect management
-- Properties table for real estate listings
-- Deals table linking leads to properties with pipeline stages
-- Activities table for tracking interactions
+**Multi-Tenant Database Enhancement (August 18, 2025):**
+- **Enhanced User Schema**: Extended users table with userLevel, accountOwnerId, companyName, subscription fields, and tenant isolation
+- **User Permissions Table**: Created comprehensive permissions table with 14 granular permission categories
+- **Tenant Isolation**: Added tenantId fields to all CRM tables (leads, properties, deals, activities, messages) with proper foreign key relationships
+- **Default Values**: Implemented automatic tenantId generation using PostgreSQL gen_random_uuid() for seamless data migration
+- **Session Management**: Maintained existing session storage for authentication continuity
+
+The enhanced database schema includes:
+- Users table with role hierarchy and tenant isolation
+- UserPermissions table for granular access control
+- Leads, Properties, Deals, Activities, Messages tables with tenant isolation
+- Sessions table for authentication persistence
 
 ### Authentication and Authorization
 - **Admin Login System**: Simple authentication with hardcoded credentials (Admin1/123456)
@@ -113,6 +123,20 @@ The database schema includes:
 - Enhanced filter panel styling with subtle borders, shadows, and better typography
 - **Fixed dropdown layout shift issue**: Added `position="popper"` and `sideOffset={4}` to prevent content movement when dropdowns open/close
 - Implemented consistent dropdown positioning across all filter sections in Properties and Customers pages
+
+**Complete Role-Based Access Control Implementation (August 18, 2025):**
+- **Multi-Tenant Database Schema**: Implemented comprehensive user hierarchy with users, userPermissions tables supporting platform admins, account owners, and sub-accounts
+- **Tenant Data Isolation**: Added tenantId fields to all CRM data tables (leads, properties, deals, activities, messages) with default values for seamless migration
+- **Authentication Middleware**: Created robust role-based authentication system with JWT-style user validation, permission checking, and tenant access control
+- **User Level Hierarchy**: 
+  - Level 1: Platform Administrators (cross-account visibility and management)
+  - Level 2: Account Owners (company-wide access with sub-account management)
+  - Level 3: Sub-Accounts (limited access within their company tenant)
+- **Permission Matrix**: Implemented detailed permission system covering company settings, billing, user management, data access, campaigns, integrations, API keys, reports, and admin functions
+- **Role-Based API Routes**: Created comprehensive endpoints for user management, account administration, and tenant-isolated data access
+- **Database Migration**: Successfully migrated existing data with proper tenant isolation and default permission assignments
+- **Multi-Tenant Storage Layer**: Updated all storage methods to support optional tenantId parameters for proper data segregation
+- **Subscription Management**: Integrated seat limits, subscription tiers, and billing status tracking for account owners
 
 ## External Dependencies
 

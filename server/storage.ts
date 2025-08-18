@@ -1,4 +1,27 @@
-import { type User, type InsertUser, type UpsertUser, type Lead, type InsertLead, type Property, type InsertProperty, type Deal, type InsertDeal, type Activity, type InsertActivity, type Message, type InsertMessage, users, leads, properties, deals, activities, messages } from "@shared/schema";
+import { 
+  type User, 
+  type UserPermissions,
+  type InsertUser, 
+  type UpsertUser,
+  type InsertUserPermissions,
+  type Lead, 
+  type InsertLead, 
+  type Property, 
+  type InsertProperty, 
+  type Deal, 
+  type InsertDeal, 
+  type Activity, 
+  type InsertActivity, 
+  type Message, 
+  type InsertMessage, 
+  users, 
+  userPermissions,
+  leads, 
+  properties, 
+  deals, 
+  activities, 
+  messages 
+} from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
 import { eq, ilike, or, and, gte, lt } from "drizzle-orm";
@@ -9,43 +32,48 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
+  
+  // User Permissions methods
+  getUserPermissions(userId: string): Promise<UserPermissions | undefined>;
+  createUserPermissions(permissions: InsertUserPermissions): Promise<UserPermissions>;
+  updateUserPermissions(userId: string, permissions: Partial<InsertUserPermissions>): Promise<UserPermissions | undefined>;
+  
+  // Multi-tenant Lead methods
+  getAllLeads(tenantId?: string): Promise<Lead[]>;
+  getLead(id: string, tenantId?: string): Promise<Lead | undefined>;
+  createLead(lead: InsertLead, userId: string, tenantId: string): Promise<Lead>;
+  updateLead(id: string, lead: Partial<InsertLead>, tenantId?: string): Promise<Lead | undefined>;
+  deleteLead(id: string, tenantId?: string): Promise<boolean>;
+  searchLeads(query: string, tenantId?: string): Promise<Lead[]>;
 
-  // Lead methods
-  getAllLeads(): Promise<Lead[]>;
-  getLead(id: string): Promise<Lead | undefined>;
-  createLead(lead: InsertLead): Promise<Lead>;
-  updateLead(id: string, lead: Partial<InsertLead>): Promise<Lead | undefined>;
-  deleteLead(id: string): Promise<boolean>;
-  searchLeads(query: string): Promise<Lead[]>;
+  // Multi-tenant Property methods
+  getAllProperties(tenantId?: string): Promise<Property[]>;
+  getProperty(id: string, tenantId?: string): Promise<Property | undefined>;
+  createProperty(property: InsertProperty, userId: string, tenantId: string): Promise<Property>;
+  updateProperty(id: string, property: Partial<InsertProperty>, tenantId?: string): Promise<Property | undefined>;
+  deleteProperty(id: string, tenantId?: string): Promise<boolean>;
+  searchProperties(query: string, tenantId?: string): Promise<Property[]>;
 
-  // Property methods
-  getAllProperties(): Promise<Property[]>;
-  getProperty(id: string): Promise<Property | undefined>;
-  createProperty(property: InsertProperty): Promise<Property>;
-  updateProperty(id: string, property: Partial<InsertProperty>): Promise<Property | undefined>;
-  deleteProperty(id: string): Promise<boolean>;
-  searchProperties(query: string): Promise<Property[]>;
+  // Multi-tenant Deal methods
+  getAllDeals(tenantId?: string): Promise<Deal[]>;
+  getDeal(id: string, tenantId?: string): Promise<Deal | undefined>;
+  createDeal(deal: InsertDeal, tenantId: string): Promise<Deal>;
+  updateDeal(id: string, deal: Partial<InsertDeal>, tenantId?: string): Promise<Deal | undefined>;
+  deleteDeal(id: string, tenantId?: string): Promise<boolean>;
+  getDealsByStage(stage: string, tenantId?: string): Promise<Deal[]>;
 
-  // Deal methods
-  getAllDeals(): Promise<Deal[]>;
-  getDeal(id: string): Promise<Deal | undefined>;
-  createDeal(deal: InsertDeal): Promise<Deal>;
-  updateDeal(id: string, deal: Partial<InsertDeal>): Promise<Deal | undefined>;
-  deleteDeal(id: string): Promise<boolean>;
-  getDealsByStage(stage: string): Promise<Deal[]>;
+  // Multi-tenant Activity methods
+  getActivitiesByLead(leadId: string, tenantId?: string): Promise<Activity[]>;
+  createActivity(activity: InsertActivity, tenantId: string): Promise<Activity>;
+  updateActivity(id: string, activity: Partial<InsertActivity>, tenantId?: string): Promise<Activity | undefined>;
+  deleteActivity(id: string, tenantId?: string): Promise<boolean>;
+  getTodaysActivities(tenantId?: string): Promise<Activity[]>;
 
-  // Activity methods
-  getActivitiesByLead(leadId: string): Promise<Activity[]>;
-  createActivity(activity: InsertActivity): Promise<Activity>;
-  updateActivity(id: string, activity: Partial<InsertActivity>): Promise<Activity | undefined>;
-  deleteActivity(id: string): Promise<boolean>;
-  getTodaysActivities(): Promise<Activity[]>;
-
-  // Message methods
-  getMessagesByLead(leadId: string): Promise<Message[]>;
-  createMessage(message: InsertMessage): Promise<Message>;
-  updateMessageStatus(id: string, status: string): Promise<Message | undefined>;
-  getAllMessages(): Promise<Message[]>;
+  // Multi-tenant Message methods
+  getMessagesByLead(leadId: string, tenantId?: string): Promise<Message[]>;
+  createMessage(message: InsertMessage, tenantId: string): Promise<Message>;
+  updateMessageStatus(id: string, status: string, tenantId?: string): Promise<Message | undefined>;
+  getAllMessages(tenantId?: string): Promise<Message[]>;
   
   // Notification methods (basic implementation for now)
   getNotifications(): Promise<any[]>;
@@ -420,6 +448,15 @@ export class DatabaseStorage implements IStorage {
           firstName: userData.firstName,
           lastName: userData.lastName,
           profileImageUrl: userData.profileImageUrl,
+          userLevel: userData.userLevel,
+          accountOwnerId: userData.accountOwnerId,
+          companyName: userData.companyName,
+          isActive: userData.isActive,
+          subscriptionStatus: userData.subscriptionStatus,
+          subscriptionTier: userData.subscriptionTier,
+          maxSeats: userData.maxSeats,
+          usedSeats: userData.usedSeats,
+          tenantId: userData.tenantId,
           updatedAt: new Date(),
         },
       })
@@ -427,198 +464,331 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  // Lead methods
-  async getAllLeads(): Promise<Lead[]> {
+  // User Permissions methods
+  async getUserPermissions(userId: string): Promise<UserPermissions | undefined> {
+    const [permissions] = await db.select().from(userPermissions).where(eq(userPermissions.userId, userId));
+    return permissions || undefined;
+  }
+
+  async createUserPermissions(insertPermissions: InsertUserPermissions): Promise<UserPermissions> {
+    const [permissions] = await db
+      .insert(userPermissions)
+      .values(insertPermissions)
+      .returning();
+    return permissions;
+  }
+
+  async updateUserPermissions(userId: string, permissionsUpdate: Partial<InsertUserPermissions>): Promise<UserPermissions | undefined> {
+    const [permissions] = await db
+      .update(userPermissions)
+      .set({ ...permissionsUpdate, updatedAt: new Date() })
+      .where(eq(userPermissions.userId, userId))
+      .returning();
+    return permissions || undefined;
+  }
+
+  // Multi-tenant Lead methods
+  async getAllLeads(tenantId?: string): Promise<Lead[]> {
+    if (tenantId) {
+      return await db.select().from(leads).where(eq(leads.tenantId, tenantId)).orderBy(leads.createdAt);
+    }
+    // Platform admin can see all leads
     return await db.select().from(leads).orderBy(leads.createdAt);
   }
 
-  async getLead(id: string): Promise<Lead | undefined> {
-    const [lead] = await db.select().from(leads).where(eq(leads.id, id));
+  async getLead(id: string, tenantId?: string): Promise<Lead | undefined> {
+    let query = db.select().from(leads).where(eq(leads.id, id));
+    if (tenantId) {
+      query = query.where(eq(leads.tenantId, tenantId));
+    }
+    const [lead] = await query;
     return lead || undefined;
   }
 
-  async createLead(insertLead: InsertLead): Promise<Lead> {
+  async createLead(insertLead: InsertLead, userId: string, tenantId: string): Promise<Lead> {
     const [lead] = await db
       .insert(leads)
-      .values(insertLead)
+      .values({
+        ...insertLead,
+        tenantId,
+        createdBy: userId,
+      })
       .returning();
     return lead;
   }
 
-  async updateLead(id: string, leadUpdate: Partial<InsertLead>): Promise<Lead | undefined> {
-    const [lead] = await db
+  async updateLead(id: string, leadUpdate: Partial<InsertLead>, tenantId?: string): Promise<Lead | undefined> {
+    let query = db
       .update(leads)
       .set({ ...leadUpdate, updatedAt: new Date() })
-      .where(eq(leads.id, id))
-      .returning();
+      .where(eq(leads.id, id));
+    
+    if (tenantId) {
+      query = query.where(eq(leads.tenantId, tenantId));
+    }
+    
+    const [lead] = await query.returning();
     return lead || undefined;
   }
 
-  async deleteLead(id: string): Promise<boolean> {
-    const result = await db.delete(leads).where(eq(leads.id, id));
+  async deleteLead(id: string, tenantId?: string): Promise<boolean> {
+    let query = db.delete(leads).where(eq(leads.id, id));
+    
+    if (tenantId) {
+      query = query.where(eq(leads.tenantId, tenantId));
+    }
+    
+    const result = await query;
     return (result.rowCount ?? 0) > 0;
   }
 
-  async searchLeads(query: string): Promise<Lead[]> {
-    return await db.select().from(leads).where(
-      or(
-        ilike(leads.firstName, `%${query}%`),
-        ilike(leads.lastName, `%${query}%`),
-        ilike(leads.email, `%${query}%`),
-        ilike(leads.phone, `%${query}%`)
-      )
+  async searchLeads(query: string, tenantId?: string): Promise<Lead[]> {
+    let whereCondition = or(
+      ilike(leads.firstName, `%${query}%`),
+      ilike(leads.lastName, `%${query}%`),
+      ilike(leads.email, `%${query}%`),
+      ilike(leads.phone, `%${query}%`)
     );
+
+    if (tenantId) {
+      whereCondition = and(whereCondition, eq(leads.tenantId, tenantId));
+    }
+
+    return await db.select().from(leads).where(whereCondition);
   }
 
-  // Property methods
-  async getAllProperties(): Promise<Property[]> {
+  // Multi-tenant Property methods
+  async getAllProperties(tenantId?: string): Promise<Property[]> {
+    if (tenantId) {
+      return await db.select().from(properties).where(eq(properties.tenantId, tenantId)).orderBy(properties.createdAt);
+    }
     return await db.select().from(properties).orderBy(properties.createdAt);
   }
 
-  async getProperty(id: string): Promise<Property | undefined> {
-    const [property] = await db.select().from(properties).where(eq(properties.id, id));
+  async getProperty(id: string, tenantId?: string): Promise<Property | undefined> {
+    let query = db.select().from(properties).where(eq(properties.id, id));
+    if (tenantId) {
+      query = query.where(eq(properties.tenantId, tenantId));
+    }
+    const [property] = await query;
     return property || undefined;
   }
 
-  async createProperty(insertProperty: InsertProperty): Promise<Property> {
+  async createProperty(insertProperty: InsertProperty, userId: string, tenantId: string): Promise<Property> {
     const [property] = await db
       .insert(properties)
-      .values(insertProperty)
+      .values({
+        ...insertProperty,
+        tenantId,
+        createdBy: userId,
+      })
       .returning();
     return property;
   }
 
-  async updateProperty(id: string, propertyUpdate: Partial<InsertProperty>): Promise<Property | undefined> {
-    const [property] = await db
+  async updateProperty(id: string, propertyUpdate: Partial<InsertProperty>, tenantId?: string): Promise<Property | undefined> {
+    let query = db
       .update(properties)
       .set({ ...propertyUpdate, updatedAt: new Date() })
-      .where(eq(properties.id, id))
-      .returning();
+      .where(eq(properties.id, id));
+    
+    if (tenantId) {
+      query = query.where(eq(properties.tenantId, tenantId));
+    }
+    
+    const [property] = await query.returning();
     return property || undefined;
   }
 
-  async deleteProperty(id: string): Promise<boolean> {
-    const result = await db.delete(properties).where(eq(properties.id, id));
+  async deleteProperty(id: string, tenantId?: string): Promise<boolean> {
+    let query = db.delete(properties).where(eq(properties.id, id));
+    
+    if (tenantId) {
+      query = query.where(eq(properties.tenantId, tenantId));
+    }
+    
+    const result = await query;
     return (result.rowCount ?? 0) > 0;
   }
 
-  async searchProperties(query: string): Promise<Property[]> {
-    return await db.select().from(properties).where(
-      or(
-        ilike(properties.title, `%${query}%`),
-        ilike(properties.address, `%${query}%`),
-        ilike(properties.city, `%${query}%`)
-      )
+  async searchProperties(query: string, tenantId?: string): Promise<Property[]> {
+    let whereCondition = or(
+      ilike(properties.title, `%${query}%`),
+      ilike(properties.address, `%${query}%`),
+      ilike(properties.city, `%${query}%`)
     );
+
+    if (tenantId) {
+      whereCondition = and(whereCondition, eq(properties.tenantId, tenantId));
+    }
+
+    return await db.select().from(properties).where(whereCondition);
   }
 
-  // Deal methods
-  async getAllDeals(): Promise<Deal[]> {
+  // Multi-tenant Deal methods
+  async getAllDeals(tenantId?: string): Promise<Deal[]> {
+    if (tenantId) {
+      return await db.select().from(deals).where(eq(deals.tenantId, tenantId)).orderBy(deals.createdAt);
+    }
     return await db.select().from(deals).orderBy(deals.createdAt);
   }
 
-  async getDeal(id: string): Promise<Deal | undefined> {
-    const [deal] = await db.select().from(deals).where(eq(deals.id, id));
+  async getDeal(id: string, tenantId?: string): Promise<Deal | undefined> {
+    let query = db.select().from(deals).where(eq(deals.id, id));
+    if (tenantId) {
+      query = query.where(eq(deals.tenantId, tenantId));
+    }
+    const [deal] = await query;
     return deal || undefined;
   }
 
-  async createDeal(insertDeal: InsertDeal): Promise<Deal> {
+  async createDeal(insertDeal: InsertDeal, tenantId: string): Promise<Deal> {
     const [deal] = await db
       .insert(deals)
-      .values(insertDeal)
+      .values({
+        ...insertDeal,
+        tenantId,
+      })
       .returning();
     return deal;
   }
 
-  async updateDeal(id: string, dealUpdate: Partial<InsertDeal>): Promise<Deal | undefined> {
-    const [deal] = await db
+  async updateDeal(id: string, dealUpdate: Partial<InsertDeal>, tenantId?: string): Promise<Deal | undefined> {
+    let query = db
       .update(deals)
       .set({ ...dealUpdate, updatedAt: new Date() })
-      .where(eq(deals.id, id))
-      .returning();
+      .where(eq(deals.id, id));
+    
+    if (tenantId) {
+      query = query.where(eq(deals.tenantId, tenantId));
+    }
+    
+    const [deal] = await query.returning();
     return deal || undefined;
   }
 
-  async deleteDeal(id: string): Promise<boolean> {
-    const result = await db.delete(deals).where(eq(deals.id, id));
+  async deleteDeal(id: string, tenantId?: string): Promise<boolean> {
+    let query = db.delete(deals).where(eq(deals.id, id));
+    
+    if (tenantId) {
+      query = query.where(eq(deals.tenantId, tenantId));
+    }
+    
+    const result = await query;
     return (result.rowCount ?? 0) > 0;
   }
 
-  async getDealsByStage(stage: string): Promise<Deal[]> {
+  async getDealsByStage(stage: string, tenantId?: string): Promise<Deal[]> {
+    if (tenantId) {
+      return await db.select().from(deals).where(and(eq(deals.stage, stage), eq(deals.tenantId, tenantId)));
+    }
     return await db.select().from(deals).where(eq(deals.stage, stage));
   }
 
-  // Activity methods
-  async getActivitiesByLead(leadId: string): Promise<Activity[]> {
-    return await db.select().from(activities)
-      .where(eq(activities.leadId, leadId))
-      .orderBy(activities.createdAt);
+  // Multi-tenant Activity methods
+  async getActivitiesByLead(leadId: string, tenantId?: string): Promise<Activity[]> {
+    let query = db.select().from(activities).where(eq(activities.leadId, leadId));
+    if (tenantId) {
+      query = query.where(eq(activities.tenantId, tenantId));
+    }
+    return await query.orderBy(activities.createdAt);
   }
 
-  async createActivity(insertActivity: InsertActivity): Promise<Activity> {
+  async createActivity(insertActivity: InsertActivity, tenantId: string): Promise<Activity> {
     const [activity] = await db
       .insert(activities)
-      .values(insertActivity)
+      .values({
+        ...insertActivity,
+        tenantId,
+      })
       .returning();
     return activity;
   }
 
-  async updateActivity(id: string, activityUpdate: Partial<InsertActivity>): Promise<Activity | undefined> {
-    const [activity] = await db
+  async updateActivity(id: string, activityUpdate: Partial<InsertActivity>, tenantId?: string): Promise<Activity | undefined> {
+    let query = db
       .update(activities)
       .set(activityUpdate)
-      .where(eq(activities.id, id))
-      .returning();
+      .where(eq(activities.id, id));
+    
+    if (tenantId) {
+      query = query.where(eq(activities.tenantId, tenantId));
+    }
+    
+    const [activity] = await query.returning();
     return activity || undefined;
   }
 
-  async deleteActivity(id: string): Promise<boolean> {
-    const result = await db.delete(activities).where(eq(activities.id, id));
+  async deleteActivity(id: string, tenantId?: string): Promise<boolean> {
+    let query = db.delete(activities).where(eq(activities.id, id));
+    
+    if (tenantId) {
+      query = query.where(eq(activities.tenantId, tenantId));
+    }
+    
+    const result = await query;
     return (result.rowCount ?? 0) > 0;
   }
 
-  async getTodaysActivities(): Promise<Activity[]> {
+  async getTodaysActivities(tenantId?: string): Promise<Activity[]> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    return await db.select().from(activities).where(
-      and(
-        gte(activities.scheduledDate, today),
-        lt(activities.scheduledDate, tomorrow)
-      )
+    let whereCondition = and(
+      gte(activities.scheduledDate, today),
+      lt(activities.scheduledDate, tomorrow)
     );
+
+    if (tenantId) {
+      whereCondition = and(whereCondition, eq(activities.tenantId, tenantId));
+    }
+
+    return await db.select().from(activities).where(whereCondition);
   }
 
-  // Message methods
-  async getMessagesByLead(leadId: string): Promise<Message[]> {
-    return await db.select().from(messages)
-      .where(eq(messages.leadId, leadId))
-      .orderBy(messages.createdAt);
+  // Multi-tenant Message methods
+  async getMessagesByLead(leadId: string, tenantId?: string): Promise<Message[]> {
+    let query = db.select().from(messages).where(eq(messages.leadId, leadId));
+    if (tenantId) {
+      query = query.where(eq(messages.tenantId, tenantId));
+    }
+    return await query.orderBy(messages.createdAt);
   }
 
-  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+  async createMessage(insertMessage: InsertMessage, tenantId: string): Promise<Message> {
     const [message] = await db
       .insert(messages)
-      .values(insertMessage)
+      .values({
+        ...insertMessage,
+        tenantId,
+      })
       .returning();
     return message;
   }
 
-  async updateMessageStatus(id: string, status: string): Promise<Message | undefined> {
-    const [message] = await db
+  async updateMessageStatus(id: string, status: string, tenantId?: string): Promise<Message | undefined> {
+    let query = db
       .update(messages)
       .set({ 
         status,
         sentAt: status === 'sent' ? new Date() : undefined
       })
-      .where(eq(messages.id, id))
-      .returning();
+      .where(eq(messages.id, id));
+    
+    if (tenantId) {
+      query = query.where(eq(messages.tenantId, tenantId));
+    }
+    
+    const [message] = await query.returning();
     return message || undefined;
   }
 
-  async getAllMessages(): Promise<Message[]> {
+  async getAllMessages(tenantId?: string): Promise<Message[]> {
+    if (tenantId) {
+      return await db.select().from(messages).where(eq(messages.tenantId, tenantId)).orderBy(messages.createdAt);
+    }
     return await db.select().from(messages).orderBy(messages.createdAt);
   }
 
