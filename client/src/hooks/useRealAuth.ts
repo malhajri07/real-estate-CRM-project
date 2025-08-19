@@ -17,6 +17,21 @@ export function useRealAuth() {
 
   useEffect(() => {
     checkAuthStatus();
+    
+    // Listen for storage changes (for when login happens)
+    const handleStorageChange = () => {
+      checkAuthStatus();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for manual localStorage changes in the same tab
+    const checkInterval = setInterval(checkAuthStatus, 1000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(checkInterval);
+    };
   }, []);
 
   const checkAuthStatus = () => {
