@@ -102,12 +102,8 @@ export default function Login() {
       localStorage.setItem("userLevel", user.userLevel.toString());
       localStorage.setItem("tenantId", user.tenantId);
 
-      // Wait a moment then navigate to dashboard
-      setTimeout(() => {
-        setLocation("/");
-        // Also trigger a custom event to refresh auth state immediately
-        window.dispatchEvent(new Event('storage'));
-      }, 100);
+      // Navigate directly to dashboard
+      setLocation("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "حدث خطأ في تسجيل الدخول");
     } finally {

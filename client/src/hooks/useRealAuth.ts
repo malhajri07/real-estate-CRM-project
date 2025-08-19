@@ -25,12 +25,8 @@ export function useRealAuth() {
     
     window.addEventListener('storage', handleStorageChange);
     
-    // Also listen for manual localStorage changes in the same tab
-    const checkInterval = setInterval(checkAuthStatus, 1000);
-    
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      clearInterval(checkInterval);
     };
   }, []);
 
@@ -41,18 +37,24 @@ export function useRealAuth() {
       
       if (currentUserStr && authToken) {
         const currentUser = JSON.parse(currentUserStr) as User;
-        setUser(currentUser);
-        setIsAuthenticated(true);
+        // Only update if user actually changed to prevent unnecessary re-renders
+        setUser(prev => {
+          if (!prev || prev.id !== currentUser.id) {
+            return currentUser;
+          }
+          return prev;
+        });
+        setIsAuthenticated(prev => prev !== true ? true : prev);
       } else {
-        setUser(null);
-        setIsAuthenticated(false);
+        setUser(prev => prev !== null ? null : prev);
+        setIsAuthenticated(prev => prev !== false ? false : prev);
       }
     } catch (error) {
       console.error("Error checking auth status:", error);
-      setUser(null);
-      setIsAuthenticated(false);
+      setUser(prev => prev !== null ? null : prev);
+      setIsAuthenticated(prev => prev !== false ? false : prev);
     } finally {
-      setIsLoading(false);
+      setIsLoading(prev => prev !== false ? false : prev);
     }
   };
 
