@@ -12,23 +12,9 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Get authentication headers
-  const authToken = localStorage.getItem("authToken");
-  const currentUserStr = localStorage.getItem("currentUser");
-  
-  const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
-  
-  // Add authentication headers if available
-  if (authToken && currentUserStr) {
-    const user = JSON.parse(currentUserStr);
-    headers["Authorization"] = authToken;
-    headers["x-user-id"] = user.id;
-    headers["x-tenant-id"] = user.tenantId;
-  }
-
   const res = await fetch(url, {
     method,
-    headers,
+    headers: data ? { "Content-Type": "application/json" } : {},
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -43,25 +29,8 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    // Get authentication headers
-    const authToken = localStorage.getItem("authToken");
-    const currentUserStr = localStorage.getItem("currentUser");
-    
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    
-    // Add authentication headers if available
-    if (authToken && currentUserStr) {
-      const user = JSON.parse(currentUserStr);
-      headers["Authorization"] = authToken;
-      headers["x-user-id"] = user.id;
-      headers["x-tenant-id"] = user.tenantId;
-    }
-
     const res = await fetch(queryKey.join("/") as string, {
       credentials: "include",
-      headers,
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {

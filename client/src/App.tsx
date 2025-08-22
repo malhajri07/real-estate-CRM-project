@@ -1,11 +1,10 @@
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { useRealAuth } from "@/hooks/useRealAuth";
-import { useState, useEffect } from "react";
 import Login from "@/pages/login";
 import Dashboard from "@/pages/dashboard";
 import Leads from "@/pages/leads";
@@ -19,23 +18,41 @@ import PropertyDetail from "@/pages/property-detail";
 import Sidebar from "@/components/layout/sidebar";
 
 function Router() {
-  const { isAuthenticated, isLoading, logout } = useRealAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check for existing authentication on app load
+  useEffect(() => {
+    const authStatus = localStorage.getItem('isAuthenticated');
+    if (authStatus === 'true') {
+      setIsAuthenticated(true);
+    }
+    setIsLoading(false);
+  }, []);
+
+  // Handle login
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('isAuthenticated', 'true');
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('isAuthenticated');
+  };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center" dir="rtl">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-green-800 mb-4">منصة عقاراتي</h1>
-          <p className="text-green-600 mb-8">نظام إدارة العقارات المتكامل</p>
-          <div className="animate-spin w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full mx-auto"></div>
-        </div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   // Show login page if not authenticated
   if (!isAuthenticated) {
-    return <Login />;
+    return <Login onLogin={handleLogin} />;
   }
 
   // Show main CRM application if authenticated
@@ -43,7 +60,7 @@ function Router() {
     <Switch>
       <Route path="/" component={() => (
         <div className="layout-lock bg-background">
-          <Sidebar onLogout={logout} />
+          <Sidebar onLogout={handleLogout} />
           <div className="mr-72 flex flex-col min-h-screen">
             <Dashboard />
           </div>
@@ -52,7 +69,7 @@ function Router() {
 
       <Route path="/customers" component={() => (
         <div className="layout-lock bg-background">
-          <Sidebar onLogout={logout} />
+          <Sidebar onLogout={handleLogout} />
           <div className="mr-72 flex flex-col min-h-screen">
             <Customers />
           </div>
@@ -60,7 +77,7 @@ function Router() {
       )} />
       <Route path="/properties" component={() => (
         <div className="layout-lock bg-background">
-          <Sidebar onLogout={logout} />
+          <Sidebar onLogout={handleLogout} />
           <div className="mr-72 flex flex-col min-h-screen">
             <Properties />
           </div>
@@ -69,7 +86,7 @@ function Router() {
       <Route path="/properties/:id" component={PropertyDetail} />
       <Route path="/pipeline" component={() => (
         <div className="layout-lock bg-background">
-          <Sidebar onLogout={logout} />
+          <Sidebar onLogout={handleLogout} />
           <div className="mr-72 flex flex-col min-h-screen">
             <Pipeline />
           </div>
@@ -77,7 +94,7 @@ function Router() {
       )} />
       <Route path="/clients" component={() => (
         <div className="layout-lock bg-background">
-          <Sidebar onLogout={logout} />
+          <Sidebar onLogout={handleLogout} />
           <div className="mr-72 flex flex-col min-h-screen">
             <Clients />
           </div>
@@ -85,7 +102,7 @@ function Router() {
       )} />
       <Route path="/reports" component={() => (
         <div className="layout-lock bg-background">
-          <Sidebar onLogout={logout} />
+          <Sidebar onLogout={handleLogout} />
           <div className="mr-72 flex flex-col min-h-screen">
             <Reports />
           </div>
@@ -93,7 +110,7 @@ function Router() {
       )} />
       <Route path="/notifications" component={() => (
         <div className="layout-lock bg-background">
-          <Sidebar onLogout={logout} />
+          <Sidebar onLogout={handleLogout} />
           <div className="mr-72 flex flex-col min-h-screen">
             <Notifications />
           </div>

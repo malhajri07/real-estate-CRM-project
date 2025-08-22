@@ -1,8 +1,7 @@
 import { Link, useLocation } from "wouter";
-import { Home, Users, Building, Filter, Handshake, BarChart3, Bell, Settings, LogOut, Shield, Crown, UserCog } from "lucide-react";
+import { Home, Users, Building, Filter, Handshake, BarChart3, Bell, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useRealAuth } from "@/hooks/useRealAuth";
 import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
 
 interface SidebarProps {
@@ -26,28 +25,9 @@ const getBottomItems = (t: (key: string) => string) => [
 export default function Sidebar({ onLogout }: SidebarProps) {
   const [location] = useLocation();
   const { t, dir } = useLanguage();
-  const { user, getUserLevelLabel, canAccessAdminFeatures, canManageUsers } = useRealAuth();
   
   const navigationItems = getNavigationItems(t);
   const bottomItems = getBottomItems(t);
-
-  const getUserIcon = (userLevel?: number) => {
-    switch (userLevel) {
-      case 1: return Shield; // Platform Admin
-      case 2: return Crown;  // Account Owner
-      case 3: return UserCog; // Sub-Account
-      default: return UserCog;
-    }
-  };
-
-  const getUserLevelColor = (userLevel?: number) => {
-    switch (userLevel) {
-      case 1: return "text-purple-600 bg-purple-100"; // Platform Admin
-      case 2: return "text-blue-600 bg-blue-100";     // Account Owner
-      case 3: return "text-green-600 bg-green-100";   // Sub-Account
-      default: return "text-gray-600 bg-gray-100";
-    }
-  };
 
   return (
     <div className="w-72 bg-sidebar text-sidebar-foreground flex-shrink-0 apple-shadow-large border-l border-sidebar-border fixed h-full overflow-y-auto z-50 right-0">
