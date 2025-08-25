@@ -315,8 +315,8 @@ export default function Landing() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Starter Plan */}
             <Card className="relative hover:shadow-xl transition-shadow duration-300">
-              <CardContent className="p-8 text-center">
-                <div className="mb-6">
+              <CardContent className="p-8">
+                <div className="mb-6 text-center">
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">الباقة الأساسية</h3>
                   <div className="text-4xl font-bold text-green-600 mb-2">مجاناً</div>
                   <p className="text-gray-600">للمبتدئين</p>
@@ -362,8 +362,8 @@ export default function Landing() {
                   الأكثر شعبية
                 </span>
               </div>
-              <CardContent className="p-8 text-center">
-                <div className="mb-6">
+              <CardContent className="p-8">
+                <div className="mb-6 text-center">
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">الباقة الاحترافية</h3>
                   <div className="text-4xl font-bold text-green-600 mb-2">299 ﷼</div>
                   <p className="text-gray-600">شهرياً</p>
