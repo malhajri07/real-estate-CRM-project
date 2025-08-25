@@ -158,13 +158,13 @@ export default function SignupIndividual() {
       <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center items-center h-20">
-            <div className="flex items-center">
+            <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
               <img 
                 src={logoImage} 
                 alt="شعار عقاراتي" 
                 className="w-12 h-12 object-contain ml-3"
               />
-              <span className="text-2xl font-bold text-gray-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>منصة عقاراتي</span>
+              <span className="text-2xl font-bold text-gray-900 hover:text-green-600 transition-colors" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>منصة عقاراتي</span>
             </div>
           </div>
         </div>

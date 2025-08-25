@@ -49,9 +49,9 @@ export default function Login({ onLogin }: LoginProps) {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center items-center h-16">
-            <div className="flex items-center">
+            <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
               <Building className="h-8 w-8 text-green-600 ml-3" />
-              <span className="text-xl font-bold text-gray-900">منصة عقاراتي</span>
+              <span className="text-xl font-bold text-gray-900 hover:text-green-600 transition-colors">منصة عقاراتي</span>
             </div>
           </div>
         </div>
