@@ -376,8 +376,8 @@ export default function Landing() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <Card className="hover:shadow-xl transition-shadow duration-300">
               <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Users className="h-10 w-10 text-blue-600" />
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Users className="h-10 w-10 text-green-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">إدارة العملاء</h3>
                 <p className="text-gray-600 mb-6">
@@ -410,8 +410,8 @@ export default function Landing() {
 
             <Card className="hover:shadow-xl transition-shadow duration-300">
               <CardContent className="p-8 text-center">
-                <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <TrendingUp className="h-10 w-10 text-orange-600" />
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <TrendingUp className="h-10 w-10 text-green-600" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">متابعة الصفقات</h3>
                 <p className="text-gray-600 mb-6">
@@ -697,8 +697,8 @@ export default function Landing() {
 
             <Card className="text-center">
               <CardContent className="p-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Mail className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Mail className="h-8 w-8 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">البريد الإلكتروني</h3>
                 <p className="text-gray-600">info@aqaraty.sa</p>
@@ -707,8 +707,8 @@ export default function Landing() {
 
             <Card className="text-center">
               <CardContent className="p-8">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <MapPin className="h-8 w-8 text-orange-600" />
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <MapPin className="h-8 w-8 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">العنوان</h3>
                 <p className="text-gray-600">الرياض، المملكة العربية السعودية</p>
