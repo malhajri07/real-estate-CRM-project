@@ -134,7 +134,6 @@ export default function Dashboard() {
                       </div>
                       <div className="text-xs text-slate-500">عملاء محتملين</div>
                     </div>
-                    <div className="text-sm font-medium text-slate-700">عميل محتمل</div>
                   </div>
 
                   <div className="text-center">
@@ -144,7 +143,6 @@ export default function Dashboard() {
                       </div>
                       <div className="text-xs text-blue-600">مؤهل</div>
                     </div>
-                    <div className="text-sm font-medium text-slate-700">مؤهل</div>
                   </div>
 
                   <div className="text-center">
@@ -154,7 +152,6 @@ export default function Dashboard() {
                       </div>
                       <div className="text-xs text-yellow-600">عرض</div>
                     </div>
-                    <div className="text-sm font-medium text-slate-700">عرض</div>
                   </div>
 
                   <div className="text-center">
@@ -164,7 +161,6 @@ export default function Dashboard() {
                       </div>
                       <div className="text-xs text-orange-600">تفاوض</div>
                     </div>
-                    <div className="text-sm font-medium text-slate-700">تفاوض</div>
                   </div>
 
                   <div className="text-center">
@@ -174,7 +170,6 @@ export default function Dashboard() {
                       </div>
                       <div className="text-xs text-green-600">مغلق</div>
                     </div>
-                    <div className="text-sm font-medium text-slate-700">مغلق</div>
                   </div>
                 </div>
               </CardContent>
