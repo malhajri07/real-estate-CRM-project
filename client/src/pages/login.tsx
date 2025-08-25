@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, Lock, User } from "lucide-react";
+import { useLocation } from "wouter";
 import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
 
 interface LoginProps {
@@ -16,6 +17,7 @@ export default function Login({ onLogin }: LoginProps) {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +30,8 @@ export default function Login({ onLogin }: LoginProps) {
         description: "مرحباً بك في نظام إدارة العقارات",
       });
       onLogin();
+      // Redirect to dashboard after successful login
+      setLocation("/");
     } else {
       toast({
         title: "خطأ في تسجيل الدخول",
