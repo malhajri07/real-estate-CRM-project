@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, User, Phone, Mail, MapPin, Upload, ArrowRight, FileText, Building } from "lucide-react";
+import { Building2, User, Phone, Mail, MapPin, Upload, ArrowRight, FileText, Building, Check } from "lucide-react";
 import { useLocation } from "wouter";
 import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
 
@@ -32,6 +32,7 @@ export default function SignupCorporate() {
   const [commercialRegDoc, setCommercialRegDoc] = useState<FileList | null>(null);
   const [vatCertificate, setVatCertificate] = useState<FileList | null>(null);
   const [companyProfile, setCompanyProfile] = useState<FileList | null>(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -176,11 +177,11 @@ export default function SignupCorporate() {
             <form onSubmit={handleSubmit} className="space-y-12">
               {/* Company Information */}
               <div className="space-y-6">
-                <div className="flex items-center justify-end mb-8">
-                  <h2 className="text-xl font-semibold text-gray-900 mr-3">معلومات الشركة</h2>
-                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                <div className="flex items-center mb-8">
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mr-3">
                     <Building2 className="w-5 h-5 text-blue-600" />
                   </div>
+                  <h2 className="text-xl font-semibold text-gray-900">معلومات الشركة</h2>
                 </div>
               
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -207,7 +208,7 @@ export default function SignupCorporate() {
                       <SelectTrigger className="text-right h-12 border-gray-200 rounded-xl">
                         <SelectValue placeholder="اختر نوع الشركة" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4}>
+                      <SelectContent position="popper" sideOffset={4} align="end">
                         <SelectItem value="llc">شركة ذات مسؤولية محدودة</SelectItem>
                         <SelectItem value="corporation">شركة مساهمة</SelectItem>
                         <SelectItem value="partnership">شركة تضامن</SelectItem>
@@ -271,7 +272,7 @@ export default function SignupCorporate() {
                       <SelectTrigger className="text-right h-12 border-gray-200 rounded-xl">
                         <SelectValue placeholder="اختر عدد الموظفين" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4}>
+                      <SelectContent position="popper" sideOffset={4} align="end">
                         <SelectItem value="1-10">1-10 موظفين</SelectItem>
                         <SelectItem value="11-50">11-50 موظف</SelectItem>
                         <SelectItem value="51-200">51-200 موظف</SelectItem>
@@ -304,7 +305,7 @@ export default function SignupCorporate() {
                       <SelectTrigger className="text-right h-12 border-gray-200 rounded-xl">
                         <SelectValue placeholder="اختر المنطقة" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4}>
+                      <SelectContent position="popper" sideOffset={4} align="end">
                         {saudiRegions.map((region) => (
                           <SelectItem key={region} value={region}>
                             {region}
@@ -345,11 +346,11 @@ export default function SignupCorporate() {
 
               {/* Contact Person Information */}
               <div className="space-y-6">
-                <div className="flex items-center justify-end mb-8 pt-8 border-t border-gray-100">
-                  <h2 className="text-xl font-semibold text-gray-900 mr-3">معلومات الشخص المسؤول</h2>
-                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                <div className="flex items-center mb-8 pt-8 border-t border-gray-100">
+                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-3">
                     <User className="w-5 h-5 text-green-600" />
                   </div>
+                  <h2 className="text-xl font-semibold text-gray-900">معلومات الشخص المسؤول</h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -418,17 +419,18 @@ export default function SignupCorporate() {
 
               {/* Required Documents */}
               <div className="space-y-6">
-                <div className="flex items-center justify-end mb-8 pt-8 border-t border-gray-100">
-                  <h2 className="text-xl font-semibold text-gray-900 mr-3">المستندات المطلوبة (اختيارية)</h2>
-                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
+                <div className="flex items-center mb-8 pt-8 border-t border-gray-100">
+                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mr-3">
                     <FileText className="w-5 h-5 text-orange-600" />
                   </div>
+                  <h2 className="text-xl font-semibold text-gray-900">المستندات المطلوبة (اختيارية)</h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-3">
-                    <Label htmlFor="commercialRegDoc" className="text-sm font-medium text-gray-700 text-right block">
-                      صورة السجل التجاري
+                    <Label htmlFor="commercialRegDoc" className="text-sm font-medium text-gray-700 text-right block flex items-center justify-end">
+                      <span className="mr-2">صورة السجل التجاري</span>
+                      <Upload className="w-4 h-4" />
                     </Label>
                     <Input
                       id="commercialRegDoc"
@@ -440,8 +442,9 @@ export default function SignupCorporate() {
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="vatCertificate" className="text-sm font-medium text-gray-700 text-right block">
-                      شهادة التسجيل في ضريبة القيمة المضافة
+                    <Label htmlFor="vatCertificate" className="text-sm font-medium text-gray-700 text-right block flex items-center justify-end">
+                      <span className="mr-2">شهادة التسجيل في ضريبة القيمة المضافة</span>
+                      <Upload className="w-4 h-4" />
                     </Label>
                     <Input
                       id="vatCertificate"
@@ -453,8 +456,9 @@ export default function SignupCorporate() {
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="companyProfile" className="text-sm font-medium text-gray-700 text-right block">
-                      ملف تعريف الشركة
+                    <Label htmlFor="companyProfile" className="text-sm font-medium text-gray-700 text-right block flex items-center justify-end">
+                      <span className="mr-2">ملف تعريف الشركة</span>
+                      <Upload className="w-4 h-4" />
                     </Label>
                     <Input
                       id="companyProfile"
@@ -473,14 +477,96 @@ export default function SignupCorporate() {
                 </div>
               </div>
 
+              {/* Terms and Conditions */}
+              <div className="space-y-6">
+                <div className="flex items-center mb-8 pt-8 border-t border-gray-100">
+                  <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center mr-3">
+                    <FileText className="w-5 h-5 text-red-600" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900">الشروط والأحكام</h2>
+                </div>
+
+                <div className="bg-gray-50 border border-gray-200 p-6 rounded-xl max-h-80 overflow-y-auto">
+                  <div className="space-y-4 text-sm text-gray-700 text-right">
+                    <h3 className="font-semibold text-base text-gray-900">شروط استخدام منصة عقاراتي:</h3>
+                    
+                    <div className="space-y-3">
+                      <p><strong>1. القبول والاتفاقية:</strong></p>
+                      <p>باستخدام هذه المنصة، فإنك توافق على جميع الشروط والأحكام المدرجة أدناه. إذا كنت لا توافق على أي من هذه الشروط، فلا يحق لك استخدام خدماتنا.</p>
+                      
+                      <p><strong>2. نطاق الخدمة:</strong></p>
+                      <p>توفر منصة عقاراتي نظاماً شاملاً لإدارة العقارات والعملاء والصفقات العقارية. نحتفظ بالحق في تعديل أو تحديث خدماتنا في أي وقت دون إشعار مسبق.</p>
+                      
+                      <p><strong>3. التزامات المستخدم:</strong></p>
+                      <ul className="space-y-2 mr-4">
+                        <li>• تقديم معلومات صحيحة ودقيقة عند التسجيل</li>
+                        <li>• عدم إساءة استخدام النظام أو انتهاك حقوق المستخدمين الآخرين</li>
+                        <li>• الحفاظ على سرية بيانات الدخول والحسابات</li>
+                        <li>• الالتزام بالقوانين السعودية والأنظمة المعمول بها</li>
+                        <li>• عدم نشر محتوى مخالف أو ضار أو غير قانوني</li>
+                      </ul>
+
+                      <p><strong>4. الخصوصية وحماية البيانات:</strong></p>
+                      <p>نلتزم بحماية خصوصيتك وبياناتك الشخصية وفقاً لنظام حماية البيانات الشخصية السعودي. لن نشارك معلوماتك مع أطراف ثالثة إلا بموافقتك الصريحة.</p>
+                      
+                      <p><strong>5. الرسوم والمدفوعات:</strong></p>
+                      <ul className="space-y-2 mr-4">
+                        <li>• جميع الرسوم محددة في خطة الاشتراك المختارة</li>
+                        <li>• الدفع يتم شهرياً أو سنوياً حسب الاختيار</li>
+                        <li>• لا توجد استردادات للمبالغ المدفوعة</li>
+                        <li>• نحتفظ بالحق في تغيير الأسعار مع إشعار مسبق 30 يوماً</li>
+                      </ul>
+
+                      <p><strong>6. المسؤولية القانونية:</strong></p>
+                      <p>لا نتحمل المسؤولية عن أي أضرار مباشرة أو غير مباشرة قد تنتج عن استخدام منصتنا. استخدام الخدمة على مسؤوليتك الخاصة.</p>
+                      
+                      <p><strong>7. الملكية الفكرية:</strong></p>
+                      <p>جميع حقوق الملكية الفكرية للمنصة محفوظة لشركة عقاراتي. لا يحق لك نسخ أو توزيع أو تعديل أي جزء من النظام دون إذن كتابي مسبق.</p>
+                      
+                      <p><strong>8. إنهاء الخدمة:</strong></p>
+                      <p>نحتفظ بالحق في إيقاف أو إنهاء حسابك في حالة انتهاك هذه الشروط. كما يمكنك إلغاء حسابك في أي وقت من خلال الإعدادات.</p>
+                      
+                      <p><strong>9. تعديل الشروط:</strong></p>
+                      <p>نحتفظ بالحق في تعديل هذه الشروط في أي وقت. سيتم إشعارك بأي تغييرات مهمة عبر البريد الإلكتروني أو من خلال المنصة.</p>
+                      
+                      <p><strong>10. القانون المطبق:</strong></p>
+                      <p>تخضع هذه الاتفاقية للقوانين السعودية، وأي نزاع يخضع لاختصاص المحاكم السعودية المختصة.</p>
+                      
+                      <p><strong>11. معلومات الاتصال:</strong></p>
+                      <p>للاستفسارات حول هذه الشروط، يمكنك التواصل معنا على: support@aqaraty.sa أو هاتف: +966501234567</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3 space-x-reverse">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="terms-agreement"
+                      type="checkbox"
+                      checked={agreedToTerms}
+                      onChange={(e) => setAgreedToTerms(e.target.checked)}
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                    />
+                  </div>
+                  <div className="text-sm">
+                    <Label htmlFor="terms-agreement" className="text-gray-700 text-right cursor-pointer">
+                      أوافق على جميع الشروط والأحكام المذكورة أعلاه وأقر بأنني قد قرأتها وفهمتها بالكامل. كما أوافق على سياسة الخصوصية وشروط الاستخدام لمنصة عقاراتي.
+                    </Label>
+                  </div>
+                </div>
+              </div>
+
               <div className="pt-8">
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold rounded-xl h-14 transition-colors shadow-sm hover:shadow-md"
-                  disabled={isLoading}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold rounded-xl h-14 transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isLoading || !agreedToTerms}
                 >
                   {isLoading ? "جار إرسال الطلب..." : "إرسال طلب التحقق"}
                 </Button>
+                {!agreedToTerms && (
+                  <p className="text-sm text-red-600 mt-2 text-center">يجب الموافقة على الشروط والأحكام قبل المتابعة</p>
+                )}
               </div>
             </form>
 
@@ -496,24 +582,29 @@ export default function SignupCorporate() {
             </div>
 
             {/* What happens next */}
-            <div className="mt-12 bg-blue-50 border border-blue-100 p-6 rounded-xl">
-              <h3 className="font-semibold text-blue-900 mb-4 text-right text-lg">ماذا يحدث بعد ذلك؟</h3>
-              <div className="space-y-3 text-right">
-                <div className="flex items-start">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 ml-4 flex-shrink-0"></div>
-                  <p className="text-blue-700">سيقوم فريق المراجعة بدراسة طلبك خلال 48 ساعة</p>
+            <div className="mt-12 bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200 p-8 rounded-2xl shadow-sm">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                  <Check className="w-6 h-6 text-white" />
                 </div>
-                <div className="flex items-start">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 ml-4 flex-shrink-0"></div>
-                  <p className="text-blue-700">قد نطلب مستندات إضافية أو توضيحات</p>
+                <h3 className="font-bold text-slate-900 text-xl">ماذا يحدث بعد ذلك؟</h3>
+              </div>
+              <div className="space-y-4 text-right">
+                <div className="flex items-start bg-white/50 p-4 rounded-xl">
+                  <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full mt-1 ml-4 flex-shrink-0 shadow-sm"></div>
+                  <p className="text-slate-700 font-medium">سيقوم فريق المراجعة بدراسة طلبك خلال 48 ساعة</p>
                 </div>
-                <div className="flex items-start">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 ml-4 flex-shrink-0"></div>
-                  <p className="text-blue-700">سنتواصل معك لترتيب مكالمة تعريفية</p>
+                <div className="flex items-start bg-white/50 p-4 rounded-xl">
+                  <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full mt-1 ml-4 flex-shrink-0 shadow-sm"></div>
+                  <p className="text-slate-700 font-medium">قد نطلب مستندات إضافية أو توضيحات</p>
                 </div>
-                <div className="flex items-start">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 ml-4 flex-shrink-0"></div>
-                  <p className="text-blue-700">عند الموافقة، سيتم إنشاء حسابكم وإرسال بيانات الدخول</p>
+                <div className="flex items-start bg-white/50 p-4 rounded-xl">
+                  <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full mt-1 ml-4 flex-shrink-0 shadow-sm"></div>
+                  <p className="text-slate-700 font-medium">سنتواصل معك لترتيب مكالمة تعريفية</p>
+                </div>
+                <div className="flex items-start bg-white/50 p-4 rounded-xl">
+                  <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full mt-1 ml-4 flex-shrink-0 shadow-sm"></div>
+                  <p className="text-slate-700 font-medium">عند الموافقة، سيتم إنشاء حسابكم وإرسال بيانات الدخول</p>
                 </div>
               </div>
             </div>
