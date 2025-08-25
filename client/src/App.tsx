@@ -14,6 +14,7 @@ import Pipeline from "@/pages/pipeline";
 import Clients from "@/pages/clients";
 import Reports from "@/pages/reports";
 import Notifications from "@/pages/notifications";
+import Settings from "@/pages/settings";
 import PropertyDetail from "@/pages/property-detail";
 import Sidebar from "@/components/layout/sidebar";
 
@@ -113,6 +114,14 @@ function Router() {
           <Sidebar onLogout={handleLogout} />
           <div className="mr-72 flex flex-col min-h-screen">
             <Notifications />
+          </div>
+        </div>
+      )} />
+      <Route path="/settings" component={() => (
+        <div className="layout-lock bg-background">
+          <Sidebar onLogout={handleLogout} />
+          <div className="mr-72 flex flex-col min-h-screen">
+            <Settings />
           </div>
         </div>
       )} />
