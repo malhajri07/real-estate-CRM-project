@@ -440,7 +440,7 @@ export default function Landing() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20">
             {/* Starter Plan */}
             <Card className="relative hover:shadow-xl transition-shadow duration-300 h-full">
               <CardContent className="p-8 flex flex-col h-full">
