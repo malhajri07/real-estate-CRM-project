@@ -65,77 +65,220 @@ export default function Landing() {
               </div>
             </div>
             <div className="lg:text-left">
-              <div className="bg-white rounded-2xl shadow-2xl p-6 transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-green-600 font-semibold text-sm">منصة عقاراتي - لوحة التحكم</span>
-                    <div className="flex space-x-reverse space-x-2">
-                      <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                      <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                      <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                    </div>
-                  </div>
-                  
-                  {/* Mini CRM Interface */}
-                  <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-gray-700">العملاء المحتملين الجدد</span>
-                      <span className="text-green-600 font-semibold">+12 اليوم</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between bg-white p-2 rounded text-xs">
-                        <span>أحمد محمد - فيلا الرياض</span>
-                        <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">متابعة</span>
+              <div className="bg-white rounded-2xl shadow-2xl p-4 transform rotate-3 hover:rotate-0 transition-transform duration-300 overflow-hidden">
+                <div className="space-y-3">
+                  {/* Header */}
+                  <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                    <div className="flex items-center space-x-reverse space-x-2">
+                      <div className="w-6 h-6 bg-green-600 rounded flex items-center justify-center">
+                        <Building className="h-3 w-3 text-white" />
                       </div>
-                      <div className="flex items-center justify-between bg-white p-2 rounded text-xs">
-                        <span>سارة أحمد - شقة جدة</span>
-                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">مهتم</span>
+                      <span className="text-green-600 font-bold text-xs">منصة عقاراتي - لوحة التحكم</span>
+                    </div>
+                    <div className="flex space-x-reverse space-x-1">
+                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
+                      <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                      <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Revenue & Performance Grid */}
+                  <div className="grid grid-cols-4 gap-1.5 text-center">
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-2 rounded-md">
+                      <div className="text-sm font-bold text-blue-600">1.2M ﷼</div>
+                      <div className="text-[8px] text-blue-700">الإيرادات</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 p-2 rounded-md">
+                      <div className="text-sm font-bold text-green-600">247</div>
+                      <div className="text-[8px] text-green-700">عملاء</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-2 rounded-md">
+                      <div className="text-sm font-bold text-orange-600">89</div>
+                      <div className="text-[8px] text-orange-700">عقارات</div>
+                    </div>
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-2 rounded-md">
+                      <div className="text-sm font-bold text-purple-600">34</div>
+                      <div className="text-[8px] text-purple-700">صفقات</div>
+                    </div>
+                  </div>
+
+                  {/* Recent Activities */}
+                  <div className="bg-gray-50 rounded-lg p-2 space-y-1">
+                    <div className="flex items-center justify-between text-[9px]">
+                      <span className="font-medium text-gray-700">الأنشطة الحديثة</span>
+                      <span className="text-green-600 font-semibold">مباشر</span>
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="flex items-center justify-between bg-white p-1.5 rounded text-[8px]">
+                        <div className="flex items-center space-x-reverse space-x-1">
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                          <span>عقد فيلا الرياض - أحمد محمد</span>
+                        </div>
+                        <span className="text-gray-500">منذ 5 دقائق</span>
+                      </div>
+                      <div className="flex items-center justify-between bg-white p-1.5 rounded text-[8px]">
+                        <div className="flex items-center space-x-reverse space-x-1">
+                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                          <span>معاينة شقة جدة - سارة أحمد</span>
+                        </div>
+                        <span className="text-gray-500">منذ 12 دقيقة</span>
+                      </div>
+                      <div className="flex items-center justify-between bg-white p-1.5 rounded text-[8px]">
+                        <div className="flex items-center space-x-reverse space-x-1">
+                          <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
+                          <span>عميل جديد - محمد الأحمد</span>
+                        </div>
+                        <span className="text-gray-500">منذ 18 دقيقة</span>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="bg-blue-50 p-2 rounded-lg">
-                      <div className="text-lg font-bold text-blue-600">247</div>
-                      <div className="text-xs text-blue-700">عميل محتمل</div>
+
+                  {/* Properties & Sales Pipeline */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Properties */}
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-medium text-green-800">العقارات النشطة</span>
+                        <TrendingUp className="h-2.5 w-2.5 text-green-600" />
+                      </div>
+                      <div className="text-sm font-bold text-green-700 mb-1">89 عقار</div>
+                      <div className="space-y-0.5">
+                        <div className="bg-white bg-opacity-50 rounded p-1 text-[7px]">
+                          <div className="flex justify-between">
+                            <span>فلل</span>
+                            <span className="font-medium">34</span>
+                          </div>
+                        </div>
+                        <div className="bg-white bg-opacity-50 rounded p-1 text-[7px]">
+                          <div className="flex justify-between">
+                            <span>شقق</span>
+                            <span className="font-medium">55</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="bg-green-50 p-2 rounded-lg">
-                      <div className="text-lg font-bold text-green-600">89</div>
-                      <div className="text-xs text-green-700">عقار نشط</div>
-                    </div>
-                    <div className="bg-orange-50 p-2 rounded-lg">
-                      <div className="text-lg font-bold text-orange-600">34</div>
-                      <div className="text-xs text-orange-700">صفقة مفتوحة</div>
+
+                    {/* Sales Pipeline */}
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-medium text-blue-800">مسار المبيعات</span>
+                        <BarChart3 className="h-2.5 w-2.5 text-blue-600" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <div className="flex items-center justify-between bg-white bg-opacity-50 rounded p-1 text-[7px]">
+                          <span>مؤهل</span>
+                          <div className="flex items-center space-x-reverse space-x-1">
+                            <div className="w-6 h-1 bg-blue-600 rounded"></div>
+                            <span className="font-medium">15</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between bg-white bg-opacity-50 rounded p-1 text-[7px]">
+                          <span>تفاوض</span>
+                          <div className="flex items-center space-x-reverse space-x-1">
+                            <div className="w-4 h-1 bg-blue-500 rounded"></div>
+                            <span className="font-medium">8</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between bg-white bg-opacity-50 rounded p-1 text-[7px]">
+                          <span>مغلق</span>
+                          <div className="flex items-center space-x-reverse space-x-1">
+                            <div className="w-8 h-1 bg-blue-700 rounded"></div>
+                            <span className="font-medium">23</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* Mini Charts */}
-                  <div className="bg-gradient-to-br from-green-100 to-green-50 rounded-lg p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-green-800">أداء المبيعات هذا الشهر</span>
-                      <span className="text-xs text-green-600">+23%</span>
+
+                  {/* Performance Chart */}
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[9px] font-medium text-purple-800">أداء المبيعات</span>
+                      <span className="text-[8px] text-purple-600 font-semibold">+23%</span>
                     </div>
-                    <div className="flex items-end space-x-1 space-x-reverse h-8">
-                      <div className="bg-green-400 w-2 h-4"></div>
-                      <div className="bg-green-500 w-2 h-6"></div>
-                      <div className="bg-green-600 w-2 h-8"></div>
-                      <div className="bg-green-500 w-2 h-5"></div>
-                      <div className="bg-green-400 w-2 h-7"></div>
-                      <div className="bg-green-600 w-2 h-8"></div>
-                      <div className="bg-green-500 w-2 h-6"></div>
+                    <div className="flex items-end justify-between h-6 space-x-0.5 space-x-reverse">
+                      <div className="bg-purple-400 w-1.5 h-3 rounded-t"></div>
+                      <div className="bg-purple-500 w-1.5 h-4 rounded-t"></div>
+                      <div className="bg-purple-600 w-1.5 h-6 rounded-t"></div>
+                      <div className="bg-purple-500 w-1.5 h-4 rounded-t"></div>
+                      <div className="bg-purple-400 w-1.5 h-5 rounded-t"></div>
+                      <div className="bg-purple-600 w-1.5 h-6 rounded-t"></div>
+                      <div className="bg-purple-500 w-1.5 h-5 rounded-t"></div>
+                      <div className="bg-purple-600 w-1.5 h-6 rounded-t"></div>
+                      <div className="bg-purple-500 w-1.5 h-4 rounded-t"></div>
+                      <div className="bg-purple-400 w-1.5 h-3 rounded-t"></div>
+                    </div>
+                    <div className="flex justify-between text-[6px] text-purple-600 mt-0.5">
+                      <span>ين</span>
+                      <span>فب</span>
+                      <span>مر</span>
+                      <span>أب</span>
+                      <span>مي</span>
+                      <span>يو</span>
+                      <span>يل</span>
+                      <span>أغ</span>
+                      <span>سب</span>
+                      <span>أك</span>
                     </div>
                   </div>
-                  
-                  {/* WhatsApp Messages */}
-                  <div className="bg-gray-50 rounded-lg p-2">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium text-gray-700">رسائل واتساب</span>
-                      <MessageSquare className="h-4 w-4 text-green-600" />
+
+                  {/* Communication Hub */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* WhatsApp Messages */}
+                    <div className="bg-green-50 rounded-lg p-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-medium text-green-700">واتساب</span>
+                        <MessageSquare className="h-2.5 w-2.5 text-green-600" />
+                      </div>
+                      <div className="text-[8px] text-green-600 mb-1">156 رسالة اليوم</div>
+                      <div className="w-full bg-green-200 rounded-full h-1">
+                        <div className="bg-green-600 h-1 rounded-full" style={{width: '78%'}}></div>
+                      </div>
+                      <div className="text-[7px] text-green-600 mt-0.5">معدل الرد: 94%</div>
                     </div>
-                    <div className="text-xs text-gray-600">تم إرسال 156 رسالة اليوم</div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                      <div className="bg-green-600 h-1.5 rounded-full" style={{width: '78%'}}></div>
+
+                    {/* Team Performance */}
+                    <div className="bg-orange-50 rounded-lg p-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-medium text-orange-700">الفريق</span>
+                        <Users className="h-2.5 w-2.5 text-orange-600" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <div className="flex justify-between text-[7px]">
+                          <span>أحمد السعيد</span>
+                          <span className="text-orange-600 font-medium">12 صفقة</span>
+                        </div>
+                        <div className="flex justify-between text-[7px]">
+                          <span>فاطمة محمد</span>
+                          <span className="text-orange-600 font-medium">8 صفقات</span>
+                        </div>
+                        <div className="text-[7px] text-orange-600 font-medium">المجموع: 45 صفقة</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="bg-gray-100 rounded-lg p-2">
+                    <div className="text-[9px] font-medium text-gray-700 mb-1">إجراءات سريعة</div>
+                    <div className="grid grid-cols-3 gap-1">
+                      <div className="bg-white rounded p-1 text-center">
+                        <div className="w-3 h-3 bg-blue-100 rounded mx-auto mb-0.5 flex items-center justify-center">
+                          <Users className="h-1.5 w-1.5 text-blue-600" />
+                        </div>
+                        <div className="text-[6px] text-gray-600">عميل جديد</div>
+                      </div>
+                      <div className="bg-white rounded p-1 text-center">
+                        <div className="w-3 h-3 bg-green-100 rounded mx-auto mb-0.5 flex items-center justify-center">
+                          <Building className="h-1.5 w-1.5 text-green-600" />
+                        </div>
+                        <div className="text-[6px] text-gray-600">إضافة عقار</div>
+                      </div>
+                      <div className="bg-white rounded p-1 text-center">
+                        <div className="w-3 h-3 bg-purple-100 rounded mx-auto mb-0.5 flex items-center justify-center">
+                          <Phone className="h-1.5 w-1.5 text-purple-600" />
+                        </div>
+                        <div className="text-[6px] text-gray-600">اتصال</div>
+                      </div>
                     </div>
                   </div>
                 </div>
