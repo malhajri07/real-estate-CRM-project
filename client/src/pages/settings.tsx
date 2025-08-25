@@ -96,7 +96,7 @@ export default function Settings() {
       </div>
 
       <Tabs defaultValue="account" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-4 apple-card">
           <TabsTrigger value="account" className="flex items-center gap-2 flex-row-reverse">
             <Building2 size={16} />
             تفاصيل الحساب
