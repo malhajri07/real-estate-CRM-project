@@ -131,7 +131,7 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="companyName" className="text-right">اسم الشركة</Label>
+                  <Label htmlFor="companyName" className="text-right" dir="rtl">اسم الشركة</Label>
                   <Input
                     id="companyName"
                     dir="rtl"
@@ -142,7 +142,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="businessType" className="text-right">نوع النشاط</Label>
+                  <Label htmlFor="businessType" className="text-right" dir="rtl">نوع النشاط</Label>
                   <Select value={accountDetails.businessType} onValueChange={(value) => setAccountDetails({...accountDetails, businessType: value})}>
                     <SelectTrigger dir="rtl" data-testid="select-business-type">
                       <SelectValue />
@@ -158,7 +158,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="taxId" className="text-right">الرقم الضريبي</Label>
+                  <Label htmlFor="taxId" className="text-right" dir="rtl">الرقم الضريبي</Label>
                   <Input
                     id="taxId"
                     dir="rtl"
@@ -169,7 +169,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="website" className="text-right">الموقع الإلكتروني</Label>
+                  <Label htmlFor="website" className="text-right" dir="rtl">الموقع الإلكتروني</Label>
                   <Input
                     id="website"
                     type="url"
@@ -181,7 +181,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-right">وصف الشركة</Label>
+                  <Label htmlFor="description" className="text-right" dir="rtl">وصف الشركة</Label>
                   <Textarea
                     id="description"
                     rows={3}
@@ -207,7 +207,7 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="address" className="text-right">العنوان</Label>
+                  <Label htmlFor="address" className="text-right" dir="rtl">العنوان</Label>
                   <Input
                     id="address"
                     dir="rtl"
@@ -219,7 +219,7 @@ export default function Settings() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="city" className="text-right">المدينة</Label>
+                    <Label htmlFor="city" className="text-right" dir="rtl">المدينة</Label>
                     <Input
                       id="city"
                       dir="rtl"
@@ -229,7 +229,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="postalCode" className="text-right">الرمز البريدي</Label>
+                    <Label htmlFor="postalCode" className="text-right" dir="rtl">الرمز البريدي</Label>
                     <Input
                       id="postalCode"
                       dir="rtl"
@@ -241,7 +241,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="country" className="text-right">البلد</Label>
+                  <Label htmlFor="country" className="text-right" dir="rtl">البلد</Label>
                   <Select value={accountDetails.country} onValueChange={(value) => setAccountDetails({...accountDetails, country: value})}>
                     <SelectTrigger dir="rtl" data-testid="select-country">
                       <SelectValue />
@@ -258,7 +258,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-right">هاتف الشركة</Label>
+                  <Label htmlFor="phone" className="text-right" dir="rtl">هاتف الشركة</Label>
                   <Input
                     id="phone"
                     type="tel"
@@ -270,7 +270,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-right">البريد الإلكتروني للشركة</Label>
+                  <Label htmlFor="email" className="text-right" dir="rtl">البريد الإلكتروني للشركة</Label>
                   <Input
                     id="email"
                     type="email"
@@ -297,7 +297,7 @@ export default function Settings() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="contactPerson" className="text-right">الاسم الكامل</Label>
+                    <Label htmlFor="contactPerson" className="text-right" dir="rtl">الاسم الكامل</Label>
                     <Input
                       id="contactPerson"
                       dir="rtl"
@@ -307,7 +307,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contactTitle" className="text-right">المسمى الوظيفي</Label>
+                    <Label htmlFor="contactTitle" className="text-right" dir="rtl">المسمى الوظيفي</Label>
                     <Input
                       id="contactTitle"
                       dir="rtl"
@@ -317,7 +317,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contactPhone" className="text-right">رقم الهاتف</Label>
+                    <Label htmlFor="contactPhone" className="text-right" dir="rtl">رقم الهاتف</Label>
                     <Input
                       id="contactPhone"
                       type="tel"
@@ -328,7 +328,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contactEmail" className="text-right">البريد الإلكتروني</Label>
+                    <Label htmlFor="contactEmail" className="text-right" dir="rtl">البريد الإلكتروني</Label>
                     <Input
                       id="contactEmail"
                       type="email"
@@ -383,7 +383,7 @@ export default function Settings() {
               {/* Personal Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-right">الاسم الأول</Label>
+                  <Label htmlFor="firstName" className="text-right" dir="rtl">الاسم الأول</Label>
                   <Input
                     id="firstName"
                     dir="rtl"
@@ -393,7 +393,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-right">اسم العائلة</Label>
+                  <Label htmlFor="lastName" className="text-right" dir="rtl">اسم العائلة</Label>
                   <Input
                     id="lastName"
                     dir="rtl"
@@ -403,7 +403,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="userEmail" className="text-right">البريد الإلكتروني</Label>
+                  <Label htmlFor="userEmail" className="text-right" dir="rtl">البريد الإلكتروني</Label>
                   <Input
                     id="userEmail"
                     type="email"
@@ -414,7 +414,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="userPhone" className="text-right">رقم الهاتف</Label>
+                  <Label htmlFor="userPhone" className="text-right" dir="rtl">رقم الهاتف</Label>
                   <Input
                     id="userPhone"
                     type="tel"
@@ -425,7 +425,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="title" className="text-right">المسمى الوظيفي</Label>
+                  <Label htmlFor="title" className="text-right" dir="rtl">المسمى الوظيفي</Label>
                   <Input
                     id="title"
                     dir="rtl"
@@ -435,7 +435,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="department" className="text-right">القسم</Label>
+                  <Label htmlFor="department" className="text-right" dir="rtl">القسم</Label>
                   <Select value={userProfile.department} onValueChange={(value) => setUserProfile({...userProfile, department: value})}>
                     <SelectTrigger dir="rtl" data-testid="select-department">
                       <SelectValue />
@@ -476,15 +476,15 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="currentPassword" className="text-right">كلمة المرور الحالية</Label>
+                <Label htmlFor="currentPassword" className="text-right" dir="rtl">كلمة المرور الحالية</Label>
                 <Input id="currentPassword" type="password" dir="rtl" data-testid="input-current-password" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="newPassword" className="text-right">كلمة المرور الجديدة</Label>
+                <Label htmlFor="newPassword" className="text-right" dir="rtl">كلمة المرور الجديدة</Label>
                 <Input id="newPassword" type="password" dir="rtl" data-testid="input-new-password" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-right">تأكيد كلمة المرور الجديدة</Label>
+                <Label htmlFor="confirmPassword" className="text-right" dir="rtl">تأكيد كلمة المرور الجديدة</Label>
                 <Input id="confirmPassword" type="password" dir="rtl" data-testid="input-confirm-password" />
               </div>
               <Button className="flex items-center gap-2 flex-row-reverse" data-testid="button-change-password">
