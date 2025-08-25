@@ -324,28 +324,28 @@ export default function Landing() {
                 
                 <ul className="text-right space-y-3 mb-8">
                   <li className="flex items-center justify-end">
+                    <Users className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">حتى 50 عميل محتمل</span>
-                    <Users className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Building className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">حتى 25 عقار</span>
-                    <Building className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <MessageSquare className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">5 حملات تسويقية شهرياً</span>
-                    <MessageSquare className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Phone className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">100 رسالة واتساب شهرياً</span>
-                    <Phone className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <BarChart3 className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">تقارير أساسية</span>
-                    <BarChart3 className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Mail className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">دعم فني عبر البريد</span>
-                    <Mail className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                 </ul>
                 
@@ -371,36 +371,36 @@ export default function Landing() {
                 
                 <ul className="text-right space-y-3 mb-8">
                   <li className="flex items-center justify-end">
+                    <Users className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">حتى 500 عميل محتمل</span>
-                    <Users className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Building className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">حتى 200 عقار</span>
-                    <Building className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <MessageSquare className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">25 حملة تسويقية شهرياً</span>
-                    <MessageSquare className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Phone className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">2000 رسالة واتساب شهرياً</span>
-                    <Phone className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <BarChart3 className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">تقارير متقدمة وتحليلات</span>
-                    <BarChart3 className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Shield className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">دعم فني على مدار الساعة</span>
-                    <Shield className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Users className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">إدارة 3 مستخدمين</span>
-                    <Users className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <TrendingUp className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">تكامل مع الأنظمة الخارجية</span>
-                    <TrendingUp className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                 </ul>
                 
@@ -421,40 +421,40 @@ export default function Landing() {
                 
                 <ul className="text-right space-y-3 mb-8">
                   <li className="flex items-center justify-end">
+                    <Users className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">عملاء محتملين غير محدودين</span>
-                    <Users className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Building className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">عقارات غير محدودة</span>
-                    <Building className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <MessageSquare className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">حملات تسويقية غير محدودة</span>
-                    <MessageSquare className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Phone className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">10,000 رسالة واتساب شهرياً</span>
-                    <Phone className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <BarChart3 className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">تقارير مخصصة ولوحات تحكم</span>
-                    <BarChart3 className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Shield className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">مدير حساب مخصص</span>
-                    <Shield className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Users className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">مستخدمين غير محدودين</span>
-                    <Users className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <TrendingUp className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">API مخصص للتكامل</span>
-                    <TrendingUp className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                   <li className="flex items-center justify-end">
+                    <Shield className="h-5 w-5 text-green-600 ml-3" />
                     <span className="text-gray-700">نسخ احتياطية يومية</span>
-                    <Shield className="h-5 w-5 text-green-600 mr-3" />
                   </li>
                 </ul>
                 
