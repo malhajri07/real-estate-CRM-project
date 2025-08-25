@@ -172,9 +172,9 @@ export default function SignupIndividual() {
 
       {/* Main Content */}
       <div className="flex items-center justify-center p-6 py-12">
-        <div className="w-full max-w-4xl bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+        <div className="w-full max-w-2xl bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
           {/* Header Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-8 text-white text-center relative overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-6 text-white text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-transparent"></div>
             <div className="relative z-10">
               <div className="flex justify-center mb-4">
@@ -188,7 +188,7 @@ export default function SignupIndividual() {
           </div>
 
           {/* Form Content */}
-          <div className="px-8 py-8">
+          <div className="px-6 py-6">
 
             <form onSubmit={handleSubmit} className="space-y-12">
               {/* Personal Information */}
