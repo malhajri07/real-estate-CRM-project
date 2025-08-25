@@ -70,6 +70,7 @@ export default {
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
         inter: ["Inter", "sans-serif"],
+        arabic: ["Noto Sans Arabic", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
