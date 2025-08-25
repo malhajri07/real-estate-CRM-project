@@ -488,7 +488,7 @@ export default function Landing() {
             </Card>
 
             {/* Professional Plan */}
-            <Card className="relative hover:shadow-xl transition-shadow duration-300 border-2 border-green-500 h-full">
+            <Card className="relative hover:shadow-xl transition-all duration-300 border-2 border-green-500 h-full transform scale-105">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <span className="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
                   الأكثر شعبية
