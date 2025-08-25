@@ -222,38 +222,135 @@ export default function Landing() {
                     </div>
                   </div>
 
-                  {/* Communication Hub */}
+                  {/* Marketing Campaigns Overview */}
+                  <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg p-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[9px] font-medium text-indigo-800">حملات التسويق</span>
+                      <BarChart3 className="h-2.5 w-2.5 text-indigo-600" />
+                    </div>
+                    <div className="grid grid-cols-3 gap-1">
+                      <div className="bg-white bg-opacity-50 rounded p-1 text-center">
+                        <div className="text-[8px] font-bold text-indigo-600">24</div>
+                        <div className="text-[6px] text-indigo-700">حملات نشطة</div>
+                      </div>
+                      <div className="bg-white bg-opacity-50 rounded p-1 text-center">
+                        <div className="text-[8px] font-bold text-indigo-600">89K</div>
+                        <div className="text-[6px] text-indigo-700">مشاهدات</div>
+                      </div>
+                      <div className="bg-white bg-opacity-50 rounded p-1 text-center">
+                        <div className="text-[8px] font-bold text-indigo-600">2.8K</div>
+                        <div className="text-[6px] text-indigo-700">عملاء جدد</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Social Media Analytics */}
                   <div className="grid grid-cols-2 gap-2">
-                    {/* WhatsApp Messages */}
+                    {/* WhatsApp & Email Campaigns */}
                     <div className="bg-green-50 rounded-lg p-2">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[9px] font-medium text-green-700">واتساب</span>
+                        <span className="text-[9px] font-medium text-green-700">واتساب ومیل</span>
                         <MessageSquare className="h-2.5 w-2.5 text-green-600" />
-                      </div>
-                      <div className="text-[8px] text-green-600 mb-1">156 رسالة اليوم</div>
-                      <div className="w-full bg-green-200 rounded-full h-1">
-                        <div className="bg-green-600 h-1 rounded-full" style={{width: '78%'}}></div>
-                      </div>
-                      <div className="text-[7px] text-green-600 mt-0.5">معدل الرد: 94%</div>
-                    </div>
-
-                    {/* Team Performance */}
-                    <div className="bg-orange-50 rounded-lg p-2">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[9px] font-medium text-orange-700">الفريق</span>
-                        <Users className="h-2.5 w-2.5 text-orange-600" />
                       </div>
                       <div className="space-y-0.5">
                         <div className="flex justify-between text-[7px]">
-                          <span>أحمد السعيد</span>
-                          <span className="text-orange-600 font-medium">12 صفقة</span>
+                          <span>واتساب اليوم</span>
+                          <span className="text-green-600 font-medium">156 رسالة</span>
                         </div>
                         <div className="flex justify-between text-[7px]">
-                          <span>فاطمة محمد</span>
-                          <span className="text-orange-600 font-medium">8 صفقات</span>
+                          <span>حملات الإيميل</span>
+                          <span className="text-green-600 font-medium">12 حملة</span>
                         </div>
-                        <div className="text-[7px] text-orange-600 font-medium">المجموع: 45 صفقة</div>
+                        <div className="flex justify-between text-[7px]">
+                          <span>معدل الفتح</span>
+                          <span className="text-green-600 font-medium">87%</span>
+                        </div>
                       </div>
+                    </div>
+
+                    {/* Social Media Platforms */}
+                    <div className="bg-blue-50 rounded-lg p-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-medium text-blue-700">شبكات التواصل</span>
+                        <TrendingUp className="h-2.5 w-2.5 text-blue-600" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <div className="flex justify-between text-[7px]">
+                          <span>تويتر</span>
+                          <span className="text-blue-600 font-medium">45K مشاهدة</span>
+                        </div>
+                        <div className="flex justify-between text-[7px]">
+                          <span>إنستغرام</span>
+                          <span className="text-blue-600 font-medium">28K مشاهدة</span>
+                        </div>
+                        <div className="flex justify-between text-[7px]">
+                          <span>سناب + تيك توك</span>
+                          <span className="text-blue-600 font-medium">16K مشاهدة</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Customer Base Analytics */}
+                  <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[9px] font-medium text-yellow-800">قاعدة العملاء</span>
+                      <Users className="h-2.5 w-2.5 text-yellow-600" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-1">
+                      <div className="bg-white bg-opacity-50 rounded p-1">
+                        <div className="text-[8px] font-bold text-yellow-600">3,847</div>
+                        <div className="text-[6px] text-yellow-700">إجمالي العملاء</div>
+                      </div>
+                      <div className="bg-white bg-opacity-50 rounded p-1">
+                        <div className="text-[8px] font-bold text-yellow-600">+284</div>
+                        <div className="text-[6px] text-yellow-700">عملاء جدد الشهر الماضي</div>
+                      </div>
+                    </div>
+                    <div className="mt-1 flex justify-between text-[7px] text-yellow-700">
+                      <span>نمو شهري: +8.1%</span>
+                      <span>نشاط: 92%</span>
+                    </div>
+                  </div>
+
+                  {/* Campaign Performance Details */}
+                  <div className="bg-gradient-to-br from-rose-50 to-rose-100 rounded-lg p-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[9px] font-medium text-rose-800">أداء الحملات</span>
+                      <TrendingUp className="h-2.5 w-2.5 text-rose-600" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="flex justify-between text-[7px]">
+                        <span>حملات واتساب</span>
+                        <span className="text-rose-600 font-medium">18 حملة نشطة</span>
+                      </div>
+                      <div className="flex justify-between text-[7px]">
+                        <span>حملات تويتر</span>
+                        <span className="text-rose-600 font-medium">6 حملات</span>
+                      </div>
+                      <div className="flex justify-between text-[7px]">
+                        <span>معدل التحويل</span>
+                        <span className="text-rose-600 font-medium">12.4%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Team Performance */}
+                  <div className="bg-orange-50 rounded-lg p-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[9px] font-medium text-orange-700">أداء الفريق</span>
+                      <Users className="h-2.5 w-2.5 text-orange-600" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="flex justify-between text-[7px]">
+                        <span>أحمد السعيد</span>
+                        <span className="text-orange-600 font-medium">12 صفقة</span>
+                      </div>
+                      <div className="flex justify-between text-[7px]">
+                        <span>فاطمة محمد</span>
+                        <span className="text-orange-600 font-medium">8 صفقات</span>
+                      </div>
+                      <div className="text-[7px] text-orange-600 font-medium">إجمالي الشهر: 45 صفقة</div>
                     </div>
                   </div>
 
