@@ -529,22 +529,22 @@ export default function Settings() {
               <div className="flex items-center justify-between flex-row-reverse">
                 <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-new-leads" />
                 <div className="text-right">
-                  <p className="font-medium">عملاء محتملين جدد</p>
-                  <p className="text-sm text-muted-foreground">إشعار عند إضافة عملاء محتملين جدد</p>
+                  <div className="font-medium" style={{ float: 'right' }}>عملاء محتملين جدد</div>
+                  <div className="text-sm text-muted-foreground" style={{ float: 'right' }}>إشعار عند إضافة عملاء محتملين جدد</div>
                 </div>
               </div>
               <div className="flex items-center justify-between flex-row-reverse">
                 <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-task-updates" />
                 <div className="text-right">
-                  <p className="font-medium">تحديثات المهام</p>
-                  <p className="text-sm text-muted-foreground">إشعار عند اكتمال أو تحديث المهام</p>
+                  <div className="font-medium" style={{ float: 'right' }}>تحديثات المهام</div>
+                  <div className="text-sm text-muted-foreground" style={{ float: 'right' }}>إشعار عند اكتمال أو تحديث المهام</div>
                 </div>
               </div>
               <div className="flex items-center justify-between flex-row-reverse">
                 <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-new-deals" />
                 <div className="text-right">
-                  <p className="font-medium">صفقات جديدة</p>
-                  <p className="text-sm text-muted-foreground">إشعار عند إنشاء صفقات جديدة</p>
+                  <div className="font-medium" style={{ float: 'right' }}>صفقات جديدة</div>
+                  <div className="text-sm text-muted-foreground" style={{ float: 'right' }}>إشعار عند إنشاء صفقات جديدة</div>
                 </div>
               </div>
             </CardContent>
