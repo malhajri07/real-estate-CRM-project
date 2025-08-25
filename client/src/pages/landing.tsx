@@ -324,28 +324,28 @@ export default function Landing() {
                 
                 <div className="flex-1">
                   <ul className="space-y-4 text-right">
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Users className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Users className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">حتى 50 عميل محتمل</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Building className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Building className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">حتى 25 عقار</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <MessageSquare className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <MessageSquare className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">5 حملات تسويقية شهرياً</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Phone className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Phone className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">100 رسالة واتساب شهرياً</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <BarChart3 className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <BarChart3 className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">تقارير أساسية</span>
                     </li>
-                    <li className="flex items-center justify-end pb-3">
-                      <Mail className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 pb-3">
+                      <Mail className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">دعم فني عبر البريد</span>
                     </li>
                   </ul>
@@ -375,36 +375,36 @@ export default function Landing() {
                 
                 <div className="flex-1">
                   <ul className="space-y-4 text-right">
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Users className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Users className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">حتى 500 عميل محتمل</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Building className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Building className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">حتى 200 عقار</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <MessageSquare className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <MessageSquare className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">25 حملة تسويقية شهرياً</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Phone className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Phone className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">2000 رسالة واتساب شهرياً</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <BarChart3 className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <BarChart3 className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">تقارير متقدمة وتحليلات</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Shield className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Shield className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">دعم فني على مدار الساعة</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Users className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Users className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">إدارة 3 مستخدمين</span>
                     </li>
-                    <li className="flex items-center justify-end pb-3">
-                      <TrendingUp className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 pb-3">
+                      <TrendingUp className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">تكامل مع الأنظمة الخارجية</span>
                     </li>
                   </ul>
@@ -429,40 +429,40 @@ export default function Landing() {
                 
                 <div className="flex-1">
                   <ul className="space-y-4 text-right">
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Users className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Users className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">عملاء محتملين غير محدودين</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Building className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Building className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">عقارات غير محدودة</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <MessageSquare className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <MessageSquare className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">حملات تسويقية غير محدودة</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Phone className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Phone className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">10,000 رسالة واتساب شهرياً</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <BarChart3 className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <BarChart3 className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">تقارير مخصصة ولوحات تحكم</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Shield className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Shield className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">مدير حساب مخصص</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <Users className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <Users className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">مستخدمين غير محدودين</span>
                     </li>
-                    <li className="flex items-center justify-end border-b border-gray-100 pb-3">
-                      <TrendingUp className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
+                      <TrendingUp className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">API مخصص للتكامل</span>
                     </li>
-                    <li className="flex items-center justify-end pb-3">
-                      <Shield className="h-5 w-5 text-green-600 ml-3" />
+                    <li className="flex items-center gap-4 pb-3">
+                      <Shield className="h-5 w-5 text-green-600 flex-shrink-0" />
                       <span className="text-gray-700">نسخ احتياطية يومية</span>
                     </li>
                   </ul>
