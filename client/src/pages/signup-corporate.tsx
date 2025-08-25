@@ -152,350 +152,373 @@ export default function SignupCorporate() {
       </header>
 
       {/* Main Content */}
-      <div className="flex items-center justify-center p-4 py-8">
-        <Card className="w-full max-w-4xl">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <img 
-              src={logoImage} 
-              alt="شعار عقاراتي" 
-              className="w-24 h-24 object-contain"
-            />
+      <div className="flex items-center justify-center p-6 py-12">
+        <div className="w-full max-w-4xl bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100">
+          {/* Header Section */}
+          <div className="text-center px-8 py-12 border-b border-gray-100">
+            <div className="flex justify-center mb-6">
+              <img 
+                src={logoImage} 
+                alt="شعار عقاراتي" 
+                className="w-20 h-20 object-contain"
+              />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-3 tracking-tight">
+              طلب حساب مؤسسي
+            </h1>
+            <p className="text-lg text-gray-600 leading-7">
+              أدخل تفاصيل شركتك لبدء عملية التحقق والموافقة
+            </p>
           </div>
-          <CardTitle className="text-2xl font-bold text-slate-900">
-            طلب حساب مؤسسي
-          </CardTitle>
-          <p className="text-slate-600 mt-2">
-            أدخل تفاصيل شركتك لبدء عملية التحقق والموافقة
-          </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Company Information */}
-            <div className="bg-blue-50 p-6 rounded-lg space-y-4">
-              <h3 className="text-lg font-semibold text-blue-800 flex items-center">
-                <Building2 className="w-5 h-5 ml-2" />
-                معلومات الشركة
-              </h3>
+
+          {/* Form Content */}
+          <div className="px-8 py-8">
+            <form onSubmit={handleSubmit} className="space-y-12">
+              {/* Company Information */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-end mb-8">
+                  <h2 className="text-xl font-semibold text-gray-900 mr-3">معلومات الشركة</h2>
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-blue-600" />
+                  </div>
+                </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="companyName">
-                    اسم الشركة *
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="companyName" className="text-sm font-medium text-gray-700 text-right block">
+                      اسم الشركة *
+                    </Label>
+                    <Input
+                      id="companyName"
+                      type="text"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="أدخل اسم الشركة"
+                      required
+                      className="text-right h-12 border-gray-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="companyType" className="text-sm font-medium text-gray-700 text-right block">
+                      نوع الشركة *
+                    </Label>
+                    <Select value={companyType} onValueChange={setCompanyType} required>
+                      <SelectTrigger className="text-right h-12 border-gray-200 rounded-xl">
+                        <SelectValue placeholder="اختر نوع الشركة" />
+                      </SelectTrigger>
+                      <SelectContent position="popper" sideOffset={4}>
+                        <SelectItem value="llc">شركة ذات مسؤولية محدودة</SelectItem>
+                        <SelectItem value="corporation">شركة مساهمة</SelectItem>
+                        <SelectItem value="partnership">شركة تضامن</SelectItem>
+                        <SelectItem value="sole-proprietorship">مؤسسة فردية</SelectItem>
+                        <SelectItem value="other">أخرى</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="commercialRegistration" className="text-sm font-medium text-gray-700 text-right block">
+                      رقم السجل التجاري *
+                    </Label>
+                    <Input
+                      id="commercialRegistration"
+                      type="text"
+                      value={commercialRegistration}
+                      onChange={(e) => handleNumericInput(e.target.value, setCommercialRegistration)}
+                      placeholder="أدخل رقم السجل التجاري"
+                      required
+                      className="text-right h-12 border-gray-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="taxNumber" className="text-sm font-medium text-gray-700 text-right block">
+                      الرقم الضريبي
+                    </Label>
+                    <Input
+                      id="taxNumber"
+                      type="text"
+                      value={taxNumber}
+                      onChange={(e) => handleNumericInput(e.target.value, setTaxNumber)}
+                      placeholder="أدخل الرقم الضريبي"
+                      className="text-right h-12 border-gray-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="establishmentDate" className="text-sm font-medium text-gray-700 text-right block">
+                      تاريخ التأسيس
+                    </Label>
+                    <Input
+                      id="establishmentDate"
+                      type="date"
+                      value={establishmentDate}
+                      onChange={(e) => setEstablishmentDate(e.target.value)}
+                      className="text-right h-12 border-gray-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="employeesCount" className="text-sm font-medium text-gray-700 text-right block">
+                      عدد الموظفين
+                    </Label>
+                    <Select value={employeesCount} onValueChange={setEmployeesCount}>
+                      <SelectTrigger className="text-right h-12 border-gray-200 rounded-xl">
+                        <SelectValue placeholder="اختر عدد الموظفين" />
+                      </SelectTrigger>
+                      <SelectContent position="popper" sideOffset={4}>
+                        <SelectItem value="1-10">1-10 موظفين</SelectItem>
+                        <SelectItem value="11-50">11-50 موظف</SelectItem>
+                        <SelectItem value="51-200">51-200 موظف</SelectItem>
+                        <SelectItem value="200+">أكثر من 200 موظف</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="companyAddress" className="text-sm font-medium text-gray-700 text-right block">
+                    عنوان الشركة
                   </Label>
                   <Input
-                    id="companyName"
+                    id="companyAddress"
                     type="text"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    placeholder="أدخل اسم الشركة"
-                    required
-                    className="text-right"
+                    value={companyAddress}
+                    onChange={(e) => setCompanyAddress(e.target.value)}
+                    placeholder="أدخل العنوان التفصيلي"
+                    className="text-right h-12 border-gray-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="companyType">
-                    نوع الشركة *
-                  </Label>
-                  <Select value={companyType} onValueChange={setCompanyType} required>
-                    <SelectTrigger className="text-right">
-                      <SelectValue placeholder="اختر نوع الشركة" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="llc">شركة ذات مسؤولية محدودة</SelectItem>
-                      <SelectItem value="corporation">شركة مساهمة</SelectItem>
-                      <SelectItem value="partnership">شركة تضامن</SelectItem>
-                      <SelectItem value="sole-proprietorship">مؤسسة فردية</SelectItem>
-                      <SelectItem value="other">أخرى</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="companyCity" className="text-sm font-medium text-gray-700 text-right block">
+                      المنطقة
+                    </Label>
+                    <Select value={companyCity} onValueChange={setCompanyCity}>
+                      <SelectTrigger className="text-right h-12 border-gray-200 rounded-xl">
+                        <SelectValue placeholder="اختر المنطقة" />
+                      </SelectTrigger>
+                      <SelectContent position="popper" sideOffset={4}>
+                        {saudiRegions.map((region) => (
+                          <SelectItem key={region} value={region}>
+                            {region}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="commercialRegistration">
-                    رقم السجل التجاري *
-                  </Label>
-                  <Input
-                    id="commercialRegistration"
-                    type="text"
-                    value={commercialRegistration}
-                    onChange={(e) => handleNumericInput(e.target.value, setCommercialRegistration)}
-                    placeholder="أدخل رقم السجل التجاري"
-                    required
-                    className="text-right"
-                  />
+                  <div className="space-y-3">
+                    <Label htmlFor="companyWebsite" className="text-sm font-medium text-gray-700 text-right block">
+                      الموقع الإلكتروني
+                    </Label>
+                    <Input
+                      id="companyWebsite"
+                      type="url"
+                      value={companyWebsite}
+                      onChange={(e) => setCompanyWebsite(e.target.value)}
+                      placeholder="https://example.com"
+                      className="text-right h-12 border-gray-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="taxNumber">
-                    الرقم الضريبي
+                <div className="space-y-3">
+                  <Label htmlFor="companyDescription" className="text-sm font-medium text-gray-700 text-right block">
+                    نبذة عن الشركة
                   </Label>
-                  <Input
-                    id="taxNumber"
-                    type="text"
-                    value={taxNumber}
-                    onChange={(e) => handleNumericInput(e.target.value, setTaxNumber)}
-                    placeholder="أدخل الرقم الضريبي"
-                    className="text-right"
+                  <Textarea
+                    id="companyDescription"
+                    value={companyDescription}
+                    onChange={(e) => setCompanyDescription(e.target.value)}
+                    placeholder="اكتب نبذة مختصرة عن نشاط الشركة وخدماتها..."
+                    className="text-right min-h-[80px] border-gray-200 rounded-xl focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="establishmentDate">
-                    تاريخ التأسيس
-                  </Label>
-                  <Input
-                    id="establishmentDate"
-                    type="date"
-                    value={establishmentDate}
-                    onChange={(e) => setEstablishmentDate(e.target.value)}
-                    className="text-right"
-                  />
+              {/* Contact Person Information */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-end mb-8 pt-8 border-t border-gray-100">
+                  <h2 className="text-xl font-semibold text-gray-900 mr-3">معلومات الشخص المسؤول</h2>
+                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                    <User className="w-5 h-5 text-green-600" />
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="employeesCount">
-                    عدد الموظفين
-                  </Label>
-                  <Select value={employeesCount} onValueChange={setEmployeesCount}>
-                    <SelectTrigger className="text-right">
-                      <SelectValue placeholder="اختر عدد الموظفين" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1-10">1-10 موظفين</SelectItem>
-                      <SelectItem value="11-50">11-50 موظف</SelectItem>
-                      <SelectItem value="51-200">51-200 موظف</SelectItem>
-                      <SelectItem value="200+">أكثر من 200 موظف</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="contactName" className="text-sm font-medium text-gray-700 text-right block">
+                      الاسم الكامل *
+                    </Label>
+                    <Input
+                      id="contactName"
+                      type="text"
+                      value={contactName}
+                      onChange={(e) => setContactName(e.target.value)}
+                      placeholder="أدخل الاسم الكامل"
+                      required
+                      className="text-right h-12 border-gray-200 rounded-xl focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors"
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="companyAddress">
-                  عنوان الشركة
-                </Label>
-                <Input
-                  id="companyAddress"
-                  type="text"
-                  value={companyAddress}
-                  onChange={(e) => setCompanyAddress(e.target.value)}
-                  placeholder="أدخل العنوان التفصيلي"
-                  className="text-right"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="companyCity">
-                    المنطقة
-                  </Label>
-                  <Select value={companyCity} onValueChange={setCompanyCity}>
-                    <SelectTrigger className="text-right">
-                      <SelectValue placeholder="اختر المنطقة" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {saudiRegions.map((region) => (
-                        <SelectItem key={region} value={region}>
-                          {region}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="space-y-3">
+                    <Label htmlFor="contactPosition" className="text-sm font-medium text-gray-700 text-right block">
+                      المنصب
+                    </Label>
+                    <Input
+                      id="contactPosition"
+                      type="text"
+                      value={contactPosition}
+                      onChange={(e) => setContactPosition(e.target.value)}
+                      placeholder="أدخل المنصب الوظيفي"
+                      className="text-right h-12 border-gray-200 rounded-xl focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors"
+                    />
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="companyWebsite">
-                    الموقع الإلكتروني
-                  </Label>
-                  <Input
-                    id="companyWebsite"
-                    type="url"
-                    value={companyWebsite}
-                    onChange={(e) => setCompanyWebsite(e.target.value)}
-                    placeholder="https://example.com"
-                    className="text-right"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="contactEmail" className="text-sm font-medium text-gray-700 text-right block">
+                      البريد الإلكتروني *
+                    </Label>
+                    <Input
+                      id="contactEmail"
+                      type="email"
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
+                      placeholder="example@company.com"
+                      required
+                      className="text-right h-12 border-gray-200 rounded-xl focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="contactPhone" className="text-sm font-medium text-gray-700 text-right block">
+                      رقم الجوال *
+                    </Label>
+                    <Input
+                      id="contactPhone"
+                      type="tel"
+                      value={contactPhone}
+                      onChange={(e) => handleNumericInput(e.target.value, setContactPhone)}
+                      placeholder="٠٥xxxxxxxx"
+                      required
+                      className="text-right h-12 border-gray-200 rounded-xl focus:ring-1 focus:ring-green-500 focus:border-green-500 transition-colors"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="companyDescription">
-                  نبذة عن الشركة
-                </Label>
-                <Textarea
-                  id="companyDescription"
-                  value={companyDescription}
-                  onChange={(e) => setCompanyDescription(e.target.value)}
-                  placeholder="اكتب نبذة مختصرة عن نشاط الشركة وخدماتها..."
-                  className="text-right h-24"
-                />
+              {/* Required Documents */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-end mb-8 pt-8 border-t border-gray-100">
+                  <h2 className="text-xl font-semibold text-gray-900 mr-3">المستندات المطلوبة (اختيارية)</h2>
+                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-orange-600" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="commercialRegDoc" className="text-sm font-medium text-gray-700 text-right block">
+                      صورة السجل التجاري
+                    </Label>
+                    <Input
+                      id="commercialRegDoc"
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) => setCommercialRegDoc(e.target.files)}
+                      className="text-right h-12 border-gray-200 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="vatCertificate" className="text-sm font-medium text-gray-700 text-right block">
+                      شهادة التسجيل في ضريبة القيمة المضافة
+                    </Label>
+                    <Input
+                      id="vatCertificate"
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) => setVatCertificate(e.target.files)}
+                      className="text-right h-12 border-gray-200 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="companyProfile" className="text-sm font-medium text-gray-700 text-right block">
+                      ملف تعريف الشركة
+                    </Label>
+                    <Input
+                      id="companyProfile"
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) => setCompanyProfile(e.target.files)}
+                      className="text-right h-12 border-gray-200 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 border border-orange-200 p-4 rounded-xl">
+                  <p className="text-sm text-orange-700 font-medium text-right">
+                    📋 جميع الملفات يجب أن تكون بصيغة PDF فقط
+                  </p>
+                </div>
               </div>
+
+              <div className="pt-8">
+                <Button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold rounded-xl h-14 transition-colors shadow-sm hover:shadow-md"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "جار إرسال الطلب..." : "إرسال طلب التحقق"}
+                </Button>
+              </div>
+            </form>
+
+            <div className="mt-8 text-center">
+              <Button 
+                variant="outline" 
+                onClick={() => setLocation("/signup")}
+                className="text-gray-600 border-gray-200 hover:bg-gray-50 h-12 px-6 rounded-xl"
+              >
+                <ArrowRight className="w-4 h-4 ml-2" />
+                العودة إلى خيارات التسجيل
+              </Button>
             </div>
 
-            {/* Contact Person Information */}
-            <div className="bg-green-50 p-6 rounded-lg space-y-4">
-              <h3 className="text-lg font-semibold text-green-800 flex items-center">
-                <User className="w-5 h-5 ml-2" />
-                معلومات الشخص المسؤول
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="contactName">
-                    الاسم الكامل *
-                  </Label>
-                  <Input
-                    id="contactName"
-                    type="text"
-                    value={contactName}
-                    onChange={(e) => setContactName(e.target.value)}
-                    placeholder="أدخل الاسم الكامل"
-                    required
-                    className="text-right"
-                  />
+            {/* What happens next */}
+            <div className="mt-12 bg-blue-50 border border-blue-100 p-6 rounded-xl">
+              <h3 className="font-semibold text-blue-900 mb-4 text-right text-lg">ماذا يحدث بعد ذلك؟</h3>
+              <div className="space-y-3 text-right">
+                <div className="flex items-start">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 ml-4 flex-shrink-0"></div>
+                  <p className="text-blue-700">سيقوم فريق المراجعة بدراسة طلبك خلال 48 ساعة</p>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="contactPosition">
-                    المنصب
-                  </Label>
-                  <Input
-                    id="contactPosition"
-                    type="text"
-                    value={contactPosition}
-                    onChange={(e) => setContactPosition(e.target.value)}
-                    placeholder="أدخل المنصب الوظيفي"
-                    className="text-right"
-                  />
+                <div className="flex items-start">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 ml-4 flex-shrink-0"></div>
+                  <p className="text-blue-700">قد نطلب مستندات إضافية أو توضيحات</p>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="contactEmail">
-                    البريد الإلكتروني *
-                  </Label>
-                  <Input
-                    id="contactEmail"
-                    type="email"
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    placeholder="example@company.com"
-                    required
-                    className="text-right"
-                  />
+                <div className="flex items-start">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 ml-4 flex-shrink-0"></div>
+                  <p className="text-blue-700">سنتواصل معك لترتيب مكالمة تعريفية</p>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="contactPhone">
-                    رقم الجوال *
-                  </Label>
-                  <Input
-                    id="contactPhone"
-                    type="tel"
-                    value={contactPhone}
-                    onChange={(e) => handleNumericInput(e.target.value, setContactPhone)}
-                    placeholder="٠٥xxxxxxxx"
-                    required
-                    className="text-right"
-                  />
+                <div className="flex items-start">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 ml-4 flex-shrink-0"></div>
+                  <p className="text-blue-700">عند الموافقة، سيتم إنشاء حسابكم وإرسال بيانات الدخول</p>
                 </div>
               </div>
             </div>
-
-            {/* Required Documents */}
-            <div className="bg-orange-50 p-6 rounded-lg space-y-4">
-              <h3 className="text-lg font-semibold text-orange-800 flex items-center">
-                <FileText className="w-5 h-5 ml-2" />
-                المستندات المطلوبة (اختيارية)
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="commercialRegDoc">
-                    صورة السجل التجاري
-                  </Label>
-                  <Input
-                    id="commercialRegDoc"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(e) => setCommercialRegDoc(e.target.files)}
-                    className="text-right"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="vatCertificate">
-                    شهادة التسجيل في ضريبة القيمة المضافة
-                  </Label>
-                  <Input
-                    id="vatCertificate"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(e) => setVatCertificate(e.target.files)}
-                    className="text-right"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="companyProfile">
-                    ملف تعريف الشركة
-                  </Label>
-                  <Input
-                    id="companyProfile"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(e) => setCompanyProfile(e.target.files)}
-                    className="text-right"
-                  />
-                </div>
-              </div>
-
-              <div className="bg-white p-3 rounded-lg">
-                <p className="text-sm text-orange-700 font-medium">
-                  📋 جميع الملفات يجب أن تكون بصيغة PDF فقط
-                </p>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold"
-              disabled={isLoading}
-            >
-              {isLoading ? "جار إرسال الطلب..." : "إرسال طلب التحقق"}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <Button 
-              variant="outline" 
-              onClick={() => setLocation("/signup")}
-              className="text-gray-600 border-gray-300 hover:bg-gray-50"
-            >
-              <ArrowRight className="w-4 h-4 ml-2" />
-              العودة إلى خيارات التسجيل
-            </Button>
           </div>
-
-          {/* What happens next */}
-          <div className="mt-8 bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-semibold text-blue-800 mb-2">ماذا يحدث بعد ذلك؟</h4>
-            <ul className="text-sm text-blue-700 space-y-1">
-              <li>• سيقوم فريق المراجعة بدراسة طلبك خلال 48 ساعة</li>
-              <li>• قد نطلب مستندات إضافية أو توضيحات</li>
-              <li>• سنتواصل معك لترتيب مكالمة تعريفية</li>
-              <li>• عند الموافقة، سيتم إنشاء حسابكم وإرسال بيانات الدخول</li>
-            </ul>
-          </div>
-        </CardContent>
-        </Card>
+        </div>
       </div>
 
       {/* Footer */}
