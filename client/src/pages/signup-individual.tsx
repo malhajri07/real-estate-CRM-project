@@ -175,7 +175,7 @@ export default function SignupIndividual() {
         <div className="w-full max-w-2xl bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
           {/* Header Section */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-6 text-white text-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-transparent"></div>
+            <div className="absolute inset-x-4 inset-y-2 bg-gradient-to-br from-green-400/20 to-transparent rounded-2xl"></div>
             <div className="relative z-10">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
