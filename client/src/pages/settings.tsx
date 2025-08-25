@@ -97,19 +97,19 @@ export default function Settings() {
 
       <Tabs defaultValue="account" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 apple-card">
-          <TabsTrigger value="account" className="flex items-center gap-2 flex-row-reverse">
+          <TabsTrigger value="account" className="flex items-center gap-2 flex-row-reverse hover:bg-primary/10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Building2 size={16} />
             تفاصيل الحساب
           </TabsTrigger>
-          <TabsTrigger value="profile" className="flex items-center gap-2 flex-row-reverse">
+          <TabsTrigger value="profile" className="flex items-center gap-2 flex-row-reverse hover:bg-primary/10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <User size={16} />
             الملف الشخصي
           </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2 flex-row-reverse">
+          <TabsTrigger value="security" className="flex items-center gap-2 flex-row-reverse hover:bg-primary/10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Shield size={16} />
             الأمان
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-2 flex-row-reverse">
+          <TabsTrigger value="notifications" className="flex items-center gap-2 flex-row-reverse hover:bg-primary/10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Bell size={16} />
             الإشعارات
           </TabsTrigger>
@@ -135,7 +135,7 @@ export default function Settings() {
                   <Input
                     id="companyName"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={accountDetails.companyName}
                     onChange={(e) => setAccountDetails({...accountDetails, companyName: e.target.value})}
                     data-testid="input-company-name"
@@ -145,7 +145,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label htmlFor="businessType" style={{ float: 'right' }}>نوع النشاط</Label>
                   <Select value={accountDetails.businessType} onValueChange={(value) => setAccountDetails({...accountDetails, businessType: value})}>
-                    <SelectTrigger dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.7)' }} data-testid="select-business-type">
+                    <SelectTrigger dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="select-business-type">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -163,7 +163,7 @@ export default function Settings() {
                   <Input
                     id="taxId"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={accountDetails.taxId}
                     onChange={(e) => setAccountDetails({...accountDetails, taxId: e.target.value})}
                     data-testid="input-tax-id"
@@ -176,7 +176,7 @@ export default function Settings() {
                     id="website"
                     type="url"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={accountDetails.website}
                     onChange={(e) => setAccountDetails({...accountDetails, website: e.target.value})}
                     data-testid="input-website"
@@ -189,7 +189,7 @@ export default function Settings() {
                     id="description"
                     rows={3}
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={accountDetails.description}
                     onChange={(e) => setAccountDetails({...accountDetails, description: e.target.value})}
                     data-testid="textarea-description"
@@ -215,7 +215,7 @@ export default function Settings() {
                   <Input
                     id="address"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={accountDetails.address}
                     onChange={(e) => setAccountDetails({...accountDetails, address: e.target.value})}
                     data-testid="input-address"
@@ -228,7 +228,7 @@ export default function Settings() {
                     <Input
                       id="city"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                       value={accountDetails.city}
                       onChange={(e) => setAccountDetails({...accountDetails, city: e.target.value})}
                       data-testid="input-city"
@@ -239,7 +239,7 @@ export default function Settings() {
                     <Input
                       id="postalCode"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                       value={accountDetails.postalCode}
                       onChange={(e) => setAccountDetails({...accountDetails, postalCode: e.target.value})}
                       data-testid="input-postal-code"
@@ -250,7 +250,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label htmlFor="country" style={{ float: 'right' }}>البلد</Label>
                   <Select value={accountDetails.country} onValueChange={(value) => setAccountDetails({...accountDetails, country: value})}>
-                    <SelectTrigger dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.7)' }} data-testid="select-country">
+                    <SelectTrigger dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="select-country">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -270,7 +270,7 @@ export default function Settings() {
                     id="phone"
                     type="tel"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={accountDetails.phone}
                     onChange={(e) => setAccountDetails({...accountDetails, phone: e.target.value})}
                     data-testid="input-company-phone"
@@ -283,7 +283,7 @@ export default function Settings() {
                     id="email"
                     type="email"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={accountDetails.email}
                     onChange={(e) => setAccountDetails({...accountDetails, email: e.target.value})}
                     data-testid="input-company-email"
@@ -310,7 +310,7 @@ export default function Settings() {
                     <Input
                       id="contactPerson"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                       value={accountDetails.contactPerson}
                       onChange={(e) => setAccountDetails({...accountDetails, contactPerson: e.target.value})}
                       data-testid="input-contact-person"
@@ -321,7 +321,7 @@ export default function Settings() {
                     <Input
                       id="contactTitle"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                       value={accountDetails.contactTitle}
                       onChange={(e) => setAccountDetails({...accountDetails, contactTitle: e.target.value})}
                       data-testid="input-contact-title"
@@ -333,7 +333,7 @@ export default function Settings() {
                       id="contactPhone"
                       type="tel"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                       value={accountDetails.contactPhone}
                       onChange={(e) => setAccountDetails({...accountDetails, contactPhone: e.target.value})}
                       data-testid="input-contact-phone"
@@ -345,7 +345,7 @@ export default function Settings() {
                       id="contactEmail"
                       type="email"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                       value={accountDetails.contactEmail}
                       onChange={(e) => setAccountDetails({...accountDetails, contactEmail: e.target.value})}
                       data-testid="input-contact-email"
@@ -400,7 +400,7 @@ export default function Settings() {
                   <Input
                     id="firstName"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={userProfile.firstName}
                     onChange={(e) => setUserProfile({...userProfile, firstName: e.target.value})}
                     data-testid="input-first-name"
@@ -411,7 +411,7 @@ export default function Settings() {
                   <Input
                     id="lastName"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={userProfile.lastName}
                     onChange={(e) => setUserProfile({...userProfile, lastName: e.target.value})}
                     data-testid="input-last-name"
@@ -423,7 +423,7 @@ export default function Settings() {
                     id="userEmail"
                     type="email"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={userProfile.email}
                     onChange={(e) => setUserProfile({...userProfile, email: e.target.value})}
                     data-testid="input-user-email"
@@ -435,7 +435,7 @@ export default function Settings() {
                     id="userPhone"
                     type="tel"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={userProfile.phone}
                     onChange={(e) => setUserProfile({...userProfile, phone: e.target.value})}
                     data-testid="input-user-phone"
@@ -446,7 +446,7 @@ export default function Settings() {
                   <Input
                     id="title"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.7)' }}
+                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
                     value={userProfile.title}
                     onChange={(e) => setUserProfile({...userProfile, title: e.target.value})}
                     data-testid="input-user-title"
@@ -455,7 +455,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label htmlFor="department" style={{ float: 'right' }}>القسم</Label>
                   <Select value={userProfile.department} onValueChange={(value) => setUserProfile({...userProfile, department: value})}>
-                    <SelectTrigger dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.7)' }} data-testid="select-department">
+                    <SelectTrigger dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="select-department">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -495,15 +495,15 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword" style={{ float: 'right' }}>كلمة المرور الحالية</Label>
-                <Input id="currentPassword" type="password" dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.7)' }} data-testid="input-current-password" />
+                <Input id="currentPassword" type="password" dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="input-current-password" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="newPassword" style={{ float: 'right' }}>كلمة المرور الجديدة</Label>
-                <Input id="newPassword" type="password" dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.7)' }} data-testid="input-new-password" />
+                <Input id="newPassword" type="password" dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="input-new-password" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" style={{ float: 'right' }}>تأكيد كلمة المرور الجديدة</Label>
-                <Input id="confirmPassword" type="password" dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.7)' }} data-testid="input-confirm-password" />
+                <Input id="confirmPassword" type="password" dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="input-confirm-password" />
               </div>
               <Button className="flex items-center gap-2 flex-row-reverse" data-testid="button-change-password">
                 <Shield size={16} />
