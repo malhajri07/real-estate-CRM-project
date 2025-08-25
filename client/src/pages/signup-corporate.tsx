@@ -178,7 +178,7 @@ export default function SignupCorporate() {
               {/* Company Information */}
               <div className="space-y-6">
                 <div className="flex items-center mb-8">
-                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mr-3">
+                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center ml-4">
                     <Building2 className="w-5 h-5 text-blue-600" />
                   </div>
                   <h2 className="text-xl font-semibold text-gray-900">معلومات الشركة</h2>
@@ -208,7 +208,7 @@ export default function SignupCorporate() {
                       <SelectTrigger className="text-right h-12 border-gray-200 rounded-xl">
                         <SelectValue placeholder="اختر نوع الشركة" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4} align="end">
+                      <SelectContent position="popper" sideOffset={4} align="end" className="z-[100]">
                         <SelectItem value="llc">شركة ذات مسؤولية محدودة</SelectItem>
                         <SelectItem value="corporation">شركة مساهمة</SelectItem>
                         <SelectItem value="partnership">شركة تضامن</SelectItem>
@@ -272,7 +272,7 @@ export default function SignupCorporate() {
                       <SelectTrigger className="text-right h-12 border-gray-200 rounded-xl">
                         <SelectValue placeholder="اختر عدد الموظفين" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4} align="end">
+                      <SelectContent position="popper" sideOffset={4} align="end" className="z-[100]">
                         <SelectItem value="1-10">1-10 موظفين</SelectItem>
                         <SelectItem value="11-50">11-50 موظف</SelectItem>
                         <SelectItem value="51-200">51-200 موظف</SelectItem>
@@ -305,7 +305,7 @@ export default function SignupCorporate() {
                       <SelectTrigger className="text-right h-12 border-gray-200 rounded-xl">
                         <SelectValue placeholder="اختر المنطقة" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4} align="end">
+                      <SelectContent position="popper" sideOffset={4} align="end" className="z-[100]">
                         {saudiRegions.map((region) => (
                           <SelectItem key={region} value={region}>
                             {region}
@@ -347,7 +347,7 @@ export default function SignupCorporate() {
               {/* Contact Person Information */}
               <div className="space-y-6">
                 <div className="flex items-center mb-8 pt-8 border-t border-gray-100">
-                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-3">
+                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center ml-4">
                     <User className="w-5 h-5 text-green-600" />
                   </div>
                   <h2 className="text-xl font-semibold text-gray-900">معلومات الشخص المسؤول</h2>
@@ -420,7 +420,7 @@ export default function SignupCorporate() {
               {/* Required Documents */}
               <div className="space-y-6">
                 <div className="flex items-center mb-8 pt-8 border-t border-gray-100">
-                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center mr-3">
+                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center ml-4">
                     <FileText className="w-5 h-5 text-orange-600" />
                   </div>
                   <h2 className="text-xl font-semibold text-gray-900">المستندات المطلوبة (اختيارية)</h2>
@@ -428,45 +428,51 @@ export default function SignupCorporate() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-3">
-                    <Label htmlFor="commercialRegDoc" className="text-sm font-medium text-gray-700 text-right block flex items-center justify-end">
-                      <span className="mr-2">صورة السجل التجاري</span>
-                      <Upload className="w-4 h-4" />
+                    <Label htmlFor="commercialRegDoc" className="text-sm font-medium text-gray-700 text-right block">
+                      صورة السجل التجاري
                     </Label>
-                    <Input
-                      id="commercialRegDoc"
-                      type="file"
-                      accept="application/pdf"
-                      onChange={(e) => setCommercialRegDoc(e.target.files)}
-                      className="text-right h-12 border-gray-200 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="commercialRegDoc"
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => setCommercialRegDoc(e.target.files)}
+                        className="text-right h-12 border-gray-200 rounded-xl file:mr-10 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 pl-10"
+                      />
+                      <Upload className="w-4 h-4 text-gray-500 absolute left-3 top-4 pointer-events-none" />
+                    </div>
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="vatCertificate" className="text-sm font-medium text-gray-700 text-right block flex items-center justify-end">
-                      <span className="mr-2">شهادة التسجيل في ضريبة القيمة المضافة</span>
-                      <Upload className="w-4 h-4" />
+                    <Label htmlFor="vatCertificate" className="text-sm font-medium text-gray-700 text-right block">
+                      شهادة التسجيل في ضريبة القيمة المضافة
                     </Label>
-                    <Input
-                      id="vatCertificate"
-                      type="file"
-                      accept="application/pdf"
-                      onChange={(e) => setVatCertificate(e.target.files)}
-                      className="text-right h-12 border-gray-200 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="vatCertificate"
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => setVatCertificate(e.target.files)}
+                        className="text-right h-12 border-gray-200 rounded-xl file:mr-10 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 pl-10"
+                      />
+                      <Upload className="w-4 h-4 text-gray-500 absolute left-3 top-4 pointer-events-none" />
+                    </div>
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="companyProfile" className="text-sm font-medium text-gray-700 text-right block flex items-center justify-end">
-                      <span className="mr-2">ملف تعريف الشركة</span>
-                      <Upload className="w-4 h-4" />
+                    <Label htmlFor="companyProfile" className="text-sm font-medium text-gray-700 text-right block">
+                      ملف تعريف الشركة
                     </Label>
-                    <Input
-                      id="companyProfile"
-                      type="file"
-                      accept="application/pdf"
-                      onChange={(e) => setCompanyProfile(e.target.files)}
-                      className="text-right h-12 border-gray-200 rounded-xl file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="companyProfile"
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => setCompanyProfile(e.target.files)}
+                        className="text-right h-12 border-gray-200 rounded-xl file:mr-10 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 pl-10"
+                      />
+                      <Upload className="w-4 h-4 text-gray-500 absolute left-3 top-4 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
 
@@ -480,7 +486,7 @@ export default function SignupCorporate() {
               {/* Terms and Conditions */}
               <div className="space-y-6">
                 <div className="flex items-center mb-8 pt-8 border-t border-gray-100">
-                  <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center mr-3">
+                  <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center ml-4">
                     <FileText className="w-5 h-5 text-red-600" />
                   </div>
                   <h2 className="text-xl font-semibold text-gray-900">الشروط والأحكام</h2>
