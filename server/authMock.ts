@@ -35,7 +35,8 @@ export async function setupMockAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = (req: any, res, next) => {
-  if (req.isAuthenticated && req.isAuthenticated()) {
+  // For development, always allow authenticated access since we have mock user setup
+  if (req.user && req.user.id) {
     return next();
   }
   res.status(401).json({ message: "Unauthorized" });

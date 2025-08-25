@@ -144,7 +144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Lead routes
-  app.get("/api/leads", async (req, res) => {
+  app.get("/api/leads", isAuthenticated, async (req, res) => {
     try {
       const leads = await storage.getAllLeads();
       res.json(leads);
@@ -153,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/leads/search", async (req, res) => {
+  app.get("/api/leads/search", isAuthenticated, async (req, res) => {
     try {
       const query = req.query.q as string;
       if (!query) {
@@ -166,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/leads/:id", async (req, res) => {
+  app.get("/api/leads/:id", isAuthenticated, async (req, res) => {
     try {
       const lead = await storage.getLead(req.params.id);
       if (!lead) {
@@ -178,7 +178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/leads", async (req, res) => {
+  app.post("/api/leads", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertLeadSchema.parse(req.body);
       const lead = await storage.createLead(validatedData);
@@ -191,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/leads/:id", async (req, res) => {
+  app.put("/api/leads/:id", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertLeadSchema.partial().parse(req.body);
       const lead = await storage.updateLead(req.params.id, validatedData);
@@ -207,7 +207,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/leads/:id", async (req, res) => {
+  app.delete("/api/leads/:id", isAuthenticated, async (req, res) => {
     try {
       const deleted = await storage.deleteLead(req.params.id);
       if (!deleted) {
@@ -220,7 +220,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Property routes
-  app.get("/api/properties", async (req, res) => {
+  app.get("/api/properties", isAuthenticated, async (req, res) => {
     try {
       const properties = await storage.getAllProperties();
       res.json(properties);
@@ -388,7 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard metrics
-  app.get("/api/dashboard/metrics", async (req, res) => {
+  app.get("/api/dashboard/metrics", isAuthenticated, async (req, res) => {
     try {
       const leads = await storage.getAllLeads();
       const properties = await storage.getAllProperties();
