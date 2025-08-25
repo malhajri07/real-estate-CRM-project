@@ -153,7 +153,7 @@ export default function SignupIndividual() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -174,16 +174,16 @@ export default function SignupIndividual() {
       <div className="flex items-center justify-center p-6 py-12">
         <div className="w-full max-w-2xl bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
           {/* Header Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-6 text-white text-center relative overflow-hidden">
+          <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white text-center relative overflow-hidden">
             <div className="absolute inset-x-4 inset-y-2 bg-gradient-to-br from-green-400/20 to-transparent rounded-2xl"></div>
             <div className="relative z-10">
-              <div className="flex justify-center mb-4">
-                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                  <User className="w-8 h-8 text-white" />
+              <div className="flex justify-center mb-3">
+                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                  <User className="w-6 h-6 text-white" />
                 </div>
               </div>
-              <h1 className="text-3xl font-bold mb-2" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>إنشاء حساب فردي</h1>
-              <p className="text-blue-100 text-lg">انضم إلى منصة عقاراتي كوسيط عقاري معتمد</p>
+              <h1 className="text-2xl font-bold mb-2" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>إنشاء حساب فردي</h1>
+              <p className="text-green-100 text-base">انضم إلى منصة عقاراتي كوسيط عقاري معتمد</p>
             </div>
           </div>
 
@@ -468,7 +468,7 @@ export default function SignupIndividual() {
                       type="checkbox"
                       checked={agreedToTerms}
                       onChange={(e) => setAgreedToTerms(e.target.checked)}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                      className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
                     />
                   </div>
                   <div className="text-sm">
@@ -482,7 +482,7 @@ export default function SignupIndividual() {
               <div className="pt-8">
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold rounded-xl h-14 transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold rounded-xl h-14 transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isLoading || !agreedToTerms}
                 >
                   {isLoading ? "جار إرسال الطلب..." : "إنشاء الحساب"}
