@@ -4,11 +4,11 @@ import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, M
 
 export default function Landing() {
   const handleLogin = () => {
-    window.location.href = "/api/login";
+    window.location.href = "/login";
   };
 
   const handleSignUp = () => {
-    window.location.href = "/api/login";
+    window.location.href = "/login";
   };
 
   return (

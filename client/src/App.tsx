@@ -54,7 +54,12 @@ function Router() {
 
   // Show landing page if not authenticated
   if (!isAuthenticated) {
-    return <Landing />;
+    return (
+      <Switch>
+        <Route path="/login" component={() => <Login onLogin={handleLogin} />} />
+        <Route component={Landing} />
+      </Switch>
+    );
   }
 
   // Show main CRM application if authenticated
