@@ -40,100 +40,139 @@ export default function SignupSelection() {
         </div>
 
         {/* Account Type Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Individual Account */}
-          <Card className="hover:shadow-xl transition-all duration-300 border-2 hover:border-green-500 cursor-pointer group">
-            <CardHeader className="text-center pb-4">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
-                <User className="h-10 w-10 text-green-600" />
+        <div className="relative">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 bg-white rounded-2xl shadow-2xl overflow-hidden">
+            {/* Individual Account */}
+            <div className="group cursor-pointer hover:bg-gradient-to-br hover:from-green-50 hover:to-green-100 transition-all duration-500 p-8 border-r border-gray-200">
+              <div className="text-center">
+                <div className="w-24 h-24 bg-gradient-to-br from-green-100 to-green-200 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <User className="h-12 w-12 text-green-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  حساب فردي
+                </h3>
+                <p className="text-gray-600 mb-8">
+                  للوكلاء العقاريين الأفراد والممارسين المستقلين
+                </p>
               </div>
-              <CardTitle className="text-2xl font-bold text-gray-900">
-                حساب فردي
-              </CardTitle>
-              <p className="text-gray-600">
-                للوكلاء العقاريين الأفراد
-              </p>
-            </CardHeader>
-            <CardContent className="pt-0">
+
               <div className="space-y-4 mb-8">
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Shield className="h-5 w-5 text-green-600 flex-shrink-0" />
+                <div className="flex items-center gap-4 text-gray-700 p-3 rounded-lg bg-white/50">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <Shield className="h-4 w-4 text-green-600" />
+                  </div>
                   <span>وصول فردي كامل للمنصة</span>
                 </div>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Building2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                <div className="flex items-center gap-4 text-gray-700 p-3 rounded-lg bg-white/50">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <Building2 className="h-4 w-4 text-green-600" />
+                  </div>
                   <span>إدارة العقارات والعملاء</span>
                 </div>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Users className="h-5 w-5 text-green-600 flex-shrink-0" />
-                  <span>تسجيل سريع بحساب جوجل</span>
+                <div className="flex items-center gap-4 text-gray-700 p-3 rounded-lg bg-white/50">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <Users className="h-4 w-4 text-green-600" />
+                  </div>
+                  <span>تقارير مفصلة وتحليلات</span>
                 </div>
               </div>
 
-              <div className="bg-green-50 p-4 rounded-lg mb-6">
-                <h4 className="font-semibold text-green-800 mb-2">المستندات المطلوبة:</h4>
-                <ul className="text-sm text-green-700 space-y-1">
-                  <li>• ترخيص فال العقاري السعودي</li>
-                  <li>• رقم الهوية الوطنية</li>
-                  <li>• رقم الجوال</li>
+              <div className="bg-gradient-to-r from-green-50 to-green-100 p-5 rounded-xl mb-6 border border-green-200">
+                <h4 className="font-bold text-green-800 mb-3 flex items-center">
+                  <span className="w-2 h-2 bg-green-600 rounded-full ml-2"></span>
+                  المستندات المطلوبة:
+                </h4>
+                <ul className="text-sm text-green-700 space-y-2">
+                  <li className="flex items-center">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full ml-2"></span>
+                    ترخيص فال العقاري السعودي
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full ml-2"></span>
+                    رقم الهوية الوطنية
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full ml-2"></span>
+                    رقم الجوال
+                  </li>
                 </ul>
               </div>
 
               <Button 
                 onClick={handleIndividualSignup}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg font-semibold"
+                className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
                 إنشاء حساب فردي
               </Button>
-            </CardContent>
-          </Card>
+            </div>
 
-          {/* Corporate Account */}
-          <Card className="hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-500 cursor-pointer group">
-            <CardHeader className="text-center pb-4">
-              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
-                <Building2 className="h-10 w-10 text-blue-600" />
+            {/* Divider */}
+            <div className="absolute left-1/2 top-8 bottom-8 w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent transform -translate-x-1/2 hidden md:block"></div>
+
+            {/* Corporate Account */}
+            <div className="group cursor-pointer hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100 transition-all duration-500 p-8">
+              <div className="text-center">
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                  <Building2 className="h-12 w-12 text-blue-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  حساب الشركات
+                </h3>
+                <p className="text-gray-600 mb-8">
+                  للشركات والمؤسسات العقارية الكبيرة
+                </p>
               </div>
-              <CardTitle className="text-2xl font-bold text-gray-900">
-                حساب الشركات
-              </CardTitle>
-              <p className="text-gray-600">
-                للشركات والمؤسسات العقارية
-              </p>
-            </CardHeader>
-            <CardContent className="pt-0">
+
               <div className="space-y-4 mb-8">
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Shield className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                <div className="flex items-center gap-4 text-gray-700 p-3 rounded-lg bg-white/50">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Shield className="h-4 w-4 text-blue-600" />
+                  </div>
                   <span>إدارة متعددة المستخدمين</span>
                 </div>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Building2 className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                <div className="flex items-center gap-4 text-gray-700 p-3 rounded-lg bg-white/50">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Building2 className="h-4 w-4 text-blue-600" />
+                  </div>
                   <span>أدوات إدارة الشركات</span>
                 </div>
-                <div className="flex items-center gap-3 text-gray-700">
-                  <Users className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                <div className="flex items-center gap-4 text-gray-700 p-3 rounded-lg bg-white/50">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Users className="h-4 w-4 text-blue-600" />
+                  </div>
                   <span>دعم فني مخصص</span>
                 </div>
               </div>
 
-              <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                <h4 className="font-semibold text-blue-800 mb-2">عملية التحقق:</h4>
-                <ul className="text-sm text-blue-700 space-y-1">
-                  <li>• تفاصيل الشركة والتراخيص</li>
-                  <li>• معلومات المسؤولين</li>
-                  <li>• مراجعة وموافقة الفريق</li>
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-5 rounded-xl mb-6 border border-blue-200">
+                <h4 className="font-bold text-blue-800 mb-3 flex items-center">
+                  <span className="w-2 h-2 bg-blue-600 rounded-full ml-2"></span>
+                  عملية التحقق:
+                </h4>
+                <ul className="text-sm text-blue-700 space-y-2">
+                  <li className="flex items-center">
+                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full ml-2"></span>
+                    تفاصيل الشركة والتراخيص
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full ml-2"></span>
+                    معلومات المسؤولين
+                  </li>
+                  <li className="flex items-center">
+                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full ml-2"></span>
+                    مراجعة وموافقة الفريق
+                  </li>
                 </ul>
               </div>
 
               <Button 
                 onClick={handleCorporateSignup}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-4 text-lg font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
                 التقدم للحساب المؤسسي
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Back to Landing */}

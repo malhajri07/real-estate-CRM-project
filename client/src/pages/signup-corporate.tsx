@@ -37,6 +37,44 @@ export default function SignupCorporate() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
+  // Saudi regions
+  const saudiRegions = [
+    "الرياض",
+    "مكة المكرمة", 
+    "المدينة المنورة",
+    "المنطقة الشرقية",
+    "عسير",
+    "تبوك",
+    "القصيم",
+    "حائل",
+    "الحدود الشمالية",
+    "جازان",
+    "نجران",
+    "الباحة",
+    "الجوف"
+  ];
+
+  // Convert English numbers to Arabic numbers
+  const toArabicNumerals = (str: string) => {
+    const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    return str.replace(/[0-9]/g, (digit) => arabicNumerals[parseInt(digit)]);
+  };
+
+  // Convert Arabic numbers to English for validation
+  const toEnglishNumerals = (str: string) => {
+    const englishNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    return str.replace(/[٠-٩]/g, (digit) => {
+      const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+      return englishNumerals[arabicNumerals.indexOf(digit)];
+    });
+  };
+
+  const handleNumericInput = (value: string, setter: (val: string) => void) => {
+    // Only allow Arabic numerals
+    const arabicOnly = value.replace(/[^٠-٩]/g, '');
+    setter(arabicOnly);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -63,8 +101,12 @@ export default function SignupCorporate() {
       return;
     }
 
+    // Convert Arabic numerals to English for validation
+    const phoneEnglish = toEnglishNumerals(contactPhone);
+    const commercialRegEnglish = toEnglishNumerals(commercialRegistration);
+
     // Validate phone
-    if (!/^(05|5)\d{8}$/.test(contactPhone)) {
+    if (!/^(05|5)\d{8}$/.test(phoneEnglish)) {
       toast({
         title: "رقم الجوال غير صحيح",
         description: "الرجاء إدخال رقم جوال سعودي صحيح",
@@ -166,7 +208,7 @@ export default function SignupCorporate() {
                     id="commercialRegistration"
                     type="text"
                     value={commercialRegistration}
-                    onChange={(e) => setCommercialRegistration(e.target.value)}
+                    onChange={(e) => handleNumericInput(e.target.value, setCommercialRegistration)}
                     placeholder="أدخل رقم السجل التجاري"
                     required
                     className="text-right"
@@ -181,7 +223,7 @@ export default function SignupCorporate() {
                     id="taxNumber"
                     type="text"
                     value={taxNumber}
-                    onChange={(e) => setTaxNumber(e.target.value)}
+                    onChange={(e) => handleNumericInput(e.target.value, setTaxNumber)}
                     placeholder="أدخل الرقم الضريبي"
                     className="text-right"
                   />
@@ -237,16 +279,20 @@ export default function SignupCorporate() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="companyCity">
-                    المدينة
+                    المنطقة
                   </Label>
-                  <Input
-                    id="companyCity"
-                    type="text"
-                    value={companyCity}
-                    onChange={(e) => setCompanyCity(e.target.value)}
-                    placeholder="أدخل المدينة"
-                    className="text-right"
-                  />
+                  <Select value={companyCity} onValueChange={setCompanyCity}>
+                    <SelectTrigger className="text-right">
+                      <SelectValue placeholder="اختر المنطقة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {saudiRegions.map((region) => (
+                        <SelectItem key={region} value={region}>
+                          {region}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
@@ -340,8 +386,8 @@ export default function SignupCorporate() {
                     id="contactPhone"
                     type="tel"
                     value={contactPhone}
-                    onChange={(e) => setContactPhone(e.target.value)}
-                    placeholder="05xxxxxxxx"
+                    onChange={(e) => handleNumericInput(e.target.value, setContactPhone)}
+                    placeholder="٠٥xxxxxxxx"
                     required
                     className="text-right"
                   />
@@ -364,7 +410,7 @@ export default function SignupCorporate() {
                   <Input
                     id="commercialRegDoc"
                     type="file"
-                    accept="image/*,application/pdf"
+                    accept="application/pdf"
                     onChange={(e) => setCommercialRegDoc(e.target.files)}
                     className="text-right"
                   />
@@ -377,7 +423,7 @@ export default function SignupCorporate() {
                   <Input
                     id="vatCertificate"
                     type="file"
-                    accept="image/*,application/pdf"
+                    accept="application/pdf"
                     onChange={(e) => setVatCertificate(e.target.files)}
                     className="text-right"
                   />
@@ -390,16 +436,18 @@ export default function SignupCorporate() {
                   <Input
                     id="companyProfile"
                     type="file"
-                    accept="application/pdf,.doc,.docx"
+                    accept="application/pdf"
                     onChange={(e) => setCompanyProfile(e.target.files)}
                     className="text-right"
                   />
                 </div>
               </div>
 
-              <p className="text-sm text-orange-600">
-                يمكنك رفع هذه المستندات الآن أو إرسالها لاحقاً عبر البريد الإلكتروني
-              </p>
+              <div className="bg-white p-3 rounded-lg">
+                <p className="text-sm text-orange-700 font-medium">
+                  📋 جميع الملفات يجب أن تكون بصيغة PDF فقط
+                </p>
+              </div>
             </div>
 
             <Button
