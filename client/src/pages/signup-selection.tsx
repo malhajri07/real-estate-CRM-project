@@ -53,41 +53,45 @@ export default function SignupSelection() {
           </div>
 
           {/* Account Type Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Individual Account */}
             <div className="group cursor-pointer" onClick={handleIndividualSignup}>
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 p-8">
+              <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-500 p-10 hover:border-green-200/70">
                 <div className="text-right">
-                  <div className="flex justify-end mb-6">
-                    <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center group-hover:bg-green-100 transition-colors duration-300">
-                      <User className="h-8 w-8 text-green-600" />
+                  <div className="flex justify-end mb-8">
+                    <div className="w-18 h-18 bg-gradient-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center group-hover:from-green-100 group-hover:to-green-150 transition-all duration-300 shadow-sm">
+                      <User className="h-9 w-9 text-green-600" />
                     </div>
                   </div>
                   
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2 text-right">
-                    حساب فردي
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3 text-right tracking-tight">
+                    حساب الأفراد
                   </h3>
-                  <p className="text-gray-600 mb-8 text-right leading-relaxed">
-                    للوكلاء العقاريين الأفراد والممارسين المستقلين
+                  <p className="text-gray-600 mb-10 text-right leading-7 text-lg">
+                    للوسطاء العقاريين الأفراد والممارسين المستقلين
                   </p>
                   
-                  <div className="space-y-3 mb-8">
-                    <div className="text-right text-gray-700 text-sm">
-                      إدارة محفظة العقارات الشخصية
+                  <div className="space-y-4 mb-12">
+                    <div className="flex items-center justify-end text-gray-700 text-base">
+                      <span className="text-right font-medium">إدارة محفظة العقارات الشخصية</span>
+                      <div className="w-2 h-2 bg-green-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="text-right text-gray-700 text-sm">
-                      متابعة العملاء المحتملين
+                    <div className="flex items-center justify-end text-gray-700 text-base">
+                      <span className="text-right font-medium">متابعة العملاء المحتملين</span>
+                      <div className="w-2 h-2 bg-green-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="text-right text-gray-700 text-sm">
-                      تقارير الأداء الشخصية
+                    <div className="flex items-center justify-end text-gray-700 text-base">
+                      <span className="text-right font-medium">تقارير الأداء الشخصية</span>
+                      <div className="w-2 h-2 bg-green-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="text-right text-gray-700 text-sm">
-                      دعم فني على مدار الساعة
+                    <div className="flex items-center justify-end text-gray-700 text-base">
+                      <span className="text-right font-medium">دعم فني على مدار الساعة</span>
+                      <div className="w-2 h-2 bg-green-400 rounded-full mr-4"></div>
                     </div>
                   </div>
                   
-                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-medium transition-colors duration-200">
-                    إنشاء حساب فردي
+                  <Button className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-4 rounded-2xl font-semibold text-lg shadow-[0_4px_20px_rgba(34,197,94,0.25)] hover:shadow-[0_6px_25px_rgba(34,197,94,0.35)] transition-all duration-300 transform hover:scale-[1.02]">
+                    إنشاء حساب الأفراد
                   </Button>
                 </div>
               </div>
@@ -95,38 +99,42 @@ export default function SignupSelection() {
 
             {/* Corporate Account */}
             <div className="group cursor-pointer" onClick={handleCorporateSignup}>
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 p-8">
+              <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-500 p-10 hover:border-blue-200/70">
                 <div className="text-right">
-                  <div className="flex justify-end mb-6">
-                    <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-300">
-                      <Building2 className="h-8 w-8 text-blue-600" />
+                  <div className="flex justify-end mb-8">
+                    <div className="w-18 h-18 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center group-hover:from-blue-100 group-hover:to-blue-150 transition-all duration-300 shadow-sm">
+                      <Building2 className="h-9 w-9 text-blue-600" />
                     </div>
                   </div>
                   
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2 text-right">
-                    حساب مؤسسي
+                  <h3 className="text-2xl font-bold text-gray-900 mb-3 text-right tracking-tight">
+                    حساب الشركات والمؤسسات
                   </h3>
-                  <p className="text-gray-600 mb-8 text-right leading-relaxed">
+                  <p className="text-gray-600 mb-10 text-right leading-7 text-lg">
                     للشركات العقارية والمكاتب العقارية الكبيرة
                   </p>
                   
-                  <div className="space-y-3 mb-8">
-                    <div className="text-right text-gray-700 text-sm">
-                      إدارة فرق العمل المتعددة
+                  <div className="space-y-4 mb-12">
+                    <div className="flex items-center justify-end text-gray-700 text-base">
+                      <span className="text-right font-medium">إدارة فرق العمل المتعددة</span>
+                      <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="text-right text-gray-700 text-sm">
-                      تقارير شاملة للشركة
+                    <div className="flex items-center justify-end text-gray-700 text-base">
+                      <span className="text-right font-medium">تقارير شاملة للشركة</span>
+                      <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="text-right text-gray-700 text-sm">
-                      صلاحيات مرنة للموظفين
+                    <div className="flex items-center justify-end text-gray-700 text-base">
+                      <span className="text-right font-medium">صلاحيات مرنة للموظفين</span>
+                      <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="text-right text-gray-700 text-sm">
-                      دعم فني مخصص
+                    <div className="flex items-center justify-end text-gray-700 text-base">
+                      <span className="text-right font-medium">دعم فني مخصص</span>
+                      <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
                     </div>
                   </div>
                   
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition-colors duration-200">
-                    إنشاء حساب مؤسسي
+                  <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-4 rounded-2xl font-semibold text-lg shadow-[0_4px_20px_rgba(59,130,246,0.25)] hover:shadow-[0_6px_25px_rgba(59,130,246,0.35)] transition-all duration-300 transform hover:scale-[1.02]">
+                    إنشاء حساب الشركات والمؤسسات
                   </Button>
                 </div>
               </div>
