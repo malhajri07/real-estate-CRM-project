@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, User, Mail, Phone, MapPin, Globe, Save, Upload, Shield, Bell, CreditCard } from "lucide-react";
+import { Building2, User, Mail, Phone, MapPin, Globe, Save, Upload, Shield, Bell, CreditCard, Users, CheckCircle, TrendingUp } from "lucide-react";
 
 interface AccountDetails {
   companyName: string;
@@ -525,26 +525,35 @@ export default function Settings() {
                 اختر أنواع الإشعارات التي تريد استلامها
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between flex-row-reverse">
-                <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-new-leads" />
-                <div className="text-right">
-                  <div className="font-medium" style={{ float: 'right' }}>عملاء محتملين جدد</div>
-                  <div className="text-sm text-muted-foreground" style={{ float: 'right' }}>إشعار عند إضافة عملاء محتملين جدد</div>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between p-4 rounded-lg border border-gray-100 bg-gray-50/50">
+                <input type="checkbox" defaultChecked className="toggle ml-4" data-testid="toggle-new-leads" />
+                <div className="flex-1 text-right pr-4">
+                  <div className="font-medium text-gray-900 mb-1">عملاء محتملين جدد</div>
+                  <div className="text-sm text-gray-600">إشعار عند إضافة عملاء محتملين جدد</div>
+                </div>
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-600">
+                  <Users size={18} />
                 </div>
               </div>
-              <div className="flex items-center justify-between flex-row-reverse">
-                <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-task-updates" />
-                <div className="text-right">
-                  <div className="font-medium" style={{ float: 'right' }}>تحديثات المهام</div>
-                  <div className="text-sm text-muted-foreground" style={{ float: 'right' }}>إشعار عند اكتمال أو تحديث المهام</div>
+              <div className="flex items-center justify-between p-4 rounded-lg border border-gray-100 bg-gray-50/50">
+                <input type="checkbox" defaultChecked className="toggle ml-4" data-testid="toggle-task-updates" />
+                <div className="flex-1 text-right pr-4">
+                  <div className="font-medium text-gray-900 mb-1">تحديثات المهام</div>
+                  <div className="text-sm text-gray-600">إشعار عند اكتمال أو تحديث المهام</div>
+                </div>
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600">
+                  <CheckCircle size={18} />
                 </div>
               </div>
-              <div className="flex items-center justify-between flex-row-reverse">
-                <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-new-deals" />
-                <div className="text-right">
-                  <div className="font-medium" style={{ float: 'right' }}>صفقات جديدة</div>
-                  <div className="text-sm text-muted-foreground" style={{ float: 'right' }}>إشعار عند إنشاء صفقات جديدة</div>
+              <div className="flex items-center justify-between p-4 rounded-lg border border-gray-100 bg-gray-50/50">
+                <input type="checkbox" defaultChecked className="toggle ml-4" data-testid="toggle-new-deals" />
+                <div className="flex-1 text-right pr-4">
+                  <div className="font-medium text-gray-900 mb-1">صفقات جديدة</div>
+                  <div className="text-sm text-gray-600">إشعار عند إنشاء صفقات جديدة</div>
+                </div>
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-100 text-orange-600">
+                  <TrendingUp size={18} />
                 </div>
               </div>
             </CardContent>
