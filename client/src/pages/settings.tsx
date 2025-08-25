@@ -97,19 +97,19 @@ export default function Settings() {
 
       <Tabs defaultValue="account" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="account" className="flex items-center gap-2">
+          <TabsTrigger value="account" className="flex items-center gap-2 flex-row-reverse">
             <Building2 size={16} />
             تفاصيل الحساب
           </TabsTrigger>
-          <TabsTrigger value="profile" className="flex items-center gap-2">
+          <TabsTrigger value="profile" className="flex items-center gap-2 flex-row-reverse">
             <User size={16} />
             الملف الشخصي
           </TabsTrigger>
-          <TabsTrigger value="security" className="flex items-center gap-2">
+          <TabsTrigger value="security" className="flex items-center gap-2 flex-row-reverse">
             <Shield size={16} />
             الأمان
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-2">
+          <TabsTrigger value="notifications" className="flex items-center gap-2 flex-row-reverse">
             <Bell size={16} />
             الإشعارات
           </TabsTrigger>
@@ -121,11 +121,11 @@ export default function Settings() {
             {/* Company Information */}
             <Card className="apple-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 flex-row-reverse text-right">
                   <Building2 size={20} className="text-primary" />
                   معلومات الشركة
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-right">
                   تفاصيل الشركة الأساسية وبيانات التواصل
                 </CardDescription>
               </CardHeader>
@@ -193,11 +193,11 @@ export default function Settings() {
             {/* Contact Information */}
             <Card className="apple-card">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 flex-row-reverse text-right">
                   <MapPin size={20} className="text-primary" />
                   معلومات التواصل والعنوان
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-right">
                   عنوان الشركة وبيانات التواصل الرسمية
                 </CardDescription>
               </CardHeader>
@@ -277,11 +277,11 @@ export default function Settings() {
             {/* Primary Contact */}
             <Card className="apple-card lg:col-span-2">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 flex-row-reverse text-right">
                   <User size={20} className="text-primary" />
                   جهة الاتصال الرئيسية
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-right">
                   بيانات الشخص المسؤول عن الحساب
                 </CardDescription>
               </CardHeader>
@@ -342,8 +342,8 @@ export default function Settings() {
         <TabsContent value="profile" className="space-y-6">
           <Card className="apple-card">
             <CardHeader>
-              <CardTitle>الملف الشخصي</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-right">الملف الشخصي</CardTitle>
+              <CardDescription className="text-right">
                 إدارة بياناتك الشخصية وصورتك الشخصية
               </CardDescription>
             </CardHeader>
@@ -448,11 +448,11 @@ export default function Settings() {
         <TabsContent value="security" className="space-y-6">
           <Card className="apple-card">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 flex-row-reverse text-right">
                 <Shield size={20} className="text-primary" />
                 الأمان وكلمة المرور
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-right">
                 إعدادات الأمان وإدارة كلمة المرور
               </CardDescription>
             </CardHeader>
@@ -481,11 +481,11 @@ export default function Settings() {
         <TabsContent value="notifications" className="space-y-6">
           <Card className="apple-card">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 flex-row-reverse text-right">
                 <Bell size={20} className="text-primary" />
                 إعدادات الإشعارات
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-right">
                 اختر أنواع الإشعارات التي تريد استلامها
               </CardDescription>
             </CardHeader>
