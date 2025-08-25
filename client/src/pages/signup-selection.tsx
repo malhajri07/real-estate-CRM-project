@@ -72,21 +72,21 @@ export default function SignupSelection() {
                   </p>
                   
                   <div className="space-y-4 mb-12">
-                    <div className="flex items-center justify-end text-gray-700 text-base">
+                    <div className="flex items-center text-gray-700 text-base">
+                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">إدارة محفظة العقارات الشخصية</span>
-                      <div className="w-2 h-2 bg-green-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="flex items-center justify-end text-gray-700 text-base">
+                    <div className="flex items-center text-gray-700 text-base">
+                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">متابعة العملاء المحتملين</span>
-                      <div className="w-2 h-2 bg-green-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="flex items-center justify-end text-gray-700 text-base">
+                    <div className="flex items-center text-gray-700 text-base">
+                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">تقارير الأداء الشخصية</span>
-                      <div className="w-2 h-2 bg-green-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="flex items-center justify-end text-gray-700 text-base">
+                    <div className="flex items-center text-gray-700 text-base">
+                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">دعم فني على مدار الساعة</span>
-                      <div className="w-2 h-2 bg-green-400 rounded-full mr-4"></div>
                     </div>
                   </div>
                   
@@ -115,21 +115,21 @@ export default function SignupSelection() {
                   </p>
                   
                   <div className="space-y-4 mb-12">
-                    <div className="flex items-center justify-end text-gray-700 text-base">
+                    <div className="flex items-center text-gray-700 text-base">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">إدارة فرق العمل المتعددة</span>
-                      <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="flex items-center justify-end text-gray-700 text-base">
+                    <div className="flex items-center text-gray-700 text-base">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">تقارير شاملة للشركة</span>
-                      <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="flex items-center justify-end text-gray-700 text-base">
+                    <div className="flex items-center text-gray-700 text-base">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">صلاحيات مرنة للموظفين</span>
-                      <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
                     </div>
-                    <div className="flex items-center justify-end text-gray-700 text-base">
+                    <div className="flex items-center text-gray-700 text-base">
+                      <div className="w-2 h-2 bg-blue-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">دعم فني مخصص</span>
-                      <div className="w-2 h-2 bg-blue-400 rounded-full mr-4"></div>
                     </div>
                   </div>
                   
