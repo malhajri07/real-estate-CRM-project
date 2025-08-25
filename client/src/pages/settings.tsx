@@ -89,8 +89,8 @@ export default function Settings() {
   };
 
   return (
-    <main className="container mx-auto py-8 px-6 max-w-6xl">
-      <div className="mb-8">
+    <main className="container mx-auto py-8 px-6 max-w-6xl" dir="rtl">
+      <div className="mb-8 text-right">
         <h1 className="text-3xl font-bold tracking-tight">الإعدادات</h1>
         <p className="text-muted-foreground mt-2">إدارة إعدادات الحساب والملف الشخصي</p>
       </div>
@@ -330,8 +330,8 @@ export default function Settings() {
             </Card>
           </div>
 
-          <div className="flex justify-end">
-            <Button onClick={handleAccountSave} className="flex items-center gap-2" data-testid="button-save-account">
+          <div className="flex justify-start">
+            <Button onClick={handleAccountSave} className="flex items-center gap-2 flex-row-reverse" data-testid="button-save-account">
               <Save size={16} />
               حفظ تفاصيل الحساب
             </Button>
@@ -349,15 +349,15 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Avatar Section */}
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6 flex-row-reverse">
                 <Avatar className="w-24 h-24">
                   <AvatarImage src={userProfile.avatar} />
                   <AvatarFallback className="text-lg">
                     {userProfile.firstName[0]}{userProfile.lastName[0]}
                   </AvatarFallback>
                 </Avatar>
-                <div className="space-y-2">
-                  <Button variant="outline" className="flex items-center gap-2" data-testid="button-upload-avatar">
+                <div className="space-y-2 text-right">
+                  <Button variant="outline" className="flex items-center gap-2 flex-row-reverse" data-testid="button-upload-avatar">
                     <Upload size={16} />
                     تغيير الصورة الشخصية
                   </Button>
@@ -434,8 +434,8 @@ export default function Settings() {
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <Button onClick={handleProfileSave} className="flex items-center gap-2" data-testid="button-save-profile">
+              <div className="flex justify-start">
+                <Button onClick={handleProfileSave} className="flex items-center gap-2 flex-row-reverse" data-testid="button-save-profile">
                   <Save size={16} />
                   حفظ الملف الشخصي
                 </Button>
@@ -469,7 +469,7 @@ export default function Settings() {
                 <Label htmlFor="confirmPassword">تأكيد كلمة المرور الجديدة</Label>
                 <Input id="confirmPassword" type="password" data-testid="input-confirm-password" />
               </div>
-              <Button className="flex items-center gap-2" data-testid="button-change-password">
+              <Button className="flex items-center gap-2 flex-row-reverse" data-testid="button-change-password">
                 <Shield size={16} />
                 تغيير كلمة المرور
               </Button>
@@ -490,26 +490,26 @@ export default function Settings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between flex-row-reverse">
+                <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-new-leads" />
+                <div className="text-right">
                   <p className="font-medium">عملاء محتملين جدد</p>
                   <p className="text-sm text-muted-foreground">إشعار عند إضافة عملاء محتملين جدد</p>
                 </div>
-                <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-new-leads" />
               </div>
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between flex-row-reverse">
+                <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-task-updates" />
+                <div className="text-right">
                   <p className="font-medium">تحديثات المهام</p>
                   <p className="text-sm text-muted-foreground">إشعار عند اكتمال أو تحديث المهام</p>
                 </div>
-                <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-task-updates" />
               </div>
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex items-center justify-between flex-row-reverse">
+                <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-new-deals" />
+                <div className="text-right">
                   <p className="font-medium">صفقات جديدة</p>
                   <p className="text-sm text-muted-foreground">إشعار عند إنشاء صفقات جديدة</p>
                 </div>
-                <input type="checkbox" defaultChecked className="toggle" data-testid="toggle-new-deals" />
               </div>
             </CardContent>
           </Card>
