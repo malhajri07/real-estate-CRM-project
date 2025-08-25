@@ -144,7 +144,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label htmlFor="businessType" className="text-right">نوع النشاط</Label>
                   <Select value={accountDetails.businessType} onValueChange={(value) => setAccountDetails({...accountDetails, businessType: value})}>
-                    <SelectTrigger data-testid="select-business-type">
+                    <SelectTrigger dir="rtl" data-testid="select-business-type">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -243,7 +243,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label htmlFor="country" className="text-right">البلد</Label>
                   <Select value={accountDetails.country} onValueChange={(value) => setAccountDetails({...accountDetails, country: value})}>
-                    <SelectTrigger data-testid="select-country">
+                    <SelectTrigger dir="rtl" data-testid="select-country">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -437,7 +437,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label htmlFor="department" className="text-right">القسم</Label>
                   <Select value={userProfile.department} onValueChange={(value) => setUserProfile({...userProfile, department: value})}>
-                    <SelectTrigger data-testid="select-department">
+                    <SelectTrigger dir="rtl" data-testid="select-department">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
