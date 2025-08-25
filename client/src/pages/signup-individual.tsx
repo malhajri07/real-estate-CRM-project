@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { User, Calendar, Phone, CreditCard, Upload, ArrowRight, MapPin } from "lucide-react";
+import { User, Calendar, Phone, CreditCard, Upload, ArrowRight, MapPin, Building } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocation } from "wouter";
 import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
@@ -141,8 +141,22 @@ export default function SignupIndividual() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white" dir="rtl">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center items-center h-16">
+            <div className="flex items-center">
+              <Building className="h-8 w-8 text-green-600 ml-3" />
+              <span className="text-xl font-bold text-gray-900">منصة عقاراتي</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="flex items-center justify-center p-4 py-8">
+        <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
             <img 
@@ -379,7 +393,49 @@ export default function SignupIndividual() {
             </Button>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div>
+              <div className="flex items-center mb-4">
+                <Building className="h-8 w-8 text-green-400 ml-3" />
+                <span className="text-xl font-bold">منصة عقاراتي</span>
+              </div>
+              <p className="text-gray-400 mb-4">
+                نظام شامل لإدارة العقارات والعملاء والصفقات مع واجهة حديثة وسهلة الاستخدام
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">روابط سريعة</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><a href="#home" className="hover:text-green-400">الرئيسية</a></li>
+                <li><a href="#features" className="hover:text-green-400">المميزات</a></li>
+                <li><a href="#solutions" className="hover:text-green-400">الحلول</a></li>
+                <li><a href="#pricing" className="hover:text-green-400">الأسعار</a></li>
+                <li><a href="#contact" className="hover:text-green-400">اتصل بنا</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">الدعم</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li>الهاتف: +966 50 123 4567</li>
+                <li>البريد: info@aqaraty.sa</li>
+                <li>الدعم الفني متاح 24/7</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+            <p>جميع الحقوق محفوظة © 2025 منصة عقاراتي لإدارة العقارات</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
