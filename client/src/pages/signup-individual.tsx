@@ -504,33 +504,6 @@ export default function SignupIndividual() {
               </Button>
             </div>
 
-            {/* What happens next */}
-            <div className="mt-12 bg-gradient-to-br from-slate-50 to-green-50 border border-slate-200 p-8 rounded-2xl shadow-sm">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center ml-4 shadow-lg">
-                  <Check className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="font-bold text-slate-900 text-xl">ماذا يحدث بعد ذلك؟</h3>
-              </div>
-              <div className="space-y-4 text-right">
-                <div className="flex items-start bg-white/50 p-4 rounded-xl">
-                  <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full mt-1 ml-4 flex-shrink-0 shadow-sm"></div>
-                  <p className="text-slate-700 font-medium">سيتم التحقق من صحة بياناتك والترخيص المهني خلال 24 ساعة</p>
-                </div>
-                <div className="flex items-start bg-white/50 p-4 rounded-xl">
-                  <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full mt-1 ml-4 flex-shrink-0 shadow-sm"></div>
-                  <p className="text-slate-700 font-medium">قد نطلب وثائق إضافية أو توضيحات حول الترخيص</p>
-                </div>
-                <div className="flex items-start bg-white/50 p-4 rounded-xl">
-                  <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full mt-1 ml-4 flex-shrink-0 shadow-sm"></div>
-                  <p className="text-slate-700 font-medium">سنتواصل معك لاستكمال إعداد حسابك المهني</p>
-                </div>
-                <div className="flex items-start bg-white/50 p-4 rounded-xl">
-                  <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full mt-1 ml-4 flex-shrink-0 shadow-sm"></div>
-                  <p className="text-slate-700 font-medium">عند الموافقة، ستحصل على بيانات الدخول لحسابك الجديد</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
