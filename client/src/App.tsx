@@ -7,6 +7,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Login from "@/pages/login";
 import Landing from "@/pages/landing";
+import SignupSelection from "@/pages/signup-selection";
+import SignupIndividual from "@/pages/signup-individual";
+import SignupCorporate from "@/pages/signup-corporate";
+import SignupSuccess from "@/pages/signup-success";
+import KYCSubmitted from "@/pages/kyc-submitted";
 import Dashboard from "@/pages/dashboard";
 import Leads from "@/pages/leads";
 import Customers from "@/pages/customers";
@@ -57,6 +62,11 @@ function Router() {
     return (
       <Switch>
         <Route path="/login" component={() => <Login onLogin={handleLogin} />} />
+        <Route path="/signup" component={SignupSelection} />
+        <Route path="/signup/individual" component={SignupIndividual} />
+        <Route path="/signup/corporate" component={SignupCorporate} />
+        <Route path="/signup/success" component={SignupSuccess} />
+        <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
         <Route component={Landing} />
       </Switch>
     );

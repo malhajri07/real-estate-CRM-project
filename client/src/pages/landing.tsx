@@ -8,7 +8,7 @@ export default function Landing() {
   };
 
   const handleSignUp = () => {
-    window.location.href = "/login";
+    window.location.href = "/signup";
   };
 
   return (
