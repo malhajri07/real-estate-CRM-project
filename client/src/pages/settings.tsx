@@ -131,7 +131,7 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="companyName" style={{ direction: 'rtl', textAlign: 'right' }}>اسم الشركة</Label>
+                  <Label htmlFor="companyName" style={{ float: 'right' }}>اسم الشركة</Label>
                   <Input
                     id="companyName"
                     dir="rtl"
@@ -142,7 +142,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="businessType" style={{ direction: 'rtl', textAlign: 'right' }}>نوع النشاط</Label>
+                  <Label htmlFor="businessType" style={{ float: 'right' }}>نوع النشاط</Label>
                   <Select value={accountDetails.businessType} onValueChange={(value) => setAccountDetails({...accountDetails, businessType: value})}>
                     <SelectTrigger dir="rtl" data-testid="select-business-type">
                       <SelectValue />
@@ -158,7 +158,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="taxId" style={{ direction: 'rtl', textAlign: 'right' }}>الرقم الضريبي</Label>
+                  <Label htmlFor="taxId" style={{ float: 'right' }}>الرقم الضريبي</Label>
                   <Input
                     id="taxId"
                     dir="rtl"
@@ -169,7 +169,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="website" style={{ direction: 'rtl', textAlign: 'right' }}>الموقع الإلكتروني</Label>
+                  <Label htmlFor="website" style={{ float: 'right' }}>الموقع الإلكتروني</Label>
                   <Input
                     id="website"
                     type="url"
@@ -181,7 +181,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" style={{ direction: 'rtl', textAlign: 'right' }}>وصف الشركة</Label>
+                  <Label htmlFor="description" style={{ float: 'right' }}>وصف الشركة</Label>
                   <Textarea
                     id="description"
                     rows={3}
@@ -207,7 +207,7 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="address" style={{ direction: 'rtl', textAlign: 'right' }}>العنوان</Label>
+                  <Label htmlFor="address" style={{ float: 'right' }}>العنوان</Label>
                   <Input
                     id="address"
                     dir="rtl"
@@ -219,7 +219,7 @@ export default function Settings() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="city" style={{ direction: 'rtl', textAlign: 'right' }}>المدينة</Label>
+                    <Label htmlFor="city" style={{ float: 'right' }}>المدينة</Label>
                     <Input
                       id="city"
                       dir="rtl"
@@ -229,7 +229,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="postalCode" style={{ direction: 'rtl', textAlign: 'right' }}>الرمز البريدي</Label>
+                    <Label htmlFor="postalCode" style={{ float: 'right' }}>الرمز البريدي</Label>
                     <Input
                       id="postalCode"
                       dir="rtl"
@@ -241,7 +241,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="country" style={{ direction: 'rtl', textAlign: 'right' }}>البلد</Label>
+                  <Label htmlFor="country" style={{ float: 'right' }}>البلد</Label>
                   <Select value={accountDetails.country} onValueChange={(value) => setAccountDetails({...accountDetails, country: value})}>
                     <SelectTrigger dir="rtl" data-testid="select-country">
                       <SelectValue />
@@ -258,7 +258,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone" style={{ direction: 'rtl', textAlign: 'right' }}>هاتف الشركة</Label>
+                  <Label htmlFor="phone" style={{ float: 'right' }}>هاتف الشركة</Label>
                   <Input
                     id="phone"
                     type="tel"
@@ -270,7 +270,7 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" style={{ direction: 'rtl', textAlign: 'right' }}>البريد الإلكتروني للشركة</Label>
+                  <Label htmlFor="email" style={{ float: 'right' }}>البريد الإلكتروني للشركة</Label>
                   <Input
                     id="email"
                     type="email"
@@ -297,7 +297,7 @@ export default function Settings() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="contactPerson" style={{ direction: 'rtl', textAlign: 'right' }}>الاسم الكامل</Label>
+                    <Label htmlFor="contactPerson" style={{ float: 'right' }}>الاسم الكامل</Label>
                     <Input
                       id="contactPerson"
                       dir="rtl"
@@ -307,7 +307,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contactTitle" style={{ direction: 'rtl', textAlign: 'right' }}>المسمى الوظيفي</Label>
+                    <Label htmlFor="contactTitle" style={{ float: 'right' }}>المسمى الوظيفي</Label>
                     <Input
                       id="contactTitle"
                       dir="rtl"
@@ -317,7 +317,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contactPhone" style={{ direction: 'rtl', textAlign: 'right' }}>رقم الهاتف</Label>
+                    <Label htmlFor="contactPhone" style={{ float: 'right' }}>رقم الهاتف</Label>
                     <Input
                       id="contactPhone"
                       type="tel"
@@ -328,7 +328,7 @@ export default function Settings() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contactEmail" style={{ direction: 'rtl', textAlign: 'right' }}>البريد الإلكتروني</Label>
+                    <Label htmlFor="contactEmail" style={{ float: 'right' }}>البريد الإلكتروني</Label>
                     <Input
                       id="contactEmail"
                       type="email"
@@ -383,7 +383,7 @@ export default function Settings() {
               {/* Personal Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" style={{ direction: 'rtl', textAlign: 'right' }}>الاسم الأول</Label>
+                  <Label htmlFor="firstName" style={{ float: 'right' }}>الاسم الأول</Label>
                   <Input
                     id="firstName"
                     dir="rtl"
@@ -393,7 +393,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" style={{ direction: 'rtl', textAlign: 'right' }}>اسم العائلة</Label>
+                  <Label htmlFor="lastName" style={{ float: 'right' }}>اسم العائلة</Label>
                   <Input
                     id="lastName"
                     dir="rtl"
@@ -403,7 +403,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="userEmail" style={{ direction: 'rtl', textAlign: 'right' }}>البريد الإلكتروني</Label>
+                  <Label htmlFor="userEmail" style={{ float: 'right' }}>البريد الإلكتروني</Label>
                   <Input
                     id="userEmail"
                     type="email"
@@ -414,7 +414,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="userPhone" style={{ direction: 'rtl', textAlign: 'right' }}>رقم الهاتف</Label>
+                  <Label htmlFor="userPhone" style={{ float: 'right' }}>رقم الهاتف</Label>
                   <Input
                     id="userPhone"
                     type="tel"
@@ -425,7 +425,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="title" style={{ direction: 'rtl', textAlign: 'right' }}>المسمى الوظيفي</Label>
+                  <Label htmlFor="title" style={{ float: 'right' }}>المسمى الوظيفي</Label>
                   <Input
                     id="title"
                     dir="rtl"
@@ -435,7 +435,7 @@ export default function Settings() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="department" style={{ direction: 'rtl', textAlign: 'right' }}>القسم</Label>
+                  <Label htmlFor="department" style={{ float: 'right' }}>القسم</Label>
                   <Select value={userProfile.department} onValueChange={(value) => setUserProfile({...userProfile, department: value})}>
                     <SelectTrigger dir="rtl" data-testid="select-department">
                       <SelectValue />
@@ -476,15 +476,15 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="currentPassword" style={{ direction: 'rtl', textAlign: 'right' }}>كلمة المرور الحالية</Label>
+                <Label htmlFor="currentPassword" style={{ float: 'right' }}>كلمة المرور الحالية</Label>
                 <Input id="currentPassword" type="password" dir="rtl" data-testid="input-current-password" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="newPassword" style={{ direction: 'rtl', textAlign: 'right' }}>كلمة المرور الجديدة</Label>
+                <Label htmlFor="newPassword" style={{ float: 'right' }}>كلمة المرور الجديدة</Label>
                 <Input id="newPassword" type="password" dir="rtl" data-testid="input-new-password" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" style={{ direction: 'rtl', textAlign: 'right' }}>تأكيد كلمة المرور الجديدة</Label>
+                <Label htmlFor="confirmPassword" style={{ float: 'right' }}>تأكيد كلمة المرور الجديدة</Label>
                 <Input id="confirmPassword" type="password" dir="rtl" data-testid="input-confirm-password" />
               </div>
               <Button className="flex items-center gap-2 flex-row-reverse" data-testid="button-change-password">
