@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Login from "@/pages/login";
+import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Leads from "@/pages/leads";
 import Customers from "@/pages/customers";
@@ -51,9 +52,9 @@ function Router() {
     );
   }
 
-  // Show login page if not authenticated
+  // Show landing page if not authenticated
   if (!isAuthenticated) {
-    return <Login onLogin={handleLogin} />;
+    return <Landing />;
   }
 
   // Show main CRM application if authenticated
