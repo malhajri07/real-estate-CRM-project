@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -27,6 +27,9 @@ import Sidebar from "@/components/layout/sidebar";
 function Router() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isNavigationLoading, setIsNavigationLoading] = useState(false);
+  const [location] = useLocation();
+  const [previousLocation, setPreviousLocation] = useState("");
 
   // Check for existing authentication on app load
   useEffect(() => {
@@ -36,6 +39,19 @@ function Router() {
     }
     setIsLoading(false);
   }, []);
+
+  // Handle navigation loading effect for authenticated pages
+  useEffect(() => {
+    if (isAuthenticated && location !== previousLocation && previousLocation !== "") {
+      setIsNavigationLoading(true);
+      const timer = setTimeout(() => {
+        setIsNavigationLoading(false);
+      }, 2500); // 2.5 seconds loading
+      
+      return () => clearTimeout(timer);
+    }
+    setPreviousLocation(location);
+  }, [location, isAuthenticated, previousLocation]);
 
   // Handle login
   const handleLogin = () => {
@@ -69,6 +85,24 @@ function Router() {
         <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
         <Route component={Landing} />
       </Switch>
+    );
+  }
+
+  // Show navigation loading overlay
+  if (isNavigationLoading) {
+    return (
+      <div className="layout-lock bg-background relative">
+        <Sidebar onLogout={handleLogout} />
+        <div className="mr-72 flex flex-col min-h-screen">
+          {/* Loading Overlay */}
+          <div className="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="text-center" dir="rtl">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
+              <p className="text-lg font-medium text-gray-700">جار التحميل...</p>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
