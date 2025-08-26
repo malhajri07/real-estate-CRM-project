@@ -69,51 +69,51 @@ export default function Dashboard() {
 
   return (
     <>
-      <main className="flex-1 overflow-y-auto p-8 bg-background">
+      <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
         {/* Dashboard Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <div className="apple-card p-6">
+          <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-6 hover:shadow-3xl transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
-                <Users className="text-blue-600" size={20} />
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Users className="text-white" size={22} />
               </div>
-              <div className="text-2xl font-bold tracking-tight">{metrics?.totalLeads || 0}</div>
+              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>{metrics?.totalLeads || 0}</div>
             </div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">{t('dashboard.total_leads')}</h3>
-            <p className="text-xs text-green-600 font-medium">+12% from last month</p>
+            <h3 className="text-base font-semibold text-gray-800 mb-2">إجمالي العملاء المحتملين</h3>
+            <p className="text-sm text-green-600 font-medium">+12% من الشهر الماضي</p>
           </div>
           
-          <div className="apple-card p-6">
+          <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-6 hover:shadow-3xl transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
-                <Building className="text-green-600" size={20} />
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Building className="text-white" size={22} />
               </div>
-              <div className="text-2xl font-bold tracking-tight">{metrics?.activeProperties || 0}</div>
+              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>{metrics?.activeProperties || 0}</div>
             </div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">{t('dashboard.active_properties')}</h3>
-            <p className="text-xs text-green-600 font-medium">+8% from last month</p>
+            <h3 className="text-base font-semibold text-gray-800 mb-2">العقارات النشطة</h3>
+            <p className="text-sm text-green-600 font-medium">+8% من الشهر الماضي</p>
           </div>
           
-          <div className="apple-card p-6">
+          <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-6 hover:shadow-3xl transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
-                <Filter className="text-purple-600" size={20} />
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Filter className="text-white" size={22} />
               </div>
-              <div className="text-2xl font-bold tracking-tight">{metrics?.dealsInPipeline || 0}</div>
+              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>{metrics?.dealsInPipeline || 0}</div>
             </div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">{t('dashboard.deals_in_pipeline')}</h3>
-            <p className="text-xs text-red-600 font-medium">-2% from last month</p>
+            <h3 className="text-base font-semibold text-gray-800 mb-2">الصفقات في المسار</h3>
+            <p className="text-sm text-red-600 font-medium">-2% من الشهر الماضي</p>
           </div>
           
-          <div className="apple-card p-6">
+          <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-6 hover:shadow-3xl transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center">
-                <Banknote className="text-yellow-600" size={20} />
+              <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Banknote className="text-white" size={22} />
               </div>
-              <div className="text-2xl font-bold tracking-tight">{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
+              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
             </div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">{t('dashboard.monthly_revenue')}</h3>
-            <p className="text-xs text-green-600 font-medium">+24% from last month</p>
+            <h3 className="text-base font-semibold text-gray-800 mb-2">الإيرادات الشهرية</h3>
+            <p className="text-sm text-green-600 font-medium">+24% من الشهر الماضي</p>
           </div>
         </div>
 
@@ -121,97 +121,107 @@ export default function Dashboard() {
           {/* Recent Leads & Activities */}
           <div className="lg:col-span-2 space-y-8">
             {/* Deal Pipeline Overview - Moved to Top */}
-            <Card className="apple-card">
-              <CardHeader className="p-6">
-                <CardTitle>مراحل الصفقات</CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
+            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
+                    <Filter className="w-5 h-5 text-white" />
+                  </div>
+                  <h2 className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>مراحل الصفقات</h2>
+                </div>
+              </div>
+              <div className="p-6">
                 <div className="grid grid-cols-5 gap-4">
                   <div className="text-center">
-                    <div className="bg-slate-100 rounded-lg p-4 mb-2">
-                      <div className="text-2xl font-bold text-slate-900">
+                    <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-4 mb-2 border border-slate-200 shadow-lg">
+                      <div className="text-2xl font-bold text-slate-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
                         {metrics?.pipelineByStage?.lead || 0}
                       </div>
-                      <div className="text-xs text-slate-500">عملاء محتملين</div>
+                      <div className="text-sm text-slate-600 font-medium">عملاء محتملين</div>
                     </div>
                   </div>
 
                   <div className="text-center">
-                    <div className="bg-blue-100 rounded-lg p-4 mb-2">
-                      <div className="text-2xl font-bold text-blue-900">
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 mb-2 border border-blue-200 shadow-lg">
+                      <div className="text-2xl font-bold text-blue-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
                         {metrics?.pipelineByStage?.qualified || 0}
                       </div>
-                      <div className="text-xs text-blue-600">مؤهل</div>
+                      <div className="text-sm text-blue-600 font-medium">مؤهل</div>
                     </div>
                   </div>
 
                   <div className="text-center">
-                    <div className="bg-yellow-100 rounded-lg p-4 mb-2">
-                      <div className="text-2xl font-bold text-yellow-900">
+                    <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-4 mb-2 border border-yellow-200 shadow-lg">
+                      <div className="text-2xl font-bold text-yellow-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
                         {metrics?.pipelineByStage?.showing || 0}
                       </div>
-                      <div className="text-xs text-yellow-600">عرض</div>
+                      <div className="text-sm text-yellow-600 font-medium">عرض</div>
                     </div>
                   </div>
 
                   <div className="text-center">
-                    <div className="bg-orange-100 rounded-lg p-4 mb-2">
-                      <div className="text-2xl font-bold text-orange-900">
+                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4 mb-2 border border-orange-200 shadow-lg">
+                      <div className="text-2xl font-bold text-orange-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
                         {metrics?.pipelineByStage?.negotiation || 0}
                       </div>
-                      <div className="text-xs text-orange-600">تفاوض</div>
+                      <div className="text-sm text-orange-600 font-medium">تفاوض</div>
                     </div>
                   </div>
 
                   <div className="text-center">
-                    <div className="bg-green-100 rounded-lg p-4 mb-2">
-                      <div className="text-2xl font-bold text-green-900">
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 mb-2 border border-green-200 shadow-lg">
+                      <div className="text-2xl font-bold text-green-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
                         {metrics?.pipelineByStage?.closed || 0}
                       </div>
-                      <div className="text-xs text-green-600">مغلق</div>
+                      <div className="text-sm text-green-600 font-medium">مغلق</div>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Recent Leads */}
-            <Card className="apple-card">
-              <CardHeader className="p-6">
+            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl font-semibold tracking-tight">العملاء المحتملين الجدد</CardTitle>
-                  <Button variant="ghost" className="text-primary hover:bg-primary/10 rounded-xl font-medium text-sm">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                    <h2 className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>العملاء المحتملين الجدد</h2>
+                  </div>
+                  <Button variant="ghost" className="text-white hover:bg-white/20 rounded-xl font-medium text-sm border border-white/20">
                     عرض الكل
                   </Button>
                 </div>
-              </CardHeader>
-              <CardContent className="p-6">
+              </div>
+              <div className="p-6">
                 {recentLeads.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground">
+                  <div className="text-center py-12 text-gray-500">
                     لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {recentLeads.map((lead) => (
-                      <div key={lead.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl hover:bg-muted/50 apple-transition">
+                      <div key={lead.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl hover:from-green-50 hover:to-green-100 transition-all duration-300 border border-gray-200 shadow-sm">
                         <div className="flex items-center space-x-4 space-x-reverse">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
+                          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center text-white font-semibold text-sm shadow-lg">
                             {lead.firstName[0]}{lead.lastName[0]}
                           </div>
                           <div>
-                            <p className="font-medium text-foreground tracking-tight">{lead.firstName} {lead.lastName}</p>
-                            <p className="text-sm text-slate-500">{lead.phone}</p>
+                            <p className="font-semibold text-gray-900 tracking-tight" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>{lead.firstName} {lead.lastName}</p>
+                            <p className="text-sm text-gray-600">{lead.phone}</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-3 space-x-reverse">
-                          <Badge className={getStatusBadgeColor(lead.status)}>
+                          <Badge className={`${getStatusBadgeColor(lead.status)} font-medium px-3 py-1 rounded-xl`}>
                             {lead.status === 'new' ? 'جديد' : 
                              lead.status === 'qualified' ? 'مؤهل' : 
                              lead.status === 'showing' ? 'معاينة' : 
                              lead.status === 'negotiation' ? 'تفاوض' : 
                              lead.status === 'closed' ? 'مغلق' : 'مفقود'}
                           </Badge>
-                          <span className="text-sm text-slate-500">
+                          <span className="text-sm text-gray-500 font-medium">
                             {new Date(lead.createdAt).toLocaleDateString()}
                           </span>
                         </div>
@@ -219,8 +229,8 @@ export default function Dashboard() {
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
 
           </div>
@@ -228,64 +238,74 @@ export default function Dashboard() {
           {/* Sidebar Widgets */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <Card className="apple-card">
-              <CardHeader className="p-6">
-                <CardTitle>إجراءات سريعة</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
+                    <Plus className="w-5 h-5 text-white" />
+                  </div>
+                  <h2 className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>إجراءات سريعة</h2>
+                </div>
+              </div>
+              <div className="p-6">
                 <div className="space-y-3">
                   <Button 
                     variant="ghost" 
-                    className="w-full justify-start"
+                    className="w-full justify-start bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-2xl p-4 h-auto text-right border border-green-200"
                     onClick={() => setAddLeadModalOpen(true)}
                   >
-                    <Plus className="ml-3 text-primary" size={20} />
-                    إضافة عميل محتمل جديد
+                    <Plus className="ml-3 text-green-600" size={20} />
+                    <span className="font-semibold text-gray-800">إضافة عميل محتمل جديد</span>
                   </Button>
                   <Button 
                     variant="ghost" 
-                    className="w-full justify-start"
+                    className="w-full justify-start bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-2xl p-4 h-auto text-right border border-blue-200"
                     onClick={() => setAddPropertyModalOpen(true)}
                   >
-                    <Home className="ml-3 text-green-500" size={20} />
-                    إدراج عقار
+                    <Home className="ml-3 text-blue-600" size={20} />
+                    <span className="font-semibold text-gray-800">إدراج عقار</span>
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Calendar className="ml-3 text-blue-500" size={20} />
-                    جدولة عرض
+                  <Button variant="ghost" className="w-full justify-start bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-2xl p-4 h-auto text-right border border-purple-200">
+                    <Calendar className="ml-3 text-purple-600" size={20} />
+                    <span className="font-semibold text-gray-800">جدولة عرض</span>
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Download className="ml-3 text-purple-500" size={20} />
-                    تصدير العملاء المحتملين
+                  <Button variant="ghost" className="w-full justify-start bg-gradient-to-r from-yellow-50 to-yellow-100 hover:from-yellow-100 hover:to-yellow-200 rounded-2xl p-4 h-auto text-right border border-yellow-200">
+                    <Download className="ml-3 text-yellow-600" size={20} />
+                    <span className="font-semibold text-gray-800">تصدير العملاء المحتملين</span>
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Today's Tasks */}
-            <Card className="apple-card">
-              <CardHeader className="p-6">
-                <CardTitle>مهام اليوم</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
+                    <Calendar className="w-5 h-5 text-white" />
+                  </div>
+                  <h2 className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>مهام اليوم</h2>
+                </div>
+              </div>
+              <div className="p-6">
                 {!todaysActivities || todaysActivities.length === 0 ? (
-                  <div className="text-center py-4 text-slate-500">
+                  <div className="text-center py-4 text-gray-500">
                     لا توجد مهام مجدولة لهذا اليوم
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {todaysActivities.map((activity) => (
-                      <div key={activity.id} className="flex items-start space-x-3 space-x-reverse">
+                      <div key={activity.id} className="flex items-start space-x-3 space-x-reverse p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl border border-gray-200">
                         <input 
                           type="checkbox" 
                           checked={activity.completed}
-                          className="mt-1 h-4 w-4 text-primary-600 focus:ring-primary-500 border-slate-300 rounded"
+                          className="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                         />
                         <div className="flex-1">
-                          <p className={`text-sm font-medium ${activity.completed ? 'line-through text-slate-500' : 'text-slate-900'}`}>
+                          <p className={`text-sm font-semibold ${activity.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
                             {activity.title}
                           </p>
-                          <p className="text-xs text-slate-500">
+                          <p className="text-xs text-gray-500 font-medium">
                             {activity.scheduledDate ? new Date(activity.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'لم يتم تحديد وقت'}
                           </p>
                         </div>
@@ -293,8 +313,8 @@ export default function Dashboard() {
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </main>
