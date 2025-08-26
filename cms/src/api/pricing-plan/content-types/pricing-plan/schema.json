@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pricing_plans",
+  "info": {
+    "singularName": "pricing-plan",
+    "pluralName": "pricing-plans",
+    "displayName": "خطة التسعير",
+    "description": "خطط التسعير للموقع"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "price": {
+      "type": "decimal",
+      "required": true
+    },
+    "period": {
+      "type": "enumeration",
+      "enum": ["monthly", "yearly"],
+      "default": "monthly",
+      "required": true
+    },
+    "isPopular": {
+      "type": "boolean",
+      "default": false
+    },
+    "description": {
+      "type": "text"
+    },
+    "features": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.plan-feature"
+    },
+    "buttonText": {
+      "type": "string",
+      "default": "ابدأ الآن"
+    },
+    "order": {
+      "type": "integer",
+      "default": 0
+    }
+  }
+}

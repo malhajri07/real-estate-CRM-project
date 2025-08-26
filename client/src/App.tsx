@@ -12,6 +12,7 @@ import SignupIndividual from "@/pages/signup-individual";
 import SignupCorporate from "@/pages/signup-corporate";
 import SignupSuccess from "@/pages/signup-success";
 import KYCSubmitted from "@/pages/kyc-submitted";
+import CMSAdmin from "@/pages/cms-admin";
 import Dashboard from "@/pages/dashboard";
 import Leads from "@/pages/leads";
 import Customers from "@/pages/customers";
@@ -175,6 +176,10 @@ function Router() {
           </div>
         </div>
       )} />
+
+      {/* CMS Admin - Standalone page */}
+      <Route path="/cms" component={CMSAdmin} />
+
     </Switch>
   );
 }

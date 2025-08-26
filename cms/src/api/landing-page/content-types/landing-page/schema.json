@@ -1,0 +1,61 @@
+{
+  "kind": "singleType",
+  "collectionName": "landing_pages",
+  "info": {
+    "singularName": "landing-page",
+    "pluralName": "landing-pages",
+    "displayName": "صفحة الهبوط الرئيسية",
+    "description": "محتوى صفحة الهبوط الرئيسية للموقع"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "heroTitle": {
+      "type": "string",
+      "required": true,
+      "default": "منصة عقاراتي للوساطة العقارية"
+    },
+    "heroSubtitle": {
+      "type": "text",
+      "required": true,
+      "default": "منصة شاملة لإدارة العقارات والوساطة العقارية مع أدوات تسويق متقدمة"
+    },
+    "heroButton": {
+      "type": "string",
+      "required": true,
+      "default": "ابدأ رحلتك المجانية"
+    },
+    "featuresTitle": {
+      "type": "string",
+      "required": true,
+      "default": "لماذا تختار منصة عقاراتي؟"
+    },
+    "features": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.feature"
+    },
+    "pricingTitle": {
+      "type": "string",
+      "required": true,
+      "default": "خطط الأسعار"
+    },
+    "pricingSubtitle": {
+      "type": "text",
+      "required": true,
+      "default": "اختر الخطة المناسبة لك"
+    },
+    "statsTitle": {
+      "type": "string",
+      "required": true,
+      "default": "أرقامنا تتحدث"
+    },
+    "stats": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.stat"
+    }
+  }
+}

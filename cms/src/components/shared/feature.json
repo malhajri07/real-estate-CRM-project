@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_shared_features",
+  "info": {
+    "displayName": "ميزة",
+    "description": "مكون للميزات في صفحة الهبوط"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "icon": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_shared_plan_features",
+  "info": {
+    "displayName": "ميزة الخطة",
+    "description": "مكون لميزات خطط التسعير"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string",
+      "required": true
+    },
+    "included": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}
