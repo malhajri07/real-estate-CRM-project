@@ -93,9 +93,9 @@ function Router() {
     return (
       <div className="layout-lock bg-background relative">
         <Sidebar onLogout={handleLogout} />
-        <div className="mr-72 flex flex-col min-h-screen">
-          {/* Loading Overlay */}
-          <div className="fixed inset-0 bg-white/90 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="mr-72 flex flex-col min-h-screen relative">
+          {/* Loading Overlay - Only covers main content area */}
+          <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex items-center justify-center">
             <div className="text-center" dir="rtl">
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
               <p className="text-lg font-medium text-gray-700">جار التحميل...</p>
