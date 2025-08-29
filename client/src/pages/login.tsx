@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Building, Building2, Lock, User, Phone, Mail, MapPin } from "lucide-react";
 import { useLocation } from "wouter";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
-import agarkomFooterLogo from "@assets/Aqarkom (4)_1756504760700.png";
+import agarkomFooterLogo from "@assets/6_1756507125793.png";
 
 interface LoginProps {
   onLogin: () => void;

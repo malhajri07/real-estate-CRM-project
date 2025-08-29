@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building, Building2, User, Shield, Users, Phone, Mail, MapPin } from "lucide-react";
 import { useLocation } from "wouter";
 import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
+import agarkomFooterLogo from "@assets/6_1756507125793.png";
 
 export default function SignupSelection() {
   const [, setLocation] = useLocation();
@@ -159,8 +160,11 @@ export default function SignupSelection() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <Building className="h-8 w-8 text-green-400 ml-3" />
-                <span className="text-xl font-bold">منصة عقاراتي</span>
+                <img 
+                  src={agarkomFooterLogo} 
+                  alt="عقارکم" 
+                  className="h-36 object-contain"
+                />
               </div>
               <p className="text-gray-400 mb-4">
                 نظام شامل لإدارة العقارات والعملاء والصفقات مع واجهة حديثة وسهلة الاستخدام

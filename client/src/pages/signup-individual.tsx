@@ -8,6 +8,7 @@ import { User, Calendar, Phone, CreditCard, Upload, ArrowRight, MapPin, Building
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocation } from "wouter";
 import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
+import agarkomFooterLogo from "@assets/6_1756507125793.png";
 
 export default function SignupIndividual() {
   const [firstName, setFirstName] = useState("");
@@ -515,11 +516,10 @@ export default function SignupIndividual() {
             <div>
               <div className="flex items-center mb-4">
                 <img 
-                  src={logoImage} 
-                  alt="شعار عقاراتي" 
-                  className="w-8 h-8 object-contain ml-3"
+                  src={agarkomFooterLogo} 
+                  alt="عقارکم" 
+                  className="h-36 object-contain"
                 />
-                <span className="text-xl font-bold" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>منصة عقاراتي</span>
               </div>
               <p className="text-gray-400 mb-4">
                 نظام شامل لإدارة العقارات والعملاء والصفقات مع واجهة حديثة وسهلة الاستخدام

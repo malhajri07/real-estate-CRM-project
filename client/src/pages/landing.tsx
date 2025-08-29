@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin, Camera, FileText, DollarSign, GitBranch, CheckCircle, UserPlus, Eye, NotebookPen } from "lucide-react";
 import PropertySearchMap from "@/components/PropertySearchMap";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
+import agarkomFooterLogo from "@assets/6_1756507125793.png";
 
 export default function Landing() {
   const handleLogin = () => {
@@ -769,8 +770,11 @@ export default function Landing() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <Building className="h-8 w-8 text-green-400 ml-3" />
-                <span className="text-xl font-bold">منصة عقاراتي</span>
+                <img 
+                  src={agarkomFooterLogo} 
+                  alt="عقارکم" 
+                  className="h-36 object-contain"
+                />
               </div>
               <p className="text-gray-400 mb-4">
                 نظام شامل لإدارة العقارات والعملاء والصفقات مع واجهة حديثة وسهلة الاستخدام
