@@ -1,11 +1,9 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Home, Building2, Warehouse, Trees, Filter } from 'lucide-react';
+import { MapPin, Home, Building2, Warehouse, Trees, Search } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Property } from '@shared/schema';
@@ -98,8 +96,19 @@ export default function PropertySearchMap({ className = '' }: PropertySearchMapP
     return PROPERTY_CATEGORIES[selectedCategory as keyof typeof PROPERTY_CATEGORIES]?.types || [];
   };
 
-  // Format price
+  // Format price for mobile-style display (like "100 ألف")
   const formatPrice = (price: string | number) => {
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    if (numPrice >= 1000000) {
+      return `${Math.round(numPrice / 1000000)} مليون`;
+    } else if (numPrice >= 1000) {
+      return `${Math.round(numPrice / 1000)} ألف`;
+    }
+    return `${numPrice} ﷼`;
+  };
+
+  // Format full price for popup
+  const formatFullPrice = (price: string | number) => {
     const numPrice = typeof price === 'string' ? parseFloat(price) : price;
     return new Intl.NumberFormat('ar-SA', {
       minimumFractionDigits: 0,
@@ -107,21 +116,24 @@ export default function PropertySearchMap({ className = '' }: PropertySearchMapP
     }).format(numPrice) + ' ﷼';
   };
 
-  // Create custom marker based on property category
-  const createCustomIcon = (category: string) => {
+  // Create custom price bubble marker (mobile app style)
+  const createPriceBubbleIcon = (price: string | number, category: string) => {
+    const priceText = formatPrice(price);
     const categoryInfo = PROPERTY_CATEGORIES[category as keyof typeof PROPERTY_CATEGORIES];
-    const color = categoryInfo?.color.replace('bg-', '') || 'blue';
     
     return L.divIcon({
       html: `
-        <div class="w-8 h-8 ${categoryInfo?.color || 'bg-blue-500'} rounded-full border-2 border-white shadow-lg flex items-center justify-center">
-          <div class="w-3 h-3 bg-white rounded-full"></div>
+        <div class="relative">
+          <div class="bg-green-600 text-white px-2 py-1 rounded-md shadow-lg text-xs font-bold whitespace-nowrap border border-green-700" style="direction: rtl;">
+            ${priceText}
+          </div>
+          <div class="absolute left-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-green-600 transform -translate-x-1/2"></div>
         </div>
       `,
-      className: 'custom-marker',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32],
+      className: 'price-bubble-marker',
+      iconSize: [60, 30],
+      iconAnchor: [30, 34],
+      popupAnchor: [0, -34],
     });
   };
 
@@ -135,153 +147,149 @@ export default function PropertySearchMap({ className = '' }: PropertySearchMapP
   }
 
   return (
-    <div className={`${className} space-y-6`} dir="rtl">
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4 mb-4">
-            <Filter className="h-5 w-5 text-green-600" />
-            <h3 className="text-lg font-semibold text-gray-900">فلترة العقارات</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Category Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">التصنيف</label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر التصنيف" />
-                </SelectTrigger>
-                <SelectContent position="popper" sideOffset={4}>
-                  <SelectItem value="الكل">الكل</SelectItem>
-                  {Object.entries(PROPERTY_CATEGORIES).map(([key, category]) => (
-                    <SelectItem key={key} value={key}>
-                      {category.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Type Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">نوع العقار</label>
-              <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر النوع" />
-                </SelectTrigger>
-                <SelectContent position="popper" sideOffset={4}>
-                  <SelectItem value="الكل">الكل</SelectItem>
-                  {getAvailableTypes().map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Results Count */}
-            <div className="flex items-end">
-              <Badge variant="outline" className="text-green-600 border-green-600">
-                {filteredProperties.length} عقار
-              </Badge>
-            </div>
-
-            {/* Reset Filters */}
-            <div className="flex items-end">
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setSelectedCategory('الكل');
-                  setSelectedType('الكل');
-                }}
-                className="w-full"
-              >
-                إعادة تعيين
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Map */}
-      <Card>
-        <CardContent className="p-0">
-          <div className="h-96 md:h-[500px] lg:h-[600px] rounded-lg overflow-hidden">
-            <MapContainer
-              center={defaultCenter}
-              zoom={11}
-              className="h-full w-full"
-              style={{ direction: 'ltr' }}
+    <div className={`${className} bg-white`} dir="rtl">
+      {/* Mobile-style Top Navigation */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        {/* Main Filter Tabs */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <div className="flex items-center gap-2 overflow-x-auto">
+            <Button
+              variant={selectedCategory === 'الكل' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory('الكل')}
+              className={`whitespace-nowrap ${selectedCategory === 'الكل' ? 'bg-green-600 hover:bg-green-700' : 'border-green-600 text-green-600 hover:bg-green-50'}`}
             >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              
-              {filteredProperties.map((property) => {
-                if (!property.latitude || !property.longitude) return null;
-                
-                const lat = parseFloat(property.latitude.toString());
-                const lng = parseFloat(property.longitude.toString());
-                
-                return (
-                  <Marker
-                    key={property.id}
-                    position={[lat, lng]}
-                    icon={createCustomIcon(property.propertyCategory)}
-                  >
-                    <Popup>
-                      <div className="text-right p-2 min-w-[200px]" dir="rtl">
-                        <h4 className="font-semibold text-gray-900 mb-2">{property.title}</h4>
-                        <div className="space-y-1 text-sm text-gray-600">
-                          <p><span className="font-medium">النوع:</span> {property.propertyType}</p>
-                          <p><span className="font-medium">الموقع:</span> {property.city}</p>
-                          <p><span className="font-medium">السعر:</span> {formatPrice(property.price)}</p>
-                          {property.bedrooms && (
-                            <p><span className="font-medium">الغرف:</span> {property.bedrooms}</p>
-                          )}
-                          {property.bathrooms && (
-                            <p><span className="font-medium">الحمامات:</span> {property.bathrooms}</p>
-                          )}
-                          {property.squareFeet && (
-                            <p><span className="font-medium">المساحة:</span> {property.squareFeet} قدم²</p>
-                          )}
-                        </div>
-                        <div className="mt-3">
-                          <Badge className={`${PROPERTY_CATEGORIES[property.propertyCategory as keyof typeof PROPERTY_CATEGORIES]?.color || 'bg-gray-500'} text-white`}>
-                            {property.propertyCategory}
-                          </Badge>
-                        </div>
-                      </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-            </MapContainer>
+              الكل
+            </Button>
+            {Object.entries(PROPERTY_CATEGORIES).map(([key, category]) => (
+              <Button
+                key={key}
+                variant={selectedCategory === key ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory(key)}
+                className={`whitespace-nowrap ${selectedCategory === key ? 'bg-green-600 hover:bg-green-700' : 'border-green-600 text-green-600 hover:bg-green-50'}`}
+              >
+                {category.label}
+              </Button>
+            ))}
           </div>
-        </CardContent>
-      </Card>
+          <Button size="sm" variant="outline" className="mr-2">
+            <Search className="h-4 w-4" />
+          </Button>
+        </div>
 
-      {/* Category Legend */}
-      <Card>
-        <CardContent className="p-6">
-          <h4 className="text-lg font-semibold text-gray-900 mb-4">دليل التصنيفات</h4>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {Object.entries(PROPERTY_CATEGORIES).map(([key, category]) => {
-              const IconComponent = category.icon;
+        {/* Property Type Filter */}
+        {selectedCategory !== 'الكل' && (
+          <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto">
+            <Button
+              variant={selectedType === 'الكل' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setSelectedType('الكل')}
+              className={`whitespace-nowrap text-xs ${selectedType === 'الكل' ? 'bg-green-600 hover:bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              الكل
+            </Button>
+            {getAvailableTypes().map((type) => (
+              <Button
+                key={type}
+                variant={selectedType === type ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setSelectedType(type)}
+                className={`whitespace-nowrap text-xs ${selectedType === type ? 'bg-green-600 hover:bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+              >
+                {type}
+              </Button>
+            ))}
+          </div>
+        )}
+
+        {/* Results Count */}
+        <div className="px-4 py-2 text-xs text-gray-500 border-t border-gray-100">
+          {filteredProperties.length} عقار متاح
+        </div>
+      </div>
+
+      {/* Map Container */}
+      <div className="relative h-[70vh] md:h-[600px] lg:h-[700px]">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full bg-gray-50">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">جار تحميل الخريطة...</p>
+            </div>
+          </div>
+        ) : (
+          <MapContainer
+            center={defaultCenter}
+            zoom={11}
+            className="h-full w-full"
+            style={{ direction: 'ltr' }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            
+            {filteredProperties.map((property) => {
+              if (!property.latitude || !property.longitude) return null;
+              
+              const lat = parseFloat(property.latitude.toString());
+              const lng = parseFloat(property.longitude.toString());
+              
               return (
-                <div key={key} className="flex items-center gap-2">
-                  <div className={`w-4 h-4 ${category.color} rounded-full`}></div>
-                  <IconComponent className="h-4 w-4 text-gray-600" />
-                  <span className="text-sm text-gray-700">{category.label}</span>
-                </div>
+                <Marker
+                  key={property.id}
+                  position={[lat, lng]}
+                  icon={createPriceBubbleIcon(property.price, property.propertyCategory)}
+                >
+                  <Popup>
+                    <div className="text-right p-3 min-w-[220px]" dir="rtl">
+                      <h4 className="font-bold text-gray-900 mb-2 text-base">{property.title}</h4>
+                      <div className="space-y-2 text-sm text-gray-600">
+                        <div className="flex justify-between">
+                          <span className="font-medium">النوع:</span>
+                          <span>{property.propertyType}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="font-medium">الموقع:</span>
+                          <span>{property.city}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="font-medium">السعر:</span>
+                          <span className="font-bold text-green-600">{formatFullPrice(property.price)}</span>
+                        </div>
+                        {property.bedrooms && (
+                          <div className="flex justify-between">
+                            <span className="font-medium">الغرف:</span>
+                            <span>{property.bedrooms}</span>
+                          </div>
+                        )}
+                        {property.bathrooms && (
+                          <div className="flex justify-between">
+                            <span className="font-medium">الحمامات:</span>
+                            <span>{property.bathrooms}</span>
+                          </div>
+                        )}
+                        {property.squareFeet && (
+                          <div className="flex justify-between">
+                            <span className="font-medium">المساحة:</span>
+                            <span>{property.squareFeet} قدم²</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="mt-3 pt-2 border-t border-gray-200">
+                        <Badge className="bg-green-600 text-white text-xs">
+                          {property.propertyCategory}
+                        </Badge>
+                      </div>
+                    </div>
+                  </Popup>
+                </Marker>
               );
             })}
-          </div>
-        </CardContent>
-      </Card>
+          </MapContainer>
+        )}
+      </div>
     </div>
   );
 }
