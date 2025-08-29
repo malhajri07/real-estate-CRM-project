@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Building, Building2, Lock, User, Phone, Mail, MapPin } from "lucide-react";
 import { useLocation } from "wouter";
-import agarkomLogo from "@assets/1_1756499729280.png";
+import agarkomLogo from "@assets/Aqarkom (2)_1756500960938.png";
 
 interface LoginProps {
   onLogin: () => void;

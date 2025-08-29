@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin } from "lucide-react";
 import PropertySearchMap from "@/components/PropertySearchMap";
-import agarkomLogo from "@assets/1_1756499729280.png";
+import agarkomLogo from "@assets/Aqarkom (2)_1756500960938.png";
 
 export default function Landing() {
   const handleLogin = () => {
