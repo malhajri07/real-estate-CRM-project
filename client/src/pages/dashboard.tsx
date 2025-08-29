@@ -121,16 +121,14 @@ export default function Dashboard() {
           {/* Recent Leads & Activities */}
           <div className="lg:col-span-2 space-y-8">
             {/* Deal Pipeline Overview - Moved to Top */}
-            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-              <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
-                    <Filter className="w-5 h-5 text-white" />
-                  </div>
-                  <h2 className="text-xl font-bold font-droid-kufi">مراحل الصفقات</h2>
-                </div>
+            <div className="section-card-minimal">
+              <div className="section-header-minimal">
+                <h2 className="section-title-minimal font-droid-kufi">
+                  <Filter className="section-icon-minimal" />
+                  مراحل الصفقات
+                </h2>
               </div>
-              <div className="p-6">
+              <div className="section-content-minimal">
                 <div className="grid grid-cols-5 gap-4">
                   <div className="pipeline-card-minimal">
                     <div className="pipeline-number font-droid-kufi">
@@ -171,21 +169,19 @@ export default function Dashboard() {
             </div>
 
             {/* Recent Leads */}
-            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-              <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white">
+            <div className="section-card-minimal">
+              <div className="section-header-minimal">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
-                      <Users className="w-5 h-5 text-white" />
-                    </div>
-                    <h2 className="text-xl font-bold font-droid-kufi">العملاء المحتملين الجدد</h2>
-                  </div>
-                  <Button variant="ghost" className="text-white hover:bg-white/20 rounded-xl font-medium text-sm border border-white/20">
+                  <h2 className="section-title-minimal font-droid-kufi">
+                    <Users className="section-icon-minimal" />
+                    العملاء المحتملين الجدد
+                  </h2>
+                  <Button variant="ghost" className="text-sm font-medium text-gray-600 hover:text-gray-800">
                     عرض الكل
                   </Button>
                 </div>
               </div>
-              <div className="p-6">
+              <div className="section-content-minimal">
                 {recentLeads.length === 0 ? (
                   <div className="text-center py-12 text-gray-500">
                     لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.
@@ -193,9 +189,9 @@ export default function Dashboard() {
                 ) : (
                   <div className="space-y-4">
                     {recentLeads.map((lead) => (
-                      <div key={lead.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl hover:from-green-50 hover:to-green-100 transition-all duration-300 border border-gray-200 shadow-sm">
+                      <div key={lead.id} className="lead-item-minimal">
                         <div className="flex items-center space-x-4 space-x-reverse">
-                          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center text-white font-semibold text-sm shadow-lg">
+                          <div className="lead-avatar-minimal">
                             {lead.firstName[0]}{lead.lastName[0]}
                           </div>
                           <div>
@@ -228,39 +224,37 @@ export default function Dashboard() {
           {/* Sidebar Widgets */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-              <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
-                    <Plus className="w-5 h-5 text-white" />
-                  </div>
-                  <h2 className="text-xl font-bold font-droid-kufi">إجراءات سريعة</h2>
-                </div>
+            <div className="section-card-minimal">
+              <div className="section-header-minimal">
+                <h2 className="section-title-minimal font-droid-kufi">
+                  <Plus className="section-icon-minimal" />
+                  إجراءات سريعة
+                </h2>
               </div>
-              <div className="p-6">
+              <div className="section-content-minimal">
                 <div className="space-y-3">
                   <Button 
                     variant="ghost" 
-                    className="w-full justify-start bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-2xl p-4 h-auto text-right border border-green-200"
+                    className="action-button-minimal"
                     onClick={() => setAddLeadModalOpen(true)}
                   >
-                    <Plus className="ml-3 text-green-600" size={20} />
+                    <Plus className="ml-3 text-gray-600" size={16} />
                     <span className="font-semibold text-gray-800">إضافة عميل محتمل جديد</span>
                   </Button>
                   <Button 
                     variant="ghost" 
-                    className="w-full justify-start bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-2xl p-4 h-auto text-right border border-blue-200"
+                    className="action-button-minimal"
                     onClick={() => setAddPropertyModalOpen(true)}
                   >
-                    <Home className="ml-3 text-blue-600" size={20} />
+                    <Home className="ml-3 text-gray-600" size={16} />
                     <span className="font-semibold text-gray-800">إدراج عقار</span>
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-2xl p-4 h-auto text-right border border-purple-200">
-                    <Calendar className="ml-3 text-purple-600" size={20} />
+                  <Button variant="ghost" className="action-button-minimal">
+                    <Calendar className="ml-3 text-gray-600" size={16} />
                     <span className="font-semibold text-gray-800">جدولة عرض</span>
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start bg-gradient-to-r from-yellow-50 to-yellow-100 hover:from-yellow-100 hover:to-yellow-200 rounded-2xl p-4 h-auto text-right border border-yellow-200">
-                    <Download className="ml-3 text-yellow-600" size={20} />
+                  <Button variant="ghost" className="action-button-minimal">
+                    <Download className="ml-3 text-gray-600" size={16} />
                     <span className="font-semibold text-gray-800">تصدير العملاء المحتملين</span>
                   </Button>
                 </div>
@@ -268,16 +262,14 @@ export default function Dashboard() {
             </div>
 
             {/* Today's Tasks */}
-            <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-              <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
-                    <Calendar className="w-5 h-5 text-white" />
-                  </div>
-                  <h2 className="text-xl font-bold font-droid-kufi">مهام اليوم</h2>
-                </div>
+            <div className="section-card-minimal">
+              <div className="section-header-minimal">
+                <h2 className="section-title-minimal font-droid-kufi">
+                  <Calendar className="section-icon-minimal" />
+                  مهام اليوم
+                </h2>
               </div>
-              <div className="p-6">
+              <div className="section-content-minimal">
                 {!todaysActivities || todaysActivities.length === 0 ? (
                   <div className="text-center py-4 text-gray-500">
                     لا توجد مهام مجدولة لهذا اليوم
@@ -285,11 +277,11 @@ export default function Dashboard() {
                 ) : (
                   <div className="space-y-3">
                     {todaysActivities.map((activity) => (
-                      <div key={activity.id} className="flex items-start space-x-3 space-x-reverse p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl border border-gray-200">
+                      <div key={activity.id} className="task-item-minimal">
                         <input 
                           type="checkbox" 
                           checked={activity.completed}
-                          className="mt-1 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                          className="mt-1 h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300 rounded"
                         />
                         <div className="flex-1">
                           <p className={`text-sm font-semibold ${activity.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
