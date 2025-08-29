@@ -99,7 +99,11 @@ export default function Login({ onLogin }: LoginProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pr-12 h-12 border-gray-200 bg-white/70 backdrop-blur-sm rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
-                    style={{ direction: 'ltr', textAlign: 'right' }}
+                    style={{ 
+                      direction: 'ltr', 
+                      textAlign: 'right',
+                      fontFamily: 'Arial, Helvetica, sans-serif'
+                    }}
                     required
                   />
                   <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
