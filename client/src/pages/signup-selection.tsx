@@ -18,7 +18,7 @@ export default function SignupSelection() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white/80 backdrop-blur-lg shadow-lg border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center items-center h-16">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
@@ -99,11 +99,11 @@ export default function SignupSelection() {
 
             {/* Corporate Account */}
             <div className="group cursor-pointer" onClick={handleCorporateSignup}>
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-500 p-10 hover:border-blue-200/70">
+              <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-500 p-10 hover:border-green-200/70">
                 <div className="text-right">
                   <div className="flex justify-end mb-8">
-                    <div className="w-18 h-18 bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl flex items-center justify-center group-hover:from-blue-100 group-hover:to-blue-150 transition-all duration-300 shadow-sm">
-                      <Building2 className="h-9 w-9 text-blue-600" />
+                    <div className="w-18 h-18 bg-gradient-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center group-hover:from-green-100 group-hover:to-green-150 transition-all duration-300 shadow-sm">
+                      <Building2 className="h-9 w-9 text-green-600" />
                     </div>
                   </div>
                   
@@ -116,24 +116,24 @@ export default function SignupSelection() {
                   
                   <div className="space-y-4 mb-12">
                     <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full ml-4"></div>
+                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">إدارة فرق العمل المتعددة</span>
                     </div>
                     <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full ml-4"></div>
+                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">تقارير شاملة للشركة</span>
                     </div>
                     <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full ml-4"></div>
+                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">صلاحيات مرنة للموظفين</span>
                     </div>
                     <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-blue-400 rounded-full ml-4"></div>
+                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
                       <span className="text-right font-medium">دعم فني مخصص</span>
                     </div>
                   </div>
                   
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-4 rounded-2xl font-semibold text-lg shadow-[0_4px_20px_rgba(59,130,246,0.25)] hover:shadow-[0_6px_25px_rgba(59,130,246,0.35)] transition-all duration-300 transform hover:scale-[1.02]">
+                  <Button className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-4 rounded-2xl font-semibold text-lg shadow-[0_4px_20px_rgba(34,197,94,0.25)] hover:shadow-[0_6px_25px_rgba(34,197,94,0.35)] transition-all duration-300 transform hover:scale-[1.02]">
                     إنشاء حساب الشركات والمؤسسات
                   </Button>
                 </div>

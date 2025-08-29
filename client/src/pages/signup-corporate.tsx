@@ -141,7 +141,7 @@ export default function SignupCorporate() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white/80 backdrop-blur-lg shadow-lg border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center items-center h-16">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
@@ -154,20 +154,20 @@ export default function SignupCorporate() {
 
       {/* Main Content */}
       <div className="flex items-center justify-center p-6 py-12">
-        <div className="w-full max-w-4xl bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100">
-          {/* Header Section */}
-          <div className="text-center px-8 py-12 border-b border-gray-100">
+        <div className="w-full max-w-4xl bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+          {/* Gradient Header Section */}
+          <div className="bg-gradient-to-r from-green-600 to-green-700 text-center px-8 py-12">
             <div className="flex justify-center mb-6">
               <img 
                 src={logoImage} 
                 alt="شعار عقاراتي" 
-                className="w-20 h-20 object-contain"
+                className="w-24 h-24 object-contain drop-shadow-lg"
               />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-3 tracking-tight">
+            <h1 className="text-3xl font-bold text-white mb-3 tracking-tight" style={{ fontFamily: 'Janat Bold, Noto Sans Arabic' }}>
               طلب حساب مؤسسي
             </h1>
-            <p className="text-lg text-gray-600 leading-7">
+            <p className="text-lg text-green-100 leading-7">
               أدخل تفاصيل شركتك لبدء عملية التحقق والموافقة
             </p>
           </div>
@@ -565,7 +565,7 @@ export default function SignupCorporate() {
               <div className="pt-8">
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 text-lg font-semibold rounded-xl h-14 transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-4 text-lg font-semibold rounded-xl h-14 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100"
                   disabled={isLoading || !agreedToTerms}
                 >
                   {isLoading ? "جار إرسال الطلب..." : "إرسال طلب التحقق"}
@@ -580,7 +580,7 @@ export default function SignupCorporate() {
               <Button 
                 variant="outline" 
                 onClick={() => setLocation("/signup")}
-                className="text-gray-600 border-gray-200 hover:bg-gray-50 h-12 px-6 rounded-xl"
+                className="text-gray-600 border-gray-200 hover:bg-gray-50 h-12 px-6 rounded-xl bg-white/70 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 <ArrowRight className="w-4 h-4 ml-2" />
                 العودة إلى خيارات التسجيل
