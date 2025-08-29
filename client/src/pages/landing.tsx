@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin } from "lucide-react";
+import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin, Camera, FileText, DollarSign, GitBranch, CheckCircle } from "lucide-react";
 import PropertySearchMap from "@/components/PropertySearchMap";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
 
@@ -418,10 +418,19 @@ export default function Landing() {
                 <p className="text-gray-600 mb-6">
                   أضف وأدر عقاراتك مع معلومات مفصلة وصور عالية الجودة ومعلومات الأسعار
                 </p>
-                <ul className="text-right space-y-2 text-gray-600">
-                  <li>• معرض صور للعقارات</li>
-                  <li>• تفاصيل شاملة للعقار</li>
-                  <li>• إدارة الأسعار والعروض</li>
+                <ul className="text-right space-y-3 text-gray-600">
+                  <li className="flex items-center gap-3">
+                    <Camera className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <span>معرض صور للعقارات</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <span>تفاصيل شاملة للعقار</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <DollarSign className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <span>إدارة الأسعار والعروض</span>
+                  </li>
                 </ul>
               </CardContent>
             </Card>
@@ -435,10 +444,19 @@ export default function Landing() {
                 <p className="text-gray-600 mb-6">
                   تتبع مراحل الصفقات من البداية حتى الإنجاز مع إدارة المهام والمتابعات
                 </p>
-                <ul className="text-right space-y-2 text-gray-600">
-                  <li>• مراحل الصفقة المختلفة</li>
-                  <li>• تتبع الأنشطة والمهام</li>
-                  <li>• تقارير الأداء</li>
+                <ul className="text-right space-y-3 text-gray-600">
+                  <li className="flex items-center gap-3">
+                    <GitBranch className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <span>مراحل الصفقة المختلفة</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <span>تتبع الأنشطة والمهام</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <BarChart3 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <span>تقارير الأداء</span>
+                  </li>
                 </ul>
               </CardContent>
             </Card>
