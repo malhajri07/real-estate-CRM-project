@@ -227,3 +227,78 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
 }
+
+/* Font Family Classes */
+.font-droid-kufi {
+  font-family: 'Droid Arabic Kufi', 'Janat Bold', 'Noto Sans Arabic', sans-serif;
+}
+
+.font-janat-bold {
+  font-family: 'Janat Bold', 'Noto Sans Arabic', sans-serif;
+}
+
+.font-arabic-stack {
+  font-family: 'Droid Arabic Kufi', 'Janat Bold', 'Noto Sans Arabic', Arial, sans-serif;
+}
+
+.font-password {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Direction and Alignment Classes */
+.input-ltr-align-right {
+  direction: ltr;
+  text-align: right;
+}
+
+.input-ltr {
+  direction: ltr;
+}
+
+/* Color and Opacity Classes */
+.text-fade {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.bg-modal-filter {
+  background-color: #edf1ee;
+}
+
+/* Float and Positioning Classes */
+.float-right {
+  float: right;
+}
+
+.pos-fixed-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
+/* Border and Display Classes */
+.border-none {
+  border: 0;
+}
+
+.display-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.display-none-when-shown {
+  display: none;
+}
+
+/* Responsive and Dynamic Display */
+.display-flex-when-hidden {
+  display: flex;
+}

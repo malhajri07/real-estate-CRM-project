@@ -131,11 +131,11 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="companyName" style={{ float: 'right' }}>اسم الشركة</Label>
+                  <Label htmlFor="companyName" className="float-right">اسم الشركة</Label>
                   <Input
                     id="companyName"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={accountDetails.companyName}
                     onChange={(e) => setAccountDetails({...accountDetails, companyName: e.target.value})}
                     data-testid="input-company-name"
@@ -143,9 +143,9 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="businessType" style={{ float: 'right' }}>نوع النشاط</Label>
+                  <Label htmlFor="businessType" className="float-right">نوع النشاط</Label>
                   <Select value={accountDetails.businessType} onValueChange={(value) => setAccountDetails({...accountDetails, businessType: value})}>
-                    <SelectTrigger dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="select-business-type">
+                    <SelectTrigger dir="rtl" className="text-fade" data-testid="select-business-type">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -159,11 +159,11 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="taxId" style={{ float: 'right' }}>الرقم الضريبي</Label>
+                  <Label htmlFor="taxId" className="float-right">الرقم الضريبي</Label>
                   <Input
                     id="taxId"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={accountDetails.taxId}
                     onChange={(e) => setAccountDetails({...accountDetails, taxId: e.target.value})}
                     data-testid="input-tax-id"
@@ -171,12 +171,12 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="website" style={{ float: 'right' }}>الموقع الإلكتروني</Label>
+                  <Label htmlFor="website" className="float-right">الموقع الإلكتروني</Label>
                   <Input
                     id="website"
                     type="url"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={accountDetails.website}
                     onChange={(e) => setAccountDetails({...accountDetails, website: e.target.value})}
                     data-testid="input-website"
@@ -184,12 +184,12 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description" style={{ float: 'right' }}>وصف الشركة</Label>
+                  <Label htmlFor="description" className="float-right">وصف الشركة</Label>
                   <Textarea
                     id="description"
                     rows={3}
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={accountDetails.description}
                     onChange={(e) => setAccountDetails({...accountDetails, description: e.target.value})}
                     data-testid="textarea-description"
@@ -211,11 +211,11 @@ export default function Settings() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="address" style={{ float: 'right' }}>العنوان</Label>
+                  <Label htmlFor="address" className="float-right">العنوان</Label>
                   <Input
                     id="address"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={accountDetails.address}
                     onChange={(e) => setAccountDetails({...accountDetails, address: e.target.value})}
                     data-testid="input-address"
@@ -224,22 +224,22 @@ export default function Settings() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="city" style={{ float: 'right' }}>المدينة</Label>
+                    <Label htmlFor="city" className="float-right">المدينة</Label>
                     <Input
                       id="city"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                      className="text-fade"
                       value={accountDetails.city}
                       onChange={(e) => setAccountDetails({...accountDetails, city: e.target.value})}
                       data-testid="input-city"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="postalCode" style={{ float: 'right' }}>الرمز البريدي</Label>
+                    <Label htmlFor="postalCode" className="float-right">الرمز البريدي</Label>
                     <Input
                       id="postalCode"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                      className="text-fade"
                       value={accountDetails.postalCode}
                       onChange={(e) => setAccountDetails({...accountDetails, postalCode: e.target.value})}
                       data-testid="input-postal-code"
@@ -248,9 +248,9 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="country" style={{ float: 'right' }}>البلد</Label>
+                  <Label htmlFor="country" className="float-right">البلد</Label>
                   <Select value={accountDetails.country} onValueChange={(value) => setAccountDetails({...accountDetails, country: value})}>
-                    <SelectTrigger dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="select-country">
+                    <SelectTrigger dir="rtl" className="text-fade" data-testid="select-country">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -265,12 +265,12 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone" style={{ float: 'right' }}>هاتف الشركة</Label>
+                  <Label htmlFor="phone" className="float-right">هاتف الشركة</Label>
                   <Input
                     id="phone"
                     type="tel"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={accountDetails.phone}
                     onChange={(e) => setAccountDetails({...accountDetails, phone: e.target.value})}
                     data-testid="input-company-phone"
@@ -278,12 +278,12 @@ export default function Settings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" style={{ float: 'right' }}>البريد الإلكتروني للشركة</Label>
+                  <Label htmlFor="email" className="float-right">البريد الإلكتروني للشركة</Label>
                   <Input
                     id="email"
                     type="email"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={accountDetails.email}
                     onChange={(e) => setAccountDetails({...accountDetails, email: e.target.value})}
                     data-testid="input-company-email"
@@ -306,46 +306,46 @@ export default function Settings() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="contactPerson" style={{ float: 'right' }}>الاسم الكامل</Label>
+                    <Label htmlFor="contactPerson" className="float-right">الاسم الكامل</Label>
                     <Input
                       id="contactPerson"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                      className="text-fade"
                       value={accountDetails.contactPerson}
                       onChange={(e) => setAccountDetails({...accountDetails, contactPerson: e.target.value})}
                       data-testid="input-contact-person"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contactTitle" style={{ float: 'right' }}>المسمى الوظيفي</Label>
+                    <Label htmlFor="contactTitle" className="float-right">المسمى الوظيفي</Label>
                     <Input
                       id="contactTitle"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                      className="text-fade"
                       value={accountDetails.contactTitle}
                       onChange={(e) => setAccountDetails({...accountDetails, contactTitle: e.target.value})}
                       data-testid="input-contact-title"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contactPhone" style={{ float: 'right' }}>رقم الهاتف</Label>
+                    <Label htmlFor="contactPhone" className="float-right">رقم الهاتف</Label>
                     <Input
                       id="contactPhone"
                       type="tel"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                      className="text-fade"
                       value={accountDetails.contactPhone}
                       onChange={(e) => setAccountDetails({...accountDetails, contactPhone: e.target.value})}
                       data-testid="input-contact-phone"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contactEmail" style={{ float: 'right' }}>البريد الإلكتروني</Label>
+                    <Label htmlFor="contactEmail" className="float-right">البريد الإلكتروني</Label>
                     <Input
                       id="contactEmail"
                       type="email"
                       dir="rtl"
-                      style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                      className="text-fade"
                       value={accountDetails.contactEmail}
                       onChange={(e) => setAccountDetails({...accountDetails, contactEmail: e.target.value})}
                       data-testid="input-contact-email"
@@ -396,66 +396,66 @@ export default function Settings() {
               {/* Personal Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" style={{ float: 'right' }}>الاسم الأول</Label>
+                  <Label htmlFor="firstName" className="float-right">الاسم الأول</Label>
                   <Input
                     id="firstName"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={userProfile.firstName}
                     onChange={(e) => setUserProfile({...userProfile, firstName: e.target.value})}
                     data-testid="input-first-name"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" style={{ float: 'right' }}>اسم العائلة</Label>
+                  <Label htmlFor="lastName" className="float-right">اسم العائلة</Label>
                   <Input
                     id="lastName"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={userProfile.lastName}
                     onChange={(e) => setUserProfile({...userProfile, lastName: e.target.value})}
                     data-testid="input-last-name"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="userEmail" style={{ float: 'right' }}>البريد الإلكتروني</Label>
+                  <Label htmlFor="userEmail" className="float-right">البريد الإلكتروني</Label>
                   <Input
                     id="userEmail"
                     type="email"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={userProfile.email}
                     onChange={(e) => setUserProfile({...userProfile, email: e.target.value})}
                     data-testid="input-user-email"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="userPhone" style={{ float: 'right' }}>رقم الهاتف</Label>
+                  <Label htmlFor="userPhone" className="float-right">رقم الهاتف</Label>
                   <Input
                     id="userPhone"
                     type="tel"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={userProfile.phone}
                     onChange={(e) => setUserProfile({...userProfile, phone: e.target.value})}
                     data-testid="input-user-phone"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="title" style={{ float: 'right' }}>المسمى الوظيفي</Label>
+                  <Label htmlFor="title" className="float-right">المسمى الوظيفي</Label>
                   <Input
                     id="title"
                     dir="rtl"
-                    style={{ color: 'rgba(0, 0, 0, 0.4)' }}
+                    className="text-fade"
                     value={userProfile.title}
                     onChange={(e) => setUserProfile({...userProfile, title: e.target.value})}
                     data-testid="input-user-title"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="department" style={{ float: 'right' }}>القسم</Label>
+                  <Label htmlFor="department" className="float-right">القسم</Label>
                   <Select value={userProfile.department} onValueChange={(value) => setUserProfile({...userProfile, department: value})}>
-                    <SelectTrigger dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="select-department">
+                    <SelectTrigger dir="rtl" className="text-fade" data-testid="select-department">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -494,16 +494,16 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="currentPassword" style={{ float: 'right' }}>كلمة المرور الحالية</Label>
-                <Input id="currentPassword" type="password" dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="input-current-password" />
+                <Label htmlFor="currentPassword" className="float-right">كلمة المرور الحالية</Label>
+                <Input id="currentPassword" type="password" dir="rtl" className="text-fade" data-testid="input-current-password" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="newPassword" style={{ float: 'right' }}>كلمة المرور الجديدة</Label>
-                <Input id="newPassword" type="password" dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="input-new-password" />
+                <Label htmlFor="newPassword" className="float-right">كلمة المرور الجديدة</Label>
+                <Input id="newPassword" type="password" dir="rtl" className="text-fade" data-testid="input-new-password" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" style={{ float: 'right' }}>تأكيد كلمة المرور الجديدة</Label>
-                <Input id="confirmPassword" type="password" dir="rtl" style={{ color: 'rgba(0, 0, 0, 0.4)' }} data-testid="input-confirm-password" />
+                <Label htmlFor="confirmPassword" className="float-right">تأكيد كلمة المرور الجديدة</Label>
+                <Input id="confirmPassword" type="password" dir="rtl" className="text-fade" data-testid="input-confirm-password" />
               </div>
               <Button className="flex items-center gap-2 flex-row-reverse" data-testid="button-change-password">
                 <Shield size={16} />

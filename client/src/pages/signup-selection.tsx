@@ -39,10 +39,6 @@ export default function SignupSelection() {
                 src={logoImage} 
                 alt="شعار عقاراتي" 
                 className="w-32 h-32 object-contain"
-                style={{ 
-                  filter: 'drop-shadow(0 0 0 transparent)',
-                  background: 'transparent'
-                }}
               />
             </div>
             <h1 className="text-3xl font-bold text-slate-900 mb-4">

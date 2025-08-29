@@ -90,11 +90,11 @@ export default function CMSAdmin() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-              <span className="text-2xl font-bold text-gray-900 hover:text-green-600 transition-colors" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>منصة عقاراتي</span>
+              <span className="text-2xl font-bold text-gray-900 hover:text-green-600 transition-colors font-droid-kufi">منصة عقاراتي</span>
             </div>
             <div className="flex items-center space-x-4 space-x-reverse">
               <Settings className="w-6 h-6 text-green-600" />
-              <h1 className="text-xl font-bold text-gray-900" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>
+              <h1 className="text-xl font-bold text-gray-900 font-droid-kufi">
                 إدارة المحتوى (CMS)
               </h1>
             </div>
@@ -111,7 +111,7 @@ export default function CMSAdmin() {
                 <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
                   <Edit3 className="w-5 h-5 text-white" />
                 </div>
-                <h2 className="text-xl font-bold" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>محتوى صفحة الهبوط</h2>
+                <h2 className="text-xl font-bold font-droid-kufi">محتوى صفحة الهبوط</h2>
               </div>
               <Button 
                 onClick={handleSaveLandingContent}
@@ -204,7 +204,7 @@ export default function CMSAdmin() {
                 <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
                   <Plus className="w-5 h-5 text-white" />
                 </div>
-                <h2 className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>خطط التسعير</h2>
+                <h2 className="text-xl font-bold font-janat">خطط التسعير</h2>
               </div>
               <Button className="bg-white/20 hover:bg-white/30 text-white border border-white/20">
                 <Plus className="w-4 h-4 ml-2" />
@@ -218,7 +218,7 @@ export default function CMSAdmin() {
               {pricingPlans.map((plan) => (
                 <div key={plan.id} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200 shadow-lg">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-gray-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
+                    <h3 className="text-lg font-bold text-gray-900 font-janat">
                       {plan.name}
                     </h3>
                     {plan.isPopular && (
@@ -269,7 +269,7 @@ export default function CMSAdmin() {
               <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
                 <Settings className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>معلومات النظام</h2>
+              <h2 className="text-xl font-bold font-janat">معلومات النظام</h2>
             </div>
           </div>
           

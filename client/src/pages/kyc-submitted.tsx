@@ -26,7 +26,7 @@ export default function KYCSubmitted() {
           <div className="flex justify-center mb-6">
             <Clock className="w-16 h-16 text-green-100 drop-shadow-lg" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic' }}>
+          <h1 className="text-3xl font-bold text-white mb-2 font-droid-kufi">
             تم استلام طلب الحساب المؤسسي
           </h1>
           <p className="text-green-100 text-lg">

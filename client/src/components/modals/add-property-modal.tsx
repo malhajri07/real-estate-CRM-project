@@ -69,7 +69,7 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl" style={{ backgroundColor: '#edf1ee' }}>
+      <DialogContent className="max-w-3xl bg-modal-filter">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">إضافة عقار جديد</DialogTitle>
         </DialogHeader>
