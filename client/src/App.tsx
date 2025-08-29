@@ -14,6 +14,7 @@ import SignupSuccess from "@/pages/signup-success";
 import KYCSubmitted from "@/pages/kyc-submitted";
 import CMSAdmin from "@/pages/cms-admin";
 import Dashboard from "@/pages/dashboard";
+import SearchProperties from "@/pages/search-properties";
 import Leads from "@/pages/leads";
 import Customers from "@/pages/customers";
 import Properties from "@/pages/properties";
@@ -84,6 +85,7 @@ function Router() {
         <Route path="/signup/corporate" component={SignupCorporate} />
         <Route path="/signup/success" component={SignupSuccess} />
         <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
+        <Route path="/search-properties" component={SearchProperties} />
         <Route component={Landing} />
       </Switch>
     );

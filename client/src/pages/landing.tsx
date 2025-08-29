@@ -27,7 +27,7 @@ export default function Landing() {
             </div>
             <nav className="hidden md:flex space-x-reverse space-x-8">
               <a href="#home" className="text-gray-700 hover:text-primary">الرئيسية</a>
-              <a href="#map" className="text-gray-700 hover:text-primary">خريطة العقارات</a>
+              <a href="/search-properties" className="text-gray-700 hover:text-primary">ابحث عن عقار</a>
               <a href="#features" className="text-gray-700 hover:text-primary">المميزات</a>
               <a href="#solutions" className="text-gray-700 hover:text-primary">الحلول</a>
               <a href="#pricing" className="text-gray-700 hover:text-primary">الأسعار</a>
@@ -276,21 +276,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Property Search Map Section */}
-      <section id="map" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              اكتشف العقارات على الخريطة
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              ابحث عن العقار المناسب لك باستخدام خريطتنا التفاعلية مع تصنيفات متنوعة ومرشحات متقدمة
-            </p>
-          </div>
-          
-          <PropertySearchMap className="w-full" />
-        </div>
-      </section>
 
       {/* Features Section */}
       <section id="features" className="py-20 bg-white">
