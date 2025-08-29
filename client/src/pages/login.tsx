@@ -134,7 +134,7 @@ export default function Login({ onLogin }: LoginProps) {
                 <img 
                   src={agarkomFooterLogo} 
                   alt="عقارکم" 
-                  className="h-12 object-contain"
+                  className="h-36 object-contain"
                 />
               </div>
               <p className="text-gray-400 mb-4">
