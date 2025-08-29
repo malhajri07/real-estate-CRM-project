@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin, Camera, FileText, DollarSign, GitBranch, CheckCircle } from "lucide-react";
+import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin, Camera, FileText, DollarSign, GitBranch, CheckCircle, UserPlus, Eye, NotebookPen } from "lucide-react";
 import PropertySearchMap from "@/components/PropertySearchMap";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
 
@@ -401,10 +401,19 @@ export default function Landing() {
                 <p className="text-gray-600 mb-6">
                   تتبع العملاء المحتملين وإدارة قاعدة بيانات شاملة مع تفاصيل الاتصال والاهتمامات
                 </p>
-                <ul className="text-right space-y-2 text-gray-600">
-                  <li>• إضافة وتصنيف العملاء</li>
-                  <li>• متابعة حالة كل عميل</li>
-                  <li>• تسجيل الملاحظات والمتابعات</li>
+                <ul className="text-right space-y-3 text-gray-600">
+                  <li className="flex items-center gap-3">
+                    <UserPlus className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <span>إضافة وتصنيف العملاء</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <Eye className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <span>متابعة حالة كل عميل</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <NotebookPen className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <span>تسجيل الملاحظات والمتابعات</span>
+                  </li>
                 </ul>
               </CardContent>
             </Card>
