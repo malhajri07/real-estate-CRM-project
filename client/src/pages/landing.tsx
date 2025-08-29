@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin } from "lucide-react";
 import PropertySearchMap from "@/components/PropertySearchMap";
+import agarkomLogo from "@assets/1_1756499729280.png";
 
 export default function Landing() {
   const handleLogin = () => {
@@ -20,23 +21,22 @@ export default function Landing() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-reverse space-x-4">
               <div className="flex items-center">
-                <Building className="h-8 w-8 text-green-600 ml-3" />
-                <span className="text-xl font-bold text-gray-900">منصة عقاراتي</span>
+                <img src={agarkomLogo} alt="عقارکم" className="h-12 ml-3" />
               </div>
             </div>
             <nav className="hidden md:flex space-x-reverse space-x-8">
-              <a href="#home" className="text-gray-700 hover:text-green-600">الرئيسية</a>
-              <a href="#map" className="text-gray-700 hover:text-green-600">خريطة العقارات</a>
-              <a href="#features" className="text-gray-700 hover:text-green-600">المميزات</a>
-              <a href="#solutions" className="text-gray-700 hover:text-green-600">الحلول</a>
-              <a href="#pricing" className="text-gray-700 hover:text-green-600">الأسعار</a>
-              <a href="#contact" className="text-gray-700 hover:text-green-600">اتصل بنا</a>
+              <a href="#home" className="text-gray-700 hover:text-primary">الرئيسية</a>
+              <a href="#map" className="text-gray-700 hover:text-primary">خريطة العقارات</a>
+              <a href="#features" className="text-gray-700 hover:text-primary">المميزات</a>
+              <a href="#solutions" className="text-gray-700 hover:text-primary">الحلول</a>
+              <a href="#pricing" className="text-gray-700 hover:text-primary">الأسعار</a>
+              <a href="#contact" className="text-gray-700 hover:text-primary">اتصل بنا</a>
             </nav>
             <div className="flex items-center space-x-reverse space-x-4">
-              <Button onClick={handleLogin} variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
+              <Button onClick={handleLogin} variant="outline" className="text-primary border-primary hover:bg-primary/10">
                 تسجيل الدخول
               </Button>
-              <Button onClick={handleSignUp} className="bg-green-600 hover:bg-green-700 text-white">
+              <Button onClick={handleSignUp} className="bg-primary hover:bg-primary/90 text-white">
                 إنشاء حساب جديد
               </Button>
             </div>
@@ -45,23 +45,23 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section id="home" className="py-20 bg-gradient-to-br from-green-50 to-white">
+      <section id="home" className="py-20 bg-gradient-to-br from-primary/10 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-right">
-              <p className="text-green-600 font-medium mb-4">مرحباً بك في</p>
+              <p className="text-primary font-medium mb-4">مرحباً بك في</p>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                منصة عقاراتي لإدارة العقارات
+                عقارکم - منصة إدارة العقارات الذكية
               </h1>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
                 نظام شامل لإدارة العقارات والعملاء والصفقات مع واجهة حديثة وسهلة الاستخدام. 
                 تابع عملائك المحتملين، أدر عقاراتك، وتحكم في صفقاتك من مكان واحد.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button onClick={handleSignUp} className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg">
+                <Button onClick={handleSignUp} className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg">
                   جرب المنصة مجاناً
                 </Button>
-                <Button onClick={handleLogin} variant="outline" className="border-green-600 text-green-600 hover:bg-green-50 px-8 py-3 text-lg">
+                <Button onClick={handleLogin} variant="outline" className="border-primary text-primary hover:bg-primary/10 px-8 py-3 text-lg">
                   تسجيل الدخول
                 </Button>
               </div>

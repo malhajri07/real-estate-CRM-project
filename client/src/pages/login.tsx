@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Building, Building2, Lock, User, Phone, Mail, MapPin } from "lucide-react";
 import { useLocation } from "wouter";
-import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
+import agarkomLogo from "@assets/1_1756499729280.png";
 
 interface LoginProps {
   onLogin: () => void;
@@ -44,14 +44,13 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-slate-100" dir="rtl">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center items-center h-16">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-              <Building className="h-8 w-8 text-green-600 ml-3" />
-              <span className="text-xl font-bold text-gray-900 hover:text-green-600 transition-colors">منصة عقاراتي</span>
+              <img src={agarkomLogo} alt="عقارکم" className="h-12" />
             </div>
           </div>
         </div>
@@ -60,19 +59,19 @@ export default function Login({ onLogin }: LoginProps) {
       <div className="flex items-center justify-center p-4 py-20">
         <div className="w-full max-w-md bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
           {/* Gradient Header */}
-          <div className="bg-gradient-to-r from-green-600 to-green-700 px-8 py-12 text-center">
+          <div className="bg-gradient-to-r from-primary to-primary/90 px-8 py-12 text-center">
             <div className="flex justify-center mb-6">
               <img 
-                src={logoImage} 
-                alt="شعار عقاراتي" 
-                className="w-24 h-24 object-contain drop-shadow-lg"
+                src={agarkomLogo} 
+                alt="عقارکم" 
+                className="h-20 object-contain drop-shadow-lg"
               />
             </div>
             <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Janat Bold, Noto Sans Arabic' }}>
               تسجيل الدخول
             </h1>
-            <p className="text-green-100 text-lg">
-              مرحباً بك في منصة عقاراتي
+            <p className="text-primary-foreground/80 text-lg">
+              مرحباً بك في عقارکم
             </p>
           </div>
 

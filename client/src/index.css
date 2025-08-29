@@ -111,32 +111,38 @@ body {
   --card-foreground: hsl(0 0% 15%);
   --popover: hsl(0 0% 100%);
   --popover-foreground: hsl(0 0% 15%);
-  --primary: hsl(142 76% 36%);
+  --primary: hsl(160 60% 60%);
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(142 15% 93%);
+  --secondary: hsl(160 20% 93%);
   --secondary-foreground: hsl(0 0% 15%);
-  --muted: hsl(142 15% 93%);
+  --muted: hsl(160 20% 93%);
   --muted-foreground: hsl(0 0% 45%);
-  --accent: hsl(142 15% 93%);
+  --accent: hsl(160 20% 93%);
   --accent-foreground: hsl(0 0% 15%);
   --destructive: hsl(0 84% 60%);
   --destructive-foreground: hsl(0 0% 100%);
   --border: transparent;
-  --input: hsl(142 20% 96%);
-  --ring: hsl(142 76% 36%);
-  --chart-1: hsl(142 76% 36%);
-  --chart-2: hsl(142 69% 58%);
+  --input: hsl(160 25% 96%);
+  --ring: hsl(160 60% 60%);
+  --chart-1: hsl(160 60% 60%);
+  --chart-2: hsl(160 55% 65%);
   --chart-3: hsl(35 91% 65%);
-  --chart-4: hsl(142 55% 45%);
-  --chart-5: hsl(336 75% 40%);
+  --chart-4: hsl(160 45% 50%);
+  --chart-5: hsl(213 84% 47%);
   --sidebar: hsl(0 0% 100%);
   --sidebar-foreground: hsl(0 0% 15%);
-  --sidebar-primary: hsl(142 76% 36%);
+  --sidebar-primary: hsl(160 60% 60%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(142 15% 93%);
+  --sidebar-accent: hsl(160 20% 93%);
   --sidebar-accent-foreground: hsl(0 0% 15%);
-  --sidebar-border: hsl(142 20% 91%);
-  --sidebar-ring: hsl(142 76% 36%);
+  --sidebar-border: hsl(160 25% 91%);
+  --sidebar-ring: hsl(160 60% 60%);
+  
+  /* Agarkom brand colors */
+  --agarkom-mint: hsl(160 60% 60%);
+  --agarkom-blue: hsl(213 84% 47%);
+  --agarkom-mint-light: hsl(160 40% 85%);
+  --agarkom-blue-dark: hsl(213 84% 35%);
   --font-sans: 'Noto Sans Arabic', 'Janat Bold', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'New York', 'Times New Roman', serif;
   --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
@@ -153,7 +159,7 @@ body {
   --card-foreground: hsl(0 0% 95%);
   --popover: hsl(0 0% 8%);
   --popover-foreground: hsl(0 0% 95%);
-  --primary: hsl(142 76% 36%);
+  --primary: hsl(160 60% 60%);
   --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(0 0% 16%);
   --secondary-foreground: hsl(0 0% 95%);
@@ -165,15 +171,15 @@ body {
   --destructive-foreground: hsl(0 0% 100%);
   --border: transparent;
   --input: hsl(0 0% 16%);
-  --ring: hsl(142 76% 36%);
+  --ring: hsl(160 60% 60%);
   --sidebar: hsl(0 0% 12%);
   --sidebar-foreground: hsl(0 0% 95%);
-  --sidebar-primary: hsl(142 76% 36%);
+  --sidebar-primary: hsl(160 60% 60%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
   --sidebar-accent: hsl(0 0% 16%);
   --sidebar-accent-foreground: hsl(0 0% 95%);
   --sidebar-border: hsl(0 0% 20%);
-  --sidebar-ring: hsl(142 76% 36%);
+  --sidebar-ring: hsl(160 60% 60%);
 }
 
 @layer base {

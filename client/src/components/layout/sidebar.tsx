@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { Home, Users, Building, Filter, Handshake, BarChart3, Bell, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
-import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
+import agarkomLogo from "@assets/1_1756499729280.png";
 
 interface SidebarProps {
   onLogout?: () => void;
@@ -34,17 +34,13 @@ export default function Sidebar({ onLogout }: SidebarProps) {
       <div className="p-8">
         <div className={cn("flex items-center", dir === 'rtl' ? 'space-x-reverse space-x-4' : 'space-x-4')}>
           <img 
-            src={logoImage} 
-            alt="شعار عقاراتي" 
-            className="w-20 h-20 object-contain"
-            style={{ 
-              filter: 'drop-shadow(0 0 0 transparent)',
-              background: 'transparent'
-            }}
+            src={agarkomLogo} 
+            alt="عقارکم" 
+            className="h-16 object-contain"
           />
           <div>
-            <h1 className="text-xl font-semibold tracking-tight">منصة عقاراتي</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">نظام إدارة العقارات</p>
+            <h1 className="text-xl font-semibold tracking-tight">عقارکم</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">منصة إدارة العقارات الذكية</p>
           </div>
         </div>
       </div>
