@@ -32,16 +32,12 @@ export default function Sidebar({ onLogout }: SidebarProps) {
   return (
     <div className="w-72 bg-sidebar text-sidebar-foreground flex-shrink-0 apple-shadow-large border-l border-sidebar-border fixed h-full overflow-y-auto z-50 right-0">
       <div className="p-8">
-        <div className={cn("flex items-center", dir === 'rtl' ? 'space-x-reverse space-x-4' : 'space-x-4')}>
+        <div className="flex justify-center">
           <img 
             src={agarkomLogo} 
             alt="عقارکم" 
             className="h-48 object-contain"
           />
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight">عقارکم</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">منصة إدارة العقارات الذكية</p>
-          </div>
         </div>
       </div>
       
