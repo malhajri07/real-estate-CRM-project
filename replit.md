@@ -21,6 +21,12 @@ Preferred communication style: Simple, everyday language.
 Application language: Arabic with RTL (Right-to-Left) layout support.
 Branding: "منصة عقاراتي" (AQARATY Platform) with green color theme matching company logo.
 
+### Development Standards
+- **CSS Styling**: All styling must be done using CSS classes in the index.css file. No inline styles allowed.
+- **Font Management**: Arabic fonts (Droid Arabic Kufi, Janat Bold, Noto Sans Arabic) are managed through dedicated CSS classes.
+- **Color Consistency**: Background colors and theming are standardized through CSS variables and utility classes.
+- **Code Organization**: Maintain clean separation between styling (CSS) and component logic (TSX).
+
 ## System Architecture
 
 ### Frontend Architecture
