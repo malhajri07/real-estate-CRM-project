@@ -31,12 +31,12 @@ export default function Sidebar({ onLogout }: SidebarProps) {
 
   return (
     <div className="w-72 bg-sidebar text-sidebar-foreground flex-shrink-0 apple-shadow-large border-l border-sidebar-border fixed h-full overflow-y-auto z-50 right-0">
-      <div className="p-8">
+      <div className="p-4">
         <div className="flex justify-center">
           <img 
             src={agarkomLogo} 
             alt="عقارکم" 
-            className="h-48 object-contain"
+            className="h-24 object-contain"
           />
         </div>
       </div>
