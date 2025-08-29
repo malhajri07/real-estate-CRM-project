@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin } from "lucide-react";
+import PropertySearchMap from "@/components/PropertySearchMap";
 
 export default function Landing() {
   const handleLogin = () => {
@@ -25,6 +26,7 @@ export default function Landing() {
             </div>
             <nav className="hidden md:flex space-x-reverse space-x-8">
               <a href="#home" className="text-gray-700 hover:text-green-600">الرئيسية</a>
+              <a href="#map" className="text-gray-700 hover:text-green-600">خريطة العقارات</a>
               <a href="#features" className="text-gray-700 hover:text-green-600">المميزات</a>
               <a href="#solutions" className="text-gray-700 hover:text-green-600">الحلول</a>
               <a href="#pricing" className="text-gray-700 hover:text-green-600">الأسعار</a>
@@ -270,6 +272,22 @@ export default function Landing() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Property Search Map Section */}
+      <section id="map" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              اكتشف العقارات على الخريطة
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              ابحث عن العقار المناسب لك باستخدام خريطتنا التفاعلية مع تصنيفات متنوعة ومرشحات متقدمة
+            </p>
+          </div>
+          
+          <PropertySearchMap className="w-full" />
         </div>
       </section>
 

@@ -105,7 +105,9 @@ export const properties = pgTable("properties", {
   latitude: decimal("latitude", { precision: 10, scale: 8 }), // Added for Google Maps integration
   longitude: decimal("longitude", { precision: 11, scale: 8 }), // Added for Google Maps integration
   price: decimal("price", { precision: 12, scale: 2 }).notNull(),
-  propertyType: text("property_type").notNull(), // house, condo, apartment, commercial
+  // Arabic Property Categorization System
+  propertyCategory: text("property_category").notNull().default("سكني"), // سكني, ترفيهي/استجمام, تجاري/مكاتب, مستودعات/أراضٍ, عام
+  propertyType: text("property_type").notNull().default("شقة"), // شقة, شقة مفروشة, بيت, فيلا, دور, استراحة, شاليه, مخيم, مكتب, محل, عمارة, مستودع, أرض, غرفة, الكل
   bedrooms: integer("bedrooms"),
   bathrooms: decimal("bathrooms", { precision: 3, scale: 1 }),
   squareFeet: integer("square_feet"),

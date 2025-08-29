@@ -229,6 +229,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public properties for map (no authentication required)
+  app.get("/api/properties/map", async (req, res) => {
+    try {
+      const properties = await storage.getAllProperties();
+      // Filter to only include active properties with coordinates and essential info
+      const mapProperties = properties
+        .filter(p => p.status === 'active' && p.latitude && p.longitude)
+        .map(p => ({
+          id: p.id,
+          title: p.title,
+          address: p.address,
+          city: p.city,
+          price: p.price,
+          propertyCategory: p.propertyCategory,
+          propertyType: p.propertyType,
+          latitude: p.latitude,
+          longitude: p.longitude,
+          bedrooms: p.bedrooms,
+          bathrooms: p.bathrooms,
+          squareFeet: p.squareFeet,
+          status: p.status
+        }));
+      res.json(mapProperties);
+    } catch (error) {
+      console.error("Error fetching properties for map:", error);
+      res.status(500).json({ message: "Failed to fetch properties for map" });
+    }
+  });
+
   app.get("/api/properties/:id", async (req, res) => {
     try {
       const property = await storage.getProperty(req.params.id);
