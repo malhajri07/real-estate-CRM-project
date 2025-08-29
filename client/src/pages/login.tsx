@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Building, Building2, Lock, User, Phone, Mail, MapPin } from "lucide-react";
 import { useLocation } from "wouter";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
+import agarkomFooterLogo from "@assets/Aqarkom (4)_1756504760700.png";
 
 interface LoginProps {
   onLogin: () => void;
@@ -130,8 +131,11 @@ export default function Login({ onLogin }: LoginProps) {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <Building className="h-8 w-8 text-green-400 ml-3" />
-                <span className="text-xl font-bold">منصة عقاراتي</span>
+                <img 
+                  src={agarkomFooterLogo} 
+                  alt="عقارکم" 
+                  className="h-12 object-contain"
+                />
               </div>
               <p className="text-gray-400 mb-4">
                 نظام شامل لإدارة العقارات والعملاء والصفقات مع واجهة حديثة وسهلة الاستخدام
