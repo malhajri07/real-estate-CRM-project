@@ -2,7 +2,7 @@ import { Link, useLocation } from "wouter";
 import { Home, Users, Building, Filter, Handshake, BarChart3, Bell, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
-import agarkomLogo from "@assets/Aqarkom (2)_1756500960938.png";
+import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
 
 interface SidebarProps {
   onLogout?: () => void;
