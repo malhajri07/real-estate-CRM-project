@@ -50,7 +50,7 @@ export default function Login({ onLogin }: LoginProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center items-center h-16">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-              <img src={agarkomLogo} alt="عقارکم" className="h-12" />
+              <img src={agarkomLogo} alt="عقارکم" className="h-36" />
             </div>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function Login({ onLogin }: LoginProps) {
               <img 
                 src={agarkomLogo} 
                 alt="عقارکم" 
-                className="h-20 object-contain drop-shadow-lg"
+                className="h-60 object-contain drop-shadow-lg"
               />
             </div>
             <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic' }}>

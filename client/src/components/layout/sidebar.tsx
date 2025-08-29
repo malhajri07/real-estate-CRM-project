@@ -36,7 +36,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           <img 
             src={agarkomLogo} 
             alt="عقارکم" 
-            className="h-16 object-contain"
+            className="h-48 object-contain"
           />
           <div>
             <h1 className="text-xl font-semibold tracking-tight">عقارکم</h1>

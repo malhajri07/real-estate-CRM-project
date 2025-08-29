@@ -21,7 +21,7 @@ export default function Landing() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-reverse space-x-4">
               <div className="flex items-center">
-                <img src={agarkomLogo} alt="عقارکم" className="h-12 ml-3" />
+                <img src={agarkomLogo} alt="عقارکم" className="h-36 ml-3" />
               </div>
             </div>
             <nav className="hidden md:flex space-x-reverse space-x-8">
