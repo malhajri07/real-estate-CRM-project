@@ -59,11 +59,11 @@ export default function Login({ onLogin }: LoginProps) {
       <div className="flex items-center justify-center p-4 py-20">
         <div className="w-full max-w-md bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
           {/* Gradient Header */}
-          <div className="bg-gradient-to-r from-primary to-primary/90 px-8 py-12 text-center">
-            <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic' }}>
+          <div className="bg-white px-8 py-12 text-center border-b border-gray-100">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic' }}>
               تسجيل الدخول
             </h1>
-            <p className="text-primary-foreground/80 text-lg">
+            <p className="text-gray-600 text-lg">
               مرحباً بك في عقارکم
             </p>
           </div>
