@@ -14,6 +14,13 @@
   font-weight: bold;
   font-display: swap;
 }
+
+@font-face {
+  font-family: 'Droid Arabic Kufi';
+  src: url('@assets/alfont_com_AlFont_com_Droid-Arabic-Kufi_1756500484508.ttf') format('truetype');
+  font-weight: normal;
+  font-display: swap;
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -35,6 +42,7 @@
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  font-family: 'Droid Arabic Kufi', 'Noto Sans Arabic', Inter, system-ui, -apple-system, sans-serif;
   font-feature-settings: 'rlig' 1, 'calt' 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -143,7 +151,7 @@ body {
   --agarkom-blue: hsl(213 84% 47%);
   --agarkom-mint-light: hsl(160 40% 85%);
   --agarkom-blue-dark: hsl(213 84% 35%);
-  --font-sans: 'Noto Sans Arabic', 'Janat Bold', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Droid Arabic Kufi', 'Noto Sans Arabic', 'Janat Bold', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'New York', 'Times New Roman', serif;
   --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
   --radius: 0.875rem;

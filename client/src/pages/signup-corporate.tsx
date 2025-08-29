@@ -164,7 +164,7 @@ export default function SignupCorporate() {
                 className="w-24 h-24 object-contain drop-shadow-lg"
               />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-3 tracking-tight" style={{ fontFamily: 'Janat Bold, Noto Sans Arabic' }}>
+            <h1 className="text-3xl font-bold text-white mb-3 tracking-tight" style={{ fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic' }}>
               طلب حساب مؤسسي
             </h1>
             <p className="text-lg text-green-100 leading-7">

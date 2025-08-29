@@ -30,7 +30,7 @@ export default function SignupSuccess() {
           <div className="flex justify-center mb-6">
             <CheckCircle className="w-16 h-16 text-green-100 drop-shadow-lg" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Janat Bold, Noto Sans Arabic' }}>
+          <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic' }}>
             تم إرسال طلبك بنجاح!
           </h1>
         </div>

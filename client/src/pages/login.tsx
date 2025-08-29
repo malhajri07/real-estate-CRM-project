@@ -67,7 +67,7 @@ export default function Login({ onLogin }: LoginProps) {
                 className="h-20 object-contain drop-shadow-lg"
               />
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Janat Bold, Noto Sans Arabic' }}>
+            <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic' }}>
               تسجيل الدخول
             </h1>
             <p className="text-primary-foreground/80 text-lg">

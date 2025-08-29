@@ -164,7 +164,7 @@ export default function SignupIndividual() {
                 alt="شعار عقاراتي" 
                 className="w-12 h-12 object-contain ml-3"
               />
-              <span className="text-2xl font-bold text-gray-900 hover:text-green-600 transition-colors" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>منصة عقاراتي</span>
+              <span className="text-2xl font-bold text-gray-900 hover:text-green-600 transition-colors" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>منصة عقاراتي</span>
             </div>
           </div>
         </div>
@@ -182,7 +182,7 @@ export default function SignupIndividual() {
                   <User className="w-6 h-6 text-white" />
                 </div>
               </div>
-              <h1 className="text-2xl font-bold mb-2" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>إنشاء حساب فردي</h1>
+              <h1 className="text-2xl font-bold mb-2" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>إنشاء حساب فردي</h1>
               <p className="text-green-100 text-base">انضم إلى منصة عقاراتي كوسيط عقاري معتمد</p>
             </div>
           </div>
@@ -519,7 +519,7 @@ export default function SignupIndividual() {
                   alt="شعار عقاراتي" 
                   className="w-8 h-8 object-contain ml-3"
                 />
-                <span className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>منصة عقاراتي</span>
+                <span className="text-xl font-bold" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>منصة عقاراتي</span>
               </div>
               <p className="text-gray-400 mb-4">
                 نظام شامل لإدارة العقارات والعملاء والصفقات مع واجهة حديثة وسهلة الاستخدام

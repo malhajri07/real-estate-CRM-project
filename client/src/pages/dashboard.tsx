@@ -77,7 +77,7 @@ export default function Dashboard() {
               <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Users className="text-white" size={22} />
               </div>
-              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>{metrics?.totalLeads || 0}</div>
+              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>{metrics?.totalLeads || 0}</div>
             </div>
             <h3 className="text-base font-semibold text-gray-800 mb-2">إجمالي العملاء المحتملين</h3>
             <p className="text-sm text-green-600 font-medium">+12% من الشهر الماضي</p>
@@ -88,7 +88,7 @@ export default function Dashboard() {
               <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Building className="text-white" size={22} />
               </div>
-              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>{metrics?.activeProperties || 0}</div>
+              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>{metrics?.activeProperties || 0}</div>
             </div>
             <h3 className="text-base font-semibold text-gray-800 mb-2">العقارات النشطة</h3>
             <p className="text-sm text-green-600 font-medium">+8% من الشهر الماضي</p>
@@ -99,7 +99,7 @@ export default function Dashboard() {
               <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Filter className="text-white" size={22} />
               </div>
-              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>{metrics?.dealsInPipeline || 0}</div>
+              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>{metrics?.dealsInPipeline || 0}</div>
             </div>
             <h3 className="text-base font-semibold text-gray-800 mb-2">الصفقات في المسار</h3>
             <p className="text-sm text-red-600 font-medium">-2% من الشهر الماضي</p>
@@ -110,7 +110,7 @@ export default function Dashboard() {
               <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Banknote className="text-white" size={22} />
               </div>
-              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
+              <div className="text-3xl font-bold tracking-tight text-gray-900" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
             </div>
             <h3 className="text-base font-semibold text-gray-800 mb-2">الإيرادات الشهرية</h3>
             <p className="text-sm text-green-600 font-medium">+24% من الشهر الماضي</p>
@@ -127,14 +127,14 @@ export default function Dashboard() {
                   <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
                     <Filter className="w-5 h-5 text-white" />
                   </div>
-                  <h2 className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>مراحل الصفقات</h2>
+                  <h2 className="text-xl font-bold" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>مراحل الصفقات</h2>
                 </div>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-5 gap-4">
                   <div className="text-center">
                     <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-4 mb-2 border border-slate-200 shadow-lg">
-                      <div className="text-2xl font-bold text-slate-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
+                      <div className="text-2xl font-bold text-slate-900" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>
                         {metrics?.pipelineByStage?.lead || 0}
                       </div>
                       <div className="text-sm text-slate-600 font-medium">عملاء محتملين</div>
@@ -143,7 +143,7 @@ export default function Dashboard() {
 
                   <div className="text-center">
                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 mb-2 border border-blue-200 shadow-lg">
-                      <div className="text-2xl font-bold text-blue-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
+                      <div className="text-2xl font-bold text-blue-900" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>
                         {metrics?.pipelineByStage?.qualified || 0}
                       </div>
                       <div className="text-sm text-blue-600 font-medium">مؤهل</div>
@@ -152,7 +152,7 @@ export default function Dashboard() {
 
                   <div className="text-center">
                     <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-4 mb-2 border border-yellow-200 shadow-lg">
-                      <div className="text-2xl font-bold text-yellow-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
+                      <div className="text-2xl font-bold text-yellow-900" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>
                         {metrics?.pipelineByStage?.showing || 0}
                       </div>
                       <div className="text-sm text-yellow-600 font-medium">عرض</div>
@@ -161,7 +161,7 @@ export default function Dashboard() {
 
                   <div className="text-center">
                     <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4 mb-2 border border-orange-200 shadow-lg">
-                      <div className="text-2xl font-bold text-orange-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
+                      <div className="text-2xl font-bold text-orange-900" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>
                         {metrics?.pipelineByStage?.negotiation || 0}
                       </div>
                       <div className="text-sm text-orange-600 font-medium">تفاوض</div>
@@ -170,7 +170,7 @@ export default function Dashboard() {
 
                   <div className="text-center">
                     <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 mb-2 border border-green-200 shadow-lg">
-                      <div className="text-2xl font-bold text-green-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
+                      <div className="text-2xl font-bold text-green-900" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>
                         {metrics?.pipelineByStage?.closed || 0}
                       </div>
                       <div className="text-sm text-green-600 font-medium">مغلق</div>
@@ -188,7 +188,7 @@ export default function Dashboard() {
                     <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
                       <Users className="w-5 h-5 text-white" />
                     </div>
-                    <h2 className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>العملاء المحتملين الجدد</h2>
+                    <h2 className="text-xl font-bold" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>العملاء المحتملين الجدد</h2>
                   </div>
                   <Button variant="ghost" className="text-white hover:bg-white/20 rounded-xl font-medium text-sm border border-white/20">
                     عرض الكل
@@ -209,7 +209,7 @@ export default function Dashboard() {
                             {lead.firstName[0]}{lead.lastName[0]}
                           </div>
                           <div>
-                            <p className="font-semibold text-gray-900 tracking-tight" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>{lead.firstName} {lead.lastName}</p>
+                            <p className="font-semibold text-gray-900 tracking-tight" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>{lead.firstName} {lead.lastName}</p>
                             <p className="text-sm text-gray-600">{lead.phone}</p>
                           </div>
                         </div>
@@ -244,7 +244,7 @@ export default function Dashboard() {
                   <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
                     <Plus className="w-5 h-5 text-white" />
                   </div>
-                  <h2 className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>إجراءات سريعة</h2>
+                  <h2 className="text-xl font-bold" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>إجراءات سريعة</h2>
                 </div>
               </div>
               <div className="p-6">
@@ -284,7 +284,7 @@ export default function Dashboard() {
                   <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
                     <Calendar className="w-5 h-5 text-white" />
                   </div>
-                  <h2 className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>مهام اليوم</h2>
+                  <h2 className="text-xl font-bold" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>مهام اليوم</h2>
                 </div>
               </div>
               <div className="p-6">

@@ -90,11 +90,11 @@ export default function CMSAdmin() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-              <span className="text-2xl font-bold text-gray-900 hover:text-green-600 transition-colors" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>منصة عقاراتي</span>
+              <span className="text-2xl font-bold text-gray-900 hover:text-green-600 transition-colors" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>منصة عقاراتي</span>
             </div>
             <div className="flex items-center space-x-4 space-x-reverse">
               <Settings className="w-6 h-6 text-green-600" />
-              <h1 className="text-xl font-bold text-gray-900" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>
+              <h1 className="text-xl font-bold text-gray-900" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>
                 إدارة المحتوى (CMS)
               </h1>
             </div>
@@ -111,7 +111,7 @@ export default function CMSAdmin() {
                 <div className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm ml-3">
                   <Edit3 className="w-5 h-5 text-white" />
                 </div>
-                <h2 className="text-xl font-bold" style={{fontFamily: 'Janat Bold, Noto Sans Arabic'}}>محتوى صفحة الهبوط</h2>
+                <h2 className="text-xl font-bold" style={{fontFamily: 'Droid Arabic Kufi, Janat Bold, Noto Sans Arabic'}}>محتوى صفحة الهبوط</h2>
               </div>
               <Button 
                 onClick={handleSaveLandingContent}
