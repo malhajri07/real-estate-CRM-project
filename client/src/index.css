@@ -302,3 +302,78 @@ html, body {
 .display-flex-when-hidden {
   display: flex;
 }
+
+/* Minimal Dashboard Styles */
+.dashboard-card-minimal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.dashboard-card-minimal:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.icon-container-minimal {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-users { background-color: #f0f9ff; color: #0369a1; }
+.icon-buildings { background-color: #f0fdf4; color: #16a34a; }
+.icon-deals { background-color: #fef3c7; color: #d97706; }
+.icon-revenue { background-color: #fdf2f8; color: #be185d; }
+
+.metric-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.metric-change-positive {
+  font-size: 0.75rem;
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.metric-change-negative {
+  font-size: 0.75rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.pipeline-card-minimal {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.pipeline-number {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.pipeline-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}

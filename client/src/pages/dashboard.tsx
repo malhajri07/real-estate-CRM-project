@@ -72,48 +72,48 @@ export default function Dashboard() {
       <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
         {/* Dashboard Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-6 hover:shadow-3xl transition-all duration-300">
+          <div className="dashboard-card-minimal">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Users className="text-white" size={22} />
+              <div className="icon-container-minimal icon-users">
+                <Users size={20} />
               </div>
-              <div className="text-3xl font-bold tracking-tight text-gray-900 font-droid-kufi">{metrics?.totalLeads || 0}</div>
+              <div className="metric-number font-droid-kufi">{metrics?.totalLeads || 0}</div>
             </div>
-            <h3 className="text-base font-semibold text-gray-800 mb-2">إجمالي العملاء المحتملين</h3>
-            <p className="text-sm text-green-600 font-medium">+12% من الشهر الماضي</p>
+            <h3 className="metric-label mb-2">إجمالي العملاء المحتملين</h3>
+            <p className="metric-change-positive">+12% من الشهر الماضي</p>
           </div>
           
-          <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-6 hover:shadow-3xl transition-all duration-300">
+          <div className="dashboard-card-minimal">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Building className="text-white" size={22} />
+              <div className="icon-container-minimal icon-buildings">
+                <Building size={20} />
               </div>
-              <div className="text-3xl font-bold tracking-tight text-gray-900 font-droid-kufi">{metrics?.activeProperties || 0}</div>
+              <div className="metric-number font-droid-kufi">{metrics?.activeProperties || 0}</div>
             </div>
-            <h3 className="text-base font-semibold text-gray-800 mb-2">العقارات النشطة</h3>
-            <p className="text-sm text-green-600 font-medium">+8% من الشهر الماضي</p>
+            <h3 className="metric-label mb-2">العقارات النشطة</h3>
+            <p className="metric-change-positive">+8% من الشهر الماضي</p>
           </div>
           
-          <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-6 hover:shadow-3xl transition-all duration-300">
+          <div className="dashboard-card-minimal">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Filter className="text-white" size={22} />
+              <div className="icon-container-minimal icon-deals">
+                <Filter size={20} />
               </div>
-              <div className="text-3xl font-bold tracking-tight text-gray-900 font-droid-kufi">{metrics?.dealsInPipeline || 0}</div>
+              <div className="metric-number font-droid-kufi">{metrics?.dealsInPipeline || 0}</div>
             </div>
-            <h3 className="text-base font-semibold text-gray-800 mb-2">الصفقات في المسار</h3>
-            <p className="text-sm text-red-600 font-medium">-2% من الشهر الماضي</p>
+            <h3 className="metric-label mb-2">الصفقات في المسار</h3>
+            <p className="metric-change-negative">-2% من الشهر الماضي</p>
           </div>
           
-          <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-6 hover:shadow-3xl transition-all duration-300">
+          <div className="dashboard-card-minimal">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Banknote className="text-white" size={22} />
+              <div className="icon-container-minimal icon-revenue">
+                <Banknote size={20} />
               </div>
-              <div className="text-3xl font-bold tracking-tight text-gray-900 font-droid-kufi">{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
+              <div className="metric-number font-droid-kufi">{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
             </div>
-            <h3 className="text-base font-semibold text-gray-800 mb-2">الإيرادات الشهرية</h3>
-            <p className="text-sm text-green-600 font-medium">+24% من الشهر الماضي</p>
+            <h3 className="metric-label mb-2">الإيرادات الشهرية</h3>
+            <p className="metric-change-positive">+24% من الشهر الماضي</p>
           </div>
         </div>
 
@@ -132,49 +132,39 @@ export default function Dashboard() {
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-5 gap-4">
-                  <div className="text-center">
-                    <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-4 mb-2 border border-slate-200 shadow-lg">
-                      <div className="text-2xl font-bold text-slate-900 font-droid-kufi">
-                        {metrics?.pipelineByStage?.lead || 0}
-                      </div>
-                      <div className="text-sm text-slate-600 font-medium">عملاء محتملين</div>
+                  <div className="pipeline-card-minimal">
+                    <div className="pipeline-number font-droid-kufi">
+                      {metrics?.pipelineByStage?.lead || 0}
                     </div>
+                    <div className="pipeline-label">عملاء محتملين</div>
                   </div>
 
-                  <div className="text-center">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 mb-2 border border-blue-200 shadow-lg">
-                      <div className="text-2xl font-bold text-blue-900 font-droid-kufi">
-                        {metrics?.pipelineByStage?.qualified || 0}
-                      </div>
-                      <div className="text-sm text-blue-600 font-medium">مؤهل</div>
+                  <div className="pipeline-card-minimal">
+                    <div className="pipeline-number font-droid-kufi">
+                      {metrics?.pipelineByStage?.qualified || 0}
                     </div>
+                    <div className="pipeline-label">مؤهل</div>
                   </div>
 
-                  <div className="text-center">
-                    <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-4 mb-2 border border-yellow-200 shadow-lg">
-                      <div className="text-2xl font-bold text-yellow-900 font-droid-kufi">
-                        {metrics?.pipelineByStage?.showing || 0}
-                      </div>
-                      <div className="text-sm text-yellow-600 font-medium">عرض</div>
+                  <div className="pipeline-card-minimal">
+                    <div className="pipeline-number font-droid-kufi">
+                      {metrics?.pipelineByStage?.showing || 0}
                     </div>
+                    <div className="pipeline-label">عرض</div>
                   </div>
 
-                  <div className="text-center">
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4 mb-2 border border-orange-200 shadow-lg">
-                      <div className="text-2xl font-bold text-orange-900 font-droid-kufi">
-                        {metrics?.pipelineByStage?.negotiation || 0}
-                      </div>
-                      <div className="text-sm text-orange-600 font-medium">تفاوض</div>
+                  <div className="pipeline-card-minimal">
+                    <div className="pipeline-number font-droid-kufi">
+                      {metrics?.pipelineByStage?.negotiation || 0}
                     </div>
+                    <div className="pipeline-label">تفاوض</div>
                   </div>
 
-                  <div className="text-center">
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 mb-2 border border-green-200 shadow-lg">
-                      <div className="text-2xl font-bold text-green-900 font-droid-kufi">
-                        {metrics?.pipelineByStage?.closed || 0}
-                      </div>
-                      <div className="text-sm text-green-600 font-medium">مغلق</div>
+                  <div className="pipeline-card-minimal">
+                    <div className="pipeline-number font-droid-kufi">
+                      {metrics?.pipelineByStage?.closed || 0}
                     </div>
+                    <div className="pipeline-label">مغلق</div>
                   </div>
                 </div>
               </div>
