@@ -134,35 +134,35 @@ export default function Dashboard() {
                     <div className="pipeline-number font-droid-kufi">
                       {metrics?.pipelineByStage?.lead || 0}
                     </div>
-                    <div className="pipeline-label">عملاء محتملين</div>
+                    <div className="pipeline-label-leads">عملاء محتملين</div>
                   </div>
 
                   <div className="pipeline-card-minimal">
                     <div className="pipeline-number font-droid-kufi">
                       {metrics?.pipelineByStage?.qualified || 0}
                     </div>
-                    <div className="pipeline-label">مؤهل</div>
+                    <div className="pipeline-label-qualified">مؤهل</div>
                   </div>
 
                   <div className="pipeline-card-minimal">
                     <div className="pipeline-number font-droid-kufi">
                       {metrics?.pipelineByStage?.showing || 0}
                     </div>
-                    <div className="pipeline-label">عرض</div>
+                    <div className="pipeline-label-showing">عرض</div>
                   </div>
 
                   <div className="pipeline-card-minimal">
                     <div className="pipeline-number font-droid-kufi">
                       {metrics?.pipelineByStage?.negotiation || 0}
                     </div>
-                    <div className="pipeline-label">تفاوض</div>
+                    <div className="pipeline-label-negotiation">تفاوض</div>
                   </div>
 
                   <div className="pipeline-card-minimal">
                     <div className="pipeline-number font-droid-kufi">
                       {metrics?.pipelineByStage?.closed || 0}
                     </div>
-                    <div className="pipeline-label">مغلق</div>
+                    <div className="pipeline-label-closed">مغلق</div>
                   </div>
                 </div>
               </div>
