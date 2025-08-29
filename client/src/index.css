@@ -112,45 +112,45 @@ body {
 }
 
 :root {
-  /* Apple-inspired color palette */
+  /* Apple-inspired color palette updated with Agarkom colors */
   --background: hsl(0 0% 98%);
-  --foreground: hsl(0 0% 15%);
+  --foreground: hsl(217 91% 25%);
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(0 0% 15%);
+  --card-foreground: hsl(217 91% 25%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(0 0% 15%);
-  --primary: hsl(160 60% 60%);
+  --popover-foreground: hsl(217 91% 25%);
+  --primary: hsl(168 48% 63%);
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(160 20% 93%);
-  --secondary-foreground: hsl(0 0% 15%);
-  --muted: hsl(160 20% 93%);
-  --muted-foreground: hsl(0 0% 45%);
-  --accent: hsl(160 20% 93%);
-  --accent-foreground: hsl(0 0% 15%);
+  --secondary: hsl(168 30% 90%);
+  --secondary-foreground: hsl(217 91% 25%);
+  --muted: hsl(168 20% 93%);
+  --muted-foreground: hsl(217 20% 45%);
+  --accent: hsl(168 30% 90%);
+  --accent-foreground: hsl(217 91% 25%);
   --destructive: hsl(0 84% 60%);
   --destructive-foreground: hsl(0 0% 100%);
   --border: transparent;
-  --input: hsl(160 25% 96%);
-  --ring: hsl(160 60% 60%);
-  --chart-1: hsl(160 60% 60%);
-  --chart-2: hsl(160 55% 65%);
+  --input: hsl(168 25% 96%);
+  --ring: hsl(168 48% 63%);
+  --chart-1: hsl(168 48% 63%);
+  --chart-2: hsl(168 55% 65%);
   --chart-3: hsl(35 91% 65%);
-  --chart-4: hsl(160 45% 50%);
-  --chart-5: hsl(213 84% 47%);
+  --chart-4: hsl(168 45% 50%);
+  --chart-5: hsl(217 91% 60%);
   --sidebar: hsl(0 0% 100%);
-  --sidebar-foreground: hsl(0 0% 15%);
-  --sidebar-primary: hsl(160 60% 60%);
+  --sidebar-foreground: hsl(217 91% 25%);
+  --sidebar-primary: hsl(168 48% 63%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(160 20% 93%);
-  --sidebar-accent-foreground: hsl(0 0% 15%);
-  --sidebar-border: hsl(160 25% 91%);
-  --sidebar-ring: hsl(160 60% 60%);
+  --sidebar-accent: hsl(168 20% 93%);
+  --sidebar-accent-foreground: hsl(217 91% 25%);
+  --sidebar-border: hsl(168 25% 91%);
+  --sidebar-ring: hsl(168 48% 63%);
   
   /* Agarkom brand colors */
-  --agarkom-mint: hsl(160 60% 60%);
-  --agarkom-blue: hsl(213 84% 47%);
-  --agarkom-mint-light: hsl(160 40% 85%);
-  --agarkom-blue-dark: hsl(213 84% 35%);
+  --agarkom-mint: hsl(168 48% 63%);
+  --agarkom-blue: hsl(217 91% 60%);
+  --agarkom-mint-light: hsl(168 40% 85%);
+  --agarkom-blue-dark: hsl(217 91% 35%);
   --font-sans: 'Droid Arabic Kufi', 'Noto Sans Arabic', 'Janat Bold', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'New York', 'Times New Roman', serif;
   --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
@@ -167,7 +167,7 @@ body {
   --card-foreground: hsl(0 0% 95%);
   --popover: hsl(0 0% 8%);
   --popover-foreground: hsl(0 0% 95%);
-  --primary: hsl(160 60% 60%);
+  --primary: hsl(168 48% 63%);
   --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(0 0% 16%);
   --secondary-foreground: hsl(0 0% 95%);
@@ -179,15 +179,15 @@ body {
   --destructive-foreground: hsl(0 0% 100%);
   --border: transparent;
   --input: hsl(0 0% 16%);
-  --ring: hsl(160 60% 60%);
+  --ring: hsl(168 48% 63%);
   --sidebar: hsl(0 0% 12%);
   --sidebar-foreground: hsl(0 0% 95%);
-  --sidebar-primary: hsl(160 60% 60%);
+  --sidebar-primary: hsl(168 48% 63%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
   --sidebar-accent: hsl(0 0% 16%);
   --sidebar-accent-foreground: hsl(0 0% 95%);
   --sidebar-border: hsl(0 0% 20%);
-  --sidebar-ring: hsl(160 60% 60%);
+  --sidebar-ring: hsl(168 48% 63%);
 }
 
 @layer base {
