@@ -442,12 +442,6 @@ export default function Customers() {
                               <Phone size={12} />
                               <span>{lead.phone}</span>
                             </div>
-                            {lead.email && (
-                              <div className="contact-item">
-                                <Mail size={12} />
-                                <span>{lead.email}</span>
-                              </div>
-                            )}
                           </div>
                         </td>
                         <td className="professional-table-cell">
