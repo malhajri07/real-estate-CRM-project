@@ -149,6 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const leads = await storage.getAllLeads();
       res.json(leads);
     } catch (error) {
+      console.error("Error fetching leads:", error);
       res.status(500).json({ message: "Failed to fetch leads" });
     }
   });

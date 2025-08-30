@@ -4,7 +4,7 @@ import { seedDummyData } from "./seedData";
 
 // Simple mock authentication for development
 export async function setupMockAuth(app: Express) {
-  // Mock user session middleware
+  // Mock user session middleware - always authenticate for development
   app.use((req: any, res, next) => {
     req.user = {
       id: "mock-user-1",
@@ -35,18 +35,6 @@ export async function setupMockAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = (req: any, res, next) => {
-  // For development, always allow authenticated access since we have mock user setup
-  if (req.user && req.user.id) {
-    return next();
-  }
-  
-  // Fallback: Create mock user session if not exists for development
-  req.user = {
-    id: "mock-user-1",
-    email: "user@example.com", 
-    firstName: "مستخدم",
-    lastName: "تجريبي"
-  };
-  req.isAuthenticated = () => true;
+  // Always allow access in development mode
   return next();
 };
