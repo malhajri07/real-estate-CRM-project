@@ -80,6 +80,373 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl mx-8 my-8 p-8 bg-white">
+        <DialogHeader className="mb-6 text-center">
+          <DialogTitle className="text-lg font-semibold text-gray-900 font-droid-kufi">إضافة عميل محتمل جديد</DialogTitle>
+          <DialogDescription className="text-xs text-gray-600 mt-2">
+            املأ المعلومات التالية لإضافة عميل محتمل جديد إلى النظام
+          </DialogDescription>
+        </DialogHeader>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Personal Information Section */}
+            <div className="bg-gray-100 p-4 rounded-md">
+              <h3 className="text-sm font-medium text-gray-900 mb-3 font-droid-kufi">
+                المعلومات الشخصية
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">الاسم الأول *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="أدخل الاسم الأول" {...field} className="text-xs h-8" />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">اسم العائلة *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="أدخل اسم العائلة" {...field} className="text-xs h-8" />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">العمر</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="أدخل العمر" 
+                          {...field} 
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          value={field.value || ""}
+                          className="text-xs h-8"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Contact Information Section */}
+            <div className="bg-blue-50 p-4 rounded-md">
+              <h3 className="text-sm font-medium text-gray-900 mb-3 font-droid-kufi">
+                معلومات الاتصال
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">البريد الإلكتروني *</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="أدخل عنوان البريد الإلكتروني" {...field} className="text-xs h-8" />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">الهاتف</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="tel" 
+                          placeholder="05XXXXXXXX" 
+                          {...field} 
+                          value={field.value || ""} 
+                          maxLength={9}
+                          className="text-xs h-8"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">المدينة</FormLabel>
+                      <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={cityOpen}
+                              className={cn(
+                                "w-full justify-between text-xs h-8",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value
+                                ? (cities as any[])?.find((city: any) => city.nameArabic === field.value)?.nameArabic
+                                : "اختر المدينة"}
+                              <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                          <Command>
+                            <CommandInput placeholder="ابحث عن المدينة..." className="text-xs" />
+                            <CommandList>
+                              <CommandEmpty className="text-xs">لم يتم العثور على المدينة.</CommandEmpty>
+                              <CommandGroup>
+                                {citiesLoading ? (
+                                  <CommandItem disabled>
+                                    <div className="flex items-center justify-center p-2">
+                                      <Loader2 className="h-3 w-3 animate-spin ml-2" />
+                                      <span className="text-xs">جار التحميل...</span>
+                                    </div>
+                                  </CommandItem>
+                                ) : (
+                                  cities && Array.isArray(cities) ? cities.map((city: any) => (
+                                    <CommandItem
+                                      key={city.id}
+                                      value={city.nameArabic}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue === field.value ? "" : currentValue)
+                                        setCityOpen(false)
+                                      }}
+                                      className="text-xs"
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "ml-2 h-3 w-3",
+                                          field.value === city.nameArabic ? "opacity-100" : "opacity-0"
+                                        )}
+                                      />
+                                      {city.nameArabic}
+                                    </CommandItem>
+                                  )) : null
+                                )}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Demographics Section */}
+            <div className="bg-green-50 p-4 rounded-md">
+              <h3 className="text-sm font-medium text-gray-900 mb-3 font-droid-kufi">
+                المعلومات الديموغرافية
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <FormField
+                  control={form.control}
+                  name="maritalStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">الحالة الاجتماعية</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger className="text-xs h-8">
+                            <SelectValue placeholder="اختر الحالة الاجتماعية" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="أعزب" className="text-xs">أعزب</SelectItem>
+                          <SelectItem value="متزوج" className="text-xs">متزوج</SelectItem>
+                          <SelectItem value="مطلق" className="text-xs">مطلق</SelectItem>
+                          <SelectItem value="أرمل" className="text-xs">أرمل</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="numberOfDependents"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">عدد المُعالين</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="أدخل عدد المُعالين" 
+                          {...field} 
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
+                          value={field.value || 0}
+                          className="text-xs h-8"
+                        />
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Business Information Section */}
+            <div className="bg-purple-50 p-4 rounded-md">
+              <h3 className="text-sm font-medium text-gray-900 mb-3 font-droid-kufi">
+                المعلومات التجارية
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <FormField
+                  control={form.control}
+                  name="leadSource"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">مصدر العميل المحتمل</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger className="text-xs h-8">
+                            <SelectValue placeholder="اختر مصدر العميل المحتمل" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="website" className="text-xs">الموقع الإلكتروني</SelectItem>
+                          <SelectItem value="referral" className="text-xs">إحالة</SelectItem>
+                          <SelectItem value="social-media" className="text-xs">وسائل التواصل الاجتماعي</SelectItem>
+                          <SelectItem value="walk-in" className="text-xs">زيارة مباشرة</SelectItem>
+                          <SelectItem value="cold-call" className="text-xs">اتصال بارد</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="budgetRange"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">نطاق الميزانية</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger className="text-xs h-8">
+                            <SelectValue placeholder="اختر نطاق الميزانية" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="under-200k" className="text-xs">أقل من 200 ألف ﷼</SelectItem>
+                          <SelectItem value="200k-400k" className="text-xs">200 - 400 ألف ﷼</SelectItem>
+                          <SelectItem value="400k-600k" className="text-xs">400 - 600 ألف ﷼</SelectItem>
+                          <SelectItem value="600k-800k" className="text-xs">600 - 800 ألف ﷼</SelectItem>
+                          <SelectItem value="800k-plus" className="text-xs">أكثر من 800 ألف ﷼</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <div className="mt-3">
+                <FormField
+                  control={form.control}
+                  name="interestType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs">نوع الاهتمام</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value || ""}
+                          className="flex space-x-6 space-x-reverse"
+                        >
+                          <div className="flex items-center space-x-2 space-x-reverse">
+                            <RadioGroupItem value="buying" id="buying" />
+                            <Label htmlFor="buying" className="text-xs">شراء</Label>
+                          </div>
+                          <div className="flex items-center space-x-2 space-x-reverse">
+                            <RadioGroupItem value="selling" id="selling" />
+                            <Label htmlFor="selling" className="text-xs">بيع</Label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage className="text-xs" />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Notes Section */}
+            <div className="bg-gray-100 p-4 rounded-md">
+              <h3 className="text-sm font-medium text-gray-900 mb-3 font-droid-kufi">
+                ملاحظات إضافية
+              </h3>
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs">ملاحظات</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        rows={2}
+                        placeholder="ملاحظات إضافية حول العميل المحتمل"
+                        {...field}
+                        value={field.value || ""}
+                        className="text-xs"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs" />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-3 space-x-reverse pt-4 border-t border-gray-200">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onOpenChange(false)}
+                className="text-xs h-8 px-3"
+              >
+                إلغاء
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={createLeadMutation.isPending}
+                className="text-xs h-8 px-4"
+              >
+                {createLeadMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-3 w-3 animate-spin ml-2" />
+                    جار الحفظ...
+                  </>
+                ) : (
+                  "حفظ العميل المحتمل"
+                )}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
     </Dialog>
   );
 }
