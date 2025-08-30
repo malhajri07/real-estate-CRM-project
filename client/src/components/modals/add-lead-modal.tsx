@@ -104,7 +104,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                     <FormItem className="text-right">
                       <FormLabel className="text-xs font-bold text-right">الاسم الأول *</FormLabel>
                       <FormControl>
-                        <Input placeholder="أدخل الاسم الأول" {...field} className="text-xs h-8 font-normal text-right" dir="rtl" />
+                        <Input placeholder="أدخل الاسم الأول" {...field} className="text-xxs h-8 font-normal text-right" dir="rtl" />
                       </FormControl>
                       <FormMessage className="text-xs text-right" />
                     </FormItem>
@@ -117,7 +117,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                     <FormItem className="text-right">
                       <FormLabel className="text-xs font-bold text-right">اسم العائلة *</FormLabel>
                       <FormControl>
-                        <Input placeholder="أدخل اسم العائلة" {...field} className="text-xs h-8 font-normal text-right" dir="rtl" />
+                        <Input placeholder="أدخل اسم العائلة" {...field} className="text-xxs h-8 font-normal text-right" dir="rtl" />
                       </FormControl>
                       <FormMessage className="text-xs text-right" />
                     </FormItem>
@@ -136,7 +136,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                           {...field} 
                           onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                           value={field.value || ""}
-                          className="text-xs h-8 font-normal text-right"
+                          className="text-xxs h-8 font-normal text-right"
                           dir="rtl"
                         />
                       </FormControl>
@@ -160,7 +160,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                     <FormItem className="text-right">
                       <FormLabel className="text-xs font-bold text-right">البريد الإلكتروني *</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="أدخل عنوان البريد الإلكتروني" {...field} className="text-xs h-8 font-normal text-right" dir="rtl" />
+                        <Input type="email" placeholder="أدخل عنوان البريد الإلكتروني" {...field} className="text-xxs h-8 font-normal text-right" dir="rtl" />
                       </FormControl>
                       <FormMessage className="text-xs text-right" />
                     </FormItem>
@@ -179,7 +179,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                           {...field} 
                           value={field.value || ""} 
                           maxLength={9}
-                          className="text-xs h-8 font-normal text-right"
+                          className="text-xxs h-8 font-normal text-right"
                           dir="rtl"
                         />
                       </FormControl>
@@ -201,7 +201,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                               role="combobox"
                               aria-expanded={cityOpen}
                               className={cn(
-                                "w-full justify-between text-xs h-8 font-normal text-right",
+                                "w-full justify-between text-xxs h-8 font-normal text-right",
                                 !field.value && "text-muted-foreground"
                               )}
                               dir="rtl"
@@ -215,7 +215,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                         </PopoverTrigger>
                         <PopoverContent className="w-[200px] p-0">
                           <Command>
-                            <CommandInput placeholder="ابحث عن المدينة..." className="text-xs font-normal text-right" dir="rtl" />
+                            <CommandInput placeholder="ابحث عن المدينة..." className="text-xxs font-normal text-right" dir="rtl" />
                             <CommandList>
                               <CommandEmpty className="text-xs text-right">لم يتم العثور على المدينة.</CommandEmpty>
                               <CommandGroup>
@@ -235,7 +235,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                                         field.onChange(currentValue === field.value ? "" : currentValue)
                                         setCityOpen(false)
                                       }}
-                                      className="text-xs font-normal text-right"
+                                      className="text-xxs font-normal text-right"
                                       dir="rtl"
                                     >
                                       <Check
@@ -274,15 +274,15 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                       <FormLabel className="text-xs font-bold text-right">الحالة الاجتماعية</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value || ""} dir="rtl">
                         <FormControl>
-                          <SelectTrigger className="text-xs h-8 font-normal text-right" dir="rtl">
+                          <SelectTrigger className="text-xxs h-8 font-normal text-right" dir="rtl">
                             <SelectValue placeholder="اختر الحالة الاجتماعية" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent dir="rtl">
-                          <SelectItem value="أعزب" className="text-xs font-normal text-right">أعزب</SelectItem>
-                          <SelectItem value="متزوج" className="text-xs font-normal text-right">متزوج</SelectItem>
-                          <SelectItem value="مطلق" className="text-xs font-normal text-right">مطلق</SelectItem>
-                          <SelectItem value="أرمل" className="text-xs font-normal text-right">أرمل</SelectItem>
+                          <SelectItem value="أعزب" className="text-xxs font-normal text-right">أعزب</SelectItem>
+                          <SelectItem value="متزوج" className="text-xxs font-normal text-right">متزوج</SelectItem>
+                          <SelectItem value="مطلق" className="text-xxs font-normal text-right">مطلق</SelectItem>
+                          <SelectItem value="أرمل" className="text-xxs font-normal text-right">أرمل</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage className="text-xs text-right" />
@@ -302,7 +302,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                           {...field} 
                           onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
                           value={field.value || 0}
-                          className="text-xs h-8 font-normal text-right"
+                          className="text-xxs h-8 font-normal text-right"
                           dir="rtl"
                         />
                       </FormControl>
@@ -327,16 +327,16 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                       <FormLabel className="text-xs font-bold text-right">مصدر العميل المحتمل</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                         <FormControl>
-                          <SelectTrigger className="text-xs h-8">
+                          <SelectTrigger className="text-xxs h-8">
                             <SelectValue placeholder="اختر مصدر العميل المحتمل" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="website" className="text-xs">الموقع الإلكتروني</SelectItem>
-                          <SelectItem value="referral" className="text-xs">إحالة</SelectItem>
-                          <SelectItem value="social-media" className="text-xs">وسائل التواصل الاجتماعي</SelectItem>
-                          <SelectItem value="walk-in" className="text-xs">زيارة مباشرة</SelectItem>
-                          <SelectItem value="cold-call" className="text-xs">اتصال بارد</SelectItem>
+                          <SelectItem value="website" className="text-xxs">الموقع الإلكتروني</SelectItem>
+                          <SelectItem value="referral" className="text-xxs">إحالة</SelectItem>
+                          <SelectItem value="social-media" className="text-xxs">وسائل التواصل الاجتماعي</SelectItem>
+                          <SelectItem value="walk-in" className="text-xxs">زيارة مباشرة</SelectItem>
+                          <SelectItem value="cold-call" className="text-xxs">اتصال بارد</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage className="text-xs" />
@@ -351,16 +351,16 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                       <FormLabel className="text-xs">نطاق الميزانية</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                         <FormControl>
-                          <SelectTrigger className="text-xs h-8">
+                          <SelectTrigger className="text-xxs h-8">
                             <SelectValue placeholder="اختر نطاق الميزانية" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="under-200k" className="text-xs">أقل من 200 ألف ﷼</SelectItem>
-                          <SelectItem value="200k-400k" className="text-xs">200 - 400 ألف ﷼</SelectItem>
-                          <SelectItem value="400k-600k" className="text-xs">400 - 600 ألف ﷼</SelectItem>
-                          <SelectItem value="600k-800k" className="text-xs">600 - 800 ألف ﷼</SelectItem>
-                          <SelectItem value="800k-plus" className="text-xs">أكثر من 800 ألف ﷼</SelectItem>
+                          <SelectItem value="under-200k" className="text-xxs">أقل من 200 ألف ﷼</SelectItem>
+                          <SelectItem value="200k-400k" className="text-xxs">200 - 400 ألف ﷼</SelectItem>
+                          <SelectItem value="400k-600k" className="text-xxs">400 - 600 ألف ﷼</SelectItem>
+                          <SelectItem value="600k-800k" className="text-xxs">600 - 800 ألف ﷼</SelectItem>
+                          <SelectItem value="800k-plus" className="text-xxs">أكثر من 800 ألف ﷼</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage className="text-xs" />
@@ -384,11 +384,11 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                         >
                           <div className="flex items-center space-x-2 space-x-reverse">
                             <RadioGroupItem value="buying" id="buying" />
-                            <Label htmlFor="buying" className="text-xs">شراء</Label>
+                            <Label htmlFor="buying" className="text-xxs">شراء</Label>
                           </div>
                           <div className="flex items-center space-x-2 space-x-reverse">
                             <RadioGroupItem value="selling" id="selling" />
-                            <Label htmlFor="selling" className="text-xs">بيع</Label>
+                            <Label htmlFor="selling" className="text-xxs">بيع</Label>
                           </div>
                         </RadioGroup>
                       </FormControl>
@@ -416,7 +416,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                         placeholder="ملاحظات إضافية حول العميل المحتمل"
                         {...field}
                         value={field.value || ""}
-                        className="text-xs font-normal text-right"
+                        className="text-xxs font-normal text-right"
                         dir="rtl"
                       />
                     </FormControl>

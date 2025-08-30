@@ -34,6 +34,12 @@
   direction: ltr;
 }
 
+/* Custom smaller text size for input fields */
+.text-xxs {
+  font-size: 0.65rem;
+  line-height: 1rem;
+}
+
 /* Apple-inspired global styles */
 * {
   border-color: hsl(var(--border));
