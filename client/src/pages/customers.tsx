@@ -197,6 +197,20 @@ export default function Customers() {
     }
   };
 
+  const getMaritalStatusLabel = (maritalStatus: string) => {
+    switch (maritalStatus) {
+      case 'single': return 'أعزب';
+      case 'married': return 'متزوج';
+      case 'divorced': return 'مطلق';
+      case 'widowed': return 'أرمل';
+      case 'أعزب': return 'أعزب';
+      case 'متزوج': return 'متزوج';
+      case 'مطلق': return 'مطلق';
+      case 'أرمل': return 'أرمل';
+      default: return maritalStatus || 'غير محدد';
+    }
+  };
+
   const formatBudgetRange = (budgetRange: string | null): string => {
     if (!budgetRange) return 'غير محدد';
     
@@ -471,7 +485,7 @@ export default function Customers() {
                         </td>
                         <td className="professional-table-cell">
                           <div className="info-cell">
-                            <div className="primary">{lead.maritalStatus || "غير محدد"}</div>
+                            <div className="primary">{getMaritalStatusLabel(lead.maritalStatus || "")}</div>
                           </div>
                         </td>
                         <td className="professional-table-cell">
