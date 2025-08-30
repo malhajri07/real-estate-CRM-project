@@ -157,6 +157,20 @@ export default function Customers() {
     }
   };
 
+  const getInterestTypeLabel = (interestType: string) => {
+    switch (interestType) {
+      case 'buying': return 'شراء';
+      case 'selling': return 'بيع';
+      case 'renting': return 'تأجير';
+      case 'investment': return 'استئجار';
+      case 'شراء': return 'شراء';
+      case 'بيع': return 'بيع';
+      case 'تأجير': return 'تأجير';
+      case 'استئجار': return 'استئجار';
+      default: return interestType || 'غير محدد';
+    }
+  };
+
   const handleDelete = (id: string) => {
     if (confirm("هل أنت متأكد من حذف هذا العميل المحتمل؟")) {
       deleteLead.mutate(id);
@@ -388,7 +402,7 @@ export default function Customers() {
                         </td>
                         <td className="professional-table-cell">
                           <div className="info-cell">
-                            <div className="primary">{lead.interestType || "غير محدد"}</div>
+                            <div className="primary">{getInterestTypeLabel(lead.interestType || "")}</div>
                           </div>
                         </td>
                         <td className="professional-table-cell">
