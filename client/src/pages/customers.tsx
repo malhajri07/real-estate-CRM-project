@@ -480,7 +480,7 @@ export default function Customers() {
                         </td>
                         <td className="professional-table-cell">
                           <div className="info-cell">
-                            <div className="primary">{lead.age ? `${lead.age} سنة` : "غير محدد"}</div>
+                            <div className="primary">{lead.age || "غير محدد"}</div>
                           </div>
                         </td>
                         <td className="professional-table-cell">
