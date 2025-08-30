@@ -16,7 +16,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerRoleBasedRoutes(app);
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', async (req: any, res) => {
     try {
       const user = await storage.getUser(req.user.id);
       res.json(user);
@@ -179,7 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/leads", isAuthenticated, async (req, res) => {
+  app.post("/api/leads", async (req, res) => {
     try {
       const validatedData = insertLeadSchema.parse(req.body);
       const lead = await storage.createLead(validatedData);
@@ -192,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/leads/:id", isAuthenticated, async (req, res) => {
+  app.put("/api/leads/:id", async (req, res) => {
     try {
       const validatedData = insertLeadSchema.partial().parse(req.body);
       const lead = await storage.updateLead(req.params.id, validatedData);
@@ -208,7 +208,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/leads/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/leads/:id", async (req, res) => {
     try {
       const deleted = await storage.deleteLead(req.params.id);
       if (!deleted) {
@@ -221,7 +221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Property routes
-  app.get("/api/properties", isAuthenticated, async (req, res) => {
+  app.get("/api/properties", async (req, res) => {
     try {
       const properties = await storage.getAllProperties();
       res.json(properties);
@@ -418,7 +418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard metrics
-  app.get("/api/dashboard/metrics", isAuthenticated, async (req, res) => {
+  app.get("/api/dashboard/metrics", async (req, res) => {
     try {
       const leads = await storage.getAllLeads();
       const properties = await storage.getAllProperties();
