@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PropertyMap } from "@/components/ui/property-map";
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 import AddPropertyModal from "@/components/modals/add-property-modal";
@@ -153,15 +152,17 @@ export default function Properties() {
   const uniqueCities = Array.from(new Set(properties?.map(p => p.city) || [])).filter(city => city && city.trim() !== "");
   const uniquePropertyTypes = Array.from(new Set(properties?.map(p => p.propertyType) || [])).filter(type => type && type.trim() !== "");
 
-  const getStatusBadgeColor = (status: string) => {
+  // Map property status to customer status CSS classes  
+  const mapPropertyStatus = (status: string) => {
     switch (status) {
-      case "active": return "bg-green-100 text-green-800";
-      case "pending": return "bg-yellow-100 text-yellow-800";
-      case "sold": return "bg-blue-100 text-blue-800";
-      case "withdrawn": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "active": return "new";      // متاح -> جديد
+      case "pending": return "qualified"; // في الانتظار -> مؤهل
+      case "sold": return "closed";     // مباع -> مغلق
+      case "withdrawn": return "lost";  // مسحوب -> مفقود
+      default: return "new";
     }
   };
+
 
   const formatCurrency = (amount: string) => {
     const num = parseFloat(amount);
@@ -483,9 +484,9 @@ export default function Properties() {
                             <h3 className="font-semibold text-lg text-foreground line-clamp-1 tracking-tight">
                               {property.title}
                             </h3>
-                            <Badge className={`${getStatusBadgeColor(property.status)} rounded-full px-3 py-1 text-xs font-medium`}>
+                            <span className={`status-badge ${mapPropertyStatus(property.status)} rounded-full px-3 py-1 text-xs font-medium`}>
                               {property.status}
-                            </Badge>
+                            </span>
                           </div>
                           
                           <p className="text-muted-foreground text-sm mb-4">
@@ -608,29 +609,29 @@ export default function Properties() {
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-md border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="text-right w-24">الصورة</TableHead>
-                          <TableHead className="text-right">العنوان</TableHead>
-                          <TableHead className="text-right">الموقع</TableHead>
-                          <TableHead className="text-right">النوع</TableHead>
-                          <TableHead className="text-right">الحالة</TableHead>
-                          <TableHead className="text-right">السعر</TableHead>
-                          <TableHead className="text-right">المساحة</TableHead>
-                          <TableHead className="text-right">الغرف</TableHead>
-                          <TableHead className="text-right w-32">الإجراءات</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
+                  <div className="table-container">
+                    <table className="professional-table">
+                      <thead className="professional-table-header">
+                        <tr>
+                          <th>الصورة</th>
+                          <th>العقار</th>
+                          <th>الموقع</th>
+                          <th>النوع</th>
+                          <th>الحالة</th>
+                          <th>السعر</th>
+                          <th>المساحة</th>
+                          <th>الغرف</th>
+                          <th>الإجراءات</th>
+                        </tr>
+                      </thead>
+                      <tbody>
                         {displayProperties.map((property) => (
-                          <TableRow 
+                          <tr 
                             key={property.id} 
-                            className="cursor-pointer hover:bg-muted/50"
+                            className="professional-table-row cursor-pointer"
                             onClick={() => setLocation(`/properties/${property.id}`)}
                           >
-                            <TableCell>
+                            <td className="professional-table-cell">
                               {property.photoUrls && property.photoUrls.length > 0 ? (
                                 <img 
                                   src={property.photoUrls[0]} 
@@ -638,55 +639,76 @@ export default function Properties() {
                                   className="w-16 h-12 object-cover rounded"
                                 />
                               ) : (
-                                <div className="w-16 h-12 bg-muted rounded flex items-center justify-center">
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <div className="w-16 h-12 bg-slate-100 rounded flex items-center justify-center">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400">
                                     <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
                                     <circle cx="9" cy="9" r="2"/>
                                     <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
                                   </svg>
                                 </div>
                               )}
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                              <div className="max-w-xs truncate">{property.title}</div>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="text-sm">{property.city}, {property.state}</div>
-                              <div className="text-xs text-muted-foreground truncate max-w-xs">{property.address}</div>
-                            </TableCell>
-                            <TableCell className="text-right">{property.propertyType}</TableCell>
-                            <TableCell className="text-right">
-                              <Badge className={`${getStatusBadgeColor(property.status)} text-xs`}>
-                                {property.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-right font-medium text-primary">
-                              {formatCurrency(property.price)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {property.squareFeet ? `${property.squareFeet.toLocaleString()} قدم²` : '-'}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex items-center gap-2 text-sm">
-                                {property.bedrooms && (
-                                  <span className="flex items-center gap-1">
-                                    <Bed size={12} />
-                                    {property.bedrooms}
-                                  </span>
-                                )}
-                                {property.bathrooms && (
-                                  <span className="flex items-center gap-1">
-                                    <Bath size={12} />
-                                    {property.bathrooms}
-                                  </span>
-                                )}
+                            </td>
+                            <td className="professional-table-cell-name">
+                              <div className="name">{property.title}</div>
+                              <div className="contact">
+                                <div className="contact-item">
+                                  <Square size={12} />
+                                  <span>{property.propertyType}</span>
+                                </div>
                               </div>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
+                            </td>
+                            <td className="professional-table-cell">
+                              <div className="info-cell">
+                                <div className="primary">{property.city}, {property.state}</div>
+                                <div className="secondary">{property.address}</div>
+                              </div>
+                            </td>
+                            <td className="professional-table-cell">
+                              <div className="info-cell">
+                                <div className="primary">{property.propertyType}</div>
+                              </div>
+                            </td>
+                            <td className="professional-table-cell">
+                              <span className={`status-badge ${mapPropertyStatus(property.status)}`}>
+                                {property.status}
+                              </span>
+                            </td>
+                            <td className="professional-table-cell">
+                              <div className="info-cell">
+                                <div className="primary text-primary font-semibold">
+                                  {formatCurrency(property.price)}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="professional-table-cell">
+                              <div className="info-cell">
+                                <div className="primary">
+                                  {property.squareFeet ? `${property.squareFeet.toLocaleString()} قدم²` : '-'}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="professional-table-cell">
+                              <div className="info-cell">
+                                <div className="primary flex items-center gap-2">
+                                  {property.bedrooms && (
+                                    <span className="flex items-center gap-1">
+                                      <Bed size={12} />
+                                      {property.bedrooms}
+                                    </span>
+                                  )}
+                                  {property.bathrooms && (
+                                    <span className="flex items-center gap-1">
+                                      <Bath size={12} />
+                                      {property.bathrooms}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="professional-table-actions">
+                              <div className="action-group" onClick={(e) => e.stopPropagation()}>
+                                <button 
+                                  className="action-btn action-btn-view"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setLocation(`/properties/${property.id}`);
@@ -694,18 +716,26 @@ export default function Properties() {
                                   title="عرض التفاصيل"
                                 >
                                   <Eye size={14} />
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
+                                </button>
+                                <button 
+                                  className="action-btn action-btn-share"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    shareProperty(property, 'whatsapp');
+                                  }}
+                                  title="مشاركة العقار"
+                                >
+                                  <Share2 size={14} />
+                                </button>
+                                <button 
+                                  className="action-btn action-btn-edit"
                                   onClick={(e) => e.stopPropagation()}
                                   title="تعديل العقار"
                                 >
                                   <Edit size={14} />
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
+                                </button>
+                                <button 
+                                  className="action-btn action-btn-delete"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleDelete(property.id);
@@ -714,71 +744,69 @@ export default function Properties() {
                                   title="حذف العقار"
                                 >
                                   <Trash2 size={14} />
-                                </Button>
+                                </button>
                               </div>
-                            </TableCell>
-                          </TableRow>
+                            </td>
+                          </tr>
                         ))}
-                      </TableBody>
-                    </Table>
+                      </tbody>
+                    </table>
                   </div>
                 )}
                 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-center space-x-2 mt-8 pb-6">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={currentPage === 1}
-                      className="apple-transition"
-                    >
-                      السابق
-                    </Button>
-                    
-                    <div className="flex items-center space-x-1">
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                        // Show first page, last page, current page, and pages around current
-                        const showPage = page === 1 || page === totalPages || 
-                                        Math.abs(page - currentPage) <= 1;
-                        
-                        if (!showPage) {
-                          // Show ellipsis for gaps
-                          if (page === 2 && currentPage > 4) {
-                            return <span key={page} className="px-2 text-muted-foreground">...</span>;
-                          }
-                          if (page === totalPages - 1 && currentPage < totalPages - 3) {
-                            return <span key={page} className="px-2 text-muted-foreground">...</span>;
-                          }
-                          return null;
-                        }
-                        
-                        return (
-                          <Button
-                            key={page}
-                            variant={currentPage === page ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setCurrentPage(page)}
-                            className={`w-10 h-10 apple-transition ${
-                              currentPage === page ? 'apple-gradient text-white' : ''
-                            }`}
-                          >
-                            {page}
-                          </Button>
-                        );
-                      })}
+                  <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50/30">
+                    <div className="text-sm text-slate-600">
+                      عرض {startIndex + 1} إلى {Math.min(endIndex, allProperties?.length || 0)} من {allProperties?.length || 0} عقار
                     </div>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                      disabled={currentPage === totalPages}
-                      className="apple-transition"
-                    >
-                      التالي
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                      >
+                        السابق
+                      </Button>
+                      
+                      {/* Page Numbers */}
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          let pageNum;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={currentPage === pageNum ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setCurrentPage(pageNum)}
+                              className="w-8 h-8 p-0"
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                      >
+                        التالي
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>

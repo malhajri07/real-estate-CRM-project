@@ -621,6 +621,14 @@ html, body {
   @apply text-green-600 hover:text-green-800 hover:bg-green-50;
 }
 
+.action-btn-view {
+  @apply text-slate-600 hover:text-slate-800 hover:bg-slate-50;
+}
+
+.action-btn-share {
+  @apply text-purple-600 hover:text-purple-800 hover:bg-purple-50;
+}
+
 /* Professional Card Styling for Properties and Dashboard */
 .professional-card {
   @apply bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-all duration-200 overflow-hidden;
