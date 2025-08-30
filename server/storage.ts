@@ -13,14 +13,16 @@ import {
   type Activity, 
   type InsertActivity, 
   type Message, 
-  type InsertMessage, 
+  type InsertMessage,
+  type SaudiRegion,
   users, 
   userPermissions,
   leads, 
   properties, 
   deals, 
   activities, 
-  messages 
+  messages,
+  saudiRegions
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -77,6 +79,10 @@ export interface IStorage {
   
   // Notification methods (basic implementation for now)
   getNotifications(): Promise<any[]>;
+
+  // Saudi Regions methods
+  getAllSaudiRegions(): Promise<SaudiRegion[]>;
+  seedSaudiRegions(): Promise<SaudiRegion[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -409,6 +415,17 @@ export class MemStorage implements IStorage {
   // Notification methods (basic implementation)
   async getNotifications(): Promise<any[]> {
     // For now, return empty array - this will be enhanced later
+    return [];
+  }
+
+  // Saudi Regions methods (basic implementation for MemStorage)
+  async getAllSaudiRegions(): Promise<SaudiRegion[]> {
+    // Return empty array for MemStorage - this will not be used in production
+    return [];
+  }
+
+  async seedSaudiRegions(): Promise<SaudiRegion[]> {
+    // Return empty array for MemStorage - this will not be used in production
     return [];
   }
 }
@@ -796,6 +813,96 @@ export class DatabaseStorage implements IStorage {
   async getNotifications(): Promise<any[]> {
     // For now, return empty array - this will be enhanced later
     return [];
+  }
+
+  // Saudi Regions methods
+  async getAllSaudiRegions(): Promise<SaudiRegion[]> {
+    return await db.select().from(saudiRegions).orderBy(saudiRegions.nameArabic);
+  }
+
+  async seedSaudiRegions(): Promise<SaudiRegion[]> {
+    // Check if regions already exist
+    const existingRegions = await db.select().from(saudiRegions);
+    
+    if (existingRegions.length > 0) {
+      return existingRegions; // Return existing regions if already seeded
+    }
+
+    // Saudi Arabia's 13 official administrative regions
+    const regions = [
+      {
+        nameArabic: "الرياض",
+        nameEnglish: "Riyadh",
+        code: "SA-01"
+      },
+      {
+        nameArabic: "مكة المكرمة",
+        nameEnglish: "Makkah",
+        code: "SA-02"
+      },
+      {
+        nameArabic: "المدينة المنورة",
+        nameEnglish: "Madinah",
+        code: "SA-03"
+      },
+      {
+        nameArabic: "القصيم",
+        nameEnglish: "Al-Qassim",
+        code: "SA-05"
+      },
+      {
+        nameArabic: "المنطقة الشرقية",
+        nameEnglish: "Eastern Province",
+        code: "SA-04"
+      },
+      {
+        nameArabic: "عسير",
+        nameEnglish: "Asir",
+        code: "SA-11"
+      },
+      {
+        nameArabic: "تبوك",
+        nameEnglish: "Tabuk",
+        code: "SA-07"
+      },
+      {
+        nameArabic: "حائل",
+        nameEnglish: "Hail",
+        code: "SA-06"
+      },
+      {
+        nameArabic: "الحدود الشمالية",
+        nameEnglish: "Northern Borders",
+        code: "SA-08"
+      },
+      {
+        nameArabic: "جازان",
+        nameEnglish: "Jazan",
+        code: "SA-09"
+      },
+      {
+        nameArabic: "نجران",
+        nameEnglish: "Najran",
+        code: "SA-10"
+      },
+      {
+        nameArabic: "الباحة",
+        nameEnglish: "Al Bahah",
+        code: "SA-12"
+      },
+      {
+        nameArabic: "الجوف",
+        nameEnglish: "Al Jawf",
+        code: "SA-13"
+      }
+    ];
+
+    // Insert all regions
+    const insertedRegions = await db.insert(saudiRegions)
+      .values(regions)
+      .returning();
+    
+    return insertedRegions;
   }
 }
 

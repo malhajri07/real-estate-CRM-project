@@ -163,6 +163,16 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
+// Saudi Regions - Official 13 administrative regions
+export const saudiRegions = pgTable("saudi_regions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  nameArabic: text("name_arabic").notNull(),
+  nameEnglish: text("name_english").notNull(),
+  code: varchar("code", { length: 10 }).notNull().unique(),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+});
+
 // Insert schemas  
 export const insertUserSchema = createInsertSchema(users);
 export const insertLeadSchema = createInsertSchema(leads).omit({
@@ -188,6 +198,11 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   id: true,
   createdAt: true,
   sentAt: true,
+});
+
+export const insertSaudiRegionSchema = createInsertSchema(saudiRegions).omit({
+  id: true,
+  createdAt: true,
 });
 
 // Relations
@@ -299,3 +314,5 @@ export type Activity = typeof activities.$inferSelect;
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type Message = typeof messages.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type SaudiRegion = typeof saudiRegions.$inferSelect;
+export type InsertSaudiRegion = z.infer<typeof insertSaudiRegionSchema>;

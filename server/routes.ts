@@ -543,6 +543,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Saudi Regions API
+  app.get("/api/saudi-regions", async (req, res) => {
+    try {
+      const regions = await storage.getAllSaudiRegions();
+      res.json(regions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch Saudi regions" });
+    }
+  });
+
+  app.post("/api/saudi-regions/seed", async (req, res) => {
+    try {
+      const regions = await storage.seedSaudiRegions();
+      res.json({ 
+        message: "Saudi regions seeded successfully", 
+        count: regions.length,
+        regions 
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to seed Saudi regions" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

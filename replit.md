@@ -144,6 +144,14 @@ The enhanced database schema includes:
 - **Multi-Tenant Storage Layer**: Updated all storage methods to support optional tenantId parameters for proper data segregation
 - **Subscription Management**: Integrated seat limits, subscription tiers, and billing status tracking for account owners
 
+**Saudi Regional Data Integration (August 30, 2025):**
+- **Saudi Regions Database**: Added saudiRegions table with all 13 official administrative regions of Saudi Arabia
+- **Regional Data Schema**: Implemented proper schema with Arabic names, English names, and official region codes (SA-01 to SA-13)
+- **API Endpoints**: Created GET /api/saudi-regions and POST /api/saudi-regions/seed endpoints for regional data management
+- **Data Seeding**: Successfully populated database with comprehensive regional data including Riyadh, Makkah, Madinah, Eastern Province, Asir, and all other regions
+- **Multi-Language Support**: Full Arabic and English naming for all regions to support localized user interface
+- **Database Integration**: Complete integration with existing CRM database structure using Drizzle ORM and PostgreSQL storage
+
 ## External Dependencies
 
 ### Frontend Dependencies
