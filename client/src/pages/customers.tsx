@@ -443,11 +443,12 @@ export default function Customers() {
                         <td className="professional-table-cell">
                           <div className="info-cell">
                             <div className="primary">
-                              {new Date(lead.createdAt).toLocaleDateString('ar-SA')}
+                              {new Date(lead.createdAt).toLocaleDateString('en-GB')}
                             </div>
                             <div className="secondary">
-                              {new Date(lead.createdAt).toLocaleDateString('ar-SA', { 
-                                weekday: 'short' 
+                              {new Date(lead.createdAt).toLocaleDateString('ar', { 
+                                weekday: 'short',
+                                calendar: 'gregory'
                               })}
                             </div>
                           </div>
