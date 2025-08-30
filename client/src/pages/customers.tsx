@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2, Edit, Plus, Phone, Mail, Filter, SlidersHorizontal, Search } from "lucide-react";
+import { Trash2, Edit, Plus, Phone, Mail, Filter, SlidersHorizontal, Search, AlertTriangle } from "lucide-react";
 import { useLocation } from "wouter";
 import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -19,6 +20,8 @@ export default function Customers() {
   const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [leadToDelete, setLeadToDelete] = useState<Lead | null>(null);
   
   // Filter states
   const [statusFilter, setStatusFilter] = useState("all");
@@ -239,10 +242,22 @@ export default function Customers() {
     return budgetRange;
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("هل أنت متأكد من حذف هذا العميل المحتمل؟")) {
-      deleteLead.mutate(id);
+  const handleDelete = (lead: Lead) => {
+    setLeadToDelete(lead);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (leadToDelete) {
+      deleteLead.mutate(leadToDelete.id);
+      setDeleteDialogOpen(false);
+      setLeadToDelete(null);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setLeadToDelete(null);
   };
 
   if (isLoading) {
@@ -502,7 +517,7 @@ export default function Customers() {
                             </button>
                             <button 
                               className="action-btn action-btn-delete"
-                              onClick={() => handleDelete(lead.id)}
+                              onClick={() => handleDelete(lead)}
                               title="حذف"
                             >
                               <Trash2 size={16} />
@@ -580,6 +595,63 @@ export default function Customers() {
         open={addLeadModalOpen} 
         onOpenChange={setAddLeadModalOpen}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-right">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              تأكيد الحذف
+            </DialogTitle>
+            <DialogDescription className="text-right pt-2">
+              <div className="space-y-3">
+                <p className="text-slate-600">
+                  هل أنت متأكد من حذف العميل التالي؟
+                </p>
+                {leadToDelete && (
+                  <div className="bg-slate-50 rounded-lg p-3 text-sm">
+                    <div className="font-medium text-slate-900">
+                      {leadToDelete.firstName} {leadToDelete.lastName}
+                    </div>
+                    <div className="text-slate-600 mt-1">
+                      {leadToDelete.phone}
+                    </div>
+                    <div className="text-slate-600">
+                      {leadToDelete.city || "غير محدد"}
+                    </div>
+                  </div>
+                )}
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <p className="text-red-800 text-sm font-medium">
+                    ⚠️ تحذير: هذا الإجراء لا يمكن التراجع عنه
+                  </p>
+                  <p className="text-red-700 text-sm mt-1">
+                    سيتم حذف جميع بيانات العميل نهائياً من النظام
+                  </p>
+                </div>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button
+              variant="outline"
+              onClick={cancelDelete}
+              className="flex-1"
+            >
+              إلغاء
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              className="flex-1"
+              disabled={deleteLead.isPending}
+            >
+              {deleteLead.isPending ? "جاري الحذف..." : "تأكيد الحذف"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
