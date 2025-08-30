@@ -206,10 +206,10 @@ export default function Customers() {
       
       if (num >= 1000000) {
         const millions = num / 1000000;
-        return millions % 1 === 0 ? `${millions}M` : `${millions.toFixed(1)}M`;
+        return `${millions.toFixed(1)}M`;
       } else if (num >= 1000) {
         const thousands = num / 1000;
-        return thousands % 1 === 0 ? `${thousands}K` : `${thousands.toFixed(1)}K`;
+        return `${thousands.toFixed(1)}K`;
       }
       
       return num.toLocaleString();
