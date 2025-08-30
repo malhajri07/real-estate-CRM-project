@@ -221,21 +221,19 @@ export default function Customers() {
       const firstNum = formatNumber(parts[0]);
       const secondPart = parts[1];
       
-      // Extract the second number and currency
-      const match = secondPart.match(/^([\d,\s]+)\s*(.*)$/);
+      // Extract the second number (ignore currency)
+      const match = secondPart.match(/^([\d,\s]+)/);
       if (match) {
         const secondNum = formatNumber(match[1]);
-        const currency = match[2] || 'ريال';
-        return `${firstNum} - ${secondNum} ${currency}`;
+        return `${firstNum} - ${secondNum}`;
       }
     }
     
-    // Handle single number with currency
-    const match = budgetRange.match(/^([\d,\s]+)\s*(.*)$/);
+    // Handle single number (ignore currency)
+    const match = budgetRange.match(/^([\d,\s]+)/);
     if (match) {
       const formattedNum = formatNumber(match[1]);
-      const currency = match[2] || 'ريال';
-      return `${formattedNum} ${currency}`;
+      return formattedNum;
     }
     
     return budgetRange;
