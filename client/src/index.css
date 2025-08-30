@@ -495,3 +495,116 @@ html, body {
   color: #10b981;
   font-weight: 500;
 }
+
+/* Enhanced Professional Table Styling */
+.professional-table {
+  @apply w-full bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden;
+}
+
+.professional-table-header {
+  @apply bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200;
+}
+
+.professional-table-header th {
+  @apply px-6 py-4 text-right text-sm font-semibold text-slate-700 tracking-wide;
+}
+
+.professional-table-row {
+  @apply border-b border-slate-100 hover:bg-slate-50/50 transition-colors duration-150;
+}
+
+.professional-table-row:last-child {
+  @apply border-b-0;
+}
+
+.professional-table-cell {
+  @apply px-6 py-4 text-sm text-slate-800;
+}
+
+.professional-table-cell-name {
+  @apply px-6 py-4 text-sm;
+}
+
+.professional-table-cell-name .name {
+  @apply font-semibold text-slate-900 text-base;
+}
+
+.professional-table-cell-name .contact {
+  @apply text-slate-500 text-sm mt-1 flex items-center gap-2;
+}
+
+.professional-table-cell-name .contact-item {
+  @apply flex items-center gap-1;
+}
+
+.professional-table-actions {
+  @apply px-6 py-4 text-right;
+}
+
+.professional-table-actions .action-group {
+  @apply flex items-center justify-end gap-1;
+}
+
+/* Enhanced Status Badge Styling */
+.status-badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+}
+
+.status-badge.new {
+  @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
+}
+
+.status-badge.qualified {
+  @apply bg-blue-100 text-blue-800 border border-blue-200;
+}
+
+.status-badge.showing {
+  @apply bg-purple-100 text-purple-800 border border-purple-200;
+}
+
+.status-badge.negotiation {
+  @apply bg-orange-100 text-orange-800 border border-orange-200;
+}
+
+.status-badge.closed {
+  @apply bg-green-100 text-green-800 border border-green-200;
+}
+
+.status-badge.lost {
+  @apply bg-red-100 text-red-800 border border-red-200;
+}
+
+/* Professional Info Cell Styling */
+.info-cell {
+  @apply text-sm text-slate-800;
+}
+
+.info-cell .primary {
+  @apply font-medium text-slate-900;
+}
+
+.info-cell .secondary {
+  @apply text-slate-500 text-xs mt-1;
+}
+
+/* Improved Table Responsiveness */
+.table-container {
+  @apply overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm;
+}
+
+/* Professional Action Buttons */
+.action-btn {
+  @apply p-2 rounded-md transition-colors duration-150;
+}
+
+.action-btn-edit {
+  @apply text-blue-600 hover:text-blue-800 hover:bg-blue-50;
+}
+
+.action-btn-delete {
+  @apply text-red-600 hover:text-red-800 hover:bg-red-50;
+}
+
+.action-btn-contact {
+  @apply text-green-600 hover:text-green-800 hover:bg-green-50;
+}

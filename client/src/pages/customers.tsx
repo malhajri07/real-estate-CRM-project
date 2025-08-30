@@ -332,66 +332,114 @@ export default function Customers() {
                 )}
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-right">الاسم</TableHead>
-                      <TableHead className="text-right">المدينة</TableHead>
-                      <TableHead className="text-right">العمر</TableHead>
-                      <TableHead className="text-right">الحالة الاجتماعية</TableHead>
-                      <TableHead className="text-right">عدد المُعالين</TableHead>
-                      <TableHead className="text-right">نوع الاهتمام</TableHead>
-                      <TableHead className="text-right">الحالة</TableHead>
-                      <TableHead className="text-right">تاريخ الإنشاء</TableHead>
-                      <TableHead className="text-right">الإجراءات</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+              <div className="table-container">
+                <table className="professional-table">
+                  <thead className="professional-table-header">
+                    <tr>
+                      <th>العميل</th>
+                      <th>المدينة</th>
+                      <th>العمر</th>
+                      <th>الحالة الاجتماعية</th>
+                      <th>المُعالين</th>
+                      <th>نوع الاهتمام</th>
+                      <th>نطاق الميزانية</th>
+                      <th>الحالة</th>
+                      <th>تاريخ الانضمام</th>
+                      <th>الإجراءات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {filteredLeads.map((lead) => (
-                      <TableRow key={lead.id} className="hover:bg-muted/50">
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{lead.firstName} {lead.lastName}</div>
-                            <div className="text-sm text-muted-foreground">{lead.phone}</div>
+                      <tr key={lead.id} className="professional-table-row">
+                        <td className="professional-table-cell-name">
+                          <div className="name">{lead.firstName} {lead.lastName}</div>
+                          <div className="contact">
+                            <div className="contact-item">
+                              <Phone size={12} />
+                              <span>{lead.phone}</span>
+                            </div>
+                            {lead.email && (
+                              <div className="contact-item">
+                                <Mail size={12} />
+                                <span>{lead.email}</span>
+                              </div>
+                            )}
                           </div>
-                        </TableCell>
-                        <TableCell>{lead.city || "غير محدد"}</TableCell>
-                        <TableCell>{lead.age ? `${lead.age} سنة` : "غير محدد"}</TableCell>
-                        <TableCell>{lead.maritalStatus || "غير محدد"}</TableCell>
-                        <TableCell>{lead.numberOfDependents || 0}</TableCell>
-                        <TableCell>{lead.interestType || "غير محدد"}</TableCell>
-                        <TableCell>
-                          <Badge className={getStatusBadgeColor(lead.status)}>
+                        </td>
+                        <td className="professional-table-cell">
+                          <div className="info-cell">
+                            <div className="primary">{lead.city || "غير محدد"}</div>
+                          </div>
+                        </td>
+                        <td className="professional-table-cell">
+                          <div className="info-cell">
+                            <div className="primary">{lead.age ? `${lead.age} سنة` : "غير محدد"}</div>
+                          </div>
+                        </td>
+                        <td className="professional-table-cell">
+                          <div className="info-cell">
+                            <div className="primary">{lead.maritalStatus || "غير محدد"}</div>
+                          </div>
+                        </td>
+                        <td className="professional-table-cell">
+                          <div className="info-cell">
+                            <div className="primary">{lead.numberOfDependents || 0}</div>
+                          </div>
+                        </td>
+                        <td className="professional-table-cell">
+                          <div className="info-cell">
+                            <div className="primary">{lead.interestType || "غير محدد"}</div>
+                          </div>
+                        </td>
+                        <td className="professional-table-cell">
+                          <div className="info-cell">
+                            <div className="primary">{lead.budgetRange || "غير محدد"}</div>
+                          </div>
+                        </td>
+                        <td className="professional-table-cell">
+                          <span className={`status-badge ${lead.status}`}>
                             {getStatusLabel(lead.status)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(lead.createdAt).toLocaleDateString('ar-SA')}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2 space-x-reverse">
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="text-blue-600 hover:text-blue-800"
-                            >
-                              <Edit size={14} />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleDelete(lead.id)}
-                              className="text-red-600 hover:text-red-800"
-                            >
-                              <Trash2 size={14} />
-                            </Button>
+                          </span>
+                        </td>
+                        <td className="professional-table-cell">
+                          <div className="info-cell">
+                            <div className="primary">
+                              {new Date(lead.createdAt).toLocaleDateString('ar-SA')}
+                            </div>
+                            <div className="secondary">
+                              {new Date(lead.createdAt).toLocaleDateString('ar-SA', { 
+                                weekday: 'short' 
+                              })}
+                            </div>
                           </div>
-                        </TableCell>
-                      </TableRow>
+                        </td>
+                        <td className="professional-table-actions">
+                          <div className="action-group">
+                            <button 
+                              className="action-btn action-btn-contact"
+                              title="اتصال"
+                            >
+                              <Phone size={16} />
+                            </button>
+                            <button 
+                              className="action-btn action-btn-edit"
+                              title="تعديل"
+                            >
+                              <Edit size={16} />
+                            </button>
+                            <button 
+                              className="action-btn action-btn-delete"
+                              onClick={() => handleDelete(lead.id)}
+                              title="حذف"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
                     ))}
-                  </TableBody>
-                </Table>
+                  </tbody>
+                </table>
               </div>
             )}
           </CardContent>
