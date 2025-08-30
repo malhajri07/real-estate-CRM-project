@@ -183,20 +183,18 @@ export default function Dashboard() {
               </div>
               <div className="section-content-minimal">
                 {recentLeads.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
+                  <div className="text-center py-6 text-gray-500">
                     لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    {recentLeads.map((lead) => (
+                  <div className="space-y-2">
+                    {recentLeads.slice(0, 5).map((lead) => (
                       <div key={lead.id} className="lead-item-minimal">
                         <div className="flex items-center space-x-4 space-x-reverse">
-                          <div className="lead-avatar-minimal">
-                            {lead.firstName[0]}{lead.lastName[0]}
-                          </div>
                           <div>
                             <p className="font-semibold text-gray-900 tracking-tight font-droid-kufi">{lead.firstName} {lead.lastName}</p>
                             <p className="text-sm text-gray-600">{lead.phone}</p>
+                            <p className="text-xs text-gray-500">{lead.city || 'غير محدد'}</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-3 space-x-reverse">
