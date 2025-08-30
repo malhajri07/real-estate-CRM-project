@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -12,7 +14,9 @@ import { insertLeadSchema, type InsertLead } from "@shared/schema";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, User, Phone, Mail } from "lucide-react";
+import { Loader2, MapPin, User, Phone, Mail, Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface AddLeadModalProps {
   open: boolean;
@@ -22,6 +26,7 @@ interface AddLeadModalProps {
 export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [cityOpen, setCityOpen] = useState(false);
 
   // Fetch Saudi cities from the database
   const { data: cities, isLoading: citiesLoading } = useQuery({
@@ -75,123 +80,334 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-8">
-        <DialogHeader className="mb-6 text-center">
-          <div className="flex items-center justify-center mb-3">
+      <DialogContent className="max-w-5xl p-6">
+        <DialogHeader className="mb-4 text-center">
+          <div className="flex items-center justify-center mb-2">
             <div className="p-3 bg-primary/10 rounded-full">
               <User className="h-6 w-6 text-primary" />
             </div>
           </div>
           <DialogTitle className="text-2xl font-bold text-gray-900 font-droid-kufi">إضافة عميل محتمل جديد</DialogTitle>
-          <DialogDescription className="text-gray-600 mt-2">
+          <DialogDescription className="text-gray-600 mt-1">
             املأ المعلومات التالية لإضافة عميل محتمل جديد إلى النظام
           </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>الاسم الأول *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="أدخل الاسم الأول" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>اسم العائلة *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="أدخل اسم العائلة" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>البريد الإلكتروني *</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="أدخل عنوان البريد الإلكتروني" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>الهاتف</FormLabel>
-                    <FormControl>
-                      <Input type="tel" placeholder="أدخل رقم الهاتف" {...field} value={field.value || ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>المدينة</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            {/* Personal Information Section */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center font-droid-kufi">
+                <User className="h-5 w-5 ml-2" />
+                المعلومات الشخصية
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>الاسم الأول *</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="اختر المدينة" />
-                        </SelectTrigger>
+                        <Input placeholder="أدخل الاسم الأول" {...field} />
                       </FormControl>
-                      <SelectContent>
-                        {citiesLoading ? (
-                          <div className="flex items-center justify-center p-4">
-                            <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                            جار التحميل...
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>اسم العائلة *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="أدخل اسم العائلة" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>العمر</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="أدخل العمر" 
+                          {...field} 
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Contact Information Section */}
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center font-droid-kufi">
+                <Phone className="h-5 w-5 ml-2" />
+                معلومات الاتصال
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>البريد الإلكتروني *</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="أدخل عنوان البريد الإلكتروني" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>الهاتف</FormLabel>
+                      <FormControl>
+                        <Input type="tel" placeholder="أدخل رقم الهاتف" {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>المدينة</FormLabel>
+                      <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={cityOpen}
+                              className={cn(
+                                "w-full justify-between",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value
+                                ? (cities as any[])?.find((city: any) => city.nameArabic === field.value)?.nameArabic
+                                : "اختر المدينة"}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[200px] p-0">
+                          <Command>
+                            <CommandInput placeholder="ابحث عن المدينة..." />
+                            <CommandList>
+                              <CommandEmpty>لم يتم العثور على المدينة.</CommandEmpty>
+                              <CommandGroup>
+                                {citiesLoading ? (
+                                  <CommandItem disabled>
+                                    <div className="flex items-center justify-center p-2">
+                                      <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                                      جار التحميل...
+                                    </div>
+                                  </CommandItem>
+                                ) : (
+                                  cities && Array.isArray(cities) ? cities.map((city: any) => (
+                                    <CommandItem
+                                      key={city.id}
+                                      value={city.nameArabic}
+                                      onSelect={(currentValue) => {
+                                        field.onChange(currentValue === field.value ? "" : currentValue)
+                                        setCityOpen(false)
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "ml-2 h-4 w-4",
+                                          field.value === city.nameArabic ? "opacity-100" : "opacity-0"
+                                        )}
+                                      />
+                                      {city.nameArabic}
+                                    </CommandItem>
+                                  )) : null
+                                )}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Demographics Section */}
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center font-droid-kufi">
+                <MapPin className="h-5 w-5 ml-2" />
+                المعلومات الديموغرافية
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="maritalStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>الحالة الاجتماعية</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="اختر الحالة الاجتماعية" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="أعزب">أعزب</SelectItem>
+                          <SelectItem value="متزوج">متزوج</SelectItem>
+                          <SelectItem value="مطلق">مطلق</SelectItem>
+                          <SelectItem value="أرمل">أرمل</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="numberOfDependents"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>عدد المُعالين</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="أدخل عدد المُعالين" 
+                          {...field} 
+                          onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
+                          value={field.value || 0}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Business Information Section */}
+            <div className="bg-purple-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center font-droid-kufi">
+                <Mail className="h-5 w-5 ml-2" />
+                المعلومات التجارية
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="leadSource"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>مصدر العميل المحتمل</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="اختر مصدر العميل المحتمل" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="website">الموقع الإلكتروني</SelectItem>
+                          <SelectItem value="referral">إحالة</SelectItem>
+                          <SelectItem value="social-media">وسائل التواصل الاجتماعي</SelectItem>
+                          <SelectItem value="walk-in">زيارة مباشرة</SelectItem>
+                          <SelectItem value="cold-call">اتصال بارد</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="budgetRange"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>نطاق الميزانية</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="اختر نطاق الميزانية" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="under-200k">أقل من 200 ألف ﷼</SelectItem>
+                          <SelectItem value="200k-400k">200 - 400 ألف ﷼</SelectItem>
+                          <SelectItem value="400k-600k">400 - 600 ألف ﷼</SelectItem>
+                          <SelectItem value="600k-800k">600 - 800 ألف ﷼</SelectItem>
+                          <SelectItem value="800k-plus">أكثر من 800 ألف ﷼</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <div className="mt-4">
+                <FormField
+                  control={form.control}
+                  name="interestType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>نوع الاهتمام</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value || ""}
+                          className="flex space-x-6 space-x-reverse"
+                        >
+                          <div className="flex items-center space-x-2 space-x-reverse">
+                            <RadioGroupItem value="buying" id="buying" />
+                            <Label htmlFor="buying">شراء</Label>
                           </div>
-                        ) : (
-                          cities?.map((city: any) => (
-                            <SelectItem key={city.id} value={city.nameArabic}>
-                              {city.nameArabic}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                          <div className="flex items-center space-x-2 space-x-reverse">
+                            <RadioGroupItem value="selling" id="selling" />
+                            <Label htmlFor="selling">بيع</Label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Notes Section */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 font-droid-kufi">
+                ملاحظات إضافية
+              </h3>
               <FormField
                 control={form.control}
-                name="age"
+                name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>العمر</FormLabel>
+                    <FormLabel>ملاحظات</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="أدخل العمر" 
-                        {...field} 
-                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      <Textarea
+                        rows={3}
+                        placeholder="ملاحظات إضافية حول العميل المحتمل"
+                        {...field}
                         value={field.value || ""}
                       />
                     </FormControl>
@@ -201,148 +417,8 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="maritalStatus"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>الحالة الاجتماعية</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="اختر الحالة الاجتماعية" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="أعزب">أعزب</SelectItem>
-                        <SelectItem value="متزوج">متزوج</SelectItem>
-                        <SelectItem value="مطلق">مطلق</SelectItem>
-                        <SelectItem value="أرمل">أرمل</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="numberOfDependents"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>عدد المُعالين</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="أدخل عدد المُعالين" 
-                        {...field} 
-                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
-                        value={field.value || 0}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="leadSource"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>مصدر العميل المحتمل</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="اختر مصدر العميل المحتمل" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="website">الموقع الإلكتروني</SelectItem>
-                      <SelectItem value="referral">إحالة</SelectItem>
-                      <SelectItem value="social-media">وسائل التواصل الاجتماعي</SelectItem>
-                      <SelectItem value="walk-in">زيارة مباشرة</SelectItem>
-                      <SelectItem value="cold-call">اتصال بارد</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="interestType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>نوع الاهتمام</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value || ""}
-                      className="flex space-x-6 space-x-reverse"
-                    >
-                      <div className="flex items-center space-x-2 space-x-reverse">
-                        <RadioGroupItem value="buying" id="buying" />
-                        <Label htmlFor="buying">شراء</Label>
-                      </div>
-                      <div className="flex items-center space-x-2 space-x-reverse">
-                        <RadioGroupItem value="selling" id="selling" />
-                        <Label htmlFor="selling">بيع</Label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="budgetRange"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>نطاق الميزانية</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="اختر نطاق الميزانية" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="under-200k">أقل من 200 ألف ﷼</SelectItem>
-                      <SelectItem value="200k-400k">200 - 400 ألف ﷼</SelectItem>
-                      <SelectItem value="400k-600k">400 - 600 ألف ﷼</SelectItem>
-                      <SelectItem value="600k-800k">600 - 800 ألف ﷼</SelectItem>
-                      <SelectItem value="800k-plus">أكثر من 800 ألف ﷼</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>ملاحظات</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      rows={3}
-                      placeholder="ملاحظات إضافية حول العميل المحتمل"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end space-x-3 space-x-reverse pt-6 border-t border-gray-200 mt-6">
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-3 space-x-reverse pt-4 border-t border-gray-200">
               <Button 
                 type="button" 
                 variant="outline" 
