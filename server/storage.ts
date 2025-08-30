@@ -15,6 +15,7 @@ import {
   type Message, 
   type InsertMessage,
   type SaudiRegion,
+  type SaudiCity,
   users, 
   userPermissions,
   leads, 
@@ -22,7 +23,8 @@ import {
   deals, 
   activities, 
   messages,
-  saudiRegions
+  saudiRegions,
+  saudiCities
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -83,6 +85,11 @@ export interface IStorage {
   // Saudi Regions methods
   getAllSaudiRegions(): Promise<SaudiRegion[]>;
   seedSaudiRegions(): Promise<SaudiRegion[]>;
+
+  // Saudi Cities methods
+  getAllSaudiCities(): Promise<SaudiCity[]>;
+  getCitiesByRegion(regionCode: string): Promise<SaudiCity[]>;
+  seedSaudiCities(): Promise<SaudiCity[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -425,6 +432,22 @@ export class MemStorage implements IStorage {
   }
 
   async seedSaudiRegions(): Promise<SaudiRegion[]> {
+    // Return empty array for MemStorage - this will not be used in production
+    return [];
+  }
+
+  // Saudi Cities methods (basic implementation for MemStorage)
+  async getAllSaudiCities(): Promise<SaudiCity[]> {
+    // Return empty array for MemStorage - this will not be used in production
+    return [];
+  }
+
+  async getCitiesByRegion(regionCode: string): Promise<SaudiCity[]> {
+    // Return empty array for MemStorage - this will not be used in production
+    return [];
+  }
+
+  async seedSaudiCities(): Promise<SaudiCity[]> {
     // Return empty array for MemStorage - this will not be used in production
     return [];
   }
@@ -903,6 +926,109 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return insertedRegions;
+  }
+
+  // Saudi Cities methods
+  async getAllSaudiCities(): Promise<SaudiCity[]> {
+    return await db.select().from(saudiCities).orderBy(saudiCities.nameArabic);
+  }
+
+  async getCitiesByRegion(regionCode: string): Promise<SaudiCity[]> {
+    return await db.select().from(saudiCities)
+      .where(eq(saudiCities.regionCode, regionCode))
+      .orderBy(saudiCities.nameArabic);
+  }
+
+  async seedSaudiCities(): Promise<SaudiCity[]> {
+    // Check if cities already exist
+    const existingCities = await db.select().from(saudiCities);
+    
+    if (existingCities.length > 0) {
+      return existingCities; // Return existing cities if already seeded
+    }
+
+    // Major Saudi cities with their regional codes
+    const cities = [
+      // Riyadh Region (SA-01)
+      { nameArabic: "الرياض", nameEnglish: "Riyadh", regionCode: "SA-01", isCapital: true, population: 7676655 },
+      { nameArabic: "الدرعية", nameEnglish: "Diriyah", regionCode: "SA-01", isCapital: false, population: 75000 },
+      { nameArabic: "الخرج", nameEnglish: "Al-Kharj", regionCode: "SA-01", isCapital: false, population: 425300 },
+      { nameArabic: "المجمعة", nameEnglish: "Al-Majmaah", regionCode: "SA-01", isCapital: false, population: 120000 },
+      { nameArabic: "الزلفي", nameEnglish: "Az-Zulfi", regionCode: "SA-01", isCapital: false, population: 65000 },
+
+      // Makkah Region (SA-02)
+      { nameArabic: "مكة المكرمة", nameEnglish: "Makkah", regionCode: "SA-02", isCapital: true, population: 2385509 },
+      { nameArabic: "جدة", nameEnglish: "Jeddah", regionCode: "SA-02", isCapital: false, population: 4697000 },
+      { nameArabic: "الطائف", nameEnglish: "Taif", regionCode: "SA-02", isCapital: false, population: 688693 },
+      { nameArabic: "المدينة الاقتصادية الملك عبد الله", nameEnglish: "KAEC", regionCode: "SA-02", isCapital: false, population: 50000 },
+      { nameArabic: "رابغ", nameEnglish: "Rabigh", regionCode: "SA-02", isCapital: false, population: 180000 },
+
+      // Madinah Region (SA-03)
+      { nameArabic: "المدينة المنورة", nameEnglish: "Madinah", regionCode: "SA-03", isCapital: true, population: 1488782 },
+      { nameArabic: "ينبع", nameEnglish: "Yanbu", regionCode: "SA-03", isCapital: false, population: 267000 },
+      { nameArabic: "العلا", nameEnglish: "AlUla", regionCode: "SA-03", isCapital: false, population: 24500 },
+      { nameArabic: "بدر", nameEnglish: "Badr", regionCode: "SA-03", isCapital: false, population: 60000 },
+
+      // Eastern Province (SA-04)  
+      { nameArabic: "الدمام", nameEnglish: "Dammam", regionCode: "SA-04", isCapital: true, population: 1532300 },
+      { nameArabic: "الخبر", nameEnglish: "Khobar", regionCode: "SA-04", isCapital: false, population: 658550 },
+      { nameArabic: "الظهران", nameEnglish: "Dhahran", regionCode: "SA-04", isCapital: false, population: 143936 },
+      { nameArabic: "الجبيل", nameEnglish: "Jubail", regionCode: "SA-04", isCapital: false, population: 684531 },
+      { nameArabic: "الأحساء", nameEnglish: "Al-Ahsa", regionCode: "SA-04", isCapital: false, population: 1220655 },
+      { nameArabic: "القطيف", nameEnglish: "Qatif", regionCode: "SA-04", isCapital: false, population: 524182 },
+      { nameArabic: "رأس تنورة", nameEnglish: "Ras Tanura", regionCode: "SA-04", isCapital: false, population: 73933 },
+
+      // Al-Qassim Region (SA-05)
+      { nameArabic: "بريدة", nameEnglish: "Buraydah", regionCode: "SA-05", isCapital: true, population: 692986 },
+      { nameArabic: "عنيزة", nameEnglish: "Unayzah", regionCode: "SA-05", isCapital: false, population: 201928 },
+      { nameArabic: "الرس", nameEnglish: "Ar-Rass", regionCode: "SA-05", isCapital: false, population: 146845 },
+      { nameArabic: "المذنب", nameEnglish: "Al-Mithnab", regionCode: "SA-05", isCapital: false, population: 52000 },
+
+      // Hail Region (SA-06)
+      { nameArabic: "حائل", nameEnglish: "Hail", regionCode: "SA-06", isCapital: true, population: 605930 },
+      { nameArabic: "سكاكا", nameEnglish: "Sakakah", regionCode: "SA-13", isCapital: true, population: 128332 },
+
+      // Tabuk Region (SA-07)
+      { nameArabic: "تبوك", nameEnglish: "Tabuk", regionCode: "SA-07", isCapital: true, population: 594350 },
+      { nameArabic: "الوجه", nameEnglish: "Al-Wajh", regionCode: "SA-07", isCapital: false, population: 60000 },
+      { nameArabic: "ضباء", nameEnglish: "Duba", regionCode: "SA-07", isCapital: false, population: 65000 },
+      { nameArabic: "نيوم", nameEnglish: "NEOM", regionCode: "SA-07", isCapital: false, population: 1000 },
+
+      // Northern Borders Region (SA-08)
+      { nameArabic: "عرعر", nameEnglish: "Arar", regionCode: "SA-08", isCapital: true, population: 217571 },
+      { nameArabic: "رفحاء", nameEnglish: "Rafha", regionCode: "SA-08", isCapital: false, population: 92966 },
+      { nameArabic: "طريف", nameEnglish: "Turaif", regionCode: "SA-08", isCapital: false, population: 52000 },
+
+      // Jazan Region (SA-09)
+      { nameArabic: "جازان", nameEnglish: "Jazan", regionCode: "SA-09", isCapital: true, population: 173919 },
+      { nameArabic: "صبيا", nameEnglish: "Sabya", regionCode: "SA-09", isCapital: false, population: 125000 },
+      { nameArabic: "أبو عريش", nameEnglish: "Abu Arish", regionCode: "SA-09", isCapital: false, population: 95000 },
+
+      // Najran Region (SA-10)
+      { nameArabic: "نجران", nameEnglish: "Najran", regionCode: "SA-10", isCapital: true, population: 505652 },
+      { nameArabic: "شرورة", nameEnglish: "Sharurah", regionCode: "SA-10", isCapital: false, population: 100000 },
+
+      // Asir Region (SA-11)
+      { nameArabic: "أبها", nameEnglish: "Abha", regionCode: "SA-11", isCapital: true, population: 1093705 },
+      { nameArabic: "خميس مشيط", nameEnglish: "Khamis Mushait", regionCode: "SA-11", isCapital: false, population: 743550 },
+      { nameArabic: "النماص", nameEnglish: "An-Namas", regionCode: "SA-11", isCapital: false, population: 45000 },
+      { nameArabic: "بيشة", nameEnglish: "Bisha", regionCode: "SA-11", isCapital: false, population: 205346 },
+
+      // Al Bahah Region (SA-12)
+      { nameArabic: "الباحة", nameEnglish: "Al Bahah", regionCode: "SA-12", isCapital: true, population: 411888 },
+      { nameArabic: "بلجرشي", nameEnglish: "Baljurashi", regionCode: "SA-12", isCapital: false, population: 55000 },
+
+      // Al Jawf Region (SA-13)
+      { nameArabic: "دومة الجندل", nameEnglish: "Dumat al-Jandal", regionCode: "SA-13", isCapital: false, population: 50000 },
+      { nameArabic: "القريات", nameEnglish: "Al-Qurayyat", regionCode: "SA-13", isCapital: false, population: 147550 }
+    ];
+
+    // Insert all cities
+    const insertedCities = await db.insert(saudiCities)
+      .values(cities)
+      .returning();
+    
+    return insertedCities;
   }
 }
 

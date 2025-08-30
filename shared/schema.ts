@@ -173,6 +173,18 @@ export const saudiRegions = pgTable("saudi_regions", {
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
+// Saudi Cities - All major cities linked to regions
+export const saudiCities = pgTable("saudi_cities", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  nameArabic: text("name_arabic").notNull(),
+  nameEnglish: text("name_english").notNull(),
+  regionCode: varchar("region_code", { length: 10 }).notNull().references(() => saudiRegions.code),
+  isCapital: boolean("is_capital").notNull().default(false), // Whether it's the capital of the region
+  population: integer("population"), // Approximate population
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+});
+
 // Insert schemas  
 export const insertUserSchema = createInsertSchema(users);
 export const insertLeadSchema = createInsertSchema(leads).omit({
@@ -201,6 +213,11 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
 });
 
 export const insertSaudiRegionSchema = createInsertSchema(saudiRegions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSaudiCitySchema = createInsertSchema(saudiCities).omit({
   id: true,
   createdAt: true,
 });
@@ -290,6 +307,17 @@ export const messagesRelations = relations(messages, ({ one }) => ({
   }),
 }));
 
+export const saudiRegionsRelations = relations(saudiRegions, ({ many }) => ({
+  cities: many(saudiCities),
+}));
+
+export const saudiCitiesRelations = relations(saudiCities, ({ one }) => ({
+  region: one(saudiRegions, {
+    fields: [saudiCities.regionCode],
+    references: [saudiRegions.code],
+  }),
+}));
+
 // Insert schemas for user permissions
 export const insertUserPermissionsSchema = createInsertSchema(userPermissions).omit({
   id: true,
@@ -316,3 +344,5 @@ export type Message = typeof messages.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
 export type SaudiRegion = typeof saudiRegions.$inferSelect;
 export type InsertSaudiRegion = z.infer<typeof insertSaudiRegionSchema>;
+export type SaudiCity = typeof saudiCities.$inferSelect;
+export type InsertSaudiCity = z.infer<typeof insertSaudiCitySchema>;

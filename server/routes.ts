@@ -566,6 +566,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Saudi Cities API
+  app.get("/api/saudi-cities", async (req, res) => {
+    try {
+      const cities = await storage.getAllSaudiCities();
+      res.json(cities);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch Saudi cities" });
+    }
+  });
+
+  app.get("/api/saudi-cities/region/:regionCode", async (req, res) => {
+    try {
+      const cities = await storage.getCitiesByRegion(req.params.regionCode);
+      res.json(cities);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch cities for region" });
+    }
+  });
+
+  app.post("/api/saudi-cities/seed", async (req, res) => {
+    try {
+      const cities = await storage.seedSaudiCities();
+      res.json({ 
+        message: "Saudi cities seeded successfully", 
+        count: cities.length,
+        cities 
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to seed Saudi cities" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
