@@ -92,7 +92,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Personal Information Section */}
-            <div className="bg-blue-100 p-4 rounded-md" dir="rtl">
+            <div className="bg-gray-100 p-4 rounded-md" dir="rtl">
               <h3 className="text-sm font-bold text-gray-900 mb-3 font-droid-kufi text-right">
                 المعلومات الشخصية
               </h3>
@@ -148,7 +148,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             </div>
 
             {/* Contact Information Section */}
-            <div className="bg-green-100 p-4 rounded-md" dir="rtl">
+            <div className="bg-gray-100 p-4 rounded-md" dir="rtl">
               <h3 className="text-sm font-bold text-gray-900 mb-3 font-droid-kufi text-right">
                 معلومات الاتصال
               </h3>
@@ -261,7 +261,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             </div>
 
             {/* Demographics Section */}
-            <div className="bg-yellow-100 p-4 rounded-md" dir="rtl">
+            <div className="bg-gray-100 p-4 rounded-md" dir="rtl">
               <h3 className="text-sm font-bold text-gray-900 mb-3 font-droid-kufi text-right">
                 المعلومات الديموغرافية
               </h3>
@@ -314,7 +314,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             </div>
 
             {/* Business Information Section */}
-            <div className="bg-purple-100 p-4 rounded-md" dir="rtl">
+            <div className="bg-gray-100 p-4 rounded-md" dir="rtl">
               <h3 className="text-sm font-bold text-gray-900 mb-3 font-droid-kufi text-right">
                 المعلومات التجارية
               </h3>
@@ -400,7 +400,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             </div>
 
             {/* Notes Section */}
-            <div className="bg-orange-100 p-4 rounded-md" dir="rtl">
+            <div className="bg-gray-100 p-4 rounded-md" dir="rtl">
               <h3 className="text-sm font-bold text-gray-900 mb-3 font-droid-kufi text-right">
                 ملاحظات إضافية
               </h3>
