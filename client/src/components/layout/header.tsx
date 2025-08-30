@@ -24,24 +24,18 @@ export default function Header({ title, onAddClick, onSearch, searchPlaceholder 
   };
 
   return (
-    <header className="bg-card border-b border-border/50 px-8 py-6 apple-shadow relative z-10">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-6 space-x-reverse">
-        </div>
-        
-        <div className="flex items-center space-x-4 space-x-reverse">
-          {/* Search Bar */}
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder={searchPlaceholder || "البحث بالاسم أو رقم الهاتف أو المدينة..."}
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="w-96 h-10 bg-muted/30 border-border/50 rounded-xl pl-10 pr-4 text-sm font-medium apple-transition focus:bg-background focus:border-primary/50"
-            />
-            <Search className="absolute left-3 top-3 text-muted-foreground" size={16} />
-          </div>
-          
+    <header className="bg-card border-b border-border/50 px-8 py-4 apple-shadow relative z-10">
+      <div className="flex items-center justify-center w-full">
+        {/* Full Width Search Bar */}
+        <div className="relative w-full max-w-2xl">
+          <Input
+            type="text"
+            placeholder={searchPlaceholder || "البحث بالاسم أو رقم الهاتف أو المدينة..."}
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full h-12 bg-white border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-medium shadow-sm focus:shadow-md focus:border-primary/50 transition-all duration-200"
+          />
+          <Search className="absolute left-4 top-4 text-slate-400" size={16} />
         </div>
       </div>
     </header>
