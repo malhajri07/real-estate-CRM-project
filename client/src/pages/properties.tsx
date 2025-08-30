@@ -212,7 +212,7 @@ export default function Properties() {
         title="العقارات" 
         onAddClick={() => setAddPropertyModalOpen(true)}
         onSearch={handleSearchChange}
-        searchPlaceholder="البحث في العقارات بالعنوان أو الموقع أو النوع..."
+        searchPlaceholder="البحث بعنوان العقار أو اسم المدينة أو اسم الشارع..."
       />
       
       <main className="flex-1 overflow-y-auto p-6 no-layout-shift">

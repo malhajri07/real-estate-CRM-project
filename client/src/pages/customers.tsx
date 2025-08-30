@@ -288,7 +288,7 @@ export default function Customers() {
         title="العملاء المحتملين" 
         onAddClick={() => setAddLeadModalOpen(true)}
         onSearch={handleSearchChange}
-        searchPlaceholder="البحث في العملاء بالاسم أو الهاتف أو المدينة..."
+        searchPlaceholder="البحث بالاسم أو رقم الهاتف فقط..."
       />
       
       <main className="flex-1 overflow-y-auto p-6 no-layout-shift">
