@@ -191,13 +191,11 @@ export default function Dashboard() {
                     {recentLeads.slice(0, 5).map((lead) => (
                       <div key={lead.id} className="lead-item-minimal">
                         <div className="flex items-center justify-between w-full">
-                          <div>
-                            <p className="font-semibold text-gray-900 tracking-tight font-droid-kufi">{lead.firstName} {lead.lastName}</p>
-                            <p className="text-sm text-gray-600">{lead.phone}</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-sm text-gray-700 font-medium">{lead.city || 'غير محدد'}</p>
-                            <p className="text-xs text-gray-500">{lead.age ? `${lead.age} سنة` : 'غير محدد'}</p>
+                          <div className="flex items-center space-x-4 space-x-reverse">
+                            <span className="font-semibold text-gray-900 tracking-tight font-droid-kufi">{lead.firstName} {lead.lastName}</span>
+                            <span className="text-sm text-gray-600">{lead.phone}</span>
+                            <span className="text-sm text-gray-700 font-medium">{lead.city || 'غير محدد'}</span>
+                            <span className="text-xs text-gray-500">{lead.age ? `${lead.age} سنة` : 'غير محدد'}</span>
                           </div>
                           <div className="flex items-center space-x-3 space-x-reverse">
                             <Badge className={`${getStatusBadgeColor(lead.status)} font-medium px-3 py-1 rounded-xl`}>
