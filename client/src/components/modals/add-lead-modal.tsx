@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,9 +9,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { insertLeadSchema, type InsertLead } from "@shared/schema";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2, MapPin, User, Phone, Mail } from "lucide-react";
 
 interface AddLeadModalProps {
   open: boolean;
@@ -21,6 +22,12 @@ interface AddLeadModalProps {
 export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Fetch Saudi cities from the database
+  const { data: cities, isLoading: citiesLoading } = useQuery({
+    queryKey: ["/api/saudi-cities"],
+    enabled: open, // Only fetch when modal is open
+  });
 
   const form = useForm<InsertLead>({
     resolver: zodResolver(insertLeadSchema),
@@ -68,9 +75,17 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">إضافة عميل محتمل جديد</DialogTitle>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-8">
+        <DialogHeader className="mb-6 text-center">
+          <div className="flex items-center justify-center mb-3">
+            <div className="p-3 bg-primary/10 rounded-full">
+              <User className="h-6 w-6 text-primary" />
+            </div>
+          </div>
+          <DialogTitle className="text-2xl font-bold text-gray-900 font-droid-kufi">إضافة عميل محتمل جديد</DialogTitle>
+          <DialogDescription className="text-gray-600 mt-2">
+            املأ المعلومات التالية لإضافة عميل محتمل جديد إلى النظام
+          </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
@@ -147,16 +162,18 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="الرياض">الرياض</SelectItem>
-                        <SelectItem value="جدة">جدة</SelectItem>
-                        <SelectItem value="الدمام">الدمام</SelectItem>
-                        <SelectItem value="مكة المكرمة">مكة المكرمة</SelectItem>
-                        <SelectItem value="المدينة المنورة">المدينة المنورة</SelectItem>
-                        <SelectItem value="الطائف">الطائف</SelectItem>
-                        <SelectItem value="بريدة">بريدة</SelectItem>
-                        <SelectItem value="تبوك">تبوك</SelectItem>
-                        <SelectItem value="الخبر">الخبر</SelectItem>
-                        <SelectItem value="حائل">حائل</SelectItem>
+                        {citiesLoading ? (
+                          <div className="flex items-center justify-center p-4">
+                            <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                            جار التحميل...
+                          </div>
+                        ) : (
+                          cities?.map((city: any) => (
+                            <SelectItem key={city.id} value={city.nameArabic}>
+                              {city.nameArabic}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -294,11 +311,11 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="under-200k">أقل من 200 ألف دولار</SelectItem>
-                      <SelectItem value="200k-400k">200 - 400 ألف دولار</SelectItem>
-                      <SelectItem value="400k-600k">400 - 600 ألف دولار</SelectItem>
-                      <SelectItem value="600k-800k">600 - 800 ألف دولار</SelectItem>
-                      <SelectItem value="800k-plus">أكثر من 800 ألف دولار</SelectItem>
+                      <SelectItem value="under-200k">أقل من 200 ألف ﷼</SelectItem>
+                      <SelectItem value="200k-400k">200 - 400 ألف ﷼</SelectItem>
+                      <SelectItem value="400k-600k">400 - 600 ألف ﷼</SelectItem>
+                      <SelectItem value="600k-800k">600 - 800 ألف ﷼</SelectItem>
+                      <SelectItem value="800k-plus">أكثر من 800 ألف ﷼</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -325,19 +342,28 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
               )}
             />
 
-            <div className="flex justify-end space-x-3 space-x-reverse pt-4">
+            <div className="flex justify-end space-x-3 space-x-reverse pt-6 border-t border-gray-200 mt-6">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
+                className="min-w-[100px]"
               >
                 إلغاء
               </Button>
               <Button 
                 type="submit" 
                 disabled={createLeadMutation.isPending}
+                className="min-w-[150px]"
               >
-                {createLeadMutation.isPending ? "جار الحفظ..." : "حفظ العميل المحتمل"}
+                {createLeadMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                    جار الحفظ...
+                  </>
+                ) : (
+                  "حفظ العميل المحتمل"
+                )}
               </Button>
             </div>
           </form>
