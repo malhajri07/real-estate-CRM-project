@@ -12,8 +12,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup mock authentication for development
   await setupMockAuth(app);
 
-  // Register role-based access control routes
-  registerRoleBasedRoutes(app);
+  // Disabled role-based routes for development
+  // registerRoleBasedRoutes(app);
 
   // Auth routes
   app.get('/api/auth/user', async (req: any, res) => {
