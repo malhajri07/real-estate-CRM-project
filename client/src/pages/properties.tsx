@@ -467,16 +467,6 @@ export default function Properties() {
                           {property.address}, {property.city}, {property.state}
                         </p>
                         
-                        {/* Property Location Map with Marker */}
-                        <div className="mb-4">
-                          <PropertyMap
-                            address={`${property.address}, ${property.city}, ${property.state}`}
-                            latitude={property.latitude ? parseFloat(property.latitude) : undefined}
-                            longitude={property.longitude ? parseFloat(property.longitude) : undefined}
-                            className="h-32 w-full"
-                            showLink={true}
-                          />
-                        </div>
                         
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-4">
                           {property.bedrooms && (
