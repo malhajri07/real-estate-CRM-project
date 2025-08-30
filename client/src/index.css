@@ -608,3 +608,54 @@ html, body {
 .action-btn-contact {
   @apply text-green-600 hover:text-green-800 hover:bg-green-50;
 }
+
+/* Professional Card Styling for Properties and Dashboard */
+.professional-card {
+  @apply bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-all duration-200 overflow-hidden;
+}
+
+.professional-card-header {
+  @apply p-4 border-b border-slate-100 bg-slate-50/50;
+}
+
+.professional-card-content {
+  @apply p-4;
+}
+
+.professional-card-footer {
+  @apply p-4 border-t border-slate-100 bg-slate-50/30;
+}
+
+/* Professional List Item Styling for Dashboard */
+.professional-list-item {
+  @apply flex items-center justify-between p-3 border-b border-slate-100 hover:bg-slate-50/50 transition-colors duration-150 rounded-lg;
+}
+
+.professional-list-item:last-child {
+  @apply border-b-0;
+}
+
+.professional-list-item .content {
+  @apply flex-1;
+}
+
+.professional-list-item .title {
+  @apply font-semibold text-slate-900 text-sm;
+}
+
+.professional-list-item .subtitle {
+  @apply text-slate-500 text-xs mt-1;
+}
+
+.professional-list-item .actions {
+  @apply flex items-center gap-2;
+}
+
+/* Clean Card Grid Layout */
+.professional-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+}
+
+.professional-grid-item {
+  @apply bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-all duration-200 overflow-hidden;
+}
