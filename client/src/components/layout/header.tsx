@@ -42,16 +42,6 @@ export default function Header({ title, onAddClick, onSearch, searchPlaceholder 
             <Search className="absolute left-3 top-3 text-muted-foreground" size={16} />
           </div>
           
-          {/* Quick Actions */}
-          {onAddClick && (
-            <Button 
-              onClick={onAddClick} 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl px-4 py-2 h-10 font-medium tracking-tight apple-transition hover:scale-105 apple-shadow"
-            >
-              <Plus className="ml-2" size={16} />
-              {t('leads.add_lead') || 'Add New Lead'}
-            </Button>
-          )}
         </div>
       </div>
     </header>
