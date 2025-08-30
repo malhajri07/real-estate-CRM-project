@@ -28,6 +28,10 @@ export default function Customers() {
   const [interestTypeFilter, setInterestTypeFilter] = useState("all");
   const [dependentsFilter, setDependentsFilter] = useState("all");
   
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+  
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -131,6 +135,25 @@ export default function Customers() {
     setInterestTypeFilter("all");
     setDependentsFilter("all");
     setSearchQuery("");
+    setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  // Pagination calculations
+  const totalItems = filteredLeads?.length || 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentPageLeads = filteredLeads?.slice(startIndex, endIndex) || [];
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Reset to first page when search changes
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -190,7 +213,7 @@ export default function Customers() {
       <Header 
         title="العملاء المحتملين" 
         onAddClick={() => setAddLeadModalOpen(true)}
-        onSearch={setSearchQuery}
+        onSearch={handleSearchChange}
         searchPlaceholder="البحث في العملاء بالاسم أو الهاتف أو المدينة..."
       />
       
@@ -199,7 +222,8 @@ export default function Customers() {
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between mb-4">
               <CardTitle>
-                جميع العملاء المحتملين ({filteredLeads.length})
+                جميع العملاء المحتملين ({totalItems})
+                {totalPages > 1 && ` - صفحة ${currentPage} من ${totalPages}`}
               </CardTitle>
               <div className="flex items-center gap-2">
                 <Button
@@ -333,7 +357,7 @@ export default function Customers() {
           </CardHeader>
           
           <CardContent className="p-0">
-            {filteredLeads.length === 0 ? (
+            {totalItems === 0 ? (
               <div className="text-center py-12">
                 <div className="text-slate-500 mb-4">
                   {searchQuery || showFilters ? "لا توجد عملاء يطابقون الفلاتر المحددة." : "لا توجد عملاء محتملين. أضف أول عميل للبدء."}
@@ -346,24 +370,25 @@ export default function Customers() {
                 )}
               </div>
             ) : (
-              <div className="table-container">
-                <table className="professional-table">
-                  <thead className="professional-table-header">
-                    <tr>
-                      <th>العميل</th>
-                      <th>المدينة</th>
-                      <th>العمر</th>
-                      <th>الحالة الاجتماعية</th>
-                      <th>المُعالين</th>
-                      <th>نوع الاهتمام</th>
-                      <th>نطاق الميزانية</th>
-                      <th>الحالة</th>
-                      <th>تاريخ الانضمام</th>
-                      <th>الإجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredLeads.map((lead) => (
+              <>
+                <div className="table-container">
+                  <table className="professional-table">
+                    <thead className="professional-table-header">
+                      <tr>
+                        <th>العميل</th>
+                        <th>المدينة</th>
+                        <th>العمر</th>
+                        <th>الحالة الاجتماعية</th>
+                        <th>المُعالين</th>
+                        <th>نوع الاهتمام</th>
+                        <th>نطاق الميزانية</th>
+                        <th>الحالة</th>
+                        <th>تاريخ الانضمام</th>
+                        <th>الإجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {currentPageLeads.map((lead) => (
                       <tr key={lead.id} className="professional-table-row">
                         <td className="professional-table-cell-name">
                           <div className="name">{lead.firstName} {lead.lastName}</div>
@@ -451,10 +476,67 @@ export default function Customers() {
                           </div>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50/30">
+                    <div className="text-sm text-slate-600">
+                      عرض {startIndex + 1} إلى {Math.min(endIndex, totalItems)} من {totalItems} عميل
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                      >
+                        السابق
+                      </Button>
+                      
+                      {/* Page Numbers */}
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          let pageNum;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={currentPage === pageNum ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => handlePageChange(pageNum)}
+                              className="w-8 h-8 p-0"
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                      >
+                        التالي
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
