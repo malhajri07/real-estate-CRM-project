@@ -194,6 +194,53 @@ export default function Customers() {
     }
   };
 
+  const formatBudgetRange = (budgetRange: string | null): string => {
+    if (!budgetRange) return 'غير محدد';
+    
+    // Function to format individual numbers
+    const formatNumber = (numStr: string): string => {
+      // Remove commas and spaces, extract just the number
+      const num = parseInt(numStr.replace(/[,\s]/g, ''));
+      
+      if (isNaN(num)) return numStr;
+      
+      if (num >= 1000000) {
+        const millions = num / 1000000;
+        return millions % 1 === 0 ? `${millions}M` : `${millions.toFixed(1)}M`;
+      } else if (num >= 1000) {
+        const thousands = num / 1000;
+        return thousands % 1 === 0 ? `${thousands}K` : `${thousands.toFixed(1)}K`;
+      }
+      
+      return num.toLocaleString();
+    };
+
+    // Handle range format (e.g., "2,000,000 - 3,000,000 ريال")
+    if (budgetRange.includes(' - ')) {
+      const parts = budgetRange.split(' - ');
+      const firstNum = formatNumber(parts[0]);
+      const secondPart = parts[1];
+      
+      // Extract the second number and currency
+      const match = secondPart.match(/^([\d,\s]+)\s*(.*)$/);
+      if (match) {
+        const secondNum = formatNumber(match[1]);
+        const currency = match[2] || 'ريال';
+        return `${firstNum} - ${secondNum} ${currency}`;
+      }
+    }
+    
+    // Handle single number with currency
+    const match = budgetRange.match(/^([\d,\s]+)\s*(.*)$/);
+    if (match) {
+      const formattedNum = formatNumber(match[1]);
+      const currency = match[2] || 'ريال';
+      return `${formattedNum} ${currency}`;
+    }
+    
+    return budgetRange;
+  };
+
   const handleDelete = (id: string) => {
     if (confirm("هل أنت متأكد من حذف هذا العميل المحتمل؟")) {
       deleteLead.mutate(id);
@@ -432,7 +479,7 @@ export default function Customers() {
                         </td>
                         <td className="professional-table-cell">
                           <div className="info-cell">
-                            <div className="primary">{lead.budgetRange || "غير محدد"}</div>
+                            <div className="primary">{formatBudgetRange(lead.budgetRange)}</div>
                           </div>
                         </td>
                         <td className="professional-table-cell">
