@@ -506,7 +506,7 @@ html, body {
 }
 
 .professional-table-header th {
-  @apply px-6 py-4 text-right text-sm font-semibold text-slate-700 tracking-wide;
+  @apply px-4 py-3 text-right text-xs font-semibold text-slate-700 tracking-wide uppercase;
 }
 
 .professional-table-row {
@@ -518,19 +518,19 @@ html, body {
 }
 
 .professional-table-cell {
-  @apply px-6 py-4 text-sm text-slate-800;
+  @apply px-4 py-3 text-xs text-slate-800;
 }
 
 .professional-table-cell-name {
-  @apply px-6 py-4 text-sm;
+  @apply px-4 py-3 text-xs;
 }
 
 .professional-table-cell-name .name {
-  @apply font-semibold text-slate-900 text-base;
+  @apply font-semibold text-slate-900 text-sm;
 }
 
 .professional-table-cell-name .contact {
-  @apply text-slate-500 text-sm mt-1 flex items-center gap-2;
+  @apply text-slate-500 text-xs mt-1 flex items-center gap-2;
 }
 
 .professional-table-cell-name .contact-item {
@@ -538,7 +538,7 @@ html, body {
 }
 
 .professional-table-actions {
-  @apply px-6 py-4 text-right;
+  @apply px-4 py-3 text-right;
 }
 
 .professional-table-actions .action-group {
@@ -576,11 +576,11 @@ html, body {
 
 /* Professional Info Cell Styling */
 .info-cell {
-  @apply text-sm text-slate-800;
+  @apply text-xs text-slate-800;
 }
 
 .info-cell .primary {
-  @apply font-medium text-slate-900;
+  @apply font-medium text-slate-900 text-xs;
 }
 
 .info-cell .secondary {
