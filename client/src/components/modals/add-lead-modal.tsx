@@ -80,7 +80,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl mx-8 my-8 p-8 bg-gray-50" dir="rtl">
+      <DialogContent className="max-w-2xl mx-8 my-5 p-8 bg-gray-50" dir="rtl">
         <div className="pt-4"></div>
         <DialogHeader className="mb-6 text-right">
           <DialogTitle className="text-lg font-bold text-gray-900 font-droid-kufi">إضافة عميل محتمل جديد</DialogTitle>
