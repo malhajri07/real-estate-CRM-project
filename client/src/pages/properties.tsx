@@ -216,7 +216,7 @@ export default function Properties() {
         <Card>
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between mb-4">
-              <CardTitle>
+              <CardTitle className="text-title-small">
                 جميع العقارات ({allProperties?.length || 0})
                 {totalPages > 1 && ` - صفحة ${currentPage} من ${totalPages}`}
               </CardTitle>

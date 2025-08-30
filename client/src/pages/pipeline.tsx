@@ -102,7 +102,7 @@ export default function Pipeline() {
                 <div key={stage.id} className="flex flex-col">
                   <Card className="apple-card mb-4">
                     <CardHeader className={`${stage.color} p-4`}>
-                      <CardTitle className="text-center">
+                      <CardTitle className="text-center text-title-small">
                         <div className="text-lg font-semibold">{stage.title}</div>
                         <div className="text-sm text-slate-600">
                           {stageDeals.length} صفقة • {formatCurrency(stageValue.toString())}
@@ -179,7 +179,7 @@ export default function Pipeline() {
         {/* Pipeline Statistics */}
         <Card className="apple-card mt-8">
           <CardHeader className="p-6">
-            <CardTitle>Pipeline Statistics</CardTitle>
+            <CardTitle className="text-title-small">Pipeline Statistics</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

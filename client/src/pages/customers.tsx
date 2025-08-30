@@ -295,7 +295,7 @@ export default function Customers() {
         <Card>
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between mb-4">
-              <CardTitle>
+              <CardTitle className="text-title-small">
                 جميع العملاء المحتملين ({totalItems})
                 {totalPages > 1 && ` - صفحة ${currentPage} من ${totalPages}`}
               </CardTitle>
