@@ -190,24 +190,27 @@ export default function Dashboard() {
                   <div className="space-y-2">
                     {recentLeads.slice(0, 5).map((lead) => (
                       <div key={lead.id} className="lead-item-minimal">
-                        <div className="flex items-center space-x-4 space-x-reverse">
+                        <div className="flex items-center justify-between w-full">
                           <div>
                             <p className="font-semibold text-gray-900 tracking-tight font-droid-kufi">{lead.firstName} {lead.lastName}</p>
                             <p className="text-sm text-gray-600">{lead.phone}</p>
-                            <p className="text-xs text-gray-500">{lead.city || 'غير محدد'}</p>
                           </div>
-                        </div>
-                        <div className="flex items-center space-x-3 space-x-reverse">
-                          <Badge className={`${getStatusBadgeColor(lead.status)} font-medium px-3 py-1 rounded-xl`}>
-                            {lead.status === 'new' ? 'جديد' : 
-                             lead.status === 'qualified' ? 'مؤهل' : 
-                             lead.status === 'showing' ? 'معاينة' : 
-                             lead.status === 'negotiation' ? 'تفاوض' : 
-                             lead.status === 'closed' ? 'مغلق' : 'مفقود'}
-                          </Badge>
-                          <span className="text-sm text-gray-500 font-medium">
-                            {new Date(lead.createdAt).toLocaleDateString()}
-                          </span>
+                          <div className="text-center">
+                            <p className="text-sm text-gray-700 font-medium">{lead.city || 'غير محدد'}</p>
+                            <p className="text-xs text-gray-500">{lead.age ? `${lead.age} سنة` : 'غير محدد'}</p>
+                          </div>
+                          <div className="flex items-center space-x-3 space-x-reverse">
+                            <Badge className={`${getStatusBadgeColor(lead.status)} font-medium px-3 py-1 rounded-xl`}>
+                              {lead.status === 'new' ? 'جديد' : 
+                               lead.status === 'qualified' ? 'مؤهل' : 
+                               lead.status === 'showing' ? 'معاينة' : 
+                               lead.status === 'negotiation' ? 'تفاوض' : 
+                               lead.status === 'closed' ? 'مغلق' : 'مفقود'}
+                            </Badge>
+                            <span className="text-sm text-gray-500 font-medium">
+                              {new Date(lead.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ))}
