@@ -34,10 +34,10 @@ export default function Header({ title, onAddClick, onSearch, searchPlaceholder 
           <div className="relative">
             <Input
               type="text"
-              placeholder={defaultPlaceholder}
+              placeholder={searchPlaceholder || "البحث بالاسم أو رقم الهاتف أو المدينة..."}
               value={searchQuery}
               onChange={handleSearchChange}
-              className="w-80 h-10 bg-muted/30 border-border/50 rounded-xl pl-10 pr-4 text-sm font-medium apple-transition focus:bg-background focus:border-primary/50"
+              className="w-96 h-10 bg-muted/30 border-border/50 rounded-xl pl-10 pr-4 text-sm font-medium apple-transition focus:bg-background focus:border-primary/50"
             />
             <Search className="absolute left-3 top-3 text-muted-foreground" size={16} />
           </div>
