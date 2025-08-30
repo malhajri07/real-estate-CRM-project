@@ -191,6 +191,14 @@ export const insertLeadSchema = createInsertSchema(leads).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  phone: z.string().optional().refine((val) => {
+    if (!val || val === "") return true; // Allow empty phone
+    // Saudi mobile format: 05XXXXXXXX (9 digits total)
+    return /^05\d{7}$/.test(val);
+  }, {
+    message: "رقم الجوال يجب أن يكون بصيغة 05XXXXXXXX (9 أرقام فقط)"
+  })
 });
 export const insertPropertySchema = createInsertSchema(properties).omit({
   id: true,

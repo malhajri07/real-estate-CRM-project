@@ -80,25 +80,25 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl p-6">
-        <DialogHeader className="mb-4 text-center">
-          <div className="flex items-center justify-center mb-2">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <User className="h-6 w-6 text-primary" />
+      <DialogContent className="max-w-3xl p-8">
+        <DialogHeader className="mb-6 text-center">
+          <div className="flex items-center justify-center mb-3">
+            <div className="p-2 bg-primary/10 rounded-full">
+              <User className="h-5 w-5 text-primary" />
             </div>
           </div>
-          <DialogTitle className="text-2xl font-bold text-gray-900 font-droid-kufi">إضافة عميل محتمل جديد</DialogTitle>
-          <DialogDescription className="text-gray-600 mt-1">
+          <DialogTitle className="text-xl font-bold text-gray-900 font-droid-kufi">إضافة عميل محتمل جديد</DialogTitle>
+          <DialogDescription className="text-sm text-gray-600 mt-1">
             املأ المعلومات التالية لإضافة عميل محتمل جديد إلى النظام
           </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             {/* Personal Information Section */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center font-droid-kufi">
-                <User className="h-5 w-5 ml-2" />
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center font-droid-kufi">
+                <User className="h-4 w-4 ml-2" />
                 المعلومات الشخصية
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -151,12 +151,12 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             </div>
 
             {/* Contact Information Section */}
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center font-droid-kufi">
-                <Phone className="h-5 w-5 ml-2" />
+            <div className="bg-blue-50 p-6 rounded-lg">
+              <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center font-droid-kufi">
+                <Phone className="h-4 w-4 ml-2" />
                 معلومات الاتصال
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="email"
@@ -177,7 +177,13 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                     <FormItem>
                       <FormLabel>الهاتف</FormLabel>
                       <FormControl>
-                        <Input type="tel" placeholder="أدخل رقم الهاتف" {...field} value={field.value || ""} />
+                        <Input 
+                          type="tel" 
+                          placeholder="05XXXXXXXX" 
+                          {...field} 
+                          value={field.value || ""} 
+                          maxLength={9}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -197,7 +203,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                               role="combobox"
                               aria-expanded={cityOpen}
                               className={cn(
-                                "w-full justify-between",
+                                "w-full justify-between text-sm",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -210,15 +216,15 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                         </PopoverTrigger>
                         <PopoverContent className="w-[200px] p-0">
                           <Command>
-                            <CommandInput placeholder="ابحث عن المدينة..." />
+                            <CommandInput placeholder="ابحث عن المدينة..." className="text-sm" />
                             <CommandList>
-                              <CommandEmpty>لم يتم العثور على المدينة.</CommandEmpty>
+                              <CommandEmpty className="text-sm">لم يتم العثور على المدينة.</CommandEmpty>
                               <CommandGroup>
                                 {citiesLoading ? (
                                   <CommandItem disabled>
                                     <div className="flex items-center justify-center p-2">
                                       <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                                      جار التحميل...
+                                      <span className="text-sm">جار التحميل...</span>
                                     </div>
                                   </CommandItem>
                                 ) : (
@@ -230,6 +236,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                                         field.onChange(currentValue === field.value ? "" : currentValue)
                                         setCityOpen(false)
                                       }}
+                                      className="text-sm"
                                     >
                                       <Check
                                         className={cn(
@@ -254,9 +261,9 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             </div>
 
             {/* Demographics Section */}
-            <div className="bg-green-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center font-droid-kufi">
-                <MapPin className="h-5 w-5 ml-2" />
+            <div className="bg-green-50 p-6 rounded-lg">
+              <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center font-droid-kufi">
+                <MapPin className="h-4 w-4 ml-2" />
                 المعلومات الديموغرافية
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -306,9 +313,9 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             </div>
 
             {/* Business Information Section */}
-            <div className="bg-purple-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center font-droid-kufi">
-                <Mail className="h-5 w-5 ml-2" />
+            <div className="bg-purple-50 p-6 rounded-lg">
+              <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center font-droid-kufi">
+                <Mail className="h-4 w-4 ml-2" />
                 المعلومات التجارية
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -393,8 +400,8 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
             </div>
 
             {/* Notes Section */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 font-droid-kufi">
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="text-base font-semibold text-gray-900 mb-4 font-droid-kufi">
                 ملاحظات إضافية
               </h3>
               <FormField
@@ -405,10 +412,11 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                     <FormLabel>ملاحظات</FormLabel>
                     <FormControl>
                       <Textarea
-                        rows={3}
+                        rows={2}
                         placeholder="ملاحظات إضافية حول العميل المحتمل"
                         {...field}
                         value={field.value || ""}
+                        className="text-sm"
                       />
                     </FormControl>
                     <FormMessage />
