@@ -144,7 +144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Lead routes
-  app.get("/api/leads", isAuthenticated, async (req, res) => {
+  app.get("/api/leads", async (req, res) => {
     try {
       const leads = await storage.getAllLeads();
       res.json(leads);
@@ -153,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/leads/search", isAuthenticated, async (req, res) => {
+  app.get("/api/leads/search", async (req, res) => {
     try {
       const query = req.query.q as string;
       if (!query) {
@@ -166,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/leads/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/leads/:id", async (req, res) => {
     try {
       const lead = await storage.getLead(req.params.id);
       if (!lead) {

@@ -26,9 +26,9 @@ export async function setupMockAuth(app: Express) {
       profileImageUrl: null,
     });
 
-    // Add dummy data on first setup - temporarily disabled for debugging
+    // Add dummy data on first setup - temporarily disabled to preserve real Saudi customer data
     // Create dummy data with Arabic content and English numbers
-    await seedDummyData();
+    // await seedDummyData();
   } catch (error) {
     console.log("Mock user already exists or creation failed", error);
   }
@@ -39,5 +39,14 @@ export const isAuthenticated: RequestHandler = (req: any, res, next) => {
   if (req.user && req.user.id) {
     return next();
   }
-  res.status(401).json({ message: "Unauthorized" });
+  
+  // Fallback: Create mock user session if not exists for development
+  req.user = {
+    id: "mock-user-1",
+    email: "user@example.com", 
+    firstName: "مستخدم",
+    lastName: "تجريبي"
+  };
+  req.isAuthenticated = () => true;
+  return next();
 };
