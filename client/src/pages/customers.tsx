@@ -445,12 +445,6 @@ export default function Customers() {
                             <div className="primary">
                               {new Date(lead.createdAt).toLocaleDateString('en-GB')}
                             </div>
-                            <div className="secondary">
-                              {new Date(lead.createdAt).toLocaleDateString('ar', { 
-                                weekday: 'short',
-                                calendar: 'gregory'
-                              })}
-                            </div>
                           </div>
                         </td>
                         <td className="professional-table-actions">
