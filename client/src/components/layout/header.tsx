@@ -27,7 +27,7 @@ export default function Header({ title, onAddClick, onSearch, searchPlaceholder 
     <header className="bg-card border-b border-border/50 px-8 py-4 apple-shadow relative z-10">
       <div className="flex items-center justify-center w-full">
         {/* Full Width Search Bar */}
-        <div className="relative w-full max-w-2xl">
+        <div className="relative w-full">
           <Input
             type="text"
             placeholder={searchPlaceholder || "البحث بالاسم أو رقم الهاتف أو المدينة..."}
