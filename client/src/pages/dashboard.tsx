@@ -69,7 +69,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <main className="flex-1 overflow-y-auto p-8" style={{backgroundColor: '#fcf5eb'}} dir="rtl">
+      <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
         {/* Dashboard Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           <div className="dashboard-card-minimal">
