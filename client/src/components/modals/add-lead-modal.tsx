@@ -80,20 +80,19 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl mx-8 my-5 p-8 bg-gray-50" dir="rtl">
-        <div className="pt-4"></div>
-        <DialogHeader className="mb-6 text-right">
-          <DialogTitle className="text-lg font-bold text-gray-900 font-droid-kufi">إضافة عميل محتمل جديد</DialogTitle>
-          <DialogDescription className="text-xs text-gray-600 mt-2">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 my-2 p-4 bg-gray-50" dir="rtl">
+        <DialogHeader className="mb-4 text-right sticky top-0 bg-gray-50 pb-2 border-b border-gray-200 z-10">
+          <DialogTitle className="text-title-small font-bold text-gray-900 font-droid-kufi">إضافة عميل محتمل جديد</DialogTitle>
+          <DialogDescription className="text-xxs text-gray-600 mt-1">
             املأ المعلومات التالية لإضافة عميل محتمل جديد إلى النظام
           </DialogDescription>
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
             {/* Personal Information Section */}
-            <div className="bg-gray-100 p-4 rounded-md" dir="rtl">
-              <h3 className="text-sm font-bold text-gray-900 mb-3 font-droid-kufi text-right">
+            <div className="bg-gray-100 p-3 rounded-md" dir="rtl">
+              <h3 className="text-xxs font-bold text-gray-900 mb-2 font-droid-kufi text-right">
                 المعلومات الشخصية
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
