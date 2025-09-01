@@ -128,20 +128,54 @@ export default function SignupIndividual() {
     }
 
     try {
-      // TODO: Submit form to backend API
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      // Create account data for individual broker
+      const accountData = {
+        firstName,
+        lastName,
+        email: `${saudiIdEnglish}@temp.aqaraty.sa`, // Temporary email, will be updated
+        phone: mobileEnglish.startsWith('05') ? mobileEnglish : `05${mobileEnglish}`,
+        accountType: 'individual_broker',
+        licenseNumber: certificationNumber,
+        isActive: false, // Pending verification
+        isVerified: false,
+        subscriptionStatus: 'trial',
+        subscriptionTier: 'basic',
+        // Additional data for verification
+        saudiId: saudiIdEnglish,
+        dateOfBirth,
+        gender,
+        city,
+        certificationStartDate,
+        certificationEndDate,
+      };
+
+      const response = await fetch('/api/accounts/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(accountData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'فشل في إنشاء الحساب');
+      }
+
+      const result = await response.json();
 
       toast({
         title: "تم إرسال طلبك بنجاح",
-        description: "سيتم مراجعة طلبك والتواصل معك خلال 24 ساعة",
+        description: "سيتم مراجعة طلبك والتواصل معك خلال 24 ساعة لتفعيل الحساب",
       });
 
-      // Redirect to success page or login
+      // Redirect to success page
       setLocation("/signup/success");
     } catch (error) {
+      console.error('Registration error:', error);
       toast({
         title: "خطأ في إرسال الطلب",
-        description: "حدث خطأ أثناء إرسال طلبك، الرجاء المحاولة مرة أخرى",
+        description: error instanceof Error ? error.message : "حدث خطأ أثناء إرسال طلبك، الرجاء المحاولة مرة أخرى",
         variant: "destructive",
       });
     }

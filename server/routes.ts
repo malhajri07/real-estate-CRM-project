@@ -7,6 +7,7 @@ import { z } from "zod";
 import { setupMockAuth, isAuthenticated } from "./authMock";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { registerRoleBasedRoutes } from "./roleRoutes";
+import accountRoutes from "./routes/accounts";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup mock authentication for development
@@ -14,6 +15,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Disabled role-based routes for development
   // registerRoleBasedRoutes(app);
+
+  // Account management routes
+  app.use("/api/accounts", accountRoutes);
 
   // Auth routes
   app.get('/api/auth/user', async (req: any, res) => {
@@ -40,7 +44,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/csv/process-leads", async (req, res) => {
     try {
       const { csvUrl } = req.body;
-      
+
       if (!csvUrl) {
         return res.status(400).json({ error: "CSV URL is required" });
       }
@@ -80,7 +84,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Map CSV columns to lead fields
           headers.forEach((header, index) => {
             const value = values[index] || '';
-            
+
             // Map common column names (case insensitive)
             const lowerHeader = header.toLowerCase();
             if (lowerHeader.includes('firstname') || lowerHeader.includes('first_name') || lowerHeader === 'الاسم الأول') {
@@ -116,7 +120,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           // Validate using schema
           const validatedData = insertLeadSchema.parse(leadData);
-          
+
           // Create lead
           await storage.createLead(validatedData);
           results.successful++;
@@ -423,10 +427,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const leads = await storage.getAllLeads();
       const properties = await storage.getAllProperties();
       const deals = await storage.getAllDeals();
-      
+
       const activeDeals = deals.filter(deal => !['closed', 'lost'].includes(deal.stage));
       const closedDeals = deals.filter(deal => deal.stage === 'closed');
-      
+
       const monthlyRevenue = closedDeals.reduce((sum, deal) => {
         const commission = deal.commission ? parseFloat(deal.commission) : 0;
         return sum + commission;
@@ -476,7 +480,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const messageData = insertMessageSchema.parse(req.body);
       const message = await storage.createMessage(messageData);
-      
+
       // Send WhatsApp message if the type is whatsapp
       if (messageData.messageType === 'whatsapp') {
         const success = await whatsappService.sendMessage(messageData.phoneNumber, messageData.message);
@@ -486,7 +490,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await storage.updateMessageStatus(message.id, 'failed');
         }
       }
-      
+
       res.json(message);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -498,7 +502,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/whatsapp/status", (req, res) => {
-    res.json({ 
+    res.json({
       isReady: whatsappService.isClientReady(),
       service: 'WhatsApp Web'
     });
@@ -519,7 +523,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/campaigns", async (req, res) => {
     try {
       const { title, message, type, leadIds } = req.body;
-      
+
       if (!title || !message || !type || !leadIds || !Array.isArray(leadIds)) {
         return res.status(400).json({ error: "Missing required fields" });
       }
@@ -556,10 +560,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/saudi-regions/seed", async (req, res) => {
     try {
       const regions = await storage.seedSaudiRegions();
-      res.json({ 
-        message: "Saudi regions seeded successfully", 
+      res.json({
+        message: "Saudi regions seeded successfully",
         count: regions.length,
-        regions 
+        regions
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to seed Saudi regions" });
@@ -588,10 +592,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/saudi-cities/seed", async (req, res) => {
     try {
       const cities = await storage.seedSaudiCities();
-      res.json({ 
-        message: "Saudi cities seeded successfully", 
+      res.json({
+        message: "Saudi cities seeded successfully",
         count: cities.length,
-        cities 
+        cities
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to seed Saudi cities" });

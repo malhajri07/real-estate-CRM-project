@@ -1,11 +1,37 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin, Camera, FileText, DollarSign, GitBranch, CheckCircle, UserPlus, Eye, NotebookPen } from "lucide-react";
 import PropertySearchMap from "@/components/PropertySearchMap";
+import { cmsService, type LandingPageContent, type PricingPlan } from "@/lib/cms";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
 import agarkomFooterLogo from "@assets/6_1756507125793.png";
 
 export default function Landing() {
+  const [landingContent, setLandingContent] = useState<LandingPageContent | null>(null);
+  const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCMSContent = async () => {
+      try {
+        const [contentData, plansData] = await Promise.all([
+          cmsService.getLandingPageContent(),
+          cmsService.getPricingPlans()
+        ]);
+        setLandingContent(contentData);
+        setPricingPlans(plansData);
+      } catch (error) {
+        console.error('Error loading CMS content:', error);
+        // Content will fall back to default values from cmsService
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCMSContent();
+  }, []);
+
   const handleLogin = () => {
     window.location.href = "/login";
   };
@@ -13,6 +39,17 @@ export default function Landing() {
   const handleSignUp = () => {
     window.location.href = "/signup";
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-lg font-medium text-gray-700">جار تحميل المحتوى...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-white" dir="rtl">
@@ -52,15 +89,14 @@ export default function Landing() {
             <div className="text-right">
               <p className="text-primary font-medium mb-4">مرحباً بك في</p>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                عقارکم - منصة إدارة العقارات الذكية
+                {landingContent?.heroTitle || "منصة عقاراتي للوساطة العقارية"}
               </h1>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                نظام شامل لإدارة العقارات والعملاء والصفقات مع واجهة حديثة وسهلة الاستخدام. 
-                تابع عملائك المحتملين، أدر عقاراتك، وتحكم في صفقاتك من مكان واحد.
+                {landingContent?.heroSubtitle || "منصة شاملة لإدارة العقارات والوساطة العقارية مع أدوات تسويق متقدمة"}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button onClick={handleSignUp} className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg">
-                  جرب المنصة مجاناً
+                  {landingContent?.heroButton || "ابدأ رحلتك المجانية"}
                 </Button>
                 <Button onClick={handleLogin} variant="outline" className="border-primary text-primary hover:bg-primary/10 px-8 py-3 text-lg">
                   تسجيل الدخول
@@ -84,7 +120,7 @@ export default function Landing() {
                       <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
                     </div>
                   </div>
-                  
+
                   {/* Top Metrics Grid */}
                   <div className="grid grid-cols-4 gap-1 text-center">
                     <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-1.5 rounded">
@@ -282,7 +318,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              اكتشف الفرق في إدارة العقارات
+              {landingContent?.featuresTitle || "لماذا تختار منصة عقاراتي؟"}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               عندما يجتمع التحديث بالاحترافية، تكون منصة عقاراتي هي الخيار الأمثل لإدارة عقاراتك بكفاءة
@@ -290,77 +326,102 @@ export default function Landing() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="text-center hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Users className="h-8 w-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">إدارة العملاء المحتملين</h3>
-                <p className="text-gray-600">
-                  تتبع وإدارة العملاء المحتملين من الاستفسار الأولي حتى إتمام الصفقة
-                </p>
-              </CardContent>
-            </Card>
+            {landingContent?.features && landingContent.features.length > 0 ? (
+              landingContent.features.map((feature) => (
+                <Card key={feature.id} className="text-center hover:shadow-lg transition-shadow duration-300">
+                  <CardContent className="p-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      {/* Dynamic icon based on feature.icon */}
+                      {feature.icon === 'users' && <Users className="h-8 w-8 text-green-600" />}
+                      {feature.icon === 'building' && <Building className="h-8 w-8 text-green-600" />}
+                      {feature.icon === 'trending-up' && <TrendingUp className="h-8 w-8 text-green-600" />}
+                      {feature.icon === 'bar-chart' && <BarChart3 className="h-8 w-8 text-green-600" />}
+                      {feature.icon === 'message-square' && <MessageSquare className="h-8 w-8 text-green-600" />}
+                      {feature.icon === 'shield' && <Shield className="h-8 w-8 text-green-600" />}
+                      {!['users', 'building', 'trending-up', 'bar-chart', 'message-square', 'shield'].includes(feature.icon) &&
+                        <Building className="h-8 w-8 text-green-600" />}
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              // Fallback static features if CMS content is not available
+              <>
+                <Card className="text-center hover:shadow-lg transition-shadow duration-300">
+                  <CardContent className="p-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Users className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">إدارة العملاء المحتملين</h3>
+                    <p className="text-gray-600">
+                      تتبع وإدارة العملاء المحتملين من الاستفسار الأولي حتى إتمام الصفقة
+                    </p>
+                  </CardContent>
+                </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Building className="h-8 w-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">إدارة العقارات</h3>
-                <p className="text-gray-600">
-                  أضف وأدر عقاراتك مع تفاصيل شاملة وصور ومعلومات السعر والموقع
-                </p>
-              </CardContent>
-            </Card>
+                <Card className="text-center hover:shadow-lg transition-shadow duration-300">
+                  <CardContent className="p-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Building className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">إدارة العقارات</h3>
+                    <p className="text-gray-600">
+                      أضف وأدر عقاراتك مع تفاصيل شاملة وصور ومعلومات السعر والموقع
+                    </p>
+                  </CardContent>
+                </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <TrendingUp className="h-8 w-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">متابعة الصفقات</h3>
-                <p className="text-gray-600">
-                  تتبع مراحل الصفقات من التفاوض الأولي حتى الإغلاق النهائي
-                </p>
-              </CardContent>
-            </Card>
+                <Card className="text-center hover:shadow-lg transition-shadow duration-300">
+                  <CardContent className="p-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <TrendingUp className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">متابعة الصفقات</h3>
+                    <p className="text-gray-600">
+                      تتبع مراحل الصفقات من التفاوض الأولي حتى الإغلاق النهائي
+                    </p>
+                  </CardContent>
+                </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <BarChart3 className="h-8 w-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">تقارير مفصلة</h3>
-                <p className="text-gray-600">
-                  احصل على تقارير شاملة حول أداء المبيعات والعملاء والعقارات
-                </p>
-              </CardContent>
-            </Card>
+                <Card className="text-center hover:shadow-lg transition-shadow duration-300">
+                  <CardContent className="p-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <BarChart3 className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">تقارير مفصلة</h3>
+                    <p className="text-gray-600">
+                      احصل على تقارير شاملة حول أداء المبيعات والعملاء والعقارات
+                    </p>
+                  </CardContent>
+                </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <MessageSquare className="h-8 w-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">تواصل واتساب</h3>
-                <p className="text-gray-600">
-                  تواصل مع العملاء مباشرة عبر واتساب من داخل المنصة
-                </p>
-              </CardContent>
-            </Card>
+                <Card className="text-center hover:shadow-lg transition-shadow duration-300">
+                  <CardContent className="p-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <MessageSquare className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">تواصل واتساب</h3>
+                    <p className="text-gray-600">
+                      تواصل مع العملاء مباشرة عبر واتساب من داخل المنصة
+                    </p>
+                  </CardContent>
+                </Card>
 
-            <Card className="text-center hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Shield className="h-8 w-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">أمان البيانات</h3>
-                <p className="text-gray-600">
-                  بيانات آمنة ومحمية بأعلى معايير الأمن والحماية
-                </p>
-              </CardContent>
-            </Card>
+                <Card className="text-center hover:shadow-lg transition-shadow duration-300">
+                  <CardContent className="p-8">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <Shield className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">أمان البيانات</h3>
+                    <p className="text-gray-600">
+                      بيانات آمنة ومحمية بأعلى معايير الأمن والحماية
+                    </p>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -464,10 +525,10 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              باقات الاشتراك
+              {landingContent?.pricingTitle || "خطط الأسعار"}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              اختر الباقة المناسبة لحجم أعمالك واحتياجاتك
+              {landingContent?.pricingSubtitle || "اختر الخطة المناسبة لك"}
             </p>
           </div>
 
@@ -480,7 +541,7 @@ export default function Landing() {
                   <div className="text-4xl font-bold text-green-600 mb-2">مجاناً</div>
                   <p className="text-gray-600">للمبتدئين</p>
                 </div>
-                
+
                 <div className="flex-1">
                   <ul className="space-y-4 text-right">
                     <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
@@ -509,7 +570,7 @@ export default function Landing() {
                     </li>
                   </ul>
                 </div>
-                
+
                 <div className="mt-8">
                   <Button onClick={handleSignUp} className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg font-semibold">
                     ابدأ مجاناً
@@ -531,7 +592,7 @@ export default function Landing() {
                   <div className="text-4xl font-bold text-green-600 mb-2">299 ﷼</div>
                   <p className="text-gray-600">شهرياً</p>
                 </div>
-                
+
                 <div className="flex-1">
                   <ul className="space-y-4 text-right">
                     <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
@@ -568,7 +629,7 @@ export default function Landing() {
                     </li>
                   </ul>
                 </div>
-                
+
                 <div className="mt-8">
                   <Button onClick={handleSignUp} className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg font-semibold">
                     اختر هذه الباقة
@@ -585,7 +646,7 @@ export default function Landing() {
                   <div className="text-4xl font-bold text-green-600 mb-2">899 ﷼</div>
                   <p className="text-gray-600">شهرياً</p>
                 </div>
-                
+
                 <div className="flex-1">
                   <ul className="space-y-4 text-right">
                     <li className="flex items-center gap-4 border-b border-gray-100 pb-3">
@@ -626,7 +687,7 @@ export default function Landing() {
                     </li>
                   </ul>
                 </div>
-                
+
                 <div className="mt-8">
                   <Button onClick={handleSignUp} className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 text-lg font-semibold">
                     اتصل بنا
@@ -635,7 +696,7 @@ export default function Landing() {
               </CardContent>
             </Card>
           </div>
-          
+
           {/* Features Comparison */}
           <div className="mt-16 text-center">
             <h3 className="text-2xl font-bold text-gray-900 mb-8">مقارنة بين الباقات</h3>
@@ -749,15 +810,41 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Statistics Section - CMS Driven */}
+      {landingContent?.stats && landingContent.stats.length > 0 && (
+        <section className="py-20 bg-green-600">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+                {landingContent.statsTitle || "أرقامنا تتحدث"}
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {landingContent.stats.map((stat) => (
+                <div key={stat.id} className="text-center">
+                  <div className="text-4xl lg:text-5xl font-bold text-white mb-2">
+                    {stat.number}{stat.suffix && <span className="text-2xl">{stat.suffix}</span>}
+                  </div>
+                  <div className="text-green-100 text-lg font-medium">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center mb-4">
-                <img 
-                  src={agarkomFooterLogo} 
-                  alt="عقارکم" 
+                <img
+                  src={agarkomFooterLogo}
+                  alt="عقارکم"
                   className="h-36 object-contain"
                 />
               </div>
@@ -765,7 +852,7 @@ export default function Landing() {
                 نظام شامل لإدارة العقارات والعملاء والصفقات مع واجهة حديثة وسهلة الاستخدام
               </p>
             </div>
-            
+
             <div>
               <h3 className="text-lg font-semibold mb-4">روابط سريعة</h3>
               <ul className="space-y-2 text-gray-400">
@@ -786,7 +873,7 @@ export default function Landing() {
               </ul>
             </div>
           </div>
-          
+
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
             <p>جميع الحقوق محفوظة © 2025 منصة عقاراتي لإدارة العقارات</p>
           </div>
