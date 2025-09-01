@@ -26,9 +26,9 @@ export async function setupMockAuth(app: Express) {
       profileImageUrl: null,
     });
 
-    // Add dummy data on first setup - temporarily disabled to preserve real Saudi customer data
+    // Add dummy data on first setup
     // Create dummy data with Arabic content and English numbers
-    // await seedDummyData();
+    await seedDummyData();
   } catch (error) {
     console.log("Mock user already exists or creation failed", error);
   }

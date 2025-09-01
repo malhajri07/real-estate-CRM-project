@@ -1,27 +1,27 @@
-import { 
-  type User, 
+import {
+  type User,
   type UserPermissions,
-  type InsertUser, 
+  type InsertUser,
   type UpsertUser,
   type InsertUserPermissions,
-  type Lead, 
-  type InsertLead, 
-  type Property, 
-  type InsertProperty, 
-  type Deal, 
-  type InsertDeal, 
-  type Activity, 
-  type InsertActivity, 
-  type Message, 
+  type Lead,
+  type InsertLead,
+  type Property,
+  type InsertProperty,
+  type Deal,
+  type InsertDeal,
+  type Activity,
+  type InsertActivity,
+  type Message,
   type InsertMessage,
   type SaudiRegion,
   type SaudiCity,
-  users, 
+  users,
   userPermissions,
-  leads, 
-  properties, 
-  deals, 
-  activities, 
+  leads,
+  properties,
+  deals,
+  activities,
   messages,
   saudiRegions,
   saudiCities
@@ -36,12 +36,12 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
-  
+
   // User Permissions methods
   getUserPermissions(userId: string): Promise<UserPermissions | undefined>;
   createUserPermissions(permissions: InsertUserPermissions): Promise<UserPermissions>;
   updateUserPermissions(userId: string, permissions: Partial<InsertUserPermissions>): Promise<UserPermissions | undefined>;
-  
+
   // Multi-tenant Lead methods
   getAllLeads(tenantId?: string): Promise<Lead[]>;
   getLead(id: string, tenantId?: string): Promise<Lead | undefined>;
@@ -78,7 +78,7 @@ export interface IStorage {
   createMessage(message: InsertMessage, tenantId: string): Promise<Message>;
   updateMessageStatus(id: string, status: string, tenantId?: string): Promise<Message | undefined>;
   getAllMessages(tenantId?: string): Promise<Message[]>;
-  
+
   // Notification methods (basic implementation for now)
   getNotifications(): Promise<any[]>;
 
@@ -99,6 +99,8 @@ export class MemStorage implements IStorage {
   private messages: Map<string, Message>;
   private deals: Map<string, Deal>;
   private activities: Map<string, Activity>;
+  private saudiRegions: SaudiRegion[];
+  private saudiCities: SaudiCity[];
 
   constructor() {
     this.users = new Map();
@@ -107,6 +109,191 @@ export class MemStorage implements IStorage {
     this.deals = new Map();
     this.activities = new Map();
     this.messages = new Map();
+    this.saudiRegions = [];
+    this.saudiCities = [];
+
+    // Initialize with sample data
+    this.initializeSampleData();
+  }
+
+  private initializeSampleData() {
+    // Add sample Saudi regions
+    this.saudiRegions = [
+      { nameArabic: "الرياض", nameEnglish: "Riyadh", code: "SA-01" },
+      { nameArabic: "مكة المكرمة", nameEnglish: "Makkah", code: "SA-02" },
+      { nameArabic: "المدينة المنورة", nameEnglish: "Madinah", code: "SA-03" },
+      { nameArabic: "المنطقة الشرقية", nameEnglish: "Eastern Province", code: "SA-04" },
+      { nameArabic: "القصيم", nameEnglish: "Al-Qassim", code: "SA-05" }
+    ];
+
+    // Add sample Saudi cities
+    this.saudiCities = [
+      { nameArabic: "الرياض", nameEnglish: "Riyadh", regionCode: "SA-01", isCapital: true, population: 7676655 },
+      { nameArabic: "جدة", nameEnglish: "Jeddah", regionCode: "SA-02", isCapital: false, population: 4697000 },
+      { nameArabic: "مكة المكرمة", nameEnglish: "Makkah", regionCode: "SA-02", isCapital: true, population: 2042000 },
+      { nameArabic: "المدينة المنورة", nameEnglish: "Madinah", regionCode: "SA-03", isCapital: true, population: 1512724 },
+      { nameArabic: "الدمام", nameEnglish: "Dammam", regionCode: "SA-04", isCapital: true, population: 1532300 }
+    ];
+
+    // Add sample user
+    const sampleUser: User = {
+      id: "sample-user-1",
+      email: "admin@example.com",
+      firstName: "Admin",
+      lastName: "User",
+      profileImageUrl: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    this.users.set(sampleUser.id, sampleUser);
+
+    // Add sample leads
+    const sampleLeads: Lead[] = [
+      {
+        id: "lead-1",
+        firstName: "أحمد",
+        lastName: "محمد",
+        email: "ahmed@example.com",
+        phone: "966501234567",
+        city: "الرياض",
+        age: 35,
+        maritalStatus: "married",
+        numberOfDependents: 2,
+        leadSource: "website",
+        interestType: "buying",
+        budgetRange: "500000-1000000",
+        status: "new",
+        notes: "مهتم بشقة في شمال الرياض",
+        ownerId: "sample-user-1",
+        createdBy: "sample-user-1",
+        tenantId: "tenant-1",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "lead-2",
+        firstName: "فاطمة",
+        lastName: "علي",
+        email: "fatima@example.com",
+        phone: "966502345678",
+        city: "جدة",
+        age: 28,
+        maritalStatus: "single",
+        numberOfDependents: 0,
+        leadSource: "referral",
+        interestType: "renting",
+        budgetRange: "50000-100000",
+        status: "qualified",
+        notes: "تبحث عن شقة للإيجار في جدة",
+        ownerId: "sample-user-1",
+        createdBy: "sample-user-1",
+        tenantId: "tenant-1",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    sampleLeads.forEach(lead => this.leads.set(lead.id, lead));
+
+    // Add sample properties
+    const sampleProperties: Property[] = [
+      {
+        id: "property-1",
+        title: "شقة فاخرة في الرياض",
+        address: "حي النرجس، الرياض",
+        city: "الرياض",
+        price: "750000",
+        propertyCategory: "residential",
+        propertyType: "apartment",
+        description: "شقة من 3 غرف نوم مع صالة واسعة",
+        bedrooms: 3,
+        bathrooms: 2,
+        squareFeet: 1200,
+        latitude: 24.7136,
+        longitude: 46.6753,
+        photoUrls: null,
+        features: null,
+        status: "active",
+        ownerId: "sample-user-1",
+        createdBy: "sample-user-1",
+        tenantId: "tenant-1",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    sampleProperties.forEach(property => this.properties.set(property.id, property));
+
+    // Add sample deals
+    const sampleDeals: Deal[] = [
+      {
+        id: "deal-1",
+        leadId: "lead-1",
+        propertyId: "property-1",
+        stage: "qualified",
+        dealValue: "750000",
+        commission: "37500",
+        expectedCloseDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        actualCloseDate: null,
+        notes: "صفقة واعدة مع أحمد محمد",
+        ownerId: "sample-user-1",
+        tenantId: "tenant-1",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "deal-2",
+        leadId: "lead-2",
+        propertyId: null,
+        stage: "lead",
+        dealValue: null,
+        commission: null,
+        expectedCloseDate: null,
+        actualCloseDate: null,
+        notes: "عميلة جديدة تبحث عن إيجار",
+        ownerId: "sample-user-1",
+        tenantId: "tenant-1",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    sampleDeals.forEach(deal => this.deals.set(deal.id, deal));
+
+    // Add sample activities
+    const sampleActivities: Activity[] = [
+      {
+        id: "activity-1",
+        leadId: "lead-1",
+        activityType: "call",
+        description: "اتصال متابعة مع العميل",
+        scheduledDate: new Date(),
+        completed: false,
+        ownerId: "sample-user-1",
+        tenantId: "tenant-1",
+        createdAt: new Date()
+      }
+    ];
+
+    sampleActivities.forEach(activity => this.activities.set(activity.id, activity));
+
+    // Add sample messages
+    const sampleMessages: Message[] = [
+      {
+        id: "message-1",
+        leadId: "lead-1",
+        messageType: "whatsapp",
+        phoneNumber: "966501234567",
+        message: "مرحباً أحمد، نود متابعة اهتمامك بالشقة في الرياض",
+        status: "sent",
+        sentAt: new Date(),
+        ownerId: "sample-user-1",
+        tenantId: "tenant-1",
+        createdAt: new Date()
+      }
+    ];
+
+    sampleMessages.forEach(message => this.messages.set(message.id, message));
   }
 
   // User methods
@@ -121,8 +308,8 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { 
-      ...insertUser, 
+    const user: User = {
+      ...insertUser,
       id,
       email: insertUser.email ?? null,
       firstName: insertUser.firstName ?? null,
@@ -139,7 +326,7 @@ export class MemStorage implements IStorage {
     if (!userData.id) {
       throw new Error("User ID is required for upsert");
     }
-    
+
     const existingUser = this.users.get(userData.id);
     const user: User = {
       id: userData.id,
@@ -155,8 +342,8 @@ export class MemStorage implements IStorage {
   }
 
   // Lead methods
-  async getAllLeads(): Promise<Lead[]> {
-    return Array.from(this.leads.values()).sort((a, b) => 
+  async getAllLeads(tenantId?: string): Promise<Lead[]> {
+    return Array.from(this.leads.values()).sort((a, b) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }
@@ -165,12 +352,12 @@ export class MemStorage implements IStorage {
     return this.leads.get(id);
   }
 
-  async createLead(insertLead: InsertLead): Promise<Lead> {
+  async createLead(insertLead: InsertLead, userId: string = "default-user", tenantId: string = "default-tenant"): Promise<Lead> {
     const id = randomUUID();
     const now = new Date();
-    const lead: Lead = { 
-      ...insertLead, 
-      id, 
+    const lead: Lead = {
+      ...insertLead,
+      id,
       phone: insertLead.phone || null,
       city: insertLead.city || null,
       age: insertLead.age || null,
@@ -191,11 +378,11 @@ export class MemStorage implements IStorage {
   async updateLead(id: string, leadUpdate: Partial<InsertLead>): Promise<Lead | undefined> {
     const lead = this.leads.get(id);
     if (!lead) return undefined;
-    
-    const updatedLead: Lead = { 
-      ...lead, 
-      ...leadUpdate, 
-      updatedAt: new Date() 
+
+    const updatedLead: Lead = {
+      ...lead,
+      ...leadUpdate,
+      updatedAt: new Date()
     };
     this.leads.set(id, updatedLead);
     return updatedLead;
@@ -216,8 +403,8 @@ export class MemStorage implements IStorage {
   }
 
   // Property methods
-  async getAllProperties(): Promise<Property[]> {
-    return Array.from(this.properties.values()).sort((a, b) => 
+  async getAllProperties(tenantId?: string): Promise<Property[]> {
+    return Array.from(this.properties.values()).sort((a, b) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }
@@ -226,10 +413,10 @@ export class MemStorage implements IStorage {
     return this.properties.get(id);
   }
 
-  async createProperty(insertProperty: InsertProperty): Promise<Property> {
+  async createProperty(insertProperty: InsertProperty, userId: string = "default-user", tenantId: string = "default-tenant"): Promise<Property> {
     const id = randomUUID();
     const now = new Date();
-    const property: Property = { 
+    const property: Property = {
       ...insertProperty,
       id,
       description: insertProperty.description || null,
@@ -251,11 +438,11 @@ export class MemStorage implements IStorage {
   async updateProperty(id: string, propertyUpdate: Partial<InsertProperty>): Promise<Property | undefined> {
     const property = this.properties.get(id);
     if (!property) return undefined;
-    
-    const updatedProperty: Property = { 
-      ...property, 
-      ...propertyUpdate, 
-      updatedAt: new Date() 
+
+    const updatedProperty: Property = {
+      ...property,
+      ...propertyUpdate,
+      updatedAt: new Date()
     };
     this.properties.set(id, updatedProperty);
     return updatedProperty;
@@ -275,8 +462,8 @@ export class MemStorage implements IStorage {
   }
 
   // Deal methods
-  async getAllDeals(): Promise<Deal[]> {
-    return Array.from(this.deals.values()).sort((a, b) => 
+  async getAllDeals(tenantId?: string): Promise<Deal[]> {
+    return Array.from(this.deals.values()).sort((a, b) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }
@@ -285,11 +472,11 @@ export class MemStorage implements IStorage {
     return this.deals.get(id);
   }
 
-  async createDeal(insertDeal: InsertDeal): Promise<Deal> {
+  async createDeal(insertDeal: InsertDeal, tenantId: string = "default-tenant"): Promise<Deal> {
     const id = randomUUID();
     const now = new Date();
-    const deal: Deal = { 
-      ...insertDeal, 
+    const deal: Deal = {
+      ...insertDeal,
       id,
       propertyId: insertDeal.propertyId || null,
       stage: insertDeal.stage || "lead",
@@ -308,11 +495,11 @@ export class MemStorage implements IStorage {
   async updateDeal(id: string, dealUpdate: Partial<InsertDeal>): Promise<Deal | undefined> {
     const deal = this.deals.get(id);
     if (!deal) return undefined;
-    
-    const updatedDeal: Deal = { 
-      ...deal, 
-      ...dealUpdate, 
-      updatedAt: new Date() 
+
+    const updatedDeal: Deal = {
+      ...deal,
+      ...dealUpdate,
+      updatedAt: new Date()
     };
     this.deals.set(id, updatedDeal);
     return updatedDeal;
@@ -327,17 +514,17 @@ export class MemStorage implements IStorage {
   }
 
   // Activity methods
-  async getActivitiesByLead(leadId: string): Promise<Activity[]> {
+  async getActivitiesByLead(leadId: string, tenantId?: string): Promise<Activity[]> {
     return Array.from(this.activities.values())
       .filter(activity => activity.leadId === leadId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  async createActivity(insertActivity: InsertActivity): Promise<Activity> {
+  async createActivity(insertActivity: InsertActivity, tenantId: string = "default-tenant"): Promise<Activity> {
     const id = randomUUID();
     const now = new Date();
-    const activity: Activity = { 
-      ...insertActivity, 
+    const activity: Activity = {
+      ...insertActivity,
       id,
       description: insertActivity.description || null,
       scheduledDate: insertActivity.scheduledDate || null,
@@ -351,9 +538,9 @@ export class MemStorage implements IStorage {
   async updateActivity(id: string, activityUpdate: Partial<InsertActivity>): Promise<Activity | undefined> {
     const activity = this.activities.get(id);
     if (!activity) return undefined;
-    
-    const updatedActivity: Activity = { 
-      ...activity, 
+
+    const updatedActivity: Activity = {
+      ...activity,
       ...activityUpdate
     };
     this.activities.set(id, updatedActivity);
@@ -364,7 +551,7 @@ export class MemStorage implements IStorage {
     return this.activities.delete(id);
   }
 
-  async getTodaysActivities(): Promise<Activity[]> {
+  async getTodaysActivities(tenantId?: string): Promise<Activity[]> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -378,19 +565,19 @@ export class MemStorage implements IStorage {
   }
 
   // Message methods
-  async getMessagesByLead(leadId: string): Promise<Message[]> {
+  async getMessagesByLead(leadId: string, tenantId?: string): Promise<Message[]> {
     return Array.from(this.messages.values()).filter(
       (message) => message.leadId === leadId
-    ).sort((a, b) => 
+    ).sort((a, b) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }
 
-  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+  async createMessage(insertMessage: InsertMessage, tenantId: string = "default-tenant"): Promise<Message> {
     const id = randomUUID();
     const now = new Date();
-    const message: Message = { 
-      ...insertMessage, 
+    const message: Message = {
+      ...insertMessage,
       id,
       status: insertMessage.status || "pending",
       sentAt: null,
@@ -403,9 +590,9 @@ export class MemStorage implements IStorage {
   async updateMessageStatus(id: string, status: string): Promise<Message | undefined> {
     const message = this.messages.get(id);
     if (!message) return undefined;
-    
-    const updatedMessage: Message = { 
-      ...message, 
+
+    const updatedMessage: Message = {
+      ...message,
       status,
       sentAt: status === 'sent' ? new Date() : message.sentAt
     };
@@ -413,8 +600,8 @@ export class MemStorage implements IStorage {
     return updatedMessage;
   }
 
-  async getAllMessages(): Promise<Message[]> {
-    return Array.from(this.messages.values()).sort((a, b) => 
+  async getAllMessages(tenantId?: string): Promise<Message[]> {
+    return Array.from(this.messages.values()).sort((a, b) =>
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }
@@ -425,31 +612,62 @@ export class MemStorage implements IStorage {
     return [];
   }
 
-  // Saudi Regions methods (basic implementation for MemStorage)
+  // Saudi Regions methods
   async getAllSaudiRegions(): Promise<SaudiRegion[]> {
-    // Return empty array for MemStorage - this will not be used in production
-    return [];
+    return this.saudiRegions;
   }
 
   async seedSaudiRegions(): Promise<SaudiRegion[]> {
-    // Return empty array for MemStorage - this will not be used in production
-    return [];
+    return this.saudiRegions;
   }
 
-  // Saudi Cities methods (basic implementation for MemStorage)
+  // Saudi Cities methods
   async getAllSaudiCities(): Promise<SaudiCity[]> {
-    // Return empty array for MemStorage - this will not be used in production
-    return [];
+    return this.saudiCities;
   }
 
   async getCitiesByRegion(regionCode: string): Promise<SaudiCity[]> {
-    // Return empty array for MemStorage - this will not be used in production
-    return [];
+    return this.saudiCities.filter(city => city.regionCode === regionCode);
   }
 
   async seedSaudiCities(): Promise<SaudiCity[]> {
-    // Return empty array for MemStorage - this will not be used in production
-    return [];
+    return this.saudiCities;
+  }
+
+  // User Permissions methods
+  async getUserPermissions(userId: string): Promise<UserPermissions | undefined> {
+    // Return undefined for MemStorage - basic implementation
+    return undefined;
+  }
+
+  async createUserPermissions(permissions: InsertUserPermissions): Promise<UserPermissions> {
+    // Basic implementation for MemStorage
+    const userPermissions: UserPermissions = {
+      id: randomUUID(),
+      userId: permissions.userId,
+      canManageCompanySettings: permissions.canManageCompanySettings || false,
+      canManageBilling: permissions.canManageBilling || false,
+      canManageUsers: permissions.canManageUsers || false,
+      canViewAllLeads: permissions.canViewAllLeads || false,
+      canEditAllLeads: permissions.canEditAllLeads || false,
+      canDeleteLeads: permissions.canDeleteLeads || false,
+      canViewAllProperties: permissions.canViewAllProperties || false,
+      canEditAllProperties: permissions.canEditAllProperties || false,
+      canDeleteProperties: permissions.canDeleteProperties || false,
+      canManageCampaigns: permissions.canManageCampaigns || false,
+      canManageIntegrations: permissions.canManageIntegrations || false,
+      canManageApiKeys: permissions.canManageApiKeys || false,
+      canViewReports: permissions.canViewReports || false,
+      canManageSystemSettings: permissions.canManageSystemSettings || false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    return userPermissions;
+  }
+
+  async updateUserPermissions(userId: string, permissions: Partial<InsertUserPermissions>): Promise<UserPermissions | undefined> {
+    // Basic implementation for MemStorage
+    return undefined;
   }
 }
 
@@ -477,7 +695,7 @@ export class DatabaseStorage implements IStorage {
     if (!userData.id) {
       throw new Error("User ID is required for upsert");
     }
-    
+
     const [user] = await db
       .insert(users)
       .values(userData)
@@ -562,22 +780,22 @@ export class DatabaseStorage implements IStorage {
       .update(leads)
       .set({ ...leadUpdate, updatedAt: new Date() })
       .where(eq(leads.id, id));
-    
+
     if (tenantId) {
       query = query.where(eq(leads.tenantId, tenantId));
     }
-    
+
     const [lead] = await query.returning();
     return lead || undefined;
   }
 
   async deleteLead(id: string, tenantId?: string): Promise<boolean> {
     let query = db.delete(leads).where(eq(leads.id, id));
-    
+
     if (tenantId) {
       query = query.where(eq(leads.tenantId, tenantId));
     }
-    
+
     const result = await query;
     return (result.rowCount ?? 0) > 0;
   }
@@ -631,22 +849,22 @@ export class DatabaseStorage implements IStorage {
       .update(properties)
       .set({ ...propertyUpdate, updatedAt: new Date() })
       .where(eq(properties.id, id));
-    
+
     if (tenantId) {
       query = query.where(eq(properties.tenantId, tenantId));
     }
-    
+
     const [property] = await query.returning();
     return property || undefined;
   }
 
   async deleteProperty(id: string, tenantId?: string): Promise<boolean> {
     let query = db.delete(properties).where(eq(properties.id, id));
-    
+
     if (tenantId) {
       query = query.where(eq(properties.tenantId, tenantId));
     }
-    
+
     const result = await query;
     return (result.rowCount ?? 0) > 0;
   }
@@ -698,22 +916,22 @@ export class DatabaseStorage implements IStorage {
       .update(deals)
       .set({ ...dealUpdate, updatedAt: new Date() })
       .where(eq(deals.id, id));
-    
+
     if (tenantId) {
       query = query.where(eq(deals.tenantId, tenantId));
     }
-    
+
     const [deal] = await query.returning();
     return deal || undefined;
   }
 
   async deleteDeal(id: string, tenantId?: string): Promise<boolean> {
     let query = db.delete(deals).where(eq(deals.id, id));
-    
+
     if (tenantId) {
       query = query.where(eq(deals.tenantId, tenantId));
     }
-    
+
     const result = await query;
     return (result.rowCount ?? 0) > 0;
   }
@@ -750,22 +968,22 @@ export class DatabaseStorage implements IStorage {
       .update(activities)
       .set(activityUpdate)
       .where(eq(activities.id, id));
-    
+
     if (tenantId) {
       query = query.where(eq(activities.tenantId, tenantId));
     }
-    
+
     const [activity] = await query.returning();
     return activity || undefined;
   }
 
   async deleteActivity(id: string, tenantId?: string): Promise<boolean> {
     let query = db.delete(activities).where(eq(activities.id, id));
-    
+
     if (tenantId) {
       query = query.where(eq(activities.tenantId, tenantId));
     }
-    
+
     const result = await query;
     return (result.rowCount ?? 0) > 0;
   }
@@ -811,16 +1029,16 @@ export class DatabaseStorage implements IStorage {
   async updateMessageStatus(id: string, status: string, tenantId?: string): Promise<Message | undefined> {
     let query = db
       .update(messages)
-      .set({ 
+      .set({
         status,
         sentAt: status === 'sent' ? new Date() : undefined
       })
       .where(eq(messages.id, id));
-    
+
     if (tenantId) {
       query = query.where(eq(messages.tenantId, tenantId));
     }
-    
+
     const [message] = await query.returning();
     return message || undefined;
   }
@@ -846,7 +1064,7 @@ export class DatabaseStorage implements IStorage {
   async seedSaudiRegions(): Promise<SaudiRegion[]> {
     // Check if regions already exist
     const existingRegions = await db.select().from(saudiRegions);
-    
+
     if (existingRegions.length > 0) {
       return existingRegions; // Return existing regions if already seeded
     }
@@ -924,7 +1142,7 @@ export class DatabaseStorage implements IStorage {
     const insertedRegions = await db.insert(saudiRegions)
       .values(regions)
       .returning();
-    
+
     return insertedRegions;
   }
 
@@ -942,7 +1160,7 @@ export class DatabaseStorage implements IStorage {
   async seedSaudiCities(): Promise<SaudiCity[]> {
     // Check if cities already exist
     const existingCities = await db.select().from(saudiCities);
-    
+
     if (existingCities.length > 0) {
       return existingCities; // Return existing cities if already seeded
     }
@@ -969,7 +1187,7 @@ export class DatabaseStorage implements IStorage {
       { nameArabic: "العلا", nameEnglish: "AlUla", regionCode: "SA-03", isCapital: false, population: 24500 },
       { nameArabic: "بدر", nameEnglish: "Badr", regionCode: "SA-03", isCapital: false, population: 60000 },
 
-      // Eastern Province (SA-04)  
+      // Eastern Province (SA-04)
       { nameArabic: "الدمام", nameEnglish: "Dammam", regionCode: "SA-04", isCapital: true, population: 1532300 },
       { nameArabic: "الخبر", nameEnglish: "Khobar", regionCode: "SA-04", isCapital: false, population: 658550 },
       { nameArabic: "الظهران", nameEnglish: "Dhahran", regionCode: "SA-04", isCapital: false, population: 143936 },
@@ -1027,9 +1245,396 @@ export class DatabaseStorage implements IStorage {
     const insertedCities = await db.insert(saudiCities)
       .values(cities)
       .returning();
-    
+
     return insertedCities;
   }
 }
 
-export const storage = new DatabaseStorage();
+// Cache layer for database operations
+class CachedDatabaseStorage implements IStorage {
+  private dbStorage: DatabaseStorage;
+  private cache: Map<string, { data: any; timestamp: number; ttl: number }>;
+  private readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
+
+  constructor() {
+    this.dbStorage = new DatabaseStorage();
+    this.cache = new Map();
+  }
+
+  private getCacheKey(method: string, ...args: any[]): string {
+    return `${method}:${JSON.stringify(args)}`;
+  }
+
+  private isExpired(item: { timestamp: number; ttl: number }): boolean {
+    return Date.now() - item.timestamp > item.ttl;
+  }
+
+  private async getFromCacheOrDb<T>(
+    cacheKey: string,
+    dbOperation: () => Promise<T>,
+    ttl: number = this.DEFAULT_TTL
+  ): Promise<T> {
+    const cached = this.cache.get(cacheKey);
+
+    if (cached && !this.isExpired(cached)) {
+      return cached.data;
+    }
+
+    try {
+      const data = await dbOperation();
+      this.cache.set(cacheKey, {
+        data,
+        timestamp: Date.now(),
+        ttl
+      });
+      return data;
+    } catch (error) {
+      // If database fails, return cached data even if expired
+      if (cached) {
+        console.log(`⚠️ Database error, using expired cache for ${cacheKey}`);
+        return cached.data;
+      }
+      throw error;
+    }
+  }
+
+  private invalidateCache(pattern: string) {
+    for (const key of this.cache.keys()) {
+      if (key.includes(pattern)) {
+        this.cache.delete(key);
+      }
+    }
+  }
+
+  // User methods
+  async getUser(id: string): Promise<User | undefined> {
+    const cacheKey = this.getCacheKey('getUser', id);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getUser(id));
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const cacheKey = this.getCacheKey('getUserByUsername', username);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getUserByUsername(username));
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const result = await this.dbStorage.createUser(user);
+    this.invalidateCache('getUser');
+    return result;
+  }
+
+  async upsertUser(user: UpsertUser): Promise<User> {
+    const result = await this.dbStorage.upsertUser(user);
+    this.invalidateCache('getUser');
+    return result;
+  }
+
+  // User Permissions methods
+  async getUserPermissions(userId: string): Promise<UserPermissions | undefined> {
+    const cacheKey = this.getCacheKey('getUserPermissions', userId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getUserPermissions(userId));
+  }
+
+  async createUserPermissions(permissions: InsertUserPermissions): Promise<UserPermissions> {
+    const result = await this.dbStorage.createUserPermissions(permissions);
+    this.invalidateCache('getUserPermissions');
+    return result;
+  }
+
+  async updateUserPermissions(userId: string, permissions: Partial<InsertUserPermissions>): Promise<UserPermissions | undefined> {
+    const result = await this.dbStorage.updateUserPermissions(userId, permissions);
+    this.invalidateCache('getUserPermissions');
+    return result;
+  }
+
+  // Lead methods with cache
+  async getAllLeads(tenantId?: string): Promise<Lead[]> {
+    const cacheKey = this.getCacheKey('getAllLeads', tenantId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getAllLeads(tenantId), 2 * 60 * 1000); // 2 min cache
+  }
+
+  async getLead(id: string, tenantId?: string): Promise<Lead | undefined> {
+    const cacheKey = this.getCacheKey('getLead', id, tenantId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getLead(id, tenantId));
+  }
+
+  async createLead(lead: InsertLead, userId: string, tenantId: string): Promise<Lead> {
+    const result = await this.dbStorage.createLead(lead, userId, tenantId);
+    this.invalidateCache('getAllLeads');
+    this.invalidateCache('getLead');
+    return result;
+  }
+
+  async updateLead(id: string, lead: Partial<InsertLead>, tenantId?: string): Promise<Lead | undefined> {
+    const result = await this.dbStorage.updateLead(id, lead, tenantId);
+    this.invalidateCache('getAllLeads');
+    this.invalidateCache('getLead');
+    return result;
+  }
+
+  async deleteLead(id: string, tenantId?: string): Promise<boolean> {
+    const result = await this.dbStorage.deleteLead(id, tenantId);
+    this.invalidateCache('getAllLeads');
+    this.invalidateCache('getLead');
+    return result;
+  }
+
+  async searchLeads(query: string, tenantId?: string): Promise<Lead[]> {
+    // Don't cache search results as they're dynamic
+    return this.dbStorage.searchLeads(query, tenantId);
+  }
+
+  // Property methods with cache
+  async getAllProperties(tenantId?: string): Promise<Property[]> {
+    const cacheKey = this.getCacheKey('getAllProperties', tenantId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getAllProperties(tenantId), 5 * 60 * 1000); // 5 min cache
+  }
+
+  async getProperty(id: string, tenantId?: string): Promise<Property | undefined> {
+    const cacheKey = this.getCacheKey('getProperty', id, tenantId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getProperty(id, tenantId));
+  }
+
+  async createProperty(property: InsertProperty, userId: string, tenantId: string): Promise<Property> {
+    const result = await this.dbStorage.createProperty(property, userId, tenantId);
+    this.invalidateCache('getAllProperties');
+    this.invalidateCache('getProperty');
+    return result;
+  }
+
+  async updateProperty(id: string, property: Partial<InsertProperty>, tenantId?: string): Promise<Property | undefined> {
+    const result = await this.dbStorage.updateProperty(id, property, tenantId);
+    this.invalidateCache('getAllProperties');
+    this.invalidateCache('getProperty');
+    return result;
+  }
+
+  async deleteProperty(id: string, tenantId?: string): Promise<boolean> {
+    const result = await this.dbStorage.deleteProperty(id, tenantId);
+    this.invalidateCache('getAllProperties');
+    this.invalidateCache('getProperty');
+    return result;
+  }
+
+  async searchProperties(query: string, tenantId?: string): Promise<Property[]> {
+    return this.dbStorage.searchProperties(query, tenantId);
+  }
+
+  // Deal methods with cache
+  async getAllDeals(tenantId?: string): Promise<Deal[]> {
+    const cacheKey = this.getCacheKey('getAllDeals', tenantId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getAllDeals(tenantId), 2 * 60 * 1000);
+  }
+
+  async getDeal(id: string, tenantId?: string): Promise<Deal | undefined> {
+    const cacheKey = this.getCacheKey('getDeal', id, tenantId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getDeal(id, tenantId));
+  }
+
+  async createDeal(deal: InsertDeal, tenantId: string): Promise<Deal> {
+    const result = await this.dbStorage.createDeal(deal, tenantId);
+    this.invalidateCache('getAllDeals');
+    this.invalidateCache('getDeal');
+    return result;
+  }
+
+  async updateDeal(id: string, deal: Partial<InsertDeal>, tenantId?: string): Promise<Deal | undefined> {
+    const result = await this.dbStorage.updateDeal(id, deal, tenantId);
+    this.invalidateCache('getAllDeals');
+    this.invalidateCache('getDeal');
+    return result;
+  }
+
+  async deleteDeal(id: string, tenantId?: string): Promise<boolean> {
+    const result = await this.dbStorage.deleteDeal(id, tenantId);
+    this.invalidateCache('getAllDeals');
+    this.invalidateCache('getDeal');
+    return result;
+  }
+
+  async getDealsByStage(stage: string, tenantId?: string): Promise<Deal[]> {
+    const cacheKey = this.getCacheKey('getDealsByStage', stage, tenantId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getDealsByStage(stage, tenantId));
+  }
+
+  // Activity methods with cache
+  async getActivitiesByLead(leadId: string, tenantId?: string): Promise<Activity[]> {
+    const cacheKey = this.getCacheKey('getActivitiesByLead', leadId, tenantId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getActivitiesByLead(leadId, tenantId));
+  }
+
+  async createActivity(activity: InsertActivity, tenantId: string): Promise<Activity> {
+    const result = await this.dbStorage.createActivity(activity, tenantId);
+    this.invalidateCache('getActivitiesByLead');
+    this.invalidateCache('getTodaysActivities');
+    return result;
+  }
+
+  async updateActivity(id: string, activity: Partial<InsertActivity>, tenantId?: string): Promise<Activity | undefined> {
+    const result = await this.dbStorage.updateActivity(id, activity, tenantId);
+    this.invalidateCache('getActivitiesByLead');
+    this.invalidateCache('getTodaysActivities');
+    return result;
+  }
+
+  async deleteActivity(id: string, tenantId?: string): Promise<boolean> {
+    const result = await this.dbStorage.deleteActivity(id, tenantId);
+    this.invalidateCache('getActivitiesByLead');
+    this.invalidateCache('getTodaysActivities');
+    return result;
+  }
+
+  async getTodaysActivities(tenantId?: string): Promise<Activity[]> {
+    const cacheKey = this.getCacheKey('getTodaysActivities', tenantId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getTodaysActivities(tenantId), 1 * 60 * 1000); // 1 min cache
+  }
+
+  // Message methods with cache
+  async getMessagesByLead(leadId: string, tenantId?: string): Promise<Message[]> {
+    const cacheKey = this.getCacheKey('getMessagesByLead', leadId, tenantId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getMessagesByLead(leadId, tenantId));
+  }
+
+  async createMessage(message: InsertMessage, tenantId: string): Promise<Message> {
+    const result = await this.dbStorage.createMessage(message, tenantId);
+    this.invalidateCache('getMessagesByLead');
+    this.invalidateCache('getAllMessages');
+    return result;
+  }
+
+  async updateMessageStatus(id: string, status: string, tenantId?: string): Promise<Message | undefined> {
+    const result = await this.dbStorage.updateMessageStatus(id, status, tenantId);
+    this.invalidateCache('getMessagesByLead');
+    this.invalidateCache('getAllMessages');
+    return result;
+  }
+
+  async getAllMessages(tenantId?: string): Promise<Message[]> {
+    const cacheKey = this.getCacheKey('getAllMessages', tenantId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getAllMessages(tenantId));
+  }
+
+  // Notification methods
+  async getNotifications(): Promise<any[]> {
+    const cacheKey = this.getCacheKey('getNotifications');
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getNotifications(), 30 * 1000); // 30 sec cache
+  }
+
+  // Saudi Regions methods with longer cache
+  async getAllSaudiRegions(): Promise<SaudiRegion[]> {
+    const cacheKey = this.getCacheKey('getAllSaudiRegions');
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getAllSaudiRegions(), 60 * 60 * 1000); // 1 hour cache
+  }
+
+  async seedSaudiRegions(): Promise<SaudiRegion[]> {
+    const result = await this.dbStorage.seedSaudiRegions();
+    this.invalidateCache('getAllSaudiRegions');
+    return result;
+  }
+
+  // Saudi Cities methods with longer cache
+  async getAllSaudiCities(): Promise<SaudiCity[]> {
+    const cacheKey = this.getCacheKey('getAllSaudiCities');
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getAllSaudiCities(), 60 * 60 * 1000); // 1 hour cache
+  }
+
+  async getCitiesByRegion(regionCode: string): Promise<SaudiCity[]> {
+    const cacheKey = this.getCacheKey('getCitiesByRegion', regionCode);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getCitiesByRegion(regionCode), 60 * 60 * 1000);
+  }
+
+  async seedSaudiCities(): Promise<SaudiCity[]> {
+    const result = await this.dbStorage.seedSaudiCities();
+    this.invalidateCache('getAllSaudiCities');
+    this.invalidateCache('getCitiesByRegion');
+    return result;
+  }
+}
+
+// Storage factory function
+async function createStorage(): Promise<IStorage> {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  // Check if we have a real database URL (not placeholder)
+  const isRealDatabase = databaseUrl &&
+    !databaseUrl.includes("placeholder") &&
+    !databaseUrl.includes("localhost:5432/placeholder");
+
+  if (isRealDatabase) {
+    try {
+      // Use cached database storage with real connection
+      const cachedStorage = new CachedDatabaseStorage();
+      // Test database connection
+      await cachedStorage.getAllSaudiRegions();
+      console.log("✅ Real database connection successful - using CachedDatabaseStorage");
+      console.log(`📊 Connected to: ${databaseUrl.split('@')[1]?.split('/')[0] || 'database'}`);
+      return cachedStorage;
+    } catch (error) {
+      console.log("❌ Real database connection failed:", error instanceof Error ? error.message : error);
+      throw new Error("Database connection required but failed. Please check your DATABASE_URL.");
+    }
+  } else {
+    console.log("⚠️ Using placeholder DATABASE_URL");
+    console.log("💡 To use real database, set a valid DATABASE_URL environment variable");
+    // For development with placeholder, still try to use cached storage but expect it to fail gracefully
+    try {
+      return new CachedDatabaseStorage();
+    } catch (error) {
+      throw new Error("Database connection required. Please provide a valid DATABASE_URL.");
+    }
+  }
+}
+
+// Create storage instance
+let storageInstance: IStorage | null = null;
+
+export const getStorage = async (): Promise<IStorage> => {
+  if (!storageInstance) {
+    storageInstance = await createStorage();
+  }
+  return storageInstance;
+};
+
+// For backward compatibility
+export const storage = {
+  async getUser(id: string) { return (await getStorage()).getUser(id); },
+  async getUserByUsername(username: string) { return (await getStorage()).getUserByUsername(username); },
+  async createUser(user: InsertUser) { return (await getStorage()).createUser(user); },
+  async upsertUser(user: UpsertUser) { return (await getStorage()).upsertUser(user); },
+  async getUserPermissions(userId: string) { return (await getStorage()).getUserPermissions(userId); },
+  async createUserPermissions(permissions: InsertUserPermissions) { return (await getStorage()).createUserPermissions(permissions); },
+  async updateUserPermissions(userId: string, permissions: Partial<InsertUserPermissions>) { return (await getStorage()).updateUserPermissions(userId, permissions); },
+  async getAllLeads(tenantId?: string) { return (await getStorage()).getAllLeads(tenantId); },
+  async getLead(id: string, tenantId?: string) { return (await getStorage()).getLead(id, tenantId); },
+  async createLead(lead: InsertLead, userId: string = "default-user", tenantId: string = "default-tenant") { return (await getStorage()).createLead(lead, userId, tenantId); },
+  async updateLead(id: string, lead: Partial<InsertLead>, tenantId?: string) { return (await getStorage()).updateLead(id, lead, tenantId); },
+  async deleteLead(id: string, tenantId?: string) { return (await getStorage()).deleteLead(id, tenantId); },
+  async searchLeads(query: string, tenantId?: string) { return (await getStorage()).searchLeads(query, tenantId); },
+  async getAllProperties(tenantId?: string) { return (await getStorage()).getAllProperties(tenantId); },
+  async getProperty(id: string, tenantId?: string) { return (await getStorage()).getProperty(id, tenantId); },
+  async createProperty(property: InsertProperty, userId: string = "default-user", tenantId: string = "default-tenant") { return (await getStorage()).createProperty(property, userId, tenantId); },
+  async updateProperty(id: string, property: Partial<InsertProperty>, tenantId?: string) { return (await getStorage()).updateProperty(id, property, tenantId); },
+  async deleteProperty(id: string, tenantId?: string) { return (await getStorage()).deleteProperty(id, tenantId); },
+  async searchProperties(query: string, tenantId?: string) { return (await getStorage()).searchProperties(query, tenantId); },
+  async getAllDeals(tenantId?: string) { return (await getStorage()).getAllDeals(tenantId); },
+  async getDeal(id: string, tenantId?: string) { return (await getStorage()).getDeal(id, tenantId); },
+  async createDeal(deal: InsertDeal, tenantId: string = "default-tenant") { return (await getStorage()).createDeal(deal, tenantId); },
+  async updateDeal(id: string, deal: Partial<InsertDeal>, tenantId?: string) { return (await getStorage()).updateDeal(id, deal, tenantId); },
+  async deleteDeal(id: string, tenantId?: string) { return (await getStorage()).deleteDeal(id, tenantId); },
+  async getDealsByStage(stage: string, tenantId?: string) { return (await getStorage()).getDealsByStage(stage, tenantId); },
+  async getActivitiesByLead(leadId: string, tenantId?: string) { return (await getStorage()).getActivitiesByLead(leadId, tenantId); },
+  async createActivity(activity: InsertActivity, tenantId: string = "default-tenant") { return (await getStorage()).createActivity(activity, tenantId); },
+  async updateActivity(id: string, activity: Partial<InsertActivity>, tenantId?: string) { return (await getStorage()).updateActivity(id, activity, tenantId); },
+  async deleteActivity(id: string, tenantId?: string) { return (await getStorage()).deleteActivity(id, tenantId); },
+  async getTodaysActivities(tenantId?: string) { return (await getStorage()).getTodaysActivities(tenantId); },
+  async getMessagesByLead(leadId: string, tenantId?: string) { return (await getStorage()).getMessagesByLead(leadId, tenantId); },
+  async createMessage(message: InsertMessage, tenantId: string = "default-tenant") { return (await getStorage()).createMessage(message, tenantId); },
+  async updateMessageStatus(id: string, status: string, tenantId?: string) { return (await getStorage()).updateMessageStatus(id, status, tenantId); },
+  async getAllMessages(tenantId?: string) { return (await getStorage()).getAllMessages(tenantId); },
+  async getNotifications() { return (await getStorage()).getNotifications(); },
+  async getAllSaudiRegions() { return (await getStorage()).getAllSaudiRegions(); },
+  async seedSaudiRegions() { return (await getStorage()).seedSaudiRegions(); },
+  async getAllSaudiCities() { return (await getStorage()).getAllSaudiCities(); },
+  async getCitiesByRegion(regionCode: string) { return (await getStorage()).getCitiesByRegion(regionCode); },
+  async seedSaudiCities() { return (await getStorage()).seedSaudiCities(); }
+};
