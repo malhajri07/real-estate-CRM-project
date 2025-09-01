@@ -83,22 +83,22 @@ export default function Landing() {
       </header>
 
       {/* Hero Section */}
-      <section id="home" className="py-20 bg-gradient-to-br from-primary/10 to-white">
+      <section id="home" className="py-20 bg-gradient-to-br from-primary/10 to-white" data-cms-section="hero">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="text-right">
-              <p className="text-primary font-medium mb-4">مرحباً بك في</p>
-              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+            <div className="text-right" data-cms-content="hero-content">
+              <p className="text-primary font-medium mb-4" data-cms-element="hero-welcome">مرحباً بك في</p>
+              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight" data-cms-field="heroTitle">
                 {landingContent?.heroTitle || "منصة عقاراتي للوساطة العقارية"}
               </h1>
-              <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed" data-cms-field="heroSubtitle">
                 {landingContent?.heroSubtitle || "منصة شاملة لإدارة العقارات والوساطة العقارية مع أدوات تسويق متقدمة"}
               </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button onClick={handleSignUp} className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg">
+              <div className="flex flex-col sm:flex-row gap-4" data-cms-element="hero-actions">
+                <Button onClick={handleSignUp} className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-lg" data-cms-field="heroButton">
                   {landingContent?.heroButton || "ابدأ رحلتك المجانية"}
                 </Button>
-                <Button onClick={handleLogin} variant="outline" className="border-primary text-primary hover:bg-primary/10 px-8 py-3 text-lg">
+                <Button onClick={handleLogin} variant="outline" className="border-primary text-primary hover:bg-primary/10 px-8 py-3 text-lg" data-cms-element="hero-login">
                   تسجيل الدخول
                 </Button>
               </div>
@@ -314,23 +314,23 @@ export default function Landing() {
 
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-white">
+      <section id="features" className="py-20 bg-white" data-cms-section="features">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16" data-cms-content="features-header">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4" data-cms-field="featuresTitle">
               {landingContent?.featuresTitle || "لماذا تختار منصة عقاراتي؟"}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-cms-element="features-description">
               عندما يجتمع التحديث بالاحترافية، تكون منصة عقاراتي هي الخيار الأمثل لإدارة عقاراتك بكفاءة
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-cms-collection="features">
             {landingContent?.features && landingContent.features.length > 0 ? (
               landingContent.features.map((feature) => (
-                <Card key={feature.id} className="text-center hover:shadow-lg transition-shadow duration-300">
+                <Card key={feature.id} className="text-center hover:shadow-lg transition-shadow duration-300" data-cms-item="feature" data-feature-id={feature.id}>
                   <CardContent className="p-8">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6" data-cms-element="feature-icon">
                       {/* Dynamic icon based on feature.icon */}
                       {feature.icon === 'users' && <Users className="h-8 w-8 text-green-600" />}
                       {feature.icon === 'building' && <Building className="h-8 w-8 text-green-600" />}
@@ -341,8 +341,8 @@ export default function Landing() {
                       {!['users', 'building', 'trending-up', 'bar-chart', 'message-square', 'shield'].includes(feature.icon) &&
                         <Building className="h-8 w-8 text-green-600" />}
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4">{feature.title}</h3>
-                    <p className="text-gray-600">{feature.description}</p>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4" data-cms-field="feature-title">{feature.title}</h3>
+                    <p className="text-gray-600" data-cms-field="feature-description">{feature.description}</p>
                   </CardContent>
                 </Card>
               ))
@@ -520,27 +520,119 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-gray-50">
+      {/* Stats Section */}
+      <section className="py-20 bg-green-600" data-cms-section="stats">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16" data-cms-content="stats-header">
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4" data-cms-field="statsTitle">
+              {landingContent?.statsTitle || "أرقامنا تتحدث"}
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" data-cms-collection="stats">
+            {landingContent?.stats && landingContent.stats.length > 0 ? (
+              landingContent.stats.map((stat) => (
+                <div key={stat.id} className="text-center" data-cms-item="stat" data-stat-id={stat.id}>
+                  <div className="text-4xl lg:text-5xl font-bold text-white mb-2" data-cms-field="stat-number">
+                    {stat.number}{stat.suffix || ''}
+                  </div>
+                  <p className="text-green-100 text-lg" data-cms-field="stat-label">{stat.label}</p>
+                </div>
+              ))
+            ) : (
+              // Fallback stats if CMS content is not available
+              <>
+                <div className="text-center">
+                  <div className="text-4xl lg:text-5xl font-bold text-white mb-2">10,000+</div>
+                  <p className="text-green-100 text-lg">عميل راضٍ</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl lg:text-5xl font-bold text-white mb-2">50,000+</div>
+                  <p className="text-green-100 text-lg">عقار تم بيعه</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl lg:text-5xl font-bold text-white mb-2">99.8%</div>
+                  <p className="text-green-100 text-lg">وقت تشغيل النظام</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl lg:text-5xl font-bold text-white mb-2">24/7</div>
+                  <p className="text-green-100 text-lg">دعم فني</p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-gray-50" data-cms-section="pricing">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16" data-cms-content="pricing-header">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4" data-cms-field="pricingTitle">
               {landingContent?.pricingTitle || "خطط الأسعار"}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-cms-field="pricingSubtitle">
               {landingContent?.pricingSubtitle || "اختر الخطة المناسبة لك"}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20">
-            {/* Starter Plan */}
-            <Card className="relative hover:shadow-xl transition-shadow duration-300 h-full">
-              <CardContent className="p-8 flex flex-col h-full">
-                <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">الباقة الأساسية</h3>
-                  <div className="text-4xl font-bold text-green-600 mb-2">مجاناً</div>
-                  <p className="text-gray-600">للمبتدئين</p>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20" data-cms-collection="pricing-plans">
+            {pricingPlans && pricingPlans.length > 0 ? (
+              pricingPlans.map((plan) => (
+                <Card key={plan.id} className={`relative hover:shadow-xl transition-shadow duration-300 h-full ${plan.isPopular ? 'border-2 border-green-500' : ''}`} data-cms-item="pricing-plan" data-plan-id={plan.id}>
+                  {plan.isPopular && (
+                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">الأكثر شعبية</span>
+                    </div>
+                  )}
+                  <CardContent className="p-8 flex flex-col h-full">
+                    <div className="text-center mb-8">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-4" data-cms-field="plan-name">{plan.name}</h3>
+                      <div className="text-4xl font-bold text-green-600 mb-2" data-cms-field="plan-price">
+                        {plan.price === 0 ? 'مجاناً' : `${plan.price} ﷼`}
+                      </div>
+                      <p className="text-gray-600" data-cms-field="plan-description">{plan.description}</p>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <ul className="space-y-4 text-right" data-cms-collection="plan-features">
+                        {plan.features.map((feature) => (
+                          <li key={feature.id} className="flex items-center gap-4 border-b border-gray-100 pb-3" data-cms-item="plan-feature" data-feature-id={feature.id}>
+                            {feature.included ? (
+                              <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                            ) : (
+                              <div className="h-5 w-5 flex-shrink-0"></div>
+                            )}
+                            <span className={`${feature.included ? 'text-gray-700' : 'text-gray-400 line-through'}`} data-cms-field="feature-text">
+                              {feature.text}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="mt-8">
+                      <Button 
+                        onClick={handleSignUp} 
+                        className={`w-full py-3 text-lg font-semibold ${plan.isPopular ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-900'}`}
+                        data-cms-field="plan-button"
+                      >
+                        {plan.buttonText}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              // Fallback static plans if CMS content is not available
+              <>
+                <Card className="relative hover:shadow-xl transition-shadow duration-300 h-full">
+                  <CardContent className="p-8 flex flex-col h-full">
+                    <div className="text-center mb-8">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-4">الباقة الأساسية</h3>
+                      <div className="text-4xl font-bold text-green-600 mb-2">مجاناً</div>
+                      <p className="text-gray-600">للمبتدئين</p>
+                    </div>
 
                 <div className="flex-1">
                   <ul className="space-y-4 text-right">
@@ -695,6 +787,8 @@ export default function Landing() {
                 </div>
               </CardContent>
             </Card>
+              </>
+            )}
           </div>
 
           {/* Features Comparison */}
