@@ -1,8 +1,8 @@
 {
   "collectionName": "components_shared_stats",
   "info": {
-    "displayName": "إحصائية",
-    "description": "مكون للإحصائيات في صفحة الهبوط"
+    "displayName": "Stat",
+    "description": "Statistics component for landing page"
   },
   "options": {},
   "attributes": {

@@ -1,8 +1,8 @@
 {
   "collectionName": "components_shared_features",
   "info": {
-    "displayName": "ميزة",
-    "description": "مكون للميزات في صفحة الهبوط"
+    "displayName": "Feature",
+    "description": "Feature component for landing page"
   },
   "options": {},
   "attributes": {

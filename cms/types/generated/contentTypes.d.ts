@@ -107,6 +107,43 @@ export interface AdminApiTokenPermission extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface AdminAuditLog extends Struct.CollectionTypeSchema {
+  collectionName: 'strapi_audit_logs';
+  info: {
+    displayName: 'Audit Log';
+    pluralName: 'audit-logs';
+    singularName: 'audit-log';
+  };
+  options: {
+    draftAndPublish: false;
+    timestamps: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    action: Schema.Attribute.String & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'admin::audit-log'> &
+      Schema.Attribute.Private;
+    payload: Schema.Attribute.JSON;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    user: Schema.Attribute.Relation<'oneToOne', 'admin::user'>;
+  };
+}
+
 export interface AdminPermission extends Struct.CollectionTypeSchema {
   collectionName: 'admin_permissions';
   info: {
@@ -376,8 +413,8 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
 export interface ApiLandingPageLandingPage extends Struct.SingleTypeSchema {
   collectionName: 'landing_pages';
   info: {
-    description: '\u0645\u062D\u062A\u0648\u0649 \u0635\u0641\u062D\u0629 \u0627\u0644\u0647\u0628\u0648\u0637 \u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629 \u0644\u0644\u0645\u0648\u0642\u0639';
-    displayName: '\u0635\u0641\u062D\u0629 \u0627\u0644\u0647\u0628\u0648\u0637 \u0627\u0644\u0631\u0626\u064A\u0633\u064A\u0629';
+    description: 'Landing page content';
+    displayName: 'Landing Page';
     pluralName: 'landing-pages';
     singularName: 'landing-page';
   };
@@ -389,35 +426,21 @@ export interface ApiLandingPageLandingPage extends Struct.SingleTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     features: Schema.Attribute.Component<'shared.feature', true>;
-    featuresTitle: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'\u0644\u0645\u0627\u0630\u0627 \u062A\u062E\u062A\u0627\u0631 \u0645\u0646\u0635\u0629 \u0639\u0642\u0627\u0631\u0627\u062A\u064A\u061F'>;
-    heroButton: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'\u0627\u0628\u062F\u0623 \u0631\u062D\u0644\u062A\u0643 \u0627\u0644\u0645\u062C\u0627\u0646\u064A\u0629'>;
-    heroSubtitle: Schema.Attribute.Text &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'\u0645\u0646\u0635\u0629 \u0634\u0627\u0645\u0644\u0629 \u0644\u0625\u062F\u0627\u0631\u0629 \u0627\u0644\u0639\u0642\u0627\u0631\u0627\u062A \u0648\u0627\u0644\u0648\u0633\u0627\u0637\u0629 \u0627\u0644\u0639\u0642\u0627\u0631\u064A\u0629 \u0645\u0639 \u0623\u062F\u0648\u0627\u062A \u062A\u0633\u0648\u064A\u0642 \u0645\u062A\u0642\u062F\u0645\u0629'>;
-    heroTitle: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'\u0645\u0646\u0635\u0629 \u0639\u0642\u0627\u0631\u0627\u062A\u064A \u0644\u0644\u0648\u0633\u0627\u0637\u0629 \u0627\u0644\u0639\u0642\u0627\u0631\u064A\u0629'>;
+    featuresTitle: Schema.Attribute.String & Schema.Attribute.Required;
+    heroButton: Schema.Attribute.String & Schema.Attribute.Required;
+    heroSubtitle: Schema.Attribute.Text & Schema.Attribute.Required;
+    heroTitle: Schema.Attribute.String & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::landing-page.landing-page'
     > &
       Schema.Attribute.Private;
-    pricingSubtitle: Schema.Attribute.Text &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'\u0627\u062E\u062A\u0631 \u0627\u0644\u062E\u0637\u0629 \u0627\u0644\u0645\u0646\u0627\u0633\u0628\u0629 \u0644\u0643'>;
-    pricingTitle: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'\u062E\u0637\u0637 \u0627\u0644\u0623\u0633\u0639\u0627\u0631'>;
+    pricingSubtitle: Schema.Attribute.Text & Schema.Attribute.Required;
+    pricingTitle: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     stats: Schema.Attribute.Component<'shared.stat', true>;
-    statsTitle: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<'\u0623\u0631\u0642\u0627\u0645\u0646\u0627 \u062A\u062A\u062D\u062F\u062B'>;
+    statsTitle: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -427,8 +450,8 @@ export interface ApiLandingPageLandingPage extends Struct.SingleTypeSchema {
 export interface ApiPricingPlanPricingPlan extends Struct.CollectionTypeSchema {
   collectionName: 'pricing_plans';
   info: {
-    description: '\u062E\u0637\u0637 \u0627\u0644\u062A\u0633\u0639\u064A\u0631 \u0644\u0644\u0645\u0648\u0642\u0639';
-    displayName: '\u062E\u0637\u0629 \u0627\u0644\u062A\u0633\u0639\u064A\u0631';
+    description: 'Pricing plans for the website';
+    displayName: 'Pricing Plan';
     pluralName: 'pricing-plans';
     singularName: 'pricing-plan';
   };
@@ -967,6 +990,7 @@ declare module '@strapi/strapi' {
     export interface ContentTypeSchemas {
       'admin::api-token': AdminApiToken;
       'admin::api-token-permission': AdminApiTokenPermission;
+      'admin::audit-log': AdminAuditLog;
       'admin::permission': AdminPermission;
       'admin::role': AdminRole;
       'admin::transfer-token': AdminTransferToken;

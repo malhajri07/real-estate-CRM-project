@@ -45,7 +45,7 @@ export default function Landing() {
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center" dir="rtl">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-lg font-medium text-gray-700">جار تحميل المحتوى...</p>
+          <p className="text-lg font-medium text-gray-700">{landingContent?.loadingText || "جار تحميل المحتوى..."}</p>
         </div>
       </div>
     );
@@ -63,16 +63,28 @@ export default function Landing() {
               </div>
             </div>
             <nav className="hidden md:flex space-x-reverse space-x-8">
-              <a href="#home" className="text-gray-700 hover:text-primary">الرئيسية</a>
-              <a href="/search-properties" className="text-gray-700 hover:text-primary">ابحث عن عقار</a>
-              <a href="#features" className="text-gray-700 hover:text-primary">المميزات</a>
-              <a href="#solutions" className="text-gray-700 hover:text-primary">الحلول</a>
-              <a href="#pricing" className="text-gray-700 hover:text-primary">الأسعار</a>
-              <a href="#contact" className="text-gray-700 hover:text-primary">اتصل بنا</a>
+              {landingContent?.navigation && landingContent.navigation.length > 0 ? (
+                landingContent.navigation
+                  .sort((a, b) => a.order - b.order)
+                  .map((item) => (
+                    <a key={item.id} href={item.url} className="text-gray-700 hover:text-primary">
+                      {item.text}
+                    </a>
+                  ))
+              ) : (
+                <>
+                  <a href="#home" className="text-gray-700 hover:text-primary">الرئيسية</a>
+                  <a href="/search-properties" className="text-gray-700 hover:text-primary">ابحث عن عقار</a>
+                  <a href="#features" className="text-gray-700 hover:text-primary">المميزات</a>
+                  <a href="#solutions" className="text-gray-700 hover:text-primary">الحلول</a>
+                  <a href="#pricing" className="text-gray-700 hover:text-primary">الأسعار</a>
+                  <a href="#contact" className="text-gray-700 hover:text-primary">اتصل بنا</a>
+                </>
+              )}
             </nav>
             <div className="flex items-center space-x-reverse space-x-4">
               <Button onClick={handleLogin} variant="outline" className="text-primary border-primary hover:bg-primary/10">
-                تسجيل الدخول
+                {landingContent?.heroLoginButton || "تسجيل الدخول"}
               </Button>
               <Button onClick={handleSignUp} className="bg-primary hover:bg-primary/90 text-white">
                 إنشاء حساب جديد
@@ -87,7 +99,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-right" data-cms-content="hero-content">
-              <p className="text-primary font-medium mb-4" data-cms-element="hero-welcome">مرحباً بك في</p>
+              <p className="text-primary font-medium mb-4" data-cms-element="hero-welcome">{landingContent?.heroWelcomeText || "مرحباً بك في"}</p>
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight" data-cms-field="heroTitle">
                 {landingContent?.heroTitle || "منصة عقاراتي للوساطة العقارية"}
               </h1>
@@ -99,7 +111,7 @@ export default function Landing() {
                   {landingContent?.heroButton || "ابدأ رحلتك المجانية"}
                 </Button>
                 <Button onClick={handleLogin} variant="outline" className="border-primary text-primary hover:bg-primary/10 px-8 py-3 text-lg" data-cms-element="hero-login">
-                  تسجيل الدخول
+                  {landingContent?.heroLoginButton || "تسجيل الدخول"}
                 </Button>
               </div>
             </div>
@@ -112,7 +124,7 @@ export default function Landing() {
                       <div className="w-4 h-4 bg-green-600 rounded flex items-center justify-center">
                         <Building className="h-2 w-2 text-white" />
                       </div>
-                      <span className="text-green-600 font-bold text-[10px]">منصة عقاراتي - لوحة التحكم</span>
+                      <span className="text-green-600 font-bold text-[10px]">{landingContent?.heroDashboardTitle || "منصة عقاراتي - لوحة التحكم"}</span>
                     </div>
                     <div className="flex space-x-reverse space-x-0.5">
                       <div className="w-1.5 h-1.5 bg-red-400 rounded-full"></div>
@@ -123,22 +135,35 @@ export default function Landing() {
 
                   {/* Top Metrics Grid */}
                   <div className="grid grid-cols-4 gap-1 text-center">
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-1.5 rounded">
-                      <div className="text-xs font-bold text-blue-600">1.2M ﷼</div>
-                      <div className="text-[7px] text-blue-700">إيرادات</div>
-                    </div>
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 p-1.5 rounded">
-                      <div className="text-xs font-bold text-green-600">3,847</div>
-                      <div className="text-[7px] text-green-700">عملاء</div>
-                    </div>
-                    <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-1.5 rounded">
-                      <div className="text-xs font-bold text-orange-600">89</div>
-                      <div className="text-[7px] text-orange-700">عقارات</div>
-                    </div>
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-1.5 rounded">
-                      <div className="text-xs font-bold text-purple-600">45</div>
-                      <div className="text-[7px] text-purple-700">صفقات</div>
-                    </div>
+                    {landingContent?.heroDashboardMetrics && landingContent.heroDashboardMetrics.length > 0 ? (
+                      landingContent.heroDashboardMetrics
+                        .sort((a, b) => a.order - b.order)
+                        .map((metric) => (
+                          <div key={metric.id} className={`bg-gradient-to-br from-${metric.color}-50 to-${metric.color}-100 p-1.5 rounded`}>
+                            <div className={`text-xs font-bold text-${metric.color}-600`}>{metric.value}</div>
+                            <div className={`text-[7px] text-${metric.color}-700`}>{metric.label}</div>
+                          </div>
+                        ))
+                    ) : (
+                      <>
+                        <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-1.5 rounded">
+                          <div className="text-xs font-bold text-blue-600">1.2M ﷼</div>
+                          <div className="text-[7px] text-blue-700">إيرادات</div>
+                        </div>
+                        <div className="bg-gradient-to-br from-green-50 to-green-100 p-1.5 rounded">
+                          <div className="text-xs font-bold text-green-600">3,847</div>
+                          <div className="text-[7px] text-green-700">عملاء</div>
+                        </div>
+                        <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-1.5 rounded">
+                          <div className="text-xs font-bold text-orange-600">89</div>
+                          <div className="text-[7px] text-orange-700">عقارات</div>
+                        </div>
+                        <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-1.5 rounded">
+                          <div className="text-xs font-bold text-purple-600">45</div>
+                          <div className="text-[7px] text-purple-700">صفقات</div>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Multi-Section Grid */}
@@ -321,7 +346,7 @@ export default function Landing() {
               {landingContent?.featuresTitle || "لماذا تختار منصة عقاراتي؟"}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-cms-element="features-description">
-              عندما يجتمع التحديث بالاحترافية، تكون منصة عقاراتي هي الخيار الأمثل لإدارة عقاراتك بكفاءة
+              {landingContent?.featuresDescription || "عندما يجتمع التحديث بالاحترافية، تكون منصة عقاراتي هي الخيار الأمثل لإدارة عقاراتك بكفاءة"}
             </p>
           </div>
 
@@ -431,10 +456,10 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              حلول شاملة لإدارة العقارات
+              {landingContent?.solutionsTitle || "حلول شاملة لإدارة العقارات"}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              أدوات متكاملة تساعدك في إدارة جميع جوانب أعمالك العقارية
+              {landingContent?.solutionsDescription || "أدوات متكاملة تساعدك في إدارة جميع جوانب أعمالك العقارية"}
             </p>
           </div>
 
@@ -528,7 +553,7 @@ export default function Landing() {
               {landingContent?.statsTitle || "أرقامنا تتحدث"}
             </h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" data-cms-collection="stats">
             {landingContent?.stats && landingContent.stats.length > 0 ? (
               landingContent.stats.map((stat) => (
@@ -593,7 +618,7 @@ export default function Landing() {
                       </div>
                       <p className="text-gray-600" data-cms-field="plan-description">{plan.description}</p>
                     </div>
-                    
+
                     <div className="flex-1">
                       <ul className="space-y-4 text-right" data-cms-collection="plan-features">
                         {plan.features.map((feature) => (
@@ -612,8 +637,8 @@ export default function Landing() {
                     </div>
 
                     <div className="mt-8">
-                      <Button 
-                        onClick={handleSignUp} 
+                      <Button
+                        onClick={handleSignUp}
                         className={`w-full py-3 text-lg font-semibold ${plan.isPopular ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-900'}`}
                         data-cms-field="plan-button"
                       >

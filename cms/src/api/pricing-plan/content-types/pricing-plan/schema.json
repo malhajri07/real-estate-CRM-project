@@ -4,8 +4,8 @@
   "info": {
     "singularName": "pricing-plan",
     "pluralName": "pricing-plans",
-    "displayName": "خطة التسعير",
-    "description": "خطط التسعير للموقع"
+    "displayName": "Pricing Plan",
+    "description": "Pricing plans for the website"
   },
   "options": {
     "draftAndPublish": true

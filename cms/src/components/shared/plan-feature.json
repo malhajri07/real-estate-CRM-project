@@ -1,8 +1,8 @@
 {
   "collectionName": "components_shared_plan_features",
   "info": {
-    "displayName": "ميزة الخطة",
-    "description": "مكون لميزات خطط التسعير"
+    "displayName": "Plan Feature",
+    "description": "Feature component for pricing plans"
   },
   "options": {},
   "attributes": {

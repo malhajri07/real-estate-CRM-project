@@ -43,17 +43,96 @@ export interface PricingPlan {
   order: number;
 }
 
+export interface NavigationItem {
+  id: number;
+  text: string;
+  url: string;
+  order: number;
+}
+
+export interface SolutionFeature {
+  id: number;
+  text: string;
+  icon: string;
+}
+
+export interface Solution {
+  id: number;
+  title: string;
+  description: string;
+  icon: string;
+  features: SolutionFeature[];
+  order: number;
+}
+
+export interface ContactInfo {
+  id: number;
+  type: string;
+  label: string;
+  value: string;
+  icon: string;
+}
+
+export interface FooterLink {
+  id: number;
+  text: string;
+  url: string;
+  category: string;
+  order: number;
+}
+
+export interface HeroDashboardMetric {
+  id: number;
+  value: string;
+  label: string;
+  color: string;
+  order: number;
+}
+
 export interface LandingPageContent {
   id: number;
+  // Loading text
+  loadingText: string;
+
+  // Hero Section
+  heroWelcomeText: string;
   heroTitle: string;
   heroSubtitle: string;
   heroButton: string;
+  heroLoginButton: string;
+  heroDashboardTitle: string;
+  heroDashboardMetrics: HeroDashboardMetric[];
+
+  // Features Section
   featuresTitle: string;
+  featuresDescription: string;
   features: Feature[];
-  pricingTitle: string;
-  pricingSubtitle: string;
+
+  // Solutions Section
+  solutionsTitle: string;
+  solutionsDescription: string;
+  solutions: Solution[];
+
+  // Stats Section
   statsTitle: string;
   stats: Stat[];
+
+  // Pricing Section
+  pricingTitle: string;
+  pricingSubtitle: string;
+
+  // Contact Section
+  contactTitle: string;
+  contactDescription: string;
+  contactInfo: ContactInfo[];
+
+  // Footer
+  footerDescription: string;
+  footerCopyright: string;
+  footerLinks: FooterLink[];
+
+  // Navigation
+  navigation: NavigationItem[];
 }
 
 // API functions
@@ -61,22 +140,50 @@ export const cmsService = {
   // جلب محتوى صفحة الهبوط
   async getLandingPageContent(): Promise<LandingPageContent> {
     try {
-      const response = await cmsApi.get('/landing-page?populate=features,stats');
+      const response = await cmsApi.get('/landing-page?populate=features,stats,solutions.features,navigation,heroDashboardMetrics,contactInfo,footerLinks');
       return response.data.data;
     } catch (error) {
       console.error('خطأ في جلب محتوى صفحة الهبوط من CMS:', error);
       // إرجاع محتوى افتراضي في حالة الخطأ
       return {
         id: 0,
+        loadingText: 'جار تحميل المحتوى...',
+        heroWelcomeText: 'مرحباً بك في',
         heroTitle: 'منصة عقاراتي للوساطة العقارية',
         heroSubtitle: 'منصة شاملة لإدارة العقارات والوساطة العقارية مع أدوات تسويق متقدمة',
         heroButton: 'ابدأ رحلتك المجانية',
+        heroLoginButton: 'تسجيل الدخول',
+        heroDashboardTitle: 'منصة عقاراتي - لوحة التحكم',
+        heroDashboardMetrics: [
+          { id: 1, value: '1.2M ﷼', label: 'إيرادات', color: 'blue', order: 1 },
+          { id: 2, value: '3,847', label: 'عملاء', color: 'green', order: 2 },
+          { id: 3, value: '89', label: 'عقارات', color: 'orange', order: 3 },
+          { id: 4, value: '45', label: 'صفقات', color: 'purple', order: 4 }
+        ],
         featuresTitle: 'لماذا تختار منصة عقاراتي؟',
+        featuresDescription: 'عندما يجتمع التحديث بالاحترافية، تكون منصة عقاراتي هي الخيار الأمثل لإدارة عقاراتك بكفاءة',
         features: [],
+        solutionsTitle: 'حلول شاملة لإدارة العقارات',
+        solutionsDescription: 'أدوات متكاملة تساعدك في إدارة جميع جوانب أعمالك العقارية',
+        solutions: [],
         pricingTitle: 'خطط الأسعار',
         pricingSubtitle: 'اختر الخطة المناسبة لك',
         statsTitle: 'أرقامنا تتحدث',
-        stats: []
+        stats: [],
+        contactTitle: 'تواصل معنا',
+        contactDescription: 'نحن هنا لمساعدتك في رحلتك العقارية',
+        contactInfo: [],
+        footerDescription: 'منصة عقاراتي - الحل الشامل لإدارة العقارات والوساطة العقارية',
+        footerCopyright: '© 2024 منصة عقاراتي. جميع الحقوق محفوظة.',
+        footerLinks: [],
+        navigation: [
+          { id: 1, text: 'الرئيسية', url: '#home', order: 1 },
+          { id: 2, text: 'ابحث عن عقار', url: '/search-properties', order: 2 },
+          { id: 3, text: 'المميزات', url: '#features', order: 3 },
+          { id: 4, text: 'الحلول', url: '#solutions', order: 4 },
+          { id: 5, text: 'الأسعار', url: '#pricing', order: 5 },
+          { id: 6, text: 'اتصل بنا', url: '#contact', order: 6 }
+        ]
       };
     }
   },
