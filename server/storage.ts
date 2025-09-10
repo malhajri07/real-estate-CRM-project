@@ -14,8 +14,18 @@ import {
   type InsertActivity,
   type Message,
   type InsertMessage,
+  type Report,
+  type InsertReport,
+  type RealEstateRequest,
+  type InsertRealEstateRequest,
   type SaudiRegion,
   type SaudiCity,
+  type SavedProperty,
+  type InsertSavedProperty,
+  type PropertyInquiry,
+  type InsertPropertyInquiry,
+  type PropertyAlert,
+  type InsertPropertyAlert,
   users,
   userPermissions,
   leads,
@@ -23,12 +33,17 @@ import {
   deals,
   activities,
   messages,
+  reports,
   saudiRegions,
-  saudiCities
+  saudiCities,
+  savedProperties,
+  propertyInquiries,
+  propertyAlerts,
+  realEstateRequests
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq, ilike, or, and, gte, lt } from "drizzle-orm";
+import { eq, ilike, or, and, gte, lt, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -90,6 +105,35 @@ export interface IStorage {
   getAllSaudiCities(): Promise<SaudiCity[]>;
   getCitiesByRegion(regionCode: string): Promise<SaudiCity[]>;
   seedSaudiCities(): Promise<SaudiCity[]>;
+
+  // Favorites (Saved Properties)
+  addFavorite(customerId: string, propertyId: string): Promise<SavedProperty>;
+  removeFavorite(customerId: string, propertyId: string): Promise<boolean>;
+  getFavoriteProperties(customerId: string): Promise<Property[]>;
+
+  // Property Inquiries
+  createPropertyInquiry(inquiry: InsertPropertyInquiry): Promise<PropertyInquiry>;
+
+  // Saved Searches (Property Alerts)
+  getSavedSearches(customerId: string): Promise<PropertyAlert[]>;
+  createSavedSearch(alert: InsertPropertyAlert): Promise<PropertyAlert>;
+  deleteSavedSearch(id: string, customerId: string): Promise<boolean>;
+
+  // Real Estate Requests (public submissions)
+  createRealEstateRequest(req: InsertRealEstateRequest): Promise<RealEstateRequest>;
+  listRealEstateRequests(): Promise<RealEstateRequest[]>;
+  updateRealEstateRequestStatus(id: string, status: string): Promise<RealEstateRequest | undefined>;
+
+  // Reports
+  createReport(report: InsertReport, reporterId?: string | null): Promise<Report>;
+  listReports(status?: string): Promise<Report[]>;
+  resolveReport(id: string, resolutionNote?: string): Promise<Report | undefined>;
+
+  // Agencies & Agents
+  listAgencies(): Promise<User[]>;
+  getAgency(id: string): Promise<User | undefined>;
+  listAgencyAgents(agencyId: string): Promise<User[]>;
+  getAgencyListings(agencyId: string): Promise<Property[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -101,6 +145,11 @@ export class MemStorage implements IStorage {
   private activities: Map<string, Activity>;
   private saudiRegions: SaudiRegion[];
   private saudiCities: SaudiCity[];
+  private favorites: Map<string, Set<string>>; // customerId -> propertyIds
+  private inquiries: PropertyInquiry[];
+  private alerts: PropertyAlert[];
+  private memReports: Report[];
+  private realEstateRequests: RealEstateRequest[];
 
   constructor() {
     this.users = new Map();
@@ -111,6 +160,11 @@ export class MemStorage implements IStorage {
     this.messages = new Map();
     this.saudiRegions = [];
     this.saudiCities = [];
+    this.favorites = new Map();
+    this.inquiries = [];
+    this.alerts = [];
+    this.memReports = [];
+    this.realEstateRequests = [];
 
     // Initialize with sample data
     this.initializeSampleData();
@@ -124,7 +178,7 @@ export class MemStorage implements IStorage {
       { nameArabic: "المدينة المنورة", nameEnglish: "Madinah", code: "SA-03" },
       { nameArabic: "المنطقة الشرقية", nameEnglish: "Eastern Province", code: "SA-04" },
       { nameArabic: "القصيم", nameEnglish: "Al-Qassim", code: "SA-05" }
-    ];
+    ] as any;
 
     // Add sample Saudi cities
     this.saudiCities = [
@@ -133,7 +187,7 @@ export class MemStorage implements IStorage {
       { nameArabic: "مكة المكرمة", nameEnglish: "Makkah", regionCode: "SA-02", isCapital: true, population: 2042000 },
       { nameArabic: "المدينة المنورة", nameEnglish: "Madinah", regionCode: "SA-03", isCapital: true, population: 1512724 },
       { nameArabic: "الدمام", nameEnglish: "Dammam", regionCode: "SA-04", isCapital: true, population: 1532300 }
-    ];
+    ] as any;
 
     // Add sample user
     const sampleUser: User = {
@@ -144,11 +198,62 @@ export class MemStorage implements IStorage {
       profileImageUrl: null,
       createdAt: new Date(),
       updatedAt: new Date()
-    };
+    } as any;
     this.users.set(sampleUser.id, sampleUser);
 
+    // Add sample agency (corporate company) and agent
+    const sampleAgency: User = {
+      id: "agency-1",
+      email: "agency@example.com",
+      firstName: "Agency",
+      lastName: "Company",
+      companyName: "شركة عقارية",
+      accountType: "corporate_company" as any,
+      isVerified: true as any,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as any;
+    this.users.set(sampleAgency.id, sampleAgency);
+
+    const sampleAgent: User = {
+      id: "agent-1",
+      email: "agent@example.com",
+      firstName: "Khalid",
+      lastName: "Saleh",
+      accountType: "individual_broker" as any,
+      parentCompanyId: sampleAgency.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as any;
+    this.users.set(sampleAgent.id, sampleAgent);
+
+    const sampleAgency2: User = {
+      id: "agency-2",
+      email: "agency2@example.com",
+      firstName: "United",
+      lastName: "Realty",
+      companyName: "شركة المتحدة للعقار",
+      accountType: "corporate_company" as any,
+      isVerified: false as any,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as any;
+    this.users.set(sampleAgency2.id, sampleAgency2);
+
+    const sampleAgent2: User = {
+      id: "agent-2",
+      email: "agent2@example.com",
+      firstName: "Fahad",
+      lastName: "Ali",
+      accountType: "individual_broker" as any,
+      parentCompanyId: sampleAgency2.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as any;
+    this.users.set(sampleAgent2.id, sampleAgent2);
+
     // Add sample leads
-    const sampleLeads: Lead[] = [
+    const sampleLeads: any[] = [
       {
         id: "lead-1",
         firstName: "أحمد",
@@ -193,39 +298,84 @@ export class MemStorage implements IStorage {
       }
     ];
 
-    sampleLeads.forEach(lead => this.leads.set(lead.id, lead));
+    sampleLeads.forEach(lead => this.leads.set(lead.id, lead as Lead));
 
-    // Add sample properties
-    const sampleProperties: Property[] = [
-      {
-        id: "property-1",
-        title: "شقة فاخرة في الرياض",
-        address: "حي النرجس، الرياض",
-        city: "الرياض",
-        price: "750000",
-        propertyCategory: "residential",
-        propertyType: "apartment",
-        description: "شقة من 3 غرف نوم مع صالة واسعة",
-        bedrooms: 3,
-        bathrooms: 2,
-        squareFeet: 1200,
-        latitude: 24.7136,
-        longitude: 46.6753,
-        photoUrls: null,
-        features: null,
-        status: "active",
-        ownerId: "sample-user-1",
-        createdBy: "sample-user-1",
-        tenantId: "tenant-1",
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
+    // Add sample properties (multiple cities with geo spread and photos)
+    const cities = [
+      { name: "الرياض", lat: 24.7136, lng: 46.6753 },
+      { name: "جدة", lat: 21.4894, lng: 39.2460 },
+      { name: "الدمام", lat: 26.4207, lng: 50.0888 },
+      { name: "مكة", lat: 21.3891, lng: 39.8579 },
+      { name: "الخبر", lat: 26.2172, lng: 50.1971 }
+    ];
+    const types = ["شقة", "فيلا", "دوبلكس", "تاون هاوس", "استوديو"];
+    const photos: string[][] = [
+      [
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7",
+        "https://images.unsplash.com/photo-1615873968403-89e068629265"
+      ],
+      [
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+        "https://images.unsplash.com/photo-1594736797933-d0f06b755b8f",
+        "https://images.unsplash.com/photo-1574362848149-11496d93a7c7"
+      ],
+      [
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688",
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750",
+        "https://images.unsplash.com/photo-1593696140826-c58b021acf8b"
+      ]
     ];
 
-    sampleProperties.forEach(property => this.properties.set(property.id, property));
+    let pid = 1;
+    for (let i = 0; i < 24; i++) {
+      const city = cities[i % cities.length];
+      const t = types[i % types.length];
+      const photoSet = photos[i % photos.length];
+      const jitterLat = city.lat + (Math.random() - 0.5) * 0.1;
+      const jitterLng = city.lng + (Math.random() - 0.5) * 0.1;
+      const price = (200000 + Math.round(Math.random() * 1800000)).toString();
+      const bedrooms = t === "شقة" || t === "دوبلكس" ? 2 + Math.floor(Math.random() * 4) : 4 + Math.floor(Math.random() * 4);
+      const bathrooms = t === "استوديو" ? 1 : 2 + Math.floor(Math.random() * 2);
+      const squareFeet = 120 + Math.floor(Math.random() * 380);
+
+      const useSecond = Math.random() > 0.5;
+      const p: any = {
+        id: `property-${pid++}`,
+        title: `${t} مميزة في ${city.name}`,
+        address: `شارع ${Math.floor(Math.random() * 100)}، ${city.name}`,
+        city: city.name,
+        state: city.name,
+        zipCode: "12345",
+        price,
+        propertyCategory: "سكني" as any,
+        propertyType: t as any,
+        description: "عقار بموقع مميز وتشطيبات راقية",
+        bedrooms,
+        bathrooms: bathrooms as any,
+        squareFeet,
+        latitude: jitterLat as any,
+        longitude: jitterLng as any,
+        photoUrls: photoSet as any,
+        features: ["موقف سيارات", "مصعد", "تكييف"] as any,
+        status: "active" as any,
+        isPubliclyVisible: true as any,
+        isFeatured: Math.random() > 0.7 as any,
+        listingType: "sale" as any,
+        availableFrom: new Date() as any,
+        ownerType: "broker" as any,
+        ownerId: useSecond ? "agent-2" : "agent-1",
+        companyId: (useSecond ? "agency-2" : "agency-1") as any,
+        tenantId: "tenant-1",
+        createdBy: "agent-1",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.properties.set(p.id, p as Property);
+    }
 
     // Add sample deals
-    const sampleDeals: Deal[] = [
+    const sampleDeals: any[] = [
       {
         id: "deal-1",
         leadId: "lead-1",
@@ -236,7 +386,6 @@ export class MemStorage implements IStorage {
         expectedCloseDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
         actualCloseDate: null,
         notes: "صفقة واعدة مع أحمد محمد",
-        ownerId: "sample-user-1",
         tenantId: "tenant-1",
         createdAt: new Date(),
         updatedAt: new Date()
@@ -251,17 +400,16 @@ export class MemStorage implements IStorage {
         expectedCloseDate: null,
         actualCloseDate: null,
         notes: "عميلة جديدة تبحث عن إيجار",
-        ownerId: "sample-user-1",
         tenantId: "tenant-1",
         createdAt: new Date(),
         updatedAt: new Date()
       }
     ];
 
-    sampleDeals.forEach(deal => this.deals.set(deal.id, deal));
+    sampleDeals.forEach(deal => this.deals.set(deal.id, deal as Deal));
 
     // Add sample activities
-    const sampleActivities: Activity[] = [
+    const sampleActivities: any[] = [
       {
         id: "activity-1",
         leadId: "lead-1",
@@ -269,16 +417,15 @@ export class MemStorage implements IStorage {
         description: "اتصال متابعة مع العميل",
         scheduledDate: new Date(),
         completed: false,
-        ownerId: "sample-user-1",
         tenantId: "tenant-1",
         createdAt: new Date()
       }
     ];
 
-    sampleActivities.forEach(activity => this.activities.set(activity.id, activity));
+    sampleActivities.forEach(activity => this.activities.set(activity.id, activity as Activity));
 
     // Add sample messages
-    const sampleMessages: Message[] = [
+    const sampleMessages: any[] = [
       {
         id: "message-1",
         leadId: "lead-1",
@@ -287,13 +434,12 @@ export class MemStorage implements IStorage {
         message: "مرحباً أحمد، نود متابعة اهتمامك بالشقة في الرياض",
         status: "sent",
         sentAt: new Date(),
-        ownerId: "sample-user-1",
         tenantId: "tenant-1",
         createdAt: new Date()
       }
     ];
 
-    sampleMessages.forEach(message => this.messages.set(message.id, message));
+    sampleMessages.forEach(message => this.messages.set(message.id, message as Message));
   }
 
   // User methods
@@ -317,7 +463,7 @@ export class MemStorage implements IStorage {
       profileImageUrl: insertUser.profileImageUrl ?? null,
       createdAt: new Date(),
       updatedAt: new Date()
-    };
+    } as any;
     this.users.set(id, user);
     return user;
   }
@@ -336,7 +482,7 @@ export class MemStorage implements IStorage {
       profileImageUrl: userData.profileImageUrl || null,
       createdAt: existingUser?.createdAt || new Date(),
       updatedAt: new Date(),
-    };
+    } as any;
     this.users.set(userData.id, user);
     return user;
   }
@@ -355,24 +501,29 @@ export class MemStorage implements IStorage {
   async createLead(insertLead: InsertLead, userId: string = "default-user", tenantId: string = "default-tenant"): Promise<Lead> {
     const id = randomUUID();
     const now = new Date();
-    const lead: Lead = {
+    const lead: any = {
       ...insertLead,
       id,
-      phone: insertLead.phone || null,
-      city: insertLead.city || null,
-      age: insertLead.age || null,
-      maritalStatus: insertLead.maritalStatus || null,
-      numberOfDependents: insertLead.numberOfDependents || 0,
-      leadSource: insertLead.leadSource || null,
-      interestType: insertLead.interestType || null,
-      budgetRange: insertLead.budgetRange || null,
-      status: insertLead.status || "new",
-      notes: insertLead.notes || null,
+      tenantId,
+      ownerId: (insertLead as any).ownerId ?? userId,
+      createdBy: (insertLead as any).createdBy ?? userId,
+      phone: insertLead.phone ?? null,
+      city: insertLead.city ?? null,
+      age: insertLead.age ?? null,
+      maritalStatus: insertLead.maritalStatus ?? null,
+      numberOfDependents: insertLead.numberOfDependents ?? 0,
+      leadSource: insertLead.leadSource ?? 'website',
+      interestType: insertLead.interestType ?? 'buying',
+      budgetRange: insertLead.budgetRange ?? null,
+      preferredPropertyTypes: (insertLead as any).preferredPropertyTypes ?? null,
+      preferredLocations: (insertLead as any).preferredLocations ?? null,
+      status: insertLead.status ?? "new",
+      notes: insertLead.notes ?? null,
       createdAt: now,
       updatedAt: now
     };
-    this.leads.set(id, lead);
-    return lead;
+    this.leads.set(id, lead as Lead);
+    return lead as Lead;
   }
 
   async updateLead(id: string, leadUpdate: Partial<InsertLead>): Promise<Lead | undefined> {
@@ -416,23 +567,41 @@ export class MemStorage implements IStorage {
   async createProperty(insertProperty: InsertProperty, userId: string = "default-user", tenantId: string = "default-tenant"): Promise<Property> {
     const id = randomUUID();
     const now = new Date();
-    const property: Property = {
+    const property: any = {
       ...insertProperty,
       id,
-      description: insertProperty.description || null,
-      bedrooms: insertProperty.bedrooms || null,
-      bathrooms: insertProperty.bathrooms || null,
-      squareFeet: insertProperty.squareFeet || null,
-      latitude: insertProperty.latitude || null,
-      longitude: insertProperty.longitude || null,
-      photoUrls: insertProperty.photoUrls || null,
-      features: insertProperty.features || null,
-      status: insertProperty.status || "active",
+      tenantId,
+      title: insertProperty.title,
+      address: insertProperty.address,
+      city: insertProperty.city,
+      state: (insertProperty as any).state ?? insertProperty.city ?? 'الرياض',
+      zipCode: (insertProperty as any).zipCode ?? '00000',
+      description: insertProperty.description ?? null,
+      propertyCategory: (insertProperty as any).propertyCategory ?? 'سكني',
+      propertyType: insertProperty.propertyType ?? 'شقة',
+      bedrooms: insertProperty.bedrooms ?? null,
+      bathrooms: insertProperty.bathrooms ?? null,
+      livingRooms: (insertProperty as any).livingRooms ?? null,
+      squareFeet: insertProperty.squareFeet ?? null,
+      latitude: insertProperty.latitude ?? null,
+      longitude: insertProperty.longitude ?? null,
+      photoUrls: insertProperty.photoUrls ?? null,
+      features: insertProperty.features ?? null,
+      status: insertProperty.status ?? "active",
+      isPubliclyVisible: (insertProperty as any).isPubliclyVisible ?? true,
+      isFeatured: (insertProperty as any).isFeatured ?? false,
+      listingType: (insertProperty as any).listingType ?? 'sale',
+      ownerType: (insertProperty as any).ownerType ?? 'broker',
+      ownerId: (insertProperty as any).ownerId ?? userId,
+      companyId: (insertProperty as any).companyId ?? null,
+      viewCount: (insertProperty as any).viewCount ?? 0,
+      inquiryCount: (insertProperty as any).inquiryCount ?? 0,
+      createdBy: (insertProperty as any).createdBy ?? userId,
       createdAt: now,
       updatedAt: now
     };
-    this.properties.set(id, property);
-    return property;
+    this.properties.set(id, property as Property);
+    return property as Property;
   }
 
   async updateProperty(id: string, propertyUpdate: Partial<InsertProperty>): Promise<Property | undefined> {
@@ -478,6 +647,7 @@ export class MemStorage implements IStorage {
     const deal: Deal = {
       ...insertDeal,
       id,
+      tenantId,
       propertyId: insertDeal.propertyId || null,
       stage: insertDeal.stage || "lead",
       dealValue: insertDeal.dealValue || null,
@@ -525,6 +695,7 @@ export class MemStorage implements IStorage {
     const now = new Date();
     const activity: Activity = {
       ...insertActivity,
+      tenantId,
       id,
       description: insertActivity.description || null,
       scheduledDate: insertActivity.scheduledDate || null,
@@ -578,6 +749,7 @@ export class MemStorage implements IStorage {
     const now = new Date();
     const message: Message = {
       ...insertMessage,
+      tenantId,
       id,
       status: insertMessage.status || "pending",
       sentAt: null,
@@ -634,6 +806,122 @@ export class MemStorage implements IStorage {
     return this.saudiCities;
   }
 
+  // Favorites (Saved Properties)
+  async addFavorite(customerId: string, propertyId: string): Promise<SavedProperty> {
+    const s = this.favorites.get(customerId) || new Set<string>();
+    s.add(propertyId);
+    this.favorites.set(customerId, s);
+    return {
+      id: randomUUID(),
+      customerId,
+      propertyId,
+      notes: null,
+      createdAt: new Date(),
+    } as SavedProperty;
+  }
+
+  async removeFavorite(customerId: string, propertyId: string): Promise<boolean> {
+    const s = this.favorites.get(customerId);
+    if (!s) return false;
+    const existed = s.delete(propertyId);
+    if (s.size === 0) this.favorites.delete(customerId);
+    return existed;
+  }
+
+  async getFavoriteProperties(customerId: string): Promise<Property[]> {
+    const set = this.favorites.get(customerId) || new Set<string>();
+    const ids = new Set(set);
+    return Array.from(this.properties.values()).filter(p => ids.has(p.id));
+  }
+
+  // Property Inquiries
+  async createPropertyInquiry(inquiry: InsertPropertyInquiry): Promise<PropertyInquiry> {
+    const rec: PropertyInquiry = {
+      ...(inquiry as any),
+      id: randomUUID(),
+      respondedAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as PropertyInquiry;
+    this.inquiries.push(rec);
+    return rec;
+  }
+
+  // Saved Searches (Property Alerts)
+  async getSavedSearches(customerId: string): Promise<PropertyAlert[]> {
+    return this.alerts.filter(a => a.customerId === customerId);
+  }
+
+  async createSavedSearch(alert: InsertPropertyAlert): Promise<PropertyAlert> {
+    const rec: PropertyAlert = {
+      ...(alert as any),
+      id: randomUUID(),
+      isActive: alert.isActive ?? true,
+      lastSent: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as PropertyAlert;
+    this.alerts.push(rec);
+    return rec;
+  }
+
+  async deleteSavedSearch(id: string, customerId: string): Promise<boolean> {
+    const before = this.alerts.length;
+    this.alerts = this.alerts.filter(a => !(a.id === id && a.customerId === customerId));
+    return this.alerts.length !== before;
+  }
+
+  // Reports
+  async createReport(report: InsertReport, reporterId?: string | null): Promise<Report> {
+    const rec: Report = {
+      ...(report as any),
+      id: randomUUID(),
+      reporterId: reporterId || report.reporterId || null,
+      status: 'open',
+      createdAt: new Date(),
+      resolvedAt: null,
+    } as Report;
+    this.memReports.push(rec);
+    return rec;
+  }
+
+  async listReports(status?: string): Promise<Report[]> {
+    return this.memReports.filter(r => (status ? r.status === status : true));
+  }
+
+  async resolveReport(id: string, resolutionNote?: string): Promise<Report | undefined> {
+    const r = this.memReports.find(x => x.id === id);
+    if (!r) return undefined;
+    (r as any).status = 'resolved';
+    (r as any).resolutionNote = resolutionNote || null;
+    (r as any).resolvedAt = new Date();
+    return r;
+  }
+
+  // Real Estate Requests
+  async createRealEstateRequest(req: InsertRealEstateRequest): Promise<RealEstateRequest> {
+    const rec: RealEstateRequest = {
+      ...(req as any),
+      id: randomUUID(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as RealEstateRequest;
+    this.realEstateRequests.push(rec);
+    return rec;
+  }
+
+  async listRealEstateRequests(): Promise<RealEstateRequest[]> {
+    return this.realEstateRequests.slice().sort((a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime());
+  }
+
+  async updateRealEstateRequestStatus(id: string, status: string): Promise<RealEstateRequest | undefined> {
+    const idx = this.realEstateRequests.findIndex(r => r.id === id);
+    if (idx === -1) return undefined;
+    const updated = { ...(this.realEstateRequests[idx] as any), status, updatedAt: new Date() } as RealEstateRequest;
+    this.realEstateRequests[idx] = updated;
+    return updated;
+  }
+
   // User Permissions methods
   async getUserPermissions(userId: string): Promise<UserPermissions | undefined> {
     // Return undefined for MemStorage - basic implementation
@@ -648,17 +936,18 @@ export class MemStorage implements IStorage {
       canManageCompanySettings: permissions.canManageCompanySettings || false,
       canManageBilling: permissions.canManageBilling || false,
       canManageUsers: permissions.canManageUsers || false,
-      canViewAllLeads: permissions.canViewAllLeads || false,
-      canEditAllLeads: permissions.canEditAllLeads || false,
-      canDeleteLeads: permissions.canDeleteLeads || false,
-      canViewAllProperties: permissions.canViewAllProperties || false,
-      canEditAllProperties: permissions.canEditAllProperties || false,
-      canDeleteProperties: permissions.canDeleteProperties || false,
+      canManageRoles: permissions.canManageRoles || false,
+      canViewLeads: permissions.canViewLeads || true,
+      canCreateEditDeleteLeads: permissions.canCreateEditDeleteLeads || true,
+      canExportData: permissions.canExportData || false,
       canManageCampaigns: permissions.canManageCampaigns || false,
       canManageIntegrations: permissions.canManageIntegrations || false,
       canManageApiKeys: permissions.canManageApiKeys || false,
       canViewReports: permissions.canViewReports || false,
-      canManageSystemSettings: permissions.canManageSystemSettings || false,
+      canViewAuditLogs: permissions.canViewAuditLogs || false,
+      canCreateSupportTickets: permissions.canCreateSupportTickets || true,
+      canImpersonateUsers: permissions.canImpersonateUsers || false,
+      canWipeCompanyData: permissions.canWipeCompanyData || false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -668,6 +957,22 @@ export class MemStorage implements IStorage {
   async updateUserPermissions(userId: string, permissions: Partial<InsertUserPermissions>): Promise<UserPermissions | undefined> {
     // Basic implementation for MemStorage
     return undefined;
+  }
+
+  // Agencies & Agents
+  async listAgencies(): Promise<User[]> {
+    return Array.from(this.users.values()).filter((u: any) => u.accountType === 'corporate_company');
+  }
+  async getAgency(id: string): Promise<User | undefined> {
+    const u = this.users.get(id);
+    return u && (u as any).accountType === 'corporate_company' ? u : undefined;
+  }
+  async listAgencyAgents(agencyId: string): Promise<User[]> {
+    return Array.from(this.users.values()).filter((u: any) => u.parentCompanyId === agencyId);
+    
+  }
+  async getAgencyListings(agencyId: string): Promise<Property[]> {
+    return Array.from(this.properties.values()).filter((p: any) => p.companyId === agencyId);
   }
 }
 
@@ -702,19 +1007,7 @@ export class DatabaseStorage implements IStorage {
       .onConflictDoUpdate({
         target: users.id,
         set: {
-          email: userData.email,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          profileImageUrl: userData.profileImageUrl,
-          userLevel: userData.userLevel,
-          accountOwnerId: userData.accountOwnerId,
-          companyName: userData.companyName,
-          isActive: userData.isActive,
-          subscriptionStatus: userData.subscriptionStatus,
-          subscriptionTier: userData.subscriptionTier,
-          maxSeats: userData.maxSeats,
-          usedSeats: userData.usedSeats,
-          tenantId: userData.tenantId,
+          ...userData,
           updatedAt: new Date(),
         },
       })
@@ -755,11 +1048,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getLead(id: string, tenantId?: string): Promise<Lead | undefined> {
-    let query = db.select().from(leads).where(eq(leads.id, id));
-    if (tenantId) {
-      query = query.where(eq(leads.tenantId, tenantId));
-    }
-    const [lead] = await query;
+    const whereExpr = tenantId
+      ? and(eq(leads.id, id), eq(leads.tenantId, tenantId))
+      : eq(leads.id, id);
+    const [lead] = await db.select().from(leads).where(whereExpr);
     return lead || undefined;
   }
 
@@ -776,27 +1068,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateLead(id: string, leadUpdate: Partial<InsertLead>, tenantId?: string): Promise<Lead | undefined> {
-    let query = db
+    const whereExpr = tenantId
+      ? and(eq(leads.id, id), eq(leads.tenantId, tenantId))
+      : eq(leads.id, id);
+    const [lead] = await db
       .update(leads)
       .set({ ...leadUpdate, updatedAt: new Date() })
-      .where(eq(leads.id, id));
-
-    if (tenantId) {
-      query = query.where(eq(leads.tenantId, tenantId));
-    }
-
-    const [lead] = await query.returning();
+      .where(whereExpr)
+      .returning();
     return lead || undefined;
   }
 
   async deleteLead(id: string, tenantId?: string): Promise<boolean> {
-    let query = db.delete(leads).where(eq(leads.id, id));
-
-    if (tenantId) {
-      query = query.where(eq(leads.tenantId, tenantId));
-    }
-
-    const result = await query;
+    const whereExpr = tenantId
+      ? and(eq(leads.id, id), eq(leads.tenantId, tenantId))
+      : eq(leads.id, id);
+    const result = await db.delete(leads).where(whereExpr);
     return (result.rowCount ?? 0) > 0;
   }
 
@@ -824,11 +1111,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getProperty(id: string, tenantId?: string): Promise<Property | undefined> {
-    let query = db.select().from(properties).where(eq(properties.id, id));
-    if (tenantId) {
-      query = query.where(eq(properties.tenantId, tenantId));
-    }
-    const [property] = await query;
+    const whereExpr = tenantId
+      ? and(eq(properties.id, id), eq(properties.tenantId, tenantId))
+      : eq(properties.id, id);
+    const [property] = await db.select().from(properties).where(whereExpr);
     return property || undefined;
   }
 
@@ -845,27 +1131,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateProperty(id: string, propertyUpdate: Partial<InsertProperty>, tenantId?: string): Promise<Property | undefined> {
-    let query = db
+    const whereExpr = tenantId
+      ? and(eq(properties.id, id), eq(properties.tenantId, tenantId))
+      : eq(properties.id, id);
+    const [property] = await db
       .update(properties)
       .set({ ...propertyUpdate, updatedAt: new Date() })
-      .where(eq(properties.id, id));
-
-    if (tenantId) {
-      query = query.where(eq(properties.tenantId, tenantId));
-    }
-
-    const [property] = await query.returning();
+      .where(whereExpr)
+      .returning();
     return property || undefined;
   }
 
   async deleteProperty(id: string, tenantId?: string): Promise<boolean> {
-    let query = db.delete(properties).where(eq(properties.id, id));
-
-    if (tenantId) {
-      query = query.where(eq(properties.tenantId, tenantId));
-    }
-
-    const result = await query;
+    const whereExpr = tenantId
+      ? and(eq(properties.id, id), eq(properties.tenantId, tenantId))
+      : eq(properties.id, id);
+    const result = await db.delete(properties).where(whereExpr);
     return (result.rowCount ?? 0) > 0;
   }
 
@@ -883,6 +1164,118 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(properties).where(whereCondition);
   }
 
+  // Favorites (Saved Properties)
+  async addFavorite(customerId: string, propertyId: string): Promise<SavedProperty> {
+    const [row] = await db
+      .insert(savedProperties)
+      .values({ customerId, propertyId })
+      .returning();
+    return row;
+  }
+
+  async removeFavorite(customerId: string, propertyId: string): Promise<boolean> {
+    const result = await db
+      .delete(savedProperties)
+      .where(and(eq(savedProperties.customerId, customerId), eq(savedProperties.propertyId, propertyId)));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  async getFavoriteProperties(customerId: string): Promise<Property[]> {
+    const favs = await db.select().from(savedProperties).where(eq(savedProperties.customerId, customerId));
+    const ids = favs.map(f => f.propertyId);
+    if (ids.length === 0) return [];
+    return await db.select().from(properties).where(inArray(properties.id, ids));
+  }
+
+  // Property Inquiries
+  async createPropertyInquiry(inquiry: InsertPropertyInquiry): Promise<PropertyInquiry> {
+    const [row] = await db.insert(propertyInquiries).values(inquiry).returning();
+    return row;
+  }
+
+  // Saved Searches (Property Alerts)
+  async getSavedSearches(customerId: string): Promise<PropertyAlert[]> {
+    return await db.select().from(propertyAlerts).where(eq(propertyAlerts.customerId, customerId));
+  }
+
+  async createSavedSearch(alert: InsertPropertyAlert): Promise<PropertyAlert> {
+    const [row] = await db.insert(propertyAlerts).values(alert).returning();
+    return row;
+  }
+
+  async deleteSavedSearch(id: string, customerId: string): Promise<boolean> {
+    const result = await db
+      .delete(propertyAlerts)
+      .where(and(eq(propertyAlerts.id, id), eq(propertyAlerts.customerId, customerId)));
+    return (result.rowCount ?? 0) > 0;
+  }
+
+  // Reports
+  async createReport(report: InsertReport, reporterId?: string | null): Promise<Report> {
+    const [row] = await db
+      .insert(reports)
+      .values({ ...report, reporterId: reporterId ?? report.reporterId })
+      .returning();
+    return row;
+  }
+
+  async listReports(status?: string): Promise<Report[]> {
+    if (status) {
+      return await db.select().from(reports).where(eq(reports.status, status));
+    }
+    return await db.select().from(reports);
+  }
+
+  async resolveReport(id: string, resolutionNote?: string): Promise<Report | undefined> {
+    const [row] = await db
+      .update(reports)
+      .set({ status: 'resolved', resolutionNote: resolutionNote ?? null, resolvedAt: new Date() })
+      .where(eq(reports.id, id))
+      .returning();
+    return row || undefined;
+  }
+
+  // Real Estate Requests
+  async createRealEstateRequest(req: InsertRealEstateRequest): Promise<RealEstateRequest> {
+    const [row] = await db
+      .insert(realEstateRequests)
+      .values(req)
+      .returning();
+    return row;
+  }
+
+  async listRealEstateRequests(): Promise<RealEstateRequest[]> {
+    return await db.select().from(realEstateRequests).orderBy(realEstateRequests.createdAt);
+  }
+
+  async updateRealEstateRequestStatus(id: string, status: string): Promise<RealEstateRequest | undefined> {
+    const [row] = await db
+      .update(realEstateRequests)
+      .set({ status: status as any, updatedAt: new Date() })
+      .where(eq(realEstateRequests.id, id))
+      .returning();
+    return row || undefined;
+  }
+
+  // Agencies & Agents
+  async listAgencies(): Promise<User[]> {
+    // @ts-ignore accountType field exists in schema
+    return await db.select().from(users).where(eq((users as any).accountType, 'corporate_company'));
+  }
+  async getAgency(id: string): Promise<User | undefined> {
+    // @ts-ignore accountType field exists in schema
+    const [row] = await db.select().from(users).where(and(eq(users.id, id), eq((users as any).accountType, 'corporate_company')));
+    return row || undefined;
+  }
+  async listAgencyAgents(agencyId: string): Promise<User[]> {
+    // @ts-ignore parentCompanyId field exists in schema
+    return await db.select().from(users).where(eq((users as any).parentCompanyId, agencyId));
+  }
+  async getAgencyListings(agencyId: string): Promise<Property[]> {
+    // @ts-ignore companyId field exists in schema
+    return await db.select().from(properties).where(eq((properties as any).companyId, agencyId));
+  }
+
   // Multi-tenant Deal methods
   async getAllDeals(tenantId?: string): Promise<Deal[]> {
     if (tenantId) {
@@ -892,11 +1285,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getDeal(id: string, tenantId?: string): Promise<Deal | undefined> {
-    let query = db.select().from(deals).where(eq(deals.id, id));
-    if (tenantId) {
-      query = query.where(eq(deals.tenantId, tenantId));
-    }
-    const [deal] = await query;
+    const whereExpr = tenantId
+      ? and(eq(deals.id, id), eq(deals.tenantId, tenantId))
+      : eq(deals.id, id);
+    const [deal] = await db.select().from(deals).where(whereExpr);
     return deal || undefined;
   }
 
@@ -912,27 +1304,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateDeal(id: string, dealUpdate: Partial<InsertDeal>, tenantId?: string): Promise<Deal | undefined> {
-    let query = db
+    const whereExpr = tenantId
+      ? and(eq(deals.id, id), eq(deals.tenantId, tenantId))
+      : eq(deals.id, id);
+    const [deal] = await db
       .update(deals)
       .set({ ...dealUpdate, updatedAt: new Date() })
-      .where(eq(deals.id, id));
-
-    if (tenantId) {
-      query = query.where(eq(deals.tenantId, tenantId));
-    }
-
-    const [deal] = await query.returning();
+      .where(whereExpr)
+      .returning();
     return deal || undefined;
   }
 
   async deleteDeal(id: string, tenantId?: string): Promise<boolean> {
-    let query = db.delete(deals).where(eq(deals.id, id));
-
-    if (tenantId) {
-      query = query.where(eq(deals.tenantId, tenantId));
-    }
-
-    const result = await query;
+    const whereExpr = tenantId
+      ? and(eq(deals.id, id), eq(deals.tenantId, tenantId))
+      : eq(deals.id, id);
+    const result = await db.delete(deals).where(whereExpr);
     return (result.rowCount ?? 0) > 0;
   }
 
@@ -945,11 +1332,10 @@ export class DatabaseStorage implements IStorage {
 
   // Multi-tenant Activity methods
   async getActivitiesByLead(leadId: string, tenantId?: string): Promise<Activity[]> {
-    let query = db.select().from(activities).where(eq(activities.leadId, leadId));
-    if (tenantId) {
-      query = query.where(eq(activities.tenantId, tenantId));
-    }
-    return await query.orderBy(activities.createdAt);
+    const whereExpr = tenantId
+      ? and(eq(activities.leadId, leadId), eq(activities.tenantId, tenantId))
+      : eq(activities.leadId, leadId);
+    return await db.select().from(activities).where(whereExpr).orderBy(activities.createdAt);
   }
 
   async createActivity(insertActivity: InsertActivity, tenantId: string): Promise<Activity> {
@@ -964,27 +1350,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateActivity(id: string, activityUpdate: Partial<InsertActivity>, tenantId?: string): Promise<Activity | undefined> {
-    let query = db
+    const whereExpr = tenantId
+      ? and(eq(activities.id, id), eq(activities.tenantId, tenantId))
+      : eq(activities.id, id);
+    const [activity] = await db
       .update(activities)
       .set(activityUpdate)
-      .where(eq(activities.id, id));
-
-    if (tenantId) {
-      query = query.where(eq(activities.tenantId, tenantId));
-    }
-
-    const [activity] = await query.returning();
+      .where(whereExpr)
+      .returning();
     return activity || undefined;
   }
 
   async deleteActivity(id: string, tenantId?: string): Promise<boolean> {
-    let query = db.delete(activities).where(eq(activities.id, id));
-
-    if (tenantId) {
-      query = query.where(eq(activities.tenantId, tenantId));
-    }
-
-    const result = await query;
+    const whereExpr = tenantId
+      ? and(eq(activities.id, id), eq(activities.tenantId, tenantId))
+      : eq(activities.id, id);
+    const result = await db.delete(activities).where(whereExpr);
     return (result.rowCount ?? 0) > 0;
   }
 
@@ -1008,11 +1389,10 @@ export class DatabaseStorage implements IStorage {
 
   // Multi-tenant Message methods
   async getMessagesByLead(leadId: string, tenantId?: string): Promise<Message[]> {
-    let query = db.select().from(messages).where(eq(messages.leadId, leadId));
-    if (tenantId) {
-      query = query.where(eq(messages.tenantId, tenantId));
-    }
-    return await query.orderBy(messages.createdAt);
+    const whereExpr = tenantId
+      ? and(eq(messages.leadId, leadId), eq(messages.tenantId, tenantId))
+      : eq(messages.leadId, leadId);
+    return await db.select().from(messages).where(whereExpr).orderBy(messages.createdAt);
   }
 
   async createMessage(insertMessage: InsertMessage, tenantId: string): Promise<Message> {
@@ -1027,19 +1407,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateMessageStatus(id: string, status: string, tenantId?: string): Promise<Message | undefined> {
-    let query = db
+    const whereExpr = tenantId
+      ? and(eq(messages.id, id), eq(messages.tenantId, tenantId))
+      : eq(messages.id, id);
+    const [message] = await db
       .update(messages)
       .set({
         status,
         sentAt: status === 'sent' ? new Date() : undefined
       })
-      .where(eq(messages.id, id));
-
-    if (tenantId) {
-      query = query.where(eq(messages.tenantId, tenantId));
-    }
-
-    const [message] = await query.returning();
+      .where(whereExpr)
+      .returning();
     return message || undefined;
   }
 
@@ -1299,7 +1677,7 @@ class CachedDatabaseStorage implements IStorage {
   }
 
   private invalidateCache(pattern: string) {
-    for (const key of this.cache.keys()) {
+    for (const key of Array.from(this.cache.keys())) {
       if (key.includes(pattern)) {
         this.cache.delete(key);
       }
@@ -1549,6 +1927,105 @@ class CachedDatabaseStorage implements IStorage {
     this.invalidateCache('getCitiesByRegion');
     return result;
   }
+
+  // Favorites (Saved Properties)
+  async addFavorite(customerId: string, propertyId: string): Promise<SavedProperty> {
+    const result = await this.dbStorage.addFavorite(customerId, propertyId);
+    this.invalidateCache('getFavoriteProperties');
+    return result;
+  }
+
+  async removeFavorite(customerId: string, propertyId: string): Promise<boolean> {
+    const result = await this.dbStorage.removeFavorite(customerId, propertyId);
+    this.invalidateCache('getFavoriteProperties');
+    return result;
+  }
+
+  async getFavoriteProperties(customerId: string): Promise<Property[]> {
+    const cacheKey = this.getCacheKey('getFavoriteProperties', customerId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getFavoriteProperties(customerId));
+  }
+
+  // Property Inquiries
+  async createPropertyInquiry(inquiry: InsertPropertyInquiry): Promise<PropertyInquiry> {
+    const result = await this.dbStorage.createPropertyInquiry(inquiry);
+    return result;
+  }
+
+  // Saved Searches (Property Alerts)
+  async getSavedSearches(customerId: string): Promise<PropertyAlert[]> {
+    const cacheKey = this.getCacheKey('getSavedSearches', customerId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getSavedSearches(customerId));
+  }
+
+  async createSavedSearch(alert: InsertPropertyAlert): Promise<PropertyAlert> {
+    const result = await this.dbStorage.createSavedSearch(alert);
+    this.invalidateCache('getSavedSearches');
+    return result;
+  }
+
+  async deleteSavedSearch(id: string, customerId: string): Promise<boolean> {
+    const result = await this.dbStorage.deleteSavedSearch(id, customerId);
+    this.invalidateCache('getSavedSearches');
+    return result;
+  }
+
+  // Reports
+  async createReport(report: InsertReport, reporterId?: string | null): Promise<Report> {
+    const result = await this.dbStorage.createReport(report, reporterId ?? null);
+    this.invalidateCache('listReports');
+    return result;
+  }
+
+  async listReports(status?: string): Promise<Report[]> {
+    const cacheKey = this.getCacheKey('listReports', status ?? 'all');
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.listReports(status));
+  }
+
+  async resolveReport(id: string, resolutionNote?: string): Promise<Report | undefined> {
+    const result = await this.dbStorage.resolveReport(id, resolutionNote);
+    this.invalidateCache('listReports');
+    return result;
+  }
+
+  // Agencies & Agents
+  async listAgencies(): Promise<User[]> {
+    const cacheKey = this.getCacheKey('listAgencies');
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.listAgencies());
+  }
+
+  // Real Estate Requests (cached)
+  async createRealEstateRequest(req: InsertRealEstateRequest): Promise<RealEstateRequest> {
+    const result = await this.dbStorage.createRealEstateRequest(req);
+    this.invalidateCache('listRealEstateRequests');
+    return result;
+  }
+
+  async listRealEstateRequests(): Promise<RealEstateRequest[]> {
+    const cacheKey = this.getCacheKey('listRealEstateRequests');
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.listRealEstateRequests());
+  }
+
+  async updateRealEstateRequestStatus(id: string, status: string): Promise<RealEstateRequest | undefined> {
+    const result = await this.dbStorage.updateRealEstateRequestStatus(id, status);
+    this.invalidateCache('listRealEstateRequests');
+    return result;
+  }
+
+  async getAgency(id: string): Promise<User | undefined> {
+    const cacheKey = this.getCacheKey('getAgency', id);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getAgency(id));
+  }
+
+  async listAgencyAgents(agencyId: string): Promise<User[]> {
+    const cacheKey = this.getCacheKey('listAgencyAgents', agencyId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.listAgencyAgents(agencyId));
+  }
+
+  async getAgencyListings(agencyId: string): Promise<Property[]> {
+    const cacheKey = this.getCacheKey('getAgencyListings', agencyId);
+    return this.getFromCacheOrDb(cacheKey, () => this.dbStorage.getAgencyListings(agencyId));
+  }
 }
 
 // Storage factory function
@@ -1576,11 +2053,12 @@ async function createStorage(): Promise<IStorage> {
   } else {
     console.log("⚠️ Using placeholder DATABASE_URL");
     console.log("💡 To use real database, set a valid DATABASE_URL environment variable");
-    // For development with placeholder, still try to use cached storage but expect it to fail gracefully
+    // For development with placeholder DB, fall back to in-memory storage so the app is functional
     try {
-      return new CachedDatabaseStorage();
+      console.log("🧠 Falling back to in-memory storage (MemStorage) for development");
+      return new MemStorage();
     } catch (error) {
-      throw new Error("Database connection required. Please provide a valid DATABASE_URL.");
+      throw new Error("Failed to initialize in-memory storage.");
     }
   }
 }
@@ -1636,5 +2114,28 @@ export const storage = {
   async seedSaudiRegions() { return (await getStorage()).seedSaudiRegions(); },
   async getAllSaudiCities() { return (await getStorage()).getAllSaudiCities(); },
   async getCitiesByRegion(regionCode: string) { return (await getStorage()).getCitiesByRegion(regionCode); },
-  async seedSaudiCities() { return (await getStorage()).seedSaudiCities(); }
+  async seedSaudiCities() { return (await getStorage()).seedSaudiCities(); },
+  // Favorites
+  async addFavorite(customerId: string, propertyId: string) { return (await getStorage()).addFavorite(customerId, propertyId); },
+  async removeFavorite(customerId: string, propertyId: string) { return (await getStorage()).removeFavorite(customerId, propertyId); },
+  async getFavoriteProperties(customerId: string) { return (await getStorage()).getFavoriteProperties(customerId); },
+  // Inquiries
+  async createPropertyInquiry(inquiry: InsertPropertyInquiry) { return (await getStorage()).createPropertyInquiry(inquiry); },
+  // Saved Searches
+  async getSavedSearches(customerId: string) { return (await getStorage()).getSavedSearches(customerId); },
+  async createSavedSearch(alert: InsertPropertyAlert) { return (await getStorage()).createSavedSearch(alert); },
+  async deleteSavedSearch(id: string, customerId: string) { return (await getStorage()).deleteSavedSearch(id, customerId); },
+  // Reports
+  async createReport(report: InsertReport, reporterId?: string | null) { return (await getStorage()).createReport(report, reporterId); },
+  async listReports(status?: string) { return (await getStorage()).listReports(status); },
+  async resolveReport(id: string, note?: string) { return (await getStorage()).resolveReport(id, note); },
+  // Real Estate Requests
+  async createRealEstateRequest(req: InsertRealEstateRequest) { return (await getStorage()).createRealEstateRequest(req); },
+  async listRealEstateRequests() { return (await getStorage()).listRealEstateRequests(); },
+  async updateRealEstateRequestStatus(id: string, status: string) { return (await getStorage()).updateRealEstateRequestStatus(id, status); },
+  // Agencies
+  async listAgencies() { return (await getStorage()).listAgencies(); },
+  async getAgency(id: string) { return (await getStorage()).getAgency(id); },
+  async listAgencyAgents(agencyId: string) { return (await getStorage()).listAgencyAgents(agencyId); },
+  async getAgencyListings(agencyId: string) { return (await getStorage()).getAgencyListings(agencyId); },
 };

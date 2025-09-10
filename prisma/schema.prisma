@@ -1,0 +1,450 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  WEBSITE_ADMIN
+  CORP_OWNER
+  CORP_AGENT
+  INDIV_AGENT
+  SELLER
+  BUYER
+}
+
+enum OrganizationStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum AgentStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum PropertyStatus {
+  ACTIVE
+  INACTIVE
+  SOLD
+  RENTED
+  PENDING_APPROVAL
+}
+
+enum ListingType {
+  RENT
+  SALE
+}
+
+enum ListingStatus {
+  ACTIVE
+  INACTIVE
+  SOLD
+  RENTED
+  PENDING_APPROVAL
+}
+
+enum BuyerRequestStatus {
+  OPEN
+  CLAIMED
+  CLOSED
+  PAUSED
+}
+
+enum SellerSubmissionStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+  PAUSED
+}
+
+enum LeadStatus {
+  NEW
+  IN_PROGRESS
+  WON
+  LOST
+}
+
+enum ClaimStatus {
+  ACTIVE
+  EXPIRED
+  RELEASED
+  CONVERTED
+}
+
+enum ContactChannel {
+  PHONE
+  EMAIL
+  WHATSAPP
+  SMS
+  IN_PERSON
+}
+
+// Core Models
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  phone          String?   @unique
+  firstName      String
+  lastName       String
+  passwordHash   String
+  roles          UserRole[]
+  organizationId String?
+  isActive       Boolean   @default(true)
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  organization     Organization?     @relation(fields: [organizationId], references: [id])
+  agentProfile     AgentProfile?
+  properties       Property[]
+  listings         Listing[]
+  buyerRequests    BuyerRequest[]
+  sellerSubmissions SellerSubmission[]
+  leads            Lead[]
+  claims           Claim[]
+  contactLogs      ContactLog[]
+  auditLogs        AuditLog[]
+  fileAssets       FileAsset[]
+
+  @@map("users")
+}
+
+model Organization {
+  id           String             @id @default(cuid())
+  legalName    String
+  tradeName    String
+  licenseNo    String             @unique
+  status       OrganizationStatus @default(PENDING_VERIFICATION)
+  address      String?
+  phone        String?
+  email        String?
+  website      String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  // Relations
+  users        User[]
+  agentProfiles AgentProfile[]
+  properties   Property[]
+  listings     Listing[]
+  fileAssets   FileAsset[]
+
+  @@map("organizations")
+}
+
+model AgentProfile {
+  id                String      @id @default(cuid())
+  userId            String      @unique
+  organizationId    String?
+  licenseNo         String      @unique
+  licenseValidTo    DateTime
+  territories       String[]    // Array of city/district codes
+  isIndividualAgent Boolean     @default(false)
+  status            AgentStatus @default(PENDING_VERIFICATION)
+  specialties       String[]    // Array of property types
+  experience        Int?        // Years of experience
+  bio               String?
+  avatar            String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  user         User        @relation(fields: [userId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  properties   Property[]
+  listings     Listing[]
+  leads        Lead[]
+  claims       Claim[]
+  contactLogs  ContactLog[]
+
+  @@map("agent_profiles")
+}
+
+model Property {
+  id              String        @id @default(cuid())
+  agentId         String
+  organizationId  String?
+  title           String
+  description     String
+  type            String        // e.g., "شقة", "فيلا", "دوبلكس"
+  category        String        // e.g., "سكني", "تجاري"
+  city            String
+  district        String?
+  address         String
+  bedrooms        Int?
+  bathrooms       Decimal?
+  areaSqm         Decimal?
+  price           Decimal
+  status          PropertyStatus @default(ACTIVE)
+  visibility      String        @default("public") // public, private, organization
+  latitude        Decimal?
+  longitude       Decimal?
+  features        String[]      // Array of features
+  photos          String[]      // Array of photo URLs
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  agent        User        @relation(fields: [agentId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+  listings     Listing[]
+
+  @@map("properties")
+}
+
+model Listing {
+  id          String        @id @default(cuid())
+  propertyId  String
+  agentId     String
+  organizationId String?
+  listingType ListingType
+  exclusive   Boolean       @default(false)
+  publishedAt DateTime?
+  status      ListingStatus @default(ACTIVE)
+  price       Decimal?
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  property    Property     @relation(fields: [propertyId], references: [id])
+  agent       User         @relation(fields: [agentId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@map("listings")
+}
+
+model BuyerRequest {
+  id                  String             @id @default(cuid())
+  createdByUserId     String
+  city                String
+  type                String
+  minBedrooms         Int?
+  maxBedrooms         Int?
+  minPrice            Decimal?
+  maxPrice            Decimal?
+  contactPreferences  Json               // { channels: [], timeWindows: [], etc. }
+  status              BuyerRequestStatus @default(OPEN)
+  maskedContact       Json               // { phone: "05**-***-1234", email: "u***@example.com" }
+  fullContactJson     Json               // Full contact details (encrypted)
+  multiAgentAllowed   Boolean            @default(false)
+  notes               String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  // Relations
+  createdBy   User   @relation(fields: [createdByUserId], references: [id])
+  leads       Lead[]
+  claims      Claim[]
+
+  @@map("buyer_requests")
+}
+
+model SellerSubmission {
+  id                  String               @id @default(cuid())
+  createdByUserId     String
+  city                String
+  type                String
+  bedrooms            Int?
+  priceExpectation    Decimal?
+  exclusivePreference Boolean              @default(false)
+  status              SellerSubmissionStatus @default(OPEN)
+  maskedContact       Json                 // { phone: "05**-***-1234", email: "u***@example.com" }
+  fullContactJson     Json                 // Full contact details (encrypted)
+  notes               String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  // Relations
+  createdBy User @relation(fields: [createdByUserId], references: [id])
+  leads     Lead[]
+
+  @@map("seller_submissions")
+}
+
+model Lead {
+  id                  String     @id @default(cuid())
+  agentId             String
+  buyerRequestId      String?
+  sellerSubmissionId  String?
+  status              LeadStatus @default(NEW)
+  notes               String?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  // Relations
+  agent           User            @relation(fields: [agentId], references: [id])
+  buyerRequest    BuyerRequest?   @relation(fields: [buyerRequestId], references: [id])
+  sellerSubmission SellerSubmission? @relation(fields: [sellerSubmissionId], references: [id])
+  contactLogs     ContactLog[]
+
+  @@map("leads")
+}
+
+model Claim {
+  id             String      @id @default(cuid())
+  agentId        String
+  buyerRequestId String
+  claimedAt      DateTime    @default(now())
+  expiresAt      DateTime
+  status         ClaimStatus @default(ACTIVE)
+  notes          String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  // Relations
+  agent        User         @relation(fields: [agentId], references: [id])
+  buyerRequest BuyerRequest @relation(fields: [buyerRequestId], references: [id])
+
+  @@map("claims")
+}
+
+model ContactLog {
+  id        String         @id @default(cuid())
+  leadId    String
+  agentId   String
+  note      String
+  channel   ContactChannel
+  contactedAt DateTime     @default(now())
+  createdAt DateTime       @default(now())
+
+  // Relations
+  lead Lead @relation(fields: [leadId], references: [id])
+  agent User @relation(fields: [agentId], references: [id])
+
+  @@map("contact_logs")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String   // e.g., "CREATE", "UPDATE", "DELETE", "CLAIM", "RELEASE"
+  entity    String   // e.g., "PROPERTY", "BUYER_REQUEST", "CLAIM"
+  entityId  String
+  beforeJson Json?   // Previous state
+  afterJson  Json?   // New state
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model FileAsset {
+  id             String  @id @default(cuid())
+  ownerUserId    String?
+  organizationId String?
+  entity         String  // e.g., "PROPERTY", "USER", "ORGANIZATION"
+  entityId       String
+  url            String
+  mime           String
+  size           Int
+  filename       String
+  createdAt      DateTime @default(now())
+
+  // Relations
+  owner        User?         @relation(fields: [ownerUserId], references: [id])
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@map("file_assets")
+}
+
+// Indexes for performance
+model User {
+  @@index([email])
+  @@index([organizationId])
+  @@index([isActive])
+}
+
+model Organization {
+  @@index([licenseNo])
+  @@index([status])
+}
+
+model AgentProfile {
+  @@index([userId])
+  @@index([organizationId])
+  @@index([licenseNo])
+  @@index([status])
+}
+
+model Property {
+  @@index([agentId])
+  @@index([organizationId])
+  @@index([city])
+  @@index([status])
+  @@index([type])
+  @@index([price])
+}
+
+model Listing {
+  @@index([propertyId])
+  @@index([agentId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([listingType])
+}
+
+model BuyerRequest {
+  @@index([createdByUserId])
+  @@index([city])
+  @@index([status])
+  @@index([type])
+  @@index([maxPrice])
+}
+
+model SellerSubmission {
+  @@index([createdByUserId])
+  @@index([city])
+  @@index([status])
+  @@index([type])
+}
+
+model Lead {
+  @@index([agentId])
+  @@index([buyerRequestId])
+  @@index([sellerSubmissionId])
+  @@index([status])
+}
+
+model Claim {
+  @@index([agentId])
+  @@index([buyerRequestId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model ContactLog {
+  @@index([leadId])
+  @@index([agentId])
+  @@index([contactedAt])
+}
+
+model AuditLog {
+  @@index([userId])
+  @@index([entity])
+  @@index([entityId])
+  @@index([createdAt])
+}
+
+model FileAsset {
+  @@index([ownerUserId])
+  @@index([organizationId])
+  @@index([entity])
+  @@index([entityId])
+}

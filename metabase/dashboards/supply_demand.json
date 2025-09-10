@@ -1,0 +1,195 @@
+{
+  "name": "Supply & Demand Analytics",
+  "description": "Property supply and buyer demand analytics",
+  "parameters": [
+    {
+      "name": "Date Range",
+      "slug": "date_range",
+      "type": "date/range",
+      "default": "past30days"
+    },
+    {
+      "name": "City",
+      "slug": "city",
+      "type": "string/=",
+      "default": null
+    },
+    {
+      "name": "Property Type",
+      "slug": "property_type",
+      "type": "string/=",
+      "default": null
+    }
+  ],
+  "cards": [
+    {
+      "name": "Properties by City",
+      "description": "Property distribution by city",
+      "query": {
+        "source-table": "stg_properties",
+        "aggregation": [["count"]],
+        "breakout": [["field", "city", null]],
+        "filter": ["=", ["field", "status", null], "AVAILABLE"]
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.x_axis.title_text": "City",
+        "graph.y_axis.title_text": "Property Count"
+      }
+    },
+    {
+      "name": "Properties by Type",
+      "description": "Property distribution by type",
+      "query": {
+        "source-table": "stg_properties",
+        "aggregation": [["count"]],
+        "breakout": [["field", "type", null]],
+        "filter": ["=", ["field", "status", null], "AVAILABLE"]
+      },
+      "display": "pie",
+      "visualization_settings": {
+        "pie.column": "type",
+        "pie.metric": "count"
+      }
+    },
+    {
+      "name": "Price Distribution",
+      "description": "Property price distribution",
+      "query": {
+        "source-table": "stg_properties",
+        "aggregation": [
+          ["avg", ["field", "price", null]],
+          ["median", ["field", "price", null]],
+          ["min", ["field", "price", null]],
+          ["max", ["field", "price", null]]
+        ],
+        "filter": [
+          "and",
+          ["=", ["field", "status", null], "AVAILABLE"],
+          ["not-null", ["field", "price", null]]
+        ]
+      },
+      "display": "table"
+    },
+    {
+      "name": "Buyer Requests by City",
+      "description": "Buyer request distribution by city",
+      "query": {
+        "source-table": "stg_buyer_requests",
+        "aggregation": [["count"]],
+        "breakout": [["field", "city", null]],
+        "filter": ["=", ["field", "status", null], "OPEN"]
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.x_axis.title_text": "City",
+        "graph.y_axis.title_text": "Buyer Requests"
+      }
+    },
+    {
+      "name": "Buyer Requests by Property Type",
+      "description": "Buyer request distribution by property type",
+      "query": {
+        "source-table": "stg_buyer_requests",
+        "aggregation": [["count"]],
+        "breakout": [["field", "type", null]],
+        "filter": ["=", ["field", "status", null], "OPEN"]
+      },
+      "display": "pie",
+      "visualization_settings": {
+        "pie.column": "type",
+        "pie.metric": "count"
+      }
+    },
+    {
+      "name": "Supply vs Demand Ratio",
+      "description": "Ratio of available properties to open buyer requests by city",
+      "query": {
+        "source-query": {
+          "source-table": "stg_properties",
+          "aggregation": [["count"]],
+          "breakout": [["field", "city", null]],
+          "filter": ["=", ["field", "status", null], "AVAILABLE"]
+        }
+      },
+      "display": "table"
+    },
+    {
+      "name": "Average Time to Claim",
+      "description": "Average time from buyer request to first claim by city",
+      "query": {
+        "source-table": "fct_claim",
+        "aggregation": [["avg", ["field", "claim_duration_hours", null]]],
+        "breakout": [["field", "buyer_city", null]],
+        "filter": ["not-null", ["field", "claim_duration_hours", null]]
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.x_axis.title_text": "City",
+        "graph.y_axis.title_text": "Hours to Claim"
+      }
+    },
+    {
+      "name": "Buyer Saturation Rate",
+      "description": "Percentage of buyer requests with multiple claims",
+      "query": {
+        "source-table": "fct_claim",
+        "aggregation": [["count"]],
+        "breakout": [["field", "buyer_request_id", null]],
+        "filter": [
+          "and",
+          ["time-interval", ["field", "claimed_at", null], -1, "day"],
+          [">", ["count"], 1]
+        ]
+      },
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.field": "count",
+        "scalar.prefix": "",
+        "scalar.suffix": "%"
+      }
+    },
+    {
+      "name": "Property Price Trends",
+      "description": "Average property prices over time by city",
+      "query": {
+        "source-table": "stg_properties",
+        "aggregation": [["avg", ["field", "price", null]]],
+        "breakout": [
+          ["field", "created_at", {"temporal-unit": "month"}],
+          ["field", "city", null]
+        ],
+        "filter": [
+          "and",
+          ["=", ["field", "status", null], "AVAILABLE"],
+          ["not-null", ["field", "price", null]],
+          ["time-interval", ["field", "created_at", null], -12, "month"]
+        ]
+      },
+      "display": "line",
+      "visualization_settings": {
+        "graph.x_axis.title_text": "Month",
+        "graph.y_axis.title_text": "Average Price (SAR)"
+      }
+    },
+    {
+      "name": "Stale Listings",
+      "description": "Listings with no activity in last 7 days",
+      "query": {
+        "source-table": "stg_listings",
+        "aggregation": [["count"]],
+        "filter": [
+          "and",
+          ["=", ["field", "status", null], "PUBLISHED"],
+          ["<", ["field", "published_at", null], "2024-01-01"]
+        ]
+      },
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.field": "count",
+        "scalar.prefix": "",
+        "scalar.suffix": " stale listings"
+      }
+    }
+  ]
+}

@@ -1,0 +1,306 @@
+version: 2
+
+metrics:
+  # User Metrics
+  - name: total_users
+    description: "Total number of registered users"
+    type: count
+    sql: "select count(*) from {{ ref('dim_user') }}"
+    filters:
+      - field: is_active
+        operator: '='
+        value: true
+
+  - name: new_users_daily
+    description: "Number of new user registrations per day"
+    type: count
+    sql: "select count(*) from {{ ref('dim_user') }} where date(created_at) = current_date"
+
+  - name: users_by_role
+    description: "User count by role"
+    type: count
+    sql: "select count(*) from {{ ref('dim_user') }}"
+    group_by: [primary_role]
+
+  # Property Metrics
+  - name: total_properties
+    description: "Total number of properties"
+    type: count
+    sql: "select count(*) from {{ ref('stg_properties') }}"
+
+  - name: active_properties
+    description: "Number of active/available properties"
+    type: count
+    sql: "select count(*) from {{ ref('stg_properties') }} where status = 'AVAILABLE'"
+
+  - name: properties_by_city
+    description: "Property count by city"
+    type: count
+    sql: "select count(*) from {{ ref('stg_properties') }}"
+    group_by: [city]
+
+  - name: average_property_price
+    description: "Average property price in SAR"
+    type: average
+    sql: "select avg(price) from {{ ref('stg_properties') }} where price is not null"
+
+  # Claim Metrics
+  - name: total_claims
+    description: "Total number of claims"
+    type: count
+    sql: "select count(*) from {{ ref('fct_claim') }}"
+
+  - name: active_claims
+    description: "Number of active claims"
+    type: count
+    sql: "select count(*) from {{ ref('fct_claim') }} where is_active = true"
+
+  - name: claims_today
+    description: "Number of claims created today"
+    type: count
+    sql: "select count(*) from {{ ref('fct_claim') }} where date(claimed_at) = current_date"
+
+  - name: time_to_first_claim_median
+    description: "Median time from buyer request creation to first claim (hours)"
+    type: median
+    sql: |
+      select 
+        extract(epoch from (c.claimed_at - br.created_at)) / 3600 as hours_to_claim
+      from {{ ref('fct_claim') }} c
+      join {{ ref('stg_buyer_requests') }} br on c.buyer_request_id = br.id
+      where c.claimed_at is not null and br.created_at is not null
+
+  - name: claim_to_lead_rate
+    description: "Percentage of claims converted to leads"
+    type: ratio
+    numerator:
+      name: converted_claims
+      sql: "select count(*) from {{ ref('fct_claim') }} where is_converted = true"
+    denominator:
+      name: total_claims
+      sql: "select count(*) from {{ ref('fct_claim') }}"
+
+  # Lead Metrics
+  - name: total_leads
+    description: "Total number of leads"
+    type: count
+    sql: "select count(*) from {{ ref('fct_lead') }}"
+
+  - name: active_leads
+    description: "Number of active leads (not closed)"
+    type: count
+    sql: "select count(*) from {{ ref('fct_lead') }} where is_closed = false"
+
+  - name: won_leads
+    description: "Number of won leads"
+    type: count
+    sql: "select count(*) from {{ ref('fct_lead') }} where is_won = true"
+
+  - name: lost_leads
+    description: "Number of lost leads"
+    type: count
+    sql: "select count(*) from {{ ref('fct_lead') }} where is_lost = true"
+
+  - name: lead_win_rate
+    description: "Percentage of closed leads that were won"
+    type: ratio
+    numerator:
+      name: won_leads
+      sql: "select count(*) from {{ ref('fct_lead') }} where is_won = true"
+    denominator:
+      name: closed_leads
+      sql: "select count(*) from {{ ref('fct_lead') }} where is_closed = true"
+
+  - name: first_contact_sla_median
+    description: "Median time from claim to first contact (hours)"
+    type: median
+    sql: |
+      select 
+        extract(epoch from (cl.contacted_at - c.claimed_at)) / 3600 as hours_to_contact
+      from {{ ref('fct_contact_log') }} cl
+      join {{ ref('fct_claim') }} c on cl.lead_id = c.buyer_request_id
+      where cl.is_first_contact = true
+        and cl.contacted_at is not null 
+        and c.claimed_at is not null
+
+  # Buyer Pool Metrics
+  - name: open_buyer_requests
+    description: "Number of open buyer requests"
+    type: count
+    sql: "select count(*) from {{ ref('stg_buyer_requests') }} where status = 'OPEN'"
+
+  - name: claimed_buyer_requests
+    description: "Number of claimed buyer requests"
+    type: count
+    sql: "select count(*) from {{ ref('stg_buyer_requests') }} where status = 'CLAIMED'"
+
+  - name: buyer_saturation_rate_24h
+    description: "Percentage of buyer requests with more than K claims in 24h"
+    type: ratio
+    numerator:
+      name: saturated_requests
+      sql: |
+        select count(distinct buyer_request_id)
+        from {{ ref('fct_claim') }}
+        where claimed_at >= current_timestamp - interval '24 hours'
+        group by buyer_request_id
+        having count(*) > {{ var('buyer_saturation_threshold', 3) }}
+    denominator:
+      name: total_requests_24h
+      sql: |
+        select count(distinct buyer_request_id)
+        from {{ ref('fct_claim') }}
+        where claimed_at >= current_timestamp - interval '24 hours'
+
+  # Agent Metrics
+  - name: total_agents
+    description: "Total number of agents"
+    type: count
+    sql: "select count(*) from {{ ref('dim_agent') }}"
+
+  - name: active_agents
+    description: "Number of active agents"
+    type: count
+    sql: "select count(*) from {{ ref('dim_agent') }} where is_active = true"
+
+  - name: agents_with_valid_license
+    description: "Number of agents with valid licenses"
+    type: count
+    sql: "select count(*) from {{ ref('dim_agent') }} where is_license_valid = true"
+
+  - name: license_compliance_rate
+    description: "Percentage of active agents with valid licenses"
+    type: ratio
+    numerator:
+      name: agents_with_valid_license
+      sql: "select count(*) from {{ ref('dim_agent') }} where is_active = true and is_license_valid = true"
+    denominator:
+      name: active_agents
+      sql: "select count(*) from {{ ref('dim_agent') }} where is_active = true"
+
+  # Organization Metrics
+  - name: total_organizations
+    description: "Total number of organizations"
+    type: count
+    sql: "select count(*) from {{ ref('dim_organization') }}"
+
+  - name: active_organizations
+    description: "Number of active organizations"
+    type: count
+    sql: "select count(*) from {{ ref('dim_organization') }} where is_active = true"
+
+  - name: agents_per_organization
+    description: "Average number of agents per organization"
+    type: average
+    sql: |
+      select count(*)
+      from {{ ref('dim_agent') }} a
+      join {{ ref('dim_organization') }} o on a.organization_id = o.organization_id
+      where a.is_active = true and o.is_active = true
+      group by o.organization_id
+
+  # Revenue Metrics
+  - name: total_revenue
+    description: "Total revenue in SAR"
+    type: sum
+    sql: "select sum(amount) from {{ ref('stg_payments') }} where status = 'SUCCESS'"
+
+  - name: monthly_recurring_revenue
+    description: "Monthly recurring revenue in SAR"
+    type: sum
+    sql: |
+      select sum(amount)
+      from {{ ref('stg_payments') }}
+      where status = 'SUCCESS'
+        and plan_type in ('MONTHLY', 'ANNUAL')
+        and date_trunc('month', created_at) = date_trunc('month', current_date)
+
+  - name: average_revenue_per_organization
+    description: "Average revenue per organization (ARPA)"
+    type: average
+    sql: |
+      select sum(amount)
+      from {{ ref('stg_payments') }} p
+      join {{ ref('dim_organization') }} o on p.organization_id = o.organization_id
+      where p.status = 'SUCCESS'
+        and o.is_active = true
+      group by o.organization_id
+
+  - name: refund_rate
+    description: "Percentage of payments that were refunded"
+    type: ratio
+    numerator:
+      name: refunded_payments
+      sql: "select count(*) from {{ ref('stg_payments') }} where status = 'REFUNDED'"
+    denominator:
+      name: total_payments
+      sql: "select count(*) from {{ ref('stg_payments') }}"
+
+  # Security Metrics
+  - name: rls_blocks_daily
+    description: "Number of RLS blocks per day"
+    type: count
+    sql: "select count(*) from {{ ref('stg_security_events') }} where event_type = 'RLS_DENIED' and date(created_at) = current_date"
+
+  - name: rate_limit_hits_daily
+    description: "Number of rate limit hits per day"
+    type: count
+    sql: "select count(*) from {{ ref('stg_security_events') }} where event_type = 'RATE_LIMIT' and date(created_at) = current_date"
+
+  - name: impersonation_events_daily
+    description: "Number of impersonation events per day"
+    type: count
+    sql: "select count(*) from {{ ref('stg_security_events') }} where event_type = 'IMPERSONATION' and date(created_at) = current_date"
+
+  # Content Metrics
+  - name: stale_listing_rate_7d
+    description: "Percentage of listings with no views or leads in last 7 days"
+    type: ratio
+    numerator:
+      name: stale_listings
+      sql: |
+        select count(*)
+        from {{ ref('stg_listings') }} l
+        left join {{ ref('stg_user_events') }} e on l.property_id = e.event_property_id
+        left join {{ ref('fct_lead') }} lead on l.property_id = lead.lead_id
+        where l.status = 'PUBLISHED'
+          and (e.timestamp < current_timestamp - interval '7 days' or e.timestamp is null)
+          and (lead.created_at < current_timestamp - interval '7 days' or lead.created_at is null)
+    denominator:
+      name: total_published_listings
+      sql: "select count(*) from {{ ref('stg_listings') }} where status = 'PUBLISHED'"
+
+  - name: search_zero_result_rate
+    description: "Percentage of searches that returned zero results"
+    type: ratio
+    numerator:
+      name: zero_result_searches
+      sql: "select count(*) from {{ ref('stg_user_events') }} where event_type = 'search_performed' and properties->>'results_count' = '0'"
+    denominator:
+      name: total_searches
+      sql: "select count(*) from {{ ref('stg_user_events') }} where event_type = 'search_performed'"
+
+  # Performance Metrics
+  - name: sla_breach_rate
+    description: "Percentage of claims that exceeded contact SLA"
+    type: ratio
+    numerator:
+      name: sla_breaches
+      sql: |
+        select count(*)
+        from {{ ref('fct_claim') }}
+        where claim_age_hours > {{ var('contact_sla_minutes', 30) }} / 60.0
+          and is_active = true
+    denominator:
+      name: active_claims
+      sql: "select count(*) from {{ ref('fct_claim') }} where is_active = true"
+
+  - name: average_lead_duration
+    description: "Average lead duration in hours (for closed leads)"
+    type: average
+    sql: "select lead_duration_hours from {{ ref('fct_lead') }} where is_closed = true and lead_duration_hours is not null"
+
+  - name: average_claim_duration
+    description: "Average claim duration in hours"
+    type: average
+    sql: "select claim_duration_hours from {{ ref('fct_claim') }} where claim_duration_hours is not null"

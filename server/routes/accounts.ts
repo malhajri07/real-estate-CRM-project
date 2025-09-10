@@ -238,7 +238,7 @@ router.get("/inquiries/:userId", async (req, res) => {
     const { userId } = req.params;
     const { status } = req.query;
 
-    let query = db
+    const base = db
       .select({
         id: propertyInquiries.id,
         propertyTitle: properties.title,
@@ -254,13 +254,15 @@ router.get("/inquiries/:userId", async (req, res) => {
       })
       .from(propertyInquiries)
       .leftJoin(properties, eq(propertyInquiries.propertyId, properties.id))
-      .where(eq(properties.ownerId, userId));
+    ;
+
+    const conds: any[] = [eq(properties.ownerId, userId)];
 
     if (status) {
-      query = query.where(eq(propertyInquiries.status, status as string));
+      conds.push(eq(propertyInquiries.status, status as string));
     }
 
-    const inquiries = await query.orderBy(desc(propertyInquiries.createdAt));
+    const inquiries = await base.where(and(...conds)).orderBy(desc(propertyInquiries.createdAt));
     res.json(inquiries);
   } catch (error) {
     console.error("Get inquiries error:", error);

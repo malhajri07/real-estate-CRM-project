@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Phone, Mail, Calendar, MessageCircle, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Phone, Mail, Calendar, MessageCircle, Plus, Users as UsersIcon, ListChecks, CheckCircle2, UserPlus } from "lucide-react";
 import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,16 @@ export default function Clients() {
   ) || [];
 
   const selectedLead = leads?.find(lead => lead.id === selectedLeadId);
+
+  useEffect(() => {
+    if (!selectedLeadId && filteredLeads.length > 0) {
+      setSelectedLeadId(filteredLeads[0].id);
+    }
+  }, [filteredLeads, selectedLeadId]);
+
+  const total = leads?.length || 0;
+  const qualified = leads?.filter(l => l.status === 'qualified').length || 0;
+  const closed = leads?.filter(l => l.status === 'closed').length || 0;
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -70,15 +80,51 @@ export default function Clients() {
         searchPlaceholder="البحث في العملاء بالاسم أو البريد الإلكتروني..."
       />
       
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-6" dir="rtl">
+        {/* KPIs */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card className="apple-card">
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <div className="text-sm text-slate-500">إجمالي العملاء</div>
+                <div className="text-2xl font-bold text-slate-900">{total}</div>
+              </div>
+              <UsersIcon className="text-primary" size={20} />
+            </CardContent>
+          </Card>
+          <Card className="apple-card">
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <div className="text-sm text-slate-500">المؤهلون</div>
+                <div className="text-2xl font-bold text-slate-900">{qualified}</div>
+              </div>
+              <ListChecks className="text-primary" size={20} />
+            </CardContent>
+          </Card>
+          <Card className="apple-card">
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <div className="text-sm text-slate-500">المغلقون</div>
+                <div className="text-2xl font-bold text-slate-900">{closed}</div>
+              </div>
+              <CheckCircle2 className="text-primary" size={20} />
+            </CardContent>
+          </Card>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Client List */}
           <div className="lg:col-span-1">
-            <Card>
-              <CardHeader className="border-b border-slate-200">
-                <CardTitle>العملاء ({filteredLeads.length})</CardTitle>
+            <Card className="apple-card h-full">
+              <CardHeader className="border-b border-slate-200 sticky top-0 bg-white/80 backdrop-blur z-10">
+                <div className="flex items-center justify-between">
+                  <CardTitle>العملاء ({filteredLeads.length})</CardTitle>
+                  <Button size="sm" className="bg-primary text-white">
+                    <UserPlus className="ml-2" size={16} />
+                    إضافة عميل
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent className="p-0 overflow-y-auto" style={{maxHeight: 'calc(100vh - 260px)'}}>
                 {filteredLeads.length === 0 ? (
                   <div className="text-center py-8 text-slate-500">
                     {searchQuery ? "لا توجد عملاء تطابق بحثك." : "لا توجد عملاء."}
@@ -88,8 +134,8 @@ export default function Clients() {
                     {filteredLeads.map((lead) => (
                       <div
                         key={lead.id}
-                        className={`p-4 cursor-pointer hover:bg-slate-50 transition-colors ${
-                          selectedLeadId === lead.id ? "bg-blue-50 border-l-4 border-l-primary" : ""
+                        className={`p-4 cursor-pointer transition-colors ${
+                          selectedLeadId === lead.id ? "bg-primary/5 ring-1 ring-primary" : "hover:bg-slate-50"
                         }`}
                         onClick={() => setSelectedLeadId(lead.id)}
                       >
@@ -127,7 +173,7 @@ export default function Clients() {
           {/* Client Details */}
           <div className="lg:col-span-2">
             {!selectedLead ? (
-              <Card>
+              <Card className="apple-card">
                 <CardContent className="flex items-center justify-center h-96">
                   <div className="text-center text-slate-500">
                     <MessageCircle size={48} className="mx-auto mb-4 text-slate-300" />
@@ -139,7 +185,7 @@ export default function Clients() {
             ) : (
               <div className="space-y-6">
                 {/* Client Header */}
-                <Card>
+                <Card className="apple-card">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div>
@@ -178,47 +224,45 @@ export default function Clients() {
                       </div>
                     )}
 
-                    <div className="flex items-center space-x-2 mt-4">
-                      <Button size="sm">
-                        <Phone className="mr-2" size={16} />
-                        Call
+                    <div className="flex items-center gap-2 mt-4">
+                      <Button size="sm" className="bg-green-600 text-white">
+                        <Phone className="ml-2" size={16} />
+                        اتصال
                       </Button>
                       <Button size="sm" variant="outline">
-                        <Mail className="mr-2" size={16} />
-                        Email
+                        <Mail className="ml-2" size={16} />
+                        بريد
                       </Button>
                       <Button size="sm" variant="outline">
-                        <Calendar className="mr-2" size={16} />
-                        Schedule
+                        <Calendar className="ml-2" size={16} />
+                        جدولة
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Activity Tabs */}
-                <Card>
+                <Card className="apple-card">
                   <Tabs defaultValue="activities" className="w-full">
                     <CardHeader className="border-b border-slate-200">
                       <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="activities">Activities</TabsTrigger>
-                        <TabsTrigger value="notes">Notes</TabsTrigger>
-                        <TabsTrigger value="timeline">Timeline</TabsTrigger>
+                        <TabsTrigger value="activities">الأنشطة</TabsTrigger>
+                        <TabsTrigger value="notes">الملاحظات</TabsTrigger>
+                        <TabsTrigger value="timeline">الخط الزمني</TabsTrigger>
                       </TabsList>
                     </CardHeader>
 
                     <TabsContent value="activities" className="p-6">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold">Activity History</h3>
-                        <Button size="sm">
-                          <Plus className="mr-2" size={16} />
-                          Add Activity
+                        <h3 className="text-lg font-semibold">سجل الأنشطة</h3>
+                        <Button size="sm" className="bg-primary text-white">
+                          <Plus className="ml-2" size={16} />
+                          إضافة نشاط
                         </Button>
                       </div>
 
                       {!activities || activities.length === 0 ? (
-                        <div className="text-center py-8 text-slate-500">
-                          No activities recorded for this client.
-                        </div>
+                        <div className="text-center py-8 text-slate-500">لا توجد أنشطة مسجلة لهذا العميل.</div>
                       ) : (
                         <div className="space-y-4">
                           {activities.map((activity) => (
@@ -234,7 +278,7 @@ export default function Clients() {
                                   </Badge>
                                   {activity.completed && (
                                     <Badge className="bg-green-100 text-green-800 text-xs">
-                                      Completed
+                                      مكتمل
                                     </Badge>
                                   )}
                                 </div>
@@ -244,11 +288,11 @@ export default function Clients() {
                                 <div className="flex items-center space-x-4 text-xs text-slate-500">
                                   {activity.scheduledDate && (
                                     <span>
-                                      Scheduled: {new Date(activity.scheduledDate).toLocaleString()}
+                                      مجدول: {new Date(activity.scheduledDate).toLocaleString('ar-SA')}
                                     </span>
                                   )}
                                   <span>
-                                    Created: {new Date(activity.createdAt).toLocaleDateString()}
+                                    أُنشئ: {new Date(activity.createdAt).toLocaleDateString('ar-SA')}
                                   </span>
                                 </div>
                               </div>
@@ -259,15 +303,11 @@ export default function Clients() {
                     </TabsContent>
 
                     <TabsContent value="notes" className="p-6">
-                      <div className="text-center py-8 text-slate-500">
-                        Notes feature coming soon...
-                      </div>
+                      <div className="text-center py-8 text-slate-500">ميزة الملاحظات ستتوفر قريبًا…</div>
                     </TabsContent>
 
                     <TabsContent value="timeline" className="p-6">
-                      <div className="text-center py-8 text-slate-500">
-                        Timeline view coming soon...
-                      </div>
+                      <div className="text-center py-8 text-slate-500">عرض الخط الزمني قريبًا…</div>
                     </TabsContent>
                   </Tabs>
                 </Card>

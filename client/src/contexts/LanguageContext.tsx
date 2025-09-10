@@ -116,6 +116,14 @@ const translations = {
   'nav.settings': 'الإعدادات',
   'nav.logout': 'تسجيل الخروج',
   'nav.welcome': 'مرحباً',
+  'nav.search': 'ابحث عن عقار',
+  'nav.listings': 'العقارات',
+  'nav.agencies': 'الوكالات',
+  'nav.post_listing': 'نشر إعلان',
+  'nav.favorites': 'المفضلة',
+  'nav.compare': 'المقارنة',
+  'nav.login': 'تسجيل الدخول',
+  'nav.signup': 'إنشاء حساب',
   
   // Reports
   'reports.title': 'التقارير والإحصائيات',
@@ -133,6 +141,37 @@ const translations = {
   'reports.active_listings': 'القوائم النشطة',
   'reports.sold_properties': 'العقارات المباعة',
   'reports.average_price': 'متوسط السعر',
+  
+  // Public pages
+  'public.listings_title': 'العقارات المتاحة',
+  'public.listings_sub': 'استكشف أحدث العقارات مع تصفية متقدمة',
+  'public.featured_title': 'عقارات مميزة',
+  'public.latest_title': 'أحدث الإعلانات',
+  'public.favorites_title': 'العقارات المفضلة',
+  'public.compare_title': 'مقارنة العقارات',
+  'public.post_title': 'نشر إعلان عقاري',
+  'public.moderation_title': 'قائمة المراجعة',
+  'public.agencies_title': 'الوكالات العقارية',
+  'public.agency_title': 'ملف الوكالة',
+  'public.agent_title': 'ملف الوسيط',
+  'public.footer_rights': '© جميع الحقوق محفوظة',
+  // Listing card
+  'listing.details': 'تفاصيل',
+  'listing.save': 'حفظ',
+  'listing.compare': 'مقارنة',
+  'listing.added': 'تمت الإضافة إلى المفضلة',
+  'listing.save_error': 'تعذر الحفظ',
+  'listing.compare_added': 'تم تحديث المقارنة',
+  'listing.no_photo': 'لا توجد صورة',
+  'listing.back': 'رجوع',
+  'listing.report': 'الإبلاغ عن إعلان',
+  // Saved searches
+  'saved.title': 'عمليات البحث المحفوظة',
+  'saved.subtitle': 'إدارة التنبيهات والبحث السريع',
+  'saved.add': 'إضافة بحث',
+  'saved.run': 'تشغيل التنبيهات',
+  'saved.delete': 'حذف',
+  'saved.none': 'لا توجد عمليات بحث محفوظة',
 };
 
 interface LanguageProviderProps {

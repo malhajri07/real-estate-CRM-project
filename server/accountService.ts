@@ -32,30 +32,30 @@ export class AccountService {
 
     // Set limits based on account type
     switch (accountData.accountType) {
-      case this.ACCOUNT_TYPES.INDIVIDUAL_BROKER:
-        accountData.maxActiveListings = this.INDIVIDUAL_BROKER_LIMITS.MAX_ACTIVE_LISTINGS;
-        accountData.maxCustomers = this.INDIVIDUAL_BROKER_LIMITS.MAX_CUSTOMERS;
+      case AccountService.ACCOUNT_TYPES.INDIVIDUAL_BROKER:
+        accountData.maxActiveListings = AccountService.INDIVIDUAL_BROKER_LIMITS.MAX_ACTIVE_LISTINGS;
+        accountData.maxCustomers = AccountService.INDIVIDUAL_BROKER_LIMITS.MAX_CUSTOMERS;
         accountData.currentActiveListings = 0;
         accountData.currentCustomers = 0;
         break;
 
-      case this.ACCOUNT_TYPES.CORPORATE_COMPANY:
+      case AccountService.ACCOUNT_TYPES.CORPORATE_COMPANY:
         if (accountData.isCompanyOwner) {
           // Company owner settings
           accountData.maxEmployees = 50; // Default, can be upgraded
           accountData.currentEmployees = 0;
-          accountData.maxListingsPerEmployee = this.CORPORATE_EMPLOYEE_LIMITS.MAX_LISTINGS_PER_EMPLOYEE;
-          accountData.maxCustomersPerEmployee = this.CORPORATE_EMPLOYEE_LIMITS.MAX_CUSTOMERS_PER_EMPLOYEE;
+          accountData.maxListingsPerEmployee = AccountService.CORPORATE_EMPLOYEE_LIMITS.MAX_LISTINGS_PER_EMPLOYEE;
+          accountData.maxCustomersPerEmployee = AccountService.CORPORATE_EMPLOYEE_LIMITS.MAX_CUSTOMERS_PER_EMPLOYEE;
         } else {
           // Employee settings
-          accountData.maxActiveListings = this.CORPORATE_EMPLOYEE_LIMITS.MAX_LISTINGS_PER_EMPLOYEE;
-          accountData.maxCustomers = this.CORPORATE_EMPLOYEE_LIMITS.MAX_CUSTOMERS_PER_EMPLOYEE;
+          accountData.maxActiveListings = AccountService.CORPORATE_EMPLOYEE_LIMITS.MAX_LISTINGS_PER_EMPLOYEE;
+          accountData.maxCustomers = AccountService.CORPORATE_EMPLOYEE_LIMITS.MAX_CUSTOMERS_PER_EMPLOYEE;
           accountData.currentActiveListings = 0;
           accountData.currentCustomers = 0;
         }
         break;
 
-      case this.ACCOUNT_TYPES.CUSTOMER:
+      case AccountService.ACCOUNT_TYPES.CUSTOMER:
         // Customers don't need listing/customer limits
         accountData.maxActiveListings = 0;
         accountData.maxCustomers = 0;
@@ -78,12 +78,12 @@ export class AccountService {
     const userData = user[0];
 
     // Platform admins can always create
-    if (userData.accountType === this.ACCOUNT_TYPES.PLATFORM_ADMIN) {
+    if (userData.accountType === AccountService.ACCOUNT_TYPES.PLATFORM_ADMIN) {
       return { canCreate: true };
     }
 
     // Customers cannot create listings
-    if (userData.accountType === this.ACCOUNT_TYPES.CUSTOMER) {
+    if (userData.accountType === AccountService.ACCOUNT_TYPES.CUSTOMER) {
       return { canCreate: false, reason: "Customers cannot create property listings" };
     }
 
@@ -101,21 +101,21 @@ export class AccountService {
     const currentActiveListings = currentCount.count;
 
     // Individual brokers: max 30 active listings
-    if (userData.accountType === this.ACCOUNT_TYPES.INDIVIDUAL_BROKER) {
-      if (currentActiveListings >= this.INDIVIDUAL_BROKER_LIMITS.MAX_ACTIVE_LISTINGS) {
+    if (userData.accountType === AccountService.ACCOUNT_TYPES.INDIVIDUAL_BROKER) {
+      if (currentActiveListings >= AccountService.INDIVIDUAL_BROKER_LIMITS.MAX_ACTIVE_LISTINGS) {
         return { 
           canCreate: false, 
-          reason: `Individual brokers can have maximum ${this.INDIVIDUAL_BROKER_LIMITS.MAX_ACTIVE_LISTINGS} active listings. You currently have ${currentActiveListings}.`
+          reason: `Individual brokers can have maximum ${AccountService.INDIVIDUAL_BROKER_LIMITS.MAX_ACTIVE_LISTINGS} active listings. You currently have ${currentActiveListings}.`
         };
       }
     }
 
     // Corporate employees: max 100 active listings
-    if (userData.accountType === this.ACCOUNT_TYPES.CORPORATE_COMPANY && !userData.isCompanyOwner) {
-      if (currentActiveListings >= this.CORPORATE_EMPLOYEE_LIMITS.MAX_LISTINGS_PER_EMPLOYEE) {
+    if (userData.accountType === AccountService.ACCOUNT_TYPES.CORPORATE_COMPANY && !userData.isCompanyOwner) {
+      if (currentActiveListings >= AccountService.CORPORATE_EMPLOYEE_LIMITS.MAX_LISTINGS_PER_EMPLOYEE) {
         return { 
           canCreate: false, 
-          reason: `Corporate employees can have maximum ${this.CORPORATE_EMPLOYEE_LIMITS.MAX_LISTINGS_PER_EMPLOYEE} active listings. You currently have ${currentActiveListings}.`
+          reason: `Corporate employees can have maximum ${AccountService.CORPORATE_EMPLOYEE_LIMITS.MAX_LISTINGS_PER_EMPLOYEE} active listings. You currently have ${currentActiveListings}.`
         };
       }
     }
@@ -135,12 +135,12 @@ export class AccountService {
     const userData = user[0];
 
     // Platform admins can always add
-    if (userData.accountType === this.ACCOUNT_TYPES.PLATFORM_ADMIN) {
+    if (userData.accountType === AccountService.ACCOUNT_TYPES.PLATFORM_ADMIN) {
       return { canAdd: true };
     }
 
     // Customers cannot add other customers
-    if (userData.accountType === this.ACCOUNT_TYPES.CUSTOMER) {
+    if (userData.accountType === AccountService.ACCOUNT_TYPES.CUSTOMER) {
       return { canAdd: false, reason: "Customers cannot add other customers" };
     }
 
@@ -153,21 +153,21 @@ export class AccountService {
     const currentCustomers = currentCount.count;
 
     // Individual brokers: max 100 customers
-    if (userData.accountType === this.ACCOUNT_TYPES.INDIVIDUAL_BROKER) {
-      if (currentCustomers >= this.INDIVIDUAL_BROKER_LIMITS.MAX_CUSTOMERS) {
+    if (userData.accountType === AccountService.ACCOUNT_TYPES.INDIVIDUAL_BROKER) {
+      if (currentCustomers >= AccountService.INDIVIDUAL_BROKER_LIMITS.MAX_CUSTOMERS) {
         return { 
           canAdd: false, 
-          reason: `Individual brokers can have maximum ${this.INDIVIDUAL_BROKER_LIMITS.MAX_CUSTOMERS} customers. You currently have ${currentCustomers}.`
+          reason: `Individual brokers can have maximum ${AccountService.INDIVIDUAL_BROKER_LIMITS.MAX_CUSTOMERS} customers. You currently have ${currentCustomers}.`
         };
       }
     }
 
     // Corporate employees: max 500 customers
-    if (userData.accountType === this.ACCOUNT_TYPES.CORPORATE_COMPANY && !userData.isCompanyOwner) {
-      if (currentCustomers >= this.CORPORATE_EMPLOYEE_LIMITS.MAX_CUSTOMERS_PER_EMPLOYEE) {
+    if (userData.accountType === AccountService.ACCOUNT_TYPES.CORPORATE_COMPANY && !userData.isCompanyOwner) {
+      if (currentCustomers >= AccountService.CORPORATE_EMPLOYEE_LIMITS.MAX_CUSTOMERS_PER_EMPLOYEE) {
         return { 
           canAdd: false, 
-          reason: `Corporate employees can have maximum ${this.CORPORATE_EMPLOYEE_LIMITS.MAX_CUSTOMERS_PER_EMPLOYEE} customers. You currently have ${currentCustomers}.`
+          reason: `Corporate employees can have maximum ${AccountService.CORPORATE_EMPLOYEE_LIMITS.MAX_CUSTOMERS_PER_EMPLOYEE} customers. You currently have ${currentCustomers}.`
         };
       }
     }
@@ -246,20 +246,20 @@ export class AccountService {
     const company = companyOwner[0];
 
     // Check if company can add more employees
-    if (company.currentEmployees >= (company.maxEmployees || 0)) {
+    if ((company.currentEmployees || 0) >= (company.maxEmployees || 0)) {
       throw new Error(`Company has reached maximum employee limit of ${company.maxEmployees}`);
     }
 
     // Set employee data
     const newEmployeeData = {
       ...employeeData,
-      accountType: this.ACCOUNT_TYPES.CORPORATE_COMPANY,
+      accountType: AccountService.ACCOUNT_TYPES.CORPORATE_COMPANY,
       parentCompanyId: companyOwnerId,
       companyName: company.companyName,
       isCompanyOwner: false,
       tenantId: company.tenantId, // Same tenant as company
-      maxActiveListings: this.CORPORATE_EMPLOYEE_LIMITS.MAX_LISTINGS_PER_EMPLOYEE,
-      maxCustomers: this.CORPORATE_EMPLOYEE_LIMITS.MAX_CUSTOMERS_PER_EMPLOYEE,
+      maxActiveListings: AccountService.CORPORATE_EMPLOYEE_LIMITS.MAX_LISTINGS_PER_EMPLOYEE,
+      maxCustomers: AccountService.CORPORATE_EMPLOYEE_LIMITS.MAX_CUSTOMERS_PER_EMPLOYEE,
       currentActiveListings: 0,
       currentCustomers: 0,
     };
@@ -309,7 +309,7 @@ export class AccountService {
     maxPrice?: number;
     bedrooms?: number;
   }) {
-    let query = db
+    let base = db
       .select({
         id: properties.id,
         title: properties.title,
@@ -334,30 +334,30 @@ export class AccountService {
       })
       .from(properties)
       .leftJoin(users, eq(properties.ownerId, users.id))
-      .where(
-        and(
-          eq(properties.status, 'active'),
-          eq(properties.isPubliclyVisible, true)
-        )
-      );
+    ;
+
+    const conds: any[] = [
+      and(eq(properties.status, 'active'), eq(properties.isPubliclyVisible, true))
+    ];
 
     // Apply filters
     if (filters?.city) {
-      query = query.where(eq(properties.city, filters.city));
+      conds.push(eq(properties.city, filters.city));
     }
     if (filters?.propertyType) {
-      query = query.where(eq(properties.propertyType, filters.propertyType));
+      conds.push(eq(properties.propertyType, filters.propertyType));
     }
     if (filters?.minPrice) {
-      query = query.where(sql`${properties.price} >= ${filters.minPrice}`);
+      conds.push(sql`${properties.price} >= ${filters.minPrice}`);
     }
     if (filters?.maxPrice) {
-      query = query.where(sql`${properties.price} <= ${filters.maxPrice}`);
+      conds.push(sql`${properties.price} <= ${filters.maxPrice}`);
     }
     if (filters?.bedrooms) {
-      query = query.where(eq(properties.bedrooms, filters.bedrooms));
+      conds.push(eq(properties.bedrooms, filters.bedrooms));
     }
 
+    const query = base.where(and(...conds));
     return await query.orderBy(sql`${properties.isFeatured} DESC, ${properties.createdAt} DESC`);
   }
 

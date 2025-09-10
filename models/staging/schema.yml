@@ -1,0 +1,420 @@
+version: 2
+
+sources:
+  - name: app_database
+    description: "Main application database with operational tables"
+    database: "{{ env_var('DB_NAME', 'real_estate_crm') }}"
+    schema: public
+    tables:
+      - name: users
+        description: "User accounts with roles and organization membership"
+        columns:
+          - name: id
+            description: "Unique user identifier"
+            tests:
+              - unique
+              - not_null
+          - name: email
+            description: "User email address (PII)"
+            tests:
+              - not_null
+          - name: phone
+            description: "User phone number (PII)"
+          - name: name
+            description: "User full name (PII)"
+          - name: roles
+            description: "Array of user roles"
+          - name: organization_id
+            description: "Organization ID for corporate users"
+          - name: is_active
+            description: "User account status"
+          - name: created_at
+            description: "Account creation timestamp"
+            tests:
+              - not_null
+          - name: updated_at
+            description: "Last update timestamp"
+            
+      - name: organizations
+        description: "Corporate organizations and their details"
+        columns:
+          - name: id
+            description: "Unique organization identifier"
+            tests:
+              - unique
+              - not_null
+          - name: legal_name
+            description: "Legal organization name"
+          - name: trade_name
+            description: "Trading name"
+          - name: license_no
+            description: "Business license number"
+          - name: status
+            description: "Organization status"
+          - name: created_at
+            description: "Organization creation timestamp"
+            tests:
+              - not_null
+              
+      - name: agent_profiles
+        description: "Agent profiles with licensing and territory information"
+        columns:
+          - name: id
+            description: "Unique agent profile identifier"
+            tests:
+              - unique
+              - not_null
+          - name: user_id
+            description: "Reference to users table"
+            tests:
+              - not_null
+          - name: organization_id
+            description: "Organization ID for corporate agents"
+          - name: license_no
+            description: "Real estate license number"
+          - name: license_valid_to
+            description: "License expiration date"
+          - name: territories
+            description: "Array of territories agent can operate in"
+          - name: is_individual_agent
+            description: "Whether agent is independent"
+          - name: status
+            description: "Agent status"
+          - name: created_at
+            description: "Profile creation timestamp"
+            tests:
+              - not_null
+              
+      - name: properties
+        description: "Property listings and details"
+        columns:
+          - name: id
+            description: "Unique property identifier"
+            tests:
+              - unique
+              - not_null
+          - name: agent_id
+            description: "Reference to agent_profiles table"
+            tests:
+              - not_null
+          - name: organization_id
+            description: "Organization ID for corporate properties"
+          - name: title
+            description: "Property title"
+          - name: type
+            description: "Property type"
+          - name: city
+            description: "Property city"
+          - name: district
+            description: "Property district"
+          - name: bedrooms
+            description: "Number of bedrooms"
+          - name: bathrooms
+            description: "Number of bathrooms"
+          - name: area_sqm
+            description: "Property area in square meters"
+          - name: price
+            description: "Property price in SAR"
+          - name: status
+            description: "Property status"
+          - name: visibility
+            description: "Property visibility level"
+          - name: created_at
+            description: "Property creation timestamp"
+            tests:
+              - not_null
+              
+      - name: listings
+        description: "Property listings with publication details"
+        columns:
+          - name: id
+            description: "Unique listing identifier"
+            tests:
+              - unique
+              - not_null
+          - name: property_id
+            description: "Reference to properties table"
+            tests:
+              - not_null
+          - name: listing_type
+            description: "RENT or SALE"
+          - name: exclusive
+            description: "Whether listing is exclusive"
+          - name: published_at
+            description: "Publication timestamp"
+          - name: status
+            description: "Listing status"
+          - name: created_at
+            description: "Listing creation timestamp"
+            tests:
+              - not_null
+              
+      - name: buyer_requests
+        description: "Buyer requests in the buyer pool"
+        columns:
+          - name: id
+            description: "Unique buyer request identifier"
+            tests:
+              - unique
+              - not_null
+          - name: created_by_user_id
+            description: "Reference to users table"
+            tests:
+              - not_null
+          - name: city
+            description: "Desired city"
+          - name: type
+            description: "Property type desired"
+          - name: min_bed
+            description: "Minimum bedrooms"
+          - name: max_price
+            description: "Maximum price willing to pay"
+          - name: contact_preferences
+            description: "Contact preferences"
+          - name: status
+            description: "Request status (OPEN/CLAIMED/CLOSED)"
+          - name: masked_contact
+            description: "Masked contact information"
+          - name: full_contact_json
+            description: "Full contact information (PII)"
+          - name: created_at
+            description: "Request creation timestamp"
+            tests:
+              - not_null
+              
+      - name: seller_submissions
+        description: "Seller property submissions"
+        columns:
+          - name: id
+            description: "Unique seller submission identifier"
+            tests:
+              - unique
+              - not_null
+          - name: created_by_user_id
+            description: "Reference to users table"
+            tests:
+              - not_null
+          - name: city
+            description: "Property city"
+          - name: type
+            description: "Property type"
+          - name: bedrooms
+            description: "Number of bedrooms"
+          - name: price_expectation
+            description: "Expected price"
+          - name: exclusive_preference
+            description: "Exclusive listing preference"
+          - name: status
+            description: "Submission status"
+          - name: masked_contact
+            description: "Masked contact information"
+          - name: full_contact_json
+            description: "Full contact information (PII)"
+          - name: created_at
+            description: "Submission creation timestamp"
+            tests:
+              - not_null
+              
+      - name: claims
+        description: "Agent claims on buyer requests"
+        columns:
+          - name: id
+            description: "Unique claim identifier"
+            tests:
+              - unique
+              - not_null
+          - name: agent_id
+            description: "Reference to agent_profiles table"
+            tests:
+              - not_null
+          - name: buyer_request_id
+            description: "Reference to buyer_requests table"
+            tests:
+              - not_null
+          - name: claimed_at
+            description: "Claim timestamp"
+            tests:
+              - not_null
+          - name: expires_at
+            description: "Claim expiration timestamp"
+            tests:
+              - not_null
+          - name: status
+            description: "Claim status (ACTIVE/EXPIRED/RELEASED/CONVERTED)"
+          - name: created_at
+            description: "Claim creation timestamp"
+            tests:
+              - not_null
+              
+      - name: leads
+        description: "Leads generated from claims"
+        columns:
+          - name: id
+            description: "Unique lead identifier"
+            tests:
+              - unique
+              - not_null
+          - name: agent_id
+            description: "Reference to agent_profiles table"
+            tests:
+              - not_null
+          - name: buyer_request_id
+            description: "Reference to buyer_requests table"
+          - name: seller_submission_id
+            description: "Reference to seller_submissions table"
+          - name: status
+            description: "Lead status (NEW/IN_PROGRESS/WON/LOST)"
+          - name: created_at
+            description: "Lead creation timestamp"
+            tests:
+              - not_null
+          - name: updated_at
+            description: "Last status update timestamp"
+            
+      - name: contact_logs
+        description: "Contact attempts and communications"
+        columns:
+          - name: id
+            description: "Unique contact log identifier"
+            tests:
+              - unique
+              - not_null
+          - name: lead_id
+            description: "Reference to leads table"
+            tests:
+              - not_null
+          - name: agent_id
+            description: "Reference to agent_profiles table"
+            tests:
+              - not_null
+          - name: note
+            description: "Contact note"
+          - name: contacted_at
+            description: "Contact timestamp"
+            tests:
+              - not_null
+          - name: channel
+            description: "Contact channel (phone/email/whatsapp/sms)"
+          - name: created_at
+            description: "Log creation timestamp"
+            tests:
+              - not_null
+            
+      - name: payments
+        description: "Payment transactions and billing"
+        columns:
+          - name: id
+            description: "Unique payment identifier"
+            tests:
+              - unique
+              - not_null
+          - name: user_id
+            description: "Reference to users table"
+          - name: organization_id
+            description: "Reference to organizations table"
+          - name: amount
+            description: "Payment amount in SAR"
+            tests:
+              - not_null
+          - name: currency
+            description: "Payment currency"
+          - name: status
+            description: "Payment status"
+          - name: payment_method
+            description: "Payment method"
+          - name: plan_type
+            description: "Subscription plan type"
+          - name: created_at
+            description: "Payment timestamp"
+            tests:
+              - not_null
+              
+      - name: audit_logs
+        description: "Audit trail for administrative actions"
+        columns:
+          - name: id
+            description: "Unique audit log identifier"
+            tests:
+              - unique
+              - not_null
+          - name: user_id
+            description: "User who performed the action"
+            tests:
+              - not_null
+          - name: action
+            description: "Action performed"
+            tests:
+              - not_null
+          - name: entity
+            description: "Entity affected"
+          - name: entity_id
+            description: "Entity identifier"
+          - name: before_json
+            description: "State before action"
+          - name: after_json
+            description: "State after action"
+          - name: created_at
+            description: "Action timestamp"
+            tests:
+              - not_null
+              
+      - name: security_events
+        description: "Security-related events and violations"
+        columns:
+          - name: id
+            description: "Unique security event identifier"
+            tests:
+              - unique
+              - not_null
+          - name: user_id
+            description: "User involved in event"
+          - name: event_type
+            description: "Type of security event"
+            tests:
+              - not_null
+          - name: severity
+            description: "Event severity level"
+          - name: details
+            description: "Event details"
+          - name: ip_address
+            description: "IP address of request"
+          - name: user_agent
+            description: "User agent string"
+          - name: created_at
+            description: "Event timestamp"
+            tests:
+              - not_null
+
+  - name: events_stream
+    description: "Event tracking stream from application"
+    database: "{{ env_var('DB_NAME', 'real_estate_crm') }}"
+    schema: events
+    tables:
+      - name: user_events
+        description: "User interaction events"
+        columns:
+          - name: event_id
+            description: "Unique event identifier"
+            tests:
+              - unique
+              - not_null
+          - name: event_type
+            description: "Type of event"
+            tests:
+              - not_null
+          - name: user_id
+            description: "User who triggered the event"
+          - name: session_id
+            description: "User session identifier"
+          - name: organization_id
+            description: "Organization context"
+          - name: city
+            description: "User city"
+          - name: properties
+            description: "Event properties as JSON"
+          - name: timestamp
+            description: "Event timestamp"
+            tests:
+              - not_null
+          - name: ip_country
+            description: "Country of IP address"

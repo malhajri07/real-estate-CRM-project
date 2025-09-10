@@ -56,8 +56,8 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      userLevel: user.userLevel,
-      accountOwnerId: user.accountOwnerId,
+      userLevel: (user as any).userLevel ?? 1,
+      accountOwnerId: (user as any).accountOwnerId ?? (user as any).parentCompanyId ?? null,
       companyName: user.companyName,
       tenantId: user.tenantId || user.id, // Use user ID as tenant ID if not set
     };

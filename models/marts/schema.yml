@@ -1,0 +1,566 @@
+version: 2
+
+models:
+  - name: dim_user
+    description: "User dimension table with role and organization information"
+    columns:
+      - name: user_key
+        description: "Surrogate key for user dimension"
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: "Natural key - user ID from source"
+        tests:
+          - unique
+          - not_null
+      - name: email
+        description: "User email (masked if PII masking enabled)"
+      - name: phone
+        description: "User phone (masked if PII masking enabled)"
+      - name: name
+        description: "User name (masked if PII masking enabled)"
+      - name: primary_role
+        description: "Primary user role"
+      - name: is_website_admin
+        description: "Whether user is website admin"
+      - name: is_corp_owner
+        description: "Whether user is corporate owner"
+      - name: is_corp_agent
+        description: "Whether user is corporate agent"
+      - name: is_indiv_agent
+        description: "Whether user is individual agent"
+      - name: is_seller
+        description: "Whether user is seller"
+      - name: is_buyer
+        description: "Whether user is buyer"
+      - name: organization_id
+        description: "Organization ID for corporate users"
+      - name: is_active
+        description: "Whether user account is active"
+      - name: account_age_days
+        description: "Number of days since account creation"
+      - name: created_at
+        description: "Account creation timestamp"
+      - name: updated_at
+        description: "Last update timestamp"
+
+  - name: dim_organization
+    description: "Organization dimension table"
+    columns:
+      - name: organization_key
+        description: "Surrogate key for organization dimension"
+        tests:
+          - unique
+          - not_null
+      - name: organization_id
+        description: "Natural key - organization ID from source"
+        tests:
+          - unique
+          - not_null
+      - name: legal_name
+        description: "Legal organization name"
+      - name: trade_name
+        description: "Trading name"
+      - name: license_no
+        description: "Business license number"
+      - name: status
+        description: "Organization status"
+      - name: is_active
+        description: "Whether organization is active"
+      - name: organization_age_days
+        description: "Number of days since organization creation"
+      - name: created_at
+        description: "Organization creation timestamp"
+
+  - name: dim_agent
+    description: "Agent dimension table with licensing information"
+    columns:
+      - name: agent_key
+        description: "Surrogate key for agent dimension"
+        tests:
+          - unique
+          - not_null
+      - name: agent_profile_id
+        description: "Natural key - agent profile ID from source"
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: "Reference to user"
+        tests:
+          - not_null
+      - name: organization_id
+        description: "Organization ID for corporate agents"
+      - name: license_no
+        description: "Real estate license number"
+      - name: license_valid_to
+        description: "License expiration date"
+      - name: is_license_valid
+        description: "Whether license is currently valid"
+      - name: license_days_until_expiry
+        description: "Days until license expires"
+      - name: agent_type
+        description: "Type of agent (INDIVIDUAL/CORPORATE)"
+      - name: territory_count
+        description: "Number of territories agent operates in"
+      - name: is_active
+        description: "Whether agent is active"
+      - name: created_at
+        description: "Agent profile creation timestamp"
+
+  - name: dim_city
+    description: "City dimension table with Saudi cities"
+    columns:
+      - name: city_key
+        description: "Surrogate key for city dimension"
+        tests:
+          - unique
+          - not_null
+      - name: city_name
+        description: "City name"
+        tests:
+          - unique
+          - not_null
+      - name: region
+        description: "Saudi region"
+      - name: population
+        description: "City population"
+      - name: is_major_city
+        description: "Whether city is a major Saudi city"
+
+  - name: dim_property_type
+    description: "Property type dimension table"
+    columns:
+      - name: property_type_key
+        description: "Surrogate key for property type dimension"
+        tests:
+          - unique
+          - not_null
+      - name: property_type
+        description: "Property type name"
+        tests:
+          - unique
+          - not_null
+      - name: category
+        description: "Property category (RESIDENTIAL/COMMERCIAL/LAND)"
+      - name: is_residential
+        description: "Whether property type is residential"
+
+  - name: dim_date
+    description: "Date dimension table"
+    columns:
+      - name: date_key
+        description: "Surrogate key for date dimension (YYYYMMDD)"
+        tests:
+          - unique
+          - not_null
+      - name: date
+        description: "Date"
+        tests:
+          - unique
+          - not_null
+      - name: year
+        description: "Year"
+      - name: quarter
+        description: "Quarter"
+      - name: month
+        description: "Month"
+      - name: day
+        description: "Day"
+      - name: day_of_week
+        description: "Day of week (1=Monday)"
+      - name: day_name
+        description: "Day name"
+      - name: month_name
+        description: "Month name"
+      - name: is_weekend
+        description: "Whether date is weekend"
+      - name: is_holiday
+        description: "Whether date is Saudi holiday"
+      - name: fiscal_year
+        description: "Saudi fiscal year"
+      - name: fiscal_quarter
+        description: "Fiscal quarter"
+
+  - name: fct_property_daily
+    description: "Daily snapshot of properties with status and pricing"
+    columns:
+      - name: property_daily_key
+        description: "Surrogate key for property daily fact"
+        tests:
+          - unique
+          - not_null
+      - name: property_key
+        description: "Reference to property dimension"
+        tests:
+          - not_null
+      - name: agent_key
+        description: "Reference to agent dimension"
+        tests:
+          - not_null
+      - name: organization_key
+        description: "Reference to organization dimension"
+      - name: city_key
+        description: "Reference to city dimension"
+        tests:
+          - not_null
+      - name: property_type_key
+        description: "Reference to property type dimension"
+        tests:
+          - not_null
+      - name: date_key
+        description: "Reference to date dimension"
+        tests:
+          - not_null
+      - name: price
+        description: "Property price in SAR"
+      - name: price_per_sqm
+        description: "Price per square meter"
+      - name: status
+        description: "Property status"
+      - name: is_available
+        description: "Whether property is available"
+      - name: is_public
+        description: "Whether property is publicly visible"
+      - name: created_at
+        description: "Property creation timestamp"
+
+  - name: fct_listing_daily
+    description: "Daily snapshot of listings with publication status"
+    columns:
+      - name: listing_daily_key
+        description: "Surrogate key for listing daily fact"
+        tests:
+          - unique
+          - not_null
+      - name: listing_id
+        description: "Natural key - listing ID from source"
+        tests:
+          - not_null
+      - name: property_key
+        description: "Reference to property dimension"
+        tests:
+          - not_null
+      - name: date_key
+        description: "Reference to date dimension"
+        tests:
+          - not_null
+      - name: listing_type
+        description: "Listing type (RENT/SALE)"
+      - name: is_exclusive
+        description: "Whether listing is exclusive"
+      - name: status
+        description: "Listing status"
+      - name: published_at
+        description: "Publication timestamp"
+      - name: created_at
+        description: "Listing creation timestamp"
+
+  - name: fct_buyer_request_daily
+    description: "Daily snapshot of buyer requests with status"
+    columns:
+      - name: buyer_request_daily_key
+        description: "Surrogate key for buyer request daily fact"
+        tests:
+          - unique
+          - not_null
+      - name: buyer_request_id
+        description: "Natural key - buyer request ID from source"
+        tests:
+          - not_null
+      - name: user_key
+        description: "Reference to user dimension"
+        tests:
+          - not_null
+      - name: city_key
+        description: "Reference to city dimension"
+        tests:
+          - not_null
+      - name: property_type_key
+        description: "Reference to property type dimension"
+        tests:
+          - not_null
+      - name: date_key
+        description: "Reference to date dimension"
+        tests:
+          - not_null
+      - name: min_bedrooms
+        description: "Minimum bedrooms required"
+      - name: max_price
+        description: "Maximum price willing to pay"
+      - name: status
+        description: "Request status (OPEN/CLAIMED/CLOSED)"
+      - name: is_open
+        description: "Whether request is open"
+      - name: created_at
+        description: "Request creation timestamp"
+
+  - name: fct_claim
+    description: "Claim events with timing and conversion tracking"
+    columns:
+      - name: claim_key
+        description: "Surrogate key for claim fact"
+        tests:
+          - unique
+          - not_null
+      - name: claim_id
+        description: "Natural key - claim ID from source"
+        tests:
+          - not_null
+      - name: agent_key
+        description: "Reference to agent dimension"
+        tests:
+          - not_null
+      - name: buyer_request_key
+        description: "Reference to buyer request"
+        tests:
+          - not_null
+      - name: date_key
+        description: "Reference to date dimension"
+        tests:
+          - not_null
+      - name: claimed_at
+        description: "Claim timestamp"
+        tests:
+          - not_null
+      - name: expires_at
+        description: "Claim expiration timestamp"
+        tests:
+          - not_null
+      - name: status
+        description: "Claim status"
+      - name: claim_duration_hours
+        description: "Claim duration in hours"
+      - name: is_active
+        description: "Whether claim is active"
+      - name: is_converted
+        description: "Whether claim was converted to lead"
+
+  - name: fct_lead
+    description: "Lead lifecycle events with status transitions"
+    columns:
+      - name: lead_key
+        description: "Surrogate key for lead fact"
+        tests:
+          - unique
+          - not_null
+      - name: lead_id
+        description: "Natural key - lead ID from source"
+        tests:
+          - not_null
+      - name: agent_key
+        description: "Reference to agent dimension"
+        tests:
+          - not_null
+      - name: buyer_request_key
+        description: "Reference to buyer request"
+      - name: seller_submission_key
+        description: "Reference to seller submission"
+      - name: date_key
+        description: "Reference to date dimension"
+        tests:
+          - not_null
+      - name: lead_type
+        description: "Type of lead (BUYER_LEAD/SELLER_LEAD)"
+      - name: status
+        description: "Lead status"
+      - name: lead_age_hours
+        description: "Lead age in hours"
+      - name: lead_duration_hours
+        description: "Lead duration if closed"
+      - name: is_won
+        description: "Whether lead was won"
+      - name: is_lost
+        description: "Whether lead was lost"
+      - name: is_closed
+        description: "Whether lead is closed"
+
+  - name: fct_contact_log
+    description: "Contact attempts and communications"
+    columns:
+      - name: contact_log_key
+        description: "Surrogate key for contact log fact"
+        tests:
+          - unique
+          - not_null
+      - name: contact_log_id
+        description: "Natural key - contact log ID from source"
+        tests:
+          - not_null
+      - name: lead_key
+        description: "Reference to lead dimension"
+        tests:
+          - not_null
+      - name: agent_key
+        description: "Reference to agent dimension"
+        tests:
+          - not_null
+      - name: date_key
+        description: "Reference to date dimension"
+        tests:
+          - not_null
+      - name: contacted_at
+        description: "Contact timestamp"
+        tests:
+          - not_null
+      - name: channel
+        description: "Contact channel"
+      - name: channel_standardized
+        description: "Standardized contact channel"
+      - name: is_phone
+        description: "Whether contact was via phone"
+      - name: is_email
+        description: "Whether contact was via email"
+      - name: is_whatsapp
+        description: "Whether contact was via WhatsApp"
+      - name: is_sms
+        description: "Whether contact was via SMS"
+
+  - name: fct_payments
+    description: "Payment transactions and billing"
+    columns:
+      - name: payment_key
+        description: "Surrogate key for payment fact"
+        tests:
+          - unique
+          - not_null
+      - name: payment_id
+        description: "Natural key - payment ID from source"
+        tests:
+          - not_null
+      - name: user_key
+        description: "Reference to user dimension"
+      - name: organization_key
+        description: "Reference to organization dimension"
+      - name: date_key
+        description: "Reference to date dimension"
+        tests:
+          - not_null
+      - name: amount
+        description: "Payment amount in SAR"
+        tests:
+          - not_null
+      - name: currency
+        description: "Payment currency"
+      - name: status
+        description: "Payment status"
+      - name: payment_method
+        description: "Payment method"
+      - name: plan_type
+        description: "Subscription plan type"
+      - name: is_successful
+        description: "Whether payment was successful"
+      - name: is_refund
+        description: "Whether payment is a refund"
+
+  - name: fct_audit
+    description: "Audit trail for administrative actions"
+    columns:
+      - name: audit_key
+        description: "Surrogate key for audit fact"
+        tests:
+          - unique
+          - not_null
+      - name: audit_id
+        description: "Natural key - audit ID from source"
+        tests:
+          - not_null
+      - name: user_key
+        description: "Reference to user dimension"
+        tests:
+          - not_null
+      - name: date_key
+        description: "Reference to date dimension"
+        tests:
+          - not_null
+      - name: action
+        description: "Action performed"
+        tests:
+          - not_null
+      - name: entity
+        description: "Entity affected"
+      - name: entity_id
+        description: "Entity identifier"
+      - name: created_at
+        description: "Action timestamp"
+        tests:
+          - not_null
+
+  - name: fct_security_events
+    description: "Security-related events and violations"
+    columns:
+      - name: security_event_key
+        description: "Surrogate key for security event fact"
+        tests:
+          - unique
+          - not_null
+      - name: security_event_id
+        description: "Natural key - security event ID from source"
+        tests:
+          - not_null
+      - name: user_key
+        description: "Reference to user dimension"
+      - name: date_key
+        description: "Reference to date dimension"
+        tests:
+          - not_null
+      - name: event_type
+        description: "Type of security event"
+        tests:
+          - not_null
+      - name: severity
+        description: "Event severity level"
+      - name: ip_address
+        description: "IP address of request"
+      - name: is_rls_denied
+        description: "Whether event is RLS denial"
+      - name: is_rate_limited
+        description: "Whether event is rate limit"
+      - name: is_impersonation
+        description: "Whether event is impersonation"
+      - name: created_at
+        description: "Event timestamp"
+        tests:
+          - not_null
+
+  - name: fct_web_analytics
+    description: "Web analytics and user behavior events"
+    columns:
+      - name: web_analytics_key
+        description: "Surrogate key for web analytics fact"
+        tests:
+          - unique
+          - not_null
+      - name: event_key
+        description: "Reference to event"
+        tests:
+          - not_null
+      - name: user_key
+        description: "Reference to user dimension"
+      - name: organization_key
+        description: "Reference to organization dimension"
+      - name: city_key
+        description: "Reference to city dimension"
+      - name: date_key
+        description: "Reference to date dimension"
+        tests:
+          - not_null
+      - name: event_type
+        description: "Type of event"
+        tests:
+          - not_null
+      - name: event_category
+        description: "Event category"
+      - name: session_id
+        description: "User session identifier"
+      - name: search_query
+        description: "Search query if applicable"
+      - name: search_filters
+        description: "Search filters if applicable"
+      - name: is_zero_result
+        description: "Whether search returned zero results"
+      - name: timestamp
+        description: "Event timestamp"
+        tests:
+          - not_null

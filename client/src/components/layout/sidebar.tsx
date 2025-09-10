@@ -1,24 +1,43 @@
 import { Link, useLocation } from "wouter";
-import { Home, Users, Building, Filter, Handshake, BarChart3, Bell, Settings, LogOut } from "lucide-react";
+import { Home, Users, Building, Building2, Filter, Handshake, BarChart3, Bell, Settings, LogOut, MapPin, PlusSquare, Heart, Shuffle, Bookmark, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
+
+type NavItem = {
+  path: string;
+  labelKey?: string;
+  label?: string;
+  icon: any;
+  badge?: string | number;
+};
 
 interface SidebarProps {
   onLogout?: () => void;
 }
 
-const getNavigationItems = (t: (key: string) => string) => [
+const getNavigationItems = (t: (key: string) => string): NavItem[] => [
+  // CRM
   { path: "/", labelKey: "nav.dashboard", icon: Home },
   { path: "/customers", label: "العملاء المحتملين", icon: Users },
-  { path: "/properties", labelKey: "nav.properties", icon: Building, badge: "87" },
+  { path: "/properties", labelKey: "nav.properties", icon: Building },
   { path: "/pipeline", labelKey: "nav.pipeline", icon: Filter },
   { path: "/clients", labelKey: "nav.clients", icon: Handshake },
   { path: "/notifications", labelKey: "nav.notifications", icon: Bell },
   { path: "/reports", labelKey: "nav.reports", icon: BarChart3 },
+  // Marketplace/Public
+  { path: "/listings", labelKey: "nav.listings", icon: Building2 },
+  { path: "/search-properties", labelKey: "nav.search", icon: MapPin },
+  { path: "/post-listing", labelKey: "nav.post_listing", icon: PlusSquare },
+  { path: "/agencies", labelKey: "nav.agencies", icon: Handshake },
+  { path: "/saved-searches", label: "عمليات البحث", icon: Bookmark },
+  { path: "/favorites", labelKey: "nav.favorites", icon: Heart },
+  { path: "/compare", labelKey: "nav.compare", icon: Shuffle },
+  { path: "/moderation", label: "المراجعة", icon: ShieldCheck },
+  { path: "/admin/requests", label: "طلبات العملاء", icon: Bookmark },
 ];
 
-const getBottomItems = (t: (key: string) => string) => [
+const getBottomItems = (t: (key: string) => string): NavItem[] => [
   { path: "/settings", labelKey: "nav.settings", icon: Settings },
 ];
 
@@ -65,7 +84,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                   )}>
                     <Icon size={18} />
                   </div>
-                  <span className="text-sm tracking-tight">{item.label || t(item.labelKey || "")}</span>
+                  <span className="text-sm tracking-tight">{item.label ?? (item.labelKey ? t(item.labelKey) : "")}</span>
                   {item.badge && (
                     <span className={cn("bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full font-medium",
                       dir === 'rtl' ? 'mr-auto' : 'ml-auto'
@@ -96,7 +115,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                     <div className="w-6 h-6 flex items-center justify-center rounded-lg">
                       <Icon size={18} />
                     </div>
-                    <span className="text-sm tracking-tight">{t(item.labelKey)}</span>
+                    <span className="text-sm tracking-tight">{t(item.labelKey || "")}</span>
                   </Link>
                 </li>
               );

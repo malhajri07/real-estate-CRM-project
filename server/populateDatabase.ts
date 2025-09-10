@@ -225,7 +225,7 @@ export async function populateDatabase() {
       const numberOfDependents = maritalStatus === "متزوج" ? getRandomNumber(0, 5) : 
                                 maritalStatus === "مطلق" ? getRandomNumber(0, 3) : 0;
       
-      const leadData = {
+      const leadData: any = {
         firstName: firstName,
         lastName: lastName,
         email: `${emailPrefix}@${emailDomain}`,
@@ -255,7 +255,10 @@ export async function populateDatabase() {
           "عميل جاد ومتابع",
           "لديه ميزانية محددة",
           "يريد عقار جاهز للسكن"
-        ])}`
+        ])}`,
+        ownerId: 'sample-user-1',
+        createdBy: 'sample-user-1',
+        tenantId: 'tenant-1'
       };
 
       const [lead] = await db.insert(leads).values(leadData).returning();
@@ -279,7 +282,7 @@ export async function populateDatabase() {
         selectedPhotos = photoSet.slice(0, numPhotos);
       }
       
-      const propertyData = {
+      const propertyData: any = {
         title: `${getRandomElement(propertyTitles)} ${city}`,
         description: getRandomElement(descriptions),
         address: getRandomElement(addresses),
@@ -289,11 +292,18 @@ export async function populateDatabase() {
         latitude: coords.lat,
         longitude: coords.lng,
         price: getRandomPrice(),
+        propertyCategory: 'سكني',
         propertyType: propertyType,
         bedrooms: propertyType === "استوديو" ? 0 : getRandomNumber(1, 6),
         bathrooms: getRandomNumber(1, 4).toString() + (Math.random() > 0.5 ? ".5" : ".0"),
         squareFeet: getRandomNumber(80, 500),
         status: status,
+        isPubliclyVisible: true,
+        listingType: 'sale',
+        ownerType: 'broker',
+        ownerId: 'sample-user-1',
+        createdBy: 'sample-user-1',
+        tenantId: 'tenant-1',
         photoUrls: selectedPhotos.length > 0 ? selectedPhotos : null,
         features: getRandomElement(features)
       };
@@ -313,14 +323,15 @@ export async function populateDatabase() {
       const lead = getRandomElement(createdLeads);
       const property = getRandomElement(createdProperties);
       
-      const dealData = {
+      const dealData: any = {
         leadId: lead.id,
         propertyId: property.id,
         stage: getRandomElement(["lead", "qualified", "showing", "negotiation", "closed"]),
         dealValue: property.price,
         commission: (parseFloat(property.price) * 0.025).toString(), // 2.5% commission
         expectedCloseDate: new Date(Date.now() + getRandomNumber(1, 90) * 24 * 60 * 60 * 1000),
-        notes: `صفقة العقار ${property.title}`
+        notes: `صفقة العقار ${property.title}`,
+        tenantId: 'tenant-1'
       };
 
       await db.insert(deals).values(dealData);
@@ -331,13 +342,14 @@ export async function populateDatabase() {
     for (let i = 0; i < 100; i++) {
       const lead = getRandomElement(createdLeads);
       
-      const activityData = {
+      const activityData: any = {
         leadId: lead.id,
         activityType: getRandomElement(["call", "email", "meeting", "note", "showing"]),
         title: `نشاط ${i + 1}`,
         description: `وصف النشاط للعميل ${lead.firstName}`,
         scheduledDate: new Date(Date.now() + getRandomNumber(-30, 30) * 24 * 60 * 60 * 1000),
-        completed: Math.random() > 0.3
+        completed: Math.random() > 0.3,
+        tenantId: 'tenant-1'
       };
 
       await db.insert(activities).values(activityData);

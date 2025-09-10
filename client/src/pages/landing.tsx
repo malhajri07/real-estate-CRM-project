@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin, Camera, FileText, DollarSign, GitBranch, CheckCircle, UserPlus, Eye, NotebookPen } from "lucide-react";
 import PropertySearchMap from "@/components/PropertySearchMap";
+import ListingCard from "@/components/listings/ListingCard";
 import { cmsService, type LandingPageContent, type PricingPlan } from "@/lib/cms";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
 import agarkomFooterLogo from "@assets/6_1756507125793.png";
@@ -11,6 +12,8 @@ export default function Landing() {
   const [landingContent, setLandingContent] = useState<LandingPageContent | null>(null);
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [featured, setFeatured] = useState<any[]>([]);
+  const [recent, setRecent] = useState<any[]>([]);
 
   useEffect(() => {
     const loadCMSContent = async () => {
@@ -21,6 +24,13 @@ export default function Landing() {
         ]);
         setLandingContent(contentData);
         setPricingPlans(plansData);
+        // load featured and recent
+        const [f, r] = await Promise.all([
+          fetch('/api/listings/featured').then(r => r.json()).catch(() => []),
+          fetch('/api/listings?page=1&pageSize=12&sort=newest').then(r => r.json()).catch(() => ({ items: [] }))
+        ]);
+        setFeatured(Array.isArray(f) ? f : []);
+        setRecent(Array.isArray(r?.items) ? r.items : (Array.isArray(r) ? r : []));
       } catch (error) {
         console.error('Error loading CMS content:', error);
         // Content will fall back to default values from cmsService
@@ -859,6 +869,30 @@ export default function Landing() {
                 </table>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Listings */}
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold mb-6">عقارات مميزة</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {featured.slice(0,6).map((p:any) => (
+              <ListingCard key={p.id} item={p} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Listings */}
+      <section className="py-12 bg-white/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold mb-6">أحدث الإعلانات</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recent.slice(0,6).map((p:any) => (
+              <ListingCard key={p.id} item={p} />
+            ))}
           </div>
         </div>
       </section>

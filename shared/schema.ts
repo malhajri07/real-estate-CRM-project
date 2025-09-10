@@ -165,6 +165,7 @@ export const properties = pgTable("properties", {
   propertyType: text("property_type").notNull().default("شقة"), // شقة, شقة مفروشة, بيت, فيلا, دور, استراحة, شاليه, مخيم, مكتب, محل, عمارة, مستودع, أرض, غرفة, الكل
   bedrooms: integer("bedrooms"),
   bathrooms: decimal("bathrooms", { precision: 3, scale: 1 }),
+  livingRooms: integer("living_rooms"),
   squareFeet: integer("square_feet"),
 
   // Property Status and Visibility
@@ -174,6 +175,21 @@ export const properties = pgTable("properties", {
 
   // Listing Details
   listingType: text("listing_type").notNull().default("sale"), // sale, rent, both
+  // Extended listing options
+  pricePeriod: text("price_period"), // monthly, yearly, daily
+  negotiable: boolean("negotiable").default(false),
+  buildingAge: integer("building_age"), // years
+  orientation: text("orientation"), // north, south, east, west, corner
+  streetWidths: integer("street_widths").array(),
+  isCorner: boolean("is_corner").default(false),
+  floors: integer("floors"),
+  elevatorCount: integer("elevator_count"),
+  furnishing: text("furnishing"), // none, partial, full
+  licenseNumbers: text("license_numbers").array(),
+  advertiserType: text("advertiser_type").default("broker"), // broker, owner, developer
+  moderationStatus: text("moderation_status").default("approved"), // draft, pending, approved, rejected, published, paused, expired, archived
+  expiresAt: timestamp("expires_at"),
+  geohash: text("geohash"),
   availableFrom: timestamp("available_from").defaultNow(),
 
   // Media and Features
@@ -239,6 +255,18 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
+// Reports on listings (properties)
+export const reports = pgTable("reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").notNull().references(() => properties.id),
+  reporterId: varchar("reporter_id").references(() => users.id),
+  reason: text("reason").notNull(),
+  status: text("status").notNull().default("open"), // open, resolved, rejected
+  resolutionNote: text("resolution_note"),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  resolvedAt: timestamp("resolved_at"),
+});
+
 // Property Inquiries - When customers contact brokers about properties
 export const propertyInquiries = pgTable("property_inquiries", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -302,6 +330,49 @@ export const propertyAlerts = pgTable("property_alerts", {
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 });
 
+// Real Estate Requests - Customer posted requirements
+export const realEstateRequests = pgTable("real_estate_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  customerId: varchar("customer_id").references(() => users.id),
+  customerName: text("customer_name").notNull(),
+  customerEmail: text("customer_email").notNull(),
+  customerPhone: text("customer_phone"),
+  gender: text("gender"),
+  requestType: text("request_type").notNull().default("buy"), // buy, rent
+  pricePeriod: text("price_period"), // monthly, yearly (for rent)
+  // Kinds
+  propertyTypes: text("property_types").array(),
+  propertyKind: text("property_kind"), // single kind (villa/apartment/land...)
+  cities: text("cities").array(),
+  city: text("city"),
+  neighborhoods: text("neighborhoods").array(),
+  neighborhood: text("neighborhood"),
+  minPrice: decimal("min_price", { precision: 12, scale: 2 }),
+  maxPrice: decimal("max_price", { precision: 12, scale: 2 }),
+  // Rooms and counts
+  minBedrooms: integer("min_bedrooms"),
+  maxBedrooms: integer("max_bedrooms"),
+  bedrooms: integer("bedrooms"),
+  bathrooms: real("bathrooms"),
+  minBathrooms: real("min_bathrooms"),
+  livingRooms: integer("living_rooms"),
+  driverRooms: integer("driver_rooms"),
+  maidRooms: integer("maid_rooms"),
+  hasSeparateMajles: boolean("has_separate_majles"),
+  minArea: integer("min_area"),
+  maxArea: integer("max_area"),
+  furnishing: text("furnishing"), // none, partial, full
+  orientation: text("orientation"), // north, south, east, west, corner
+  hasElevator: boolean("has_elevator"),
+  hasParking: boolean("has_parking"),
+  timeframe: text("timeframe"), // immediate, 1-3 months, 3-6 months
+  status: text("status").notNull().default("new"), // new, contacted, closed
+  requestDate: timestamp("request_date"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
 // Saudi Regions - Official 13 administrative regions
 export const saudiRegions = pgTable("saudi_regions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -359,6 +430,13 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   sentAt: true,
 });
 
+export const insertReportSchema = createInsertSchema(reports).omit({
+  id: true,
+  createdAt: true,
+  resolvedAt: true,
+  status: true,
+});
+
 export const insertSaudiRegionSchema = createInsertSchema(saudiRegions).omit({
   id: true,
   createdAt: true,
@@ -381,6 +459,12 @@ export const insertSavedPropertySchema = createInsertSchema(savedProperties).omi
 });
 
 export const insertPropertyAlertSchema = createInsertSchema(propertyAlerts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertRealEstateRequestSchema = createInsertSchema(realEstateRequests).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -557,6 +641,17 @@ export const messagesRelations = relations(messages, ({ one }) => ({
   }),
 }));
 
+export const reportsRelations = relations(reports, ({ one }) => ({
+  listing: one(properties, {
+    fields: [reports.listingId],
+    references: [properties.id],
+  }),
+  reporter: one(users, {
+    fields: [reports.reporterId],
+    references: [users.id],
+  }),
+}));
+
 export const saudiRegionsRelations = relations(saudiRegions, ({ many }) => ({
   cities: many(saudiCities),
 }));
@@ -592,6 +687,8 @@ export type Activity = typeof activities.$inferSelect;
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
 export type Message = typeof messages.$inferSelect;
 export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type Report = typeof reports.$inferSelect;
+export type InsertReport = z.infer<typeof insertReportSchema>;
 export type SaudiRegion = typeof saudiRegions.$inferSelect;
 export type InsertSaudiRegion = z.infer<typeof insertSaudiRegionSchema>;
 export type SaudiCity = typeof saudiCities.$inferSelect;
@@ -602,3 +699,5 @@ export type SavedProperty = typeof savedProperties.$inferSelect;
 export type InsertSavedProperty = z.infer<typeof insertSavedPropertySchema>;
 export type PropertyAlert = typeof propertyAlerts.$inferSelect;
 export type InsertPropertyAlert = z.infer<typeof insertPropertyAlertSchema>;
+export type RealEstateRequest = typeof realEstateRequests.$inferSelect;
+export type InsertRealEstateRequest = z.infer<typeof insertRealEstateRequestSchema>;

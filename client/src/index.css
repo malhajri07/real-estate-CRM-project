@@ -15,15 +15,67 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'Droid Arabic Kufi';
-  src: url('@assets/alfont_com_AlFont_com_Droid-Arabic-Kufi_1756500484508.ttf') format('truetype');
-  font-weight: normal;
-  font-display: swap;
-}
+/* Removed Droid Arabic Kufi in favor of Janat globally */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* RTL Layout Fixes */
+[dir="rtl"] {
+  font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+}
+
+/* RTL flex direction handled by individual components */
+
+[dir="rtl"] .space-x-4 > * + * {
+  margin-left: 0;
+  margin-right: 1rem;
+}
+
+[dir="rtl"] .space-x-2 > * + * {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+[dir="rtl"] .gap-2 {
+  gap: 0.5rem;
+}
+
+[dir="rtl"] .gap-3 {
+  gap: 0.75rem;
+}
+
+[dir="rtl"] .gap-4 {
+  gap: 1rem;
+}
+
+/* RTL Layout Fixes */
+[dir="rtl"] .flex {
+  flex-direction: row-reverse;
+}
+
+/* Ensure sidebar is properly positioned in RTL */
+[dir="rtl"] .fixed.inset-y-0.right-0 {
+  right: 0;
+  left: auto;
+}
+
+/* RTL Sidebar positioning fixes */
+[dir="rtl"] .lg\:static {
+  position: static;
+}
+
+[dir="rtl"] .lg\:inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/* Fix any potential overflow issues */
+[dir="rtl"] .overflow-hidden {
+  overflow: hidden;
+}
 
 /* RTL Support */
 .rtl {
@@ -54,7 +106,7 @@
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: 'Droid Arabic Kufi', 'Noto Sans Arabic', Inter, system-ui, -apple-system, sans-serif;
+  font-family: 'Janat Bold', 'Noto Sans Arabic', Inter, system-ui, -apple-system, sans-serif;
   font-feature-settings: 'rlig' 1, 'calt' 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -164,7 +216,7 @@ body {
   --brand-cream: hsl(48 26% 97%);
   --brand-green-light: hsl(145 25% 85%);
   --brand-blue-dark: hsl(205 70% 20%);
-  --font-sans: 'Droid Arabic Kufi', 'Noto Sans Arabic', 'Janat Bold', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Janat Bold', 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'New York', 'Times New Roman', serif;
   --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
   --radius: 0.875rem;
@@ -242,7 +294,7 @@ html, body {
 
 /* Font Family Classes */
 .font-droid-kufi {
-  font-family: 'Droid Arabic Kufi', 'Janat Bold', 'Noto Sans Arabic', sans-serif;
+  font-family: 'Janat Bold', 'Noto Sans Arabic', sans-serif;
 }
 
 .font-janat-bold {
@@ -250,7 +302,7 @@ html, body {
 }
 
 .font-arabic-stack {
-  font-family: 'Droid Arabic Kufi', 'Janat Bold', 'Noto Sans Arabic', Arial, sans-serif;
+  font-family: 'Janat Bold', 'Noto Sans Arabic', Arial, sans-serif;
 }
 
 .font-password {

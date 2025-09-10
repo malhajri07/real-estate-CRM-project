@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2, Edit, Eye, Plus, Bed, Bath, Square, Filter, SlidersHorizontal, Share2, LayoutGrid, List } from "lucide-react";
+import { Trash2, Edit, Eye, Plus, Bed, Bath, Square, Filter, SlidersHorizontal, Share2, LayoutGrid, List, Sofa } from "lucide-react";
 import { useLocation } from "wouter";
 import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -507,10 +507,16 @@ export default function Properties() {
                                 <span>{property.bathrooms}</span>
                               </div>
                             )}
+                            {(property as any).livingRooms && (
+                              <div className="flex items-center space-x-1">
+                                <Sofa size={14} />
+                                <span>{(property as any).livingRooms}</span>
+                              </div>
+                            )}
                             {property.squareFeet && (
                               <div className="flex items-center space-x-1">
                                 <Square size={14} />
-                                <span>{property.squareFeet.toLocaleString()} sq ft</span>
+                                <span>{property.squareFeet.toLocaleString()} متر²</span>
                               </div>
                             )}
                           </div>
@@ -683,7 +689,7 @@ export default function Properties() {
                             <td className="professional-table-cell">
                               <div className="info-cell">
                                 <div className="primary">
-                                  {property.squareFeet ? `${property.squareFeet.toLocaleString()} قدم²` : '-'}
+                                  {property.squareFeet ? `${property.squareFeet.toLocaleString()} متر²` : '-'}
                                 </div>
                               </div>
                             </td>
@@ -700,6 +706,12 @@ export default function Properties() {
                                     <span className="flex items-center gap-1">
                                       <Bath size={12} />
                                       {property.bathrooms}
+                                    </span>
+                                  )}
+                                  {(property as any).livingRooms && (
+                                    <span className="flex items-center gap-1">
+                                      <Sofa size={12} />
+                                      {(property as any).livingRooms}
                                     </span>
                                   )}
                                 </div>

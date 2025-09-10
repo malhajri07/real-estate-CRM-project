@@ -160,7 +160,7 @@ async function importSaudiCustomers() {
     }
 
     // إدراج البيانات في قاعدة البيانات
-    await db.insert(leads).values(leads_to_insert);
+    await db.insert(leads).values(leads_to_insert as any);
 
     console.log(`✅ تم استيراد ${leads_to_insert.length} عميل بنجاح!`);
     console.log('🎉 اكتمل استيراد البيانات السعودية');

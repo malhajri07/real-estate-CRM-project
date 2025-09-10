@@ -98,6 +98,16 @@ export class ObjectStorageService {
       throw new Error("Error downloading CSV file");
     }
   }
+
+  // Gets a signed PUT URL for uploading a media file (images/videos/docs)
+  async getMediaUploadURL(ext: string = 'jpg'): Promise<{ uploadURL: string; path: string }> {
+    const privateObjectDir = this.getPrivateObjectDir();
+    const fileId = randomUUID();
+    const fullPath = `${privateObjectDir}/media-uploads/${fileId}.${ext}`;
+    const { bucketName, objectName } = parseObjectPath(fullPath);
+    const uploadURL = await signObjectURL({ bucketName, objectName, method: 'PUT', ttlSec: 900 });
+    return { uploadURL, path: fullPath };
+  }
 }
 
 function parseObjectPath(path: string): {

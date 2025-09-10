@@ -205,7 +205,7 @@ export default function PropertyDetail() {
                     {property.squareFeet && (
                       <div className="flex items-center space-x-2 text-muted-foreground">
                         <Square size={20} />
-                        <span>{property.squareFeet.toLocaleString()} قدم²</span>
+                        <span>{property.squareFeet.toLocaleString()} متر²</span>
                       </div>
                     )}
                   </div>

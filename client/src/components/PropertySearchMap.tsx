@@ -3,7 +3,10 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Home, Building2, Warehouse, Trees, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import { MapPin, Home, Building2, Warehouse, Trees, Search, Filter, X, Save, Map } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Property } from '@shared/schema';
@@ -52,20 +55,32 @@ const PROPERTY_CATEGORIES = {
 
 interface PropertySearchMapProps {
   className?: string;
+  searchQuery?: string;
 }
 
-export default function PropertySearchMap({ className = '' }: PropertySearchMapProps) {
+export default function PropertySearchMap({ className = '', searchQuery = '' }: PropertySearchMapProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('الكل');
   const [selectedType, setSelectedType] = useState<string>('الكل');
+  const [selectedCity, setSelectedCity] = useState<string>('الكل');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000000]);
+  const [bedrooms, setBedrooms] = useState<string>('الكل');
+  const [bathrooms, setBathrooms] = useState<string>('الكل');
+  const [showFilters, setShowFilters] = useState<boolean>(false);
+  const [savedSearchName, setSavedSearchName] = useState<string>('');
 
   // Default map center (Riyadh, Saudi Arabia)
   const defaultCenter: [number, number] = [24.7136, 46.6753];
 
+  const params = new URLSearchParams();
+  if (selectedCategory !== 'الكل') params.set('propertyCategory', selectedCategory);
+  if (selectedType !== 'الكل') params.set('propertyType', selectedType);
+  const url = `/api/listings/map${params.toString() ? `?${params.toString()}` : ''}`;
+
   const { data: properties = [], isLoading } = useQuery<Property[]>({
-    queryKey: ['/api/properties/map'],
+    queryKey: [url],
   });
 
-  // Filter properties based on selected category and type using useMemo
+  // Filter properties based on all filters using useMemo
   const filteredProperties = useMemo(() => {
     if (!properties || !Array.isArray(properties)) {
       return [];
@@ -77,16 +92,60 @@ export default function PropertySearchMap({ className = '' }: PropertySearchMapP
       property.status === 'active'
     );
 
+    // Text search filter
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
+      filtered = filtered.filter(property => 
+        property.title?.toLowerCase().includes(searchLower) ||
+        property.description?.toLowerCase().includes(searchLower) ||
+        property.city?.toLowerCase().includes(searchLower) ||
+        property.propertyType?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Category filter
     if (selectedCategory !== 'الكل') {
       filtered = filtered.filter(property => property.propertyCategory === selectedCategory);
     }
 
+    // Type filter
     if (selectedType !== 'الكل') {
       filtered = filtered.filter(property => property.propertyType === selectedType);
     }
 
+    // City filter
+    if (selectedCity !== 'الكل') {
+      filtered = filtered.filter(property => property.city === selectedCity);
+    }
+
+    // Price range filter
+    filtered = filtered.filter(property => {
+      const price = typeof property.price === 'string' ? parseFloat(property.price) : property.price;
+      return price >= priceRange[0] && price <= priceRange[1];
+    });
+
+    // Bedrooms filter
+    if (bedrooms !== 'الكل') {
+      const bedroomCount = parseInt(bedrooms);
+      filtered = filtered.filter(property => {
+        if (property.bedrooms === null) return false;
+        const propertyBedrooms = typeof property.bedrooms === 'string' ? parseInt(property.bedrooms) : property.bedrooms;
+        return propertyBedrooms === bedroomCount;
+      });
+    }
+
+    // Bathrooms filter
+    if (bathrooms !== 'الكل') {
+      const bathroomCount = parseFloat(bathrooms);
+      filtered = filtered.filter(property => {
+        if (property.bathrooms === null) return false;
+        const propertyBathrooms = typeof property.bathrooms === 'string' ? parseFloat(property.bathrooms) : property.bathrooms;
+        return propertyBathrooms === bathroomCount;
+      });
+    }
+
     return filtered;
-  }, [properties, selectedCategory, selectedType]);
+  }, [properties, selectedCategory, selectedType, searchQuery, selectedCity, priceRange, bedrooms, bathrooms]);
 
   // Get available types for selected category
   const getAvailableTypes = () => {
@@ -94,6 +153,26 @@ export default function PropertySearchMap({ className = '' }: PropertySearchMapP
       return Object.values(PROPERTY_CATEGORIES).flatMap(cat => cat.types);
     }
     return PROPERTY_CATEGORIES[selectedCategory as keyof typeof PROPERTY_CATEGORIES]?.types || [];
+  };
+
+  // Get unique cities from properties
+  const getUniqueCities = () => {
+    if (!properties || !Array.isArray(properties)) return [];
+    const cities = properties
+      .map(property => property.city)
+      .filter((city, index, arr) => city && arr.indexOf(city) === index)
+      .sort();
+    return cities;
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedCategory('الكل');
+    setSelectedType('الكل');
+    setSelectedCity('الكل');
+    setPriceRange([0, 10000000]);
+    setBedrooms('الكل');
+    setBathrooms('الكل');
   };
 
   // Format price for mobile-style display (like "100 ألف")
@@ -137,6 +216,31 @@ export default function PropertySearchMap({ className = '' }: PropertySearchMapP
     });
   };
 
+  const toggleCompare = (id: string) => {
+    try {
+      const raw = localStorage.getItem('compareIds');
+      const arr = raw ? JSON.parse(raw) : [];
+      let list: string[] = Array.isArray(arr) ? arr : [];
+      if (list.includes(id)) list = list.filter((x) => x !== id); else list = [...list, id].slice(0, 4);
+      localStorage.setItem('compareIds', JSON.stringify(list));
+      alert('تم تحديث قائمة المقارنة');
+    } catch {}
+  };
+
+  const saveFavorite = async (id: string) => {
+    try {
+      const res = await fetch('/api/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ propertyId: id })
+      });
+      if (!res.ok) throw new Error('failed');
+      alert('تمت إضافة العقار إلى المفضلة');
+    } catch {
+      alert('تعذر حفظ العقار');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className={`${className} bg-white rounded-lg p-8 text-center`}>
@@ -147,10 +251,102 @@ export default function PropertySearchMap({ className = '' }: PropertySearchMapP
   }
 
   return (
-    <div className={`${className} bg-white`} dir="rtl">
-      {/* Mobile-style Top Navigation */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        {/* Main Filter Tabs */}
+    <div className={`${className} bg-white flex flex-col h-full min-h-[500px]`} dir="rtl">
+      {/* Enhanced Top Navigation with Filters */}
+      <div className="bg-white border-b border-gray-200 flex-shrink-0">
+        {/* Filter Controls */}
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className="border-green-600 text-green-600 hover:bg-green-50"
+          >
+            <Filter className="h-4 w-4 ml-2" />
+            مرشحات
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={clearAllFilters}
+            className="border-gray-300 text-gray-600 hover:bg-gray-50"
+          >
+            <X className="h-4 w-4 ml-2" />
+            مسح الكل
+          </Button>
+        </div>
+
+        {/* Advanced Filters Panel */}
+        {showFilters && (
+          <div className="px-4 py-4 bg-gray-50 border-b border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* City Filter */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">المدينة</label>
+                <Select value={selectedCity} onValueChange={setSelectedCity}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر المدينة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="الكل">الكل</SelectItem>
+                    {getUniqueCities().map((city) => (
+                      <SelectItem key={city} value={city}>{city}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Price Range */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  نطاق السعر: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
+                </label>
+                <Slider
+                  value={priceRange}
+                  onValueChange={(value) => setPriceRange(value as [number, number])}
+                  max={10000000}
+                  min={0}
+                  step={100000}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Bedrooms */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">عدد الغرف</label>
+                <Select value={bedrooms} onValueChange={setBedrooms}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر عدد الغرف" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="الكل">الكل</SelectItem>
+                    {[1, 2, 3, 4, 5, 6].map((num) => (
+                      <SelectItem key={num} value={num.toString()}>{num} غرف</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Bathrooms */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">عدد الحمامات</label>
+                <Select value={bathrooms} onValueChange={setBathrooms}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر عدد الحمامات" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="الكل">الكل</SelectItem>
+                    {[1, 2, 3, 4, 5].map((num) => (
+                      <SelectItem key={num} value={num.toString()}>{num} حمامات</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Category Tabs */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
           <div className="flex items-center gap-2 overflow-x-auto">
             <Button
@@ -173,9 +369,26 @@ export default function PropertySearchMap({ className = '' }: PropertySearchMapP
               </Button>
             ))}
           </div>
-          <Button size="sm" variant="outline" className="mr-2">
-            <Search className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={async () => {
+              try {
+                const payload = {
+                  alertName: savedSearchName || 'بحث الخريطة',
+                  propertyTypes: selectedType !== 'الكل' ? [selectedType] : [],
+                  cities: selectedCity !== 'الكل' ? [selectedCity] : [],
+                };
+                const res = await fetch('/api/search/saved', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!res.ok) throw new Error('failed');
+                alert('تم حفظ البحث');
+              } catch { alert('تعذر حفظ البحث'); }
+            }}>
+              <Save className="h-4 w-4 ml-2" />
+              حفظ البحث
+            </Button>
+            <div className="text-sm text-gray-500">
+              {filteredProperties.length} عقار متاح
+            </div>
+          </div>
         </div>
 
         {/* Property Type Filter */}
@@ -202,15 +415,10 @@ export default function PropertySearchMap({ className = '' }: PropertySearchMapP
             ))}
           </div>
         )}
-
-        {/* Results Count */}
-        <div className="px-4 py-2 text-xs text-gray-500 border-t border-gray-100">
-          {filteredProperties.length} عقار متاح
-        </div>
       </div>
 
-      {/* Map Container */}
-      <div className="relative h-[70vh] md:h-[600px] lg:h-[700px]">
+      {/* Full Height Map Container */}
+      <div className="flex-1 relative">
         {isLoading ? (
           <div className="flex items-center justify-center h-full bg-gray-50">
             <div className="text-center">
@@ -273,7 +481,7 @@ export default function PropertySearchMap({ className = '' }: PropertySearchMapP
                         {property.squareFeet && (
                           <div className="flex justify-between">
                             <span className="font-medium">المساحة:</span>
-                            <span>{property.squareFeet} قدم²</span>
+                            <span>{property.squareFeet} متر²</span>
                           </div>
                         )}
                       </div>
@@ -281,6 +489,10 @@ export default function PropertySearchMap({ className = '' }: PropertySearchMapP
                         <Badge className="bg-green-600 text-white text-xs">
                           {property.propertyCategory}
                         </Badge>
+                        <div className="flex gap-2 mt-2">
+                          <button className="px-2 py-1 text-xs rounded bg-green-600 text-white" onClick={() => saveFavorite(property.id)}>حفظ</button>
+                          <button className="px-2 py-1 text-xs rounded bg-gray-200" onClick={() => toggleCompare(property.id)}>مقارنة</button>
+                        </div>
                       </div>
                     </div>
                   </Popup>

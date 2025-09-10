@@ -1,0 +1,195 @@
+{
+  "name": "Agent Performance Analytics",
+  "description": "Agent performance metrics and analytics",
+  "parameters": [
+    {
+      "name": "Date Range",
+      "slug": "date_range",
+      "type": "date/range",
+      "default": "past30days"
+    },
+    {
+      "name": "Organization",
+      "slug": "organization",
+      "type": "string/=",
+      "default": null
+    },
+    {
+      "name": "Agent Type",
+      "slug": "agent_type",
+      "type": "string/=",
+      "default": null
+    }
+  ],
+  "cards": [
+    {
+      "name": "Top Performing Agents",
+      "description": "Agents ranked by lead conversion rate",
+      "query": {
+        "source-table": "fct_lead",
+        "aggregation": [
+          ["count", ["field", "is_won", null]],
+          ["count", ["field", "is_closed", null]]
+        ],
+        "breakout": [["field", "agent_key", null]],
+        "filter": ["=", ["field", "is_closed", null], true],
+        "order-by": [["desc", ["count", ["field", "is_won", null]]]]
+      },
+      "display": "table",
+      "limit": 10
+    },
+    {
+      "name": "Agent License Compliance",
+      "description": "Percentage of agents with valid licenses",
+      "query": {
+        "source-table": "dim_agent",
+        "aggregation": [
+          ["count", ["field", "is_license_valid", null]],
+          ["count"]
+        ],
+        "filter": ["=", ["field", "is_active", null], true]
+      },
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.field": "count",
+        "scalar.prefix": "",
+        "scalar.suffix": "%"
+      }
+    },
+    {
+      "name": "Claims per Agent",
+      "description": "Number of claims per agent",
+      "query": {
+        "source-table": "fct_claim",
+        "aggregation": [["count"]],
+        "breakout": [["field", "agent_key", null]],
+        "order-by": [["desc", ["count"]]]
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.x_axis.title_text": "Agent",
+        "graph.y_axis.title_text": "Claims"
+      },
+      "limit": 20
+    },
+    {
+      "name": "Lead Win Rate by Organization",
+      "description": "Lead win rate by organization",
+      "query": {
+        "source-table": "fct_lead",
+        "aggregation": [
+          ["count", ["field", "is_won", null]],
+          ["count", ["field", "is_closed", null]]
+        ],
+        "breakout": [["field", "organization_name", null]],
+        "filter": ["=", ["field", "is_closed", null], true]
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.x_axis.title_text": "Organization",
+        "graph.y_axis.title_text": "Win Rate %"
+      }
+    },
+    {
+      "name": "Contact Response Time",
+      "description": "Average time from claim to first contact by agent",
+      "query": {
+        "source-table": "fct_contact_log",
+        "aggregation": [["avg", ["field", "contact_age_hours", null]]],
+        "breakout": [["field", "agent_key", null]],
+        "filter": [
+          "and",
+          ["=", ["field", "is_first_contact", null], true],
+          ["not-null", ["field", "contact_age_hours", null]]
+        ]
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.x_axis.title_text": "Agent",
+        "graph.y_axis.title_text": "Hours to Contact"
+      },
+      "limit": 20
+    },
+    {
+      "name": "Agent Activity by Day",
+      "description": "Daily agent activity (claims + contacts)",
+      "query": {
+        "source-table": "fct_claim",
+        "aggregation": [["count"]],
+        "breakout": [["field", "date_key", {"temporal-unit": "day"}]],
+        "filter": ["time-interval", ["field", "date_key", null], -30, "day"]
+      },
+      "display": "line",
+      "visualization_settings": {
+        "graph.x_axis.title_text": "Date",
+        "graph.y_axis.title_text": "Daily Claims"
+      }
+    },
+    {
+      "name": "Territory Coverage",
+      "description": "Agent territory distribution",
+      "query": {
+        "source-table": "dim_agent",
+        "aggregation": [["count"]],
+        "breakout": [["field", "territory_count", null]],
+        "filter": ["=", ["field", "is_active", null], true]
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.x_axis.title_text": "Number of Territories",
+        "graph.y_axis.title_text": "Number of Agents"
+      }
+    },
+    {
+      "name": "Individual vs Corporate Agent Performance",
+      "description": "Performance comparison between individual and corporate agents",
+      "query": {
+        "source-table": "fct_lead",
+        "aggregation": [
+          ["count", ["field", "is_won", null]],
+          ["count", ["field", "is_closed", null]]
+        ],
+        "breakout": [["field", "agent_type", null]],
+        "filter": ["=", ["field", "is_closed", null], true]
+      },
+      "display": "bar",
+      "visualization_settings": {
+        "graph.x_axis.title_text": "Agent Type",
+        "graph.y_axis.title_text": "Win Rate %"
+      }
+    },
+    {
+      "name": "License Expiry Alerts",
+      "description": "Agents with licenses expiring soon",
+      "query": {
+        "source-table": "dim_agent",
+        "aggregation": [["count"]],
+        "filter": [
+          "and",
+          ["=", ["field", "is_active", null], true],
+          ["not-null", ["field", "license_days_until_expiry", null]],
+          ["<=", ["field", "license_days_until_expiry", null], 30]
+        ]
+      },
+      "display": "scalar",
+      "visualization_settings": {
+        "scalar.field": "count",
+        "scalar.prefix": "",
+        "scalar.suffix": " agents with expiring licenses"
+      }
+    },
+    {
+      "name": "Agent Productivity Score",
+      "description": "Composite productivity score (claims + leads + contacts)",
+      "query": {
+        "source-query": {
+          "source-table": "fct_claim",
+          "aggregation": [["count"]],
+          "breakout": [["field", "agent_key", null]]
+        }
+      },
+      "display": "table",
+      "limit": 20
+    }
+  ]
+}

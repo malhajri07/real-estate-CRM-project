@@ -35,6 +35,7 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
       propertyType: "",
       bedrooms: 0,
       bathrooms: "0",
+      livingRooms: 0 as any,
       squareFeet: 0,
       status: "active",
       photoUrls: [],
@@ -282,6 +283,25 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                         placeholder="دورات المياه" 
                         {...field}
                         value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name={"livingRooms" as any}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>صالات المعيشة</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        placeholder="عدد صالات المعيشة" 
+                        {...field}
+                        value={field.value || ""}
+                        onChange={e => field.onChange(parseInt(e.target.value) || 0)}
                       />
                     </FormControl>
                     <FormMessage />

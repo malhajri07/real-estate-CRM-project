@@ -1,0 +1,73 @@
+name: 'real_estate_analytics'
+version: '1.0.0'
+config-version: 2
+
+# This setting configures which "profile" dbt uses for this project.
+profile: 'real_estate_analytics'
+
+# These configurations specify where dbt should look for different types of files.
+# The `model-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"  # directory which will store compiled SQL files
+clean-targets:         # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+# Configuring models
+# Full documentation: https://docs.getdbt.com/reference/model-configs
+models:
+  real_estate_analytics:
+    # Config indicated by + and applies to all files under models/example/
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts
+    admin:
+      +materialized: table
+      +schema: analytics_admin
+      +post-hook: "GRANT SELECT ON {{ this }} TO analytics_admin_role"
+
+# Seeds configuration
+seeds:
+  real_estate_analytics:
+    +schema: seeds
+    +materialized: table
+
+# Snapshots configuration
+snapshots:
+  real_estate_analytics:
+    +target_schema: snapshots
+    +strategy: timestamp
+    +updated_at: updated_at
+
+# Tests configuration
+tests:
+  real_estate_analytics:
+    +schema: test_results
+
+# Variables for configuration
+vars:
+  # Default timezone for all date operations
+  default_timezone: 'Asia/Riyadh'
+  
+  # PII masking configuration
+  enable_pii_masking: true
+  
+  # SLA thresholds
+  contact_sla_minutes: 30
+  first_claim_sla_minutes: 60
+  buyer_saturation_threshold: 3
+  
+  # Data freshness thresholds (in hours)
+  claim_freshness_hours: 1
+  lead_freshness_hours: 2
+  property_freshness_hours: 24

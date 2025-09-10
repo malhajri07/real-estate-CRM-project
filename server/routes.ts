@@ -8,6 +8,21 @@ import { setupMockAuth, isAuthenticated } from "./authMock";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { registerRoleBasedRoutes } from "./roleRoutes";
 import accountRoutes from "./routes/accounts";
+import listingsRoutes from "./routes/listings";
+import locationsRoutes from "./routes/locations";
+import favoritesRoutes from "./routes/favorites";
+import inquiriesRoutes from "./routes/inquiries";
+import searchRoutes from "./routes/search";
+import moderationRoutes from "./routes/moderation";
+import reportsRoutes from "./routes/reports";
+import agenciesRoutes from "./routes/agencies";
+import mediaRoutes from "./routes/media";
+import requestsRoutes from "./routes/requests";
+import populateRoutes from "./routes/populate";
+import sitemapRoutes from "./routes/sitemap";
+import authRoutes from "./routes/auth";
+import buyerPoolRoutes from "./routes/buyer-pool";
+import analyticsRoutes from "./src/routes/analytics";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup mock authentication for development
@@ -16,8 +31,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Disabled role-based routes for development
   // registerRoleBasedRoutes(app);
 
+  // RBAC Authentication routes (disabled for now - requires PostgreSQL)
+  // app.use("/api/auth", authRoutes);
+  // Buyer pool and claims workflow (disabled for now - requires PostgreSQL)
+  // app.use("/api/pool", buyerPoolRoutes);
+  
+  // Mock RBAC endpoints for testing
+  app.post("/api/auth/login", (req, res) => {
+    const { email, password } = req.body;
+    
+    // Debug logging
+    console.log("Login attempt:", { email, password: password ? "***" : "undefined" });
+    
+    // Mock users for testing
+    const mockUsers = {
+      "admin@aqaraty.com": { id: "admin-1", email: "admin@aqaraty.com", roles: ["WEBSITE_ADMIN"], name: "Website Admin" },
+      "owner1@riyadh-realestate.com": { id: "owner-1", email: "owner1@riyadh-realestate.com", roles: ["CORP_OWNER"], name: "Corporate Owner" },
+      "agent1@riyadh-realestate.com": { id: "agent-1", email: "agent1@riyadh-realestate.com", roles: ["CORP_AGENT"], name: "Corporate Agent" },
+      "indiv1@example.com": { id: "indiv-1", email: "indiv1@example.com", roles: ["INDIV_AGENT"], name: "Individual Agent" },
+      "seller1@example.com": { id: "seller-1", email: "seller1@example.com", roles: ["SELLER"], name: "Seller" },
+      "buyer1@example.com": { id: "buyer-1", email: "buyer1@example.com", roles: ["BUYER"], name: "Buyer" }
+    };
+    
+    const user = mockUsers[email];
+    if (user && password === "admin123") {
+      console.log("Login successful for:", email);
+      res.json({
+        success: true,
+        token: "mock-jwt-token",
+        user: user
+      });
+    } else {
+      console.log("Login failed for:", email, "User found:", !!user, "Password correct:", password === "admin123");
+      res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+  });
+  
+  app.get("/api/auth/me", (req, res) => {
+    // Mock current user - check for token in header or just return default
+    const authHeader = req.headers.authorization;
+    console.log("Auth me called with header:", authHeader);
+    
+    // For now, always return success with admin user
+    res.json({
+      success: true,
+      user: {
+        id: "admin-1",
+        email: "admin@aqaraty.com",
+        roles: ["WEBSITE_ADMIN"],
+        name: "Website Admin"
+      }
+    });
+  });
   // Account management routes
   app.use("/api/accounts", accountRoutes);
+  // Public listings routes (Aqar-style)
+  app.use("/api/listings", listingsRoutes);
+  // Locations taxonomy
+  app.use("/api/locations", locationsRoutes);
+  // Favorites, Inquiries, Saved searches
+  app.use("/api/favorites", favoritesRoutes);
+  app.use("/api/inquiries", inquiriesRoutes);
+  app.use("/api/search", searchRoutes);
+  app.use("/api/moderation", moderationRoutes);
+  app.use("/api/reports", reportsRoutes);
+  app.use("/api/agencies", agenciesRoutes);
+  app.use("/api/media", mediaRoutes);
+  app.use("/api/requests", requestsRoutes);
+  app.use("/api", populateRoutes);
+  app.use("/api/analytics", analyticsRoutes);
+  app.use("/", sitemapRoutes);
 
   // Auth routes
   app.get('/api/auth/user', async (req: any, res) => {
