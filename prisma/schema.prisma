@@ -1,16 +1,57 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+/**
+ * schema.prisma - Database Schema Definition
+ * 
+ * This file defines the complete database schema for the real estate CRM platform.
+ * It includes:
+ * - User roles and permissions (RBAC system)
+ * - Property and listing management
+ * - Organization and agent management
+ * - Lead and claim workflow
+ * - Audit logging and security
+ * - File and media management
+ * 
+ * The schema is designed for SQLite in development and can be adapted for PostgreSQL
+ * in production. All array and JSON fields are stored as strings for SQLite compatibility.
+ * 
+ * Key Features:
+ * - Role-Based Access Control (RBAC) with 6 user roles
+ * - Multi-tenant organization support
+ * - Comprehensive property and listing management
+ * - Lead and claim workflow for buyer pool
+ * - Audit logging for security and compliance
+ * - File storage and media management
+ * 
+ * Dependencies: Prisma Client for database operations
+ * Pages affected: All pages that interact with the database
+ */
 
+// Prisma Client Generator Configuration
 generator client {
   provider = "prisma-client-js"
 }
 
+// Database Configuration - SQLite for development
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
-// Enums
+// ===== ENUMS - System-wide constants and status values =====
+
+/**
+ * UserRole Enum - Role-Based Access Control (RBAC)
+ * 
+ * Defines the 6 user roles in the system:
+ * - WEBSITE_ADMIN: Platform owner with full system access
+ * - CORP_OWNER: Corporate account owner/manager
+ * - CORP_AGENT: Licensed agent under a corporate organization
+ * - INDIV_AGENT: Licensed independent agent (no corporate affiliation)
+ * - SELLER: Individual customer selling property
+ * - BUYER: Individual customer looking to buy property
+ * 
+ * Used in: Authentication, authorization, UI routing, data access control
+ * Pages affected: All pages with role-based access, RBAC dashboard, user management
+ */
 enum UserRole {
   WEBSITE_ADMIN
   CORP_OWNER
@@ -20,12 +61,35 @@ enum UserRole {
   BUYER
 }
 
+/**
+ * OrganizationStatus Enum - Corporate Organization States
+ * 
+ * Defines the status of corporate organizations:
+ * - ACTIVE: Fully operational organization
+ * - SUSPENDED: Temporarily disabled organization
+ * - PENDING_VERIFICATION: Awaiting verification/approval
+ * 
+ * Used in: Organization management, access control, billing
+ * Pages affected: Agency management, organization settings, admin panel
+ */
 enum OrganizationStatus {
   ACTIVE
   SUSPENDED
   PENDING_VERIFICATION
 }
 
+/**
+ * AgentStatus Enum - Agent Account States
+ * 
+ * Defines the status of agent accounts:
+ * - ACTIVE: Fully operational agent
+ * - INACTIVE: Temporarily disabled agent
+ * - SUSPENDED: Suspended agent account
+ * - PENDING_VERIFICATION: Awaiting license verification
+ * 
+ * Used in: Agent management, access control, lead assignment
+ * Pages affected: Agent profiles, agent management, lead assignment
+ */
 enum AgentStatus {
   ACTIVE
   INACTIVE
@@ -33,6 +97,19 @@ enum AgentStatus {
   PENDING_VERIFICATION
 }
 
+/**
+ * PropertyStatus Enum - Property States
+ * 
+ * Defines the status of properties:
+ * - ACTIVE: Available for sale/rent
+ * - INACTIVE: Temporarily unavailable
+ * - SOLD: Property has been sold
+ * - RENTED: Property has been rented
+ * - PENDING_APPROVAL: Awaiting approval for listing
+ * 
+ * Used in: Property management, listing visibility, search filters
+ * Pages affected: Property listings, property detail, property management
+ */
 enum PropertyStatus {
   ACTIVE
   INACTIVE
@@ -41,11 +118,33 @@ enum PropertyStatus {
   PENDING_APPROVAL
 }
 
+/**
+ * ListingType Enum - Property Listing Types
+ * 
+ * Defines the type of property listing:
+ * - RENT: Property available for rent
+ * - SALE: Property available for sale
+ * 
+ * Used in: Property search, listing management, pricing
+ * Pages affected: Property search, listing creation, property filters
+ */
 enum ListingType {
   RENT
   SALE
 }
 
+/**
+ * ListingStatus Enum - Listing States
+ * 
+ * Defines the status of property listings:
+ * - ACTIVE: Listing is live and visible
+ * - INACTIVE: Listing is hidden
+ * - EXPIRED: Listing has expired
+ * - PENDING_APPROVAL: Awaiting approval
+ * 
+ * Used in: Listing management, visibility control, moderation
+ * Pages affected: Listing management, moderation queue, listing visibility
+ */
 enum ListingStatus {
   ACTIVE
   INACTIVE
@@ -98,7 +197,7 @@ model User {
   firstName      String
   lastName       String
   passwordHash   String
-  roles          UserRole[]
+  roles          String // JSON string of UserRole array
   organizationId String?
   isActive       Boolean   @default(true)
   lastLoginAt    DateTime?
@@ -118,6 +217,9 @@ model User {
   auditLogs        AuditLog[]
   fileAssets       FileAsset[]
 
+  @@index([email])
+  @@index([organizationId])
+  @@index([isActive])
   @@map("users")
 }
 
@@ -141,6 +243,8 @@ model Organization {
   listings     Listing[]
   fileAssets   FileAsset[]
 
+  @@index([licenseNo])
+  @@index([status])
   @@map("organizations")
 }
 
@@ -150,10 +254,10 @@ model AgentProfile {
   organizationId    String?
   licenseNo         String      @unique
   licenseValidTo    DateTime
-  territories       String[]    // Array of city/district codes
+  territories       String      // JSON string of city/district codes array
   isIndividualAgent Boolean     @default(false)
   status            AgentStatus @default(PENDING_VERIFICATION)
-  specialties       String[]    // Array of property types
+  specialties       String      // JSON string of property types array
   experience        Int?        // Years of experience
   bio               String?
   avatar            String?
@@ -163,12 +267,11 @@ model AgentProfile {
   // Relations
   user         User        @relation(fields: [userId], references: [id])
   organization Organization? @relation(fields: [organizationId], references: [id])
-  properties   Property[]
-  listings     Listing[]
-  leads        Lead[]
-  claims       Claim[]
-  contactLogs  ContactLog[]
 
+  @@index([userId])
+  @@index([organizationId])
+  @@index([licenseNo])
+  @@index([status])
   @@map("agent_profiles")
 }
 
@@ -191,8 +294,8 @@ model Property {
   visibility      String        @default("public") // public, private, organization
   latitude        Decimal?
   longitude       Decimal?
-  features        String[]      // Array of features
-  photos          String[]      // Array of photo URLs
+  features        String        // JSON string of features array
+  photos          String        // JSON string of photo URLs array
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -201,6 +304,12 @@ model Property {
   organization Organization? @relation(fields: [organizationId], references: [id])
   listings     Listing[]
 
+  @@index([agentId])
+  @@index([organizationId])
+  @@index([city])
+  @@index([status])
+  @@index([type])
+  @@index([price])
   @@map("properties")
 }
 
@@ -223,6 +332,11 @@ model Listing {
   agent       User         @relation(fields: [agentId], references: [id])
   organization Organization? @relation(fields: [organizationId], references: [id])
 
+  @@index([propertyId])
+  @@index([agentId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([listingType])
   @@map("listings")
 }
 
@@ -235,10 +349,10 @@ model BuyerRequest {
   maxBedrooms         Int?
   minPrice            Decimal?
   maxPrice            Decimal?
-  contactPreferences  Json               // { channels: [], timeWindows: [], etc. }
+  contactPreferences  String             // JSON string of contact preferences
   status              BuyerRequestStatus @default(OPEN)
-  maskedContact       Json               // { phone: "05**-***-1234", email: "u***@example.com" }
-  fullContactJson     Json               // Full contact details (encrypted)
+  maskedContact       String             // JSON string of masked contact
+  fullContactJson     String             // JSON string of full contact details (encrypted)
   multiAgentAllowed   Boolean            @default(false)
   notes               String?
   createdAt           DateTime           @default(now())
@@ -249,6 +363,11 @@ model BuyerRequest {
   leads       Lead[]
   claims      Claim[]
 
+  @@index([createdByUserId])
+  @@index([city])
+  @@index([status])
+  @@index([type])
+  @@index([maxPrice])
   @@map("buyer_requests")
 }
 
@@ -261,8 +380,8 @@ model SellerSubmission {
   priceExpectation    Decimal?
   exclusivePreference Boolean              @default(false)
   status              SellerSubmissionStatus @default(OPEN)
-  maskedContact       Json                 // { phone: "05**-***-1234", email: "u***@example.com" }
-  fullContactJson     Json                 // Full contact details (encrypted)
+  maskedContact       String               // JSON string of masked contact
+  fullContactJson     String               // JSON string of full contact details (encrypted)
   notes               String?
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
@@ -271,6 +390,10 @@ model SellerSubmission {
   createdBy User @relation(fields: [createdByUserId], references: [id])
   leads     Lead[]
 
+  @@index([createdByUserId])
+  @@index([city])
+  @@index([status])
+  @@index([type])
   @@map("seller_submissions")
 }
 
@@ -290,6 +413,10 @@ model Lead {
   sellerSubmission SellerSubmission? @relation(fields: [sellerSubmissionId], references: [id])
   contactLogs     ContactLog[]
 
+  @@index([agentId])
+  @@index([buyerRequestId])
+  @@index([sellerSubmissionId])
+  @@index([status])
   @@map("leads")
 }
 
@@ -308,6 +435,10 @@ model Claim {
   agent        User         @relation(fields: [agentId], references: [id])
   buyerRequest BuyerRequest @relation(fields: [buyerRequestId], references: [id])
 
+  @@index([agentId])
+  @@index([buyerRequestId])
+  @@index([status])
+  @@index([expiresAt])
   @@map("claims")
 }
 
@@ -324,6 +455,9 @@ model ContactLog {
   lead Lead @relation(fields: [leadId], references: [id])
   agent User @relation(fields: [agentId], references: [id])
 
+  @@index([leadId])
+  @@index([agentId])
+  @@index([contactedAt])
   @@map("contact_logs")
 }
 
@@ -333,8 +467,8 @@ model AuditLog {
   action    String   // e.g., "CREATE", "UPDATE", "DELETE", "CLAIM", "RELEASE"
   entity    String   // e.g., "PROPERTY", "BUYER_REQUEST", "CLAIM"
   entityId  String
-  beforeJson Json?   // Previous state
-  afterJson  Json?   // New state
+  beforeJson String? // JSON string of previous state
+  afterJson  String? // JSON string of new state
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
@@ -342,6 +476,10 @@ model AuditLog {
   // Relations
   user User @relation(fields: [userId], references: [id])
 
+  @@index([userId])
+  @@index([entity])
+  @@index([entityId])
+  @@index([createdAt])
   @@map("audit_logs")
 }
 
@@ -361,90 +499,11 @@ model FileAsset {
   owner        User?         @relation(fields: [ownerUserId], references: [id])
   organization Organization? @relation(fields: [organizationId], references: [id])
 
-  @@map("file_assets")
-}
-
-// Indexes for performance
-model User {
-  @@index([email])
-  @@index([organizationId])
-  @@index([isActive])
-}
-
-model Organization {
-  @@index([licenseNo])
-  @@index([status])
-}
-
-model AgentProfile {
-  @@index([userId])
-  @@index([organizationId])
-  @@index([licenseNo])
-  @@index([status])
-}
-
-model Property {
-  @@index([agentId])
-  @@index([organizationId])
-  @@index([city])
-  @@index([status])
-  @@index([type])
-  @@index([price])
-}
-
-model Listing {
-  @@index([propertyId])
-  @@index([agentId])
-  @@index([organizationId])
-  @@index([status])
-  @@index([listingType])
-}
-
-model BuyerRequest {
-  @@index([createdByUserId])
-  @@index([city])
-  @@index([status])
-  @@index([type])
-  @@index([maxPrice])
-}
-
-model SellerSubmission {
-  @@index([createdByUserId])
-  @@index([city])
-  @@index([status])
-  @@index([type])
-}
-
-model Lead {
-  @@index([agentId])
-  @@index([buyerRequestId])
-  @@index([sellerSubmissionId])
-  @@index([status])
-}
-
-model Claim {
-  @@index([agentId])
-  @@index([buyerRequestId])
-  @@index([status])
-  @@index([expiresAt])
-}
-
-model ContactLog {
-  @@index([leadId])
-  @@index([agentId])
-  @@index([contactedAt])
-}
-
-model AuditLog {
-  @@index([userId])
-  @@index([entity])
-  @@index([entityId])
-  @@index([createdAt])
-}
-
-model FileAsset {
   @@index([ownerUserId])
   @@index([organizationId])
   @@index([entity])
   @@index([entityId])
+  @@map("file_assets")
 }
+
+// Indexes for performance

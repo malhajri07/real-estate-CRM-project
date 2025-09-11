@@ -1,108 +1,325 @@
+/**
+ * routes.ts - Main Route Registration and Configuration
+ * 
+ * This file is the central hub for all API route registration. It:
+ * - Imports all route modules from the ./routes/ directory
+ * - Registers them with the Express application
+ * - Sets up authentication and middleware
+ * - Defines inline routes for specific functionality
+ * - Handles CSV upload and processing for bulk data import
+ * 
+ * Route Structure:
+ * - /api/auth/* - Authentication and user management
+ * - /api/pool/* - Buyer pool and claims workflow (RBAC)
+ * - /api/accounts/* - Account management
+ * - /api/listings/* - Property listings (public and private)
+ * - /api/locations/* - Geographic and location data
+ * - /api/favorites/* - User favorites and saved items
+ * - /api/inquiries/* - Property inquiries and messages
+ * - /api/search/* - Search functionality
+ * - /api/moderation/* - Content moderation
+ * - /api/reports/* - Analytics and reporting
+ * - /api/agencies/* - Agency and agent management
+ * - /api/media/* - File upload and media management
+ * - /api/requests/* - General request handling
+ * - /api/analytics/* - Analytics and KPI data
+ * - /api/csv/* - CSV upload and processing
+ * - / - Sitemap and SEO routes
+ */
+
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { insertLeadSchema, insertPropertySchema, insertDealSchema, insertActivitySchema, insertMessageSchema } from "@shared/schema";
+/**
+ * Updated import to use Prisma-based storage instead of Drizzle-based storage
+ * This fixes the database connection issues caused by WebSocket connection attempts
+ * to Neon database when using SQLite.
+ * 
+ * Dependencies: storage-prisma.ts for Prisma-based database operations
+ * Routes affected: All routes that use storage
+ * Pages affected: All pages that interact with data
+ */
+import { storage } from "./storage-prisma";
+// Removed unused schema imports - using Prisma schema instead
 import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 import { setupMockAuth, isAuthenticated } from "./authMock";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { registerRoleBasedRoutes } from "./roleRoutes";
-import accountRoutes from "./routes/accounts";
-import listingsRoutes from "./routes/listings";
-import locationsRoutes from "./routes/locations";
-import favoritesRoutes from "./routes/favorites";
-import inquiriesRoutes from "./routes/inquiries";
-import searchRoutes from "./routes/search";
-import moderationRoutes from "./routes/moderation";
-import reportsRoutes from "./routes/reports";
-import agenciesRoutes from "./routes/agencies";
-import mediaRoutes from "./routes/media";
-import requestsRoutes from "./routes/requests";
-import populateRoutes from "./routes/populate";
-import sitemapRoutes from "./routes/sitemap";
-import authRoutes from "./routes/auth";
-import buyerPoolRoutes from "./routes/buyer-pool";
-import analyticsRoutes from "./src/routes/analytics";
 
+// Route module imports - Each handles specific functionality
+import accountRoutes from "./routes/accounts";        // Account management
+import listingsRoutes from "./routes/listings";       // Property listings
+import locationsRoutes from "./routes/locations";     // Geographic data
+import favoritesRoutes from "./routes/favorites";     // User favorites
+import inquiriesRoutes from "./routes/inquiries";     // Property inquiries
+import searchRoutes from "./routes/search";           // Search functionality
+import moderationRoutes from "./routes/moderation";   // Content moderation
+import reportsRoutes from "./routes/reports";         // Analytics reports
+import agenciesRoutes from "./routes/agencies";       // Agency management
+import mediaRoutes from "./routes/media";             // Media uploads
+import requestsRoutes from "./routes/requests";       // General requests
+import populateRoutes from "./routes/populate";       // Data population
+import sitemapRoutes from "./routes/sitemap";         // SEO sitemap
+import authRoutes from "./routes/auth";               // Authentication
+import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
+import analyticsRoutes from "./src/routes/analytics"; // Analytics data
+
+/**
+ * registerRoutes - Main route registration function
+ * 
+ * This function registers all API routes with the Express application.
+ * It returns an HTTP server instance for use in the main server setup.
+ * 
+ * Dependencies:
+ * - registerRoleBasedRoutes() from ./roleRoutes.ts - RBAC system routes
+ * - All route modules from ./routes/ directory
+ * 
+ * Route Registration Order (important for middleware and precedence):
+ * 1. RBAC system routes (role-based access control)
+ * 2. Authentication routes
+ * 3. Core business logic routes
+ * 4. Utility and support routes
+ * 5. Catch-all routes (sitemap, etc.)
+ */
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Setup mock authentication for development
-  await setupMockAuth(app);
+  // Disabled mock authentication - using real database authentication
+  // await setupMockAuth(app);
 
-  // Disabled role-based routes for development
-  // registerRoleBasedRoutes(app);
+  /**
+   * RBAC System Routes
+   * 
+   * Registers role-based access control routes for:
+   * - User role management
+   * - Permission checking
+   * - Organization management
+   * 
+   * Dependencies: registerRoleBasedRoutes() from ./roleRoutes.ts
+   * Pages affected: RBAC dashboard, user management, admin settings
+   */
+  registerRoleBasedRoutes(app);
 
-  // RBAC Authentication routes (disabled for now - requires PostgreSQL)
-  // app.use("/api/auth", authRoutes);
-  // Buyer pool and claims workflow (disabled for now - requires PostgreSQL)
-  // app.use("/api/pool", buyerPoolRoutes);
-  
-  // Mock RBAC endpoints for testing
-  app.post("/api/auth/login", (req, res) => {
-    const { email, password } = req.body;
-    
-    // Debug logging
-    console.log("Login attempt:", { email, password: password ? "***" : "undefined" });
-    
-    // Mock users for testing
-    const mockUsers = {
-      "admin@aqaraty.com": { id: "admin-1", email: "admin@aqaraty.com", roles: ["WEBSITE_ADMIN"], name: "Website Admin" },
-      "owner1@riyadh-realestate.com": { id: "owner-1", email: "owner1@riyadh-realestate.com", roles: ["CORP_OWNER"], name: "Corporate Owner" },
-      "agent1@riyadh-realestate.com": { id: "agent-1", email: "agent1@riyadh-realestate.com", roles: ["CORP_AGENT"], name: "Corporate Agent" },
-      "indiv1@example.com": { id: "indiv-1", email: "indiv1@example.com", roles: ["INDIV_AGENT"], name: "Individual Agent" },
-      "seller1@example.com": { id: "seller-1", email: "seller1@example.com", roles: ["SELLER"], name: "Seller" },
-      "buyer1@example.com": { id: "buyer-1", email: "buyer1@example.com", roles: ["BUYER"], name: "Buyer" }
-    };
-    
-    const user = mockUsers[email];
-    if (user && password === "admin123") {
-      console.log("Login successful for:", email);
-      res.json({
-        success: true,
-        token: "mock-jwt-token",
-        user: user
-      });
-    } else {
-      console.log("Login failed for:", email, "User found:", !!user, "Password correct:", password === "admin123");
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-    }
-  });
-  
-  app.get("/api/auth/me", (req, res) => {
-    // Mock current user - check for token in header or just return default
-    const authHeader = req.headers.authorization;
-    console.log("Auth me called with header:", authHeader);
-    
-    // For now, always return success with admin user
-    res.json({
-      success: true,
-      user: {
-        id: "admin-1",
-        email: "admin@aqaraty.com",
-        roles: ["WEBSITE_ADMIN"],
-        name: "Website Admin"
-      }
-    });
-  });
-  // Account management routes
+  /**
+   * Authentication Routes - /api/auth/*
+   * 
+   * Handles user authentication and session management:
+   * - POST /api/auth/login - User login
+   * - POST /api/auth/register - User registration
+   * - GET /api/auth/me - Get current user info
+   * - POST /api/auth/logout - User logout
+   * 
+   * Dependencies: authRoutes from ./routes/auth.ts
+   * Pages affected: Login page, RBAC login page, user profile
+   */
+  app.use("/api/auth", authRoutes);
+
+  /**
+   * Buyer Pool Routes - /api/pool/*
+   * 
+   * Handles buyer pool and claims workflow (RBAC feature):
+   * - GET /api/pool/buyers - Search buyer requests
+   * - POST /api/pool/buyers/:id/claim - Claim a buyer request
+   * - POST /api/pool/buyers/:id/release - Release a claim
+   * 
+   * Dependencies: buyerPoolRoutes from ./routes/buyer-pool.ts
+   * Pages affected: Buyer pool search, lead management, claims workflow
+   */
+  app.use("/api/pool", buyerPoolRoutes);
+
+  /**
+   * Account Management Routes - /api/accounts/*
+   * 
+   * Handles user account management:
+   * - GET /api/accounts/profile - Get user profile
+   * - PUT /api/accounts/profile - Update user profile
+   * - POST /api/accounts/change-password - Change password
+   * 
+   * Dependencies: accountRoutes from ./routes/accounts.ts
+   * Pages affected: User settings, profile management, account settings
+   */
   app.use("/api/accounts", accountRoutes);
-  // Public listings routes (Aqar-style)
+
+  /**
+   * Property Listings Routes - /api/listings/*
+   * 
+   * Handles property listings (public and private):
+   * - GET /api/listings - Get all listings
+   * - GET /api/listings/featured - Get featured listings
+   * - GET /api/listings/:id - Get specific listing
+   * - POST /api/listings - Create new listing
+   * - PUT /api/listings/:id - Update listing
+   * - DELETE /api/listings/:id - Delete listing
+   * 
+   * Dependencies: listingsRoutes from ./routes/listings.ts
+   * Pages affected: Listings page, property detail page, post listing page
+   */
   app.use("/api/listings", listingsRoutes);
-  // Locations taxonomy
+
+  /**
+   * Location Routes - /api/locations/*
+   * 
+   * Handles geographic and location data:
+   * - GET /api/locations/cities - Get all cities
+   * - GET /api/locations/districts - Get districts by city
+   * - GET /api/locations/regions - Get all regions
+   * 
+   * Dependencies: locationsRoutes from ./routes/locations.ts
+   * Pages affected: Property search, location filters, address forms
+   */
   app.use("/api/locations", locationsRoutes);
-  // Favorites, Inquiries, Saved searches
+
+  /**
+   * User Favorites Routes - /api/favorites/*
+   * 
+   * Handles user favorites and saved items:
+   * - GET /api/favorites - Get user favorites
+   * - POST /api/favorites - Add to favorites
+   * - DELETE /api/favorites/:id - Remove from favorites
+   * 
+   * Dependencies: favoritesRoutes from ./routes/favorites.ts
+   * Pages affected: Favorites page, property cards, saved searches
+   */
   app.use("/api/favorites", favoritesRoutes);
+
+  /**
+   * Property Inquiries Routes - /api/inquiries/*
+   * 
+   * Handles property inquiries and messages:
+   * - GET /api/inquiries - Get user inquiries
+   * - POST /api/inquiries - Create new inquiry
+   * - PUT /api/inquiries/:id - Update inquiry
+   * 
+   * Dependencies: inquiriesRoutes from ./routes/inquiries.ts
+   * Pages affected: Property detail page, inquiries management, messaging
+   */
   app.use("/api/inquiries", inquiriesRoutes);
+
+  /**
+   * Search Routes - /api/search/*
+   * 
+   * Handles search functionality:
+   * - GET /api/search/properties - Search properties
+   * - GET /api/search/agencies - Search agencies
+   * - GET /api/search/agents - Search agents
+   * 
+   * Dependencies: searchRoutes from ./routes/search.ts
+   * Pages affected: Search properties page, search results, filters
+   */
   app.use("/api/search", searchRoutes);
+
+  /**
+   * Content Moderation Routes - /api/moderation/*
+   * 
+   * Handles content moderation:
+   * - GET /api/moderation/queue - Get moderation queue
+   * - POST /api/moderation/approve - Approve content
+   * - POST /api/moderation/reject - Reject content
+   * 
+   * Dependencies: moderationRoutes from ./routes/moderation.ts
+   * Pages affected: Moderation page, admin content review
+   */
   app.use("/api/moderation", moderationRoutes);
+
+  /**
+   * Reports Routes - /api/reports/*
+   * 
+   * Handles analytics and reporting:
+   * - GET /api/reports/sales - Sales reports
+   * - GET /api/reports/performance - Performance reports
+   * - GET /api/reports/analytics - Analytics data
+   * 
+   * Dependencies: reportsRoutes from ./routes/reports.ts
+   * Pages affected: Reports page, analytics dashboard, performance metrics
+   */
   app.use("/api/reports", reportsRoutes);
+
+  /**
+   * Agency Management Routes - /api/agencies/*
+   * 
+   * Handles agency and agent management:
+   * - GET /api/agencies - Get all agencies
+   * - GET /api/agencies/:id - Get specific agency
+   * - GET /api/agencies/:id/agents - Get agency agents
+   * 
+   * Dependencies: agenciesRoutes from ./routes/agencies.ts
+   * Pages affected: Agencies page, agency detail page, agent profiles
+   */
   app.use("/api/agencies", agenciesRoutes);
+
+  /**
+   * Media Upload Routes - /api/media/*
+   * 
+   * Handles file upload and media management:
+   * - POST /api/media/upload - Upload files
+   * - GET /api/media/:id - Get media file
+   * - DELETE /api/media/:id - Delete media file
+   * 
+   * Dependencies: mediaRoutes from ./routes/media.ts
+   * Pages affected: Property images, profile pictures, document uploads
+   */
   app.use("/api/media", mediaRoutes);
+
+  /**
+   * General Request Routes - /api/requests/*
+   * 
+   * Handles general request processing:
+   * - GET /api/requests - Get all requests
+   * - POST /api/requests - Create new request
+   * - PUT /api/requests/:id - Update request
+   * 
+   * Dependencies: requestsRoutes from ./routes/requests.ts
+   * Pages affected: Request management, admin requests page
+   */
   app.use("/api/requests", requestsRoutes);
+
+  /**
+   * Data Population Routes - /api/*
+   * 
+   * Handles data seeding and population:
+   * - POST /api/populate - Populate database with sample data
+   * - POST /api/seed - Seed database
+   * 
+   * Dependencies: populateRoutes from ./routes/populate.ts
+   * Pages affected: Admin data management, development tools
+   */
   app.use("/api", populateRoutes);
+
+  /**
+   * Analytics Routes - /api/analytics/*
+   * 
+   * Handles analytics and KPI data:
+   * - GET /api/analytics/overview - Get overview analytics
+   * - GET /api/analytics/comprehensive - Get comprehensive analytics
+   * - GET /api/analytics/kpis - Get KPI data
+   * 
+   * Dependencies: analyticsRoutes from ./src/routes/analytics.ts
+   * Pages affected: Analytics dashboard, RBAC dashboard, KPI displays
+   */
   app.use("/api/analytics", analyticsRoutes);
+
+  /**
+   * Sitemap Routes - /
+   * 
+   * Handles SEO and sitemap generation:
+   * - GET /sitemap.xml - Generate sitemap
+   * - GET /robots.txt - Robots.txt file
+   * 
+   * Dependencies: sitemapRoutes from ./routes/sitemap.ts
+   * Pages affected: SEO, search engine indexing
+   */
   app.use("/", sitemapRoutes);
 
-  // Auth routes
+  /**
+   * Inline Routes - Additional functionality not in separate modules
+   */
+
+  /**
+   * User Data Route - GET /api/auth/user
+   * 
+   * Gets detailed user information for authenticated users.
+   * 
+   * Dependencies: storage.getUser() from ./storage.ts
+   * Pages affected: User profile, account settings, user management
+   */
   app.get('/api/auth/user', async (req: any, res) => {
     try {
       const user = await storage.getUser(req.user.id);
@@ -112,7 +329,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch user" });
     }
   });
-  // CSV Upload routes for bulk lead import
+
+  /**
+   * CSV Upload URL Route - POST /api/csv/upload-url
+   * 
+   * Generates a secure upload URL for CSV file uploads.
+   * Used for bulk lead import functionality.
+   * 
+   * Dependencies: ObjectStorageService from ./objectStorage.ts
+   * Pages affected: CSV uploader component, bulk import functionality
+   */
   app.post("/api/csv/upload-url", async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();

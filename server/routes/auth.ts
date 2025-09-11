@@ -1,8 +1,60 @@
+/**
+ * routes/auth.ts - Authentication API Routes
+ * 
+ * This file defines all authentication-related API endpoints for the real estate CRM platform.
+ * It handles:
+ * - User login and authentication
+ * - User registration and account creation
+ * - User impersonation (admin feature)
+ * - Current user information retrieval
+ * - JWT token validation and management
+ * 
+ * The routes integrate with the RBAC (Role-Based Access Control) system and provide
+ * secure authentication for all user types in the platform.
+ * 
+ * Dependencies:
+ * - Express.js router for route handling
+ * - Zod for request validation
+ * - Authentication functions from ../auth.ts
+ * - RBAC middleware from ../rbac.ts
+ * 
+ * API Endpoints:
+ * - POST /api/auth/login - User authentication
+ * - POST /api/auth/register - User registration
+ * - GET /api/auth/me - Get current user info
+ * - POST /api/auth/impersonate - Admin user impersonation
+ * 
+ * Routes affected: All authentication flows
+ * Pages affected: Login page, RBAC login page, user registration, admin panel
+ */
+
 import express from 'express';
 import { z } from 'zod';
-import { login, register, impersonateUser } from '../auth';
-import { authenticateToken, requireRole } from '../rbac';
-import { UserRole } from '@prisma/client';
+import { login, register, impersonateUser, authenticateToken } from '../auth';
+import { requireRole } from '../rbac';
+
+/**
+ * UserRole Enum - Local definition for route validation
+ * 
+ * Defines the 6 user roles in the RBAC system:
+ * - WEBSITE_ADMIN: Platform owner with full system access
+ * - CORP_OWNER: Corporate account owner/manager
+ * - CORP_AGENT: Licensed agent under a corporate organization
+ * - INDIV_AGENT: Licensed independent agent (no corporate affiliation)
+ * - SELLER: Individual customer selling property
+ * - BUYER: Individual customer looking to buy property
+ * 
+ * Used in: Request validation, role-based access control
+ * Pages affected: All pages with role-based access
+ */
+enum UserRole {
+  WEBSITE_ADMIN = 'WEBSITE_ADMIN',
+  CORP_OWNER = 'CORP_OWNER',
+  CORP_AGENT = 'CORP_AGENT',
+  INDIV_AGENT = 'INDIV_AGENT',
+  SELLER = 'SELLER',
+  BUYER = 'BUYER'
+}
 
 const router = express.Router();
 

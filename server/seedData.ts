@@ -1,4 +1,4 @@
-import { storage } from "./storage";
+import { storage } from "./storage-prisma";
 import { populateDatabase } from "./populateDatabase";
 
 export async function seedDummyData() {

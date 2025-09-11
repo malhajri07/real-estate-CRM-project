@@ -1,5 +1,5 @@
 import type { Express, RequestHandler } from "express";
-import { storage } from "./storage";
+import { storage } from "./storage-prisma";
 import { seedDummyData } from "./seedData";
 
 // Simple mock authentication for development

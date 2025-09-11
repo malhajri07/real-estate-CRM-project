@@ -2,7 +2,7 @@ import { Router } from "express";
 import { populateDatabase } from "../populateDatabase";
 import { populateAdmin1Data } from "../populateAdmin1Data";
 import { createAdmin1AndPopulate } from "../createAdmin1AndPopulate";
-import { storage } from "../storage";
+import { storage } from "../storage-prisma";
 
 const router = Router();
 

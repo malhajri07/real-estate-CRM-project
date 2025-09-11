@@ -1,3 +1,31 @@
+/**
+ * rbac-dashboard.tsx - Role-Based Access Control Dashboard Page
+ * 
+ * This is the main dashboard page for the RBAC (Role-Based Access Control) system.
+ * It provides:
+ * - Role-based navigation and content display
+ * - Dynamic sidebar with role-appropriate menu items
+ * - Tabbed interface for different functional areas
+ * - User authentication and authorization checks
+ * - RTL (Right-to-Left) layout support for Arabic
+ * - Real-time user information display
+ * 
+ * The dashboard adapts its interface based on the user's role:
+ * - WEBSITE_ADMIN: Full system access with admin tools
+ * - CORP_OWNER: Corporate management tools
+ * - CORP_AGENT/INDIV_AGENT: Agent-specific tools and buyer pool access
+ * - SELLER/BUYER: Customer-specific tools
+ * 
+ * Dependencies:
+ * - AuthProvider context for user authentication
+ * - Wouter for navigation
+ * - Multiple dashboard components for different functional areas
+ * - UI components from shadcn/ui library
+ * 
+ * Routes: /rbac-dashboard (authenticated route)
+ * Pages affected: All RBAC-protected pages
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useAuth, UserRole } from '@/components/auth/AuthProvider';
 import { useLocation } from 'wouter';
@@ -20,11 +48,13 @@ import {
   Calendar,
   Clock
 } from 'lucide-react';
-import RoleBasedDashboard from '@/components/dashboard/RoleBasedDashboard';
-import BuyerPoolSearch from '@/components/buyer-pool/BuyerPoolSearch';
-import AdminSettings from '@/components/admin/AdminSettings';
-import UserManagement from '@/components/admin/UserManagement';
-import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
+
+// Dashboard component imports - Each handles specific functional areas
+import RoleBasedDashboard from '@/components/dashboard/RoleBasedDashboard';    // Main dashboard
+import BuyerPoolSearch from '@/components/buyer-pool/BuyerPoolSearch';        // Buyer pool functionality
+import AdminSettings from '@/components/admin/AdminSettings';                  // Admin configuration
+import UserManagement from '@/components/admin/UserManagement';                // User management
+import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';        // Analytics and KPIs
 
 export default function RBACDashboardPage() {
   const { user, logout } = useAuth();

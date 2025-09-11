@@ -1,3 +1,26 @@
+/**
+ * App.tsx - Main Application Component
+ * 
+ * This is the root component of the real estate CRM application. It handles:
+ * - Application routing and navigation
+ * - Authentication state management
+ * - Context providers setup (Query, Language, Auth, Tooltip)
+ * - Layout management for authenticated vs unauthenticated users
+ * - Lazy loading of page components for performance optimization
+ * - Navigation loading states and transitions
+ * 
+ * The application uses a role-based access control (RBAC) system with different
+ * layouts for authenticated users (with sidebar) and public users (landing page).
+ * 
+ * Key Features:
+ * - Wouter-based client-side routing
+ * - React Query for server state management
+ * - RTL (Right-to-Left) language support for Arabic
+ * - JWT-based authentication with persistent sessions
+ * - Lazy loading for better performance
+ * - Responsive design with Tailwind CSS
+ */
+
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -5,7 +28,9 @@ import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { AuthProvider } from "@/components/auth/AuthProvider";
+import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
+
+// Core page imports - loaded immediately for critical routes
 import Login from "@/pages/login";
 import Landing from "@/pages/landing";
 import SignupSelection from "@/pages/signup-selection";
@@ -26,9 +51,11 @@ import Notifications from "@/pages/notifications";
 import Settings from "@/pages/settings";
 import PropertyDetail from "@/pages/property-detail";
 import Sidebar from "@/components/layout/sidebar";
-import RBACLogin from "@/pages/rbac-login";
+import RBACLoginPage from "@/pages/rbac-login";
 import RBACDashboard from "@/pages/rbac-dashboard";
 import LoginTest from "@/pages/login-test";
+
+// Lazy-loaded page imports - loaded on demand for better performance
 import { lazy, Suspense } from "react";
 const Listings = lazy(() => import("@/pages/listings"));
 const FavoritesPage = lazy(() => import("@/pages/favorites"));
@@ -43,23 +70,39 @@ const SavedSearchesPage = lazy(() => import("@/pages/saved-searches"));
 const RealEstateRequestsPage = lazy(() => import("@/pages/real-estate-requests"));
 const AdminRequestsPage = lazy(() => import("@/pages/admin-requests"));
 
+/**
+ * Router Component - Main routing logic for the application
+ * 
+ * This component handles:
+ * - Authentication state checking
+ * - Route rendering based on authentication status
+ * - Navigation loading states for better UX
+ * - Layout management (sidebar for authenticated users)
+ * - Public vs private route separation
+ * 
+ * The router uses a two-tier approach:
+ * 1. Unauthenticated users see public pages (landing, login, signup)
+ * 2. Authenticated users see the full CRM with sidebar navigation
+ */
 function Router() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // Get authentication state from AuthProvider context
+  const { user, isLoading } = useAuth();
+  
+  // Navigation loading state for smooth transitions
   const [isNavigationLoading, setIsNavigationLoading] = useState(false);
   const [location] = useLocation();
   const [previousLocation, setPreviousLocation] = useState("");
 
-  // Check for existing authentication on app load
-  useEffect(() => {
-    const authStatus = localStorage.getItem('isAuthenticated');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
-  }, []);
+  // Determine if user is authenticated
+  const isAuthenticated = !!user;
 
-  // Handle navigation loading effect for authenticated pages
+  /**
+   * Handle navigation loading effect for authenticated pages
+   * 
+   * This creates a smooth loading transition when navigating between
+   * authenticated pages. The loading state lasts for 2.5 seconds to
+   * provide visual feedback during route changes.
+   */
   useEffect(() => {
     if (isAuthenticated && location !== previousLocation && previousLocation !== "") {
       setIsNavigationLoading(true);
@@ -72,18 +115,17 @@ function Router() {
     setPreviousLocation(location);
   }, [location, isAuthenticated, previousLocation]);
 
-  // Handle login
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-    localStorage.setItem('isAuthenticated', 'true');
-  };
-
-  // Handle logout
+  /**
+   * Handle logout functionality
+   * 
+   * Note: The actual logout logic is handled by the AuthProvider context.
+   * This function is passed to the Sidebar component for the logout button.
+   */
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('isAuthenticated');
+    // Logout is handled by AuthProvider
   };
 
+  // Show loading spinner while checking authentication status
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -92,12 +134,24 @@ function Router() {
     );
   }
 
-  // Show landing page if not authenticated
+  /**
+   * Public Routes - Available to unauthenticated users
+   * 
+   * These routes include:
+   * - Landing page (marketing site)
+   * - Authentication pages (login, signup)
+   * - Public property listings
+   * - Public agency/agent profiles
+   * - Property search functionality
+   * 
+   * All public routes use the PublicLayout component for consistent styling.
+   */
   if (!isAuthenticated) {
     return (
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
       <Switch>
-        <Route path="/login" component={() => <Login onLogin={handleLogin} />} />
+        <Route path="/login" component={Login} />
+        <Route path="/rbac-login" component={RBACLoginPage} />
         <Route path="/signup" component={SignupSelection} />
         <Route path="/signup/individual" component={SignupIndividual} />
         <Route path="/signup/corporate" component={SignupCorporate} />
@@ -121,7 +175,13 @@ function Router() {
     );
   }
 
-  // Show navigation loading overlay
+  /**
+   * Navigation Loading Overlay - Shows during route transitions
+   * 
+   * This overlay provides visual feedback when navigating between
+   * authenticated pages. It maintains the sidebar and header while
+   * showing a loading spinner over the main content area.
+   */
   if (isNavigationLoading) {
     return (
       <div className="layout-lock bg-background relative">
@@ -139,7 +199,20 @@ function Router() {
     );
   }
 
-  // Show main CRM application if authenticated
+  /**
+   * Authenticated Routes - Full CRM application with sidebar navigation
+   * 
+   * These routes are only accessible to authenticated users and include:
+   * - Dashboard and analytics
+   * - Property management
+   * - Lead and client management
+   * - Reports and settings
+   * - RBAC dashboard for role-based access control
+   * 
+   * All authenticated routes use the layout-lock class for consistent
+   * sidebar positioning and the mr-72 class for right margin to
+   * accommodate the fixed sidebar.
+   */
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
     <Switch>
@@ -319,16 +392,30 @@ function Router() {
       {/* CMS Admin - Standalone page */}
       <Route path="/cms" component={CMSAdmin} />
 
-      {/* RBAC System Routes */}
-      <Route path="/rbac-login" component={RBACLogin} />
-      <Route path="/rbac-dashboard" component={RBACDashboard} />
-      <Route path="/login-test" component={LoginTest} />
-
     </Switch>
     </Suspense>
   );
 }
 
+/**
+ * App Component - Root application component
+ * 
+ * This is the main entry point that sets up all the necessary context providers
+ * and wraps the entire application. The provider hierarchy is:
+ * 
+ * 1. QueryClientProvider - Manages server state and caching with React Query
+ * 2. LanguageProvider - Handles internationalization and RTL support
+ * 3. AuthProvider - Manages authentication state and user sessions
+ * 4. TooltipProvider - Provides tooltip functionality throughout the app
+ * 5. Toaster - Global toast notification system
+ * 6. Router - Main routing component
+ * 
+ * This hierarchy ensures that all child components have access to:
+ * - Server state management
+ * - Language and localization
+ * - Authentication context
+ * - UI tooltips and notifications
+ */
 function App() {
   return (
     <QueryClientProvider client={queryClient}>

@@ -191,7 +191,6 @@ export default function AnalyticsDashboard() {
     return new Intl.NumberFormat('en-US').format(num);
   };
 
-
   const fetchAnalyticsData = async (period: string) => {
     try {
       setIsLoading(true);

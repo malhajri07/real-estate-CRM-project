@@ -1,6 +1,36 @@
+/**
+ * routes/listings.ts - Property Listings API Routes
+ * 
+ * This file defines all property listing-related API endpoints for the real estate CRM platform.
+ * It handles:
+ * - Property listing retrieval and search
+ * - Property filtering and sorting
+ * - Featured property management
+ * - Property detail operations
+ * 
+ * The routes use Prisma-based storage for database operations and provide
+ * comprehensive property management functionality.
+ * 
+ * Dependencies:
+ * - Express.js router for route handling
+ * - Zod for request validation
+ * - Prisma-based storage for database operations
+ * 
+ * API Endpoints:
+ * - GET /api/listings - Get all listings with filtering
+ * - GET /api/listings/featured - Get featured listings
+ * - GET /api/listings/:id - Get specific listing
+ * - POST /api/listings - Create new listing
+ * - PUT /api/listings/:id - Update listing
+ * - DELETE /api/listings/:id - Delete listing
+ * 
+ * Routes affected: Property listings, search, management
+ * Pages affected: Property listings page, search results, property detail, property management
+ */
+
 import express from "express";
 import { z } from "zod";
-import { storage } from "../storage";
+import { storage } from "../storage-prisma";
 
 const router = express.Router();
 

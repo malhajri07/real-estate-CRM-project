@@ -1,5 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { UserRole } from '@prisma/client';
+
+// Define UserRole enum locally since it's not exported from Prisma client
+enum UserRole {
+  WEBSITE_ADMIN = 'WEBSITE_ADMIN',
+  CORP_OWNER = 'CORP_OWNER',
+  CORP_AGENT = 'CORP_AGENT',
+  INDIV_AGENT = 'INDIV_AGENT',
+  SELLER = 'SELLER',
+  BUYER = 'BUYER'
+}
 
 // Extend Express Request to include user and roles
 declare global {

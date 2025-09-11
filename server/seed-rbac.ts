@@ -1,4 +1,14 @@
-import { PrismaClient, UserRole, OrganizationStatus, AgentStatus, PropertyStatus, ListingType, ListingStatus, BuyerRequestStatus, SellerSubmissionStatus, LeadStatus, ClaimStatus, ContactChannel } from '@prisma/client';
+import { PrismaClient, OrganizationStatus, AgentStatus, PropertyStatus, ListingType, ListingStatus, BuyerRequestStatus, SellerSubmissionStatus, LeadStatus, ClaimStatus, ContactChannel } from '@prisma/client';
+
+// Define UserRole enum locally since it's not exported from Prisma client
+enum UserRole {
+  WEBSITE_ADMIN = 'WEBSITE_ADMIN',
+  CORP_OWNER = 'CORP_OWNER',
+  CORP_AGENT = 'CORP_AGENT',
+  INDIV_AGENT = 'INDIV_AGENT',
+  SELLER = 'SELLER',
+  BUYER = 'BUYER'
+}
 import { hashPassword } from './auth';
 
 const prisma = new PrismaClient();
@@ -55,7 +65,7 @@ async function main() {
         licenseNo: 'CR-1010123456',
         status: OrganizationStatus.ACTIVE,
         address: 'شارع الملك فهد، الرياض',
-        phone: '+966112345678',
+        phone: '0501234567',
         email: 'info@riyadh-realestate.com',
         website: 'https://riyadh-realestate.com'
       }
@@ -67,7 +77,7 @@ async function main() {
         licenseNo: 'CR-2010123456',
         status: OrganizationStatus.ACTIVE,
         address: 'شارع التحلية، جدة',
-        phone: '+966126543210',
+        phone: '0502345678',
         email: 'info@jeddah-investment.com',
         website: 'https://jeddah-investment.com'
       }
@@ -85,8 +95,8 @@ async function main() {
         passwordHash: await hashPassword('admin123'),
         firstName: 'أحمد',
         lastName: 'المدير',
-        phone: '+966501234567',
-        roles: [UserRole.WEBSITE_ADMIN],
+        phone: '0501234567',
+        roles: JSON.stringify([UserRole.WEBSITE_ADMIN]),
         isActive: true
       }
     }),
@@ -97,8 +107,8 @@ async function main() {
         passwordHash: await hashPassword('owner123'),
         firstName: 'خالد',
         lastName: 'العتيبي',
-        phone: '+966502345678',
-        roles: [UserRole.CORP_OWNER],
+        phone: '0502345678',
+        roles: JSON.stringify([UserRole.CORP_OWNER]),
         organizationId: organizations[0].id,
         isActive: true
       }
@@ -109,8 +119,8 @@ async function main() {
         passwordHash: await hashPassword('owner123'),
         firstName: 'سعد',
         lastName: 'الغامدي',
-        phone: '+966503456789',
-        roles: [UserRole.CORP_OWNER],
+        phone: '0503456789',
+        roles: JSON.stringify([UserRole.CORP_OWNER]),
         organizationId: organizations[1].id,
         isActive: true
       }
@@ -122,8 +132,8 @@ async function main() {
         passwordHash: await hashPassword('agent123'),
         firstName: 'فهد',
         lastName: 'الحربي',
-        phone: '+966504567890',
-        roles: [UserRole.CORP_AGENT],
+        phone: '0504567890',
+        roles: JSON.stringify([UserRole.CORP_AGENT]),
         organizationId: organizations[0].id,
         isActive: true
       }
@@ -134,8 +144,8 @@ async function main() {
         passwordHash: await hashPassword('agent123'),
         firstName: 'عبدالرحمن',
         lastName: 'الزهراني',
-        phone: '+966505678901',
-        roles: [UserRole.CORP_AGENT],
+        phone: '0505678901',
+        roles: JSON.stringify([UserRole.CORP_AGENT]),
         organizationId: organizations[0].id,
         isActive: true
       }
@@ -146,8 +156,8 @@ async function main() {
         passwordHash: await hashPassword('agent123'),
         firstName: 'عبدالعزيز',
         lastName: 'القرني',
-        phone: '+966506789012',
-        roles: [UserRole.CORP_AGENT],
+        phone: '0506789012',
+        roles: JSON.stringify([UserRole.CORP_AGENT]),
         organizationId: organizations[1].id,
         isActive: true
       }
@@ -159,8 +169,8 @@ async function main() {
         passwordHash: await hashPassword('agent123'),
         firstName: 'محمد',
         lastName: 'المطيري',
-        phone: '+966507890123',
-        roles: [UserRole.INDIV_AGENT],
+        phone: '0507890123',
+        roles: JSON.stringify([UserRole.INDIV_AGENT]),
         isActive: true
       }
     }),
@@ -170,8 +180,8 @@ async function main() {
         passwordHash: await hashPassword('agent123'),
         firstName: 'عبدالله',
         lastName: 'الرشيد',
-        phone: '+966508901234',
-        roles: [UserRole.INDIV_AGENT],
+        phone: '0508901234',
+        roles: JSON.stringify([UserRole.INDIV_AGENT]),
         isActive: true
       }
     }),
@@ -182,8 +192,8 @@ async function main() {
         passwordHash: await hashPassword('seller123'),
         firstName: 'فاطمة',
         lastName: 'السعيد',
-        phone: '+966509012345',
-        roles: [UserRole.SELLER],
+        phone: '0509012345',
+        roles: JSON.stringify([UserRole.SELLER]),
         isActive: true
       }
     }),
@@ -193,8 +203,8 @@ async function main() {
         passwordHash: await hashPassword('seller123'),
         firstName: 'عائشة',
         lastName: 'الخالدي',
-        phone: '+966500123456',
-        roles: [UserRole.SELLER],
+        phone: '0500123456',
+        roles: JSON.stringify([UserRole.SELLER]),
         isActive: true
       }
     }),
@@ -205,8 +215,8 @@ async function main() {
         passwordHash: await hashPassword('buyer123'),
         firstName: 'خديجة',
         lastName: 'المالكي',
-        phone: '+966501234567',
-        roles: [UserRole.BUYER],
+        phone: '0501234568',
+        roles: JSON.stringify([UserRole.BUYER]),
         isActive: true
       }
     }),
@@ -216,8 +226,8 @@ async function main() {
         passwordHash: await hashPassword('buyer123'),
         firstName: 'مريم',
         lastName: 'النجدي',
-        phone: '+966502345678',
-        roles: [UserRole.BUYER],
+        phone: '0502345679',
+        roles: JSON.stringify([UserRole.BUYER]),
         isActive: true
       }
     })
@@ -234,10 +244,10 @@ async function main() {
         organizationId: organizations[0].id,
         licenseNo: 'RE-001-2024',
         licenseValidTo: new Date('2025-12-31'),
-        territories: ['الرياض', 'الملقا', 'النخيل'],
+        territories: JSON.stringify(['الرياض', 'الملقا', 'النخيل']),
         isIndividualAgent: false,
         status: AgentStatus.ACTIVE,
-        specialties: ['شقة', 'فيلا'],
+        specialties: JSON.stringify(['شقة', 'فيلا']),
         experience: 5,
         bio: 'متخصص في العقارات السكنية في الرياض'
       }
@@ -248,10 +258,10 @@ async function main() {
         organizationId: organizations[0].id,
         licenseNo: 'RE-002-2024',
         licenseValidTo: new Date('2025-12-31'),
-        territories: ['الرياض', 'العليا', 'الملز'],
+        territories: JSON.stringify(['الرياض', 'العليا', 'الملز']),
         isIndividualAgent: false,
         status: AgentStatus.ACTIVE,
-        specialties: ['دوبلكس', 'تاون هاوس'],
+        specialties: JSON.stringify(['دوبلكس', 'تاون هاوس']),
         experience: 3,
         bio: 'متخصص في العقارات السكنية المتوسطة'
       }
@@ -262,10 +272,10 @@ async function main() {
         organizationId: organizations[1].id,
         licenseNo: 'RE-003-2024',
         licenseValidTo: new Date('2025-12-31'),
-        territories: ['جدة', 'البحر الأحمر', 'الزهراء'],
+        territories: JSON.stringify(['جدة', 'البحر الأحمر', 'الزهراء']),
         isIndividualAgent: false,
         status: AgentStatus.ACTIVE,
-        specialties: ['فيلا', 'بنتهاوس'],
+        specialties: JSON.stringify(['فيلا', 'بنتهاوس']),
         experience: 7,
         bio: 'متخصص في العقارات الفاخرة في جدة'
       }
@@ -276,10 +286,10 @@ async function main() {
         userId: users[6].id, // indiv1@example.com
         licenseNo: 'RE-004-2024',
         licenseValidTo: new Date('2025-12-31'),
-        territories: ['الدمام', 'الخبر'],
+        territories: JSON.stringify(['الدمام', 'الخبر']),
         isIndividualAgent: true,
         status: AgentStatus.ACTIVE,
-        specialties: ['شقة', 'استوديو'],
+        specialties: JSON.stringify(['شقة', 'استوديو']),
         experience: 4,
         bio: 'وكيل عقاري مستقل في المنطقة الشرقية'
       }
@@ -289,10 +299,10 @@ async function main() {
         userId: users[7].id, // indiv2@example.com
         licenseNo: 'RE-005-2024',
         licenseValidTo: new Date('2025-12-31'),
-        territories: ['مكة', 'الطائف'],
+        territories: JSON.stringify(['مكة', 'الطائف']),
         isIndividualAgent: true,
         status: AgentStatus.ACTIVE,
-        specialties: ['شقة مفروشة', 'استراحة'],
+        specialties: JSON.stringify(['شقة مفروشة', 'استراحة']),
         experience: 6,
         bio: 'متخصص في العقارات السياحية في مكة والطائف'
       }
@@ -331,12 +341,12 @@ async function main() {
         visibility: 'public',
         latitude: 24.7 + (Math.random() - 0.5) * 0.1,
         longitude: 46.6 + (Math.random() - 0.5) * 0.1,
-        features: ['تكييف', 'أثاث', 'موقف سيارات', 'مصعد', 'حارس'],
-        photos: [
+        features: JSON.stringify(['تكييف', 'أثاث', 'موقف سيارات', 'مصعد', 'حارس']),
+        photos: JSON.stringify([
           'https://example.com/photo1.jpg',
           'https://example.com/photo2.jpg',
           'https://example.com/photo3.jpg'
-        ]
+        ])
       }
     });
     
@@ -381,22 +391,22 @@ async function main() {
         maxBedrooms: Math.floor(Math.random() * 5) + 3,
         minPrice: Math.floor(Math.random() * 500000) + 100000,
         maxPrice: Math.floor(Math.random() * 2000000) + 500000,
-        contactPreferences: {
+        contactPreferences: JSON.stringify({
           channels: ['PHONE', 'WHATSAPP'],
-          timeWindows: ['9:00-17:00'],
+          timeWindows: ['9:00-24:00'],
           preferredLanguage: 'ar'
-        },
+        }),
         status: BuyerRequestStatus.OPEN,
-        maskedContact: {
+        maskedContact: JSON.stringify({
           phone: `05**-***-${Math.floor(Math.random() * 9000) + 1000}`,
           email: `u***@example.com`
-        },
-        fullContactJson: {
+        }),
+        fullContactJson: JSON.stringify({
           phone: buyer.phone,
           email: buyer.email,
           firstName: buyer.firstName,
           lastName: buyer.lastName
-        },
+        }),
         multiAgentAllowed: Math.random() > 0.5,
         notes: `أبحث عن ${type} في ${city.name}`
       }
@@ -422,16 +432,16 @@ async function main() {
         priceExpectation: Math.floor(Math.random() * 2000000) + 200000,
         exclusivePreference: Math.random() > 0.6,
         status: SellerSubmissionStatus.OPEN,
-        maskedContact: {
+        maskedContact: JSON.stringify({
           phone: `05**-***-${Math.floor(Math.random() * 9000) + 1000}`,
           email: `s***@example.com`
-        },
-        fullContactJson: {
+        }),
+        fullContactJson: JSON.stringify({
           phone: seller.phone,
           email: seller.email,
           firstName: seller.firstName,
           lastName: seller.lastName
-        },
+        }),
         notes: `أريد بيع ${type} في ${city.name}`
       }
     });
@@ -501,8 +511,8 @@ async function main() {
         action: actions[Math.floor(Math.random() * actions.length)],
         entity: entities[Math.floor(Math.random() * entities.length)],
         entityId: `entity-${i}`,
-        beforeJson: { oldValue: 'previous value' },
-        afterJson: { newValue: 'updated value' },
+        beforeJson: JSON.stringify({ oldValue: 'previous value' }),
+        afterJson: JSON.stringify({ newValue: 'updated value' }),
         ipAddress: '192.168.1.1',
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       }

@@ -1,8 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
+// Define UserRole enum locally since it's not exported from Prisma client
+enum UserRole {
+  WEBSITE_ADMIN = 'WEBSITE_ADMIN',
+  CORP_OWNER = 'CORP_OWNER',
+  CORP_AGENT = 'CORP_AGENT',
+  INDIV_AGENT = 'INDIV_AGENT',
+  SELLER = 'SELLER',
+  BUYER = 'BUYER'
+}
 
 // JWT secret (should be in environment variables)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';

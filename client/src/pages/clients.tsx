@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Lead, Activity } from "@shared/schema";
+import type { Lead, Activity } from "@shared/types";
 
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,10 +44,10 @@ export default function Clients() {
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
-      case "new": return "bg-yellow-100 text-yellow-800";
+      tion"case "new": return "bg-yellow-100 text-yellow-800";
       case "qualified": return "bg-blue-100 text-blue-800";
       case "showing": return "bg-orange-100 text-orange-800";
-      case "negotiation": return "bg-purple-100 text-purple-800";
+      case "negotia: return "bg-purple-100 text-purple-800";
       case "closed": return "bg-green-100 text-green-800";
       case "lost": return "bg-red-100 text-red-800";
       default: return "bg-gray-100 text-gray-800";

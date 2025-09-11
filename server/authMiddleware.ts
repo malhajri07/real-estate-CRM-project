@@ -1,7 +1,44 @@
-import { Request, Response, NextFunction } from 'express';
-import { storage } from './storage';
+/**
+ * authMiddleware.ts - Authentication and Authorization Middleware
+ * 
+ * This file provides comprehensive authentication and authorization middleware for the Express.js server.
+ * It includes:
+ * - User authentication verification
+ * - Role-based access control (RBAC)
+ * - Permission checking
+ * - Tenant isolation for multi-tenant architecture
+ * - User level management (Platform Admin, Account Owner, Sub-Account)
+ * 
+ * The middleware integrates with the storage layer to fetch user data and permissions,
+ * and provides type-safe interfaces for authenticated requests throughout the application.
+ * 
+ * Dependencies:
+ * - Express.js Request, Response, NextFunction types
+ * - storage from ./storage.ts for user data access
+ * 
+ * Routes affected: All protected API routes
+ * Pages affected: All pages requiring authentication
+ */
 
-// Extended user interface for authentication context
+import { Request, Response, NextFunction } from 'express';
+import { storage } from './storage-prisma';
+
+/**
+ * AuthenticatedUser Interface - User data structure for authenticated requests
+ * 
+ * Defines the structure of user data available in authenticated requests:
+ * - id: Unique user identifier
+ * - email: User's email address
+ * - firstName/lastName: User's name
+ * - userLevel: Access level (1: Platform Admin, 2: Account Owner, 3: Sub-Account)
+ * - accountOwnerId: ID of the account owner (for sub-accounts)
+ * - companyName: Company/organization name
+ * - tenantId: Multi-tenant isolation identifier
+ * - permissions: User's specific permissions
+ * 
+ * Used in: All authenticated API routes
+ * Pages affected: All authenticated pages
+ */
 export interface AuthenticatedUser {
   id: string;
   email: string | null;
@@ -14,13 +51,32 @@ export interface AuthenticatedUser {
   permissions?: any;
 }
 
-// Extended request interface
+/**
+ * AuthenticatedRequest Interface - Extended Express Request with user data
+ * 
+ * Extends the standard Express Request interface to include:
+ * - user: AuthenticatedUser object with user data
+ * - tenantId: Tenant identifier for multi-tenant isolation
+ * 
+ * Used in: All authenticated route handlers
+ * Pages affected: All authenticated pages
+ */
 export interface AuthenticatedRequest extends Request {
   user: AuthenticatedUser;
   tenantId?: string;
 }
 
-// User levels enum for better readability
+/**
+ * UserLevel Enum - User access levels
+ * 
+ * Defines the three levels of user access in the system:
+ * - PLATFORM_ADMIN (1): Full system access, can manage all accounts
+ * - ACCOUNT_OWNER (2): Account-level access, can manage their organization
+ * - SUB_ACCOUNT (3): Limited access within an account
+ * 
+ * Used in: Authorization checks, access control
+ * Pages affected: All pages with role-based access
+ */
 export enum UserLevel {
   PLATFORM_ADMIN = 1,
   ACCOUNT_OWNER = 2,
