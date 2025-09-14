@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Phone, Mail, Calendar, MessageCircle, Plus, Users as UsersIcon, ListChecks, CheckCircle2, UserPlus } from "lucide-react";
-import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,10 +43,10 @@ export default function Clients() {
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
-      tion"case "new": return "bg-yellow-100 text-yellow-800";
+      case "new": return "bg-yellow-100 text-yellow-800";
       case "qualified": return "bg-blue-100 text-blue-800";
       case "showing": return "bg-orange-100 text-orange-800";
-      case "negotia: return "bg-purple-100 text-purple-800";
+      case "negotiating": return "bg-purple-100 text-purple-800";
       case "closed": return "bg-green-100 text-green-800";
       case "lost": return "bg-red-100 text-red-800";
       default: return "bg-gray-100 text-gray-800";
@@ -74,13 +73,7 @@ export default function Clients() {
 
   return (
     <>
-      <Header 
-        title="علاقات العملاء" 
-        onSearch={setSearchQuery}
-        searchPlaceholder="البحث في العملاء بالاسم أو البريد الإلكتروني..."
-      />
-      
-      <main className="flex-1 overflow-y-auto p-6" dir="rtl">
+      <main className="h-full overflow-y-auto p-6" dir="rtl">
         {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <Card className="apple-card">

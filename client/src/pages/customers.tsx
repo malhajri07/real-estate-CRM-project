@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Trash2, Edit, Plus, Phone, Mail, Filter, SlidersHorizontal, Search, AlertTriangle } from "lucide-react";
 import { useLocation } from "wouter";
-import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import AddLeadModal from "@/components/modals/add-lead-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Lead } from "@shared/schema";
+import type { Lead } from "@shared/types";
 
 export default function Customers() {
   const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
@@ -284,14 +283,7 @@ export default function Customers() {
 
   return (
     <>
-      <Header 
-        title="العملاء المحتملين" 
-        onAddClick={() => setAddLeadModalOpen(true)}
-        onSearch={handleSearchChange}
-        searchPlaceholder="البحث بالاسم أو رقم الهاتف فقط..."
-      />
-      
-      <main className="flex-1 overflow-y-auto p-6 no-layout-shift">
+      <main className="h-full overflow-y-auto p-6">
         <Card>
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between mb-4">

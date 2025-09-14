@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Trash2, Edit, Eye, Plus, Bed, Bath, Square, Filter, SlidersHorizontal, Share2, LayoutGrid, List, Sofa } from "lucide-react";
 import { useLocation } from "wouter";
-import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,12 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { PropertyMap } from "@/components/ui/property-map";
+// import { PropertyMap } from "@/components/ui/property-map"; // Map component removed
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 import AddPropertyModal from "@/components/modals/add-property-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Property } from "@shared/schema";
+import type { Property } from "@shared/types";
 
 export default function Properties() {
   const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false);
@@ -208,14 +207,7 @@ export default function Properties() {
 
   return (
     <>
-      <Header 
-        title="العقارات" 
-        onAddClick={() => setAddPropertyModalOpen(true)}
-        onSearch={handleSearchChange}
-        searchPlaceholder="البحث بعنوان العقار أو اسم المدينة أو اسم الشارع..."
-      />
-      
-      <main className="flex-1 overflow-y-auto p-6 no-layout-shift">
+      <main className="h-full overflow-y-auto p-6">
         <Card>
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between mb-4">
@@ -513,10 +505,10 @@ export default function Properties() {
                                 <span>{(property as any).livingRooms}</span>
                               </div>
                             )}
-                            {property.squareFeet && (
+                            {(property as any).areaSqm && (
                               <div className="flex items-center space-x-1">
                                 <Square size={14} />
-                                <span>{property.squareFeet.toLocaleString()} متر²</span>
+                                <span>{(property as any).areaSqm?.toLocaleString?.() ?? (property as any).areaSqm} متر²</span>
                               </div>
                             )}
                           </div>
@@ -689,7 +681,7 @@ export default function Properties() {
                             <td className="professional-table-cell">
                               <div className="info-cell">
                                 <div className="primary">
-                                  {property.squareFeet ? `${property.squareFeet.toLocaleString()} متر²` : '-'}
+                                  {(property as any).areaSqm ? `${((property as any).areaSqm?.toLocaleString?.() ?? (property as any).areaSqm)} متر²` : '-'}
                                 </div>
                               </div>
                             </td>

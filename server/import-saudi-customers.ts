@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { parse } from 'csv-parse/sync';
-import { db } from './db';
-import { leads, activities, deals, messages } from '@shared/schema';
+import { storage } from './storage-prisma';
+import { Lead, Activity, Deal, Message } from '@shared/types';
 
 // تعريف نوع البيانات للسجل الواحد
 interface CustomerRecord {

@@ -1,6 +1,6 @@
-import { db } from "./db";
-import { properties, leads, deals, activities, messages, users } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { storage } from "./storage-prisma";
+import { type Lead, type Deal, type Activity, type Message, type User } from "@shared/types";
+// Note: Drizzle ORM imports removed - using Prisma storage instead
 
 const cities = ["الرياض", "جدة", "الدمام", "الخبر", "الطائف", "مكة", "المدينة", "الاحساء", "القطيف", "حائل", "أبها", "تبوك", "بريدة", "نجران", "الباحة"];
 const states = ["الرياض", "مكة المكرمة", "المنطقة الشرقية", "عسير", "المدينة المنورة", "حائل", "تبوك", "القصيم", "نجران", "الباحة"];

@@ -11,10 +11,12 @@
  * - Organization and agent types
  * - Activity and message types
  * 
- * Dependencies: None (pure TypeScript types)
+ * Dependencies: zod for schema validation
  * Routes affected: All routes that use shared types
  * Pages affected: All pages that use shared types
  */
+
+import { z } from "zod";
 
 // User types
 export interface User {
@@ -327,3 +329,46 @@ export enum ListingStatus {
   RENTED = 'RENTED',
   PENDING_APPROVAL = 'PENDING_APPROVAL'
 }
+
+// Property creation types
+export interface InsertProperty {
+  title: string;
+  description: string;
+  type: string;
+  price: number;
+  area: number;
+  bedrooms: number;
+  bathrooms: number;
+  address: string;
+  city: string;
+  state: string;
+  latitude?: string;
+  longitude?: string;
+  images?: string[];
+  features?: string[];
+  status?: string;
+  agentId?: string;
+  organizationId?: string;
+}
+
+
+// Property creation schema
+export const insertPropertySchema = z.object({
+  title: z.string().min(1, "العنوان مطلوب"),
+  description: z.string().min(1, "الوصف مطلوب"),
+  type: z.string().min(1, "نوع العقار مطلوب"),
+  price: z.number().min(0, "السعر يجب أن يكون أكبر من 0"),
+  area: z.number().min(0, "المساحة يجب أن تكون أكبر من 0"),
+  bedrooms: z.number().min(0, "عدد الغرف يجب أن يكون أكبر من أو يساوي 0"),
+  bathrooms: z.number().min(0, "عدد الحمامات يجب أن يكون أكبر من أو يساوي 0"),
+  address: z.string().min(1, "العنوان مطلوب"),
+  city: z.string().min(1, "المدينة مطلوبة"),
+  state: z.string().min(1, "المنطقة مطلوبة"),
+  latitude: z.string().optional(),
+  longitude: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  features: z.array(z.string()).optional(),
+  status: z.string().optional(),
+  agentId: z.string().optional(),
+  organizationId: z.string().optional(),
+});

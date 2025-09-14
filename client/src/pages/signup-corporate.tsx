@@ -12,6 +12,10 @@ import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
 import agarkomFooterLogo from "@assets/6_1756507125793.png";
 
 export default function SignupCorporate() {
+  // Account credentials for corporate owner
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [companyType, setCompanyType] = useState("");
   const [commercialRegistration, setCommercialRegistration] = useState("");
@@ -118,13 +122,72 @@ export default function SignupCorporate() {
       return;
     }
 
+    // Validate credentials
+    const normalizedUsername = (username || '').trim().toLowerCase();
+    if (!normalizedUsername || !/^[a-z0-9_.]{3,32}$/.test(normalizedUsername)) {
+      toast({
+        title: "اسم المستخدم غير صالح",
+        description: "اسم المستخدم يجب أن يتكون من 3-32 حرفاً ويحتوي على حروف إنجليزية صغيرة أو أرقام أو (_) أو (.)",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      toast({
+        title: "كلمة المرور قصيرة",
+        description: "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast({
+        title: "تأكيد كلمة المرور غير مطابق",
+        description: "الرجاء التأكد من تطابق كلمتي المرور",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      // TODO: Submit KYC application to backend
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      // Register corporate owner user
+      const [firstName, ...rest] = contactName.trim().split(/\s+/);
+      const lastName = rest.length > 0 ? rest.join(' ') : '-';
+      const registerRes = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: normalizedUsername,
+          email: contactEmail,
+          password,
+          firstName,
+          lastName,
+          phone: phoneEnglish,
+          roles: JSON.stringify(['CORP_OWNER'])
+        })
+      });
+
+      const raw = await registerRes.text();
+      const data = raw ? JSON.parse(raw) : {};
+      if (!registerRes.ok || !data?.success) {
+        throw new Error(data?.error || data?.message || 'فشل في إنشاء الحساب');
+      }
+
+      // Persist session (optional)
+      if (data.token && data.user) {
+        localStorage.setItem('auth_token', data.token);
+        localStorage.setItem('user_data', JSON.stringify(data.user));
+      }
+
+      // TODO: Submit corporate KYC with company details (future endpoint)
 
       toast({
-        title: "تم إرسال طلبك بنجاح",
-        description: "سيقوم فريقنا بمراجعة طلبك والتواصل معك خلال 48 ساعة",
+        title: "تم إنشاء حساب المالك بنجاح",
+        description: "تم تسجيل المستخدم كمالك شركة. سيتم متابعة التحقق من بيانات الشركة.",
       });
 
       setLocation("/signup/kyc-submitted");
@@ -176,6 +239,59 @@ export default function SignupCorporate() {
           {/* Form Content */}
           <div className="px-8 py-8">
             <form onSubmit={handleSubmit} className="space-y-12">
+              {/* Account Credentials */}
+              <div className="space-y-6">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center ml-4">
+                    <User className="w-5 h-5 text-green-600" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900">بيانات الحساب</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-3 md:col-span-1">
+                    <Label htmlFor="username" className="text-sm font-medium text-gray-700 text-right block">
+                      اسم المستخدم *
+                    </Label>
+                    <Input
+                      id="username"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="اسم المستخدم (a-z, 0-9, _ .)"
+                      required
+                      className="text-right h-12 border-gray-200 rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label htmlFor="password" className="text-sm font-medium text-gray-700 text-right block">
+                      كلمة المرور *
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      className="text-right h-12 border-gray-200 rounded-xl font-password"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 text-right block">
+                      تأكيد كلمة المرور *
+                    </Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      className="text-right h-12 border-gray-200 rounded-xl font-password"
+                    />
+                  </div>
+                </div>
+              </div>
               {/* Company Information */}
               <div className="space-y-6">
                 <div className="flex items-center mb-8">

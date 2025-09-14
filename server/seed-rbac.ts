@@ -91,6 +91,7 @@ async function main() {
     // Website Admin
     prisma.user.create({
       data: {
+        username: 'admin',
         email: 'admin@aqaraty.com',
         passwordHash: await hashPassword('admin123'),
         firstName: 'أحمد',
@@ -103,6 +104,7 @@ async function main() {
     // Corporate Owners
     prisma.user.create({
       data: {
+        username: 'owner1',
         email: 'owner1@riyadh-realestate.com',
         passwordHash: await hashPassword('owner123'),
         firstName: 'خالد',
@@ -115,6 +117,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
+        username: 'owner2',
         email: 'owner2@jeddah-investment.com',
         passwordHash: await hashPassword('owner123'),
         firstName: 'سعد',
@@ -128,6 +131,7 @@ async function main() {
     // Corporate Agents
     prisma.user.create({
       data: {
+        username: 'agent1',
         email: 'agent1@riyadh-realestate.com',
         passwordHash: await hashPassword('agent123'),
         firstName: 'فهد',
@@ -140,6 +144,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
+        username: 'agent2',
         email: 'agent2@riyadh-realestate.com',
         passwordHash: await hashPassword('agent123'),
         firstName: 'عبدالرحمن',
@@ -152,6 +157,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
+        username: 'agent3',
         email: 'agent3@jeddah-investment.com',
         passwordHash: await hashPassword('agent123'),
         firstName: 'عبدالعزيز',
@@ -165,6 +171,7 @@ async function main() {
     // Individual Agents
     prisma.user.create({
       data: {
+        username: 'indiv1',
         email: 'indiv1@example.com',
         passwordHash: await hashPassword('agent123'),
         firstName: 'محمد',
@@ -176,6 +183,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
+        username: 'indiv2',
         email: 'indiv2@example.com',
         passwordHash: await hashPassword('agent123'),
         firstName: 'عبدالله',
@@ -188,6 +196,7 @@ async function main() {
     // Sellers
     prisma.user.create({
       data: {
+        username: 'seller1',
         email: 'seller1@example.com',
         passwordHash: await hashPassword('seller123'),
         firstName: 'فاطمة',
@@ -199,6 +208,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
+        username: 'seller2',
         email: 'seller2@example.com',
         passwordHash: await hashPassword('seller123'),
         firstName: 'عائشة',
@@ -211,6 +221,7 @@ async function main() {
     // Buyers
     prisma.user.create({
       data: {
+        username: 'buyer1',
         email: 'buyer1@example.com',
         passwordHash: await hashPassword('buyer123'),
         firstName: 'خديجة',
@@ -222,6 +233,7 @@ async function main() {
     }),
     prisma.user.create({
       data: {
+        username: 'buyer2',
         email: 'buyer2@example.com',
         passwordHash: await hashPassword('buyer123'),
         firstName: 'مريم',

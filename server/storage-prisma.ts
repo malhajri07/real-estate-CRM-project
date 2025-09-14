@@ -155,8 +155,10 @@ class PrismaStorage {
     try {
       const leads = await prisma.lead.findMany({
         include: {
-          organization: true,
-          agentProfile: true,
+          agent: true,
+          buyerRequest: true,
+          sellerSubmission: true,
+          contactLogs: true,
         },
         orderBy: {
           createdAt: 'desc',
@@ -374,15 +376,24 @@ class PrismaStorage {
       const leads = await prisma.lead.findMany({
         where: {
           OR: [
-            { firstName: { contains: query, mode: 'insensitive' } },
-            { lastName: { contains: query, mode: 'insensitive' } },
-            { email: { contains: query, mode: 'insensitive' } },
-            { phone: { contains: query, mode: 'insensitive' } },
+            { notes: { contains: query } },
+            { 
+              agent: {
+                OR: [
+                  { firstName: { contains: query } },
+                  { lastName: { contains: query } },
+                  { email: { contains: query } },
+                  { phone: { contains: query } },
+                ]
+              }
+            },
           ],
         },
         include: {
-          organization: true,
-          agentProfile: true,
+          agent: true,
+          buyerRequest: true,
+          sellerSubmission: true,
+          contactLogs: true,
         },
       });
       return leads;
@@ -445,9 +456,9 @@ class PrismaStorage {
       const properties = await prisma.property.findMany({
         where: {
           OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } },
-            { address: { contains: query, mode: 'insensitive' } },
+            { title: { contains: query } },
+            { description: { contains: query } },
+            { address: { contains: query } },
           ],
         },
         include: {

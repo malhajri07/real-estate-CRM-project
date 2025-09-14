@@ -4,10 +4,10 @@ import { ArrowRight, Bed, Bath, Square, MapPin, Calendar, Edit, Trash2, Share2 }
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { PropertyMap } from "@/components/ui/property-map";
+// import { PropertyMap } from "@/components/ui/property-map"; // Map component removed
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 import { useToast } from "@/hooks/use-toast";
-import type { Property } from "@shared/schema";
+import type { Property } from "@shared/types";
 
 export default function PropertyDetail() {
   const { id } = useParams<{ id: string }>();
@@ -202,10 +202,10 @@ export default function PropertyDetail() {
                         <span>{property.bathrooms} حمام</span>
                       </div>
                     )}
-                    {property.squareFeet && (
+                    {(property as any).areaSqm && (
                       <div className="flex items-center space-x-2 text-muted-foreground">
                         <Square size={20} />
-                        <span>{property.squareFeet.toLocaleString()} متر²</span>
+                        <span>{((property as any).areaSqm?.toLocaleString?.() ?? (property as any).areaSqm)} متر²</span>
                       </div>
                     )}
                   </div>
@@ -252,13 +252,12 @@ export default function PropertyDetail() {
                 <CardTitle className="text-lg">الموقع</CardTitle>
               </CardHeader>
               <CardContent>
-                <PropertyMap
-                  address={`${property.address}, ${property.city}, ${property.state}`}
-                  latitude={property.latitude ? parseFloat(property.latitude) : undefined}
-                  longitude={property.longitude ? parseFloat(property.longitude) : undefined}
-                  className="h-48 w-full mb-4"
-                  showLink={true}
-                />
+                <div className="h-48 w-full mb-4 bg-muted rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <MapPin className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">خريطة الموقع</p>
+                  </div>
+                </div>
                 <div className="text-sm text-muted-foreground">
                   {property.address}, {property.city}, {property.state}
                 </div>

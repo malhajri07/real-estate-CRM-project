@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin, Camera, FileText, DollarSign, GitBranch, CheckCircle, UserPlus, Eye, NotebookPen } from "lucide-react";
-import PropertySearchMap from "@/components/PropertySearchMap";
+// import PropertySearchMap from "@/components/PropertySearchMap"; // Map component removed
 import ListingCard from "@/components/listings/ListingCard";
 import { cmsService, type LandingPageContent, type PricingPlan } from "@/lib/cms";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
@@ -16,10 +16,10 @@ export default function Landing() {
   const [recent, setRecent] = useState<any[]>([]);
 
   useEffect(() => {
-    const loadCMSContent = async () => {
+    const loadCMSContent = async (noCache = false) => {
       try {
         const [contentData, plansData] = await Promise.all([
-          cmsService.getLandingPageContent(),
+          cmsService.getLandingPageContent({ noCache }),
           cmsService.getPricingPlans()
         ]);
         setLandingContent(contentData);
@@ -39,11 +39,27 @@ export default function Landing() {
       }
     };
 
-    loadCMSContent();
+    loadCMSContent(true);
+
+    // Live update when CMS content changes (same tab or other tabs)
+    const handleCmsUpdated = () => {
+      loadCMSContent(true);
+    };
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'cmsLandingUpdatedAt') {
+        handleCmsUpdated();
+      }
+    };
+    window.addEventListener('cms:landing-updated', handleCmsUpdated as EventListener);
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('cms:landing-updated', handleCmsUpdated as EventListener);
+      window.removeEventListener('storage', handleStorage);
+    };
   }, []);
 
   const handleLogin = () => {
-    window.location.href = "/login";
+    window.location.href = "/home/login";
   };
 
   const handleSignUp = () => {

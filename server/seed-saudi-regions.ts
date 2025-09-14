@@ -1,5 +1,5 @@
-import { db } from "./db";
-import { saudiRegions } from "@shared/schema";
+import { storage } from "./storage-prisma";
+// Note: saudiRegions data moved to inline definition
 
 // Saudi Arabia's 13 official administrative regions
 const regions = [

@@ -28,6 +28,7 @@ import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { DarkModeProvider } from "@/contexts/DarkModeContext";
 import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 
 // Core page imports - loaded immediately for critical routes
@@ -51,13 +52,17 @@ import Notifications from "@/pages/notifications";
 import Settings from "@/pages/settings";
 import PropertyDetail from "@/pages/property-detail";
 import Sidebar from "@/components/layout/sidebar";
-import RBACLoginPage from "@/pages/rbac-login";
+import Header from "@/components/layout/header";
 import RBACDashboard from "@/pages/rbac-dashboard";
+import AuthTestPage from "@/pages/auth-test";
 import LoginTest from "@/pages/login-test";
+import SimpleAdminPage from "@/pages/simple-admin";
+import DirectAdminPage from "@/pages/direct-admin";
+import RBACLoginPage from "@/pages/rbac-login";
+import PlatformPage from "@/pages/app";
 
 // Lazy-loaded page imports - loaded on demand for better performance
 import { lazy, Suspense } from "react";
-const Listings = lazy(() => import("@/pages/listings"));
 const FavoritesPage = lazy(() => import("@/pages/favorites"));
 const ComparePage = lazy(() => import("@/pages/compare"));
 const PostListingPage = lazy(() => import("@/pages/post-listing"));
@@ -69,6 +74,7 @@ const PublicListingPage = lazy(() => import("@/pages/listing"));
 const SavedSearchesPage = lazy(() => import("@/pages/saved-searches"));
 const RealEstateRequestsPage = lazy(() => import("@/pages/real-estate-requests"));
 const AdminRequestsPage = lazy(() => import("@/pages/admin-requests"));
+
 
 /**
  * Router Component - Main routing logic for the application
@@ -86,15 +92,33 @@ const AdminRequestsPage = lazy(() => import("@/pages/admin-requests"));
  */
 function Router() {
   // Get authentication state from AuthProvider context
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   
   // Navigation loading state for smooth transitions
   const [isNavigationLoading, setIsNavigationLoading] = useState(false);
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [previousLocation, setPreviousLocation] = useState("");
 
   // Determine if user is authenticated
   const isAuthenticated = !!user;
+  
+  // Detect which server port is being used
+  const isDashboardPort = (window as any).SERVER_PORT === '5001' || window.location.port === '5001';
+  
+  // Debug logging
+  console.log('Routing Debug:', {
+    SERVER_PORT: (window as any).SERVER_PORT,
+    locationPort: window.location.port,
+    isDashboardPort,
+    isAuthenticated,
+    user: user ? 'authenticated' : 'not authenticated'
+  });
+
+  // Logout handler for platform routes
+  const handlePlatformLogout = () => {
+    logout();
+    setLocation('/home');
+  };
 
   /**
    * Handle navigation loading effect for authenticated pages
@@ -134,31 +158,252 @@ function Router() {
     );
   }
 
-  /**
-   * Public Routes - Available to unauthenticated users
-   * 
-   * These routes include:
-   * - Landing page (marketing site)
-   * - Authentication pages (login, signup)
-   * - Public property listings
-   * - Public agency/agent profiles
-   * - Property search functionality
-   * 
-   * All public routes use the PublicLayout component for consistent styling.
-   */
-  if (!isAuthenticated) {
+  // Port-based routing logic:
+  // - Port 3000 (Vite dev server): ALWAYS show landing page (never redirect)
+  // - Port 5001 (Express server): Show dashboard for authenticated users, show landing page for unauthenticated users
+  console.log('Port routing check:', { isDashboardPort, isAuthenticated });
+  
+  // Port 3000 should ALWAYS show landing page, never redirect
+  if (!isDashboardPort) {
+    console.log('Port 3000: Showing landing page (no redirect)');
+    // Always show public routes on port 3000, regardless of authentication status
     return (
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
       <Switch>
-        <Route path="/login" component={Login} />
+        {/* Dashboard and authenticated routes should redirect to port 5001 */}
+        <Route path="/dashboard" component={() => {
+          window.location.href = 'http://localhost:5001/dashboard';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/leads" component={() => {
+          window.location.href = 'http://localhost:5001/leads';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/customers" component={() => {
+          window.location.href = 'http://localhost:5001/customers';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/properties" component={() => {
+          window.location.href = 'http://localhost:5001/properties';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/pipeline" component={() => {
+          window.location.href = 'http://localhost:5001/pipeline';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/clients" component={() => {
+          window.location.href = 'http://localhost:5001/clients';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/reports" component={() => {
+          window.location.href = 'http://localhost:5001/reports';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/notifications" component={() => {
+          window.location.href = 'http://localhost:5001/notifications';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/rbac-dashboard" component={() => {
+          window.location.href = 'http://localhost:5001/rbac-dashboard';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/buyer-pool" component={() => {
+          window.location.href = 'http://localhost:5001/buyer-pool';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/inquiries" component={() => {
+          window.location.href = 'http://localhost:5001/inquiries';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/requests" component={() => {
+          window.location.href = 'http://localhost:5001/requests';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/locations" component={() => {
+          window.location.href = 'http://localhost:5001/locations';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        <Route path="/cms-admin" component={() => {
+          window.location.href = 'http://localhost:5001/cms-admin';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
+        }} />
+        {/* Use RBAC-aware login that integrates with AuthProvider */}
+        <Route path="/home/login" component={RBACLoginPage} />
+        <Route path="/home/platform" component={PlatformPage} />
+        
+        {/* Platform Dashboard Routes - All dashboard functionality under /home/platform/ */}
+        <Route path="/home/platform/customers" component={() => (
+          <div className="flex h-screen bg-background layout-container">
+            <div className="flex-1 flex flex-col pr-72 main-content">
+              <Header />
+              <div className="flex-1 overflow-hidden">
+                <Customers />
+              </div>
+            </div>
+            <div className="sidebar-container">
+              <Sidebar onLogout={handlePlatformLogout} />
+            </div>
+          </div>
+        )} />
+        
+        <Route path="/home/platform/properties" component={() => (
+          <div className="flex h-screen bg-background layout-container">
+            <div className="flex-1 flex flex-col pr-72 main-content">
+              <Header />
+              <div className="flex-1 overflow-hidden">
+                <Properties />
+              </div>
+            </div>
+            <div className="sidebar-container">
+              <Sidebar onLogout={handlePlatformLogout} />
+            </div>
+          </div>
+        )} />
+        
+        <Route path="/home/platform/leads" component={() => (
+          <div className="flex h-screen bg-background layout-container">
+            <div className="flex-1 flex flex-col pr-72 main-content">
+              <Header />
+              <div className="flex-1 overflow-hidden">
+                <Leads />
+              </div>
+            </div>
+            <div className="sidebar-container">
+              <Sidebar onLogout={handlePlatformLogout} />
+            </div>
+          </div>
+        )} />
+        
+        <Route path="/home/platform/pipeline" component={() => (
+          <div className="flex h-screen bg-background layout-container">
+            <div className="flex-1 flex flex-col pr-72 main-content">
+              <Header />
+              <div className="flex-1 overflow-hidden">
+                <Pipeline />
+              </div>
+            </div>
+            <div className="sidebar-container">
+              <Sidebar onLogout={handlePlatformLogout} />
+            </div>
+          </div>
+        )} />
+        
+        <Route path="/home/platform/clients" component={() => (
+          <div className="flex h-screen bg-background layout-container">
+            <div className="flex-1 flex flex-col pr-72 main-content">
+              <Header />
+              <div className="flex-1 overflow-hidden">
+                <Clients />
+              </div>
+            </div>
+            <div className="sidebar-container">
+              <Sidebar onLogout={handlePlatformLogout} />
+            </div>
+          </div>
+        )} />
+        
+        <Route path="/home/platform/reports" component={() => (
+          <div className="flex h-screen bg-background layout-container">
+            <div className="flex-1 flex flex-col pr-72 main-content">
+              <Header />
+              <div className="flex-1 overflow-hidden">
+                <Reports />
+              </div>
+            </div>
+            <div className="sidebar-container">
+              <Sidebar onLogout={handlePlatformLogout} />
+            </div>
+          </div>
+        )} />
+        
+        <Route path="/home/platform/notifications" component={() => (
+          <div className="flex h-screen bg-background layout-container">
+            <div className="flex-1 flex flex-col pr-72 main-content">
+              <Header />
+              <div className="flex-1 overflow-hidden">
+                <Notifications />
+              </div>
+            </div>
+            <div className="sidebar-container">
+              <Sidebar onLogout={handlePlatformLogout} />
+            </div>
+          </div>
+        )} />
+        
+        <Route path="/home/platform/settings" component={() => (
+          <div className="flex h-screen bg-background layout-container">
+            <div className="flex-1 flex flex-col pr-72 main-content">
+              <Header />
+              <div className="flex-1 overflow-hidden">
+                <Settings />
+              </div>
+            </div>
+            <div className="sidebar-container">
+              <Sidebar onLogout={handlePlatformLogout} />
+            </div>
+          </div>
+        )} />
+        
+        <Route path="/home/platform/rbac-dashboard" component={() => (
+          <div className="flex h-screen bg-background layout-container">
+            <div className="flex-1 flex flex-col pr-72 main-content">
+              <Header />
+              <div className="flex-1 overflow-hidden">
+                <RBACDashboard />
+              </div>
+            </div>
+            <div className="sidebar-container">
+              <Sidebar onLogout={handlePlatformLogout} />
+            </div>
+          </div>
+        )} />
+        
+        
+        <Route path="/home/platform/agencies" component={() => (
+          <div className="flex h-screen bg-background layout-container">
+            <div className="flex-1 flex flex-col pr-72 main-content">
+              <Header />
+              <div className="flex-1 overflow-hidden">
+                <AgenciesPage />
+              </div>
+            </div>
+            <div className="sidebar-container">
+              <Sidebar onLogout={handlePlatformLogout} />
+            </div>
+          </div>
+        )} />
+        
+        <Route path="/home/platform/moderation" component={() => (
+          <div className="flex h-screen bg-background layout-container">
+            <div className="flex-1 flex flex-col pr-72 main-content">
+              <Header />
+              <div className="flex-1 overflow-hidden">
+                <ModerationQueuePage />
+              </div>
+            </div>
+            <div className="sidebar-container">
+              <Sidebar onLogout={handlePlatformLogout} />
+            </div>
+          </div>
+        )} />
+        
+        <Route path="/home/platform/cms" component={CMSAdmin} />
+        
+        {/* Admin Route with RBAC Dashboard - No sidebar/header */}
+        <Route path="/home/admin" component={RBACDashboard} />
+        
+        {/* Landing page route */}
+        <Route path="/home" component={Landing} />
         <Route path="/rbac-login" component={RBACLoginPage} />
+        <Route path="/auth-test" component={AuthTestPage} />
+        <Route path="/simple-admin" component={SimpleAdminPage} />
+        <Route path="/direct-admin" component={DirectAdminPage} />
         <Route path="/signup" component={SignupSelection} />
         <Route path="/signup/individual" component={SignupIndividual} />
         <Route path="/signup/corporate" component={SignupCorporate} />
         <Route path="/signup/success" component={SignupSuccess} />
         <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
         <Route path="/search-properties" component={SearchProperties} />
-        <Route path="/listings" component={Listings} />
         <Route path="/real-estate-requests" component={RealEstateRequestsPage} />
         <Route path="/favorites" component={FavoritesPage} />
         <Route path="/compare" component={ComparePage} />
@@ -169,6 +414,50 @@ function Router() {
         <Route path="/agent/:id" component={AgentPage} />
         <Route path="/listing/:id" component={PublicListingPage} />
         <Route path="/saved-searches" component={SavedSearchesPage} />
+        {/* Default route for port 3000 - redirect to home */}
+        <Route component={() => {
+          window.location.href = '/home';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى الصفحة الرئيسية...</div>;
+        }} />
+      </Switch>
+      </Suspense>
+    );
+  }
+
+  // Port 5001 logic: Show dashboard for authenticated users, landing page for unauthenticated users
+  if (isDashboardPort && !isAuthenticated) {
+    console.log('Port 5001: Showing landing page (unauthenticated user)');
+    return (
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
+      <Switch>
+        {/* Use RBAC-aware login that integrates with AuthProvider */}
+        <Route path="/login" component={RBACLoginPage} />
+        <Route path="/rbac-login" component={RBACLoginPage} />
+        <Route path="/auth-test" component={AuthTestPage} />
+        <Route path="/simple-admin" component={SimpleAdminPage} />
+        <Route path="/direct-admin" component={DirectAdminPage} />
+        <Route path="/signup" component={SignupSelection} />
+        <Route path="/signup/individual" component={SignupIndividual} />
+        <Route path="/signup/corporate" component={SignupCorporate} />
+        <Route path="/signup/success" component={SignupSuccess} />
+        <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
+        <Route path="/search-properties" component={SearchProperties} />
+        <Route path="/real-estate-requests" component={RealEstateRequestsPage} />
+        <Route path="/favorites" component={FavoritesPage} />
+        <Route path="/compare" component={ComparePage} />
+        <Route path="/post-listing" component={PostListingPage} />
+        <Route path="/moderation" component={ModerationQueuePage} />
+        <Route path="/agencies" component={AgenciesPage} />
+        <Route path="/agency/:id" component={AgencyPage} />
+        <Route path="/agent/:id" component={AgentPage} />
+        <Route path="/listing/:id" component={PublicListingPage} />
+        <Route path="/saved-searches" component={SavedSearchesPage} />
+        {/* Root path for unauthenticated users on port 5001 - redirect to login */}
+        <Route path="/" component={() => {
+          window.location.href = '/login';
+          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى صفحة تسجيل الدخول...</div>;
+        }} />
+        {/* Landing page is the default route for unauthenticated users on port 5001 */}
         <Route component={Landing} />
       </Switch>
       </Suspense>
@@ -184,17 +473,17 @@ function Router() {
    */
   if (isNavigationLoading) {
     return (
-      <div className="layout-lock bg-background relative">
-        <Sidebar onLogout={handleLogout} />
-        <div className="mr-72 flex flex-col min-h-screen relative">
-          {/* Loading Overlay - Only covers content below header */}
-          <div className="absolute top-20 left-0 right-0 bottom-0 bg-white/90 backdrop-blur-sm z-40 flex items-center justify-center">
+      <div className="flex h-screen bg-background layout-container">
+        <div className="flex-1 flex flex-col pr-72 relative main-content">
+          {/* Loading Overlay */}
+          <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-40 flex items-center justify-center">
             <div className="text-center" dir="rtl">
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
               <p className="text-lg font-medium text-gray-700">جار التحميل...</p>
             </div>
           </div>
         </div>
+        <Sidebar onLogout={handleLogout} />
       </div>
     );
   }
@@ -212,179 +501,294 @@ function Router() {
    * All authenticated routes use the layout-lock class for consistent
    * sidebar positioning and the mr-72 class for right margin to
    * accommodate the fixed sidebar.
+   * 
+   * Note: These routes are only shown on port 5001 (dashboard port) for authenticated users
    */
+  if (isDashboardPort && isAuthenticated) {
+    console.log('Port 5001: Showing authenticated routes (dashboard)');
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
     <Switch>
       <Route path="/" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <Dashboard />
+        <div className="flex h-screen bg-background layout-container">
+          {/* Main Content Area - Proper spacing for fixed sidebar */}
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header 
+              searchPlaceholder="البحث في العملاء أو العقارات..."
+            />
+            <div className="flex-1 overflow-hidden">
+              <Dashboard />
+            </div>
+          </div>
+          {/* Sidebar - Fixed on the right */}
+            <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
 
-      {/* Public/marketing pages should be reachable even when authenticated */}
-      <Route path="/listings" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <Listings />
+      <Route path="/rbac-dashboard" component={() => (
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <RBACDashboard />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
+
+
+      {/* Public/marketing pages should be reachable even when authenticated */}
       <Route path="/real-estate-requests" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <RealEstateRequestsPage />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <RealEstateRequestsPage />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/admin/requests" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <AdminRequestsPage />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <AdminRequestsPage />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/favorites" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <FavoritesPage />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <FavoritesPage />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/compare" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <ComparePage />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <ComparePage />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/post-listing" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <PostListingPage />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <PostListingPage />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/agencies" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <AgenciesPage />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <AgenciesPage />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/agency/:id" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <AgencyPage />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <AgencyPage />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/agent/:id" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <AgentPage />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <AgentPage />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/search-properties" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <SearchProperties />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <SearchProperties />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/moderation" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <ModerationQueuePage />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <ModerationQueuePage />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
 
       <Route path="/customers" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <Customers />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <Customers />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/properties" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <Properties />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <Properties />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/properties/:id" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <PropertyDetail />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <PropertyDetail />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       {/* Public listing detail also available when authenticated */}
       <Route path="/listing/:id" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <PublicListingPage />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <PublicListingPage />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/pipeline" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <Pipeline />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <Pipeline />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/clients" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <Clients />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <Clients />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/reports" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <Reports />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <Reports />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/notifications" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <Notifications />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <Notifications />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
       <Route path="/settings" component={() => (
-        <div className="layout-lock bg-background">
-          <Sidebar onLogout={handleLogout} />
-          <div className="mr-72 flex flex-col min-h-screen">
-            <Settings />
+        <div className="flex h-screen bg-background layout-container">
+          <div className="flex-1 flex flex-col pr-72 main-content">
+            <Header />
+            <div className="flex-1 overflow-hidden">
+              <Settings />
+            </div>
+          </div>
+          <div className="sidebar-container">
+            <Sidebar onLogout={handleLogout} />
           </div>
         </div>
       )} />
@@ -394,6 +798,18 @@ function Router() {
 
     </Switch>
     </Suspense>
+    );
+  }
+
+  // Fallback case: This should not happen with the new logic
+  console.log('Fallback case: Unexpected routing state');
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-lg font-medium text-gray-700">جار التحميل...</p>
+      </div>
+    </div>
   );
 }
 
@@ -419,14 +835,16 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </AuthProvider>
-      </LanguageProvider>
+      <DarkModeProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </DarkModeProvider>
     </QueryClientProvider>
   );
 }

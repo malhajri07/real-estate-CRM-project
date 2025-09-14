@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { Users, Building, Filter, Plus, Home, Calendar, Download, Banknote } from "lucide-react";
-import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 import AddLeadModal from "@/components/modals/add-lead-modal";
 import AddPropertyModal from "@/components/modals/add-property-modal";
-import type { Lead, Activity } from "@shared/schema";
+import type { Lead, Activity } from "@shared/types";
 
 export default function Dashboard() {
   const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
@@ -69,7 +68,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <main className="flex-1 overflow-y-auto p-8 bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
+      <main className="h-full overflow-y-auto p-8 bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
         {/* Dashboard Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           <div className="dashboard-card-minimal">

@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import PublicLayout from "@/components/layout/PublicLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 type AgencyRow = { id: string; name: string; verified: boolean; agentsCount: number; listingsCount: number };
@@ -7,11 +6,11 @@ type AgencyRow = { id: string; name: string; verified: boolean; agentsCount: num
 export default function AgenciesPage() {
   const { t } = useLanguage();
   const { data = [], isLoading, error } = useQuery<AgencyRow[]>({ queryKey: ["/api/agencies"] });
-  if (isLoading) return <PublicLayout title={t('public.agencies_title')}><div className="text-gray-600">...جار التحميل</div></PublicLayout>;
-  if (error) return <PublicLayout title={t('public.agencies_title')}><div className="text-red-600">تعذر تحميل الوكالات</div></PublicLayout>;
+  if (isLoading) return <div className="text-gray-600">...جار التحميل</div>;
+  if (error) return <div className="text-red-600">تعذر تحميل الوكالات</div>;
 
   return (
-    <PublicLayout title={t('public.agencies_title')}>
+    <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {data.map((a) => (
           <a key={a.id} href={`/agency/${a.id}`} className="apple-card p-5 hover:shadow-lg apple-transition">
@@ -25,6 +24,6 @@ export default function AgenciesPage() {
           </a>
         ))}
       </div>
-    </PublicLayout>
+    </>
   );
 }

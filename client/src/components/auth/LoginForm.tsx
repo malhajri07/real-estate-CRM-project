@@ -38,7 +38,7 @@ import { Loader2, Eye, EyeOff } from 'lucide-react';
  * - error: Error message to display if authentication fails
  */
 interface LoginFormProps {
-  onLogin: (email: string, password: string) => Promise<void>;
+  onLogin: (username: string, password: string) => Promise<void>;
   isLoading?: boolean;
   error?: string;
 }
@@ -63,7 +63,7 @@ interface LoginFormProps {
  */
 export default function LoginForm({ onLogin, isLoading = false, error }: LoginFormProps) {
   // Form state management
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -80,19 +80,18 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
-    await onLogin(email, password);
+    if (!username || !password) return;
+    await onLogin(username, password);
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold">تسجيل الدخول</CardTitle>
-        <CardDescription>
-          أدخل بياناتك للوصول إلى نظام إدارة العقارات
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Card className="w-full max-w-md">
+      <CardContent className="p-4" style={{ padding: '1em' }}>
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">الدخول للنظام</h2>
+          <p className="text-sm text-gray-600 mb-4">تأكد من إدخال المعلومات الصحيحة</p>
+        </div>
+        
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <Alert variant="destructive">
@@ -101,13 +100,13 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
           )}
           
           <div className="space-y-2">
-            <Label htmlFor="email">البريد الإلكتروني</Label>
+            <Label htmlFor="username">اسم المستخدم</Label>
             <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@domain.com"
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="اسم المستخدم"
               required
               disabled={isLoading}
             />
@@ -142,10 +141,23 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
             </div>
           </div>
           
+          <div className="text-right">
+            <Button
+              type="button"
+              variant="link"
+              className="p-0 h-auto text-sm text-gray-600 hover:text-gray-800"
+              onClick={() => {
+                alert('يرجى التواصل مع مدير النظام لاستعادة بيانات الدخول');
+              }}
+            >
+              نسيت اسم المستخدم أو كلمة المرور؟
+            </Button>
+          </div>
+          
           <Button
             type="submit"
             className="w-full"
-            disabled={isLoading || !email || !password}
+            disabled={isLoading || !username || !password}
           >
             {isLoading ? (
               <>
@@ -158,16 +170,13 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
           </Button>
         </form>
         
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p className="mb-2">حسابات تجريبية:</p>
-          <div className="space-y-1 text-xs">
-            <p><strong>مدير النظام:</strong> admin@aqaraty.com / admin123</p>
-            <p><strong>مالك شركة:</strong> owner1@riyadh-realestate.com / owner123</p>
-            <p><strong>وكيل شركة:</strong> agent1@riyadh-realestate.com / agent123</p>
-            <p><strong>وكيل مستقل:</strong> indiv1@example.com / agent123</p>
-            <p><strong>بائع:</strong> seller1@example.com / seller123</p>
-            <p><strong>مشتري:</strong> buyer1@example.com / buyer123</p>
-          </div>
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">
+            ليس لديك حساب؟{" "}
+            <a href="#" className="text-blue-600 hover:text-blue-800 underline">
+              إنشاء حساب جديد
+            </a>
+          </p>
         </div>
       </CardContent>
     </Card>

@@ -1,28 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import LoginForm from '@/components/auth/LoginForm';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
-import { useLocation } from 'wouter';
+import { Button } from '@/components/ui/button';
+import { Loader2, LogOut } from 'lucide-react';
 
 export default function RBACLoginPage() {
-  const { login, isLoading, user } = useAuth();
+  const { login, logout, isLoading, user } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const [, setLocation] = useLocation();
 
-  // Redirect if user is already logged in
-  useEffect(() => {
-    if (user) {
-      setLocation('/rbac-dashboard');
-    }
-  }, [user, setLocation]);
+  const handleLogout = async () => {
+    await logout();
+  };
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleGoToDashboard = () => {
+    window.location.href = '/home/platform';
+  };
+
+  const handleLogin = async (username: string, password: string) => {
     try {
       setError(null);
-      await login(email, password);
-      // Redirect to dashboard after successful login
-      setLocation('/rbac-dashboard');
+      await login(username, password);
+      // Redirect to port 5001 (Express server) after successful login
+      window.location.href = '/home/platform';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'حدث خطأ أثناء تسجيل الدخول');
     }
@@ -39,32 +38,50 @@ export default function RBACLoginPage() {
     );
   }
 
+  // If user is already authenticated, show dashboard access options
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-slate-100 p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              مرحباً، {user.name}
+            </h1>
+            <p className="text-gray-600">
+              أنت مسجل الدخول بالفعل
+            </p>
+          </div>
+          
+          <div className="space-y-4">
+            <Button 
+              onClick={handleGoToDashboard}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
+            >
+              الانتقال إلى لوحة التحكم
+            </Button>
+            
+            <Button 
+              onClick={handleLogout}
+              variant="outline"
+              className="w-full border-red-300 text-red-600 hover:bg-red-50 py-3"
+            >
+              <LogOut className="w-4 h-4 ml-2" />
+              تسجيل الخروج
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-slate-100 p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            نظام إدارة العقارات
-          </h1>
-          <p className="text-gray-600">
-            نظام شامل لإدارة العقارات مع صلاحيات متقدمة
-          </p>
-        </div>
-        
         <LoginForm 
           onLogin={handleLogin}
           isLoading={isLoading}
           error={error}
         />
-        
-        <div className="mt-8 text-center">
-          <Alert>
-            <AlertDescription>
-              <strong>نظام RBAC + ABAC:</strong> نظام إدارة الصلاحيات المتقدم مع دعم 
-              الشركات المتعددة والعملاء المحتملين والمطالبات
-            </AlertDescription>
-          </Alert>
-        </div>
       </div>
     </div>
   );

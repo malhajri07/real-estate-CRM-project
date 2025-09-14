@@ -10,7 +10,21 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { insertLeadSchema, type InsertLead } from "@shared/schema";
+import { Lead } from "@shared/types";
+import { z } from "zod";
+
+// Create lead schema for form validation
+const leadSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email().optional().or(z.literal("")),
+  phone: z.string().min(1, "Phone number is required"),
+  source: z.string().default("manual"),
+  status: z.string().default("new"),
+  budget: z.number().optional(),
+  preferences: z.string().optional(),
+  notes: z.string().optional(),
+});
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -34,8 +48,8 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
     enabled: open, // Only fetch when modal is open
   });
 
-  const form = useForm<InsertLead>({
-    resolver: zodResolver(insertLeadSchema),
+  const form = useForm<z.infer<typeof leadSchema>>({
+    resolver: zodResolver(leadSchema),
     defaultValues: {
       firstName: "",
       lastName: "",

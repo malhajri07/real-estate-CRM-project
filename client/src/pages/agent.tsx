@@ -1,18 +1,18 @@
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import PublicLayout from "@/components/layout/PublicLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AgentPage() {
   const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = useQuery<{ agent: any; listings: any[] }>({ queryKey: ["/api/agencies/agent", id] });
-  if (isLoading) return <PublicLayout title={t('public.agent_title')}><div className="text-gray-600">...جار التحميل</div></PublicLayout>;
-  if (error || !data) return <PublicLayout title={t('public.agent_title')}><div>تعذر تحميل الوسيط</div></PublicLayout>;
+  
+  if (isLoading) return <div className="text-gray-600">...جار التحميل</div>;
+  if (error || !data) return <div>تعذر تحميل الوسيط</div>;
 
   const a = data.agent;
   return (
-    <PublicLayout title={`${a.firstName} ${a.lastName}`}>
+    <div>
       <div className="text-gray-600 mb-6">إعلانات: {data.listings.length}</div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {data.listings.map((p) => (
@@ -23,6 +23,6 @@ export default function AgentPage() {
           </div>
         ))}
       </div>
-    </PublicLayout>
+    </div>
   );
 }

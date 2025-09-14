@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Bell, Send, Users, MessageCircle, Mail, Calendar, Filter, Plus } from "lucide-react";
-import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { Lead } from "@shared/schema";
+import type { Lead } from "@shared/types";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 
 export default function Notifications() {
@@ -132,13 +131,7 @@ export default function Notifications() {
 
   return (
     <>
-      <Header 
-        title="إشعارات وحملات العملاء"
-        onSearch={setSearchQuery}
-        searchPlaceholder="البحث في العملاء..."
-      />
-      
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="h-full overflow-y-auto p-6">
         <Tabs defaultValue="customers" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="customers">تفاصيل العملاء</TabsTrigger>

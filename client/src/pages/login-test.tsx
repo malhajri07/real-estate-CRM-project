@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function LoginTestPage() {
-  const [email, setEmail] = useState('admin@aqaraty.com');
+  const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('admin123');
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -14,14 +14,14 @@ export default function LoginTestPage() {
     setResult(null);
     
     try {
-      console.log('Testing login with:', { email, password });
+      console.log('Testing login with:', { username, password });
       
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
@@ -52,11 +52,11 @@ export default function LoginTestPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Email:</label>
+            <label className="block text-sm font-medium mb-1">Username:</label>
             <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@aqaraty.com"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="admin"
             />
           </div>
           
@@ -88,14 +88,14 @@ export default function LoginTestPage() {
           )}
           
           <div className="mt-4 text-sm text-gray-600">
-            <p><strong>Test Accounts:</strong></p>
+            <p><strong>Test Accounts (username / password):</strong></p>
             <ul className="list-disc list-inside space-y-1">
-              <li>admin@aqaraty.com / admin123</li>
-              <li>owner1@riyadh-realestate.com / admin123</li>
-              <li>agent1@riyadh-realestate.com / admin123</li>
-              <li>indiv1@example.com / admin123</li>
-              <li>seller1@example.com / admin123</li>
-              <li>buyer1@example.com / admin123</li>
+              <li>admin / admin123</li>
+              <li>owner1 / owner123</li>
+              <li>agent1 / agent123</li>
+              <li>indiv1 / agent123</li>
+              <li>seller1 / seller123</li>
+              <li>buyer1 / buyer123</li>
             </ul>
           </div>
         </CardContent>

@@ -30,7 +30,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from 'url';
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+// import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal"; // Removed - Replit-specific
 
 // Get current directory for path resolution
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -44,11 +44,26 @@ export default defineConfig({
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
-          await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer(),
-          ),
+          // await import("@replit/vite-plugin-cartographer").then((m) =>
+          //   m.cartographer(), // Removed - Replit-specific
+          // ),
         ]
       : []),
+    // Custom plugin to inject SERVER_PORT for port detection
+    // Only inject when running as standalone Vite dev server (not through Express middleware)
+    {
+      name: 'inject-server-port',
+      transformIndexHtml(html) {
+        // Only inject if not already present (to avoid conflicts with Express server)
+        if (!html.includes('window.SERVER_PORT')) {
+          return html.replace(
+            '</head>',
+            `<script>window.SERVER_PORT = '3000';</script></head>`
+          );
+        }
+        return html;
+      }
+    }
   ],
   
   // Path resolution aliases for clean imports
@@ -71,6 +86,8 @@ export default defineConfig({
   
   // Development server configuration
   server: {
+    port: 3000,
+    strictPort: true,
     // File system security settings
     fs: {
       strict: true,        // Strict file system access

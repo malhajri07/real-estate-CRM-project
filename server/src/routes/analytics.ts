@@ -29,6 +29,12 @@
 import { Router } from 'express';
 import { storage } from '../../storage-prisma'; // Updated to use Prisma-based storage
 import { authenticate } from '../middleware/auth';
+import os from 'os';
+import fs from 'fs';
+import path from 'path';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const router = Router();
 
@@ -448,3 +454,82 @@ router.get('/comprehensive', async (req, res) => {
 });
 
 export default router;
+
+/**
+ * System/Performance analytics
+ * 
+ * GET /api/analytics/performance
+ * Returns OS, process, DB file size, and selected entity counts to surface
+ * real system status in the dashboard.
+ */
+router.get('/performance', async (req, res) => {
+  try {
+    // OS/Process
+    const load = os.loadavg();
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
+    const usedMem = totalMem - freeMem;
+    const cpuCount = os.cpus()?.length || 0;
+    const uptimeSec = os.uptime();
+    const proc = process.memoryUsage();
+
+    // DB file size (SQLite dev)
+    const dbPath = path.resolve(process.cwd(), 'prisma', 'dev.db');
+    let dbSizeBytes = 0;
+    try {
+      const st = fs.statSync(dbPath);
+      dbSizeBytes = st.size;
+    } catch {}
+
+    // Counts (quick, using Prisma & storage)
+    const [users, props, leads, orgPending, agentPending, activeClaims] = await Promise.all([
+      prisma.user.count(),
+      prisma.property.count(),
+      prisma.lead.count(),
+      prisma.organization.count({ where: { status: 'PENDING_VERIFICATION' as any } }),
+      prisma.agentProfile.count({ where: { status: 'PENDING_VERIFICATION' as any } }),
+      prisma.claim.count({ where: { status: 'ACTIVE' as any } })
+    ]);
+
+    // Password flag: count hashes that look suspiciously short (< 20)
+    const weakPasswordHashes = (await prisma.user.findMany({ select: { passwordHash: true } }))
+      .filter(u => !u.passwordHash || u.passwordHash.length < 20).length;
+
+    res.json({
+      os: {
+        loadAvg: { '1m': load[0], '5m': load[1], '15m': load[2] },
+        totalMem,
+        freeMem,
+        usedMem,
+        cpuCount,
+        uptimeSec,
+        platform: process.platform,
+        nodeVersion: process.version,
+      },
+      process: {
+        pid: process.pid,
+        uptimeSec: process.uptime(),
+        rss: proc.rss,
+        heapUsed: proc.heapUsed,
+        heapTotal: proc.heapTotal,
+        external: (proc as any).external,
+      },
+      db: {
+        path: dbPath,
+        sizeBytes: dbSizeBytes,
+      },
+      counts: {
+        users,
+        properties: props,
+        leads,
+        organizationsPendingVerification: orgPending,
+        agentsPendingVerification: agentPending,
+        activeClaims,
+        weakPasswordHashes,
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching system performance analytics:', error);
+    res.status(500).json({ error: 'Failed to fetch performance analytics' });
+  }
+});

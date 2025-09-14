@@ -3,10 +3,9 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Header from "@/components/layout/header";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Deal, Lead } from "@shared/schema";
+import type { Deal, Lead } from "@shared/types";
 
 const STAGES = [
   { id: "lead", title: "عميل محتمل", color: "bg-slate-100" },
@@ -87,9 +86,7 @@ export default function Pipeline() {
 
   return (
     <>
-      <Header title="مراحل الصفقات" />
-      
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="h-full overflow-y-auto p-6">
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {STAGES.map((stage) => {

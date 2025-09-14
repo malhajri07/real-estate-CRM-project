@@ -1,6 +1,5 @@
 import { useParams } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import PublicLayout from '@/components/layout/PublicLayout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PhotoCarousel } from '@/components/ui/photo-carousel';
 import ListingCard from '@/components/listings/ListingCard';
@@ -15,14 +14,14 @@ export default function ListingPage() {
     return r.json();
   }});
 
-  if (isLoading) return <PublicLayout title={t('listing.details')}><div className="text-gray-600">...جار التحميل</div></PublicLayout>;
-  if (error || !data) return <PublicLayout title={t('listing.details')}><div className="text-gray-600">غير متوفر</div></PublicLayout>;
+  if (isLoading) return <div className="text-gray-600">...جار التحميل</div>;
+  if (error || !data) return <div className="text-gray-600">غير متوفر</div>;
 
   const p = data;
   const photos: string[] = Array.isArray(p.photoUrls) ? p.photoUrls : [];
 
-  return (
-    <PublicLayout title={p.title} subtitle={`${p.city}${p.address ? '، ' + p.address : ''}`}> 
+  return ( 
+    <div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           {photos.length > 0 ? (
@@ -61,6 +60,6 @@ export default function ListingPage() {
           </div>
         </div>
       )}
-    </PublicLayout>
+    </div>
   );
 }

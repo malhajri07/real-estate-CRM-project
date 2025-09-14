@@ -192,7 +192,8 @@ enum ContactChannel {
 // Core Models
 model User {
   id             String    @id @default(cuid())
-  email          String    @unique
+  username       String    @unique
+  email          String?   @unique
   phone          String?   @unique
   firstName      String
   lastName       String
@@ -481,6 +482,257 @@ model AuditLog {
   @@index([entityId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// ===== CMS CONTENT - Landing page and content management =====
+
+/**
+ * LandingPageContent Model - Main landing page content
+ * 
+ * Stores all content for the landing page including hero section,
+ * features, solutions, stats, pricing, contact info, and footer.
+ * This replaces the Strapi CMS with a custom database-driven solution.
+ */
+model LandingPageContent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Loading text
+  loadingText String @default("جار تحميل المحتوى...")
+
+  // Hero Section
+  heroWelcomeText     String @default("مرحباً بك في")
+  heroTitle           String @default("منصة عقاراتي للوساطة العقارية")
+  heroSubtitle        String @default("منصة شاملة لإدارة العقارات والوساطة العقارية مع أدوات تسويق متقدمة")
+  heroButton          String @default("ابدأ رحلتك المجانية")
+  heroLoginButton     String @default("تسجيل الدخول")
+  heroDashboardTitle  String @default("منصة عقاراتي - لوحة التحكم")
+
+  // Features Section
+  featuresTitle       String @default("لماذا تختار منصة عقاراتي؟")
+  featuresDescription String @default("عندما يجتمع التحديث بالاحترافية، تكون منصة عقاراتي هي الخيار الأمثل لإدارة عقاراتك بكفاءة")
+
+  // Solutions Section
+  solutionsTitle       String @default("حلول شاملة لإدارة العقارات")
+  solutionsDescription String @default("أدوات متكاملة تساعدك في إدارة جميع جوانب أعمالك العقارية")
+
+  // Stats Section
+  statsTitle String @default("أرقامنا تتحدث")
+
+  // Pricing Section
+  pricingTitle    String @default("خطط الأسعار")
+  pricingSubtitle String @default("اختر الخطة المناسبة لك")
+
+  // Contact Section
+  contactTitle       String @default("تواصل معنا")
+  contactDescription String @default("نحن هنا لمساعدتك في رحلتك العقارية")
+
+  // Footer
+  footerDescription String @default("منصة عقاراتي - الحل الشامل لإدارة العقارات والوساطة العقارية")
+  footerCopyright   String @default("© 2024 منصة عقاراتي. جميع الحقوق محفوظة.")
+
+  // Relations
+  features           LandingPageFeature[]
+  stats              LandingPageStat[]
+  solutions          LandingPageSolution[]
+  heroDashboardMetrics LandingPageHeroMetric[]
+  contactInfo        LandingPageContactInfo[]
+  footerLinks        LandingPageFooterLink[]
+  navigation         LandingPageNavigation[]
+
+  @@map("landing_page_content")
+}
+
+/**
+ * LandingPageFeature Model - Features section items
+ */
+model LandingPageFeature {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_features")
+}
+
+/**
+ * LandingPageStat Model - Statistics section items
+ */
+model LandingPageStat {
+  id        String   @id @default(cuid())
+  number    String
+  label     String
+  suffix    String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_stats")
+}
+
+/**
+ * LandingPageSolution Model - Solutions section items
+ */
+model LandingPageSolution {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+  features             LandingPageSolutionFeature[]
+
+  @@map("landing_page_solutions")
+}
+
+/**
+ * LandingPageSolutionFeature Model - Features within solutions
+ */
+model LandingPageSolutionFeature {
+  id        String   @id @default(cuid())
+  text      String
+  icon      String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  solutionId String
+  solution   LandingPageSolution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_solution_features")
+}
+
+/**
+ * LandingPageHeroMetric Model - Hero dashboard metrics
+ */
+model LandingPageHeroMetric {
+  id        String   @id @default(cuid())
+  value     String
+  label     String
+  color     String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_hero_metrics")
+}
+
+/**
+ * LandingPageContactInfo Model - Contact information items
+ */
+model LandingPageContactInfo {
+  id        String   @id @default(cuid())
+  type      String
+  label     String
+  value     String
+  icon      String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_contact_info")
+}
+
+/**
+ * LandingPageFooterLink Model - Footer navigation links
+ */
+model LandingPageFooterLink {
+  id        String   @id @default(cuid())
+  text      String
+  url       String
+  category  String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_footer_links")
+}
+
+/**
+ * LandingPageNavigation Model - Main navigation items
+ */
+model LandingPageNavigation {
+  id        String   @id @default(cuid())
+  text      String
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_navigation")
+}
+
+/**
+ * PricingPlan Model - Pricing plans for the platform
+ */
+model PricingPlan {
+  id          String   @id @default(cuid())
+  name        String
+  price       Float
+  period      String   @default("monthly") // monthly, yearly
+  isPopular   Boolean  @default(false)
+  description String
+  buttonText  String   @default("ابدأ الآن")
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  features PricingPlanFeature[]
+
+  @@map("pricing_plans")
+}
+
+/**
+ * PricingPlanFeature Model - Features within pricing plans
+ */
+model PricingPlanFeature {
+  id        String   @id @default(cuid())
+  text      String
+  included  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  pricingPlanId String
+  pricingPlan   PricingPlan @relation(fields: [pricingPlanId], references: [id], onDelete: Cascade)
+
+  @@map("pricing_plan_features")
 }
 
 model FileAsset {

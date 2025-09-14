@@ -26,7 +26,8 @@ export enum UserRole {
  */
 interface User {
   id: string;                    // Unique user identifier
-  email: string;                 // User's email address (used for login)
+  username?: string;             // Username for login and display
+  email?: string;                // User's email address (optional)
   name: string;                  // User's display name
   roles: UserRole[];             // Array of roles assigned to this user (multi-role support)
   organizationId?: string;       // Optional: ID of the organization this user belongs to
@@ -53,7 +54,7 @@ interface User {
 interface AuthContextType {
   user: User | null;                                    // Current authenticated user (null if not logged in)
   token: string | null;                                 // JWT token for API authentication (null if not logged in)
-  login: (email: string, password: string) => Promise<void>;  // Function to authenticate user with credentials
+  login: (username: string, password: string) => Promise<void>;  // Function to authenticate user with credentials
   logout: () => void;                                   // Function to log out the current user
   isLoading: boolean;                                   // Loading state for authentication operations
   hasRole: (roles: UserRole[]) => boolean;             // Function to check if user has any of the specified roles
@@ -174,27 +175,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * @param password - User's password
    * @throws Error if authentication fails
    */
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
       // Log login attempt (password is masked for security)
-      console.log('Attempting login with:', { email, password: password ? '***' : 'undefined' });
+      console.log('Attempting login with:', { username, password: password ? '***' : 'undefined' });
       
+      // Normalize username client-side (lowercase/trim)
+      const normalized = (username || '').trim().toLowerCase();
+
       // Send authentication request to backend API
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username: normalized, password }),
       });
 
-      // Parse response data
-      const data = await response.json();
+      // Parse response data robustly (handle non-JSON)
+      const raw = await response.text();
+      let data: any;
+      try {
+        data = raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        data = { message: raw };
+      }
       console.log('Login response:', { status: response.status, data });
 
       // Check if request was successful
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.message || data.error || 'Login failed');
       }
 
       // Process successful authentication
@@ -205,7 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('user_data', JSON.stringify(data.user)); // Persist user data in localStorage
         console.log('Login successful, user set:', data.user);
       } else {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.message || data.error || 'Login failed');
       }
     } catch (error) {
       console.error('Login error:', error);

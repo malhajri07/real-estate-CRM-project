@@ -11,6 +11,10 @@ import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
 import agarkomFooterLogo from "@assets/6_1756507125793.png";
 
 export default function SignupIndividual() {
+  // Account credentials
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
@@ -91,6 +95,38 @@ export default function SignupIndividual() {
       return;
     }
 
+    // Validate account credentials
+    const normalizedUsername = (username || '').trim().toLowerCase();
+    if (!normalizedUsername || !/^[a-z0-9_.]{3,32}$/.test(normalizedUsername)) {
+      toast({
+        title: "اسم المستخدم غير صالح",
+        description: "اسم المستخدم يجب أن يتكون من 3-32 حرفاً ويحتوي على حروف إنجليزية صغيرة أو أرقام أو (_) أو (.)",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      toast({
+        title: "كلمة المرور قصيرة",
+        description: "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "تأكيد كلمة المرور غير مطابق",
+        description: "الرجاء التأكد من تطابق كلمتي المرور",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     if (!certificationFile || certificationFile.length === 0) {
       toast({
         title: "مطلوب ملف الترخيص",
@@ -128,45 +164,37 @@ export default function SignupIndividual() {
     }
 
     try {
-      // Create account data for individual broker
-      const accountData = {
-        firstName,
-        lastName,
-        email: `${saudiIdEnglish}@temp.aqaraty.sa`, // Temporary email, will be updated
-        phone: mobileEnglish.startsWith('05') ? mobileEnglish : `05${mobileEnglish}`,
-        accountType: 'individual_broker',
-        licenseNumber: certificationNumber,
-        isActive: false, // Pending verification
-        isVerified: false,
-        subscriptionStatus: 'trial',
-        subscriptionTier: 'basic',
-        // Additional data for verification
-        saudiId: saudiIdEnglish,
-        dateOfBirth,
-        gender,
-        city,
-        certificationStartDate,
-        certificationEndDate,
-      };
-
-      const response = await fetch('/api/accounts/register', {
+      // Register auth user (INDIV_AGENT)
+      const registerRes = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(accountData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: normalizedUsername,
+          // Optional temp email for contact only
+          email: `${saudiIdEnglish}@temp.aqaraty.sa`,
+          password,
+          firstName,
+          lastName,
+          phone: mobileEnglish.startsWith('05') ? mobileEnglish : `05${mobileEnglish}`,
+          roles: JSON.stringify(['INDIV_AGENT'])
+        })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'فشل في إنشاء الحساب');
+      const raw = await registerRes.text();
+      const data = raw ? JSON.parse(raw) : {};
+      if (!registerRes.ok || !data?.success) {
+        throw new Error(data?.error || data?.message || 'فشل في إنشاء الحساب');
       }
 
-      const result = await response.json();
+      // Persist session (optional)
+      if (data.token && data.user) {
+        localStorage.setItem('auth_token', data.token);
+        localStorage.setItem('user_data', JSON.stringify(data.user));
+      }
 
       toast({
-        title: "تم إرسال طلبك بنجاح",
-        description: "سيتم مراجعة طلبك والتواصل معك خلال 24 ساعة لتفعيل الحساب",
+        title: "تم إنشاء الحساب بنجاح",
+        description: "تم تسجيل المستخدم كوكيل مستقل. سيتم متابعة التحقق من البيانات.",
       });
 
       // Redirect to success page
@@ -226,6 +254,63 @@ export default function SignupIndividual() {
           <div className="px-6 py-6">
 
             <form onSubmit={handleSubmit} className="space-y-12">
+              {/* Account Credentials */}
+              <div className="space-y-6">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center ml-4">
+                    <User className="w-5 h-5 text-green-600" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900">بيانات الحساب</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-3 md:col-span-1">
+                    <Label htmlFor="username" className="text-sm font-medium text-gray-700 text-right block">
+                      اسم المستخدم *
+                    </Label>
+                    <Input
+                      id="username"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="اسم المستخدم (a-z, 0-9, _ .)"
+                      required
+                      className="text-right h-12 border-gray-200 rounded-xl"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="password" className="text-sm font-medium text-gray-700 text-right block">
+                      كلمة المرور *
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      className="text-right h-12 border-gray-200 rounded-xl font-password"
+                    />
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 text-right block">
+                      تأكيد كلمة المرور *
+                    </Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      className="text-right h-12 border-gray-200 rounded-xl font-password"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Personal Information */}
               <div className="space-y-6">
                 <div className="flex items-center mb-8">

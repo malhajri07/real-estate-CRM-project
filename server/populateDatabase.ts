@@ -1,5 +1,5 @@
-import { db } from "./db";
-import { properties, leads, deals, activities, messages } from "@shared/schema";
+import { storage } from "./storage-prisma";
+import { type Lead, type Deal, type Activity, type Message } from "@shared/types";
 
 const cities = ["الرياض", "جدة", "الدمام", "الخبر", "الطائف", "مكة", "المدينة", "الاحساء", "القطيف", "حائل", "أبها", "تبوك", "بريدة", "نجران", "الباحة"];
 const states = ["الرياض", "مكة المكرمة", "المنطقة الشرقية", "عسير", "المدينة المنورة", "حائل", "تبوك", "القصيم", "نجران", "الباحة"];

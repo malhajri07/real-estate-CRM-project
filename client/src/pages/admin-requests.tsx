@@ -86,8 +86,8 @@ export default function AdminRequestsPage() {
   };
 
   return (
-    <div className="layout-lock bg-background" dir="rtl">
-      <div className="mr-72 flex flex-col min-h-screen">
+    <div className="flex h-screen bg-background" dir="rtl">
+      <div className="flex-1 flex flex-col pr-72">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-semibold">إدارة الطلبات العقارية</h1>

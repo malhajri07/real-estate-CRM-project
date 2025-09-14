@@ -26,6 +26,9 @@ const app = express();
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: false })); // Parse URL-encoded request bodies
 
+// Serve attached assets as static files
+app.use('/attached_assets', express.static('attached_assets'));
+
 /**
  * Request Logging Middleware
  * 
@@ -86,6 +89,22 @@ app.use((req, res, next) => {
  * - log() from ./vite.ts - Logging functionality
  */
 (async () => {
+  // Force development environment for now
+  process.env.NODE_ENV = 'development';
+  app.set('env', 'development');
+  // Mandatory production checks (disabled unless explicitly allowed)
+  if (process.env.NODE_ENV === 'production') {
+    if (process.env.ALLOW_PRODUCTION !== 'true') {
+      console.error('[startup] Production mode is disabled for this environment. Set ALLOW_PRODUCTION=true to enable.');
+      process.exit(1);
+    }
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret || jwtSecret === 'your-secret-key') {
+      console.error('[startup] Missing or insecure JWT_SECRET in production. Please set a strong JWT_SECRET env var.');
+      process.exit(1);
+    }
+  }
+
   // Register all API routes and return the HTTP server instance
   const server = await registerRoutes(app);
 
@@ -116,8 +135,12 @@ app.use((req, res, next) => {
    * - serveStatic() - Production static file serving
    */
   if (app.get("env") === "development") {
+    // In development, serve different content based on port:
+    // - http://localhost:3000 (Vite dev server) - Landing page for unauthenticated users
+    // - http://localhost:5001 (this server) - Dashboard for authenticated users
     await setupVite(app, server);
   } else {
+    // In production, serve the built frontend from dist/public
     serveStatic(app);
   }
 
@@ -130,7 +153,7 @@ app.use((req, res, next) => {
    * 
    * This serves both the API and the frontend application.
    */
-  const port = parseInt(process.env.PORT || '5000', 10);
+  const port = parseInt(process.env.PORT || '5001', 10);
   server.listen({
     port,
     host: "0.0.0.0",

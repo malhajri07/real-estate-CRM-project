@@ -75,8 +75,9 @@
   gap: 1rem;
 }
 
-/* RTL Layout Fixes */
-[dir="rtl"] .flex {
+/* RTL Layout Fixes - Avoid forcing all flex containers to reverse.
+   Use opt-in class `.rtl-flex` where you explicitly want row-reverse. */
+[dir="rtl"] .rtl-flex {
   flex-direction: row-reverse;
 }
 
@@ -110,6 +111,76 @@
 
 .ltr {
   direction: ltr;
+}
+
+/* Admin Dashboard RTL Fixes */
+[dir="rtl"] .admin-dashboard {
+  direction: rtl;
+}
+
+/* Utility: hide scrollbars (horizontal tab lists etc.) */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Normalized Content Panel Components */
+@layer components {
+  .content-panel {
+    @apply max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 sm:p-8;
+  }
+  .content-header {
+    @apply mb-6 flex items-center justify-between gap-4;
+  }
+  .content-title {
+    @apply text-2xl font-bold text-gray-900 dark:text-gray-100;
+  }
+  .content-subtitle {
+    @apply text-gray-600 dark:text-gray-300;
+  }
+  .content-actions {
+    @apply flex items-center gap-2;
+  }
+  .content-section {
+    @apply space-y-4;
+  }
+  .content-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+  .content-divider {
+    @apply my-6 border-t border-gray-200 dark:border-gray-700;
+  }
+  .content-tabs {
+    @apply w-full flex flex-row-reverse flex-nowrap items-center justify-start gap-2 rounded-2xl bg-slate-50 dark:bg-gray-900/40 p-2 ring-1 ring-slate-200 dark:ring-gray-700 overflow-x-auto no-scrollbar;
+  }
+
+}
+
+/* Admin dashboard layout - force sidebar to right side */
+[dir="rtl"] .admin-dashboard > .flex {
+  flex-direction: row !important;
+}
+
+/* Fixed header positioning for admin dashboard */
+.admin-header.fixed {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+  height: 80px !important;
+}
+
+
+
+
+/* Ensure admin sidebar is properly positioned in RTL */
+[dir="rtl"] .admin-sidebar {
+  border-left: 1px solid hsl(var(--border));
+  border-right: none;
+}
+
+/* Ensure proper spacing in admin navigation */
+[dir="rtl"] .admin-nav button {
+  text-align: right;
 }
 
 /* Custom smaller text size for input fields */
@@ -167,6 +238,15 @@ body {
   border-radius: var(--radius);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Unify icon colors inside apple-card */
+.apple-card svg {
+  color: hsl(var(--brand-blue)) !important;
+}
+
+.dark .apple-card svg {
+  color: hsl(var(--brand-blue)) !important;
 }
 
 .apple-card:hover {
@@ -756,4 +836,45 @@ html, body {
 
 .professional-grid-item {
   @apply bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-all duration-200 overflow-hidden;
+}
+/* RTL content utility using Tailwind @apply */
+@layer utilities {
+  /* Hide horizontal scrollbar for scrollable tab lists */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .rtl-content {
+    direction: rtl;
+  }
+  .rtl-content h1,
+  .rtl-content h2,
+  .rtl-content h3,
+  .rtl-content h4,
+  .rtl-content h5,
+  .rtl-content h6,
+  .rtl-content p,
+  .rtl-content label,
+  .rtl-content legend,
+  .rtl-content li,
+  .rtl-content dt,
+  .rtl-content dd,
+  .rtl-content span,
+  .rtl-content strong,
+  .rtl-content em,
+  .rtl-content small,
+  .rtl-content th,
+  .rtl-content td {
+    @apply text-right;
+  }
+  .rtl-content input,
+  .rtl-content textarea,
+  .rtl-content select {
+    @apply text-right;
+  }
+  .rtl-content table {
+    @apply w-full;
+  }
+  /* Prefer gap utilities; when using flex, reverse in RTL */
+  .rtl-content .flex {
+    flex-direction: row-reverse;
+  }
 }

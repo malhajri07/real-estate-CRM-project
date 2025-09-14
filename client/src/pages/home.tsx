@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LogOut, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Dashboard from "@/pages/dashboard";
-import type { User as UserType } from "@shared/schema";
+import type { User as UserType } from "@shared/types";
 
 export default function Home() {
   const { user } = useAuth();

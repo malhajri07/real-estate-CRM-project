@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, Users, Building, Building2, Filter, Handshake, BarChart3, Bell, Settings, LogOut, MapPin, PlusSquare, Heart, Shuffle, Bookmark, ShieldCheck } from "lucide-react";
+import { Home, Users, Building, Building2, Filter, Handshake, BarChart3, Bell, Settings, LogOut, MapPin, PlusSquare, Heart, Shuffle, Bookmark, ShieldCheck, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
@@ -18,27 +18,27 @@ interface SidebarProps {
 
 const getNavigationItems = (t: (key: string) => string): NavItem[] => [
   // CRM
-  { path: "/", labelKey: "nav.dashboard", icon: Home },
-  { path: "/customers", label: "العملاء المحتملين", icon: Users },
-  { path: "/properties", labelKey: "nav.properties", icon: Building },
-  { path: "/pipeline", labelKey: "nav.pipeline", icon: Filter },
-  { path: "/clients", labelKey: "nav.clients", icon: Handshake },
-  { path: "/notifications", labelKey: "nav.notifications", icon: Bell },
-  { path: "/reports", labelKey: "nav.reports", icon: BarChart3 },
+  { path: "/home/platform", labelKey: "nav.dashboard", icon: Home },
+  { path: "/home/platform/customers", label: "العملاء المحتملين", icon: Users },
+  { path: "/home/platform/properties", labelKey: "nav.properties", icon: Building },
+  { path: "/home/platform/pipeline", labelKey: "nav.pipeline", icon: Filter },
+  { path: "/home/platform/clients", labelKey: "nav.clients", icon: Handshake },
+  { path: "/home/platform/notifications", labelKey: "nav.notifications", icon: Bell },
+  { path: "/home/platform/reports", labelKey: "nav.reports", icon: BarChart3 },
   // Marketplace/Public
-  { path: "/listings", labelKey: "nav.listings", icon: Building2 },
   { path: "/search-properties", labelKey: "nav.search", icon: MapPin },
   { path: "/post-listing", labelKey: "nav.post_listing", icon: PlusSquare },
-  { path: "/agencies", labelKey: "nav.agencies", icon: Handshake },
+  { path: "/home/platform/agencies", labelKey: "nav.agencies", icon: Handshake },
   { path: "/saved-searches", label: "عمليات البحث", icon: Bookmark },
   { path: "/favorites", labelKey: "nav.favorites", icon: Heart },
   { path: "/compare", labelKey: "nav.compare", icon: Shuffle },
-  { path: "/moderation", label: "المراجعة", icon: ShieldCheck },
+  { path: "/home/platform/moderation", label: "المراجعة", icon: ShieldCheck },
   { path: "/admin/requests", label: "طلبات العملاء", icon: Bookmark },
+  { path: "/home/admin", label: "لوحة الإدارة", icon: Shield },
 ];
 
 const getBottomItems = (t: (key: string) => string): NavItem[] => [
-  { path: "/settings", labelKey: "nav.settings", icon: Settings },
+  { path: "/home/platform/settings", labelKey: "nav.settings", icon: Settings },
 ];
 
 export default function Sidebar({ onLogout }: SidebarProps) {
@@ -49,7 +49,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
   const bottomItems = getBottomItems(t);
 
   return (
-    <div className="w-72 bg-sidebar text-sidebar-foreground flex-shrink-0 apple-shadow-large border-l border-sidebar-border fixed h-full overflow-y-auto z-50 right-0">
+    <div className="w-64 md:w-72 bg-white dark:bg-gray-900 text-slate-700 dark:text-gray-200 shadow-md border-l border-slate-200 dark:border-gray-700 fixed right-0 top-0 h-full overflow-y-auto z-50">
       <div className="p-4">
         <div className="flex justify-center">
           <img 
@@ -60,8 +60,8 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         </div>
       </div>
       
-      <nav className="px-6 pb-6">
-        <ul className="space-y-1">
+      <nav className="px-4 md:px-6 pb-6">
+        <ul className="space-y-0">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const isActive = location === item.path;
@@ -71,16 +71,16 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 <Link
                   href={item.path}
                   className={cn(
-                    "flex items-center px-4 py-3 rounded-xl apple-transition font-medium",
-                    dir === 'rtl' ? 'space-x-reverse space-x-3' : 'space-x-3',
+                    "flex items-center px-3 py-2 rounded-md transition-colors font-medium",
                     isActive
-                      ? "bg-primary text-primary-foreground apple-shadow"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      ? "bg-emerald-600 text-white shadow"
+                      : "text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800"
                   )}
                 >
                   <div className={cn(
                     "w-6 h-6 flex items-center justify-center rounded-lg",
-                    isActive ? "text-primary-foreground" : "text-muted-foreground"
+                    dir === 'rtl' ? 'ml-3' : 'mr-3',
+                    isActive ? "text-white" : "text-slate-500 dark:text-gray-400"
                   )}>
                     <Icon size={18} />
                   </div>
@@ -98,8 +98,8 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           })}
         </ul>
         
-        <div className="mt-8 pt-6 border-t border-sidebar-border">
-          <ul className="space-y-1">
+        <div className="mt-4 pt-3 border-t border-slate-200 dark:border-gray-700">
+          <ul className="space-y-0">
             {bottomItems.map((item) => {
               const Icon = item.icon;
               
@@ -107,12 +107,12 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 <li key={item.path}>
                   <Link
                     href={item.path}
-                    className={cn(
-                      "flex items-center px-4 py-3 rounded-xl apple-transition font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                      dir === 'rtl' ? 'space-x-reverse space-x-3' : 'space-x-3'
-                    )}
+                    className="flex items-center px-3 py-2 rounded-md transition-colors font-medium text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800"
                   >
-                    <div className="w-6 h-6 flex items-center justify-center rounded-lg">
+                    <div className={cn(
+                      "w-6 h-6 flex items-center justify-center rounded-lg",
+                      dir === 'rtl' ? 'ml-3' : 'mr-3'
+                    )}>
                       <Icon size={18} />
                     </div>
                     <span className="text-sm tracking-tight">{t(item.labelKey || "")}</span>
@@ -124,13 +124,13 @@ export default function Sidebar({ onLogout }: SidebarProps) {
               <li>
                 <button
                   onClick={onLogout}
-                  className={cn(
-                    "w-full flex items-center px-4 py-3 rounded-xl apple-transition font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    dir === 'rtl' ? 'space-x-reverse space-x-3' : 'space-x-3'
-                  )}
+                  className="w-full flex items-center px-3 py-2 rounded-md transition-colors font-medium text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800"
                   data-testid="button-logout"
                 >
-                  <div className="w-6 h-6 flex items-center justify-center rounded-lg">
+                  <div className={cn(
+                    "w-6 h-6 flex items-center justify-center rounded-lg",
+                    dir === 'rtl' ? 'ml-3' : 'mr-3'
+                  )}>
                     <LogOut size={18} />
                   </div>
                   <span className="text-sm tracking-tight">تسجيل الخروج</span>

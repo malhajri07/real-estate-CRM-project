@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function PublicHeader() {
   const { t } = useLanguage();
-  const isAuth = typeof window !== 'undefined' && localStorage.getItem('isAuthenticated') === 'true';
+  const isAuth = typeof window !== 'undefined' && !!localStorage.getItem('auth_token');
 
   return (
     <header className="bg-white/90 backdrop-blur-sm border-b sticky top-0 z-50">

@@ -4,7 +4,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertMessageSchema, type InsertMessage } from "@shared/schema";
+import { Message } from "@shared/types";
+import { z } from "zod";
+
+// Create message schema for form validation
+const messageSchema = z.object({
+  content: z.string().min(1, "Message content is required"),
+  type: z.string().default("whatsapp"),
+});
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -30,13 +37,11 @@ export default function SendWhatsAppModal({
   const queryClient = useQueryClient();
   const [messageStatus, setMessageStatus] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle');
 
-  const form = useForm<InsertMessage>({
-    resolver: zodResolver(insertMessageSchema),
+  const form = useForm<{ content: string; type: string }>({
+    resolver: zodResolver(messageSchema),
     defaultValues: {
-      leadId,
-      messageType: "whatsapp",
-      phoneNumber,
-      message: "",
+      content: "",
+      type: "whatsapp",
       status: "pending",
     },
   });
@@ -115,9 +120,9 @@ export default function SendWhatsAppModal({
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="message"
+                <FormField
+                  control={form.control}
+                  name="content"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>نص الرسالة</FormLabel>

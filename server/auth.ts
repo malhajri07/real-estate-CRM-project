@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -21,7 +21,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 interface JWTPayload {
   userId: string;
   email: string;
-  roles: UserRole[];
+  roles: string; // Store as string to match database
   organizationId?: string;
   iat?: number;
   exp?: number;
@@ -31,7 +31,7 @@ interface JWTPayload {
 export function generateToken(user: {
   id: string;
   email: string;
-  roles: UserRole[];
+  roles: string; // Store as string to match database
   organizationId?: string;
 }): string {
   const payload: JWTPayload = {
@@ -88,7 +88,7 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
     req.user = {
       id: user.id,
       email: user.email,
-      roles: user.roles,
+      roles: JSON.parse(user.roles || '[]'),
       organizationId: user.organizationId || undefined
     };
 
@@ -129,7 +129,7 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
       req.user = {
         id: user.id,
         email: user.email,
-        roles: user.roles,
+        roles: JSON.parse(user.roles || '[]'),
         organizationId: user.organizationId || undefined
       };
     }
@@ -142,7 +142,7 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
 }
 
 // Hash password (using bcrypt)
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 12;
@@ -154,20 +154,35 @@ export async function comparePassword(password: string, hash: string): Promise<b
 }
 
 // Login function
-export async function login(email: string, password: string): Promise<{
+// Updated to support username-based login (email kept for compatibility if used elsewhere)
+export async function login(identifier: string, password: string): Promise<{
   success: boolean;
   user?: any;
   token?: string;
   message?: string;
 }> {
   try {
-    const user = await prisma.user.findUnique({
-      where: { email },
-      include: {
-        organization: true,
-        agentProfile: true
-      }
+    // Try to find by username first, then by email for compatibility
+    let user = await prisma.user.findUnique({
+      where: { username: identifier }
     });
+
+    if (!user) {
+      user = await prisma.user.findUnique({
+        where: { email: identifier }
+      });
+    }
+
+    // Load relations if user found
+    if (user) {
+      user = await prisma.user.findUnique({
+        where: { id: user.id },
+        include: {
+          organization: true,
+          agentProfile: true
+        }
+      });
+    }
 
     if (!user || !user.isActive) {
       return { success: false, message: 'Invalid credentials' };
@@ -187,7 +202,7 @@ export async function login(email: string, password: string): Promise<{
     const token = generateToken({
       id: user.id,
       email: user.email,
-      roles: user.roles,
+      roles: JSON.parse(user.roles || '[]'),
       organizationId: user.organizationId || undefined
     });
 
@@ -196,12 +211,11 @@ export async function login(email: string, password: string): Promise<{
       user: {
         id: user.id,
         email: user.email,
+        username: (user as any).username,
         firstName: user.firstName,
         lastName: user.lastName,
-        roles: user.roles,
-        organizationId: user.organizationId,
-        organization: user.organization,
-        agentProfile: user.agentProfile
+        roles: JSON.parse(user.roles || '[]'),
+        organizationId: user.organizationId
       },
       token
     };
@@ -218,7 +232,7 @@ export async function register(userData: {
   firstName: string;
   lastName: string;
   phone?: string;
-  roles: UserRole[];
+  roles: string; // Store as string to match database
   organizationId?: string;
 }): Promise<{
   success: boolean;
@@ -259,7 +273,7 @@ export async function register(userData: {
     const token = generateToken({
       id: user.id,
       email: user.email,
-      roles: user.roles,
+      roles: JSON.parse(user.roles || '[]'),
       organizationId: user.organizationId || undefined
     });
 
@@ -270,10 +284,8 @@ export async function register(userData: {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        roles: user.roles,
-        organizationId: user.organizationId,
-        organization: user.organization,
-        agentProfile: user.agentProfile
+        roles: JSON.parse(user.roles || '[]'),
+        organizationId: user.organizationId
       },
       token
     };
@@ -328,7 +340,7 @@ export async function impersonateUser(adminUserId: string, targetUserId: string)
         action: 'IMPERSONATE',
         entity: 'USER',
         entityId: targetUserId,
-        afterJson: { impersonatedUser: targetUser.email }
+        afterJson: JSON.stringify({ impersonatedUser: targetUser.email })
       }
     });
 

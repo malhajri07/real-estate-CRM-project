@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const CMS_URL = 'http://localhost:1337/api';
+const CMS_URL = '/api/cms'; // Use our custom CMS API instead of Strapi
 
 // إنشاء instance من axios للـ CMS
 const cmsApi = axios.create({
@@ -138,9 +138,12 @@ export interface LandingPageContent {
 // API functions
 export const cmsService = {
   // جلب محتوى صفحة الهبوط
-  async getLandingPageContent(): Promise<LandingPageContent> {
+  async getLandingPageContent(opts?: { noCache?: boolean }): Promise<LandingPageContent> {
     try {
-      const response = await cmsApi.get('/landing-page?populate=features,stats,solutions.features,navigation,heroDashboardMetrics,contactInfo,footerLinks');
+      const response = await cmsApi.get('/landing-page', {
+        params: opts?.noCache ? { t: Date.now() } : undefined,
+        headers: opts?.noCache ? { 'Cache-Control': 'no-cache' } : undefined,
+      });
       return response.data.data;
     } catch (error) {
       console.error('خطأ في جلب محتوى صفحة الهبوط من CMS:', error);
@@ -191,7 +194,7 @@ export const cmsService = {
   // جلب خطط التسعير
   async getPricingPlans(): Promise<PricingPlan[]> {
     try {
-      const response = await cmsApi.get('/pricing-plans?populate=features&sort=order:asc');
+      const response = await cmsApi.get('/pricing-plans');
       return response.data.data;
     } catch (error) {
       console.error('خطأ في جلب خطط التسعير من CMS:', error);

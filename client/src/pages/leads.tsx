@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Trash2, Edit, Eye, Plus, MessageCircle, Upload } from "lucide-react";
-import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +11,7 @@ import { CSVUploader } from "@/components/CSVUploader";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { Lead } from "@shared/schema";
+import type { Lead } from "@shared/types";
 import type { UploadResult } from "@uppy/core";
 
 export default function Leads() {
@@ -210,14 +209,7 @@ export default function Leads() {
 
   return (
     <>
-      <Header 
-        title="العملاء المحتملين" 
-        onAddClick={() => setAddLeadModalOpen(true)}
-        onSearch={setSearchQuery}
-        searchPlaceholder="البحث في العملاء المحتملين بالاسم أو البريد الإلكتروني أو الهاتف..."
-      />
-      
-      <main className="flex-1 overflow-y-auto p-6">
+      <main className="h-full overflow-y-auto p-6">
         <Card>
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between">

@@ -30,7 +30,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 /**
- * Updated import to use Prisma-based storage instead of Drizzle-based storage
+ * Uses Prisma-based storage for all database operations
  * This fixes the database connection issues caused by WebSocket connection attempts
  * to Neon database when using SQLite.
  * 
@@ -43,11 +43,11 @@ import { storage } from "./storage-prisma";
 import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 import { setupMockAuth, isAuthenticated } from "./authMock";
-import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
-import { registerRoleBasedRoutes } from "./roleRoutes";
+// import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage"; // Removed - Replit-specific
+// import { registerRoleBasedRoutes } from "./roleRoutes"; // Temporarily disabled - requires migration to Prisma
 
 // Route module imports - Each handles specific functionality
-import accountRoutes from "./routes/accounts";        // Account management
+// import accountRoutes from "./routes/accounts";        // Account management - Temporarily disabled
 import listingsRoutes from "./routes/listings";       // Property listings
 import locationsRoutes from "./routes/locations";     // Geographic data
 import favoritesRoutes from "./routes/favorites";     // User favorites
@@ -56,13 +56,16 @@ import searchRoutes from "./routes/search";           // Search functionality
 import moderationRoutes from "./routes/moderation";   // Content moderation
 import reportsRoutes from "./routes/reports";         // Analytics reports
 import agenciesRoutes from "./routes/agencies";       // Agency management
-import mediaRoutes from "./routes/media";             // Media uploads
+// import mediaRoutes from "./routes/media";             // Media uploads - Temporarily disabled (Replit-specific)
 import requestsRoutes from "./routes/requests";       // General requests
 import populateRoutes from "./routes/populate";       // Data population
 import sitemapRoutes from "./routes/sitemap";         // SEO sitemap
-import authRoutes from "./routes/auth";               // Authentication
+// import authRoutes from "./routes/auth";               // Authentication - Temporarily disabled
+import simpleAuthRoutes from "./routes/simple-auth";  // Simple authentication
 import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
+import cmsRoutes from "./routes/cms";                 // Custom CMS (replaces Strapi)
 import analyticsRoutes from "./src/routes/analytics"; // Analytics data
+import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
 
 /**
  * registerRoutes - Main route registration function
@@ -96,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Dependencies: registerRoleBasedRoutes() from ./roleRoutes.ts
    * Pages affected: RBAC dashboard, user management, admin settings
    */
-  registerRoleBasedRoutes(app);
+  // registerRoleBasedRoutes(app); // Temporarily disabled - requires migration to Prisma
 
   /**
    * Authentication Routes - /api/auth/*
@@ -110,7 +113,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Dependencies: authRoutes from ./routes/auth.ts
    * Pages affected: Login page, RBAC login page, user profile
    */
-  app.use("/api/auth", authRoutes);
+  // app.use("/api/auth", authRoutes); // Temporarily disabled due to import errors
+  app.use("/api/auth", simpleAuthRoutes); // Simple authentication system
 
   /**
    * Buyer Pool Routes - /api/pool/*
@@ -126,6 +130,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/pool", buyerPoolRoutes);
 
   /**
+   * CMS Routes - /api/cms/*
+   * 
+   * Handles content management system functionality including:
+   * - GET /api/cms/landing-page - Get landing page content
+   * - PUT /api/cms/landing-page - Update landing page content
+   * - GET /api/cms/pricing-plans - Get pricing plans
+   * - POST /api/cms/pricing-plans - Create pricing plan
+   * - PUT /api/cms/pricing-plans/:id - Update pricing plan
+   * - DELETE /api/cms/pricing-plans/:id - Delete pricing plan
+   * 
+   * Dependencies: cmsRoutes from ./routes/cms.ts
+   * Pages affected: Landing page, CMS admin panel
+   * Status: Custom CMS replacing Strapi
+   */
+  app.use("/api/cms", cmsRoutes);
+
+  /**
+   * RBAC Admin Routes - /api/rbac-admin/*
+   * 
+   * Handles RBAC dashboard functionality:
+   * - GET /api/rbac-admin/stats - System statistics
+   * - GET /api/rbac-admin/activities - Recent activities
+   * - GET /api/rbac-admin/users - User management
+   * - POST /api/rbac-admin/users - Create user
+   * - PUT /api/rbac-admin/users/:id - Update user
+   * - DELETE /api/rbac-admin/users/:id - Delete user
+   * - GET /api/rbac-admin/organizations - Organization management
+   * - POST /api/rbac-admin/organizations - Create organization
+   * - GET /api/rbac-admin/roles - Role and permission management
+   * 
+   * Dependencies: rbacAdminRoutes from ./routes/rbac-admin.ts
+   * Pages affected: RBAC dashboard, user management, organization management
+   */
+  app.use("/api/rbac-admin", rbacAdminRoutes);
+
+  /**
    * Account Management Routes - /api/accounts/*
    * 
    * Handles user account management:
@@ -135,8 +175,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * 
    * Dependencies: accountRoutes from ./routes/accounts.ts
    * Pages affected: User settings, profile management, account settings
+   * Status: Temporarily disabled - requires migration to Prisma
    */
-  app.use("/api/accounts", accountRoutes);
+  // app.use("/api/accounts", accountRoutes);
 
   /**
    * Property Listings Routes - /api/listings/*
@@ -255,8 +296,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * 
    * Dependencies: mediaRoutes from ./routes/media.ts
    * Pages affected: Property images, profile pictures, document uploads
+   * Status: Temporarily disabled - requires Replit object storage replacement
    */
-  app.use("/api/media", mediaRoutes);
+  // app.use("/api/media", mediaRoutes);
 
   /**
    * General Request Routes - /api/requests/*
@@ -336,14 +378,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Generates a secure upload URL for CSV file uploads.
    * Used for bulk lead import functionality.
    * 
-   * Dependencies: ObjectStorageService from ./objectStorage.ts
+   * Dependencies: Local file system storage (Replit object storage removed)
    * Pages affected: CSV uploader component, bulk import functionality
+   * Status: Simplified to use local file system instead of Replit object storage
    */
   app.post("/api/csv/upload-url", async (req, res) => {
     try {
-      const objectStorageService = new ObjectStorageService();
-      const uploadURL = await objectStorageService.getCSVUploadURL();
-      res.json({ uploadURL });
+      // Return a simple upload endpoint for local file system
+      res.json({ 
+        uploadURL: "/api/csv/upload",
+        message: "Use multipart/form-data to upload CSV files directly"
+      });
     } catch (error) {
       console.error("Error getting CSV upload URL:", error);
       res.status(500).json({ error: "Failed to get upload URL" });
@@ -363,9 +408,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const pathParts = url.pathname.split('/');
       const objectPath = pathParts.slice(2).join('/'); // Remove bucket name
 
-      const objectStorageService = new ObjectStorageService();
-      const csvFile = await objectStorageService.getCSVFile(objectPath);
-      const csvContent = await objectStorageService.downloadCSVContent(csvFile);
+      // TODO: Implement local file system CSV processing
+      // For now, return an error indicating this needs to be implemented
+      return res.status(501).json({ error: "CSV processing not implemented - requires local file system implementation" });
 
       // Parse CSV content
       const lines = csvContent.split('\n').filter(line => line.trim());
@@ -569,18 +614,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching properties for map:", error);
       res.status(500).json({ message: "Failed to fetch properties for map" });
-    }
-  });
-
-  app.get("/api/properties/:id", async (req, res) => {
-    try {
-      const property = await storage.getProperty(req.params.id);
-      if (!property) {
-        return res.status(404).json({ message: "Property not found" });
-      }
-      res.json(property);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch property" });
     }
   });
 

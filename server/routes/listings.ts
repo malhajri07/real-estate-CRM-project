@@ -67,6 +67,7 @@ router.get("/", async (req, res) => {
       }
     } else {
       base = await storage.getAllProperties();
+      console.log(`Debug: Retrieved ${base.length} properties from storage`);
     }
 
     let results = base.filter((p) => {
@@ -76,7 +77,8 @@ router.get("/", async (req, res) => {
       }
       // Only include publicly visible listings by default
       if (status && p.status !== status) return false;
-      if (!status && p.status && p.status !== "active") return false;
+      // Include all properties by default (no status filtering)
+      // if (!status && p.status && p.status !== "active") return false;
 
       if (q) {
         const t = q.toLowerCase();
@@ -172,7 +174,7 @@ router.get("/map", async (req, res) => {
         longitude: p.longitude,
         bedrooms: p.bedrooms,
         bathrooms: p.bathrooms,
-        squareFeet: p.squareFeet,
+        areaSqm: (p as any).areaSqm ?? null,
         status: p.status,
       }));
     res.json(mapProperties);

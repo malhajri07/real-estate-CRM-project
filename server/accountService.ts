@@ -1,6 +1,6 @@
-import { db } from "./db";
-import { users, properties, leads, propertyInquiries, type User, type InsertUser } from "@shared/schema";
-import { eq, and, count, sql } from "drizzle-orm";
+import { storage } from "./storage-prisma";
+import { type User, type Lead } from "@shared/types";
+// Note: Drizzle ORM imports removed - using Prisma storage instead
 
 export class AccountService {
   

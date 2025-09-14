@@ -1,17 +1,17 @@
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import PublicLayout from "@/components/layout/PublicLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AgencyPage() {
   const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = useQuery<{ agency: any; agents: any[]; listings: any[] }>({ queryKey: ["/api/agencies", id] });
-  if (isLoading) return <PublicLayout title={t('public.agency_title')}><div className="text-gray-600">...جار التحميل</div></PublicLayout>;
-  if (error || !data) return <PublicLayout title={t('public.agency_title')}><div>تعذر تحميل الوكالة</div></PublicLayout>;
+  
+  if (isLoading) return <div className="text-gray-600">...جار التحميل</div>;
+  if (error || !data) return <div>تعذر تحميل الوكالة</div>;
 
   return (
-    <PublicLayout title={data.agency?.companyName || `${data.agency?.firstName || ''} ${data.agency?.lastName || ''}`}>
+    <div>
       <div className="text-gray-600 mb-6">وسطاء: {data.agents.length} — إعلانات: {data.listings.length}</div>
 
       <h2 className="text-xl font-semibold mb-2">الوسطاء</h2>
@@ -31,6 +31,6 @@ export default function AgencyPage() {
           </div>
         ))}
       </div>
-    </PublicLayout>
+    </div>
   );
 }

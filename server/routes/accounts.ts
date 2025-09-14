@@ -1,8 +1,6 @@
 import { Router } from "express";
-import { accountService } from "../accountService";
-import { db } from "../db";
-import { users, properties, propertyInquiries } from "@shared/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { storage } from "../storage-prisma";
+import { type User } from "@shared/types";
 
 const router = Router();
 
@@ -21,8 +19,8 @@ router.post("/register", async (req, res) => {
     }
 
     // Check if email already exists
-    const existingUser = await db.select().from(users).where(eq(users.email, userData.email)).limit(1);
-    if (existingUser.length > 0) {
+    const existingUser = await storage.getUserByEmail(userData.email);
+    if (existingUser) {
       return res.status(409).json({ error: "Email already registered" });
     }
 

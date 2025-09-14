@@ -47,6 +47,11 @@ export async function setupVite(app: Express, server: Server) {
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
 
+    // Skip API routes - let them be handled by the API middleware
+    if (url.startsWith('/api/')) {
+      return next();
+    }
+
     try {
       const clientTemplate = path.resolve(
         __dirname,
@@ -61,6 +66,16 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`,
       );
+      
+      // Add a script to set the server port for client-side detection
+      // This will override any existing SERVER_PORT from Vite plugins
+      const portScript = `
+        <script>
+          window.SERVER_PORT = '${process.env.PORT || '5001'}';
+        </script>
+      `;
+      template = template.replace('</head>', `${portScript}</head>`);
+      
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {

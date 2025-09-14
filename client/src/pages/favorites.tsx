@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Property } from "@shared/schema";
+import type { Property } from "@shared/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent } from "@/components/ui/card";
 import ListingCard from "@/components/listings/ListingCard";

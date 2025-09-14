@@ -65,7 +65,7 @@ export default function ComparePage() {
                 <div className="text-sm">النوع: {p.propertyType || '-'}</div>
                 <div className="text-sm">الغرف: {p.bedrooms ?? '-'}</div>
                 <div className="text-sm">الحمامات: {typeof p.bathrooms === 'string' ? p.bathrooms : (p.bathrooms ?? '-')}</div>
-                <div className="text-sm">المساحة: {p.squareFeet ?? '-'} متر²</div>
+            <div className="text-sm">المساحة: {(p as any).areaSqm ?? '-'} متر²</div>
               </CardContent>
             </Card>
           ))}

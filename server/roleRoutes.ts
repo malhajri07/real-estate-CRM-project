@@ -9,7 +9,7 @@ import {
   UserLevel,
   type AuthenticatedRequest 
 } from "./authMiddleware";
-import { insertUserPermissionsSchema } from "@shared/schema";
+// Note: insertUserPermissionsSchema needs to be defined or imported from the correct location
 import { z } from "zod";
 
 export function registerRoleBasedRoutes(app: Express) {
@@ -24,21 +24,16 @@ export function registerRoleBasedRoutes(app: Express) {
       try {
         const user = req.user;
         
-        // Access storage and database imports from the storage module
-        const { db } = await import("./db");
-        const { users } = await import("@shared/schema");
-        const { eq } = await import("drizzle-orm");
+        // Use Prisma storage for database operations
         
         if (user.userLevel === UserLevel.PLATFORM_ADMIN) {
           // Platform admin can see all users
-          const allUsers = await db.select().from(users);
+          const allUsers = await storage.getAllUsers();
           return res.json(allUsers);
         }
         
         // Account owners can see their sub-accounts
-        const subAccounts = await db.select()
-          .from(users)
-          .where(eq(users.accountOwnerId, user.id));
+        const subAccounts = await storage.getUsersByOrganization(user.organizationId || '');
         
         res.json([user, ...subAccounts]);
       } catch (error) {
@@ -85,8 +80,8 @@ export function registerRoleBasedRoutes(app: Express) {
 
         // Update seat count
         const { db } = await import("./db");
-        const { users } = await import("@shared/schema");
-        const { eq } = await import("drizzle-orm");
+        // Note: users table access needs to be updated for Prisma
+        // const { eq } = await import("drizzle-orm"); // Drizzle removed
         
         await db.update(users)
           .set({ usedSeats: currentUser.usedSeats + 1 })
@@ -139,8 +134,8 @@ export function registerRoleBasedRoutes(app: Express) {
     async (req: AuthenticatedRequest, res) => {
       try {
         const { db } = await import("./db");
-        const { users } = await import("@shared/schema");
-        const { eq } = await import("drizzle-orm");
+        // Note: users table access needs to be updated for Prisma
+        // const { eq } = await import("drizzle-orm"); // Drizzle removed
         
         const accounts = await db.select()
           .from(users)
@@ -168,8 +163,8 @@ export function registerRoleBasedRoutes(app: Express) {
         }
 
         const { db } = await import("./db");
-        const { users } = await import("@shared/schema");
-        const { eq } = await import("drizzle-orm");
+        // Note: users table access needs to be updated for Prisma
+        // const { eq } = await import("drizzle-orm"); // Drizzle removed
         
         const subAccounts = await db.select()
           .from(users)
@@ -209,8 +204,8 @@ export function registerRoleBasedRoutes(app: Express) {
         const { isActive } = req.body;
 
         const { db } = await import("./db");
-        const { users } = await import("@shared/schema");
-        const { eq } = await import("drizzle-orm");
+        // Note: users table access needs to be updated for Prisma
+        // const { eq } = await import("drizzle-orm"); // Drizzle removed
         
         await db.update(users)
           .set({ isActive })

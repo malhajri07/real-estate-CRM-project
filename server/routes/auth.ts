@@ -28,7 +28,7 @@
  * Pages affected: Login page, RBAC login page, user registration, admin panel
  */
 
-import express from 'express';
+import * as express from 'express';
 import { z } from 'zod';
 import { login, register, impersonateUser, authenticateToken } from '../auth';
 import { requireRole } from '../rbac';
@@ -70,7 +70,7 @@ const registerSchema = z.object({
   firstName: z.string().min(1),
   lastName: z.string().min(1),
   phone: z.string().optional(),
-  roles: z.array(z.nativeEnum(UserRole)).min(1),
+  roles: z.string().min(1), // Store as string to match database
   organizationId: z.string().optional()
 });
 

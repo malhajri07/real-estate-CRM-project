@@ -1,5 +1,4 @@
 import { useState } from "react";
-import PublicLayout from "@/components/layout/PublicLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function PostListingPage() {
@@ -48,7 +47,7 @@ export default function PostListingPage() {
   };
 
   return (
-    <PublicLayout title={t('public.post_title')}>
+    <>
       <form onSubmit={onSubmit} className="apple-card p-6 space-y-4">
         <input className="border p-2 w-full" placeholder="العنوان" name="title" value={form.title} onChange={onChange} required />
         <input className="border p-2 w-full" placeholder="العنوان التفصيلي" name="address" value={form.address} onChange={onChange} required />
@@ -69,6 +68,6 @@ export default function PostListingPage() {
         <button className="bg-green-600 text-white px-4 py-2 rounded" disabled={submitting}>{submitting ? '...جاري الإرسال' : 'إرسال للمراجعة'}</button>
         {message && <div className="text-sm mt-2">{message}</div>}
       </form>
-    </PublicLayout>
+    </>
   );
 }

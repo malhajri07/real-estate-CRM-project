@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Property } from "@shared/schema";
-import PublicLayout from "@/components/layout/PublicLayout";
+import type { Property } from "@shared/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ModerationQueuePage() {
@@ -24,7 +23,7 @@ export default function ModerationQueuePage() {
   });
 
   return (
-    <PublicLayout title={t('public.moderation_title')}>
+    <>
       {isLoading && <div className="text-gray-600">...جار التحميل</div>}
       {!isLoading && items.length === 0 && <div className="text-gray-600">لا توجد إعلانات للمراجعة</div>}
       <div className="space-y-3">
@@ -41,6 +40,6 @@ export default function ModerationQueuePage() {
           </div>
         ))}
       </div>
-    </PublicLayout>
+    </>
   );
 }

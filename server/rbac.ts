@@ -17,10 +17,20 @@ declare global {
       user?: {
         id: string;
         email: string;
-        roles: UserRole[];
+        roles: string; // Store as string to match database
         organizationId?: string;
       };
     }
+  }
+}
+
+// Helper function to parse roles string to array
+function parseRoles(rolesString: string): UserRole[] {
+  try {
+    return JSON.parse(rolesString) as UserRole[];
+  } catch {
+    // If parsing fails, treat as single role
+    return [rolesString as UserRole];
   }
 }
 
@@ -68,8 +78,9 @@ export const ROLE_PERMISSIONS = {
 };
 
 // Check if user has specific permission
-export function hasPermission(userRoles: UserRole[], permission: string): boolean {
-  return userRoles.some(role => 
+export function hasPermission(userRoles: string, permission: string): boolean {
+  const roles = parseRoles(userRoles);
+  return roles.some(role => 
     ROLE_PERMISSIONS[role]?.includes(permission)
   );
 }
