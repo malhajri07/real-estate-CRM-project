@@ -46,10 +46,7 @@
 /* ===== RTL (Right-to-Left) Layout Fixes ===== */
 /* These styles ensure proper Arabic text rendering and layout */
 
-/* Set Arabic font family for RTL content */
-[dir="rtl"] {
-  font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
-}
+/* Remove forced font-family for RTL; use Tailwind font-sans everywhere */
 
 /* RTL spacing fixes - Convert left margins to right margins */
 [dir="rtl"] .space-x-4 > * + * {
@@ -99,10 +96,8 @@
   left: 0;
 }
 
-/* Fix any potential overflow issues */
-[dir="rtl"] .overflow-hidden {
-  overflow: hidden;
-}
+/* Avoid overly broad overflow suppression that creates nested scrollbars */
+/* Removed global [dir=rtl] .overflow-hidden rule */
 
 /* RTL Support */
 .rtl {
@@ -124,17 +119,18 @@
 
 /* Normalized Content Panel Components */
 @layer components {
+  /* Removed custom platform helpers in favor of Tailwind utilities within components */
   .content-panel {
-    @apply max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 sm:p-8;
+    @apply max-w-7xl mx-auto bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8;
   }
   .content-header {
     @apply mb-6 flex items-center justify-between gap-4;
   }
   .content-title {
-    @apply text-2xl font-bold text-gray-900 dark:text-gray-100;
+    @apply text-2xl font-bold text-gray-900;
   }
   .content-subtitle {
-    @apply text-gray-600 dark:text-gray-300;
+    @apply text-gray-600;
   }
   .content-actions {
     @apply flex items-center gap-2;
@@ -146,11 +142,13 @@
     @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
   }
   .content-divider {
-    @apply my-6 border-t border-gray-200 dark:border-gray-700;
+    @apply my-6 border-t border-gray-200;
   }
   .content-tabs {
-    @apply w-full flex flex-row-reverse flex-nowrap items-center justify-start gap-2 rounded-2xl bg-slate-50 dark:bg-gray-900/40 p-2 ring-1 ring-slate-200 dark:ring-gray-700 overflow-x-auto no-scrollbar;
+    @apply w-full flex flex-row-reverse flex-nowrap items-center justify-start gap-2 rounded-2xl bg-slate-50 p-2 ring-1 ring-slate-200 overflow-x-auto no-scrollbar;
   }
+
+  /* Removed design helper classes (panel, bg-modal-filter) to rely purely on Tailwind utilities */
 
 }
 
@@ -200,10 +198,65 @@
   border-color: hsl(var(--border));
 }
 
+/* Leaflet popup theming for the property search map */
+.property-map-popup .leaflet-popup-content {
+  margin: 0;
+  direction: rtl;
+  text-align: right;
+  font-family: inherit;
+}
+
+.property-map-popup__content {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 220px;
+}
+
+.property-map-popup__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: rgb(17 24 39);
+}
+
+.property-map-popup__address {
+  font-size: 0.75rem;
+  color: rgb(107 114 128);
+}
+
+.property-map-popup__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.property-map-popup__price {
+  font-weight: 700;
+  color: rgb(5 150 105);
+  font-size: 0.95rem;
+}
+
+.property-map-popup__badge {
+  background: rgb(241 245 249);
+  color: rgb(51 65 85);
+  padding: 0.1rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.property-map-popup__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: rgb(100 116 139);
+}
+
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: 'Janat Bold', 'Noto Sans Arabic', Inter, system-ui, -apple-system, sans-serif;
+  /* font-family is controlled by Tailwind's font-sans */
   font-feature-settings: 'rlig' 1, 'calt' 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -216,11 +269,6 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.125);
 }
 
-.dark .glass-effect {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: saturate(180%) blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
 
 /* Apple-style shadows */
 .apple-shadow {
@@ -245,9 +293,6 @@ body {
   color: hsl(var(--brand-blue)) !important;
 }
 
-.dark .apple-card svg {
-  color: hsl(var(--brand-blue)) !important;
-}
 
 .apple-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.12);
@@ -322,7 +367,7 @@ body {
   --brand-cream: hsl(48 26% 97%);
   --brand-green-light: hsl(145 25% 85%);
   --brand-blue-dark: hsl(205 70% 20%);
-  --font-sans: 'Janat Bold', 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Noto Sans Arabic', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'New York', 'Times New Roman', serif;
   --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
   --radius: 0.875rem;
@@ -331,35 +376,6 @@ body {
   --error: hsl(0 84% 60%);
 }
 
-.dark {
-  --background: hsl(205 70% 8%);
-  --foreground: hsl(48 26% 95%);
-  --card: hsl(205 70% 12%);
-  --card-foreground: hsl(48 26% 95%);
-  --popover: hsl(205 70% 8%);
-  --popover-foreground: hsl(48 26% 95%);
-  --primary: hsl(145 35% 58%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(205 30% 16%);
-  --secondary-foreground: hsl(48 26% 95%);
-  --muted: hsl(205 30% 16%);
-  --muted-foreground: hsl(48 20% 65%);
-  --accent: hsl(205 30% 16%);
-  --accent-foreground: hsl(48 26% 95%);
-  --destructive: hsl(0 84% 60%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --border: transparent;
-  --input: hsl(205 30% 16%);
-  --ring: hsl(145 35% 58%);
-  --sidebar: hsl(205 70% 12%);
-  --sidebar-foreground: hsl(48 26% 95%);
-  --sidebar-primary: hsl(145 35% 58%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(205 30% 16%);
-  --sidebar-accent-foreground: hsl(48 26% 95%);
-  --sidebar-border: hsl(205 30% 20%);
-  --sidebar-ring: hsl(145 35% 58%);
-}
 
 @layer base {
   * {
@@ -430,9 +446,7 @@ html, body {
   color: rgba(0, 0, 0, 0.4);
 }
 
-.bg-modal-filter {
-  background-color: #edf1ee;
-}
+/* Removed .bg-modal-filter in favor of Tailwind utility classes */
 
 /* Float and Positioning Classes */
 .float-right {

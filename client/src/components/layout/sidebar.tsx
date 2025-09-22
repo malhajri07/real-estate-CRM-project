@@ -33,8 +33,8 @@ const getNavigationItems = (t: (key: string) => string): NavItem[] => [
   { path: "/favorites", labelKey: "nav.favorites", icon: Heart },
   { path: "/compare", labelKey: "nav.compare", icon: Shuffle },
   { path: "/home/platform/moderation", label: "المراجعة", icon: ShieldCheck },
-  { path: "/admin/requests", label: "طلبات العملاء", icon: Bookmark },
-  { path: "/home/admin", label: "لوحة الإدارة", icon: Shield },
+  // Use the platform-accessible requests page instead of server-only admin route
+  { path: "/real-estate-requests", label: "طلبات العملاء", icon: Bookmark },
 ];
 
 const getBottomItems = (t: (key: string) => string): NavItem[] => [
@@ -49,7 +49,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
   const bottomItems = getBottomItems(t);
 
   return (
-    <div className="w-64 md:w-72 bg-white dark:bg-gray-900 text-slate-700 dark:text-gray-200 shadow-md border-l border-slate-200 dark:border-gray-700 fixed right-0 top-0 h-full overflow-y-auto z-50">
+    <div className="w-64 md:w-72 bg-white text-slate-700 shadow-md border-l border-slate-200 fixed right-0 top-0 h-full overflow-y-auto z-50">
       <div className="p-4">
         <div className="flex justify-center">
           <img 
@@ -74,13 +74,13 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                     "flex items-center px-3 py-2 rounded-md transition-colors font-medium",
                     isActive
                       ? "bg-emerald-600 text-white shadow"
-                      : "text-slate-700 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-gray-800"
+                      : "text-slate-700 hover:bg-slate-100"
                   )}
                 >
                   <div className={cn(
                     "w-6 h-6 flex items-center justify-center rounded-lg",
                     dir === 'rtl' ? 'ml-3' : 'mr-3',
-                    isActive ? "text-white" : "text-slate-500 dark:text-gray-400"
+                    isActive ? "text-white" : "text-slate-500"
                   )}>
                     <Icon size={18} />
                   </div>
@@ -98,7 +98,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           })}
         </ul>
         
-        <div className="mt-4 pt-3 border-t border-slate-200 dark:border-gray-700">
+        <div className="mt-4 pt-3 border-t border-slate-200">
           <ul className="space-y-0">
             {bottomItems.map((item) => {
               const Icon = item.icon;
@@ -107,7 +107,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                 <li key={item.path}>
                   <Link
                     href={item.path}
-                    className="flex items-center px-3 py-2 rounded-md transition-colors font-medium text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800"
+                    className="flex items-center px-3 py-2 rounded-md transition-colors font-medium text-slate-600 hover:bg-slate-100"
                   >
                     <div className={cn(
                       "w-6 h-6 flex items-center justify-center rounded-lg",
@@ -124,7 +124,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
               <li>
                 <button
                   onClick={onLogout}
-                  className="w-full flex items-center px-3 py-2 rounded-md transition-colors font-medium text-slate-600 dark:text-gray-400 hover:bg-slate-100 dark:hover:bg-gray-800"
+                  className="w-full flex items-center px-3 py-2 rounded-md transition-colors font-medium text-slate-600 hover:bg-slate-100"
                   data-testid="button-logout"
                 >
                   <div className={cn(

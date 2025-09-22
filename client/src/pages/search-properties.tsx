@@ -1,386 +1,674 @@
 /**
- * client/src/pages/search-properties.tsx - Property Search Page
- * 
- * This page provides a comprehensive property search interface that uses the backend
- * database for all property data. It includes:
- * - Search filters and sorting options
- * - Property grid display
- * - Pagination
- * - Real-time search results
- * 
- * Dependencies:
- * - React hooks for state management
- * - TanStack Query for data fetching
- * - Shadcn UI components for interface
- * - Backend API for property data
+ * Search Properties Page - Map & Table Experience
+ *
+ * Provides a lightweight property discovery flow for end users with:
+ * - Shared header search that filters map markers and tabular results
+ * - Simple favourites toggling using in-memory state
+ * - Map and table view toggles for spatial or tabular exploration
  */
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Search, Filter, MapPin, Bed, Bath, Square, Calendar } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Header from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { PhotoCarousel } from "@/components/ui/photo-carousel";
+import { Heart, LayoutList, Map as MapIcon, Building2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import type { Property } from "@shared/types";
 
-interface SearchFilters {
-  query: string;
-  type: string;
-  city: string;
-  minPrice: string;
-  maxPrice: string;
-  bedrooms: string;
-  bathrooms: string;
-  sortBy: string;
+// Leaflet constants
+const LEAFLET_JS_ID = "leaflet-js";
+const LEAFLET_CSS_ID = "leaflet-css";
+const DEFAULT_MAP_CENTER: [number, number] = [24.7136, 46.6753];
+const DEFAULT_MAP_ZOOM = 6;
+const USER_LOCATION_ZOOM = 12;
+
+interface ApiListing {
+  id: string;
+  title?: string | null;
+  address?: string | null;
+  city?: string | null;
+  price?: number | null;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  areaSqm?: number | null;
+  squareFeet?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  listings?: Array<{ id: string; price: number | null | undefined }>;
 }
 
-export default function SearchProperties() {
-  const [, setLocation] = useLocation();
-  const { toast } = useToast();
-  
-  const [filters, setFilters] = useState<SearchFilters>({
-    query: "",
-    type: "",
-    city: "",
-    minPrice: "",
-    maxPrice: "",
-    bedrooms: "",
-    bathrooms: "",
-    sortBy: "newest"
-  });
+interface ListingsResponse {
+  items: ApiListing[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
 
-  const [showFilters, setShowFilters] = useState(false);
+interface PropertySummary {
+  id: string;
+  title: string;
+  address: string;
+  city: string;
+  price: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  areaSqm: number | null;
+  latitude: number | null;
+  longitude: number | null;
+}
 
-  // Fetch properties from backend database
-  const { data: properties, isLoading, error } = useQuery({
-    queryKey: ["properties", filters],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      if (filters.query) params.append("search", filters.query);
-      if (filters.type) params.append("type", filters.type);
-      if (filters.city) params.append("city", filters.city);
-      if (filters.minPrice) params.append("minPrice", filters.minPrice);
-      if (filters.maxPrice) params.append("maxPrice", filters.maxPrice);
-      if (filters.bedrooms) params.append("bedrooms", filters.bedrooms);
-      if (filters.bathrooms) params.append("bathrooms", filters.bathrooms);
-      if (filters.sortBy) params.append("sortBy", filters.sortBy);
-
-      const response = await apiRequest(`/api/listings?${params.toString()}`);
-      return response.data || [];
-    },
-    staleTime: 30000, // Cache for 30 seconds
-  });
-
-  const handleFilterChange = (key: keyof SearchFilters, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      query: "",
-      type: "",
-      city: "",
-      minPrice: "",
-      maxPrice: "",
-      bedrooms: "",
-      bathrooms: "",
-      sortBy: "newest"
-    });
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("ar-SA", {
-      style: "currency",
-      currency: "SAR",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const formatDate = (date: string) => {
-    return new Intl.DateTimeFormat("ar-SA", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(new Date(date));
-  };
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">خطأ في تحميل البيانات</h2>
-          <p className="text-muted-foreground">حدث خطأ أثناء تحميل العقارات. يرجى المحاولة مرة أخرى.</p>
-        </div>
-      </div>
-    );
+const asNumber = (value: unknown): number | null => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
   }
 
+  if (typeof value === "string") {
+    const normalized = value.trim().replace(/[^\d.,-]/g, "").replace(/,/g, "");
+    if (!normalized) return null;
+    const parsed = Number(normalized);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+};
+
+const sqmFromSquareFeet = (squareFeet: number | null) =>
+  squareFeet && squareFeet > 0 ? Math.round(squareFeet * 0.092903) : null;
+
+const formatCurrency = (value: number | null | undefined) => {
+  if (typeof value !== "number" || Number.isNaN(value)) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "SAR",
+    minimumFractionDigits: 0,
+  }).format(value);
+};
+
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"]|'/g, (match) => {
+    switch (match) {
+      case "&":
+        return "&amp;";
+      case "<":
+        return "&lt;";
+      case ">":
+        return "&gt;";
+      case '"':
+        return "&quot;";
+      case "'":
+        return "&#39;";
+      default:
+        return match;
+    }
+  });
+
+// Utility function to load Leaflet dynamically
+const ensureLeaflet = async () => {
+  if (typeof window === "undefined") return null;
+
+  if ((window as any).L) {
+    return (window as any).L;
+  }
+
+  if (!document.getElementById(LEAFLET_CSS_ID)) {
+    const link = document.createElement("link");
+    link.id = LEAFLET_CSS_ID;
+    link.rel = "stylesheet";
+    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    document.head.appendChild(link);
+  }
+
+  const existingScript = document.getElementById(LEAFLET_JS_ID) as HTMLScriptElement | null;
+  if (existingScript) {
+    return new Promise((resolve, reject) => {
+      existingScript.addEventListener("load", () => resolve((window as any).L));
+      existingScript.addEventListener("error", reject);
+    });
+  }
+
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.id = LEAFLET_JS_ID;
+    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    script.async = true;
+    script.onload = () => resolve((window as any).L);
+    script.onerror = reject;
+    document.body.appendChild(script);
+  });
+};
+
+export default function SearchProperties() {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const userLocationMarkerRef = useRef<any>(null);
+  const [, setLocation] = useLocation();
+
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"map" | "table">("map");
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedQuery(query.trim());
+    }, 400);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [query]);
+
+  const listingsQuery = useQuery<ListingsResponse>({
+    queryKey: ["public-property-search", debouncedQuery],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (debouncedQuery) params.set("q", debouncedQuery);
+      params.set("pageSize", "100");
+      const response = await apiRequest("GET", `/api/listings?${params.toString()}`);
+      return (await response.json()) as ListingsResponse;
+    },
+    keepPreviousData: true,
+  });
+
+  const properties = useMemo<PropertySummary[]>(() => {
+    if (!listingsQuery.data?.items) return [];
+
+    return listingsQuery.data.items.map((item) => {
+      const fallbackListing = item.listings?.find((listing) =>
+        typeof listing?.price === "number" && !Number.isNaN(listing.price)
+      );
+
+      const price = asNumber(item.price) ?? asNumber(fallbackListing?.price);
+      const area = asNumber(item.areaSqm) ?? sqmFromSquareFeet(asNumber(item.squareFeet));
+
+      return {
+        id: item.id,
+        title: item.title?.trim().length ? item.title : "عقار بدون عنوان",
+        address: item.address ?? "",
+        city: item.city ?? "",
+        price,
+        bedrooms: asNumber(item.bedrooms),
+        bathrooms: asNumber(item.bathrooms),
+        areaSqm: area,
+        latitude: asNumber(item.latitude),
+        longitude: asNumber(item.longitude),
+      };
+    });
+  }, [listingsQuery.data]);
+
+  const filteredProperties = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return properties.filter((property) => {
+      const searchHaystack = [property.title, property.city, property.address]
+        .filter((value) => value)
+        .map((value) => value.toLowerCase());
+
+      const matchesQuery =
+        normalizedQuery.length === 0 ||
+        searchHaystack.some((text) => text.includes(normalizedQuery));
+
+      const isFavourite = favoriteIds.includes(property.id);
+      return matchesQuery && (!showFavoritesOnly || isFavourite);
+    });
+  }, [properties, query, favoriteIds, showFavoritesOnly]);
+
+  const toggleFavorite = (propertyId: string) => {
+    setFavoriteIds((prev) =>
+      prev.includes(propertyId)
+        ? prev.filter((id) => id !== propertyId)
+        : [...prev, propertyId]
+    );
+  };
+
+  const navigateToProperty = (propertyId: string) => {
+    if (!propertyId) return;
+    setLocation(`/properties/${propertyId}`);
+  };
+
+  const getPlaceholderLabel = (title: string, city: string) => {
+    const source = title?.trim() || city?.trim() || "عقار";
+    return source.slice(0, 2);
+  };
+
+  // Attempt to detect user location once when the component mounts.
+  useEffect(() => {
+    if (typeof window === "undefined" || !navigator?.geolocation) {
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+          setUserLocation([latitude, longitude]);
+        }
+      },
+      () => {
+        // Silently ignore errors; we keep the default center.
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 60_000,
+      },
+    );
+  }, []);
+
+  // Initialize Leaflet map lazily when map view is active
+  useEffect(() => {
+    if (viewMode !== "map") return;
+
+    let cancelled = false;
+
+    const initMap = async () => {
+      try {
+        const L = await ensureLeaflet();
+        if (cancelled || !mapContainerRef.current || !L) return;
+
+        const center = userLocation ?? DEFAULT_MAP_CENTER;
+        const zoom = userLocation ? USER_LOCATION_ZOOM : DEFAULT_MAP_ZOOM;
+
+        if (!mapInstanceRef.current) {
+          const map = L.map(mapContainerRef.current, {
+            zoomControl: true,
+            scrollWheelZoom: true,
+            closePopupOnClick: true,
+            attributionControl: true,
+          }).setView(center, zoom);
+
+          const tileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            className: "grayscale-map-tiles",
+          }).addTo(map);
+
+          const tileElement = tileLayer.getContainer();
+          if (tileElement) {
+            tileElement.style.filter = "grayscale(100%)";
+          }
+
+          mapInstanceRef.current = map;
+        } else {
+          mapInstanceRef.current.invalidateSize();
+        }
+      } catch (error) {
+        console.error("Error loading Leaflet:", error);
+      }
+    };
+
+    void initMap();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [viewMode]);
+
+  // Tear down Leaflet instance when leaving the map view so it can be
+  // recreated cleanly on the next toggle. This avoids the map
+  // disappearing after switching to the table view and back because the
+  // underlying DOM node gets unmounted.
+  useEffect(() => {
+    if (viewMode === "map") return;
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
+    markersRef.current = [];
+    if (userLocationMarkerRef.current) {
+      userLocationMarkerRef.current.remove();
+      userLocationMarkerRef.current = null;
+    }
+  }, [viewMode]);
+
+  // Sync map markers whenever the filtered dataset changes
+  useEffect(() => {
+    if (viewMode !== "map") return;
+
+    const map = mapInstanceRef.current;
+    const L = (window as any)?.L;
+
+    if (!map || !L) return;
+
+    markersRef.current.forEach((marker) => {
+      map.removeLayer(marker);
+    });
+    markersRef.current = [];
+
+    const points: [number, number][] = [];
+
+    const closeAllTooltips = () => {
+      markersRef.current.forEach((marker) => marker.closeTooltip());
+    };
+
+    map.on("click", closeAllTooltips);
+
+    filteredProperties.forEach((property) => {
+      if (property.latitude === null || property.longitude === null) return;
+
+      const priceLabel = formatCurrency(property.price);
+      const iconHtml = `
+        <div class="flex -translate-x-1/2 -translate-y-full transform">
+          <div class="relative inline-flex items-center rounded-full border border-white/60 bg-emerald-600/95 px-3 py-1 text-[11px] font-semibold text-white shadow-lg shadow-emerald-500/30 backdrop-blur">
+            <span>${escapeHtml(priceLabel)}</span>
+            <span class="absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 -translate-y-[1px] rounded-full border border-white/70 bg-emerald-600/90"></span>
+          </div>
+        </div>
+      `.trim();
+
+      const marker = L.marker([property.latitude, property.longitude], {
+        icon: L.divIcon({
+          html: iconHtml,
+          className: "",
+          iconSize: [0, 0],
+          iconAnchor: [0, 0],
+        }),
+      }).addTo(map);
+
+      const title = escapeHtml(property.title);
+      const city = escapeHtml(property.city.trim().length > 0 ? property.city : "غير محدد");
+      const address = escapeHtml(
+        property.address.trim().length > 0 ? property.address : "العنوان غير متوفر"
+      );
+      const areaText =
+        property.areaSqm !== null
+          ? `${property.areaSqm.toLocaleString("ar-SA")} م²`
+          : "المساحة غير محددة";
+
+      const tooltipHtml = `
+        <div class="w-56 rounded-2xl border border-border/50 bg-white/95 p-3 shadow-2xl shadow-slate-900/10 backdrop-blur">
+          <p class="text-sm font-semibold text-foreground">${title}</p>
+          <p class="mt-1 text-xs text-muted-foreground">${city} • ${address}</p>
+          <div class="mt-3 flex items-center justify-between text-xs">
+            <span class="font-semibold text-emerald-600">${escapeHtml(priceLabel)}</span>
+            <span class="text-muted-foreground">${escapeHtml(areaText)}</span>
+          </div>
+        </div>
+      `.trim();
+
+      marker.bindTooltip(tooltipHtml, {
+        direction: "top",
+        offset: [0, -18],
+        className: "map-price-tooltip bg-transparent border-none shadow-none",
+        opacity: 1,
+        sticky: true,
+      });
+
+      marker.on("mouseover", () => marker.openTooltip());
+      marker.on("mouseout", () => marker.closeTooltip());
+      marker.on("focus", () => marker.openTooltip());
+      marker.on("blur", () => marker.closeTooltip());
+      marker.on("click", () => marker.openTooltip());
+
+      markersRef.current.push(marker);
+      points.push([property.latitude, property.longitude]);
+    });
+
+    if (points.length > 0) {
+      const bounds = L.latLngBounds(points);
+      map.fitBounds(bounds, { padding: [40, 40] });
+    } else {
+      map.setView([24.7136, 46.6753], 6);
+    }
+
+    return () => {
+      map.off("click", closeAllTooltips);
+    };
+  }, [filteredProperties, viewMode]);
+
+  // Center on the detected user location and render a marker when available.
+  useEffect(() => {
+    if (viewMode !== "map") return;
+
+    const map = mapInstanceRef.current;
+    const L = (window as any)?.L;
+
+    if (!map || !L) return;
+
+    if (!userLocation) {
+      if (userLocationMarkerRef.current) {
+        userLocationMarkerRef.current.remove();
+        userLocationMarkerRef.current = null;
+      }
+      return;
+    }
+
+    const [lat, lng] = userLocation;
+    map.flyTo([lat, lng], USER_LOCATION_ZOOM, { animate: true, duration: 0.8 });
+
+    if (!userLocationMarkerRef.current) {
+      userLocationMarkerRef.current = L.circleMarker([lat, lng], {
+        radius: 8,
+        color: "#2563EB",
+        weight: 2,
+        fillColor: "#3B82F6",
+        fillOpacity: 0.7,
+      }).addTo(map);
+    } else {
+      userLocationMarkerRef.current.setLatLng([lat, lng]);
+    }
+  }, [userLocation, viewMode]);
+
+  // Cleanup map instance when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+      if (userLocationMarkerRef.current) {
+        userLocationMarkerRef.current.remove();
+        userLocationMarkerRef.current = null;
+      }
+    };
+  }, []);
+
+  const resultCount = filteredProperties.length;
+  const isLoading = listingsQuery.isLoading;
+  const isRefreshing = listingsQuery.isFetching && !listingsQuery.isLoading;
+  const hasError = listingsQuery.isError;
+  const showEmptyState = !isLoading && !isRefreshing && !hasError && resultCount === 0;
+
+  const emptyMessage = showFavoritesOnly
+    ? "لا توجد عقارات مفضلة مطابقة لبحثك الحالي."
+    : "لم يتم العثور على عقارات مطابقة لبحثك.";
+
+  const statusMessage = hasError
+    ? "تعذر تحميل العقارات حاليًا. حاول مرة أخرى لاحقًا."
+    : isLoading
+      ? "جار تحميل العقارات..."
+      : isRefreshing
+        ? "جار تحديث النتائج..."
+        : resultCount
+          ? `وجدنا ${resultCount} عقارًا${showFavoritesOnly ? " في مفضلتك" : ""}`
+          : emptyMessage;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
-      <div className="container mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">البحث في العقارات</h1>
-          <p className="text-muted-foreground">ابحث عن العقار المناسب لك من قاعدة البيانات</p>
+    <div className="min-h-screen bg-background">
+      <Header
+        onSearch={setQuery}
+        searchPlaceholder="ابحث عن مدينة، حي أو وصف للعقار"
+        showActions={false}
+      />
+
+      <main className="mx-auto flex w-full max-w-10xl flex-col gap-6 px-4 pb-10 pt-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold text-foreground">
+              استكشف العقارات المتاحة
+            </h1>
+            <p className="text-sm text-muted-foreground">{statusMessage}</p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant={viewMode === "map" ? "default" : "outline"}
+              onClick={() => setViewMode("map")}
+            >
+              <MapIcon className="h-4 w-4" />
+              <span>عرض الخريطة</span>
+            </Button>
+            <Button
+              type="button"
+              variant={viewMode === "table" ? "default" : "outline"}
+              onClick={() => setViewMode("table")}
+            >
+              <LayoutList className="h-4 w-4" />
+              <span>عرض الجدول</span>
+            </Button>
+            <Button
+              type="button"
+              variant={showFavoritesOnly ? "default" : "outline"}
+              onClick={() => setShowFavoritesOnly((prev) => !prev)}
+            >
+              <Heart className={`h-4 w-4 ${showFavoritesOnly ? "fill-current" : ""}`} />
+              <span>المفضلة فقط</span>
+            </Button>
+          </div>
         </div>
 
-        {/* Search Bar */}
-        <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="flex gap-4 items-center">
-              <div className="flex-1 relative">
-                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="ابحث عن عقار، مدينة، أو نوع العقار..."
-                  value={filters.query}
-                  onChange={(e) => handleFilterChange("query", e.target.value)}
-                  className="pr-10"
-                />
+        {viewMode === "map" ? (
+          <Card className="relative overflow-hidden border border-border shadow-lg">
+            <div
+              ref={mapContainerRef}
+              className="h-[calc(100vh-10rem)] min-h-[520px] w-full"
+            />
+
+            {(isLoading || isRefreshing) && (
+              <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+                <span className="text-sm text-muted-foreground">
+                  {isLoading ? "جار تحميل الخريطة..." : "جار تحديث الخريطة..."}
+                </span>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2"
-              >
-                <Filter className="h-4 w-4" />
-                فلاتر
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Filters */}
-        {showFilters && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                فلاتر البحث
-                <Button variant="ghost" size="sm" onClick={clearFilters}>
-                  مسح الفلاتر
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">نوع العقار</label>
-                  <Select value={filters.type} onValueChange={(value) => handleFilterChange("type", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="جميع الأنواع" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">جميع الأنواع</SelectItem>
-                      <SelectItem value="apartment">شقة</SelectItem>
-                      <SelectItem value="villa">فيلا</SelectItem>
-                      <SelectItem value="house">منزل</SelectItem>
-                      <SelectItem value="office">مكتب</SelectItem>
-                      <SelectItem value="shop">محل تجاري</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">المدينة</label>
-                  <Select value={filters.city} onValueChange={(value) => handleFilterChange("city", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="جميع المدن" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">جميع المدن</SelectItem>
-                      <SelectItem value="الرياض">الرياض</SelectItem>
-                      <SelectItem value="جدة">جدة</SelectItem>
-                      <SelectItem value="الدمام">الدمام</SelectItem>
-                      <SelectItem value="مكة المكرمة">مكة المكرمة</SelectItem>
-                      <SelectItem value="المدينة المنورة">المدينة المنورة</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">السعر من</label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={filters.minPrice}
-                    onChange={(e) => handleFilterChange("minPrice", e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">السعر إلى</label>
-                  <Input
-                    type="number"
-                    placeholder="1000000"
-                    value={filters.maxPrice}
-                    onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">عدد الغرف</label>
-                  <Select value={filters.bedrooms} onValueChange={(value) => handleFilterChange("bedrooms", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="أي عدد" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">أي عدد</SelectItem>
-                      <SelectItem value="1">1+</SelectItem>
-                      <SelectItem value="2">2+</SelectItem>
-                      <SelectItem value="3">3+</SelectItem>
-                      <SelectItem value="4">4+</SelectItem>
-                      <SelectItem value="5">5+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">عدد الحمامات</label>
-                  <Select value={filters.bathrooms} onValueChange={(value) => handleFilterChange("bathrooms", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="أي عدد" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">أي عدد</SelectItem>
-                      <SelectItem value="1">1+</SelectItem>
-                      <SelectItem value="2">2+</SelectItem>
-                      <SelectItem value="3">3+</SelectItem>
-                      <SelectItem value="4">4+</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">ترتيب حسب</label>
-                  <Select value={filters.sortBy} onValueChange={(value) => handleFilterChange("sortBy", value)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="newest">الأحدث</SelectItem>
-                      <SelectItem value="oldest">الأقدم</SelectItem>
-                      <SelectItem value="price_asc">السعر: من الأقل للأعلى</SelectItem>
-                      <SelectItem value="price_desc">السعر: من الأعلى للأقل</SelectItem>
-                      <SelectItem value="area_asc">المساحة: من الأصغر للأكبر</SelectItem>
-                      <SelectItem value="area_desc">المساحة: من الأكبر للأصغر</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Results */}
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold">
-            نتائج البحث
-            {properties && (
-              <span className="text-muted-foreground font-normal mr-2">
-                ({properties.length} عقار)
-              </span>
             )}
-          </h2>
-        </div>
 
-        {/* Properties Grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
-                <div className="h-48 bg-muted rounded-t-lg"></div>
-                <CardContent className="p-4">
-                  <div className="h-4 bg-muted rounded mb-2"></div>
-                  <div className="h-3 bg-muted rounded mb-4"></div>
-                  <div className="flex gap-2">
-                    <div className="h-3 bg-muted rounded flex-1"></div>
-                    <div className="h-3 bg-muted rounded flex-1"></div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : properties && properties.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property: Property) => (
-              <Card key={property.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-                <div className="relative">
-                  <PhotoCarousel
-                    images={property.images || []}
-                    className="h-48 w-full object-cover rounded-t-lg"
-                  />
-                  <Badge className="absolute top-2 right-2 bg-primary/90">
-                    {property.status === "available" ? "متاح" : 
-                     property.status === "sold" ? "مباع" : "محجوز"}
-                  </Badge>
-                </div>
-                
-                <CardContent className="p-4">
-                  <div className="mb-3">
-                    <h3 className="font-semibold text-lg mb-1 line-clamp-1">
-                      {property.title}
-                    </h3>
-                    <div className="flex items-center text-muted-foreground text-sm mb-2">
-                      <MapPin className="h-4 w-4 ml-1" />
-                      {property.city}, {property.state}
-                    </div>
-                  </div>
+            {showEmptyState && (
+              <div className="absolute inset-0 flex items-center justify-center bg-background/70 px-6 text-center text-sm text-muted-foreground backdrop-blur-sm">
+                {emptyMessage}
+              </div>
+            )}
 
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                    <div className="flex items-center gap-1">
-                      <Bed className="h-4 w-4" />
-                      {property.bedrooms}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Bath className="h-4 w-4" />
-                      {property.bathrooms}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Square className="h-4 w-4" />
-                      {property.area} م²
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-2xl font-bold text-primary">
-                      {formatPrice(property.price)}
-                    </span>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      {formatDate(property.createdAt)}
-                    </div>
-                  </div>
-
-                  <Button 
-                    className="w-full" 
-                    onClick={() => setLocation(`/property/${property.id}`)}
-                  >
-                    عرض التفاصيل
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+            {hasError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-background/70 px-6 text-center text-sm text-destructive backdrop-blur-sm">
+                تعذر تحميل بيانات الخريطة، يرجى المحاولة مرة أخرى لاحقًا.
+              </div>
+            )}
+          </Card>
         ) : (
           <Card>
-            <CardContent className="p-8 text-center">
-              <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-semibold mb-2">لم يتم العثور على عقارات</h3>
-              <p className="text-muted-foreground mb-4">
-                جرب تعديل فلاتر البحث أو البحث بكلمات مختلفة
-              </p>
-              <Button variant="outline" onClick={clearFilters}>
-                مسح الفلاتر
-              </Button>
+            <CardContent className="space-y-4 p-6 md:p-8">
+              {filteredProperties.length > 0 ? (
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {filteredProperties.map((property) => {
+                    const isFavourite = favoriteIds.includes(property.id);
+
+                    return (
+                      <div
+                        key={property.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => navigateToProperty(property.id)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            navigateToProperty(property.id);
+                          }
+                        }}
+                        className="group relative flex h-full flex-col gap-4 rounded-2xl border border-border/40 bg-white/90 p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-400/60 hover:shadow-lg hover:shadow-emerald-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
+                      >
+                        <header className="flex items-start justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-12 w-12 overflow-hidden rounded-2xl bg-gradient-to-br from-slate-100 via-white to-slate-200 shadow-inner ring-1 ring-border/60">
+                              <div className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-muted-foreground">
+                                {property.latitude !== null && property.longitude !== null ? (
+                                  <Building2 className="h-4 w-4" />
+                                ) : (
+                                  getPlaceholderLabel(property.title, property.city)
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <p className="text-sm font-semibold text-foreground line-clamp-2">
+                                {property.title}
+                              </p>
+                              <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
+                                <span className="font-medium text-emerald-600">
+                                  {property.city.trim().length > 0 ? property.city : "—"}
+                                </span>
+                                <span className="text-muted-foreground/40">•</span>
+                                <span className="line-clamp-1">
+                                  {property.address.trim().length > 0
+                                    ? property.address
+                                    : "العنوان غير متوفر"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              toggleFavorite(property.id);
+                            }}
+                            onKeyDown={(event) => {
+                              event.stopPropagation();
+                            }}
+                            aria-pressed={isFavourite}
+                            aria-label={isFavourite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                            className="transition-colors hover:bg-transparent"
+                          >
+                            <Heart
+                              className={`h-5 w-5 transition-colors ${
+                                isFavourite
+                                  ? "text-rose-500"
+                                  : "text-muted-foreground hover:text-rose-400"
+                              } ${isFavourite ? "fill-current" : ""}`}
+                            />
+                          </Button>
+                        </header>
+
+                        <div className="flex flex-wrap items-center gap-2 text-[12px] text-muted-foreground">
+                          <Badge variant="outline" className="rounded-full border-border/60 bg-white/80 px-3 py-1 font-medium">
+                            🛏️ {property.bedrooms ?? "—"} غرف
+                          </Badge>
+                          <Badge variant="outline" className="rounded-full border-border/60 bg-white/80 px-3 py-1 font-medium">
+                            🛁 {property.bathrooms ?? "—"} دورات
+                          </Badge>
+                          <Badge variant="outline" className="rounded-full border-border/60 bg-white/80 px-3 py-1 font-medium">
+                            {property.areaSqm !== null
+                              ? `${property.areaSqm.toLocaleString("en-US")} m²`
+                              : "المساحة غير متوفرة"}
+                          </Badge>
+                        </div>
+
+                        <footer className="mt-auto flex items-center justify-between text-sm">
+                          <span className="font-semibold text-emerald-600">
+                            {formatCurrency(property.price)}
+                          </span>
+                          <span className="text-[12px] text-muted-foreground">
+                            اضغط لعرض التفاصيل
+                          </span>
+                        </footer>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-16 text-center text-sm text-muted-foreground">
+                  {statusMessage}
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
-      </div>
+      </main>
     </div>
   );
 }

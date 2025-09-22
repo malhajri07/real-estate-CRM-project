@@ -29,7 +29,7 @@ export default function SavedSearchesPage() {
   });
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
+    <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100">
       <Card className="mb-6">
         <CardContent className="p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">عمليات البحث المحفوظة</h1>

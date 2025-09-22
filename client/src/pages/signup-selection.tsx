@@ -1,196 +1,185 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building, Building2, User, Shield, Users, Phone, Mail, MapPin } from "lucide-react";
 import { useLocation } from "wouter";
-import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
-import agarkomFooterLogo from "@assets/6_1756507125793.png";
+import { UserRound, Check, Home } from "lucide-react";
+import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
 
 export default function SignupSelection() {
   const [, setLocation] = useLocation();
 
-  const handleIndividualSignup = () => {
-    setLocation("/signup/individual");
-  };
-
-  const handleCorporateSignup = () => {
-    setLocation("/signup/corporate");
-  };
+  const goHome = () => setLocation("/");
+  const handleIndividualSignup = () => setLocation("/signup/individual");
+  const handleCorporateSignup = () => setLocation("/signup/corporate");
+  const handleBuyerPool = () => setLocation("/real-estate-requests");
+  const handleSellerListing = () => setLocation("/post-listing");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-lg shadow-lg border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center items-center h-16">
-            <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-              <Building className="h-8 w-8 text-green-600 ml-3" />
-              <span className="text-xl font-bold text-gray-900 hover:text-green-600 transition-colors">منصة عقاراتي</span>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50">
+      <header className="bg-white/90 backdrop-blur-xl border-b border-white/60 shadow-[0_6px_20px_rgba(15,23,42,0.05)]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-[82px]">
+            <Button
+              onClick={goHome}
+              variant="ghost"
+              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+            >
+              العودة للرئيسية
+            </Button>
+            <button
+              onClick={goHome}
+              className="flex flex-row-reverse items-center"
+            >
+              <span className="sr-only">الانتقال إلى الصفحة الرئيسية</span>
+              <img src={agarkomLogo} alt="شعار منصة عقاراتي" className="h-16 object-contain" />
+            </button>
           </div>
         </div>
       </header>
 
-      <div className="flex items-center justify-center p-4 py-20">
-        <div className="w-full max-w-4xl">
-          {/* Content Header */}
-          <div className="text-center mb-12">
-            <div className="flex justify-center mb-6">
-              <img 
-                src={logoImage} 
-                alt="شعار عقاراتي" 
-                className="w-32 h-32 object-contain"
-              />
-            </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-4">
-              انضم إلى منصة عقاراتي
+      <main className="px-4 py-16">
+        <div className="max-w-5xl mx-auto space-y-12">
+          <div className="space-y-4 text-right">
+            <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
+              اختر الطريقة الأنسب للانضمام إلى المنصة
             </h1>
-            <p className="text-slate-600 text-lg">
-              اختر نوع الحساب المناسب لك
+            <p className="text-lg text-slate-500 leading-relaxed">
+              لست بحاجة إلى إعدادات معقدة. اختر المسار الذي يعكس دورك وستحصل على تجربة مصممة بعناية لإدارة العقارات والعملاء بكل سلاسة.
             </p>
           </div>
 
-          {/* Account Type Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* Individual Account */}
-            <div className="group cursor-pointer" onClick={handleIndividualSignup}>
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-500 p-10 hover:border-green-200/70">
-                <div className="text-right">
-                  <div className="flex justify-end mb-8">
-                    <div className="w-18 h-18 bg-gradient-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center group-hover:from-green-100 group-hover:to-green-150 transition-all duration-300 shadow-sm">
-                      <User className="h-9 w-9 text-green-600" />
-                    </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="rounded-[32px] border border-white/80 bg-white/80 backdrop-blur-xl shadow-[0_40px_120px_rgba(15,23,42,0.08)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_50px_140px_rgba(15,23,42,0.12)]">
+              <CardHeader className="space-y-4 text-right">
+                <div className="flex items-center justify-end gap-4">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700">
+                    <UserRound className="h-7 w-7" strokeWidth={1.6} />
+                  </span>
+                  <div className="space-y-2">
+                    <CardTitle className="text-2xl font-semibold text-slate-900">
+                      وسيط عقاري معتمد
+                    </CardTitle>
+                    <p className="text-sm text-slate-500 leading-7">
+                      لوحة تحكم تعكس المعايير الاحترافية للوسطاء والشركات مع أدوات دقيقة لتنظيم الصفقات والفرق.
+                    </p>
                   </div>
-                  
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3 text-right tracking-tight">
-                    حساب الأفراد
-                  </h3>
-                  <p className="text-gray-600 mb-10 text-right leading-7 text-lg">
-                    للوسطاء العقاريين الأفراد والممارسين المستقلين
-                  </p>
-                  
-                  <div className="space-y-4 mb-12">
-                    <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
-                      <span className="text-right font-medium">إدارة محفظة العقارات الشخصية</span>
-                    </div>
-                    <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
-                      <span className="text-right font-medium">متابعة العملاء المحتملين</span>
-                    </div>
-                    <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
-                      <span className="text-right font-medium">تقارير الأداء الشخصية</span>
-                    </div>
-                    <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
-                      <span className="text-right font-medium">دعم فني على مدار الساعة</span>
-                    </div>
-                  </div>
-                  
-                  <Button className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-4 rounded-2xl font-semibold text-lg shadow-[0_4px_20px_rgba(34,197,94,0.25)] hover:shadow-[0_6px_25px_rgba(34,197,94,0.35)] transition-all duration-300 transform hover:scale-[1.02]">
-                    إنشاء حساب الأفراد
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Button
+                    onClick={handleIndividualSignup}
+                    className="h-12 rounded-2xl bg-emerald-600 text-white text-base font-semibold shadow-[0_20px_45px_rgba(16,185,129,0.25)] hover:bg-emerald-700"
+                  >
+                    وسيط مستقل
+                  </Button>
+                  <Button
+                    onClick={handleCorporateSignup}
+                    variant="outline"
+                    className="h-12 rounded-2xl border-emerald-200 text-emerald-700 text-base font-semibold hover:border-emerald-300"
+                  >
+                    منشأة عقارية
                   </Button>
                 </div>
-              </div>
-            </div>
+                <ul className="space-y-3 text-sm text-slate-600">
+                  <li className="flex items-center justify-end gap-3">
+                    <span className="rounded-xl border border-emerald-100 bg-emerald-50 p-1.5 text-emerald-600">
+                      <Check className="h-4 w-4" strokeWidth={1.8} />
+                    </span>
+                    <span>إدارة متقدمة للمحفظة والصفقات ومتابعة الأداء اليومي للفريق.</span>
+                  </li>
+                  <li className="flex items-center justify-end gap-3">
+                    <span className="rounded-xl border border-emerald-100 bg-emerald-50 p-1.5 text-emerald-600">
+                      <Check className="h-4 w-4" strokeWidth={1.8} />
+                    </span>
+                    <span>مركز موحد لمتابعة العملاء المحتملين والتواصل معهم باحترافية.</span>
+                  </li>
+                  <li className="flex items-center justify-end gap-3">
+                    <span className="rounded-xl border border-emerald-100 bg-emerald-50 p-1.5 text-emerald-600">
+                      <Check className="h-4 w-4" strokeWidth={1.8} />
+                    </span>
+                    <span>تقارير فورية تساعدك على اتخاذ قرارات دقيقة دون عناء.</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
 
-            {/* Corporate Account */}
-            <div className="group cursor-pointer" onClick={handleCorporateSignup}>
-              <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-200/50 shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-500 p-10 hover:border-green-200/70">
-                <div className="text-right">
-                  <div className="flex justify-end mb-8">
-                    <div className="w-18 h-18 bg-gradient-to-br from-green-50 to-green-100 rounded-3xl flex items-center justify-center group-hover:from-green-100 group-hover:to-green-150 transition-all duration-300 shadow-sm">
-                      <Building2 className="h-9 w-9 text-green-600" />
-                    </div>
+            <Card className="rounded-[32px] border border-white/80 bg-white/80 backdrop-blur-xl shadow-[0_40px_120px_rgba(15,23,42,0.08)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_50px_140px_rgba(15,23,42,0.12)]">
+              <CardHeader className="space-y-4 text-right">
+                <div className="flex items-center justify-end gap-4">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-100 to-blue-200 text-blue-700">
+                    <Home className="h-7 w-7" strokeWidth={1.6} />
+                  </span>
+                  <div className="space-y-2">
+                    <CardTitle className="text-2xl font-semibold text-slate-900">
+                      باحث عن عقار أو مالك عقار
+                    </CardTitle>
+                    <p className="text-sm text-slate-500 leading-7">
+                      شاركنا تفضيلاتك أو تفاصيل عقارك لتحصل على دعم نخبة الوسطاء المعتمدين بسرعة واحترافية.
+                    </p>
                   </div>
-                  
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3 text-right tracking-tight">
-                    حساب الشركات والمؤسسات
-                  </h3>
-                  <p className="text-gray-600 mb-10 text-right leading-7 text-lg">
-                    للشركات العقارية والمكاتب العقارية الكبيرة
-                  </p>
-                  
-                  <div className="space-y-4 mb-12">
-                    <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
-                      <span className="text-right font-medium">إدارة فرق العمل المتعددة</span>
-                    </div>
-                    <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
-                      <span className="text-right font-medium">تقارير شاملة للشركة</span>
-                    </div>
-                    <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
-                      <span className="text-right font-medium">صلاحيات مرنة للموظفين</span>
-                    </div>
-                    <div className="flex items-center text-gray-700 text-base">
-                      <div className="w-2 h-2 bg-green-400 rounded-full ml-4"></div>
-                      <span className="text-right font-medium">دعم فني مخصص</span>
-                    </div>
-                  </div>
-                  
-                  <Button className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-4 rounded-2xl font-semibold text-lg shadow-[0_4px_20px_rgba(34,197,94,0.25)] hover:shadow-[0_6px_25px_rgba(34,197,94,0.35)] transition-all duration-300 transform hover:scale-[1.02]">
-                    إنشاء حساب الشركات والمؤسسات
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Button
+                    onClick={handleBuyerPool}
+                    className="h-12 rounded-2xl bg-blue-600 text-white text-base font-semibold shadow-[0_20px_45px_rgba(37,99,235,0.22)] hover:bg-blue-700"
+                  >
+                    انضم كمشتري
+                  </Button>
+                  <Button
+                    onClick={handleSellerListing}
+                    variant="outline"
+                    className="h-12 rounded-2xl border-blue-200 text-blue-700 text-base font-semibold hover:border-blue-300"
+                  >
+                    أدرج عقارك للبيع
                   </Button>
                 </div>
-              </div>
-            </div>
+                <ul className="space-y-3 text-sm text-slate-600">
+                  <li className="flex items-center justify-end gap-3">
+                    <span className="rounded-xl border border-blue-100 bg-blue-50 p-1.5 text-blue-600">
+                      <Check className="h-4 w-4" strokeWidth={1.8} />
+                    </span>
+                    <span>مواءمة فورية بين احتياجاتك وقاعدة بيانات العقارات الموثوقة.</span>
+                  </li>
+                  <li className="flex items-center justify-end gap-3">
+                    <span className="rounded-xl border border-blue-100 bg-blue-50 p-1.5 text-blue-600">
+                      <Check className="h-4 w-4" strokeWidth={1.8} />
+                    </span>
+                    <span>تواصل مباشر مع وسطاء مختارين بعناية لضمان أعلى جودة للخدمة.</span>
+                  </li>
+                  <li className="flex items-center justify-end gap-3">
+                    <span className="rounded-xl border border-blue-100 bg-blue-50 p-1.5 text-blue-600">
+                      <Check className="h-4 w-4" strokeWidth={1.8} />
+                    </span>
+                    <span>تجربة مبسطة لإدراج عقارك مع دعم فني في كل خطوة.</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Additional Info */}
-          <div className="text-center mt-12">
-            <p className="text-gray-500">
-              هل لديك حساب بالفعل؟ 
-              <a href="/login" className="text-green-600 hover:text-green-700 font-semibold mr-1">
+          <div className="flex flex-col items-center gap-3 text-right">
+            <p className="text-sm text-slate-500">
+              لديك حساب بالفعل؟
+              <a href="/login" className="mr-2 font-semibold text-emerald-600 hover:text-emerald-700">
                 تسجيل الدخول
               </a>
             </p>
+            <Button
+              variant="ghost"
+              onClick={goHome}
+              className="text-slate-500 hover:text-slate-700"
+            >
+              العودة للصفحة الرئيسية
+            </Button>
           </div>
         </div>
-      </div>
+      </main>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center mb-4">
-                <img 
-                  src={agarkomFooterLogo} 
-                  alt="عقارکم" 
-                  className="h-36 object-contain"
-                />
-              </div>
-              <p className="text-gray-400 mb-4">
-                نظام شامل لإدارة العقارات والعملاء والصفقات مع واجهة حديثة وسهلة الاستخدام
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">روابط سريعة</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#home" className="hover:text-green-400">الرئيسية</a></li>
-                <li><a href="#features" className="hover:text-green-400">المميزات</a></li>
-                <li><a href="#solutions" className="hover:text-green-400">الحلول</a></li>
-                <li><a href="#pricing" className="hover:text-green-400">الأسعار</a></li>
-                <li><a href="#contact" className="hover:text-green-400">اتصل بنا</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-4">الدعم</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>الهاتف: +966 50 123 4567</li>
-                <li>البريد: info@aqaraty.sa</li>
-                <li>الدعم الفني متاح 24/7</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>جميع الحقوق محفوظة © 2025 منصة عقاراتي لإدارة العقارات</p>
-          </div>
+      <footer className="px-4 pb-10">
+        <div className="max-w-5xl mx-auto text-center text-xs text-slate-400">
+          جميع الحقوق محفوظة © {new Date().getFullYear()} منصة عقاراتي
         </div>
       </footer>
     </div>

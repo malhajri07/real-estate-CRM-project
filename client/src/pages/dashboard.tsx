@@ -68,51 +68,51 @@ export default function Dashboard() {
 
   return (
     <>
-      <main className="h-full overflow-y-auto p-8 bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
+      <main className="h-full overflow-y-auto p-8 bg-[#f5f5f7]">
         {/* Dashboard Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <div className="dashboard-card-minimal">
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow transition hover:shadow-md">
             <div className="flex items-center justify-between mb-4">
-              <div className="icon-container-minimal icon-users">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-sky-50 text-sky-700">
                 <Users size={20} />
               </div>
-              <div className="metric-number font-droid-kufi">{metrics?.totalLeads || 0}</div>
+              <div className="text-2xl font-bold text-slate-800 font-droid-kufi">{metrics?.totalLeads || 0}</div>
             </div>
-            <h3 className="metric-label mb-2">إجمالي العملاء المحتملين</h3>
-            <p className="metric-change-positive">+12% من الشهر الماضي</p>
+            <h3 className="text-sm text-slate-500 font-medium mb-2">إجمالي العملاء المحتملين</h3>
+            <p className="text-xs text-emerald-600 font-medium">+12% من الشهر الماضي</p>
           </div>
           
-          <div className="dashboard-card-minimal">
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow transition hover:shadow-md">
             <div className="flex items-center justify-between mb-4">
-              <div className="icon-container-minimal icon-buildings">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-700">
                 <Building size={20} />
               </div>
-              <div className="metric-number font-droid-kufi">{metrics?.activeProperties || 0}</div>
+              <div className="text-2xl font-bold text-slate-800 font-droid-kufi">{metrics?.activeProperties || 0}</div>
             </div>
-            <h3 className="metric-label mb-2">العقارات النشطة</h3>
-            <p className="metric-change-positive">+8% من الشهر الماضي</p>
+            <h3 className="text-sm text-slate-500 font-medium mb-2">العقارات النشطة</h3>
+            <p className="text-xs text-emerald-600 font-medium">+8% من الشهر الماضي</p>
           </div>
           
-          <div className="dashboard-card-minimal">
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow transition hover:shadow-md">
             <div className="flex items-center justify-between mb-4">
-              <div className="icon-container-minimal icon-deals">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-100 text-amber-600">
                 <Filter size={20} />
               </div>
-              <div className="metric-number font-droid-kufi">{metrics?.dealsInPipeline || 0}</div>
+              <div className="text-2xl font-bold text-slate-800 font-droid-kufi">{metrics?.dealsInPipeline || 0}</div>
             </div>
-            <h3 className="metric-label mb-2">الصفقات في المسار</h3>
-            <p className="metric-change-negative">-2% من الشهر الماضي</p>
+            <h3 className="text-sm text-slate-500 font-medium mb-2">الصفقات في المسار</h3>
+            <p className="text-xs text-rose-600 font-medium">-2% من الشهر الماضي</p>
           </div>
           
-          <div className="dashboard-card-minimal">
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow transition hover:shadow-md">
             <div className="flex items-center justify-between mb-4">
-              <div className="icon-container-minimal icon-revenue">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-pink-50 text-pink-700">
                 <Banknote size={20} />
               </div>
-              <div className="metric-number font-droid-kufi">{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
+              <div className="text-2xl font-bold text-slate-800 font-droid-kufi">{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
             </div>
-            <h3 className="metric-label mb-2">الإيرادات الشهرية</h3>
-            <p className="metric-change-positive">+24% من الشهر الماضي</p>
+            <h3 className="text-sm text-slate-500 font-medium mb-2">الإيرادات الشهرية</h3>
+            <p className="text-xs text-emerald-600 font-medium">+24% من الشهر الماضي</p>
           </div>
         </div>
 
@@ -120,59 +120,59 @@ export default function Dashboard() {
           {/* Recent Leads & Activities */}
           <div className="lg:col-span-2 space-y-8">
             {/* Deal Pipeline Overview - Moved to Top */}
-            <div className="section-card-minimal">
-              <div className="section-header-minimal">
-                <h2 className="section-title-minimal font-droid-kufi">
-                  <Filter className="section-icon-minimal" />
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-droid-kufi">
+                  <Filter className="w-5 h-5 text-slate-500" />
                   مراحل الصفقات
                 </h2>
               </div>
-              <div className="section-content-minimal">
+              <div className="p-6">
                 <div className="grid grid-cols-5 gap-4">
-                  <div className="pipeline-card-minimal">
-                    <div className="pipeline-number font-droid-kufi">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                    <div className="text-xl font-semibold text-slate-700 mb-1 font-droid-kufi">
                       {metrics?.pipelineByStage?.lead || 0}
                     </div>
-                    <div className="pipeline-label-leads">عملاء محتملين</div>
+                    <div className="text-xs text-slate-500 font-medium">عملاء محتملين</div>
                   </div>
 
-                  <div className="pipeline-card-minimal">
-                    <div className="pipeline-number font-droid-kufi">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                    <div className="text-xl font-semibold text-slate-700 mb-1 font-droid-kufi">
                       {metrics?.pipelineByStage?.qualified || 0}
                     </div>
-                    <div className="pipeline-label-qualified">مؤهل</div>
+                    <div className="text-xs text-slate-500 font-medium">مؤهل</div>
                   </div>
 
-                  <div className="pipeline-card-minimal">
-                    <div className="pipeline-number font-droid-kufi">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                    <div className="text-xl font-semibold text-slate-700 mb-1 font-droid-kufi">
                       {metrics?.pipelineByStage?.showing || 0}
                     </div>
-                    <div className="pipeline-label-showing">عرض</div>
+                    <div className="text-xs text-slate-500 font-medium">عرض</div>
                   </div>
 
-                  <div className="pipeline-card-minimal">
-                    <div className="pipeline-number font-droid-kufi">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                    <div className="text-xl font-semibold text-slate-700 mb-1 font-droid-kufi">
                       {metrics?.pipelineByStage?.negotiation || 0}
                     </div>
-                    <div className="pipeline-label-negotiation">تفاوض</div>
+                    <div className="text-xs text-slate-500 font-medium">تفاوض</div>
                   </div>
 
-                  <div className="pipeline-card-minimal">
-                    <div className="pipeline-number font-droid-kufi">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
+                    <div className="text-xl font-semibold text-slate-700 mb-1 font-droid-kufi">
                       {metrics?.pipelineByStage?.closed || 0}
                     </div>
-                    <div className="pipeline-label-closed">مغلق</div>
+                    <div className="text-xs text-slate-500 font-medium">مغلق</div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Recent Leads */}
-            <div className="section-card-minimal">
-              <div className="section-header-minimal">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
                 <div className="flex items-center justify-between">
-                  <h2 className="section-title-minimal font-droid-kufi">
-                    <Users className="section-icon-minimal" />
+                  <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-droid-kufi">
+                    <Users className="w-5 h-5 text-slate-500" />
                     العملاء المحتملين الجدد
                   </h2>
                   <Button variant="ghost" className="text-sm font-medium text-gray-600 hover:text-gray-800">
@@ -180,7 +180,7 @@ export default function Dashboard() {
                   </Button>
                 </div>
               </div>
-              <div className="section-content-minimal">
+              <div className="p-6">
                 {recentLeads.length === 0 ? (
                   <div className="text-center py-6 text-gray-500">
                     لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.
@@ -188,7 +188,7 @@ export default function Dashboard() {
                 ) : (
                   <div className="space-y-2">
                     {recentLeads.slice(0, 5).map((lead) => (
-                      <div key={lead.id} className="lead-item-minimal">
+                      <div key={lead.id} className="flex items-center justify-between px-3 py-2 rounded-lg border border-slate-100 bg-white hover:bg-slate-50 transition">
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center space-x-4 space-x-reverse">
                             <span className="font-semibold text-gray-900 tracking-tight font-droid-kufi">{lead.firstName} {lead.lastName}</span>
@@ -222,18 +222,18 @@ export default function Dashboard() {
           {/* Sidebar Widgets */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <div className="section-card-minimal">
-              <div className="section-header-minimal">
-                <h2 className="section-title-minimal font-droid-kufi">
-                  <Plus className="section-icon-minimal" />
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-droid-kufi">
+                  <Plus className="w-5 h-5 text-slate-500" />
                   إجراءات سريعة
                 </h2>
               </div>
-              <div className="section-content-minimal">
+              <div className="p-6">
                 <div className="space-y-3">
                   <Button 
                     variant="ghost" 
-                    className="action-button-minimal"
+                    className="w-full justify-start bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-right hover:bg-slate-100 transition"
                     onClick={() => setAddLeadModalOpen(true)}
                   >
                     <Plus className="ml-3 text-gray-600" size={16} />
@@ -241,17 +241,17 @@ export default function Dashboard() {
                   </Button>
                   <Button 
                     variant="ghost" 
-                    className="action-button-minimal"
+                    className="w-full justify-start bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-right hover:bg-slate-100 transition"
                     onClick={() => setAddPropertyModalOpen(true)}
                   >
                     <Home className="ml-3 text-gray-600" size={16} />
                     <span className="font-semibold text-gray-800">إدراج عقار</span>
                   </Button>
-                  <Button variant="ghost" className="action-button-minimal">
+                  <Button variant="ghost" className="w-full justify-start bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-right hover:bg-slate-100 transition">
                     <Calendar className="ml-3 text-gray-600" size={16} />
                     <span className="font-semibold text-gray-800">جدولة عرض</span>
                   </Button>
-                  <Button variant="ghost" className="action-button-minimal">
+                  <Button variant="ghost" className="w-full justify-start bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-right hover:bg-slate-100 transition">
                     <Download className="ml-3 text-gray-600" size={16} />
                     <span className="font-semibold text-gray-800">تصدير العملاء المحتملين</span>
                   </Button>
@@ -260,14 +260,14 @@ export default function Dashboard() {
             </div>
 
             {/* Today's Tasks */}
-            <div className="section-card-minimal">
-              <div className="section-header-minimal">
-                <h2 className="section-title-minimal font-droid-kufi">
-                  <Calendar className="section-icon-minimal" />
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-droid-kufi">
+                  <Calendar className="w-5 h-5 text-slate-500" />
                   مهام اليوم
                 </h2>
               </div>
-              <div className="section-content-minimal">
+              <div className="p-6">
                 {!todaysActivities || todaysActivities.length === 0 ? (
                   <div className="text-center py-4 text-gray-500">
                     لا توجد مهام مجدولة لهذا اليوم
@@ -275,7 +275,7 @@ export default function Dashboard() {
                 ) : (
                   <div className="space-y-3">
                     {todaysActivities.map((activity) => (
-                      <div key={activity.id} className="task-item-minimal">
+                      <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">
                         <input 
                           type="checkbox" 
                           checked={activity.completed}

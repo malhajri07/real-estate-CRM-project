@@ -155,6 +155,9 @@ export default {
         inter: ["Inter", "sans-serif"],
         arabic: ["Noto Sans Arabic", "sans-serif"],
       },
+      maxWidth: {
+        '10xl': '96rem',
+      },
       keyframes: {
         "accordion-down": {
           from: {

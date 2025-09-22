@@ -45,7 +45,7 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-slate-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-primary/10 to-slate-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -12,7 +12,7 @@ export default function KYCSubmitted() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100 flex items-center justify-center p-4" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
         {/* Gradient Header */}
         <div className="bg-gradient-to-r from-green-600 to-green-700 px-8 py-12 text-center">

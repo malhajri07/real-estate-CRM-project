@@ -89,19 +89,29 @@ export default function Settings() {
   };
 
   return (
-    <main className="container mx-auto py-8 px-6 max-w-6xl" dir="rtl">
-      <div className="mb-8 text-right">
-        <h1 className="text-3xl font-bold tracking-tight">الإعدادات</h1>
-        <p className="text-muted-foreground mt-2">إدارة إعدادات الحساب والملف الشخصي</p>
-      </div>
+    <div className="space-y-8">
+        <div className="apple-card px-6 py-5 flex flex-col gap-4 text-right">
+          <div>
+            <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 px-3 py-1 rounded-full text-xs">
+              إعدادات المنصة والملف الشخصي
+            </Badge>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">الإعدادات</h1>
+            <p className="text-muted-foreground mt-2">إدارة بيانات الشركة، التفضيلات الأمنية، وإعداد الإشعارات لأعضاء الفريق</p>
+          </div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button variant="outline" size="sm" className="rounded-xl" onClick={handleAccountSave}>
+              <Save size={16} className="ml-2" /> حفظ التغييرات العامة
+            </Button>
+          </div>
+        </div>
 
-      <Tabs defaultValue="account" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 apple-card">
-          <TabsTrigger value="account" className="flex items-center gap-2 flex-row-reverse hover:bg-primary/10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            <Building2 size={16} />
-            تفاصيل الحساب
-          </TabsTrigger>
-          <TabsTrigger value="profile" className="flex items-center gap-2 flex-row-reverse hover:bg-primary/10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+        <Tabs defaultValue="account" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 apple-card p-1 gap-1">
+            <TabsTrigger value="account" className="flex items-center gap-2 flex-row-reverse hover:bg-primary/10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Building2 size={16} />
+              تفاصيل الحساب
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-2 flex-row-reverse hover:bg-primary/10 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <User size={16} />
             الملف الشخصي
           </TabsTrigger>
@@ -113,10 +123,10 @@ export default function Settings() {
             <Bell size={16} />
             الإشعارات
           </TabsTrigger>
-        </TabsList>
+          </TabsList>
 
-        {/* Account Details Tab */}
-        <TabsContent value="account" className="space-y-6">
+          {/* Account Details Tab */}
+          <TabsContent value="account" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Company Information */}
             <Card className="apple-card">
@@ -134,7 +144,7 @@ export default function Settings() {
                   <Label htmlFor="companyName" className="float-right">اسم الشركة</Label>
                   <Input
                     id="companyName"
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={accountDetails.companyName}
                     onChange={(e) => setAccountDetails({...accountDetails, companyName: e.target.value})}
@@ -145,7 +155,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label htmlFor="businessType" className="float-right">نوع النشاط</Label>
                   <Select value={accountDetails.businessType} onValueChange={(value) => setAccountDetails({...accountDetails, businessType: value})}>
-                    <SelectTrigger dir="rtl" className="text-fade" data-testid="select-business-type">
+                    <SelectTrigger className="text-fade" data-testid="select-business-type">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -162,7 +172,7 @@ export default function Settings() {
                   <Label htmlFor="taxId" className="float-right">الرقم الضريبي</Label>
                   <Input
                     id="taxId"
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={accountDetails.taxId}
                     onChange={(e) => setAccountDetails({...accountDetails, taxId: e.target.value})}
@@ -175,7 +185,7 @@ export default function Settings() {
                   <Input
                     id="website"
                     type="url"
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={accountDetails.website}
                     onChange={(e) => setAccountDetails({...accountDetails, website: e.target.value})}
@@ -188,7 +198,7 @@ export default function Settings() {
                   <Textarea
                     id="description"
                     rows={3}
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={accountDetails.description}
                     onChange={(e) => setAccountDetails({...accountDetails, description: e.target.value})}
@@ -214,7 +224,7 @@ export default function Settings() {
                   <Label htmlFor="address" className="float-right">العنوان</Label>
                   <Input
                     id="address"
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={accountDetails.address}
                     onChange={(e) => setAccountDetails({...accountDetails, address: e.target.value})}
@@ -227,7 +237,7 @@ export default function Settings() {
                     <Label htmlFor="city" className="float-right">المدينة</Label>
                     <Input
                       id="city"
-                      dir="rtl"
+                     
                       className="text-fade"
                       value={accountDetails.city}
                       onChange={(e) => setAccountDetails({...accountDetails, city: e.target.value})}
@@ -238,7 +248,7 @@ export default function Settings() {
                     <Label htmlFor="postalCode" className="float-right">الرمز البريدي</Label>
                     <Input
                       id="postalCode"
-                      dir="rtl"
+                     
                       className="text-fade"
                       value={accountDetails.postalCode}
                       onChange={(e) => setAccountDetails({...accountDetails, postalCode: e.target.value})}
@@ -250,7 +260,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label htmlFor="country" className="float-right">البلد</Label>
                   <Select value={accountDetails.country} onValueChange={(value) => setAccountDetails({...accountDetails, country: value})}>
-                    <SelectTrigger dir="rtl" className="text-fade" data-testid="select-country">
+                    <SelectTrigger className="text-fade" data-testid="select-country">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -269,7 +279,7 @@ export default function Settings() {
                   <Input
                     id="phone"
                     type="tel"
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={accountDetails.phone}
                     onChange={(e) => setAccountDetails({...accountDetails, phone: e.target.value})}
@@ -282,7 +292,7 @@ export default function Settings() {
                   <Input
                     id="email"
                     type="email"
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={accountDetails.email}
                     onChange={(e) => setAccountDetails({...accountDetails, email: e.target.value})}
@@ -309,7 +319,7 @@ export default function Settings() {
                     <Label htmlFor="contactPerson" className="float-right">الاسم الكامل</Label>
                     <Input
                       id="contactPerson"
-                      dir="rtl"
+                     
                       className="text-fade"
                       value={accountDetails.contactPerson}
                       onChange={(e) => setAccountDetails({...accountDetails, contactPerson: e.target.value})}
@@ -320,7 +330,7 @@ export default function Settings() {
                     <Label htmlFor="contactTitle" className="float-right">المسمى الوظيفي</Label>
                     <Input
                       id="contactTitle"
-                      dir="rtl"
+                     
                       className="text-fade"
                       value={accountDetails.contactTitle}
                       onChange={(e) => setAccountDetails({...accountDetails, contactTitle: e.target.value})}
@@ -332,7 +342,7 @@ export default function Settings() {
                     <Input
                       id="contactPhone"
                       type="tel"
-                      dir="rtl"
+                     
                       className="text-fade"
                       value={accountDetails.contactPhone}
                       onChange={(e) => setAccountDetails({...accountDetails, contactPhone: e.target.value})}
@@ -344,7 +354,7 @@ export default function Settings() {
                     <Input
                       id="contactEmail"
                       type="email"
-                      dir="rtl"
+                     
                       className="text-fade"
                       value={accountDetails.contactEmail}
                       onChange={(e) => setAccountDetails({...accountDetails, contactEmail: e.target.value})}
@@ -399,7 +409,7 @@ export default function Settings() {
                   <Label htmlFor="firstName" className="float-right">الاسم الأول</Label>
                   <Input
                     id="firstName"
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={userProfile.firstName}
                     onChange={(e) => setUserProfile({...userProfile, firstName: e.target.value})}
@@ -410,7 +420,7 @@ export default function Settings() {
                   <Label htmlFor="lastName" className="float-right">اسم العائلة</Label>
                   <Input
                     id="lastName"
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={userProfile.lastName}
                     onChange={(e) => setUserProfile({...userProfile, lastName: e.target.value})}
@@ -422,7 +432,7 @@ export default function Settings() {
                   <Input
                     id="userEmail"
                     type="email"
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={userProfile.email}
                     onChange={(e) => setUserProfile({...userProfile, email: e.target.value})}
@@ -434,7 +444,7 @@ export default function Settings() {
                   <Input
                     id="userPhone"
                     type="tel"
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={userProfile.phone}
                     onChange={(e) => setUserProfile({...userProfile, phone: e.target.value})}
@@ -445,7 +455,7 @@ export default function Settings() {
                   <Label htmlFor="title" className="float-right">المسمى الوظيفي</Label>
                   <Input
                     id="title"
-                    dir="rtl"
+                   
                     className="text-fade"
                     value={userProfile.title}
                     onChange={(e) => setUserProfile({...userProfile, title: e.target.value})}
@@ -455,7 +465,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label htmlFor="department" className="float-right">القسم</Label>
                   <Select value={userProfile.department} onValueChange={(value) => setUserProfile({...userProfile, department: value})}>
-                    <SelectTrigger dir="rtl" className="text-fade" data-testid="select-department">
+                    <SelectTrigger className="text-fade" data-testid="select-department">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -495,15 +505,15 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword" className="float-right">كلمة المرور الحالية</Label>
-                <Input id="currentPassword" type="password" dir="rtl" className="text-fade" data-testid="input-current-password" />
+                <Input id="currentPassword" type="password" className="text-fade" data-testid="input-current-password" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="newPassword" className="float-right">كلمة المرور الجديدة</Label>
-                <Input id="newPassword" type="password" dir="rtl" className="text-fade" data-testid="input-new-password" />
+                <Input id="newPassword" type="password" className="text-fade" data-testid="input-new-password" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="float-right">تأكيد كلمة المرور الجديدة</Label>
-                <Input id="confirmPassword" type="password" dir="rtl" className="text-fade" data-testid="input-confirm-password" />
+                <Input id="confirmPassword" type="password" className="text-fade" data-testid="input-confirm-password" />
               </div>
               <Button className="flex items-center gap-2 flex-row-reverse" data-testid="button-change-password">
                 <Shield size={16} />
@@ -558,8 +568,8 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
-    </main>
+          </TabsContent>
+        </Tabs>
+    </div>
   );
 }

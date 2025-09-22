@@ -131,7 +131,7 @@ export default function Notifications() {
 
   return (
     <>
-      <main className="h-full overflow-y-auto p-6">
+      <main className="w-full space-y-6">
         <Tabs defaultValue="customers" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="customers">تفاصيل العملاء</TabsTrigger>

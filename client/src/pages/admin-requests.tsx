@@ -86,7 +86,7 @@ export default function AdminRequestsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-background" dir="rtl">
+    <div className="flex h-screen bg-background">
       <div className="flex-1 flex flex-col pr-72">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">

@@ -34,7 +34,7 @@ export default function ListingsPage() {
   const totalPages = Array.isArray(data) ? 1 : (data?.totalPages || 1);
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
+    <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100">
       <Card className="mb-6">
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">

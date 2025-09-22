@@ -216,7 +216,7 @@ export default function SignupIndividual() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

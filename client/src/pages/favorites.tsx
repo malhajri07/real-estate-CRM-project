@@ -12,7 +12,7 @@ export default function FavoritesPage() {
 
   if (isLoading) {
     return (
-      <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
+      <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100">
         <div className="text-center py-8 text-gray-600">...جار التحميل</div>
       </main>
     );
@@ -20,14 +20,14 @@ export default function FavoritesPage() {
 
   if (error) {
     return (
-      <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
+      <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100">
         <div className="text-center py-8 text-red-600">حدث خطأ في جلب المفضلة</div>
       </main>
     );
   }
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100" dir="rtl">
+    <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100">
       <Card className="mb-6">
         <CardContent className="p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">العقارات المفضلة</h1>

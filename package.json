@@ -13,7 +13,8 @@
     "ensure:admin": "tsx server/ensure-primary-admin.ts",
     "check": "tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**'",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**' --fix"
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**' --fix",
+    "import:users": "tsx server/import-users-from-csv.ts attached_assets/real_estate_users_500_clean.csv"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.17.0",
@@ -80,6 +81,7 @@
     "google-auth-library": "^10.3.0",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.2",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.453.0",
     "memoizee": "^0.4.17",
     "memorystore": "^1.6.7",
@@ -95,6 +97,7 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.55.0",
     "react-icons": "^5.4.0",
+    "react-leaflet": "^4.2.1",
     "react-resizable-panels": "^2.1.7",
     "recharts": "^2.15.2",
     "tailwind-merge": "^2.6.0",

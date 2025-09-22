@@ -73,7 +73,7 @@ export default function Clients() {
 
   return (
     <>
-      <main className="h-full overflow-y-auto p-6" dir="rtl">
+      <main className="w-full space-y-6">
         {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <Card className="apple-card">

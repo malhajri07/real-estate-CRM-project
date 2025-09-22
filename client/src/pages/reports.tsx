@@ -226,7 +226,7 @@ export default function Reports() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg text-right" dir="rtl">
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg text-right">
           <p className="font-medium text-gray-900 mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} style={{ color: entry.color }} className="text-sm flex justify-between items-center">
@@ -301,7 +301,7 @@ export default function Reports() {
 
   return (
     <>
-      <main className="h-full overflow-y-auto p-6" dir="rtl">
+      <main className="w-full space-y-6">
         {/* Report Controls */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4">

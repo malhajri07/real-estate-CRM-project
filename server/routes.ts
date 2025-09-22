@@ -28,6 +28,8 @@
  */
 
 import type { Express } from "express";
+import jwt from 'jsonwebtoken';
+import { hasPermission, getVisibilityScope } from './rbac-policy';
 import { createServer, type Server } from "http";
 /**
  * Uses Prisma-based storage for all database operations
@@ -502,10 +504,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Lead routes
+  // Helper: decode roles/org from Authorization header (simple-auth JWT)
+  function decodeAuth(req: any): { id?: string; roles: string[]; organizationId?: string } {
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      if (!token) return { roles: [] };
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      let roles: string[] = [];
+      try { roles = JSON.parse(decoded.roles || '[]'); } catch { if (decoded.roles) roles = [decoded.roles]; }
+      return { id: decoded.userId, roles, organizationId: decoded.organizationId };
+    } catch { return { roles: [] }; }
+  }
+
+  const requireAnyPerm = (perms: string[]) => (req: any, res: any, next: any) => {
+    const auth = decodeAuth(req);
+    if (perms.some(p => hasPermission(auth.roles, p as any))) return next();
+    return res.status(403).json({ message: 'Forbidden' });
+  };
+
   app.get("/api/leads", async (req, res) => {
     try {
+      const auth = decodeAuth(req);
       const leads = await storage.getAllLeads();
-      res.json(leads);
+      const scope = getVisibilityScope(auth.roles);
+      let filtered = leads;
+      if (scope === 'corporate') {
+        filtered = leads.filter((l: any) => l.agent?.organizationId && l.agent.organizationId === auth.organizationId);
+      } else if (scope === 'self') {
+        filtered = leads.filter((l: any) => l.agentId === auth.id);
+      }
+      res.json(filtered);
     } catch (error) {
       console.error("Error fetching leads:", error);
       res.status(500).json({ message: "Failed to fetch leads" });
@@ -537,7 +565,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/leads", async (req, res) => {
+  app.post("/api/leads", requireAnyPerm(['requests:manage:all','requests:manage:corporate','requests:pool:pickup']), async (req, res) => {
     try {
       const validatedData = insertLeadSchema.parse(req.body);
       const lead = await storage.createLead(validatedData);
@@ -550,7 +578,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/leads/:id", async (req, res) => {
+  app.put("/api/leads/:id", requireAnyPerm(['requests:manage:all','requests:manage:corporate','requests:pool:pickup']), async (req, res) => {
     try {
       const validatedData = insertLeadSchema.partial().parse(req.body);
       const lead = await storage.updateLead(req.params.id, validatedData);
@@ -566,7 +594,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/leads/:id", async (req, res) => {
+  app.delete("/api/leads/:id", requireAnyPerm(['requests:manage:all','requests:manage:corporate','requests:pool:pickup']), async (req, res) => {
     try {
       const deleted = await storage.deleteLead(req.params.id);
       if (!deleted) {

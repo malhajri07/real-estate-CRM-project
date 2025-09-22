@@ -12,8 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useDarkMode } from '@/contexts/DarkModeContext';
-import { Shield, Users, Building2, UserCheck, Activity, RefreshCw, Settings, Lock, Bell, BarChart3, Database, DollarSign, MessageSquare, Share2, Mail, Smartphone, FileText, TrendingUp, PieChart, CreditCard, AlertTriangle, ChevronDown, ChevronRight, Save, Edit, Eye, Plus, Trash2, GripVertical, Phone, MapPin, Link, Navigation, Star, Target, Zap, Globe, Heart, Award, CheckCircle, XCircle, Moon, Sun, LogOut } from 'lucide-react';
+import { Shield, Users, Building2, UserCheck, Activity, RefreshCw, Settings, Lock, Bell, BarChart3, Database, DollarSign, MessageSquare, Share2, Mail, Smartphone, FileText, TrendingUp, PieChart, CreditCard, AlertTriangle, Save, Edit, Eye, Plus, Trash2, GripVertical, Phone, MapPin, Link, Navigation, Star, Target, Zap, Globe, Heart, Award, CheckCircle, XCircle, Moon, Sun, LogOut } from 'lucide-react';
+import { AdminHeader } from '@/components/rbac/AdminHeader';
+import { AdminSidebar, type SidebarItem } from '@/components/rbac/AdminSidebar';
 
 interface User {
   id: string;
@@ -139,7 +140,6 @@ interface LandingPageContent {
 export default function RBACDashboard() {
   const { user, token, logout } = useAuth();
   const { dir } = useLanguage();
-  const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -157,6 +157,12 @@ export default function RBACDashboard() {
   const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
   const [showUserDialog, setShowUserDialog] = useState(false);
   const [showOrgDialog, setShowOrgDialog] = useState(false);
+
+  const authDisplayName =
+    user?.name ||
+    (typeof user?.username === 'string' && user.username) ||
+    (typeof user?.email === 'string' ? user.email.split('@')[0] : undefined);
+
   
   // CMS State
   const [landingPageContent, setLandingPageContent] = useState<LandingPageContent | null>(null);
@@ -165,7 +171,7 @@ export default function RBACDashboard() {
   const [activeContentTab, setActiveContentTab] = useState('hero');
   const [editingItem, setEditingItem] = useState<{type: string, id?: string} | null>(null);
 
-  const adminMenuItems = [
+  const adminMenuItems: SidebarItem[] = [
     {
       id: 'overview',
       label: 'نظرة عامة',
@@ -748,6 +754,13 @@ export default function RBACDashboard() {
   const [communicationStats, setCommunicationStats] = useState<any | null>(null);
   const [systemStats, setSystemStats] = useState<any | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
+
+  const pendingUserApprovals = users.filter((candidate) => candidate && candidate.isActive === false).length;
+  const pendingOrgApprovals = organizations.filter((org) => org && org.isActive === false).length;
+  const pendingVerifications =
+    (systemStats?.counts?.organizationsPendingVerification ?? 0) +
+    (systemStats?.counts?.agentsPendingVerification ?? 0);
+  const notificationBadgeCount = pendingUserApprovals + pendingOrgApprovals + pendingVerifications;
 
   const fetchAnalytics = async () => {
     try {
@@ -2588,95 +2601,63 @@ export default function RBACDashboard() {
                 ) : landingPageContent ? (
                   <div className="space-y-6">
                     {/* Content Tabs */}
-                    <Tabs dir="rtl" value={activeContentTab} onValueChange={setActiveContentTab}>
+                    <Tabs value={activeContentTab} onValueChange={setActiveContentTab}>
                       <div className="w-full">
                       <TabsList
-                        className="w-full flex flex-row-reverse flex-wrap items-center justify-end gap-4 rounded-2xl bg-white dark:bg-gray-900 p-2 ring-1 ring-slate-200 dark:ring-gray-700 shadow-sm"
+                        className="w-full flex flex-row-reverse flex-wrap items-center justify-end gap-4 rounded-2xl bg-white p-2 ring-1 ring-slate-200 shadow-sm"
                       >
                         <TabsTrigger
                           value="hero"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 dark:text-blue-200/90 transition min-w-[7.5rem]
-                                     hover:bg-white/70 dark:hover:bg-gray-800/80
-                                     data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800
-                                     data-[state=active]:text-blue-900 dark:data-[state=active]:text-blue-100
-                                     data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100 dark:data-[state=active]:ring-gray-700"
+                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
                         >
                           <span>البطل</span>
                           <Zap className="w-4 h-4 opacity-70" />
                         </TabsTrigger>
                         <TabsTrigger
                           value="features"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 dark:text-blue-200/90 transition min-w-[7.5rem]
-                                     hover:bg-white/70 dark:hover:bg-gray-800/80
-                                     data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800
-                                     data-[state=active]:text-blue-900 dark:data-[state=active]:text-blue-100
-                                     data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100 dark:data-[state=active]:ring-gray-700"
+                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
                         >
                           <span>الميزات</span>
                           <Star className="w-4 h-4 opacity-70" />
                         </TabsTrigger>
                         <TabsTrigger
                           value="stats"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 dark:text-blue-200/90 transition min-w-[7.5rem]
-                                     hover:bg-white/70 dark:hover:bg-gray-800/80
-                                     data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800
-                                     data-[state=active]:text-blue-900 dark:data-[state=active]:text-blue-100
-                                     data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100 dark:data-[state=active]:ring-gray-700"
+                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
                         >
                           <span>الإحصائيات</span>
                           <PieChart className="w-4 h-4 opacity-70" />
                         </TabsTrigger>
                         <TabsTrigger
                           value="solutions"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 dark:text-blue-200/90 transition min-w-[7.5rem]
-                                     hover:bg-white/70 dark:hover:bg-gray-800/80
-                                     data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800
-                                     data-[state=active]:text-blue-900 dark:data-[state=active]:text-blue-100
-                                     data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100 dark:data-[state=active]:ring-gray-700"
+                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
                         >
                           <span>الحلول</span>
                           <Target className="w-4 h-4 opacity-70" />
                         </TabsTrigger>
                         <TabsTrigger
                           value="pricing"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 dark:text-blue-200/90 transition min-w-[7.5rem]
-                                     hover:bg-white/70 dark:hover:bg-gray-800/80
-                                     data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800
-                                     data-[state=active]:text-blue-900 dark:data-[state=active]:text-blue-100
-                                     data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100 dark:data-[state=active]:ring-gray-700"
+                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
                         >
                           <span>الأسعار</span>
                           <DollarSign className="w-4 h-4 opacity-70" />
                         </TabsTrigger>
                         <TabsTrigger
                           value="contact"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 dark:text-blue-200/90 transition min-w-[7.5rem]
-                                     hover:bg-white/70 dark:hover:bg-gray-800/80
-                                     data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800
-                                     data-[state=active]:text-blue-900 dark:data-[state=active]:text-blue-100
-                                     data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100 dark:data-[state=active]:ring-gray-700"
+                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
                         >
                           <span>التواصل</span>
                           <Mail className="w-4 h-4 opacity-70" />
                         </TabsTrigger>
                         <TabsTrigger
                           value="navigation"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 dark:text-blue-200/90 transition min-w-[7.5rem]
-                                     hover:bg-white/70 dark:hover:bg-gray-800/80
-                                     data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800
-                                     data-[state=active]:text-blue-900 dark:data-[state=active]:text-blue-100
-                                     data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100 dark:data-[state=active]:ring-gray-700"
+                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
                         >
                           <span>التنقل</span>
                           <Navigation className="w-4 h-4 opacity-70" />
                         </TabsTrigger>
                         <TabsTrigger
                           value="footer"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 dark:text-blue-200/90 transition min-w-[7.5rem]
-                                     hover:bg-white/70 dark:hover:bg-gray-800/80
-                                     data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800
-                                     data-[state=active]:text-blue-900 dark:data-[state=active]:text-blue-100
-                                     data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100 dark:data-[state=active]:ring-gray-700"
+                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
                         >
                           <span>التذييل</span>
                           <FileText className="w-4 h-4 opacity-70" />
@@ -3622,143 +3603,44 @@ export default function RBACDashboard() {
             <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-600 mb-2">قيد التطوير</h3>
             <p className="text-gray-500">هذه الصفحة قيد التطوير وسيتم إضافتها قريباً</p>
-    </div>
-  );
-}
+          </div>
+        );
+    }
   };
 
   return (
-    <div className="h-screen bg-gray-50 dark:bg-gray-800" dir="rtl">
-      {/* Global fixed header across the viewport */}
-      <div className="bg-white dark:bg-gray-900 shadow-md fixed inset-x-0 top-0 z-50 h-20">
-        <div className="w-full px-6 sm:px-8 lg:px-12 h-full">
-          <div className="flex justify-between items-center h-full">
-            {/* Actions - left side */}
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                onClick={handleLogout}
-                className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
-                size="sm"
-                aria-label="تسجيل الخروج"
-              >
-                <LogOut size={16} />
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleBackToSelection}
-                className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
-                size="sm"
-                aria-label="العودة للمنصة"
-              >
-                <Navigation size={16} />
-              </Button>
-              <Button
-                variant="outline"
-                onClick={refreshData}
-                disabled={loading}
-                className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
-                size="sm"
-                aria-label="تحديث"
-              >
-                <RefreshCw size={16} className={cn(loading ? "animate-spin" : "")} />
-              </Button>
-              <Button
-                variant="outline"
-                onClick={toggleDarkMode}
-                className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700"
-                size="sm"
-                aria-label="وضع المظهر"
-              >
-                {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
-              </Button>
-            </div>
-            {/* Title - right side */}
-            <div className="flex items-center gap-4 flex-row-reverse">
-              <Shield className="w-8 h-8 text-blue-600" />
-              <div className="text-right">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">لوحة التحكم المتقدمة</h1>
-                <p className="text-gray-600 dark:text-gray-300">إدارة الأدوار والصلاحيات المتقدمة</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="h-screen bg-gray-50">
+      <AdminHeader
+        title="لوحة التحكم المتقدمة"
+        subtitle="إدارة الأدوار والصلاحيات المتقدمة"
+        icon={Shield}
+        onLogout={handleLogout}
+        onBack={handleBackToSelection}
+        onRefresh={refreshData}
+        loading={loading}
+        userName={authDisplayName}
+        notificationCount={notificationBadgeCount}
+      />
       <div className="fixed inset-x-0 top-20 bottom-0 flex flex-col md:flex-row min-h-0">
-        {/* Admin Sidebar - Right Side */}
-        <div className="order-last md:order-last w-full md:w-64 h-full bg-white dark:bg-gray-900 shadow-sm md:border-l border-t md:border-t-0 border-gray-200 dark:border-gray-800 flex-shrink-0 overflow-y-auto min-h-0 self-stretch flex flex-col">
-          <div className="p-6">
-            {/* Admin sidebar: every clickable has a deterministic id `Admin-<section>` for external mapping */}
-            <nav className="space-y-1.5 pb-6">
-              {adminMenuItems.map((item) => {
-                const isExpanded = expandedItems.includes(item.id);
-                const isActive = activeSidebarItem === item.id;
-                
-                return (
-                  <div key={item.id} className="space-y-1">
-                    {/* Main Menu Item */}
-                    <button
-                      id={`Admin-${item.id}`}
-                      data-admin-key={`Admin-${item.id}`}
-                      aria-label={item.label}
-                      className={`cursor-pointer select-none w-full flex items-center px-5 py-3 rounded-lg text-right transition-colors outline-none focus-visible:ring-2 ring-slate-300 dark:ring-gray-700 ${
-                        isActive
-                          ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }`}
-                      onClick={() => {
-                        setActiveSidebarItem(item.id);
-                        setActiveSubPage(item.subPages[0]?.id || '');
-                        setExpandedItems(prev => (prev[0] === item.id ? [] : [item.id]));
-                      }}
-                    >
-                      <div className="flex items-center gap-2 w-full">
-                        {isExpanded ? (
-                          <ChevronDown className="w-4 h-4" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4" />
-                        )}
-                        <span className="flex-1 text-right text-sm font-medium">{item.label}</span>
-                        <item.icon className={`w-5 h-5 ${dir === 'rtl' ? 'ml-4' : 'mr-4'}`} />
-                      </div>
-                    </button>
-                    
-                    {/* Sub Pages */}
-                    {isExpanded && item.subPages && (
-                      <div className="mr-3 space-y-1">
-                        {item.subPages.map((subPage) => (
-                          <button
-                            key={subPage.id}
-                            id={`Admin-${item.id}-${subPage.id}`}
-                            data-admin-key={`Admin-${item.id}-${subPage.id}`}
-                            aria-label={`${item.label} - ${subPage.label}`}
-                            className={`cursor-pointer select-none w-full flex items-center px-5 py-2 rounded-md text-right transition-colors text-sm outline-none focus-visible:ring-2 ring-slate-300 dark:ring-gray-700 ${
-                              activeSubPage === subPage.id
-                                ? 'bg-blue-100 text-blue-800 border-r-2 border-blue-600'
-                                : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                            }`}
-                            onClick={() => {
-                              setActiveSubPage(subPage.id);
-                            }}
-                          >
-                            <span className="flex-1 text-right">{subPage.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </nav>
-            </div>
-            </div>
+        <AdminSidebar
+          dir={dir === 'rtl' ? 'rtl' : 'ltr'}
+          items={adminMenuItems}
+          activeItem={activeSidebarItem}
+          expandedItems={expandedItems}
+          onToggleItem={(id) => {
+            setActiveSidebarItem(id);
+            setExpandedItems((prev) => (prev[0] === id ? [] : [id]));
+          }}
+          activeSubPage={activeSubPage}
+          onSelectSubPage={(id) => setActiveSubPage(id)}
+        />
 
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col overflow-y-auto min-w-0 min-h-0">
           {/* Content Area */}
-          <div className="flex-1 bg-slate-50 dark:bg-gray-900/40">
+          <div className="flex-1 bg-slate-50">
             <div className="w-full px-6 sm:px-8 lg:px-12 py-10">
-              <div dir="rtl" className="max-w-7xl mx-auto bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 sm:p-8 text-right">
+              <div className="max-w-10xl mx-auto bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8 text-right">
                 {renderContent()}
               </div>
             </div>

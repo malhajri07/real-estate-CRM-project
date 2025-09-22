@@ -209,7 +209,7 @@ export default function Leads() {
 
   return (
     <>
-      <main className="h-full overflow-y-auto p-6">
+      <main className="w-full space-y-6 font-sans font-normal text-slate-800 leading-relaxed">
         <Card>
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between">

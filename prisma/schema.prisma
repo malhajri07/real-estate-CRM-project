@@ -1,57 +1,578 @@
-/**
- * schema.prisma - Database Schema Definition
- * 
- * This file defines the complete database schema for the real estate CRM platform.
- * It includes:
- * - User roles and permissions (RBAC system)
- * - Property and listing management
- * - Organization and agent management
- * - Lead and claim workflow
- * - Audit logging and security
- * - File and media management
- * 
- * The schema is designed for SQLite in development and can be adapted for PostgreSQL
- * in production. All array and JSON fields are stored as strings for SQLite compatibility.
- * 
- * Key Features:
- * - Role-Based Access Control (RBAC) with 6 user roles
- * - Multi-tenant organization support
- * - Comprehensive property and listing management
- * - Lead and claim workflow for buyer pool
- * - Audit logging for security and compliance
- * - File storage and media management
- * 
- * Dependencies: Prisma Client for database operations
- * Pages affected: All pages that interact with the database
- */
-
-// Prisma Client Generator Configuration
 generator client {
   provider = "prisma-client-js"
 }
 
-// Database Configuration - SQLite for development
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// ===== ENUMS - System-wide constants and status values =====
+model User {
+  id                String             @id @default(cuid())
+  username          String             @unique
+  email             String?            @unique
+  phone             String?            @unique
+  firstName         String
+  lastName          String
+  passwordHash      String
+  roles             String
+  organizationId    String?
+  isActive          Boolean            @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  agentProfile      AgentProfile?
+  auditLogs         AuditLog[]
+  buyerRequests     BuyerRequest[]
+  claims            Claim[]
+  contactLogs       ContactLog[]
+  fileAssets        FileAsset[]
+  leads             Lead[]
+  listings          Listing[]
+  properties        Property[]
+  sellerSubmissions SellerSubmission[]
+  organization      Organization?      @relation(fields: [organizationId], references: [id])
 
-/**
- * UserRole Enum - Role-Based Access Control (RBAC)
- * 
- * Defines the 6 user roles in the system:
- * - WEBSITE_ADMIN: Platform owner with full system access
- * - CORP_OWNER: Corporate account owner/manager
- * - CORP_AGENT: Licensed agent under a corporate organization
- * - INDIV_AGENT: Licensed independent agent (no corporate affiliation)
- * - SELLER: Individual customer selling property
- * - BUYER: Individual customer looking to buy property
- * 
- * Used in: Authentication, authorization, UI routing, data access control
- * Pages affected: All pages with role-based access, RBAC dashboard, user management
- */
+  @@index([email])
+  @@index([organizationId])
+  @@index([isActive])
+  @@map("users")
+}
+
+model Organization {
+  id            String             @id @default(cuid())
+  legalName     String
+  tradeName     String
+  licenseNo     String             @unique
+  status        OrganizationStatus @default(PENDING_VERIFICATION)
+  address       String?
+  phone         String?
+  email         String?
+  website       String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  agentProfiles AgentProfile[]
+  fileAssets    FileAsset[]
+  listings      Listing[]
+  properties    Property[]
+  users         User[]
+
+  @@index([licenseNo])
+  @@index([status])
+  @@map("organizations")
+}
+
+model AgentProfile {
+  id                String        @id @default(cuid())
+  userId            String        @unique
+  organizationId    String?
+  licenseNo         String        @unique
+  licenseValidTo    DateTime
+  territories       String
+  isIndividualAgent Boolean       @default(false)
+  status            AgentStatus   @default(PENDING_VERIFICATION)
+  specialties       String
+  experience        Int?
+  bio               String?
+  avatar            String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  organization      Organization? @relation(fields: [organizationId], references: [id])
+  user              User          @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([licenseNo])
+  @@index([status])
+  @@map("agent_profiles")
+}
+
+model Property {
+  id             String         @id @default(cuid())
+  agentId        String
+  organizationId String?
+  title          String
+  description    String
+  type           String
+  category       String
+  city           String
+  district       String?
+  address        String
+  bedrooms       Int?
+  bathrooms      Decimal?
+  areaSqm        Decimal?
+  price          Decimal
+  status         PropertyStatus @default(ACTIVE)
+  visibility     String         @default("public")
+  latitude       Decimal?
+  longitude      Decimal?
+  features       String
+  photos         String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  listings       Listing[]
+  agent          User           @relation(fields: [agentId], references: [id])
+  organization   Organization?  @relation(fields: [organizationId], references: [id])
+
+  @@index([agentId])
+  @@index([organizationId])
+  @@index([city])
+  @@index([status])
+  @@index([type])
+  @@index([price])
+  @@map("properties")
+}
+
+model Listing {
+  id             String        @id @default(cuid())
+  propertyId     String
+  agentId        String
+  organizationId String?
+  listingType    ListingType
+  exclusive      Boolean       @default(false)
+  publishedAt    DateTime?
+  status         ListingStatus @default(ACTIVE)
+  price          Decimal?
+  description    String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  agent          User          @relation(fields: [agentId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  property       Property      @relation(fields: [propertyId], references: [id])
+
+  @@index([propertyId])
+  @@index([agentId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([listingType])
+  @@map("listings")
+}
+
+model BuyerRequest {
+  id                 String             @id @default(cuid())
+  createdByUserId    String
+  city               String
+  type               String
+  minBedrooms        Int?
+  maxBedrooms        Int?
+  minPrice           Decimal?
+  maxPrice           Decimal?
+  contactPreferences String
+  status             BuyerRequestStatus @default(OPEN)
+  maskedContact      String
+  fullContactJson    String
+  multiAgentAllowed  Boolean            @default(false)
+  notes              String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  createdBy          User               @relation(fields: [createdByUserId], references: [id])
+  claims             Claim[]
+  leads              Lead[]
+
+  @@index([createdByUserId])
+  @@index([city])
+  @@index([status])
+  @@index([type])
+  @@index([maxPrice])
+  @@map("buyer_requests")
+}
+
+model SellerSubmission {
+  id                  String                 @id @default(cuid())
+  createdByUserId     String
+  city                String
+  type                String
+  bedrooms            Int?
+  priceExpectation    Decimal?
+  exclusivePreference Boolean                @default(false)
+  status              SellerSubmissionStatus @default(OPEN)
+  maskedContact       String
+  fullContactJson     String
+  notes               String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  leads               Lead[]
+  createdBy           User                   @relation(fields: [createdByUserId], references: [id])
+
+  @@index([createdByUserId])
+  @@index([city])
+  @@index([status])
+  @@index([type])
+  @@map("seller_submissions")
+}
+
+model PropertySeeker {
+  seekerNum            Int      @id @default(autoincrement()) @map("seeker_num")
+  seekerId             String   @map("seeker_id") @default(dbgenerated("('S-' || lpad((nextval('properties_seeker_seeker_num_seq')::text), 11, '0'))"))
+  firstName            String   @map("first_name")
+  lastName             String   @map("last_name")
+  mobileNumber         String   @map("mobile_number")
+  email                String   @map("email")
+  nationality          String   @map("nationality")
+  age                  Int      @map("age")
+  monthlyIncome        Decimal  @map("monthly_income")
+  gender               String   @map("gender")
+  typeOfProperty       String   @map("type_of_property")
+  typeOfContract       String   @map("type_of_contract")
+  numberOfRooms        Int      @map("number_of_rooms")
+  numberOfBathrooms    Int      @map("number_of_bathrooms")
+  numberOfLivingRooms  Int      @map("number_of_living_rooms")
+  houseDirection       String?  @map("house_direction")
+  budgetSize           Decimal  @map("budget_size")
+  hasMaidRoom          Boolean  @map("has_maid_room")     @default(false)
+  hasDriverRoom        Boolean? @map("has_driver_room")   @default(false)
+  kitchenInstalled     Boolean? @map("kitchen_installed") @default(false)
+  hasElevator          Boolean? @map("has_elevator")      @default(false)
+  parkingAvailable     Boolean? @map("parking_available") @default(false)
+  city                 String?  @map("city")
+  district             String?  @map("district")
+  region               String?  @map("region")
+  otherComments        String?  @map("other_comments")
+  sqm                  Int?     @map("Sqm")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([email, mobileNumber], name: "uniq_properties_seeker_email_mobile")
+  @@unique([seekerId])
+  @@index([city])
+  @@index([city, district])
+  @@index([region])
+  @@index([typeOfProperty, typeOfContract])
+  @@map("properties_seeker")
+}
+
+model Lead {
+  id                 String            @id @default(cuid())
+  agentId            String
+  buyerRequestId     String?
+  sellerSubmissionId String?
+  status             LeadStatus        @default(NEW)
+  notes              String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  contactLogs        ContactLog[]
+  agent              User              @relation(fields: [agentId], references: [id])
+  buyerRequest       BuyerRequest?     @relation(fields: [buyerRequestId], references: [id])
+  sellerSubmission   SellerSubmission? @relation(fields: [sellerSubmissionId], references: [id])
+
+  @@index([agentId])
+  @@index([buyerRequestId])
+  @@index([sellerSubmissionId])
+  @@index([status])
+  @@map("leads")
+}
+
+model Claim {
+  id             String       @id @default(cuid())
+  agentId        String
+  buyerRequestId String
+  claimedAt      DateTime     @default(now())
+  expiresAt      DateTime
+  status         ClaimStatus  @default(ACTIVE)
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  agent          User         @relation(fields: [agentId], references: [id])
+  buyerRequest   BuyerRequest @relation(fields: [buyerRequestId], references: [id])
+
+  @@index([agentId])
+  @@index([buyerRequestId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("claims")
+}
+
+model ContactLog {
+  id          String         @id @default(cuid())
+  leadId      String
+  agentId     String
+  note        String
+  channel     ContactChannel
+  contactedAt DateTime       @default(now())
+  createdAt   DateTime       @default(now())
+  agent       User           @relation(fields: [agentId], references: [id])
+  lead        Lead           @relation(fields: [leadId], references: [id])
+
+  @@index([leadId])
+  @@index([agentId])
+  @@index([contactedAt])
+  @@map("contact_logs")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String
+  entity     String
+  entityId   String
+  beforeJson String?
+  afterJson  String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity])
+  @@index([entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+/// *
+///  * LandingPageContent Model - Main landing page content
+///  * 
+///  * Stores all content for the landing page including hero section,
+///  * features, solutions, stats, pricing, contact info, and footer.
+///  * This replaces the Strapi CMS with a custom database-driven solution.
+model LandingPageContent {
+  id                   String                   @id @default(cuid())
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+  loadingText          String                   @default("جار تحميل المحتوى...")
+  heroWelcomeText      String                   @default("مرحباً بك في")
+  heroTitle            String                   @default("منصة عقاراتي للوساطة العقارية")
+  heroSubtitle         String                   @default("منصة شاملة لإدارة العقارات والوساطة العقارية مع أدوات تسويق متقدمة")
+  heroButton           String                   @default("ابدأ رحلتك المجانية")
+  heroLoginButton      String                   @default("تسجيل الدخول")
+  heroDashboardTitle   String                   @default("منصة عقاراتي - لوحة التحكم")
+  featuresTitle        String                   @default("لماذا تختار منصة عقاراتي؟")
+  featuresDescription  String                   @default("عندما يجتمع التحديث بالاحترافية، تكون منصة عقاراتي هي الخيار الأمثل لإدارة عقاراتك بكفاءة")
+  solutionsTitle       String                   @default("حلول شاملة لإدارة العقارات")
+  solutionsDescription String                   @default("أدوات متكاملة تساعدك في إدارة جميع جوانب أعمالك العقارية")
+  statsTitle           String                   @default("أرقامنا تتحدث")
+  pricingTitle         String                   @default("خطط الأسعار")
+  pricingSubtitle      String                   @default("اختر الخطة المناسبة لك")
+  contactTitle         String                   @default("تواصل معنا")
+  contactDescription   String                   @default("نحن هنا لمساعدتك في رحلتك العقارية")
+  footerDescription    String                   @default("منصة عقاراتي - الحل الشامل لإدارة العقارات والوساطة العقارية")
+  footerCopyright      String                   @default("© 2024 منصة عقاراتي. جميع الحقوق محفوظة.")
+  contactInfo          LandingPageContactInfo[]
+  features             LandingPageFeature[]
+  footerLinks          LandingPageFooterLink[]
+  heroDashboardMetrics LandingPageHeroMetric[]
+  navigation           LandingPageNavigation[]
+  solutions            LandingPageSolution[]
+  stats                LandingPageStat[]
+
+  @@map("landing_page_content")
+}
+
+/// *
+///  * LandingPageFeature Model - Features section items
+model LandingPageFeature {
+  id                   String             @id @default(cuid())
+  title                String
+  description          String
+  icon                 String
+  order                Int                @default(0)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_features")
+}
+
+/// *
+///  * LandingPageStat Model - Statistics section items
+model LandingPageStat {
+  id                   String             @id @default(cuid())
+  number               String
+  label                String
+  suffix               String?
+  order                Int                @default(0)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_stats")
+}
+
+/// *
+///  * LandingPageSolution Model - Solutions section items
+model LandingPageSolution {
+  id                   String                       @id @default(cuid())
+  title                String
+  description          String
+  icon                 String
+  order                Int                          @default(0)
+  createdAt            DateTime                     @default(now())
+  updatedAt            DateTime                     @updatedAt
+  landingPageContentId String
+  features             LandingPageSolutionFeature[]
+  landingPageContent   LandingPageContent           @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_solutions")
+}
+
+/// *
+///  * LandingPageSolutionFeature Model - Features within solutions
+model LandingPageSolutionFeature {
+  id         String              @id @default(cuid())
+  text       String
+  icon       String
+  order      Int                 @default(0)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  solutionId String
+  solution   LandingPageSolution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_solution_features")
+}
+
+/// *
+///  * LandingPageHeroMetric Model - Hero dashboard metrics
+model LandingPageHeroMetric {
+  id                   String             @id @default(cuid())
+  value                String
+  label                String
+  color                String
+  order                Int                @default(0)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_hero_metrics")
+}
+
+/// *
+///  * LandingPageContactInfo Model - Contact information items
+model LandingPageContactInfo {
+  id                   String             @id @default(cuid())
+  type                 String
+  label                String
+  value                String
+  icon                 String
+  order                Int                @default(0)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_contact_info")
+}
+
+/// *
+///  * LandingPageFooterLink Model - Footer navigation links
+model LandingPageFooterLink {
+  id                   String             @id @default(cuid())
+  text                 String
+  url                  String
+  category             String
+  order                Int                @default(0)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_footer_links")
+}
+
+/// *
+///  * LandingPageNavigation Model - Main navigation items
+model LandingPageNavigation {
+  id                   String             @id @default(cuid())
+  text                 String
+  url                  String
+  order                Int                @default(0)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  landingPageContentId String
+  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
+
+  @@map("landing_page_navigation")
+}
+
+/// *
+///  * PricingPlan Model - Pricing plans for the platform
+model PricingPlan {
+  id          String               @id @default(cuid())
+  name        String
+  price       Float
+  period      String               @default("monthly")
+  isPopular   Boolean              @default(false)
+  description String
+  buttonText  String               @default("ابدأ الآن")
+  order       Int                  @default(0)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  features    PricingPlanFeature[]
+
+  @@map("pricing_plans")
+}
+
+/// *
+///  * PricingPlanFeature Model - Features within pricing plans
+model PricingPlanFeature {
+  id            String      @id @default(cuid())
+  text          String
+  included      Boolean     @default(true)
+  order         Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  pricingPlanId String
+  pricingPlan   PricingPlan @relation(fields: [pricingPlanId], references: [id], onDelete: Cascade)
+
+  @@map("pricing_plan_features")
+}
+
+model FileAsset {
+  id             String        @id @default(cuid())
+  ownerUserId    String?
+  organizationId String?
+  entity         String
+  entityId       String
+  url            String
+  mime           String
+  size           Int
+  filename       String
+  createdAt      DateTime      @default(now())
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  owner          User?         @relation(fields: [ownerUserId], references: [id])
+
+  @@index([ownerUserId])
+  @@index([organizationId])
+  @@index([entity])
+  @@index([entityId])
+  @@map("file_assets")
+}
+
+/// Account table imported from CSV (attached_assets/real_estate_users_500_clean.csv)
+model Account {
+  id            String    @id @default(cuid())
+  firstNameAr   String?
+  lastNameAr    String?
+  roleType      String?
+  accountIdType String?
+  accountNumber String    @unique
+  parentAccount String?
+  usernameEn    String?
+  mobile        String?
+  createDate    DateTime?
+  expiryDate    DateTime?
+  status        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("accounts")
+}
+
+/// *
+///  * UserRole Enum - Role-Based Access Control (RBAC)
+///  * 
+///  * Defines the 6 user roles in the system:
+///  * - WEBSITE_ADMIN: Platform owner with full system access
+///  * - CORP_OWNER: Corporate account owner/manager
+///  * - CORP_AGENT: Licensed agent under a corporate organization
+///  * - INDIV_AGENT: Licensed independent agent (no corporate affiliation)
+///  * - SELLER: Individual customer selling property
+///  * - BUYER: Individual customer looking to buy property
+///  * 
+///  * Used in: Authentication, authorization, UI routing, data access control
+///  * Pages affected: All pages with role-based access, RBAC dashboard, user management
 enum UserRole {
   WEBSITE_ADMIN
   CORP_OWNER
@@ -61,35 +582,33 @@ enum UserRole {
   BUYER
 }
 
-/**
- * OrganizationStatus Enum - Corporate Organization States
- * 
- * Defines the status of corporate organizations:
- * - ACTIVE: Fully operational organization
- * - SUSPENDED: Temporarily disabled organization
- * - PENDING_VERIFICATION: Awaiting verification/approval
- * 
- * Used in: Organization management, access control, billing
- * Pages affected: Agency management, organization settings, admin panel
- */
+/// *
+///  * OrganizationStatus Enum - Corporate Organization States
+///  * 
+///  * Defines the status of corporate organizations:
+///  * - ACTIVE: Fully operational organization
+///  * - SUSPENDED: Temporarily disabled organization
+///  * - PENDING_VERIFICATION: Awaiting verification/approval
+///  * 
+///  * Used in: Organization management, access control, billing
+///  * Pages affected: Agency management, organization settings, admin panel
 enum OrganizationStatus {
   ACTIVE
   SUSPENDED
   PENDING_VERIFICATION
 }
 
-/**
- * AgentStatus Enum - Agent Account States
- * 
- * Defines the status of agent accounts:
- * - ACTIVE: Fully operational agent
- * - INACTIVE: Temporarily disabled agent
- * - SUSPENDED: Suspended agent account
- * - PENDING_VERIFICATION: Awaiting license verification
- * 
- * Used in: Agent management, access control, lead assignment
- * Pages affected: Agent profiles, agent management, lead assignment
- */
+/// *
+///  * AgentStatus Enum - Agent Account States
+///  * 
+///  * Defines the status of agent accounts:
+///  * - ACTIVE: Fully operational agent
+///  * - INACTIVE: Temporarily disabled agent
+///  * - SUSPENDED: Suspended agent account
+///  * - PENDING_VERIFICATION: Awaiting license verification
+///  * 
+///  * Used in: Agent management, access control, lead assignment
+///  * Pages affected: Agent profiles, agent management, lead assignment
 enum AgentStatus {
   ACTIVE
   INACTIVE
@@ -97,19 +616,18 @@ enum AgentStatus {
   PENDING_VERIFICATION
 }
 
-/**
- * PropertyStatus Enum - Property States
- * 
- * Defines the status of properties:
- * - ACTIVE: Available for sale/rent
- * - INACTIVE: Temporarily unavailable
- * - SOLD: Property has been sold
- * - RENTED: Property has been rented
- * - PENDING_APPROVAL: Awaiting approval for listing
- * 
- * Used in: Property management, listing visibility, search filters
- * Pages affected: Property listings, property detail, property management
- */
+/// *
+///  * PropertyStatus Enum - Property States
+///  * 
+///  * Defines the status of properties:
+///  * - ACTIVE: Available for sale/rent
+///  * - INACTIVE: Temporarily unavailable
+///  * - SOLD: Property has been sold
+///  * - RENTED: Property has been rented
+///  * - PENDING_APPROVAL: Awaiting approval for listing
+///  * 
+///  * Used in: Property management, listing visibility, search filters
+///  * Pages affected: Property listings, property detail, property management
 enum PropertyStatus {
   ACTIVE
   INACTIVE
@@ -118,33 +636,31 @@ enum PropertyStatus {
   PENDING_APPROVAL
 }
 
-/**
- * ListingType Enum - Property Listing Types
- * 
- * Defines the type of property listing:
- * - RENT: Property available for rent
- * - SALE: Property available for sale
- * 
- * Used in: Property search, listing management, pricing
- * Pages affected: Property search, listing creation, property filters
- */
+/// *
+///  * ListingType Enum - Property Listing Types
+///  * 
+///  * Defines the type of property listing:
+///  * - RENT: Property available for rent
+///  * - SALE: Property available for sale
+///  * 
+///  * Used in: Property search, listing management, pricing
+///  * Pages affected: Property search, listing creation, property filters
 enum ListingType {
   RENT
   SALE
 }
 
-/**
- * ListingStatus Enum - Listing States
- * 
- * Defines the status of property listings:
- * - ACTIVE: Listing is live and visible
- * - INACTIVE: Listing is hidden
- * - EXPIRED: Listing has expired
- * - PENDING_APPROVAL: Awaiting approval
- * 
- * Used in: Listing management, visibility control, moderation
- * Pages affected: Listing management, moderation queue, listing visibility
- */
+/// *
+///  * ListingStatus Enum - Listing States
+///  * 
+///  * Defines the status of property listings:
+///  * - ACTIVE: Listing is live and visible
+///  * - INACTIVE: Listing is hidden
+///  * - EXPIRED: Listing has expired
+///  * - PENDING_APPROVAL: Awaiting approval
+///  * 
+///  * Used in: Listing management, visibility control, moderation
+///  * Pages affected: Listing management, moderation queue, listing visibility
 enum ListingStatus {
   ACTIVE
   INACTIVE
@@ -188,574 +704,3 @@ enum ContactChannel {
   SMS
   IN_PERSON
 }
-
-// Core Models
-model User {
-  id             String    @id @default(cuid())
-  username       String    @unique
-  email          String?   @unique
-  phone          String?   @unique
-  firstName      String
-  lastName       String
-  passwordHash   String
-  roles          String // JSON string of UserRole array
-  organizationId String?
-  isActive       Boolean   @default(true)
-  lastLoginAt    DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  // Relations
-  organization     Organization?     @relation(fields: [organizationId], references: [id])
-  agentProfile     AgentProfile?
-  properties       Property[]
-  listings         Listing[]
-  buyerRequests    BuyerRequest[]
-  sellerSubmissions SellerSubmission[]
-  leads            Lead[]
-  claims           Claim[]
-  contactLogs      ContactLog[]
-  auditLogs        AuditLog[]
-  fileAssets       FileAsset[]
-
-  @@index([email])
-  @@index([organizationId])
-  @@index([isActive])
-  @@map("users")
-}
-
-model Organization {
-  id           String             @id @default(cuid())
-  legalName    String
-  tradeName    String
-  licenseNo    String             @unique
-  status       OrganizationStatus @default(PENDING_VERIFICATION)
-  address      String?
-  phone        String?
-  email        String?
-  website      String?
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-
-  // Relations
-  users        User[]
-  agentProfiles AgentProfile[]
-  properties   Property[]
-  listings     Listing[]
-  fileAssets   FileAsset[]
-
-  @@index([licenseNo])
-  @@index([status])
-  @@map("organizations")
-}
-
-model AgentProfile {
-  id                String      @id @default(cuid())
-  userId            String      @unique
-  organizationId    String?
-  licenseNo         String      @unique
-  licenseValidTo    DateTime
-  territories       String      // JSON string of city/district codes array
-  isIndividualAgent Boolean     @default(false)
-  status            AgentStatus @default(PENDING_VERIFICATION)
-  specialties       String      // JSON string of property types array
-  experience        Int?        // Years of experience
-  bio               String?
-  avatar            String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-
-  // Relations
-  user         User        @relation(fields: [userId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
-
-  @@index([userId])
-  @@index([organizationId])
-  @@index([licenseNo])
-  @@index([status])
-  @@map("agent_profiles")
-}
-
-model Property {
-  id              String        @id @default(cuid())
-  agentId         String
-  organizationId  String?
-  title           String
-  description     String
-  type            String        // e.g., "شقة", "فيلا", "دوبلكس"
-  category        String        // e.g., "سكني", "تجاري"
-  city            String
-  district        String?
-  address         String
-  bedrooms        Int?
-  bathrooms       Decimal?
-  areaSqm         Decimal?
-  price           Decimal
-  status          PropertyStatus @default(ACTIVE)
-  visibility      String        @default("public") // public, private, organization
-  latitude        Decimal?
-  longitude       Decimal?
-  features        String        // JSON string of features array
-  photos          String        // JSON string of photo URLs array
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  // Relations
-  agent        User        @relation(fields: [agentId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
-  listings     Listing[]
-
-  @@index([agentId])
-  @@index([organizationId])
-  @@index([city])
-  @@index([status])
-  @@index([type])
-  @@index([price])
-  @@map("properties")
-}
-
-model Listing {
-  id          String        @id @default(cuid())
-  propertyId  String
-  agentId     String
-  organizationId String?
-  listingType ListingType
-  exclusive   Boolean       @default(false)
-  publishedAt DateTime?
-  status      ListingStatus @default(ACTIVE)
-  price       Decimal?
-  description String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  // Relations
-  property    Property     @relation(fields: [propertyId], references: [id])
-  agent       User         @relation(fields: [agentId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
-
-  @@index([propertyId])
-  @@index([agentId])
-  @@index([organizationId])
-  @@index([status])
-  @@index([listingType])
-  @@map("listings")
-}
-
-model BuyerRequest {
-  id                  String             @id @default(cuid())
-  createdByUserId     String
-  city                String
-  type                String
-  minBedrooms         Int?
-  maxBedrooms         Int?
-  minPrice            Decimal?
-  maxPrice            Decimal?
-  contactPreferences  String             // JSON string of contact preferences
-  status              BuyerRequestStatus @default(OPEN)
-  maskedContact       String             // JSON string of masked contact
-  fullContactJson     String             // JSON string of full contact details (encrypted)
-  multiAgentAllowed   Boolean            @default(false)
-  notes               String?
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-
-  // Relations
-  createdBy   User   @relation(fields: [createdByUserId], references: [id])
-  leads       Lead[]
-  claims      Claim[]
-
-  @@index([createdByUserId])
-  @@index([city])
-  @@index([status])
-  @@index([type])
-  @@index([maxPrice])
-  @@map("buyer_requests")
-}
-
-model SellerSubmission {
-  id                  String               @id @default(cuid())
-  createdByUserId     String
-  city                String
-  type                String
-  bedrooms            Int?
-  priceExpectation    Decimal?
-  exclusivePreference Boolean              @default(false)
-  status              SellerSubmissionStatus @default(OPEN)
-  maskedContact       String               // JSON string of masked contact
-  fullContactJson     String               // JSON string of full contact details (encrypted)
-  notes               String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-
-  // Relations
-  createdBy User @relation(fields: [createdByUserId], references: [id])
-  leads     Lead[]
-
-  @@index([createdByUserId])
-  @@index([city])
-  @@index([status])
-  @@index([type])
-  @@map("seller_submissions")
-}
-
-model Lead {
-  id                  String     @id @default(cuid())
-  agentId             String
-  buyerRequestId      String?
-  sellerSubmissionId  String?
-  status              LeadStatus @default(NEW)
-  notes               String?
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
-
-  // Relations
-  agent           User            @relation(fields: [agentId], references: [id])
-  buyerRequest    BuyerRequest?   @relation(fields: [buyerRequestId], references: [id])
-  sellerSubmission SellerSubmission? @relation(fields: [sellerSubmissionId], references: [id])
-  contactLogs     ContactLog[]
-
-  @@index([agentId])
-  @@index([buyerRequestId])
-  @@index([sellerSubmissionId])
-  @@index([status])
-  @@map("leads")
-}
-
-model Claim {
-  id             String      @id @default(cuid())
-  agentId        String
-  buyerRequestId String
-  claimedAt      DateTime    @default(now())
-  expiresAt      DateTime
-  status         ClaimStatus @default(ACTIVE)
-  notes          String?
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-
-  // Relations
-  agent        User         @relation(fields: [agentId], references: [id])
-  buyerRequest BuyerRequest @relation(fields: [buyerRequestId], references: [id])
-
-  @@index([agentId])
-  @@index([buyerRequestId])
-  @@index([status])
-  @@index([expiresAt])
-  @@map("claims")
-}
-
-model ContactLog {
-  id        String         @id @default(cuid())
-  leadId    String
-  agentId   String
-  note      String
-  channel   ContactChannel
-  contactedAt DateTime     @default(now())
-  createdAt DateTime       @default(now())
-
-  // Relations
-  lead Lead @relation(fields: [leadId], references: [id])
-  agent User @relation(fields: [agentId], references: [id])
-
-  @@index([leadId])
-  @@index([agentId])
-  @@index([contactedAt])
-  @@map("contact_logs")
-}
-
-model AuditLog {
-  id        String   @id @default(cuid())
-  userId    String
-  action    String   // e.g., "CREATE", "UPDATE", "DELETE", "CLAIM", "RELEASE"
-  entity    String   // e.g., "PROPERTY", "BUYER_REQUEST", "CLAIM"
-  entityId  String
-  beforeJson String? // JSON string of previous state
-  afterJson  String? // JSON string of new state
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([entity])
-  @@index([entityId])
-  @@index([createdAt])
-  @@map("audit_logs")
-}
-
-// ===== CMS CONTENT - Landing page and content management =====
-
-/**
- * LandingPageContent Model - Main landing page content
- * 
- * Stores all content for the landing page including hero section,
- * features, solutions, stats, pricing, contact info, and footer.
- * This replaces the Strapi CMS with a custom database-driven solution.
- */
-model LandingPageContent {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Loading text
-  loadingText String @default("جار تحميل المحتوى...")
-
-  // Hero Section
-  heroWelcomeText     String @default("مرحباً بك في")
-  heroTitle           String @default("منصة عقاراتي للوساطة العقارية")
-  heroSubtitle        String @default("منصة شاملة لإدارة العقارات والوساطة العقارية مع أدوات تسويق متقدمة")
-  heroButton          String @default("ابدأ رحلتك المجانية")
-  heroLoginButton     String @default("تسجيل الدخول")
-  heroDashboardTitle  String @default("منصة عقاراتي - لوحة التحكم")
-
-  // Features Section
-  featuresTitle       String @default("لماذا تختار منصة عقاراتي؟")
-  featuresDescription String @default("عندما يجتمع التحديث بالاحترافية، تكون منصة عقاراتي هي الخيار الأمثل لإدارة عقاراتك بكفاءة")
-
-  // Solutions Section
-  solutionsTitle       String @default("حلول شاملة لإدارة العقارات")
-  solutionsDescription String @default("أدوات متكاملة تساعدك في إدارة جميع جوانب أعمالك العقارية")
-
-  // Stats Section
-  statsTitle String @default("أرقامنا تتحدث")
-
-  // Pricing Section
-  pricingTitle    String @default("خطط الأسعار")
-  pricingSubtitle String @default("اختر الخطة المناسبة لك")
-
-  // Contact Section
-  contactTitle       String @default("تواصل معنا")
-  contactDescription String @default("نحن هنا لمساعدتك في رحلتك العقارية")
-
-  // Footer
-  footerDescription String @default("منصة عقاراتي - الحل الشامل لإدارة العقارات والوساطة العقارية")
-  footerCopyright   String @default("© 2024 منصة عقاراتي. جميع الحقوق محفوظة.")
-
-  // Relations
-  features           LandingPageFeature[]
-  stats              LandingPageStat[]
-  solutions          LandingPageSolution[]
-  heroDashboardMetrics LandingPageHeroMetric[]
-  contactInfo        LandingPageContactInfo[]
-  footerLinks        LandingPageFooterLink[]
-  navigation         LandingPageNavigation[]
-
-  @@map("landing_page_content")
-}
-
-/**
- * LandingPageFeature Model - Features section items
- */
-model LandingPageFeature {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  icon        String
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  landingPageContentId String
-  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-
-  @@map("landing_page_features")
-}
-
-/**
- * LandingPageStat Model - Statistics section items
- */
-model LandingPageStat {
-  id        String   @id @default(cuid())
-  number    String
-  label     String
-  suffix    String?
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  landingPageContentId String
-  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-
-  @@map("landing_page_stats")
-}
-
-/**
- * LandingPageSolution Model - Solutions section items
- */
-model LandingPageSolution {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  icon        String
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  landingPageContentId String
-  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-  features             LandingPageSolutionFeature[]
-
-  @@map("landing_page_solutions")
-}
-
-/**
- * LandingPageSolutionFeature Model - Features within solutions
- */
-model LandingPageSolutionFeature {
-  id        String   @id @default(cuid())
-  text      String
-  icon      String
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  solutionId String
-  solution   LandingPageSolution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
-
-  @@map("landing_page_solution_features")
-}
-
-/**
- * LandingPageHeroMetric Model - Hero dashboard metrics
- */
-model LandingPageHeroMetric {
-  id        String   @id @default(cuid())
-  value     String
-  label     String
-  color     String
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  landingPageContentId String
-  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-
-  @@map("landing_page_hero_metrics")
-}
-
-/**
- * LandingPageContactInfo Model - Contact information items
- */
-model LandingPageContactInfo {
-  id        String   @id @default(cuid())
-  type      String
-  label     String
-  value     String
-  icon      String
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  landingPageContentId String
-  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-
-  @@map("landing_page_contact_info")
-}
-
-/**
- * LandingPageFooterLink Model - Footer navigation links
- */
-model LandingPageFooterLink {
-  id        String   @id @default(cuid())
-  text      String
-  url       String
-  category  String
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  landingPageContentId String
-  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-
-  @@map("landing_page_footer_links")
-}
-
-/**
- * LandingPageNavigation Model - Main navigation items
- */
-model LandingPageNavigation {
-  id        String   @id @default(cuid())
-  text      String
-  url       String
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  landingPageContentId String
-  landingPageContent   LandingPageContent @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-
-  @@map("landing_page_navigation")
-}
-
-/**
- * PricingPlan Model - Pricing plans for the platform
- */
-model PricingPlan {
-  id          String   @id @default(cuid())
-  name        String
-  price       Float
-  period      String   @default("monthly") // monthly, yearly
-  isPopular   Boolean  @default(false)
-  description String
-  buttonText  String   @default("ابدأ الآن")
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  features PricingPlanFeature[]
-
-  @@map("pricing_plans")
-}
-
-/**
- * PricingPlanFeature Model - Features within pricing plans
- */
-model PricingPlanFeature {
-  id        String   @id @default(cuid())
-  text      String
-  included  Boolean  @default(true)
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  pricingPlanId String
-  pricingPlan   PricingPlan @relation(fields: [pricingPlanId], references: [id], onDelete: Cascade)
-
-  @@map("pricing_plan_features")
-}
-
-model FileAsset {
-  id             String  @id @default(cuid())
-  ownerUserId    String?
-  organizationId String?
-  entity         String  // e.g., "PROPERTY", "USER", "ORGANIZATION"
-  entityId       String
-  url            String
-  mime           String
-  size           Int
-  filename       String
-  createdAt      DateTime @default(now())
-
-  // Relations
-  owner        User?         @relation(fields: [ownerUserId], references: [id])
-  organization Organization? @relation(fields: [organizationId], references: [id])
-
-  @@index([ownerUserId])
-  @@index([organizationId])
-  @@index([entity])
-  @@index([entityId])
-  @@map("file_assets")
-}
-
-// Indexes for performance

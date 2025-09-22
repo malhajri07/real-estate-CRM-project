@@ -57,11 +57,11 @@ export default function Header({
   const notificationCount = 3;
 
   return (
-    <header className="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-sm h-16">
-      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-6 h-full">
-        {/* Notifications (left side) */}
+    <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm h-16">
+      <div className="flex items-center gap-4 px-6 h-full w-full" dir="ltr">
+        {/* Notifications (far left) */}
         {showActions && (
-          <div className="flex items-center justify-self-start">
+          <div className="flex items-center shrink-0 order-1">
             <Button 
               variant="ghost" 
               size="sm" 
@@ -77,26 +77,24 @@ export default function Header({
           </div>
         )}
 
-        {/* Center - Search Bar */}
+        {/* Search Bar (center, grows) */}
         {showSearch && (
-          <div className="relative flex-1 max-w-xl justify-self-stretch">
+          <div className="relative flex-1 min-w-0 order-2">
             <Input
               type="text"
               placeholder={defaultPlaceholder}
               value={searchQuery}
               onChange={handleSearchChange}
-              className="w-full h-10 bg-gray-50/80 border-gray-200 rounded-full pl-12 pr-4 text-sm focus:bg-white focus:border-primary/50 focus:shadow-md transition-all duration-200"
+              className="w-full h-10 bg-gray-50/80 border-gray-200 rounded-md pr-12 pl-4 text-sm text-right placeholder:text-right focus:bg-white focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 focus:shadow-sm transition-all duration-200"
             />
-            <Search className="absolute left-4 top-3 text-gray-400" size={16} />
+            <Search className="absolute right-4 top-3 text-gray-400" size={16} />
           </div>
         )}
 
-        {/* User Profile (right side) */}
+        {/* User cluster (far right) */}
         {showActions && (
-          <div className="flex items-center space-x-6 rtl:space-x-reverse justify-self-end">
-            <span className="text-sm font-medium text-gray-700">
-              {getUsername()}
-            </span>
+          <div className="flex items-center gap-3 shrink-0 order-3 ml-2">
+            <span className="text-sm font-medium text-gray-700">{getUsername()}</span>
             <div className="h-8 w-8 rounded-full flex items-center justify-center shadow-sm bg-emerald-600">
               <User className="h-4 w-4 text-white" />
             </div>

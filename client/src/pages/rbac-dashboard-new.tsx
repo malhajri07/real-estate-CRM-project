@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { Shield, Users, Building2, UserCheck, Activity, RefreshCw, Settings, Lock, Bell, BarChart3, Database } from 'lucide-react';
 
 interface User {
@@ -285,7 +285,7 @@ export default function RBACDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
+    <div className="min-h-screen bg-gray-50">
       <div className="flex h-screen">
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col">
@@ -372,3 +372,6 @@ export default function RBACDashboard() {
     </div>
   );
 }
+
+
+

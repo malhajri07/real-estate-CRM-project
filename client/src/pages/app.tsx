@@ -1,12 +1,11 @@
 import React, { Suspense } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // Import dashboard components
 import Dashboard from '@/pages/dashboard';
-import Header from '@/components/layout/header';
-import Sidebar from '@/components/layout/sidebar';
+import PlatformShell from '@/components/layout/PlatformShell';
 
 /**
  * Platform Dashboard Page
@@ -28,17 +27,9 @@ export default function AppPage() {
 
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
-      <div className="flex h-screen bg-slate-50 dark:bg-gray-900" dir="rtl">
-        {/* Main content column (adds right padding equal to sidebar width) */}
-        <div className="flex-1 flex flex-col pr-64 md:pr-72">
-          <Header searchPlaceholder="البحث في العملاء أو العقارات..." />
-          <div className="flex-1 overflow-y-auto">
-            <Dashboard />
-          </div>
-        </div>
-        {/* Fixed right sidebar */}
-        <Sidebar onLogout={handleLogout} />
-      </div>
+      <PlatformShell onLogout={handleLogout}>
+        <Dashboard />
+      </PlatformShell>
     </Suspense>
   );
 }

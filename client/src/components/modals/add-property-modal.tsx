@@ -70,7 +70,7 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl bg-modal-filter">
+      <DialogContent className="max-w-3xl backdrop-blur-xl bg-white/90 ring-1 ring-emerald-200/40 rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">إضافة عقار جديد</DialogTitle>
         </DialogHeader>

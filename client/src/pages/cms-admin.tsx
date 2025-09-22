@@ -70,7 +70,7 @@ export default function CMSAdmin() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100 p-6" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -84,7 +84,7 @@ export default function CMSAdmin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100 p-6" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100 p-6">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-100 -m-6 mb-8">
         <div className="max-w-7xl mx-auto px-6 py-4">

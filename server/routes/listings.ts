@@ -155,10 +155,16 @@ router.get("/map", async (req, res) => {
   try {
     const { city, propertyType, propertyCategory, listingType } = req.query as Record<string, string | undefined>;
     const properties = await storage.getAllProperties();
+    
+    // Debug: log first property to see structure
+    if (properties.length > 0) {
+      console.log("First property structure:", JSON.stringify(properties[0], null, 2));
+    }
+    
     const mapProperties = properties
-      .filter((p) => p.status === "active" && p.latitude && p.longitude)
+      .filter((p) => p.latitude && p.longitude)
       .filter((p) => (city ? p.city === city : true))
-      .filter((p) => (propertyType ? p.propertyType === propertyType : true))
+      .filter((p) => (propertyType ? p.type === propertyType : true))
       // Property category is optional in seed data; don't exclude when absent
       // .filter((p) => (propertyCategory ? p.propertyCategory === propertyCategory : true))
       .filter((p) => (listingType ? p.listingType === listingType : true))
@@ -168,8 +174,8 @@ router.get("/map", async (req, res) => {
         address: p.address,
         city: p.city,
         price: p.price,
-        propertyCategory: p.propertyCategory,
-        propertyType: p.propertyType,
+        propertyCategory: p.category,
+        propertyType: p.type,
         latitude: p.latitude,
         longitude: p.longitude,
         bedrooms: p.bedrooms,
@@ -177,6 +183,8 @@ router.get("/map", async (req, res) => {
         areaSqm: (p as any).areaSqm ?? null,
         status: p.status,
       }));
+    
+    console.log(`Map endpoint: ${properties.length} total, ${mapProperties.length} with coords`);
     res.json(mapProperties);
   } catch (err) {
     console.error("Error fetching listings for map:", err);

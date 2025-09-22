@@ -20,7 +20,7 @@
  * Pages affected: All pages that display or modify data
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { randomUUID } from "crypto";
 
 // Initialize Prisma client for database operations
@@ -328,11 +328,13 @@ class PrismaStorage {
       const newLead = await prisma.lead.create({
         data: {
           id: randomUUID(),
+          agentId: userId, // Set the agentId to the provided userId
           ...lead,
         },
         include: {
-          organization: true,
-          agentProfile: true,
+          agent: true,
+          buyerRequest: true,
+          sellerSubmission: true,
         },
       });
       return newLead;
@@ -408,11 +410,13 @@ class PrismaStorage {
       const newProperty = await prisma.property.create({
         data: {
           id: randomUUID(),
+          agentId: userId, // Set the agentId to the provided userId
           ...property,
         },
         include: {
-          listings: true,
+          agent: true,
           organization: true,
+          listings: true,
         },
       });
       return newProperty;
@@ -507,11 +511,174 @@ class PrismaStorage {
   async createReport(report: any, tenantId: string): Promise<any> { return report; }
   async updateReport(id: string, report: Partial<any>, tenantId?: string): Promise<any | undefined> { return undefined; }
   async deleteReport(id: string, tenantId?: string): Promise<boolean> { return false; }
-  async getAllRealEstateRequests(tenantId?: string): Promise<any[]> { return []; }
-  async getRealEstateRequest(id: string, tenantId?: string): Promise<any | undefined> { return undefined; }
-  async createRealEstateRequest(request: any, tenantId: string): Promise<any> { return request; }
-  async updateRealEstateRequest(id: string, request: Partial<any>, tenantId?: string): Promise<any | undefined> { return undefined; }
-  async deleteRealEstateRequest(id: string, tenantId?: string): Promise<boolean> { return false; }
+  private propertySeekerWhere(id: string) {
+    if (id && /^\d+$/.test(id)) {
+      return { seekerNum: Number(id) };
+    }
+    return { seekerId: id };
+  }
+
+  private mapPropertySeekerData(payload: any) {
+    const optionalString = (value: unknown) => {
+      if (value === undefined || value === null) return null;
+      const str = String(value).trim();
+      return str.length === 0 ? null : str;
+    };
+
+    const optionalInt = (value: unknown) => {
+      if (value === undefined || value === null || value === "") return null;
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? Math.round(parsed) : null;
+    };
+
+    const requiredString = (value: unknown, field: string) => {
+      const result = optionalString(value);
+      if (!result) {
+        throw new Error(`Missing required field "${field}" for property seeker payload`);
+      }
+      return result;
+    };
+
+    const ensureGender = (value: unknown) => {
+      const normalized = requiredString(value, "gender").toLowerCase();
+      if (!["male", "female", "other"].includes(normalized)) {
+        throw new Error(`Invalid gender value "${normalized}" for property seeker payload`);
+      }
+      return normalized;
+    };
+
+    const requiredDecimal = (value: unknown, field: string) => {
+      if (value === undefined || value === null || value === "") {
+        throw new Error(`Missing required field "${field}" for property seeker payload`);
+      }
+      return new Prisma.Decimal(value as any);
+    };
+
+    return {
+      firstName: requiredString(payload.firstName, "firstName"),
+      lastName: requiredString(payload.lastName, "lastName"),
+      mobileNumber: requiredString(payload.mobileNumber, "mobileNumber"),
+      email: requiredString(payload.email, "email"),
+      nationality: requiredString(payload.nationality, "nationality"),
+      age: Number(payload.age),
+      monthlyIncome: requiredDecimal(payload.monthlyIncome, "monthlyIncome"),
+      gender: ensureGender(payload.gender),
+      typeOfProperty: requiredString(payload.typeOfProperty, "typeOfProperty"),
+      typeOfContract: requiredString(payload.typeOfContract, "typeOfContract"),
+      numberOfRooms: Number(payload.numberOfRooms),
+      numberOfBathrooms: Number(payload.numberOfBathrooms),
+      numberOfLivingRooms: Number(payload.numberOfLivingRooms),
+      houseDirection: optionalString(payload.houseDirection),
+      budgetSize: requiredDecimal(payload.budgetSize, "budgetSize"),
+      hasMaidRoom: Boolean(payload.hasMaidRoom),
+      hasDriverRoom: Boolean(payload.hasDriverRoom),
+      kitchenInstalled: Boolean(payload.kitchenInstalled),
+      hasElevator: Boolean(payload.hasElevator),
+      parkingAvailable: Boolean(payload.parkingAvailable),
+      city: requiredString(payload.city, "city"),
+      district: optionalString(payload.district),
+      region: optionalString(payload.region),
+      otherComments: optionalString(payload.otherComments ?? payload.notes),
+      sqm: optionalInt(payload.sqm),
+    };
+  }
+  async getAllRealEstateRequests(): Promise<any[]> {
+    try {
+      return await prisma.propertySeeker.findMany({
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (error) {
+      console.error('Error listing property seeker requests:', error);
+      return [];
+    }
+  }
+
+  async getRealEstateRequest(id: string): Promise<any | undefined> {
+    try {
+      const item = await prisma.propertySeeker.findUnique({ where: this.propertySeekerWhere(id) });
+      return item || undefined;
+    } catch (error) {
+      console.error('Error fetching property seeker request:', error);
+      return undefined;
+    }
+  }
+
+  async createRealEstateRequest(request: any): Promise<any> {
+    try {
+      const data = this.mapPropertySeekerData(request);
+      return await prisma.propertySeeker.upsert({
+        where: {
+          uniq_properties_seeker_email_mobile: {
+            email: data.email,
+            mobileNumber: data.mobileNumber,
+          },
+        },
+        create: data,
+        update: {
+          ...data,
+        },
+      });
+    } catch (error) {
+      console.error('Error creating property seeker request:', error);
+      throw error;
+    }
+  }
+
+  async updateRealEstateRequest(id: string, request: Partial<any>): Promise<any | undefined> {
+    try {
+      const data: any = {};
+
+      if (request.firstName !== undefined) data.firstName = request.firstName;
+      if (request.lastName !== undefined) data.lastName = request.lastName;
+      if (request.mobileNumber !== undefined) data.mobileNumber = request.mobileNumber;
+      if (request.email !== undefined) data.email = request.email;
+      if (request.nationality !== undefined) data.nationality = request.nationality;
+      if (request.age !== undefined) data.age = Number(request.age);
+      if (request.monthlyIncome !== undefined) data.monthlyIncome = new Prisma.Decimal(request.monthlyIncome as any);
+      if (request.gender !== undefined) data.gender = request.gender;
+      if (request.typeOfProperty !== undefined) data.typeOfProperty = request.typeOfProperty;
+      if (request.typeOfContract !== undefined) data.typeOfContract = request.typeOfContract;
+      if (request.numberOfRooms !== undefined) data.numberOfRooms = Number(request.numberOfRooms);
+      if (request.numberOfBathrooms !== undefined) data.numberOfBathrooms = Number(request.numberOfBathrooms);
+      if (request.numberOfLivingRooms !== undefined) data.numberOfLivingRooms = Number(request.numberOfLivingRooms);
+      if (request.houseDirection !== undefined) data.houseDirection = request.houseDirection ?? null;
+      if (request.budgetSize !== undefined) data.budgetSize = new Prisma.Decimal(request.budgetSize as any);
+      if (request.hasMaidRoom !== undefined) data.hasMaidRoom = Boolean(request.hasMaidRoom);
+      if (request.hasDriverRoom !== undefined) data.hasDriverRoom = request.hasDriverRoom === null ? null : Boolean(request.hasDriverRoom);
+      if (request.kitchenInstalled !== undefined) data.kitchenInstalled = request.kitchenInstalled === null ? null : Boolean(request.kitchenInstalled);
+      if (request.hasElevator !== undefined) data.hasElevator = request.hasElevator === null ? null : Boolean(request.hasElevator);
+      if (request.parkingAvailable !== undefined) data.parkingAvailable = request.parkingAvailable === null ? null : Boolean(request.parkingAvailable);
+      if (request.city !== undefined) data.city = request.city ?? null;
+      if (request.district !== undefined) data.district = request.district ?? null;
+      if (request.region !== undefined) data.region = request.region ?? null;
+      if (request.notes !== undefined || request.otherComments !== undefined) {
+        data.otherComments = (request as any).otherComments ?? request.notes ?? null;
+      }
+      if (request.sqm !== undefined) data.sqm = request.sqm === null ? null : Math.round(Number(request.sqm));
+
+      if (Object.keys(data).length === 0) {
+        return await prisma.propertySeeker.findUnique({ where: this.propertySeekerWhere(id) });
+      }
+
+      const updated = await prisma.propertySeeker.update({ where: this.propertySeekerWhere(id), data });
+      return updated;
+    } catch (error) {
+      if ((error as any)?.code === 'P2025') return undefined;
+      console.error('Error updating property seeker request:', error);
+      throw error;
+    }
+  }
+
+  async deleteRealEstateRequest(id: string): Promise<boolean> {
+    try {
+      await prisma.propertySeeker.delete({ where: this.propertySeekerWhere(id) });
+      return true;
+    } catch (error) {
+      if ((error as any)?.code === 'P2025') return false;
+      console.error('Error deleting property seeker request:', error);
+      throw error;
+    }
+  }
 }
 
 // Create and export storage instance

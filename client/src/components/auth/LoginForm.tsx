@@ -85,35 +85,44 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardContent className="p-4" style={{ padding: '1em' }}>
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">الدخول للنظام</h2>
-          <p className="text-sm text-gray-600 mb-4">تأكد من إدخال المعلومات الصحيحة</p>
-        </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <Card className="w-full rounded-[32px] border border-white/80 bg-white/85 backdrop-blur-xl shadow-[0_40px_120px_rgba(15,23,42,0.08)]">
+      <CardHeader className="space-y-3 text-right border-b border-slate-100 bg-white/60">
+        <CardTitle className="text-2xl font-semibold text-slate-900">
+          تسجيل الدخول إلى المنصة
+        </CardTitle>
+        <CardDescription className="text-sm leading-6 text-slate-500">
+          أدخل بيانات حسابك للوصول إلى أدوات إدارة العملاء والعقارات.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6 p-6 text-right">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="text-right">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="space-y-2">
-            <Label htmlFor="username">اسم المستخدم</Label>
+            <Label htmlFor="username" className="block text-sm font-medium text-slate-700">
+              اسم المستخدم
+            </Label>
             <Input
               id="username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="اسم المستخدم"
+              placeholder="أدخل اسم المستخدم"
+              autoComplete="username"
               required
               disabled={isLoading}
+              className="h-12 rounded-2xl border-slate-200 bg-white/70 text-right placeholder:text-right placeholder:text-slate-400 pr-12 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
             />
           </div>
-          
+
           <div className="space-y-2">
-            <Label htmlFor="password">كلمة المرور</Label>
+            <Label htmlFor="password" className="block text-sm font-medium text-slate-700">
+              كلمة المرور
+            </Label>
             <div className="relative">
               <Input
                 id="password"
@@ -121,14 +130,16 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                autoComplete="current-password"
                 required
                 disabled={isLoading}
+                className="h-12 rounded-2xl border-slate-200 bg-white/70 text-right placeholder:text-right placeholder:text-slate-400 pr-12 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
               />
               <Button
                 type="button"
                 variant="ghost"
-                size="sm"
-                className="absolute left-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                size="icon"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 hover:bg-transparent"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading}
               >
@@ -140,28 +151,28 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
               </Button>
             </div>
           </div>
-          
-          <div className="text-right">
+
+          <div className="text-sm text-slate-500 text-right">
             <Button
               type="button"
               variant="link"
-              className="p-0 h-auto text-sm text-gray-600 hover:text-gray-800"
+              className="p-0 h-auto text-sm text-emerald-600 hover:text-emerald-700"
               onClick={() => {
                 alert('يرجى التواصل مع مدير النظام لاستعادة بيانات الدخول');
               }}
             >
-              نسيت اسم المستخدم أو كلمة المرور؟
+              نسيت بيانات الدخول؟
             </Button>
           </div>
-          
+
           <Button
             type="submit"
-            className="w-full"
+            className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold shadow-[0_20px_45px_rgba(16,185,129,0.25)] hover:bg-emerald-700 hover:shadow-[0_25px_60px_rgba(16,185,129,0.28)] transition-all disabled:opacity-60"
             disabled={isLoading || !username || !password}
           >
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
                 جاري تسجيل الدخول...
               </>
             ) : (
@@ -169,15 +180,6 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
             )}
           </Button>
         </form>
-        
-        <div className="text-center mt-4">
-          <p className="text-sm text-gray-600">
-            ليس لديك حساب؟{" "}
-            <a href="#" className="text-blue-600 hover:text-blue-800 underline">
-              إنشاء حساب جديد
-            </a>
-          </p>
-        </div>
       </CardContent>
     </Card>
   );
