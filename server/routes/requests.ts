@@ -63,6 +63,7 @@ router.get("/", async (_req, res) => {
   }
 });
 
+
 export default router;
 
 // Admin: update status
@@ -70,7 +71,7 @@ router.patch("/:id/status", async (req, res) => {
   try {
     const { status } = req.body || {};
     if (!status) return res.status(400).json({ message: "status is required" });
-    const updated = await storage.updateRealEstateRequestStatus(req.params.id, String(status));
+    const updated = await storage.updateRealEstateRequest(req.params.id, { status: String(status) });
     if (!updated) return res.status(404).json({ message: "Request not found" });
     res.json(updated);
   } catch (err) {
@@ -82,7 +83,7 @@ router.patch("/:id/status", async (req, res) => {
 // Admin: export CSV
 router.get("/export", async (_req, res) => {
   try {
-    const items = await storage.listRealEstateRequests();
+    const items = await storage.getAllRealEstateRequests();
     const header = [
       "id",
       "createdAt",

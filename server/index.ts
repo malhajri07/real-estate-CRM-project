@@ -10,7 +10,7 @@
  * - Vite integration for development hot reloading
  * - Static file serving for production builds
  * 
- * The server runs on port 5001 in development and serves both the API
+ * The server runs on port 3000 in development and serves both the API
  * and the frontend application through a single port.
  */
 
@@ -135,9 +135,7 @@ app.use((req, res, next) => {
    * - serveStatic() - Production static file serving
    */
   if (app.get("env") === "development") {
-    // In development, serve different content based on port:
-    // - http://localhost:3000 (Vite dev server) - Landing page for unauthenticated users
-    // - http://localhost:5001 (this server) - Dashboard for authenticated users
+    // In development, serve the app and API from a single Express port (3000)
     await setupVite(app, server);
   } else {
     // In production, serve the built frontend from dist/public
@@ -153,7 +151,7 @@ app.use((req, res, next) => {
    * 
    * This serves both the API and the frontend application.
    */
-  const port = parseInt(process.env.PORT || '5001', 10);
+  const port = parseInt(process.env.PORT || '3000', 10);
   server.listen({
     port,
     host: "0.0.0.0",

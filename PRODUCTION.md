@@ -15,7 +15,7 @@ This produces the server bundle at `dist/index.js` and the built client at `dist
 
 Environment variables:
 - `NODE_ENV=production` (required)
-- `PORT=5001` (optional; defaults to 5001)
+- `PORT=3000` (optional; defaults to 3000)
 - `JWT_SECRET=<strong-secret>` (required; the server will refuse to start if missing/insecure)
 - `PUBLIC_BASE_URL=https://your-domain` (optional; affects sitemaps/links)
 
@@ -35,8 +35,8 @@ pm2 save
 
 ## Endpoints
 
-- UI: `http://localhost:5001` (serves built client)
-- API: `http://localhost:5001/api/*`
+- UI: `http://localhost:3000` (serves built client)
+- API: `http://localhost:3000/api/*`
 - Auth health: `GET /api/auth/ping` → `{ success: true }`
 
 ## Admin Access
@@ -55,7 +55,7 @@ With Nginx:
 
 ```
 location / {
-  proxy_pass http://127.0.0.1:5001;
+  proxy_pass http://127.0.0.1:3000;
   proxy_set_header Host $host;
   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
   proxy_set_header X-Forwarded-Proto $scheme;

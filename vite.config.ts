@@ -10,7 +10,7 @@
  * - Development plugins for enhanced debugging
  * 
  * Key Features:
- * - API Proxy: Forwards /api requests to backend server (port 5001)
+ * - API Proxy: Forwards /api requests to backend server (port 3000)
  * - Path Aliases: Clean import paths for better code organization
  * - Hot Module Replacement (HMR): Fast development with instant updates
  * - TypeScript Support: Full TypeScript compilation and type checking
@@ -97,17 +97,17 @@ export default defineConfig({
     /**
      * API Proxy Configuration
      * 
-     * Forwards all /api requests from the frontend (port 3000) to the backend server (port 5001).
+     * Forwards all /api requests from the frontend dev server (port 3000) to the backend server (port 3000).
      * This allows the frontend to make API calls using relative paths (/api/*) which are
      * automatically proxied to the backend server.
      * 
-     * Target: http://127.0.0.1:5001 (backend server)
+     * Target: http://127.0.0.1:3000 (backend server)
      * Routes affected: All /api/* requests
      * Pages affected: All pages making API calls
      */
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:5001',  // Backend server URL
+        target: 'http://127.0.0.1:3000',  // Backend server URL
         changeOrigin: true,                // Change origin header
         secure: false,                     // Allow HTTP (for development)
       },

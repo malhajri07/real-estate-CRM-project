@@ -7,9 +7,9 @@ module.exports = {
       exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
-        PORT: process.env.PORT || 5001,
+        PORT: process.env.PORT || 3000,
         JWT_SECRET: process.env.JWT_SECRET || 'change-me',
-        PUBLIC_BASE_URL: process.env.PUBLIC_BASE_URL || 'http://localhost:5001'
+        PUBLIC_BASE_URL: process.env.PUBLIC_BASE_URL || 'http://localhost:3000'
       },
       watch: false,
       max_memory_restart: '512M',

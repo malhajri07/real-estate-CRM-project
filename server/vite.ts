@@ -71,7 +71,7 @@ export async function setupVite(app: Express, server: Server) {
       // This will override any existing SERVER_PORT from Vite plugins
       const portScript = `
         <script>
-          window.SERVER_PORT = '${process.env.PORT || '5001'}';
+          window.SERVER_PORT = '${process.env.PORT || '3000'}';
         </script>
       `;
       template = template.replace('</head>', `${portScript}</head>`);

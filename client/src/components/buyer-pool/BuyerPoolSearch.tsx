@@ -177,12 +177,12 @@ export default function BuyerPoolSearch() {
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <div>
               <label className="text-sm font-medium">المدينة</label>
-              <Select value={filters.city} onValueChange={(value) => setFilters(prev => ({ ...prev, city: value }))}>
+              <Select value={filters.city || "all"} onValueChange={(value) => setFilters(prev => ({ ...prev, city: value === "all" ? "" : value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="جميع المدن" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">جميع المدن</SelectItem>
+                  <SelectItem value="all">جميع المدن</SelectItem>
                   <SelectItem value="الرياض">الرياض</SelectItem>
                   <SelectItem value="جدة">جدة</SelectItem>
                   <SelectItem value="الدمام">الدمام</SelectItem>
@@ -196,12 +196,12 @@ export default function BuyerPoolSearch() {
 
             <div>
               <label className="text-sm font-medium">نوع العقار</label>
-              <Select value={filters.type} onValueChange={(value) => setFilters(prev => ({ ...prev, type: value }))}>
+              <Select value={filters.type || "any"} onValueChange={(value) => setFilters(prev => ({ ...prev, type: value === "any" ? "" : value }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="جميع الأنواع" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">جميع الأنواع</SelectItem>
+                  <SelectItem value="any">جميع الأنواع</SelectItem>
                   <SelectItem value="شقة">شقة</SelectItem>
                   <SelectItem value="فيلا">فيلا</SelectItem>
                   <SelectItem value="دوبلكس">دوبلكس</SelectItem>
@@ -238,7 +238,7 @@ export default function BuyerPoolSearch() {
               <Input
                 type="number"
                 placeholder="1"
-                value={filters.minBedrooms}
+                value={filters.minBedrooms || "any"}
                 onChange={(e) => setFilters(prev => ({ ...prev, minBedrooms: e.target.value }))}
               />
             </div>
@@ -248,7 +248,7 @@ export default function BuyerPoolSearch() {
               <Input
                 type="number"
                 placeholder="10"
-                value={filters.maxBedrooms}
+                value={filters.maxBedrooms || "any"}
                 onChange={(e) => setFilters(prev => ({ ...prev, maxBedrooms: e.target.value }))}
               />
             </div>

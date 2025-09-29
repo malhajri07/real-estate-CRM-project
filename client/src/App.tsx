@@ -31,7 +31,6 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 
 // Core page imports - loaded immediately for critical routes
-import Login from "@/pages/login";
 import Landing from "@/pages/landing";
 import SignupSelection from "@/pages/signup-selection";
 import SignupIndividual from "@/pages/signup-individual";
@@ -41,6 +40,9 @@ import KYCSubmitted from "@/pages/kyc-submitted";
 import CMSAdmin from "@/pages/cms-admin";
 import Dashboard from "@/pages/dashboard";
 import SearchProperties from "@/pages/search-properties";
+import TestPage from "@/pages/test-page";
+import SimpleTest from "@/pages/simple-test";
+import WorkingTest from "@/pages/working-test";
 import Leads from "@/pages/leads";
 import Customers from "@/pages/customers";
 import Properties from "@/pages/properties";
@@ -59,6 +61,9 @@ import SimpleAdminPage from "@/pages/simple-admin";
 import DirectAdminPage from "@/pages/direct-admin";
 import RBACLoginPage from "@/pages/rbac-login";
 import PlatformPage from "@/pages/app";
+import UnverfiedListingPage from "@/pages/unverfied_Listing";
+import MarketingRequestSubmissionPage from "@/pages/marketing-request";
+import MarketingRequestsBoardPage from "@/pages/marketing-requests";
 
 // Lazy-loaded page imports - loaded on demand for better performance
 const FavoritesPage = lazy(() => import("@/pages/favorites"));
@@ -71,6 +76,7 @@ const AgentPage = lazy(() => import("@/pages/agent"));
 const PublicListingPage = lazy(() => import("@/pages/listing"));
 const SavedSearchesPage = lazy(() => import("@/pages/saved-searches"));
 const RealEstateRequestsPage = lazy(() => import("@/pages/real-estate-requests"));
+const CustomerRequestsPage = lazy(() => import("@/pages/customer-requests"));
 const AdminRequestsPage = lazy(() => import("@/pages/admin-requests"));
 
 
@@ -97,6 +103,13 @@ function Router() {
   const [location, setLocation] = useLocation();
   const [previousLocation, setPreviousLocation] = useState("");
   const [isNormalizingUrl, setIsNormalizingUrl] = useState(false);
+  const [hash, setHash] = useState(() => window.location.hash);
+
+  useEffect(() => {
+    const handleHashChange = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   // Normalize trailing slashes to avoid duplicate route definitions
   const hasTrailingSlash = location.length > 1 && location.endsWith('/');
@@ -125,11 +138,15 @@ function Router() {
     );
   }
 
+  if (hash === '#list') {
+    return <UnverfiedListingPage />;
+  }
+
   // Determine if user is authenticated
   const isAuthenticated = !!user;
   
   // Detect which server port is being used
-  const isDashboardPort = (window as any).SERVER_PORT === '5001' || window.location.port === '5001';
+  const isDashboardPort = (window as any).SERVER_PORT === '3000' || window.location.port === '3000';
   
   // Debug logging
   console.log('Routing Debug:', {
@@ -145,6 +162,15 @@ function Router() {
     logout();
     setLocation('/home');
   };
+
+  // Provide standalone rendering for the public property search page
+  if (location.startsWith('/search-properties')) {
+    return (
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
+        <SearchProperties />
+      </Suspense>
+    );
+  }
 
   type PlatformRouteOptions = {
     title?: string;
@@ -183,6 +209,7 @@ function Router() {
     { path: '/home/platform/agencies', component: AgenciesPage, aliases: ['/agencies'] },
     { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'] },
     { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms', '/cms-admin'] },
+    { path: '/home/platform/marketing-requests', component: MarketingRequestsBoardPage, aliases: ['/marketing-requests'] },
   ];
 
   const platformDynamicRoutes: Array<{
@@ -201,12 +228,11 @@ function Router() {
     component: PlatformRenderableComponent;
     options?: PlatformRouteOptions;
   }> = [
-    { path: '/real-estate-requests', component: RealEstateRequestsPage },
+    { path: '/customer-requests', component: CustomerRequestsPage, options: { title: 'طلبات العملاء', searchPlaceholder: 'ابحث في بيانات العملاء' } },
     { path: '/admin/requests', component: AdminRequestsPage },
     { path: '/favorites', component: FavoritesPage },
     { path: '/compare', component: ComparePage },
     { path: '/post-listing', component: PostListingPage },
-    { path: '/search-properties', component: SearchProperties },
     { path: '/saved-searches', component: SavedSearchesPage },
   ];
 
@@ -257,76 +283,83 @@ function Router() {
     );
   }
 
-  // Port-based routing logic:
-  // - Port 3000 (Vite dev server): ALWAYS show landing page (never redirect)
-  // - Port 5001 (Express server): Show dashboard for authenticated users, show landing page for unauthenticated users
+// Port-based routing logic:
+  // - Port 3000 (Express server): primary host serving both API and frontend
+  // - Any other port (e.g. standalone Vite dev server): keep public experience and redirect
   console.log('Port routing check:', { isDashboardPort, isAuthenticated });
   
-  // Port 3000 should ALWAYS show landing page, never redirect
+  // Standalone Vite dev server (non-dashboard ports) should redirect back to Express
   if (!isDashboardPort) {
-    console.log('Port 3000: Showing landing page (no redirect)');
-    // Always show public routes on port 3000, regardless of authentication status
+    console.log('Non-dashboard port detected: redirecting secured routes to 3000');
+    // When running the standalone Vite server, keep public routes here and redirect
+    // any authenticated routes back to the Express instance on port 3000
     return (
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
       <Switch>
-        {/* Dashboard and authenticated routes should redirect to port 5001 */}
+        {/* Dashboard and authenticated routes should redirect to the unified server */}
         <Route path="/dashboard" component={() => {
-          window.location.href = 'http://localhost:5001/dashboard';
+          window.location.href = 'http://localhost:3000/dashboard';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/leads" component={() => {
-          window.location.href = 'http://localhost:5001/leads';
+          window.location.href = 'http://localhost:3000/leads';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/customers" component={() => {
-          window.location.href = 'http://localhost:5001/customers';
+          window.location.href = 'http://localhost:3000/customers';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/properties" component={() => {
-          window.location.href = 'http://localhost:5001/properties';
+          window.location.href = 'http://localhost:3000/properties';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/pipeline" component={() => {
-          window.location.href = 'http://localhost:5001/pipeline';
+          window.location.href = 'http://localhost:3000/pipeline';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/clients" component={() => {
-          window.location.href = 'http://localhost:5001/clients';
+          window.location.href = 'http://localhost:3000/clients';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/reports" component={() => {
-          window.location.href = 'http://localhost:5001/reports';
+          window.location.href = 'http://localhost:3000/reports';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/notifications" component={() => {
-          window.location.href = 'http://localhost:5001/notifications';
+          window.location.href = 'http://localhost:3000/notifications';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/rbac-dashboard" component={() => {
-          window.location.href = 'http://localhost:5001/rbac-dashboard';
+          window.location.href = 'http://localhost:3000/rbac-dashboard';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/buyer-pool" component={() => {
-          window.location.href = 'http://localhost:5001/buyer-pool';
+          window.location.href = 'http://localhost:3000/buyer-pool';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/inquiries" component={() => {
-          window.location.href = 'http://localhost:5001/inquiries';
+          window.location.href = 'http://localhost:3000/inquiries';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/requests" component={() => {
-          window.location.href = 'http://localhost:5001/requests';
+          window.location.href = 'http://localhost:3000/requests';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/locations" component={() => {
-          window.location.href = 'http://localhost:5001/locations';
+          window.location.href = 'http://localhost:3000/locations';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
         <Route path="/cms-admin" component={() => {
-          window.location.href = 'http://localhost:5001/cms-admin';
+          window.location.href = 'http://localhost:3000/cms-admin';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
         }} />
-        {/* Use RBAC-aware login that integrates with AuthProvider */}
+        {/* Landing page */}
+        <Route path="/home" component={Landing} />
+        <Route path="/unverfied-listing" component={UnverfiedListingPage} />
+        <Route path="/unverified-listings" component={UnverfiedListingPage} />
+        <Route path="/marketing-request" component={MarketingRequestSubmissionPage} />
+
+        {/* RBAC-aware login accessible from landing */}
         <Route path="/home/login" component={RBACLoginPage} />
         <Route path="/home/platform" component={PlatformPage} />
 
@@ -353,7 +386,6 @@ function Router() {
         <Route path="/signup/corporate" component={SignupCorporate} />
         <Route path="/signup/success" component={SignupSuccess} />
         <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
-        <Route path="/search-properties" component={SearchProperties} />
         <Route path="/real-estate-requests" component={RealEstateRequestsPage} />
         <Route path="/favorites" component={FavoritesPage} />
         <Route path="/compare" component={ComparePage} />
@@ -364,7 +396,7 @@ function Router() {
         <Route path="/agent/:id" component={AgentPage} />
         <Route path="/listing/:id" component={PublicListingPage} />
         <Route path="/saved-searches" component={SavedSearchesPage} />
-        {/* Default route for port 3000 - redirect to home */}
+        {/* Default route for non-dashboard port - redirect to home */}
         <Route component={() => {
           window.location.href = '/home';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى الصفحة الرئيسية...</div>;
@@ -374,9 +406,9 @@ function Router() {
     );
   }
 
-  // Port 5001 logic: Show dashboard for authenticated users, landing page for unauthenticated users
+  // Port 3000 logic: Show dashboard for authenticated users, landing page for unauthenticated users
   if (isDashboardPort && !isAuthenticated) {
-    console.log('Port 5001: Showing landing page (unauthenticated user)');
+    console.log('Port 3000: Showing landing page (unauthenticated user)');
     return (
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
       <Switch>
@@ -384,6 +416,9 @@ function Router() {
         <Route path="/login" component={RBACLoginPage} />
         <Route path="/rbac-login" component={RBACLoginPage} />
         <Route path="/auth-test" component={AuthTestPage} />
+        <Route path="/unverfied-listing" component={UnverfiedListingPage} />
+        <Route path="/unverified-listings" component={UnverfiedListingPage} />
+        <Route path="/marketing-request" component={MarketingRequestSubmissionPage} />
         <Route path="/simple-admin" component={SimpleAdminPage} />
         <Route path="/direct-admin" component={DirectAdminPage} />
         <Route path="/signup" component={SignupSelection} />
@@ -402,12 +437,9 @@ function Router() {
         <Route path="/agent/:id" component={AgentPage} />
         <Route path="/listing/:id" component={PublicListingPage} />
         <Route path="/saved-searches" component={SavedSearchesPage} />
-        {/* Root path for unauthenticated users on port 5001 - redirect to login */}
-        <Route path="/" component={() => {
-          window.location.href = '/login';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى صفحة تسجيل الدخول...</div>;
-        }} />
-        {/* Landing page is the default route for unauthenticated users on port 5001 */}
+        {/* Root path for unauthenticated users on port 3000 - show landing */}
+        <Route path="/" component={Landing} />
+        {/* Fallback */}
         <Route component={Landing} />
       </Switch>
       </Suspense>
@@ -452,10 +484,10 @@ function Router() {
    * sidebar positioning and the mr-72 class for right margin to
    * accommodate the fixed sidebar.
    * 
-   * Note: These routes are only shown on port 5001 (dashboard port) for authenticated users
+   * Note: These routes are only shown on port 3000 (dashboard port) for authenticated users
    */
   if (isDashboardPort && isAuthenticated) {
-    console.log('Port 5001: Showing authenticated routes (dashboard)');
+    console.log('Port 3000: Showing authenticated routes (dashboard)');
 
     const legacyRedirects = [
       { path: '/dashboard', target: '/home/platform' },
@@ -465,6 +497,8 @@ function Router() {
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
         <Switch>
           <Route path="/home/platform" component={PlatformPage} />
+          <Route path="/unverfied-listing" component={UnverfiedListingPage} />
+          <Route path="/unverified-listings" component={UnverfiedListingPage} />
 
           {platformShellRoutes.flatMap(({ path, component, options, aliases }) => {
             const routes = [

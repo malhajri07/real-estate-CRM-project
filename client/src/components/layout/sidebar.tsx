@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, Users, Building, Building2, Filter, Handshake, BarChart3, Bell, Settings, LogOut, MapPin, PlusSquare, Heart, Shuffle, Bookmark, ShieldCheck, Shield } from "lucide-react";
+import { Home, Users, Building, Building2, Filter, Handshake, BarChart3, Bell, Settings, LogOut, MapPin, PlusSquare, Heart, Shuffle, Bookmark, ShieldCheck, Shield, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
@@ -25,8 +25,8 @@ const getNavigationItems = (t: (key: string) => string): NavItem[] => [
   { path: "/home/platform/clients", labelKey: "nav.clients", icon: Handshake },
   { path: "/home/platform/notifications", labelKey: "nav.notifications", icon: Bell },
   { path: "/home/platform/reports", labelKey: "nav.reports", icon: BarChart3 },
+  { path: "/home/platform/marketing-requests", label: "طلبات التسويق", icon: Megaphone },
   // Marketplace/Public
-  { path: "/search-properties", labelKey: "nav.search", icon: MapPin },
   { path: "/post-listing", labelKey: "nav.post_listing", icon: PlusSquare },
   { path: "/home/platform/agencies", labelKey: "nav.agencies", icon: Handshake },
   { path: "/saved-searches", label: "عمليات البحث", icon: Bookmark },
@@ -34,7 +34,7 @@ const getNavigationItems = (t: (key: string) => string): NavItem[] => [
   { path: "/compare", labelKey: "nav.compare", icon: Shuffle },
   { path: "/home/platform/moderation", label: "المراجعة", icon: ShieldCheck },
   // Use the platform-accessible requests page instead of server-only admin route
-  { path: "/real-estate-requests", label: "طلبات العملاء", icon: Bookmark },
+  { path: "/customer-requests", label: "طلبات العملاء", icon: Bookmark },
 ];
 
 const getBottomItems = (t: (key: string) => string): NavItem[] => [

@@ -15,6 +15,39 @@ export default function Landing() {
   const [featured, setFeatured] = useState<any[]>([]);
   const [recent, setRecent] = useState<any[]>([]);
 
+
+const defaultNavigation = [
+  { href: '#home', label: 'الرئيسية' },
+  { href: '/search-properties', label: 'ابحث عن عقار' },
+  { href: '#request', label: 'اطلب عقارك' },
+  { href: '/unverified-listings', label: 'اعرض عقارك' },
+  { href: '/marketing-request', label: 'سوق الوسطاء' },
+];
+
+const navigationLinks = (landingContent?.navigation && landingContent.navigation.length > 0
+  ? landingContent.navigation
+      .sort((a, b) => a.order - b.order)
+      .map((item) => ({ href: item.url || '#', label: item.text || item.id }))
+  : []
+).reduce((acc: { href: string; label: string }[], item) => {
+  if (!acc.some((link) => link.href === item.href && link.label === item.label)) {
+    acc.push({ href: item.href, label: item.label });
+  }
+  return acc;
+}, []);
+
+const combinedNavigation = [
+  ...navigationLinks.filter((link) =>
+    defaultNavigation.some((allowed) => allowed.href === link.href)
+  ),
+];
+
+for (const link of defaultNavigation) {
+  if (!combinedNavigation.some((existing) => existing.href === link.href)) {
+    combinedNavigation.push(link);
+  }
+}
+
   useEffect(() => {
     const loadCMSContent = async (noCache = false) => {
       try {
@@ -59,7 +92,7 @@ export default function Landing() {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = "/home/login";
+    window.location.href = "/login";
   };
 
   const handleSignUp = () => {
@@ -89,24 +122,11 @@ export default function Landing() {
               </div>
             </div>
             <nav className="hidden md:flex space-x-reverse space-x-8">
-              {landingContent?.navigation && landingContent.navigation.length > 0 ? (
-                landingContent.navigation
-                  .sort((a, b) => a.order - b.order)
-                  .map((item) => (
-                    <a key={item.id} href={item.url} className="text-gray-700 hover:text-primary">
-                      {item.text}
-                    </a>
-                  ))
-              ) : (
-                <>
-                  <a href="#home" className="text-gray-700 hover:text-primary">الرئيسية</a>
-                  <a href="/search-properties" className="text-gray-700 hover:text-primary">ابحث عن عقار</a>
-                  <a href="#features" className="text-gray-700 hover:text-primary">المميزات</a>
-                  <a href="#solutions" className="text-gray-700 hover:text-primary">الحلول</a>
-                  <a href="#pricing" className="text-gray-700 hover:text-primary">الأسعار</a>
-                  <a href="#contact" className="text-gray-700 hover:text-primary">اتصل بنا</a>
-                </>
-              )}
+              {combinedNavigation.map((item) => (
+                <a key={`${item.href}-${item.label}`} href={item.href} className="text-gray-700 hover:text-primary">
+                  {item.label}
+                </a>
+              ))}
             </nav>
             <div className="flex items-center space-x-reverse space-x-4">
               <Button onClick={handleLogin} variant="outline" className="text-primary border-primary hover:bg-primary/10">
@@ -364,8 +384,8 @@ export default function Landing() {
       </section>
 
 
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-white" data-cms-section="features">
+
+<section id="features" className="py-20 bg-white" data-cms-section="features">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16" data-cms-content="features-header">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4" data-cms-field="featuresTitle">

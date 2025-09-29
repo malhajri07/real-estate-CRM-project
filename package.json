@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "dev:server": "PORT=5001 NODE_ENV=development tsx server/index.ts",
+    "dev:server": "PORT=${PORT:-3000} NODE_ENV=development tsx server/index.ts",
     "dev:client": "vite",
     "dev:all": "bash -c 'npm run dev:server & npm run dev:client'",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
@@ -14,7 +14,8 @@
     "check": "tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**'",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**' --fix",
-    "import:users": "tsx server/import-users-from-csv.ts attached_assets/real_estate_users_500_clean.csv"
+    "import:users": "tsx server/import-users-from-csv.ts attached_assets/real_estate_users_500_clean.csv",
+    "import:geo": "tsx server/import-geo-data.ts"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.17.0",
@@ -86,6 +87,7 @@
     "memoizee": "^0.4.17",
     "memorystore": "^1.6.7",
     "next-themes": "^0.4.6",
+    "nodemailer": "^7.0.6",
     "openid-client": "^6.6.4",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",

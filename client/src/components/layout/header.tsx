@@ -13,11 +13,11 @@
  * following modern UI/UX best practices.
  */
 
-import { Search, Bell, User } from "lucide-react";
+import { Search, Bell, User, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 interface HeaderProps {
@@ -25,13 +25,21 @@ interface HeaderProps {
   searchPlaceholder?: string;
   showSearch?: boolean;
   showActions?: boolean;
+  extraContent?: ReactNode;
+  title?: string;
+  onToggleSidebar?: () => void;
+  isSidebarOpen?: boolean;
 }
 
 export default function Header({ 
   onSearch, 
   searchPlaceholder,
   showSearch = true,
-  showActions = true
+  showActions = true,
+  extraContent,
+  title,
+  onToggleSidebar,
+  isSidebarOpen,
 }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const { t } = useLanguage();
@@ -57,8 +65,24 @@ export default function Header({
   const notificationCount = 3;
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm h-16">
+    <header
+      className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm h-16"
+      aria-label={title || "الشريط العلوي"}
+    >
       <div className="flex items-center gap-4 px-6 h-full w-full" dir="ltr">
+        <div className="flex items-center gap-2 order-5 ml-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onToggleSidebar}
+            className="h-10 w-10 p-0 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-600 border border-transparent transition lg:hover:border-gray-200"
+            aria-label={isSidebarOpen ? "إخفاء القائمة" : "إظهار القائمة"}
+            disabled={!onToggleSidebar}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        </div>
         {/* Notifications (far left) */}
         {showActions && (
           <div className="flex items-center shrink-0 order-1">
@@ -91,9 +115,16 @@ export default function Header({
           </div>
         )}
 
+        {/* Extra controls */}
+        {extraContent && (
+          <div className="flex flex-wrap items-center gap-2 order-3 ml-2" dir="rtl">
+            {extraContent}
+          </div>
+        )}
+
         {/* User cluster (far right) */}
         {showActions && (
-          <div className="flex items-center gap-3 shrink-0 order-3 ml-2">
+          <div className="flex items-center gap-3 shrink-0 order-4 ml-2">
             <span className="text-sm font-medium text-gray-700">{getUsername()}</span>
             <div className="h-8 w-8 rounded-full flex items-center justify-center shadow-sm bg-emerald-600">
               <User className="h-4 w-4 text-white" />

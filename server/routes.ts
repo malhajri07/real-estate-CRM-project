@@ -42,7 +42,6 @@ import { createServer, type Server } from "http";
  */
 import { storage } from "./storage-prisma";
 // Removed unused schema imports - using Prisma schema instead
-import { whatsappService } from "./whatsapp";
 import { z } from "zod";
 import { setupMockAuth, isAuthenticated } from "./authMock";
 // import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage"; // Removed - Replit-specific
@@ -51,6 +50,8 @@ import { setupMockAuth, isAuthenticated } from "./authMock";
 // Route module imports - Each handles specific functionality
 // import accountRoutes from "./routes/accounts";        // Account management - Temporarily disabled
 import listingsRoutes from "./routes/listings";       // Property listings
+import unverifiedListingsRoutes from "./routes/unverified-listings"; // Public unverified submissions
+import marketingRequestRoutes from "./routes/marketing-requests"; // Marketing request marketplace
 import locationsRoutes from "./routes/locations";     // Geographic data
 import favoritesRoutes from "./routes/favorites";     // User favorites
 import inquiriesRoutes from "./routes/inquiries";     // Property inquiries
@@ -147,6 +148,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Status: Custom CMS replacing Strapi
    */
   app.use("/api/cms", cmsRoutes);
+  app.use("/api/unverified-listings", unverifiedListingsRoutes);
+  app.use("/api/marketing-requests", marketingRequestRoutes);
 
   /**
    * RBAC Admin Routes - /api/rbac-admin/*
@@ -851,16 +854,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const messageData = insertMessageSchema.parse(req.body);
       const message = await storage.createMessage(messageData);
 
-      // Send WhatsApp message if the type is whatsapp
-      if (messageData.messageType === 'whatsapp') {
-        const success = await whatsappService.sendMessage(messageData.phoneNumber, messageData.message);
-        if (success) {
-          await storage.updateMessageStatus(message.id, 'sent');
-        } else {
-          await storage.updateMessageStatus(message.id, 'failed');
-        }
-      }
-
       res.json(message);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -869,13 +862,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(500).json({ error: "Failed to create message" });
       }
     }
-  });
-
-  app.get("/api/whatsapp/status", (req, res) => {
-    res.json({
-      isReady: whatsappService.isClientReady(),
-      service: 'WhatsApp Web'
-    });
   });
 
   // Notifications API

@@ -3,10 +3,31 @@ import { storage } from "../storage-prisma";
 
 const router = express.Router();
 
-router.get("/regions", async (_req, res) => {
+function asCenter(latitude: number | null, longitude: number | null) {
+  if (latitude === null || longitude === null) {
+    return null;
+  }
+  return { latitude, longitude };
+}
+
+router.get("/regions", async (req, res) => {
   try {
+    const includeBoundary = req.query.includeBoundary === "true";
     const regions = await storage.getAllSaudiRegions();
-    res.json(regions);
+
+    const payload = regions.map((region) => ({
+      id: region.id,
+      code: region.code,
+      nameAr: region.nameAr,
+      nameEn: region.nameEn,
+      population: region.population,
+      center: asCenter(region.centerLatitude, region.centerLongitude),
+      citiesCount: region.citiesCount,
+      districtsCount: region.districtsCount,
+      boundary: includeBoundary ? region.boundary : undefined,
+    }));
+
+    res.json(payload);
   } catch (err) {
     console.error("Error fetching regions:", err);
     res.status(500).json({ message: "Failed to fetch regions" });
@@ -15,18 +36,83 @@ router.get("/regions", async (_req, res) => {
 
 router.get("/cities", async (req, res) => {
   try {
-    const regionCode = (req.query.regionCode as string | undefined) || undefined;
-    if (regionCode) {
-      const cities = await storage.getCitiesByRegion(regionCode);
-      return res.json(cities);
+    let cities;
+
+    if (typeof req.query.regionId === "string") {
+      const regionId = Number(req.query.regionId);
+      if (Number.isNaN(regionId)) {
+        return res.status(400).json({ message: "Invalid regionId parameter" });
+      }
+      cities = await storage.getAllSaudiCities(regionId);
+    } else if (typeof req.query.regionCode === "string") {
+      cities = await storage.getCitiesByRegion(req.query.regionCode);
+    } else {
+      cities = await storage.getAllSaudiCities();
     }
-    const cities = await storage.getAllSaudiCities();
-    res.json(cities);
+
+    const payload = cities.map((city) => ({
+      id: city.id,
+      regionId: city.regionId,
+      nameAr: city.nameAr,
+      nameEn: city.nameEn,
+      center: asCenter(city.centerLatitude, city.centerLongitude),
+      districtsCount: city.districtsCount,
+      propertiesCount: city.propertiesCount,
+    }));
+
+    res.json(payload);
   } catch (err) {
     console.error("Error fetching cities:", err);
     res.status(500).json({ message: "Failed to fetch cities" });
   }
 });
 
-export default router;
+router.get("/districts", async (req, res) => {
+  try {
+    const includeBoundary = req.query.includeBoundary === "true";
 
+    if (typeof req.query.cityId === "string") {
+      const cityId = Number(req.query.cityId);
+      if (Number.isNaN(cityId)) {
+        return res.status(400).json({ message: "Invalid cityId parameter" });
+      }
+      const districts = await storage.getDistrictsByCity(cityId);
+      return res.json(
+        districts.map((district) => ({
+          id: district.id,
+          regionId: district.regionId,
+          cityId: district.cityId,
+          nameAr: district.nameAr,
+          nameEn: district.nameEn,
+          boundary: includeBoundary ? district.boundary : undefined,
+        }))
+      );
+    }
+
+    let regionId: number | undefined;
+    if (typeof req.query.regionId === "string") {
+      regionId = Number(req.query.regionId);
+      if (Number.isNaN(regionId)) {
+        return res.status(400).json({ message: "Invalid regionId parameter" });
+      }
+    }
+
+    const districts = await storage.getAllSaudiDistricts(regionId);
+
+    const payload = districts.map((district) => ({
+      id: district.id,
+      regionId: district.regionId,
+      cityId: district.cityId,
+      nameAr: district.nameAr,
+      nameEn: district.nameEn,
+      boundary: includeBoundary ? district.boundary : undefined,
+    }));
+
+    res.json(payload);
+  } catch (err) {
+    console.error("Error fetching districts:", err);
+    res.status(500).json({ message: "Failed to fetch districts" });
+  }
+});
+
+export default router;

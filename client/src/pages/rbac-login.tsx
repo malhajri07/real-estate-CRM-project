@@ -143,22 +143,13 @@ export default function RBACLoginPage() {
 
       <main className="px-4 py-16">
         <div className="max-w-5xl mx-auto space-y-12">
-          <div className="space-y-4 text-right">
-            <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
-              تسجيل الدخول إلى منصة عقاراتي
-            </h1>
-            <p className="text-lg text-slate-500 leading-relaxed">
-              استخدم حسابك للوصول إلى أدوات إدارة العملاء والعقارات، أو أنشئ حساباً جديداً للبدء الآن.
-            </p>
-          </div>
-
-          <div className="flex justify-end">
+          <div className="flex justify-center">
             <div className="w-full max-w-md">
               {primaryCard}
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-3 text-right">
+          <div className="flex flex-col items-center gap-3 text-center">
             <p className="text-sm text-slate-500">
               لا تملك حساباً بعد؟
               <a href="/signup" className="mr-2 font-semibold text-emerald-600 hover:text-emerald-700">

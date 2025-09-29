@@ -20,6 +20,8 @@ import {
   Filter,
   Map,
   MapPin,
+  LayoutList,
+  Heart,
   Bed,
   Bath,
   Square,
@@ -238,12 +240,15 @@ export default function SearchProperties() {
   const [, setLocation] = useLocation();
 
   const isDashboardPort = typeof window !== "undefined"
-    ? (window as any).SERVER_PORT === "5001" || window.location.port === "5001"
+    ? (window as any).SERVER_PORT === "3000" || window.location.port === "3000"
     : false;
 
   const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
   const [showMap, setShowMap] = useState(true);
+  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [focusedPropertyId, setFocusedPropertyId] = useState<string | null>(null);
   const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
 
@@ -287,23 +292,30 @@ export default function SearchProperties() {
     enabled: showMap,
   });
 
-   const properties = (listingsQuery.data as ListingsQueryResult)?.items ?? [];
+  const properties = (listingsQuery.data as ListingsQueryResult)?.items ?? [];
+
+  const visibleProperties = useMemo(() => {
+    if (!showFavoritesOnly) {
+      return properties;
+    }
+    return properties.filter((item: ApiProperty) => favoriteIds.includes(item.id));
+  }, [properties, showFavoritesOnly, favoriteIds]);
 
   const focusedProperty = useMemo(() => {
-    if (!properties.length) return undefined;
-     return properties.find((item: ApiProperty) => item.id === focusedPropertyId) ?? properties[0];
-  }, [properties, focusedPropertyId]);
+    if (!visibleProperties.length) return undefined;
+    return visibleProperties.find((item: ApiProperty) => item.id === focusedPropertyId) ?? visibleProperties[0];
+  }, [visibleProperties, focusedPropertyId]);
 
   // Adjust focused card whenever the data set changes.
   useEffect(() => {
-    if (!properties.length) {
+    if (!visibleProperties.length) {
       setFocusedPropertyId(null);
       return;
     }
-     if (!focusedPropertyId || !properties.some((item: ApiProperty) => item.id === focusedPropertyId)) {
-      setFocusedPropertyId(properties[0].id);
+    if (!focusedPropertyId || !visibleProperties.some((item: ApiProperty) => item.id === focusedPropertyId)) {
+      setFocusedPropertyId(visibleProperties[0].id);
     }
-  }, [properties, focusedPropertyId]);
+  }, [visibleProperties, focusedPropertyId]);
 
   // Load Leaflet only when the map is toggled on.
   useEffect(() => {
@@ -317,11 +329,20 @@ export default function SearchProperties() {
         if (cancelled || !mapContainerRef.current) return;
 
         if (!mapInstanceRef.current) {
-          const map = L.map(mapContainerRef.current, {
+          const container = mapContainerRef.current;
+          if (container) {
+            container.tabIndex = 0;
+            container.setAttribute("aria-label", "خريطة العقارات");
+            container.style.outline = "none";
+          }
+
+          const map = L.map(container, {
             zoomControl: false,
             scrollWheelZoom: true,
             closePopupOnClick: true,
             attributionControl: false,
+            keyboard: true,
+            keyboardPanDelta: 80,
           }).setView([24.7136, 46.6753], 6);
 
           L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -330,6 +351,8 @@ export default function SearchProperties() {
           }).addTo(map);
 
           L.control.zoom({ position: "topright" }).addTo(map);
+          map.keyboard.enable();
+          map.dragging.enable();
           mapInstanceRef.current = map;
         }
       } catch (error) {
@@ -401,12 +424,39 @@ export default function SearchProperties() {
     }
   }, [hoveredPropertyId, showMap]);
 
+  // Ensure Leaflet map resizes correctly when layout changes.
+  useEffect(() => {
+    if (!showMap || typeof window === "undefined") return;
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    const resizeMap = () => {
+      map.invalidateSize();
+    };
+
+    const timeoutId = window.setTimeout(resizeMap, 120);
+    window.addEventListener("resize", resizeMap);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      window.removeEventListener("resize", resizeMap);
+    };
+  }, [showMap, showFilters, visibleProperties.length]);
+
   const handleFilterChange = (key: keyof SearchFilters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const clearFilters = () => {
     setFilters(DEFAULT_FILTERS);
+  };
+
+  const toggleFavorite = (propertyId: string) => {
+    setFavoriteIds((prev) =>
+      prev.includes(propertyId)
+        ? prev.filter((id) => id !== propertyId)
+        : [...prev, propertyId]
+    );
   };
 
   const handleViewDetails = (propertyId: string) => {
@@ -416,6 +466,177 @@ export default function SearchProperties() {
   const filtersActive = useMemo(() => {
     return Object.entries(filters).some(([key, value]) => key !== "sortBy" && value !== "");
   }, [filters]);
+
+  const filterControls = (
+    <div className="flex flex-wrap items-center justify-end gap-2">
+      <div className="relative">
+        <Button
+          variant={showFilters ? "default" : "outline"}
+          size="icon"
+          onClick={() => setShowFilters((prev) => !prev)}
+          aria-pressed={showFilters}
+          aria-label="عرض الفلاتر"
+        >
+          <Filter className="h-4 w-4" />
+        </Button>
+        {filtersActive && (
+          <span className="absolute -top-1 -left-1 inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
+        )}
+      </div>
+      <Button
+        variant={showMap ? "default" : "outline"}
+        size="icon"
+        onClick={() => setShowMap((prev) => !prev)}
+        aria-pressed={showMap}
+        aria-label={showMap ? "إخفاء الخريطة" : "عرض الخريطة"}
+      >
+        <Map className="h-4 w-4" />
+      </Button>
+      <Button
+        variant={viewMode === "table" ? "default" : "outline"}
+        size="icon"
+        onClick={() => setViewMode((mode) => (mode === "table" ? "cards" : "table"))}
+        aria-pressed={viewMode === "table"}
+        aria-label="التبديل بين عرض الجدول والبطاقات"
+      >
+        <LayoutList className="h-4 w-4" />
+      </Button>
+      <Button
+        variant={showFavoritesOnly ? "default" : "outline"}
+        size="icon"
+        onClick={() => setShowFavoritesOnly((prev) => !prev)}
+        aria-pressed={showFavoritesOnly}
+        aria-label={showFavoritesOnly ? "عرض كل العقارات" : "المفضلة فقط"}
+      >
+        <Heart className={`h-4 w-4 ${showFavoritesOnly ? "fill-current" : ""}`} />
+      </Button>
+    </div>
+  );
+
+  const filtersSidebar = (
+    <aside className="w-full xl:w-80 shrink-0">
+      <Card className="xl:sticky xl:top-24 shadow-sm">
+        <CardHeader className="flex items-center justify-between gap-2">
+          <CardTitle className="text-base font-semibold">تخصيص البحث</CardTitle>
+          <Button variant="ghost" size="sm" onClick={clearFilters} disabled={!filtersActive}>
+            مسح الفلاتر
+          </Button>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-1">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">نوع العقار</label>
+            <Select value={filters.propertyType} onValueChange={(value) => handleFilterChange("propertyType", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="جميع الأنواع" />
+              </SelectTrigger>
+              <SelectContent>
+                {PROPERTY_TYPES.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">المدينة</label>
+            <Select value={filters.city} onValueChange={(value) => handleFilterChange("city", value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="جميع المدن" />
+              </SelectTrigger>
+              <SelectContent>
+                {CITY_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">السعر الأدنى</label>
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="0"
+              value={filters.minPrice}
+              onChange={(event) => handleFilterChange("minPrice", event.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">السعر الأعلى</label>
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              placeholder="1000000"
+              value={filters.maxPrice}
+              onChange={(event) => handleFilterChange("maxPrice", event.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">عدد الغرف</label>
+            <Select
+              value={filters.bedrooms || "any"}
+              onValueChange={(value) => handleFilterChange("bedrooms", value === "any" ? "" : value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="أي عدد" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">أي عدد</SelectItem>
+                <SelectItem value="1">1+</SelectItem>
+                <SelectItem value="2">2+</SelectItem>
+                <SelectItem value="3">3+</SelectItem>
+                <SelectItem value="4">4+</SelectItem>
+                <SelectItem value="5">5+</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">عدد الحمامات</label>
+            <Select
+              value={filters.bathrooms || "any"}
+              onValueChange={(value) => handleFilterChange("bathrooms", value === "any" ? "" : value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="أي عدد" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">أي عدد</SelectItem>
+                <SelectItem value="1">1+</SelectItem>
+                <SelectItem value="2">2+</SelectItem>
+                <SelectItem value="3">3+</SelectItem>
+                <SelectItem value="4">4+</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">ترتيب النتائج</label>
+            <Select value={filters.sortBy} onValueChange={(value) => handleFilterChange("sortBy", value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+    </aside>
+  );
 
   if (listingsQuery.error) {
     const errorContent = (
@@ -432,7 +653,11 @@ export default function SearchProperties() {
 
     if (isDashboardPort) {
       return (
-        <PlatformShell title="البحث في العقارات">
+        <PlatformShell
+          title="البحث في العقارات"
+          searchPlaceholder="ابحث عن العقارات أو العملاء"
+          headerExtraContent={filterControls}
+        >
           {errorContent}
         </PlatformShell>
       );
@@ -451,11 +676,17 @@ export default function SearchProperties() {
 
   const body = (
     <div className="space-y-6">
-      <div className="space-y-2 text-right">
-        <h1 className="text-3xl font-bold text-gray-900">اكتشف العقارات المتاحة</h1>
-        <p className="text-muted-foreground">
-          استخدم الفلاتر المتقدمة للعثور على العقار المناسب لك، واستكشف المواقع على الخريطة التفاعلية.
-        </p>
+      <div className="flex flex-col gap-4 text-right">
+        <div
+          className={`flex flex-wrap items-center gap-3 ${isDashboardPort ? "justify-end" : "justify-between"}`}
+        >
+          <div className="space-y-1">
+            <p className="text-muted-foreground">
+              استخدم الفلاتر المتقدمة للعثور على العقار المناسب لك واستعرض النتائج بالطريقة التي تفضلها.
+            </p>
+          </div>
+          {!isDashboardPort && filterControls}
+        </div>
       </div>
 
       <Card>
@@ -470,230 +701,125 @@ export default function SearchProperties() {
                 className="pr-10"
               />
             </div>
-            <Button variant="outline" className="flex items-center gap-2" onClick={() => setShowFilters((prev) => !prev)}>
-              <Filter className="h-4 w-4" />
-              الفلاتر
-              {filtersActive && <Badge variant="secondary">مفعّل</Badge>}
-            </Button>
-            <Button
-              variant={showMap ? "default" : "outline"}
-              className="flex items-center gap-2"
-              onClick={() => setShowMap((prev) => !prev)}
-            >
-              <Map className="h-4 w-4" />
-              {showMap ? "إخفاء الخريطة" : "عرض الخريطة"}
-            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {showFilters && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-4">
-            <CardTitle>تخصيص البحث</CardTitle>
-            <Button variant="ghost" size="sm" onClick={clearFilters} disabled={!filtersActive}>
-              مسح الفلاتر
-            </Button>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">نوع العقار</label>
-              <Select value={filters.propertyType} onValueChange={(value) => handleFilterChange("propertyType", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="جميع الأنواع" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PROPERTY_TYPES.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      <div className={`flex flex-col gap-6 ${showFilters ? "xl:flex-row" : ""}`}>
+        {showFilters && filtersSidebar}
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">المدينة</label>
-              <Select value={filters.city} onValueChange={(value) => handleFilterChange("city", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="جميع المدن" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CITY_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">السعر الأدنى</label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                min={0}
-                placeholder="0"
-                value={filters.minPrice}
-                onChange={(event) => handleFilterChange("minPrice", event.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">السعر الأعلى</label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                min={0}
-                placeholder="1000000"
-                value={filters.maxPrice}
-                onChange={(event) => handleFilterChange("maxPrice", event.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">عدد الغرف</label>
-              <Select value={filters.bedrooms} onValueChange={(value) => handleFilterChange("bedrooms", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="أي عدد" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">أي عدد</SelectItem>
-                  <SelectItem value="1">1+</SelectItem>
-                  <SelectItem value="2">2+</SelectItem>
-                  <SelectItem value="3">3+</SelectItem>
-                  <SelectItem value="4">4+</SelectItem>
-                  <SelectItem value="5">5+</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">عدد الحمامات</label>
-              <Select value={filters.bathrooms} onValueChange={(value) => handleFilterChange("bathrooms", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="أي عدد" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">أي عدد</SelectItem>
-                  <SelectItem value="1">1+</SelectItem>
-                  <SelectItem value="2">2+</SelectItem>
-                  <SelectItem value="3">3+</SelectItem>
-                  <SelectItem value="4">4+</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">ترتيب النتائج</label>
-              <Select value={filters.sortBy} onValueChange={(value) => handleFilterChange("sortBy", value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className={`grid gap-6 ${showMap ? "xl:grid-cols-[1.6fr_1fr]" : ""}`}>
-        <div className="space-y-4 xl:order-2">
-          <Card>
-            <CardHeader className="space-y-1">
-              <CardTitle className="flex items-center justify-between gap-2 text-lg">
-                <span>النتائج</span>
-                 <Badge variant="secondary">
-                   {(listingsQuery.data as ListingsQueryResult)?.total ? `${(listingsQuery.data as ListingsQueryResult).total} عقار` : "لا توجد عقارات"}
-                 </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {listingsQuery.isLoading ? (
-                <PropertyListSkeleton />
-              ) : properties.length === 0 ? (
-                <div className="py-12 text-center space-y-3">
-                  <Building2 className="mx-auto h-10 w-10 text-muted-foreground" />
-                  <h3 className="text-lg font-semibold">لم يتم العثور على عقارات</h3>
-                  <p className="text-sm text-muted-foreground">
-                    جرّب تعديل الفلاتر أو البحث في مدينة مختلفة للحصول على نتائج أخرى.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                   {properties.map((property: ApiProperty) => (
-                    <PropertyCard
-                      key={property.id}
-                      property={property}
-                      isFocused={property.id === focusedProperty?.id}
-                      onHover={(state) => {
-                        setHoveredPropertyId(state ? property.id : null);
+        <div className="flex-1">
+          <div className={`grid gap-6 ${showMap ? "xl:grid-cols-[1.6fr_1fr]" : ""}`}>
+            <div className="space-y-4 xl:order-2">
+              <Card>
+                <CardHeader className="space-y-1">
+                  <CardTitle className="flex items-center justify-between gap-2 text-lg">
+                    <span>النتائج</span>
+                    <Badge variant="secondary">
+                      {visibleProperties.length ? `${visibleProperties.length} عقار` : "لا توجد عقارات"}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {listingsQuery.isLoading ? (
+                    <PropertyListSkeleton />
+                  ) : visibleProperties.length === 0 ? (
+                    <div className="py-12 text-center space-y-3">
+                      <Building2 className="mx-auto h-10 w-10 text-muted-foreground" />
+                      {showFavoritesOnly && (
+                        <p className="text-sm text-muted-foreground">
+                          أضف عقارات إلى المفضلة أو عطّل الفلتر لعرض جميع النتائج.
+                        </p>
+                      )}
+                    </div>
+                  ) : viewMode === "table" ? (
+                    <PropertyTable
+                      properties={visibleProperties}
+                      favoriteIds={favoriteIds}
+                      focusedPropertyId={focusedProperty?.id ?? null}
+                      onToggleFavorite={toggleFavorite}
+                      onHover={(propertyId, state) => {
+                        setHoveredPropertyId(state ? propertyId : null);
                       }}
-                      onFocus={() => setFocusedPropertyId(property.id)}
-                      onViewDetails={() => handleViewDetails(property.id)}
+                      onFocus={(propertyId) => setFocusedPropertyId(propertyId)}
+                      onViewDetails={handleViewDetails}
                     />
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {visibleProperties.map((property: ApiProperty) => (
+                        <PropertyCard
+                          key={property.id}
+                          property={property}
+                          isFocused={property.id === focusedProperty?.id}
+                          isFavorite={favoriteIds.includes(property.id)}
+                          onToggleFavorite={() => toggleFavorite(property.id)}
+                          onHover={(state) => {
+                            setHoveredPropertyId(state ? property.id : null);
+                          }}
+                          onFocus={() => setFocusedPropertyId(property.id)}
+                          onViewDetails={() => handleViewDetails(property.id)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
 
-        {showMap && (
-          <Card className="xl:order-1">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg font-semibold">
-                <MapPin className="h-5 w-5 text-primary" />
-                خريطة العقارات
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {mapQuery.isLoading
-                  ? "جاري تحميل العقارات على الخريطة..."
-                  : mapQuery.data && mapQuery.data.length > 0
-                  ? `${mapQuery.data.length} عقار متاح على الخريطة`
-                  : "لا توجد عقارات متاحة على الخريطة"}
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="relative">
-                {mapQuery.isLoading ? (
-                  <div className="flex h-96 items-center justify-center rounded-lg border bg-muted">
-                    <div className="space-y-2 text-center">
-                      <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-                      <p className="text-sm text-muted-foreground">جاري تحميل الخريطة...</p>
-                    </div>
+            {showMap && (
+              <Card className="xl:order-1">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    خريطة العقارات
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {mapQuery.isLoading
+                      ? "جاري تحميل العقارات على الخريطة..."
+                      : mapQuery.data && mapQuery.data.length > 0
+                      ? `${mapQuery.data.length} عقار متاح على الخريطة`
+                      : "لا توجد عقارات متاحة على الخريطة"}
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="relative">
+                    {mapQuery.isLoading ? (
+                      <div className="flex h-96 items-center justify-center rounded-lg border bg-muted">
+                        <div className="space-y-2 text-center">
+                          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
+                          <p className="text-sm text-muted-foreground">جاري تحميل الخريطة...</p>
+                        </div>
+                      </div>
+                    ) : mapQuery.data && mapQuery.data.length > 0 ? (
+                      <div className="h-96 w-full overflow-hidden rounded-lg border">
+                        <div ref={mapContainerRef} className="h-full w-full" />
+                      </div>
+                    ) : (
+                      <div className="flex h-96 items-center justify-center rounded-lg border bg-muted">
+                        <div className="space-y-2 text-center">
+                          <MapPin className="mx-auto h-12 w-12 text-muted-foreground" />
+                          <p className="text-muted-foreground">لا توجد عقارات متاحة على الخريطة</p>
+                          <p className="text-sm text-muted-foreground">قم بتغيير إعدادات الفلتر للحصول على نتائج أخرى.</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                ) : mapQuery.data && mapQuery.data.length > 0 ? (
-                  <div className="h-96 w-full overflow-hidden rounded-lg border">
-                    <div ref={mapContainerRef} className="h-full w-full" />
-                  </div>
-                ) : (
-                  <div className="flex h-96 items-center justify-center rounded-lg border bg-muted">
-                    <div className="space-y-2 text-center">
-                      <MapPin className="mx-auto h-12 w-12 text-muted-foreground" />
-                      <p className="text-muted-foreground">لا توجد عقارات متاحة على الخريطة</p>
-                      <p className="text-sm text-muted-foreground">قم بتغيير إعدادات الفلتر للحصول على نتائج أخرى.</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 
   if (isDashboardPort) {
     return (
-      <PlatformShell title="البحث في العقارات" searchPlaceholder="ابحث عن العقارات أو العملاء">
+      <PlatformShell
+        title="البحث في العقارات"
+        searchPlaceholder="ابحث عن العقارات أو العملاء"
+        headerExtraContent={filterControls}
+      >
         {body}
       </PlatformShell>
     );
@@ -711,12 +837,14 @@ export default function SearchProperties() {
 interface PropertyCardProps {
   property: ApiProperty;
   isFocused: boolean;
+  isFavorite: boolean;
   onHover: (state: boolean) => void;
   onFocus: () => void;
   onViewDetails: () => void;
+  onToggleFavorite: () => void;
 }
 
-function PropertyCard({ property, isFocused, onHover, onFocus, onViewDetails }: PropertyCardProps) {
+function PropertyCard({ property, isFocused, isFavorite, onHover, onFocus, onViewDetails, onToggleFavorite }: PropertyCardProps) {
   const photos = normalizePhotos(property.photos);
   const price = formatCurrency(Number(property.price || 0));
   const createdAtLabel = property.createdAt ? formatDisplayDate(property.createdAt) : "";
@@ -761,6 +889,20 @@ function PropertyCard({ property, isFocused, onHover, onFocus, onViewDetails }: 
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className={isFavorite ? "text-rose-500" : "text-muted-foreground"}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onToggleFavorite();
+                    }}
+                    aria-pressed={isFavorite}
+                    aria-label={isFavorite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                  >
+                    <Heart className={isFavorite ? "h-4 w-4 fill-current" : "h-4 w-4"} />
+                  </Button>
                   {property.propertyType && (
                     <Badge variant="outline">{property.propertyType}</Badge>
                   )}
@@ -814,6 +956,120 @@ function PropertyCard({ property, isFocused, onHover, onFocus, onViewDetails }: 
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+interface PropertyTableProps {
+  properties: ApiProperty[];
+  favoriteIds: string[];
+  focusedPropertyId: string | null;
+  onToggleFavorite: (propertyId: string) => void;
+  onHover: (propertyId: string, state: boolean) => void;
+  onFocus: (propertyId: string) => void;
+  onViewDetails: (propertyId: string) => void;
+}
+
+function PropertyTable({ properties, favoriteIds, focusedPropertyId, onToggleFavorite, onHover, onFocus, onViewDetails }: PropertyTableProps) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-border text-right">
+        <thead className="bg-muted/40">
+          <tr>
+            <th className="px-4 py-3 text-sm font-medium text-muted-foreground">العقار</th>
+            <th className="px-4 py-3 text-sm font-medium text-muted-foreground">السعر</th>
+            <th className="px-4 py-3 text-sm font-medium text-muted-foreground">الغرف</th>
+            <th className="px-4 py-3 text-sm font-medium text-muted-foreground">الحمامات</th>
+            <th className="px-4 py-3 text-sm font-medium text-muted-foreground">المساحة (م²)</th>
+            <th className="px-4 py-3 text-sm font-medium text-muted-foreground">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border/80 bg-white/40">
+          {properties.map((property) => {
+            const isFavorite = favoriteIds.includes(property.id);
+            const price = formatCurrency(Number(property.price || 0));
+            const area = property.areaSqm ?? (property.squareFeet ? Math.round(property.squareFeet / 10.7639) : null);
+            const isFocused = property.id === focusedPropertyId;
+
+            return (
+              <tr
+                key={property.id}
+                className={`cursor-pointer transition-colors hover:bg-muted/40 focus-within:bg-muted/40 ${isFocused ? "bg-primary/5" : ""}`}
+                onMouseEnter={() => onHover(property.id, true)}
+                onMouseLeave={() => onHover(property.id, false)}
+                onFocus={() => {
+                  onFocus(property.id);
+                  onHover(property.id, true);
+                }}
+                onBlur={() => onHover(property.id, false)}
+                onClick={() => onFocus(property.id)}
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onFocus(property.id);
+                  }
+                }}
+              >
+                <td className="px-4 py-3 align-top">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-foreground">{property.title}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className={isFavorite ? "text-rose-500" : "text-muted-foreground"}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onToggleFavorite(property.id);
+                        }}
+                        aria-pressed={isFavorite}
+                        aria-label={isFavorite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                      >
+                        <Heart className={isFavorite ? "h-4 w-4 fill-current" : "h-4 w-4"} />
+                      </Button>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      {property.city && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {property.city}
+                        </span>
+                      )}
+                      {property.address && <span className="text-muted-foreground/60">•</span>}
+                      {property.address && <span>{property.address}</span>}
+                    </div>
+                  </div>
+                </td>
+                <td className="px-4 py-3 align-top text-sm text-foreground">{price}</td>
+                <td className="px-4 py-3 align-top text-sm text-muted-foreground">
+                  {typeof property.bedrooms === "number" ? property.bedrooms : "—"}
+                </td>
+                <td className="px-4 py-3 align-top text-sm text-muted-foreground">
+                  {typeof property.bathrooms === "number" ? property.bathrooms : "—"}
+                </td>
+                <td className="px-4 py-3 align-top text-sm text-muted-foreground">{area ?? "—"}</td>
+                <td className="px-4 py-3 align-top text-sm text-foreground">
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onViewDetails(property.id);
+                      }}
+                    >
+                      عرض التفاصيل
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

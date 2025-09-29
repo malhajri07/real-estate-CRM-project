@@ -1,0 +1,31 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/real-estate-crm:$COMMIT_SHA', '.']
+  
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/real-estate-crm:$COMMIT_SHA']
+  
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'real-estate-crm'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/real-estate-crm:$COMMIT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'NODE_ENV=production'
+      - '--set-cloudsql-instances'
+      - '$PROJECT_ID:us-central1:real-estate-crm-db'
+
+# Store images in Google Container Registry
+images:
+  - 'gcr.io/$PROJECT_ID/real-estate-crm:$COMMIT_SHA'
+

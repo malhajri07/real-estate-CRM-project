@@ -3,15 +3,56 @@ import { storage } from "../storage-prisma";
 
 const router = express.Router();
 
-// Simple moderation queue: listings with moderationStatus = pending
+// Determine if property still needs moderation approval
+const needsModerationReview = (property: any): boolean => {
+  const moderationStatus = property?.moderationStatus;
+  if (typeof moderationStatus === 'string' && moderationStatus.toLowerCase() === 'pending') {
+    return true;
+  }
+
+  const status = typeof property?.status === 'string' ? property.status.toLowerCase() : '';
+  if (status === 'pending' || status === 'pending_approval' || status === 'pending-approval') {
+    return true;
+  }
+
+  if (typeof property?.features === 'string') {
+    try {
+      const parsed = JSON.parse(property.features);
+      const reviewStatus = parsed?.metadata?.reviewStatus;
+      if (typeof reviewStatus === 'string' && reviewStatus.toLowerCase() === 'pending') {
+        return true;
+      }
+    } catch {
+      // Ignore malformed feature payloads
+    }
+  }
+
+  return false;
+};
+
+// Simple moderation queue: listings awaiting moderation
 router.get("/queue", async (_req, res) => {
   try {
     const all = await storage.getAllProperties();
-    const pending = all.filter(p => (p as any).moderationStatus === 'pending');
+    const pending = all.filter(needsModerationReview);
     res.json(pending);
   } catch (err) {
     console.error("Error fetching moderation queue:", err);
     res.status(500).json({ message: "Failed to fetch moderation queue" });
+  }
+});
+
+router.get("/marketing-requests", async (_req, res) => {
+  try {
+    const queue = await storage.listMarketingRequests({
+      status: "PENDING_REVIEW",
+      includeOwner: true,
+      includeProposals: false,
+    });
+    res.json(queue);
+  } catch (err) {
+    console.error("Error fetching marketing request moderation queue:", err);
+    res.status(500).json({ message: "Failed to fetch marketing request queue" });
   }
 });
 
@@ -38,4 +79,3 @@ router.post("/:id/reject", async (req, res) => {
 });
 
 export default router;
-

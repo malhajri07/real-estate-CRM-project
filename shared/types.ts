@@ -33,6 +33,8 @@ export interface User {
   updatedAt: Date;
   organization?: Organization | null;
   agentProfile?: AgentProfile | null;
+  marketingRequests?: MarketingRequest[];
+  marketingProposals?: MarketingProposal[];
 }
 
 // Organization types
@@ -92,6 +94,7 @@ export interface Property {
   agent?: User;
   organization?: Organization | null;
   listings?: Listing[];
+  marketingRequests?: MarketingRequest[];
 }
 
 // Listing types
@@ -188,6 +191,74 @@ export interface Deal {
   property?: Property | null;
   agent?: User;
   organization?: Organization | null;
+}
+
+export type MarketingRequestStatus =
+  | "DRAFT"
+  | "PENDING_REVIEW"
+  | "OPEN"
+  | "AWARDED"
+  | "CLOSED"
+  | "REJECTED";
+
+export type MarketingProposalStatus =
+  | "PENDING"
+  | "ACCEPTED"
+  | "DECLINED"
+  | "WITHDRAWN"
+  | "EXPIRED";
+
+export type MarketingRequestTier = "STANDARD" | "SERIOUS" | "ENTERPRISE";
+
+export interface MarketingRequest {
+  id: string;
+  ownerId: string;
+  title: string;
+  summary: string;
+  requirements?: string | null;
+  propertyType: string;
+  listingType?: string | null;
+  city: string;
+  district?: string | null;
+  region?: string | null;
+  budgetMin?: number | null;
+  budgetMax?: number | null;
+  preferredStartDate?: Date | null;
+  preferredEndDate?: Date | null;
+  commissionExpectation?: number | null;
+  seriousnessTier: MarketingRequestTier;
+  status: MarketingRequestStatus;
+  moderationNotes?: string | null;
+  approvedAt?: Date | null;
+  awardedProposalId?: string | null;
+  closedAt?: Date | null;
+  contactName: string;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+  propertyId?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  owner?: User;
+  property?: Property | null;
+  proposals?: MarketingProposal[];
+}
+
+export interface MarketingProposal {
+  id: string;
+  requestId: string;
+  agentId: string;
+  message?: string | null;
+  commissionRate?: number | null;
+  marketingBudget?: number | null;
+  estimatedTimeline?: string | null;
+  status: MarketingProposalStatus;
+  submittedAt: Date;
+  decidedAt?: Date | null;
+  attachments?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  request?: MarketingRequest;
+  agent?: User;
 }
 
 // Buyer Request types

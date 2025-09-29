@@ -1,7 +1,40 @@
 import React, { useState, useEffect } from 'react';
 
+type SimpleAdminUser = {
+  id?: string;
+  name?: string | null;
+  username?: string | null;
+  email?: string | null;
+  roles: string[];
+};
+
+type SimpleAdminLoginResponse = {
+  success: boolean;
+  token?: string;
+  message?: string;
+  user?: Partial<SimpleAdminUser> & Record<string, unknown>;
+};
+
+const normalizeUser = (rawUser: SimpleAdminLoginResponse["user"]): SimpleAdminUser | null => {
+  if (!rawUser || typeof rawUser !== "object") {
+    return null;
+  }
+
+  const rolesValue = Array.isArray(rawUser.roles)
+    ? (rawUser.roles.filter((role): role is string => typeof role === "string"))
+    : [];
+
+  return {
+    id: typeof rawUser.id === "string" ? rawUser.id : undefined,
+    name: typeof rawUser.name === "string" ? rawUser.name : null,
+    username: typeof rawUser.username === "string" ? rawUser.username : null,
+    email: typeof rawUser.email === "string" ? rawUser.email : null,
+    roles: rolesValue,
+  };
+};
+
 export default function SimpleAdminPage() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<SimpleAdminUser | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -21,18 +54,32 @@ export default function SimpleAdminPage() {
         }),
       });
 
-      const data = await response.json();
+      const data: SimpleAdminLoginResponse = await response.json();
       
       if (data.success) {
-        setUser(data.user);
-        localStorage.setItem('auth_token', data.token);
-        localStorage.setItem('user_data', JSON.stringify(data.user));
-        console.log('Login successful:', data.user);
+        const normalizedUser = normalizeUser(data.user);
+
+        if (!normalizedUser) {
+          setError('Login succeeded but user data was missing.');
+          setUser(null);
+          return;
+        }
+
+        setUser(normalizedUser);
+
+        if (data.token) {
+          localStorage.setItem('auth_token', data.token);
+        }
+
+        localStorage.setItem('user_data', JSON.stringify(normalizedUser));
+
+        console.log('Login successful:', normalizedUser);
       } else {
         setError('Login failed: ' + (data.message || 'Unknown error'));
       }
     } catch (err) {
-      setError('Network error: ' + err.message);
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setError('Network error: ' + message);
     } finally {
       setLoading(false);
     }
@@ -51,7 +98,11 @@ export default function SimpleAdminPage() {
     
     if (token && userData) {
       try {
-        setUser(JSON.parse(userData));
+        const parsedUser = JSON.parse(userData) as unknown;
+        const normalizedUser = normalizeUser(parsedUser as SimpleAdminLoginResponse["user"]);
+        if (normalizedUser) {
+          setUser(normalizedUser);
+        }
       } catch (e) {
         console.error('Error parsing user data:', e);
       }

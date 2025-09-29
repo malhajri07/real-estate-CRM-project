@@ -31,6 +31,8 @@ model User {
   listings          Listing[]
   properties        Property[]
   sellerSubmissions SellerSubmission[]
+  marketingRequests MarketingRequest[] @relation("MarketingRequestOwner")
+  marketingProposals MarketingProposal[] @relation("MarketingProposalAgent")
   organization      Organization?      @relation(fields: [organizationId], references: [id])
 
   @@index([email])
@@ -87,10 +89,74 @@ model AgentProfile {
   @@map("agent_profiles")
 }
 
+model Region {
+  id              Int        @id
+  code            String?
+  nameAr          String
+  nameEn          String
+  population      Int?
+  centerLatitude  Decimal?
+  centerLongitude Decimal?
+  boundary        Json?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  cities          City[]
+  districts       District[]
+  properties      Property[] @relation("RegionProperties")
+
+  @@index([nameEn])
+  @@index([nameAr])
+  @@index([centerLatitude, centerLongitude])
+  @@map("regions")
+}
+
+model City {
+  id              Int        @id
+  regionId        Int
+  nameAr          String
+  nameEn          String
+  centerLatitude  Decimal?
+  centerLongitude Decimal?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  region          Region     @relation(fields: [regionId], references: [id])
+  districts       District[]
+  properties      Property[] @relation("CityProperties")
+
+  @@index([regionId])
+  @@index([nameEn])
+  @@index([nameAr])
+  @@index([centerLatitude, centerLongitude])
+  @@map("cities")
+}
+
+model District {
+  id         BigInt     @id
+  regionId   Int
+  cityId     Int
+  nameAr     String
+  nameEn     String
+  boundary   Json?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  region     Region     @relation(fields: [regionId], references: [id])
+  city       City       @relation(fields: [cityId], references: [id])
+  properties Property[] @relation("DistrictProperties")
+
+  @@index([regionId])
+  @@index([cityId])
+  @@index([nameEn])
+  @@index([nameAr])
+  @@map("districts")
+}
+
 model Property {
   id             String         @id @default(cuid())
   agentId        String
   organizationId String?
+  regionId       Int?
+  cityId         Int?
+  districtId     BigInt?
   title          String
   description    String
   type           String
@@ -111,15 +177,23 @@ model Property {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   listings       Listing[]
+  marketingRequests MarketingRequest[] @relation("MarketingRequestProperty")
   agent          User           @relation(fields: [agentId], references: [id])
   organization   Organization?  @relation(fields: [organizationId], references: [id])
+  region         Region?        @relation("RegionProperties", fields: [regionId], references: [id])
+  cityRef        City?          @relation("CityProperties", fields: [cityId], references: [id])
+  districtRef    District?      @relation("DistrictProperties", fields: [districtId], references: [id])
 
   @@index([agentId])
   @@index([organizationId])
+  @@index([regionId])
+  @@index([cityId])
+  @@index([districtId])
   @@index([city])
   @@index([status])
   @@index([type])
   @@index([price])
+  @@index([latitude, longitude])
   @@map("properties")
 }
 
@@ -201,36 +275,100 @@ model SellerSubmission {
   @@map("seller_submissions")
 }
 
+model MarketingRequest {
+  id                 String                   @id @default(cuid())
+  ownerId            String
+  title              String
+  summary            String
+  requirements       String?
+  propertyType       String
+  listingType        String?
+  city               String
+  district           String?
+  region             String?
+  budgetMin          Decimal?
+  budgetMax          Decimal?
+  preferredStartDate DateTime?
+  preferredEndDate   DateTime?
+  commissionExpectation Decimal?
+  seriousnessTier    MarketingRequestTier     @default(STANDARD)
+  status             MarketingRequestStatus   @default(PENDING_REVIEW)
+  moderationNotes    String?
+  approvedAt         DateTime?
+  awardedProposalId  String?
+  closedAt           DateTime?
+  contactName        String
+  contactPhone       String?
+  contactEmail       String?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  propertyId         String?
+
+  owner    User      @relation("MarketingRequestOwner", fields: [ownerId], references: [id])
+  property Property? @relation("MarketingRequestProperty", fields: [propertyId], references: [id])
+  proposals MarketingProposal[]
+
+  @@index([ownerId])
+  @@index([city])
+  @@index([status])
+  @@index([seriousnessTier])
+  @@map("marketing_requests")
+}
+
+model MarketingProposal {
+  id             String                   @id @default(cuid())
+  requestId      String
+  agentId        String
+  message        String?
+  commissionRate Decimal?
+  marketingBudget Decimal?
+  estimatedTimeline String?
+  status         MarketingProposalStatus    @default(PENDING)
+  submittedAt    DateTime                   @default(now())
+  decidedAt      DateTime?
+  attachments    String?
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+
+  request MarketingRequest @relation(fields: [requestId], references: [id])
+  agent   User             @relation("MarketingProposalAgent", fields: [agentId], references: [id])
+
+  @@index([requestId])
+  @@index([agentId])
+  @@index([status])
+  @@map("marketing_proposals")
+}
+
 model PropertySeeker {
-  seekerNum            Int      @id @default(autoincrement()) @map("seeker_num")
-  seekerId             String   @map("seeker_id") @default(dbgenerated("('S-' || lpad((nextval('properties_seeker_seeker_num_seq')::text), 11, '0'))"))
-  firstName            String   @map("first_name")
-  lastName             String   @map("last_name")
-  mobileNumber         String   @map("mobile_number")
-  email                String   @map("email")
-  nationality          String   @map("nationality")
-  age                  Int      @map("age")
-  monthlyIncome        Decimal  @map("monthly_income")
-  gender               String   @map("gender")
-  typeOfProperty       String   @map("type_of_property")
-  typeOfContract       String   @map("type_of_contract")
-  numberOfRooms        Int      @map("number_of_rooms")
-  numberOfBathrooms    Int      @map("number_of_bathrooms")
-  numberOfLivingRooms  Int      @map("number_of_living_rooms")
-  houseDirection       String?  @map("house_direction")
-  budgetSize           Decimal  @map("budget_size")
-  hasMaidRoom          Boolean  @map("has_maid_room")     @default(false)
-  hasDriverRoom        Boolean? @map("has_driver_room")   @default(false)
-  kitchenInstalled     Boolean? @map("kitchen_installed") @default(false)
-  hasElevator          Boolean? @map("has_elevator")      @default(false)
-  parkingAvailable     Boolean? @map("parking_available") @default(false)
-  city                 String?  @map("city")
-  district             String?  @map("district")
-  region               String?  @map("region")
-  otherComments        String?  @map("other_comments")
-  sqm                  Int?     @map("Sqm")
-  createdAt            DateTime @default(now()) @map("created_at")
-  updatedAt            DateTime @default(now()) @updatedAt @map("updated_at")
+  seekerNum           BigInt   @id @default(autoincrement()) @map("seeker_num")
+  seekerId            String   @map("seeker_id") @default(dbgenerated("'S-' || lpad(seeker_num::text, 11, '0')"))
+  firstName           String   @map("first_name")
+  lastName            String   @map("last_name")
+  mobileNumber        String   @map("mobile_number")
+  email               String   @map("email")
+  nationality         String   @map("nationality")
+  age                 Int      @map("age")
+  monthlyIncome       Decimal  @map("monthly_income")
+  gender              String   @map("gender")
+  typeOfProperty      String   @map("type_of_property")
+  typeOfContract      String   @map("type_of_contract")
+  numberOfRooms       Int      @map("number_of_rooms")
+  numberOfBathrooms   Int      @map("number_of_bathrooms")
+  numberOfLivingRooms Int      @map("number_of_living_rooms")
+  houseDirection      String?  @map("house_direction")
+  budgetSize          Decimal  @map("budget_size")
+  hasMaidRoom         Boolean  @default(false) @map("has_maid_room")
+  hasDriverRoom       Boolean? @default(false) @map("has_driver_room")
+  kitchenInstalled    Boolean? @default(false) @map("kitchen_installed")
+  hasElevator         Boolean? @default(false) @map("has_elevator")
+  parkingAvailable    Boolean? @default(false) @map("parking_available")
+  city                String?  @map("city")
+  district            String?  @map("district")
+  region              String?  @map("region")
+  otherComments       String?  @map("other_comments")
+  sqm                 BigInt?  @map("Sqm")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@unique([email, mobileNumber], name: "uniq_properties_seeker_email_mobile")
   @@unique([seekerId])
@@ -681,6 +819,29 @@ enum SellerSubmissionStatus {
   IN_PROGRESS
   CLOSED
   PAUSED
+}
+
+enum MarketingRequestStatus {
+  DRAFT
+  PENDING_REVIEW
+  OPEN
+  AWARDED
+  CLOSED
+  REJECTED
+}
+
+enum MarketingProposalStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  WITHDRAWN
+  EXPIRED
+}
+
+enum MarketingRequestTier {
+  STANDARD
+  SERIOUS
+  ENTERPRISE
 }
 
 enum LeadStatus {

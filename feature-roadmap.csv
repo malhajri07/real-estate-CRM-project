@@ -1,0 +1,67 @@
+"Feature","Use Case / Problem Solved","Key Components & Data Touchpoints","Prompt Guide for Implementation"
+"Marketing Request Marketplace","Allow property owners to publish marketing requests that verified agents can bid on, mirroring DealApp's service marketplace.","Client: new public form + agent proposal UI; Server: extend requests API, add marketing_requests + proposals tables; Prisma schema updates; moderation queue adjustments; Notifications for proposal lifecycle.","""You are enhancing the real-estate CRM with a marketing request marketplace. Steps:
+1. Update prisma schema to add MarketingRequest, MarketingProposal, and link to users/properties.
+2. Create REST endpoints under /api/marketing-requests for CRUD, proposal submission, and moderation, using Zod for validation.
+3. Build a public-facing submission page (similar styling to unverfied_Listing.tsx) and an in-platform board showing statuses, filters, and action buttons for agents.
+4. Integrate notifications/toasts and logging so owners and agents receive updates on proposal acceptance or rejection.
+5. Add tests covering request creation, proposal lifecycle, and permission checks."""
+"Serious Request Tier & Verification","Monetize high-intent requests by offering premium visibility, faster moderation, and analytics for 'serious' submissions.","Client: add upsell modals and badges on request cards; Server: pricing metadata on seller submissions, payment intent handling; Analytics: track conversion funnels.","""Implement a 'Serious Request' tier:
+- Extend SellerSubmission/Request models with seriousness_level, payment_status, and perks booleans.
+- Add an upsell step to existing submission flows with pricing cards and benefits copy.
+- Enforce faster moderation by prioritizing serious requests in queues and flagging them in dashboards.
+- Record telemetry for conversions and expose charts in AnalyticsDashboard."""
+"Developer Opportunities & Referral Tracking","Give agencies a pipeline to list developer projects, invite agents, track customer referrals, and manage commissions.","New prisma models for DeveloperProject, Opportunity, ReferralLead; PlatformShell page for opportunity management; Commission calculation service; UI for referral tracking and payout status.","""Add developer opportunities:
+1. Model project/opportunity/referral tables in prisma and generate client.
+2. Create /api/opportunities routes for project CRUD, referral logging, and status updates.
+3. Build a PlatformShell page with kanban/table views showing opportunity stages, assigned agents, and payout progress.
+4. Extend AnalyticsDashboard with KPIs (conversion rate, commission earned) by opportunity."""
+"Notebook Workspace","Provide a consolidated workspace combining saved ads, matching requests, and follow-up tasks with quick contact actions.","Client: new PlatformShell route with tabs (ads/requests/tasks); Server: aggregate favorites, matches, reminders; UI components for call/WhatsApp shortcuts; State synced with contact logs.","""Create a 'Notebook' view inspired by DealApp:
+- Build a new page under /home/platform/notebook with tabs for listings, requests, and tasks using existing card components.
+- Fetch data via new endpoint /api/notebook that aggregates favorites, assigned requests, and open reminders.
+- Add quick action buttons (call, WhatsApp, mark done) that hit contact log/update endpoints.
+- Persist user preferences (default tab, sorting) in profile settings."""
+"Auto-Matching Insights","Expose why listings and requests match (budget, area, property type) and allow agents to adjust interest filters.","Server: update search/matching engine to return scored reasons; Client: display match chips/tooltips; Data: store match logs for analytics.","""Enhance matching logic:
+1. Modify storage.searchProperties / matching routines to compute score factors and explanation strings.
+2. Persist match records with reasons to a new table (MatchLog) for auditing.
+3. Update request/listing cards to show 'Matched because...' chips and provide a button to refine interests.
+4. Add analytics to summarize top match reasons by agent/team."""
+"Compliance Workflow (FAL/Nafath)","Ensure Saudi compliance by collecting FAL licenses, Nafath identity verification, and ownership docs before activation.","Extend seller submission forms; New upload endpoints; Integration hooks for external APIs; Moderation queue flags showing compliance status.","""Add compliance gates:
+- Add fields to SellerSubmission and Property for fal_license_number, nafath_status, ownership_docs.
+- Build upload widgets leveraging existing file storage pattern; validate file types.
+- Update moderation queue (server/routes/moderation.ts) to surface compliance state and block approval when missing.
+- Optional: integrate Nafath API stub for future real verification, logging responses."""
+"Subscriptions & Billing","Introduce paid plans that unlock features (serious requests, analytics, messaging credits) with auto-renewal and coupons.","Server: subscription plans, invoices, coupon validation; Client: pricing page, plan selector in settings; Integration with payment provider; Background job for renewals.","""Implement subscriptions:
+1. Model Plan, Subscription, Invoice, Coupon in prisma; migrate database.
+2. Build /api/billing endpoints for plan browsing, checkout sessions, webhooks.
+3. Add UI: pricing tables, subscription management tab, renewal status banners.
+4. Handle metering (e.g., messaging credits) and block premium features when out of quota.
+5. Write tests for billing flows and edge cases (failed renewal, coupon expiry)."""
+"Campaign & Communication Center","Centralize SMS, WhatsApp, and email campaigns to nurture leads and respond to requests quickly.","Client: campaign builder UI, templates, scheduling controls; Server: messaging queue, template storage, audit logs; Integrations: Twilio/WhatsApp API stubs.","""Build a campaign hub:
+- Design a PlatformShell page with campaign list, performance metrics, and composer modal.
+- Create APIs under /api/campaigns for template CRUD, scheduling, and send status.
+- Integrate with existing contact logs to record outbound messages and replies.
+- Provide preset templates (Arabic copy) for follow-ups, serious request confirmations, etc."""
+"Agent Performance Analytics","Offer dashboards covering leads worked, response times, closed deals, and commission pipelines.","Reuse AnalyticsDashboard; Add new queries aggregating contact logs, opportunities, proposals; Charts for rankings and streaks.","""Extend analytics:
+1. Update analytics service to compute key KPIs (avg response time, conversion %, commission earned).
+2. Add cards and charts to AnalyticsDashboard.tsx with drill-down by agent/team.
+3. Create APIs returning data scoped by role permissions.
+4. Ensure metrics respect date filters and include benchmarks from previous periods."""
+"Customer Success Nudges","Deliver banners and reminders nudging users to complete profiles, upgrade plans, or action stale requests.","Client: reusable banner component; Server: eligibility rules engine; Data: track dismissals and conversions.","""Implement nudges:
+- Build a small rules service returning which nudges to show (profile incomplete, subscription expiring, inactive leads).
+- Display banners in PlatformShell and on landing using a consistent component with CTA buttons.
+- Log impressions/dismissals to evaluate effectiveness and refine rules."""
+"Commission Settlement Automation","Automatically calculate, approve, and pay out commissions once deals close, including DealApp-style splits.","Server: transaction ledger, payout approvals, webhook for payment provider; Client: settlement dashboard, approval modals; Notifications for finance team.","""Automate commissions:
+1. Add prisma models for Deal, CommissionShare, Payout.
+2. Create endpoints to generate commission statements when an opportunity closes.
+3. Integrate with payment execution (manual stub + future API) and track statuses (pending, paid, disputed).
+4. Provide dashboard views for finance/admin to approve payouts and download statements."""
+"Proposal Chat & Collaboration","Let owners and agents converse around a marketing request proposal with attachments, keeping history linked to the request.","Client: chat sidebar within request detail; Server: messages table tied to proposals; Real-time updates via polling or WebSocket; Attachments storage.","""Add contextual chat:
+- Extend proposal detail page with a chat component using existing chat UI patterns if any, else create simple message list + composer.
+- Implement /api/marketing-requests/:id/messages endpoints, enforcing role permissions.
+- Support file/image attachments via existing media upload utility.
+- Notify participants and surface unread counts in requests list."""
+"Ad License Management","Track advertising license requirements, remind agents before expiry, and block campaigns lacking valid documentation.","Server: license table with expiry, validation status; Client: modals to upload/renew; Cron job to send reminders; Integration with marketing request workflow.","""Manage ad licenses:
+1. Add AdvertisingLicense model linked to organizations/users with fields for number, issuing authority, expires_at, status.
+2. Provide upload/renew modals and display status indicators on submission forms.
+3. Schedule a background job (cron or queue) to email/notify users 30/7/1 days before expiry.
+4. Prevent publishing marketing requests or ads when license is missing or expired."""

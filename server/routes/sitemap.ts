@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/sitemap.xml', async (_req, res) => {
   try {
-    const base = process.env.PUBLIC_BASE_URL || 'http://localhost:5001';
+    const base = process.env.PUBLIC_BASE_URL || 'http://localhost:3000';
     const listings = await storage.getAllProperties();
     const staticPaths = [
       '/', '/listings', '/search-properties', '/agencies', '/post-listing', '/favorites', '/compare',
