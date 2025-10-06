@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, ArrowRight, Mail, Phone } from "lucide-react";
 import { useLocation } from "wouter";
-import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
 
 export default function KYCSubmitted() {
   const [, setLocation] = useLocation();
@@ -12,90 +10,74 @@ export default function KYCSubmitted() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-        {/* Gradient Header */}
-        <div className="bg-gradient-to-r from-green-600 to-green-700 px-8 py-12 text-center">
-          <div className="flex justify-center mb-6">
-            <img 
-              src={logoImage} 
-              alt="شعار عقاراتي" 
-              className="w-24 h-24 object-contain drop-shadow-lg"
-            />
-          </div>
-          <div className="flex justify-center mb-6">
-            <Clock className="w-16 h-16 text-green-100 drop-shadow-lg" />
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2 font-droid-kufi">
-            تم استلام طلب الحساب المؤسسي
-          </h1>
-          <p className="text-green-100 text-lg">
-            شكراً لاهتمامك بالانضمام إلى منصة عقاراتي
-          </p>
-        </div>
-
-        {/* Content */}
-        <div className="px-8 py-8">
-          <div className="space-y-6 mb-8">
-            <div className="bg-green-50/80 backdrop-blur-sm p-6 rounded-2xl border border-green-200 text-right">
-              <h4 className="font-semibold text-green-800 mb-6 text-lg">عملية المراجعة والموافقة:</h4>
-              <div className="space-y-5">
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</div>
-                  <div>
-                    <h5 className="font-semibold text-green-800 mb-1">المراجعة الأولية</h5>
-                    <p className="text-green-700">سيتم مراجعة طلبك وتدقيق المعلومات خلال 48 ساعة</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</div>
-                  <div>
-                    <h5 className="font-semibold text-green-800 mb-1">التحقق من الوثائق</h5>
-                    <p className="text-green-700">قد نطلب مستندات إضافية أو توضيحات</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">3</div>
-                  <div>
-                    <h5 className="font-semibold text-green-800 mb-1">المكالمة التعريفية</h5>
-                    <p className="text-green-700">سنتواصل معك لترتيب مكالمة لمناقشة احتياجاتك</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-8 h-8 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">4</div>
-                  <div>
-                    <h5 className="font-semibold text-green-800 mb-1">إنشاء الحساب</h5>
-                    <p className="text-green-700">عند الموافقة، سيتم إنشاء حسابكم وإرسال بيانات الدخول</p>
-                  </div>
-                </div>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-100 px-4 py-16">
+      <div className="mx-auto max-w-3xl">
+        <div className="space-y-6 rounded-[32px] border border-white/80 bg-white/90 p-10 text-right shadow-[0_35px_120px_rgba(16,185,129,0.18)] backdrop-blur-xl">
+          <div className="flex items-center justify-end gap-4">
+            <div className="rounded-3xl bg-emerald-100 p-4 text-emerald-600">
+              <Clock className="h-10 w-10" />
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white/80 backdrop-blur-sm p-5 rounded-2xl border border-gray-200 shadow-lg">
-                <div className="flex items-center gap-3 text-green-600 mb-3">
-                  <Mail className="w-5 h-5" />
-                  <span className="font-semibold">البريد الإلكتروني</span>
-                </div>
-                <p className="text-gray-700 font-medium">info@aqaraty.sa</p>
-              </div>
-              
-              <div className="bg-white/80 backdrop-blur-sm p-5 rounded-2xl border border-gray-200 shadow-lg">
-                <div className="flex items-center gap-3 text-green-600 mb-3">
-                  <Phone className="w-5 h-5" />
-                  <span className="font-semibold">الهاتف</span>
-                </div>
-                <p className="text-gray-700 font-medium">+966 50 123 4567</p>
-              </div>
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900">طلب الحساب المؤسسي قيد المراجعة</h1>
+              <p className="mt-2 leading-7 text-slate-500">
+                شكراً لإرسال بيانات شركتكم. بدأ فريقنا الآن بمراجعة الطلب وسنتواصل معكم فور اكتمال الخطوات المطلوبة.
+              </p>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <Button 
+          <div className="rounded-3xl border border-emerald-100 bg-emerald-50/80 p-6">
+            <h2 className="mb-4 text-lg font-semibold text-emerald-800">مراحل التحقق</h2>
+            <ul className="space-y-3 text-emerald-700">
+              <li className="flex flex-row-reverse items-start gap-3">
+                <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-emerald-500" />
+                <span>مراجعة أولية لبيانات السجل التجاري ومسؤول الاتصال خلال 48 ساعة عمل.</span>
+              </li>
+              <li className="flex flex-row-reverse items-start gap-3">
+                <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-emerald-500" />
+                <span>قد نتواصل لطلب مستندات إضافية أو توضيحات حول نشاط الشركة.</span>
+              </li>
+              <li className="flex flex-row-reverse items-start gap-3">
+                <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-emerald-500" />
+                <span>ترتيب مكالمة تعريفية لشرح احتياجاتكم وخطط التفعيل.</span>
+              </li>
+              <li className="flex flex-row-reverse items-start gap-3">
+                <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-emerald-500" />
+                <span>إرسال بيانات الدخول وتفعيل لوحة التحكم المؤسسية عند إتمام التحقق.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="rounded-3xl border border-slate-100 bg-white/80 p-5 shadow-sm">
+              <div className="mb-3 flex items-center gap-3 text-emerald-600">
+                <Mail className="h-5 w-5" />
+                <span className="font-semibold">البريد الإلكتروني</span>
+              </div>
+              <p className="text-slate-700">info@aqaraty.sa</p>
+            </div>
+            <div className="rounded-3xl border border-slate-100 bg-white/80 p-5 shadow-sm">
+              <div className="mb-3 flex items-center gap-3 text-emerald-600">
+                <Phone className="h-5 w-5" />
+                <span className="font-semibold">الهاتف</span>
+              </div>
+              <p className="text-slate-700">+966 50 123 4567</p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-end gap-4 pt-4">
+            <Button
+              variant="outline"
+              className="rounded-2xl border-slate-300 text-slate-600 hover:bg-slate-100"
               onClick={handleBackToLanding}
-              className="w-full h-12 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
             >
+              <ArrowRight className="ml-2 h-4 w-4" />
               العودة إلى الصفحة الرئيسية
+            </Button>
+            <Button
+              className="rounded-2xl bg-emerald-600 text-white shadow-lg hover:bg-emerald-700"
+              onClick={() => setLocation('/login')}
+            >
+              متابعة تسجيل الدخول لاحقاً
             </Button>
           </div>
         </div>

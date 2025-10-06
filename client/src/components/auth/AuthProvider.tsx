@@ -1,4 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'wouter';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 /**
  * UserRole Enum - Defines all possible user roles in the RBAC system
@@ -131,6 +134,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);        // Current authenticated user
   const [token, setToken] = useState<string | null>(null);    // JWT token for API calls
   const [isLoading, setIsLoading] = useState(true);          // Loading state during auth operations
+  const [, setLocation] = useLocation(); // Imperative navigation helper for post-login redirects
+  const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null); // يحفظ مؤقت الخمول الحالي لإعادة ضبطه عند التفاعل
+  const warningTimer = useRef<ReturnType<typeof setTimeout> | null>(null); // مؤقت تنبيه قبل انتهاء الجلسة
+  const countdownInterval = useRef<ReturnType<typeof setInterval> | null>(null); // يحدّث العد التنازلي كل ثانية
+  const [showSessionWarning, setShowSessionWarning] = useState(false); // تحديد ما إذا كان يجب عرض نافذة التحذير
+  const [sessionExpired, setSessionExpired] = useState(false); // يحدد ما إذا كانت الجلسة منتهية بسبب الخمول
+  const [countdownSeconds, setCountdownSeconds] = useState(0); // عدد الثواني المتبقية قبل تسجيل الخروج التلقائي
+  const INACTIVITY_TIMEOUT_MS = 2 * 60 * 1000; // 120 ثانية بدون تفاعل تؤدي إلى تسجيل الخروج تلقائياً
+  const WARNING_LEAD_TIME_MS = 30 * 1000; // نعرض نافذة تحذير قبل 30 ثانية من انتهاء الجلسة
 
   /**
    * hasRole - Check if the current user has any of the specified roles
@@ -213,7 +225,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setToken(data.token);                  // Set token in React state
         localStorage.setItem('auth_token', data.token);              // Persist token in localStorage
         localStorage.setItem('user_data', JSON.stringify(data.user)); // Persist user data in localStorage
+        setSessionExpired(false);
         console.log('Login successful, user set:', data.user);
+
+        // Redirect users based on role after the auth state is stored. Admins land on the RBAC dashboard,
+        // while everyone else goes to the main platform shell. (Requested to document every change.)
+        const roles: string[] = Array.isArray(data.user?.roles) ? data.user.roles : [];
+        if (roles.includes(UserRole.WEBSITE_ADMIN)) {
+          setLocation('/rbac-dashboard');
+        } else {
+          setLocation('/home/platform');
+        }
       } else {
         throw new Error(data.message || data.error || 'Login failed');
       }
@@ -230,11 +252,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * from both React state and localStorage. This ensures the user is completely
    * logged out and no authentication data persists.
    */
-  const logout = () => {
+  const performLogout = (keepExpiredNotice = false) => {
+    if (inactivityTimer.current) {
+      clearTimeout(inactivityTimer.current);
+      inactivityTimer.current = null;
+    }
+    if (warningTimer.current) {
+      clearTimeout(warningTimer.current);
+      warningTimer.current = null;
+    }
+    if (countdownInterval.current) {
+      clearInterval(countdownInterval.current);
+      countdownInterval.current = null;
+    }
+    if (!keepExpiredNotice) {
+      setShowSessionWarning(false);
+      setSessionExpired(false);
+    }
+    setCountdownSeconds(0);
     setUser(null);                                    // Clear user from React state
     setToken(null);                                   // Clear token from React state
     localStorage.removeItem('auth_token');            // Remove token from localStorage
     localStorage.removeItem('user_data');             // Remove user data from localStorage
+  };
+
+  const logout = () => {
+    performLogout();
   };
 
   /**
@@ -291,6 +334,79 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, []);  // Empty dependency array means this runs only once on mount
 
+  // يضمن هذا المؤثر مراقبة نشاط المستخدم وتسجيل خروجه تلقائياً بعد دقيقتين من الخمول
+  useEffect(() => {
+    const resetInactivityTimer = () => {
+      if (!user) return;
+      if (inactivityTimer.current) {
+        clearTimeout(inactivityTimer.current);
+      }
+      if (warningTimer.current) {
+        clearTimeout(warningTimer.current);
+      }
+      if (countdownInterval.current) {
+        clearInterval(countdownInterval.current);
+        countdownInterval.current = null;
+      }
+      setShowSessionWarning(false);
+      setSessionExpired(false);
+      setCountdownSeconds(0);
+      inactivityTimer.current = setTimeout(() => {
+        logout();
+        setLocation('/login');
+      }, INACTIVITY_TIMEOUT_MS);
+      warningTimer.current = setTimeout(() => {
+        setCountdownSeconds(Math.floor(WARNING_LEAD_TIME_MS / 1000));
+        setShowSessionWarning(true);
+        if (countdownInterval.current) {
+          clearInterval(countdownInterval.current);
+        }
+        countdownInterval.current = setInterval(() => {
+          setCountdownSeconds((prev) => {
+            if (prev <= 1) {
+              if (countdownInterval.current) {
+                clearInterval(countdownInterval.current);
+                countdownInterval.current = null;
+              }
+              setShowSessionWarning(false);
+              setSessionExpired(true);
+              performLogout(true);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }, INACTIVITY_TIMEOUT_MS - WARNING_LEAD_TIME_MS);
+    };
+
+    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+
+    if (user) {
+      resetInactivityTimer();
+      activityEvents.forEach((eventName) => {
+        window.addEventListener(eventName, resetInactivityTimer, { passive: true });
+      });
+    }
+
+    return () => {
+      if (inactivityTimer.current) {
+        clearTimeout(inactivityTimer.current);
+        inactivityTimer.current = null;
+      }
+      if (warningTimer.current) {
+        clearTimeout(warningTimer.current);
+        warningTimer.current = null;
+      }
+      if (countdownInterval.current) {
+        clearInterval(countdownInterval.current);
+        countdownInterval.current = null;
+      }
+      activityEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, resetInactivityTimer);
+      });
+    };
+  }, [user]);
+
   // Create the context value object with all authentication state and methods
   const value: AuthContextType = {
     user,           // Current user state
@@ -306,6 +422,82 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={value}>
       {children}
+      <Dialog
+        open={showSessionWarning || sessionExpired}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowSessionWarning(false);
+            setSessionExpired(false);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md text-right">
+          <DialogHeader>
+            <DialogTitle>{sessionExpired ? 'تم إنهاء الجلسة بسبب عدم النشاط' : 'انتهاء الجلسة قريباً'}</DialogTitle>
+            <DialogDescription>
+              {sessionExpired
+                ? 'لقد تم إنهاء جلستك تلقائياً بسبب عدم النشاط. الرجاء تسجيل الدخول مرة أخرى لمتابعة العمل.'
+                : 'بسبب عدم النشاط سيتم إغلاق الجلسة قريباً. يرجى الضغط على "متابعة" للحفاظ على تسجيل الدخول.'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-row-reverse items-center gap-2 justify-end">
+            {sessionExpired ? (
+              <Button
+                onClick={() => {
+                  setSessionExpired(false);
+                  setShowSessionWarning(false);
+                  setLocation('/login');
+                }}
+              >
+                تسجيل الدخول
+              </Button>
+            ) : (
+              <>
+                <span className="text-sm text-slate-600 font-medium">
+                  سيتم الإنهاء خلال&nbsp;{countdownSeconds}&nbsp;ثانية
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowSessionWarning(false);
+                    if (countdownInterval.current) {
+                      clearInterval(countdownInterval.current);
+                      countdownInterval.current = null;
+                    }
+                    performLogout();
+                    setLocation('/login');
+                  }}
+                >
+                  تسجيل الخروج الآن
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowSessionWarning(false);
+                    setSessionExpired(false);
+                    if (countdownInterval.current) {
+                      clearInterval(countdownInterval.current);
+                      countdownInterval.current = null;
+                    }
+                    if (inactivityTimer.current) {
+                      clearTimeout(inactivityTimer.current);
+                      inactivityTimer.current = null;
+                    }
+                    if (warningTimer.current) {
+                      clearTimeout(warningTimer.current);
+                      warningTimer.current = null;
+                    }
+                    setCountdownSeconds(0);
+                    const synthetic = new Event('mousemove');
+                    window.dispatchEvent(synthetic);
+                  }}
+                >
+                  متابعة الجلسة
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AuthContext.Provider>
   );
 }
