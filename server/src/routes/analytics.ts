@@ -483,16 +483,16 @@ router.get('/performance', async (req, res) => {
 
     // Counts (quick, using Prisma & storage)
     const [users, props, leads, orgPending, agentPending, activeClaims] = await Promise.all([
-      prisma.user.count(),
-      prisma.property.count(),
-      prisma.lead.count(),
-      prisma.organization.count({ where: { status: 'PENDING_VERIFICATION' as any } }),
-      prisma.agentProfile.count({ where: { status: 'PENDING_VERIFICATION' as any } }),
-      prisma.claim.count({ where: { status: 'ACTIVE' as any } })
+      prisma.users.count(),
+      prisma.properties.count(),
+      prisma.leads.count(),
+      prisma.organizations.count({ where: { status: 'PENDING_VERIFICATION' as any } }),
+      prisma.agent_profiles.count({ where: { status: 'PENDING_VERIFICATION' as any } }),
+      prisma.claims.count({ where: { status: 'ACTIVE' as any } })
     ]);
 
     // Password flag: count hashes that look suspiciously short (< 20)
-    const weakPasswordHashes = (await prisma.user.findMany({ select: { passwordHash: true } }))
+    const weakPasswordHashes = (await prisma.users.findMany({ select: { passwordHash: true } }))
       .filter(u => !u.passwordHash || u.passwordHash.length < 20).length;
 
     res.json({

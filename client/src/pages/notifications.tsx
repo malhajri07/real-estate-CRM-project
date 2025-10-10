@@ -144,11 +144,11 @@ export default function Notifications() {
             <Card>
               <CardHeader className="border-b border-slate-200">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <Users size={20} />
                     <span>تفاصيل العملاء ({filteredLeads.length})</span>
                   </CardTitle>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 rtl:space-x-reverse">
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -193,17 +193,17 @@ export default function Notifications() {
                               </div>
                               
                               <div className="space-y-1 text-sm">
-                                <div className="flex items-center space-x-2 text-slate-600">
+                                <div className="flex items-center space-x-2 rtl:space-x-reverse text-slate-600">
                                   <Mail size={14} />
                                   <span>{lead.email}</span>
                                 </div>
                                 {lead.phone && (
-                                  <div className="flex items-center space-x-2 text-slate-600">
+                                  <div className="flex items-center space-x-2 rtl:space-x-reverse text-slate-600">
                                     <MessageCircle size={14} />
                                     <span>{lead.phone}</span>
                                   </div>
                                 )}
-                                <div className="flex items-center space-x-4 text-xs text-slate-500">
+                                <div className="flex items-center space-x-4 rtl:space-x-reverse text-xs text-slate-500">
                                   <span>{lead.interestType || 'غير محدد'}</span>
                                   <span>{lead.budgetRange || 'غير محدد'}</span>
                                   <span>تاريخ الإنشاء: {new Date(lead.createdAt).toLocaleDateString('en-US')}</span>
@@ -212,7 +212,7 @@ export default function Notifications() {
                             </div>
                           </div>
                           
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2 rtl:space-x-reverse">
                             {lead.phone && (
                               <Button
                                 variant="outline"
@@ -242,7 +242,7 @@ export default function Notifications() {
           <TabsContent value="campaign">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+                <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                   <Send size={20} />
                   <span>إنشاء حملة جديدة</span>
                 </CardTitle>
@@ -327,7 +327,7 @@ export default function Notifications() {
           <TabsContent value="history">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+                <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                   <Calendar size={20} />
                   <span>تاريخ الحملات</span>
                 </CardTitle>

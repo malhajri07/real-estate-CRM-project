@@ -16,6 +16,7 @@
 
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session"; // Enable per-user session storage so multiple logins can coexist
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
@@ -25,6 +26,27 @@ const app = express();
 // Configure Express middleware
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: false })); // Parse URL-encoded request bodies
+
+// Wire up cookie-based sessions so several users can stay logged in at the same time
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "dev-session-secret", // Basic secret; override in production
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // We run in HTTP during development; swap to true behind HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // Keep sessions for 24 hours
+    },
+  }),
+);
+
+// Promote session user info onto req.user when no bearer token is provided
+app.use((req, _res, next) => {
+  if (!req.headers.authorization && req.session?.user) {
+    (req as any).user = req.session.user;
+  }
+  next();
+});
 
 // Serve attached assets as static files
 app.use('/attached_assets', express.static('attached_assets'));

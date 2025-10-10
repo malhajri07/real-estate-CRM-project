@@ -13,12 +13,11 @@
     "ensure:admin": "tsx server/ensure-primary-admin.ts",
     "check": "tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**'",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**' --fix",
-    "import:users": "tsx server/import-users-from-csv.ts attached_assets/real_estate_users_500_clean.csv",
-    "import:geo": "tsx server/import-geo-data.ts"
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**' --fix"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.17.0",
+    "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@notionhq/client": "^4.0.2",
@@ -102,9 +101,11 @@
     "react-leaflet": "^4.2.1",
     "react-resizable-panels": "^2.1.7",
     "recharts": "^2.15.2",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "tw-animate-css": "^1.2.5",
+    "twilio": "^5.10.2",
     "vaul": "^1.1.2",
     "whatsapp-web.js": "^1.32.0",
     "wouter": "^3.3.5",

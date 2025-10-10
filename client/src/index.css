@@ -22,141 +22,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@200;300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Custom Arabic font - Noto Sans Arabic for comprehensive Arabic text support */
-@font-face {
-  font-family: 'Noto Sans Arabic';
-  src: url('@assets/NotoSansArabic-VariableFont_wdth,wght_1756157862831.ttf') format('truetype');
-  font-weight: 100 900;
-  font-stretch: 50% 200%;
-  font-display: swap;
-}
-
-/* Custom Arabic font - Janat Bold for headings and emphasis */
-@font-face {
-  font-family: 'Janat Bold';
-  src: url('@assets/alfont_com_خط-جنات-عريض_1755464148698.ttf') format('truetype');
-  font-weight: bold;
-  font-display: swap;
-}
-
 /* Tailwind CSS imports - Base, components, and utilities */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ===== RTL (Right-to-Left) Layout Fixes ===== */
-/* These styles ensure proper Arabic text rendering and layout */
-
-/* Remove forced font-family for RTL; use Tailwind font-sans everywhere */
-
-/* RTL spacing fixes - Convert left margins to right margins */
-[dir="rtl"] .space-x-4 > * + * {
-  margin-left: 0;
-  margin-right: 1rem;
-}
-
-[dir="rtl"] .space-x-2 > * + * {
-  margin-left: 0;
-  margin-right: 0.5rem;
-}
-
-/* RTL gap fixes - Ensure consistent spacing in RTL layout */
-[dir="rtl"] .gap-2 {
-  gap: 0.5rem;
-}
-
-[dir="rtl"] .gap-3 {
-  gap: 0.75rem;
-}
-
-[dir="rtl"] .gap-4 {
-  gap: 1rem;
-}
-
-/* RTL Layout Fixes - Avoid forcing all flex containers to reverse.
-   Use opt-in class `.rtl-flex` where you explicitly want row-reverse. */
-[dir="rtl"] .rtl-flex {
-  flex-direction: row-reverse;
-}
-
-/* Ensure sidebar is properly positioned in RTL */
-[dir="rtl"] .fixed.inset-y-0.right-0 {
-  right: 0;
-  left: auto;
-}
-
-/* RTL Sidebar positioning fixes */
-[dir="rtl"] .lg\:static {
-  position: static;
-}
-
-[dir="rtl"] .lg\:inset-0 {
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-
-/* Avoid overly broad overflow suppression that creates nested scrollbars */
-/* Removed global [dir=rtl] .overflow-hidden rule */
-
-/* RTL Support */
-.rtl {
-  direction: rtl;
-}
-
-.ltr {
-  direction: ltr;
-}
-
-/* Admin Dashboard RTL Fixes */
-[dir="rtl"] .admin-dashboard {
-  direction: rtl;
-}
-
 /* Utility: hide scrollbars (horizontal tab lists etc.) */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* Normalized Content Panel Components */
-@layer components {
-  /* Removed custom platform helpers in favor of Tailwind utilities within components */
-  .content-panel {
-    @apply max-w-7xl mx-auto bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8;
-  }
-  .content-header {
-    @apply mb-6 flex items-center justify-between gap-4;
-  }
-  .content-title {
-    @apply text-2xl font-bold text-gray-900;
-  }
-  .content-subtitle {
-    @apply text-gray-600;
-  }
-  .content-actions {
-    @apply flex items-center gap-2;
-  }
-  .content-section {
-    @apply space-y-4;
-  }
-  .content-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
-  }
-  .content-divider {
-    @apply my-6 border-t border-gray-200;
-  }
-  .content-tabs {
-    @apply w-full flex flex-row-reverse flex-nowrap items-center justify-start gap-2 rounded-2xl bg-slate-50 p-2 ring-1 ring-slate-200 overflow-x-auto no-scrollbar;
-  }
-
-  /* Removed design helper classes (panel, bg-modal-filter) to rely purely on Tailwind utilities */
-
-}
-
-/* Admin dashboard layout - force sidebar to right side */
-[dir="rtl"] .admin-dashboard > .flex {
-  flex-direction: row !important;
-}
 
 /* Fixed header positioning for admin dashboard */
 .admin-header.fixed {
@@ -170,17 +43,6 @@
 
 
 
-
-/* Ensure admin sidebar is properly positioned in RTL */
-[dir="rtl"] .admin-sidebar {
-  border-left: 1px solid hsl(var(--border));
-  border-right: none;
-}
-
-/* Ensure proper spacing in admin navigation */
-[dir="rtl"] .admin-nav button {
-  text-align: right;
-}
 
 /* Custom smaller text size for input fields */
 .text-xxs {
@@ -266,6 +128,34 @@ select {
   gap: 0.5rem;
   font-size: 0.75rem;
   color: rgb(100 116 139);
+}
+
+.map-region-label,
+.map-city-label,
+.map-district-label {
+  border: none;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #1f2937;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+  text-align: center;
+}
+
+.map-city-label {
+  font-weight: 600;
+}
+
+.map-district-label {
+  font-weight: 500;
+  color: #047857;
+}
+
+.leaflet-interactive:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 body {
@@ -382,9 +272,9 @@ body {
   --brand-cream: hsl(48 26% 97%);
   --brand-green-light: hsl(145 25% 85%);
   --brand-blue-dark: hsl(205 70% 20%);
-  --font-sans: 'Noto Sans Arabic', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-serif: 'New York', 'Times New Roman', serif;
-  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  --font-sans: 'Noto Kufi Arabic', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Inter', serif;
+  --font-mono: 'Inter', monospace;
   --radius: 0.875rem;
   --success: hsl(142 76% 36%);
   --warning: hsl(35 91% 65%);
@@ -662,248 +552,4 @@ html, body {
   background: #f9fafb;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
-}
-
-/* Pipeline Stage Colors */
-.pipeline-label-leads {
-  font-size: 0.75rem;
-  color: #6366f1;
-  font-weight: 500;
-}
-
-.pipeline-label-qualified {
-  font-size: 0.75rem;
-  color: #0ea5e9;
-  font-weight: 500;
-}
-
-.pipeline-label-showing {
-  font-size: 0.75rem;
-  color: #f59e0b;
-  font-weight: 500;
-}
-
-.pipeline-label-negotiation {
-  font-size: 0.75rem;
-  color: #ef4444;
-  font-weight: 500;
-}
-
-.pipeline-label-closed {
-  font-size: 0.75rem;
-  color: #10b981;
-  font-weight: 500;
-}
-
-/* Enhanced Professional Table Styling */
-.professional-table {
-  @apply w-full bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden;
-}
-
-.professional-table-header {
-  @apply bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200;
-}
-
-.professional-table-header th {
-  @apply px-4 py-3 text-right text-xs font-semibold text-slate-700 tracking-wide uppercase;
-}
-
-.professional-table-row {
-  @apply border-b border-slate-100 hover:bg-slate-50/50 transition-colors duration-150;
-}
-
-.professional-table-row:last-child {
-  @apply border-b-0;
-}
-
-.professional-table-cell {
-  @apply px-4 py-3 text-xs text-slate-800;
-}
-
-.professional-table-cell-name {
-  @apply px-4 py-3 text-xs;
-}
-
-.professional-table-cell-name .name {
-  @apply font-semibold text-slate-900 text-sm;
-}
-
-.professional-table-cell-name .contact {
-  @apply text-slate-500 text-xs mt-1 flex items-center gap-2;
-}
-
-.professional-table-cell-name .contact-item {
-  @apply flex items-center gap-1;
-}
-
-.professional-table-actions {
-  @apply px-4 py-3 text-right;
-}
-
-.professional-table-actions .action-group {
-  @apply flex items-center justify-end gap-1;
-}
-
-/* Enhanced Status Badge Styling */
-.status-badge {
-  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
-}
-
-.status-badge.new {
-  @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
-}
-
-.status-badge.qualified {
-  @apply bg-blue-100 text-blue-800 border border-blue-200;
-}
-
-.status-badge.showing {
-  @apply bg-purple-100 text-purple-800 border border-purple-200;
-}
-
-.status-badge.negotiation {
-  @apply bg-orange-100 text-orange-800 border border-orange-200;
-}
-
-.status-badge.closed {
-  @apply bg-green-100 text-green-800 border border-green-200;
-}
-
-.status-badge.lost {
-  @apply bg-red-100 text-red-800 border border-red-200;
-}
-
-/* Professional Info Cell Styling */
-.info-cell {
-  @apply text-xs text-slate-800;
-}
-
-.info-cell .primary {
-  @apply font-medium text-slate-900 text-xs;
-}
-
-.info-cell .secondary {
-  @apply text-slate-500 text-xs mt-1;
-}
-
-/* Improved Table Responsiveness */
-.table-container {
-  @apply overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm;
-}
-
-/* Professional Action Buttons */
-.action-btn {
-  @apply p-2 rounded-md transition-colors duration-150;
-}
-
-.action-btn-edit {
-  @apply text-blue-600 hover:text-blue-800 hover:bg-blue-50;
-}
-
-.action-btn-delete {
-  @apply text-red-600 hover:text-red-800 hover:bg-red-50;
-}
-
-.action-btn-contact {
-  @apply text-green-600 hover:text-green-800 hover:bg-green-50;
-}
-
-.action-btn-view {
-  @apply text-slate-600 hover:text-slate-800 hover:bg-slate-50;
-}
-
-.action-btn-share {
-  @apply text-purple-600 hover:text-purple-800 hover:bg-purple-50;
-}
-
-/* Professional Card Styling for Properties and Dashboard */
-.professional-card {
-  @apply bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-all duration-200 overflow-hidden;
-}
-
-.professional-card-header {
-  @apply p-4 border-b border-slate-100 bg-slate-50/50;
-}
-
-.professional-card-content {
-  @apply p-4;
-}
-
-.professional-card-footer {
-  @apply p-4 border-t border-slate-100 bg-slate-50/30;
-}
-
-/* Professional List Item Styling for Dashboard */
-.professional-list-item {
-  @apply flex items-center justify-between p-3 border-b border-slate-100 hover:bg-slate-50/50 transition-colors duration-150 rounded-lg;
-}
-
-.professional-list-item:last-child {
-  @apply border-b-0;
-}
-
-.professional-list-item .content {
-  @apply flex-1;
-}
-
-.professional-list-item .title {
-  @apply font-semibold text-slate-900 text-sm;
-}
-
-.professional-list-item .subtitle {
-  @apply text-slate-500 text-xs mt-1;
-}
-
-.professional-list-item .actions {
-  @apply flex items-center gap-2;
-}
-
-/* Clean Card Grid Layout */
-.professional-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
-}
-
-.professional-grid-item {
-  @apply bg-white rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-all duration-200 overflow-hidden;
-}
-/* RTL content utility using Tailwind @apply */
-@layer utilities {
-  /* Hide horizontal scrollbar for scrollable tab lists */
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  .rtl-content {
-    direction: rtl;
-  }
-  .rtl-content h1,
-  .rtl-content h2,
-  .rtl-content h3,
-  .rtl-content h4,
-  .rtl-content h5,
-  .rtl-content h6,
-  .rtl-content p,
-  .rtl-content label,
-  .rtl-content legend,
-  .rtl-content li,
-  .rtl-content dt,
-  .rtl-content dd,
-  .rtl-content span,
-  .rtl-content strong,
-  .rtl-content em,
-  .rtl-content small,
-  .rtl-content th,
-  .rtl-content td {
-    @apply text-right;
-  }
-  .rtl-content input,
-  .rtl-content textarea,
-  .rtl-content select {
-    @apply text-right;
-  }
-  .rtl-content table {
-    @apply w-full;
-  }
-  /* Prefer gap utilities; when using flex, reverse in RTL */
-  .rtl-content .flex {
-    flex-direction: row-reverse;
-  }
 }

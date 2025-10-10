@@ -84,7 +84,7 @@ export function PhotoCarousel({
       
       {/* Photo Indicators */}
       {showIndicators && photos.length > 1 && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1 space-x-reverse">
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
           {photos.map((_, index) => (
             <button
               key={index}

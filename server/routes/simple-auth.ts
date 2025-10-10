@@ -67,7 +67,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Username-only authentication
-    const user = await prisma.user.findUnique({ where: { username: normalized } });
+    const user = await prisma.users.findUnique({ where: { username: normalized } });
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -81,7 +81,10 @@ router.post('/login', async (req, res) => {
 
     // Check account active
     if (user.isActive === false) {
-      return res.status(403).json({ success: false, message: 'Account is inactive. Please contact support.' });
+      return res.status(403).json({ 
+        success: false, 
+        message: 'حسابك في انتظار الموافقة من الإدارة. يرجى المحاولة لاحقاً أو التواصل مع الدعم الفني.' 
+      });
     }
 
     // Generate JWT token
@@ -98,7 +101,7 @@ router.post('/login', async (req, res) => {
     );
 
     // Update last login
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() }
     });
@@ -130,19 +133,24 @@ router.post('/login', async (req, res) => {
       parsedRoles = [user.roles]; // Fallback to single role
     }
 
+    const sessionUser = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      name: `${user.firstName} ${user.lastName}`,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      roles: parsedRoles,
+      organizationId: user.organizationId,
+    };
+
+    req.session.user = sessionUser; // Store the active user in the session to allow parallel user sessions
+    req.session.authToken = token; // Keep the JWT handy for session-authenticated API calls
+
     res.json({
       success: true,
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        name: `${user.firstName} ${user.lastName}`,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        roles: parsedRoles,
-        organizationId: user.organizationId
-      }
+      user: sessionUser
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -156,7 +164,8 @@ router.post('/login', async (req, res) => {
  */
 router.get('/me', async (req, res) => {
   try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
+    const headerToken = req.headers.authorization?.replace('Bearer ', '');
+    const token = headerToken || req.session?.authToken;
     
     if (!token) {
       return res.status(401).json({ success: false, message: 'No token provided' });
@@ -164,7 +173,7 @@ router.get('/me', async (req, res) => {
 
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: decoded.userId }
     });
 
@@ -180,7 +189,7 @@ router.get('/me', async (req, res) => {
       parsedRoles = [user.roles]; // Fallback to single role
     }
 
-    res.json({
+    const sessionUser = {
       success: true,
       user: {
         id: user.id,
@@ -192,7 +201,12 @@ router.get('/me', async (req, res) => {
         roles: parsedRoles,
         organizationId: user.organizationId
       }
-    });
+    };
+
+    req.session.user = sessionUser.user; // Refresh session data on token validation so the session stays authoritative
+    req.session.authToken = token;
+
+    res.json(sessionUser);
   } catch (error) {
     console.error('Get user error:', error);
     res.status(401).json({ success: false, message: 'Invalid token' });
@@ -223,7 +237,7 @@ router.post('/register', async (req, res) => {
     }
 
     // Check if username already exists
-    const existingUsername = await prisma.user.findUnique({
+    const existingUsername = await prisma.users.findUnique({
       where: { username: normalized }
     });
 
@@ -233,7 +247,7 @@ router.post('/register', async (req, res) => {
 
     // Optionally also check email if provided
     if (email) {
-      const existingEmail = await prisma.user.findUnique({
+      const existingEmail = await prisma.users.findUnique({
         where: { email }
       });
       if (existingEmail) {
@@ -244,8 +258,11 @@ router.post('/register', async (req, res) => {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
+    // Determine if user needs approval
+    const needsApproval = roles && (roles.includes('AGENT') || roles.includes('CORP_OWNER'));
+    
     // Create user
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         username: normalized,
         email,
@@ -254,7 +271,8 @@ router.post('/register', async (req, res) => {
         lastName,
         phone: phone || null,
         roles: roles || 'BUYER',
-        organizationId: organizationId || null
+        organizationId: organizationId || null,
+        isActive: !needsApproval // Set to false if needs approval
       }
     });
 
@@ -279,6 +297,22 @@ router.post('/register', async (req, res) => {
       parsedRoles = [user.roles];
     }
 
+    const sessionUser = {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      roles: parsedRoles,
+      organizationId: user.organizationId
+    };
+
+    req.session.user = {
+      ...sessionUser,
+      name: `${user.firstName} ${user.lastName}`,
+    }; // Capture the new account in the session immediately for instant access on other tabs
+    req.session.authToken = token;
+
     res.status(201).json({
       success: true,
       token,
@@ -295,6 +329,20 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/auth/logout - Destroy the current session
+ */
+router.post('/logout', (req, res) => {
+  if (req.session) {
+    req.session.destroy(() => {
+      // We intentionally respond after destroying to confirm the session is gone
+      res.json({ success: true });
+    });
+  } else {
+    res.json({ success: true });
   }
 });
 
@@ -321,9 +369,9 @@ router.post('/ensure-primary-admin', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 12);
     const roles = JSON.stringify(['WEBSITE_ADMIN']);
 
-    let user = await prisma.user.findUnique({ where: { username: normalized } });
+    let user = await prisma.users.findUnique({ where: { username: normalized } });
     if (!user) {
-      user = await prisma.user.create({
+      user = await prisma.users.create({
         data: {
           username: normalized,
           email,
@@ -337,7 +385,7 @@ router.post('/ensure-primary-admin', async (req, res) => {
       return res.json({ success: true, created: true, user: { id: user.id, username: user.username } });
     }
 
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: user.id },
       data: { passwordHash, roles, isActive: true, email: email || user.email },
     });

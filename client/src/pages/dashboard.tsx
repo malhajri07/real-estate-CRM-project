@@ -190,7 +190,7 @@ export default function Dashboard() {
                     {recentLeads.slice(0, 5).map((lead) => (
                       <div key={lead.id} className="flex items-center justify-between px-3 py-2 rounded-lg border border-slate-100 bg-white hover:bg-slate-50 transition">
                         <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center space-x-4 space-x-reverse">
+                          <div className="flex items-center space-x-4 rtl:space-x-reverse">
                             <span className="font-semibold text-gray-900 tracking-tight font-droid-kufi">{lead.firstName} {lead.lastName}</span>
                             <span className="text-sm text-gray-600">{lead.phone}</span>
                             <span className="text-sm text-gray-700 font-medium">{lead.city || 'غير محدد'}</span>

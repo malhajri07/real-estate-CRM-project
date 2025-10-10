@@ -125,9 +125,9 @@ async function main() {
       const passwordHash = await hashPassword(plainPassword);
 
       // Upsert by username (unique)
-      const existing = await prisma.user.findUnique({ where: { username } });
+      const existing = await prisma.users.findUnique({ where: { username } });
       if (existing) {
-        await prisma.user.update({
+        await prisma.users.update({
           where: { id: existing.id },
           data: {
             firstName,
@@ -140,7 +140,7 @@ async function main() {
         });
         updated++;
       } else {
-        await prisma.user.create({
+        await prisma.users.create({
           data: {
             username,
             email: null,

@@ -1,19 +1,66 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin, Camera, FileText, DollarSign, GitBranch, CheckCircle, UserPlus, Eye, NotebookPen } from "lucide-react";
 // import PropertySearchMap from "@/components/PropertySearchMap"; // Map component removed
 import ListingCard from "@/components/listings/ListingCard";
-import { cmsService, type LandingPageContent, type PricingPlan } from "@/lib/cms";
+import { type LandingPageContent, type PricingPlan } from "@/lib/cms";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
 import agarkomFooterLogo from "@assets/6_1756507125793.png";
+import { Link, useLocation } from "wouter";
+
+const DEFAULT_LANDING_CONTENT: LandingPageContent = {
+  id: 0,
+  loadingText: "جار تحميل المحتوى...",
+  heroWelcomeText: "مرحباً بك في",
+  heroTitle: "منصة عقاراتي للوساطة العقارية",
+  heroSubtitle: "منصة شاملة لإدارة العقارات والوساطة العقارية مع أدوات تسويق متقدمة",
+  heroButton: "ابدأ رحلتك المجانية",
+  heroLoginButton: "تسجيل الدخول",
+  heroDashboardTitle: "منصة عقاراتي - لوحة التحكم",
+  heroDashboardMetrics: [
+    { id: 1, value: "1.2M ﷼", label: "إيرادات", color: "blue", order: 1 },
+    { id: 2, value: "3,847", label: "عملاء", color: "green", order: 2 },
+    { id: 3, value: "89", label: "عقارات", color: "orange", order: 3 },
+    { id: 4, value: "45", label: "صفقات", color: "purple", order: 4 },
+  ],
+  featuresTitle: "لماذا تختار منصة عقاراتي؟",
+  featuresDescription:
+    "عندما يجتمع التحديث بالاحترافية، تكون منصة عقاراتي هي الخيار الأمثل لإدارة عقاراتك بكفاءة",
+  features: [],
+  solutionsTitle: "حلول شاملة لإدارة العقارات",
+  solutionsDescription: "أدوات متكاملة تساعدك في إدارة جميع جوانب أعمالك العقارية",
+  solutions: [],
+  statsTitle: "أرقامنا تتحدث",
+  stats: [],
+  pricingTitle: "خطط الأسعار",
+  pricingSubtitle: "اختر الخطة المناسبة لك",
+  contactTitle: "تواصل معنا",
+  contactDescription: "نحن هنا لمساعدتك في رحلتك العقارية",
+  contactInfo: [],
+  footerDescription: "منصة عقاراتي - الحل الشامل لإدارة العقارات والوساطة العقارية",
+  footerCopyright: "© 2024 منصة عقاراتي. جميع الحقوق محفوظة.",
+  footerLinks: [],
+  navigation: [
+    { id: 1, text: "الرئيسية", url: "#home", order: 1 },
+    { id: 2, text: "ابحث عن عقار", url: "/search-properties", order: 2 },
+    { id: 3, text: "المميزات", url: "#features", order: 3 },
+    { id: 4, text: "الحلول", url: "#solutions", order: 4 },
+    { id: 5, text: "الأسعار", url: "#pricing", order: 5 },
+    { id: 6, text: "اتصل بنا", url: "#contact", order: 6 },
+  ],
+};
+
+const SKELETON_LISTING_COUNT = 6;
 
 export default function Landing() {
-  const [landingContent, setLandingContent] = useState<LandingPageContent | null>(null);
+  const [landingContent, setLandingContent] = useState<LandingPageContent>(DEFAULT_LANDING_CONTENT);
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [featured, setFeatured] = useState<any[]>([]);
   const [recent, setRecent] = useState<any[]>([]);
+  const [, setLocation] = useLocation(); // Use SPA-friendly navigation so landing buttons reach /login without full reloads.
 
 
 const defaultNavigation = [
@@ -24,10 +71,10 @@ const defaultNavigation = [
   { href: '/marketing-request', label: 'سوق الوسطاء' },
 ];
 
-const navigationLinks = (landingContent?.navigation && landingContent.navigation.length > 0
-  ? landingContent.navigation
+const navigationLinks = (landingContent.navigation && landingContent.navigation.length > 0
+  ? [...landingContent.navigation]
       .sort((a, b) => a.order - b.order)
-      .map((item) => ({ href: item.url || '#', label: item.text || item.id }))
+      .map((item) => ({ href: item.url || '#', label: item.text || String(item.id) }))
   : []
 ).reduce((acc: { href: string; label: string }[], item) => {
   if (!acc.some((link) => link.href === item.href && link.label === item.label)) {
@@ -51,12 +98,140 @@ for (const link of defaultNavigation) {
   useEffect(() => {
     const loadCMSContent = async (noCache = false) => {
       try {
-        const [contentData, plansData] = await Promise.all([
-          cmsService.getLandingPageContent({ noCache }),
-          cmsService.getPricingPlans()
-        ]);
-        setLandingContent(contentData);
-        setPricingPlans(plansData);
+        const landingRes = await fetch(`/api/landing${noCache ? `?t=${Date.now()}` : ""}`, {
+          credentials: "include",
+        });
+        let landingPayload: { data: any[] } | null = null;
+
+        if (landingRes.ok) {
+          landingPayload = await landingRes.json();
+        }
+
+        if (landingPayload?.data?.length) {
+          const sections = landingPayload.data;
+          const findSection = (slug: string) => sections.find((section: any) => section.slug === slug);
+
+          const hero = findSection("hero");
+          const heroContent = (hero?.content ?? hero?.draftJson ?? {}) as any;
+
+          const features = findSection("features");
+          const solutions = findSection("solutions");
+          const stats = findSection("stats");
+          const navigation = findSection("navigation");
+          const pricing = findSection("pricing");
+          const contact = findSection("contact");
+
+          setLandingContent((current) => ({
+            ...current,
+            heroWelcomeText: heroContent?.badge ?? current.heroWelcomeText,
+            heroTitle: heroContent?.title ?? hero?.title ?? current.heroTitle,
+            heroSubtitle: heroContent?.subtitle ?? hero?.subtitle ?? current.heroSubtitle,
+            heroButton: heroContent?.cta?.label ?? current.heroButton,
+            heroLoginButton: heroContent?.secondaryCta?.label ?? current.heroLoginButton,
+            heroDashboardTitle: heroContent?.dashboardTitle ?? current.heroDashboardTitle,
+            heroDashboardMetrics:
+              Array.isArray(hero?.cards) && hero.cards.length > 0
+                ? hero.cards.map((card: any, index: number) => ({
+                    id: index,
+                    value: card.content?.value ?? card.content?.title ?? "",
+                    label: card.content?.label ?? card.content?.body ?? "",
+                    color: card.content?.color ?? "blue",
+                    order: card.orderIndex ?? index,
+                  }))
+                : current.heroDashboardMetrics,
+            featuresTitle: features?.content?.title ?? features?.title ?? current.featuresTitle,
+            featuresDescription: features?.content?.subtitle ?? features?.subtitle ?? current.featuresDescription,
+            features:
+              Array.isArray(features?.cards) && features.cards.length > 0
+                ? features.cards.map((card: any, index: number) => ({
+                    id: index,
+                    title: card.content?.title ?? card.title ?? "",
+                    description: card.content?.body ?? card.body ?? "",
+                    icon: card.content?.icon ?? "Sparkles",
+                  }))
+                : current.features,
+            solutionsTitle: solutions?.content?.title ?? solutions?.title ?? current.solutionsTitle,
+            solutionsDescription: solutions?.content?.subtitle ?? solutions?.subtitle ?? current.solutionsDescription,
+            solutions:
+              Array.isArray(solutions?.cards) && solutions.cards.length > 0
+                ? solutions.cards.map((card: any, index: number) => ({
+                    id: index,
+                    title: card.content?.title ?? card.title ?? "",
+                    description: card.content?.body ?? card.body ?? "",
+                    icon: card.content?.icon ?? "Target",
+                    features: Array.isArray(card.content?.features)
+                      ? card.content.features.map((feature: any, idx: number) => ({
+                          id: idx,
+                          text: feature?.text ?? feature ?? "",
+                          icon: feature?.icon ?? "Check",
+                        }))
+                      : [],
+                    order: card.orderIndex ?? index,
+                  }))
+                : current.solutions,
+            statsTitle: stats?.content?.title ?? stats?.title ?? current.statsTitle,
+            stats:
+              Array.isArray(stats?.cards) && stats.cards.length > 0
+                ? stats.cards.map((card: any, index: number) => ({
+                    id: index,
+                    number: card.content?.value ?? "",
+                    label: card.content?.label ?? "",
+                    suffix: card.content?.suffix ?? "",
+                  }))
+                : current.stats,
+            pricingTitle: pricing?.content?.title ?? pricing?.title ?? current.pricingTitle,
+            pricingSubtitle: pricing?.content?.subtitle ?? pricing?.subtitle ?? current.pricingSubtitle,
+            contactTitle: contact?.content?.title ?? contact?.title ?? current.contactTitle,
+            contactDescription:
+              contact?.content?.subtitle ?? contact?.subtitle ?? current.contactDescription,
+            contactInfo:
+              Array.isArray(contact?.cards) && contact.cards.length > 0
+                ? contact.cards.map((card: any, index: number) => ({
+                    id: index,
+                    type: card.content?.type ?? "info",
+                    label: card.content?.title ?? card.title ?? "",
+                    value: card.content?.body ?? card.body ?? "",
+                    icon: card.content?.icon ?? "Mail",
+                  }))
+                : current.contactInfo,
+            footerDescription:
+              findSection("footer")?.content?.body ?? current.footerDescription,
+            navigation:
+              Array.isArray(navigation?.cards) && navigation.cards.length > 0
+                ? navigation.cards.map((card: any, index: number) => ({
+                    id: index,
+                    text: card.content?.label ?? card.content?.title ?? card.title ?? "",
+                    url: card.content?.href ?? card.content?.link ?? "#",
+                    order: card.orderIndex ?? index,
+                  }))
+                : current.navigation,
+          }));
+
+          if (Array.isArray(pricing?.cards)) {
+            setPricingPlans(
+              pricing.cards.map((card: any, index: number) => ({
+                id: index,
+                name: card.content?.title ?? card.title ?? "",
+                price: Number(card.content?.price ?? 0),
+                period: (card.content?.period ?? "monthly") as "monthly" | "yearly",
+                isPopular: Boolean(card.content?.isPopular),
+                description: card.content?.body ?? "",
+                features: Array.isArray(card.content?.features)
+                  ? card.content.features.map((feature: any, idx: number) => ({
+                      id: idx,
+                      text: feature?.text ?? feature ?? "",
+                      included: feature?.included ?? true,
+                    }))
+                  : [],
+                buttonText: card.content?.cta?.label ?? "ابدأ الآن",
+                order: card.orderIndex ?? index,
+              }))
+            );
+          } else {
+            setPricingPlans([]);
+          }
+        }
+
         // load featured and recent
         const [f, r] = await Promise.all([
           fetch('/api/listings/featured').then(r => r.json()).catch(() => []),
@@ -66,7 +241,7 @@ for (const link of defaultNavigation) {
         setRecent(Array.isArray(r?.items) ? r.items : (Array.isArray(r) ? r : []));
       } catch (error) {
         console.error('Error loading CMS content:', error);
-        // Content will fall back to default values from cmsService
+        // سيتم استخدام القيم الافتراضية في حال فشل التحميل
       } finally {
         setIsLoading(false);
       }
@@ -92,43 +267,90 @@ for (const link of defaultNavigation) {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = "/login";
+    setLocation("/login"); // Route internally to avoid issues with direct window navigation.
   };
 
   const handleSignUp = () => {
-    window.location.href = "/signup";
+    setLocation("/signup"); // Align signup navigation with Wouter routing as well.
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-          <p className="text-lg font-medium text-gray-700">{landingContent?.loadingText || "جار تحميل المحتوى..."}</p>
+  const showFeaturedSkeleton = isLoading && featured.length === 0;
+  const showRecentSkeleton = isLoading && recent.length === 0;
+
+  const featuredSkeletons = Array.from({ length: SKELETON_LISTING_COUNT });
+
+  const renderListingSkeleton = (index: number, keyPrefix: string) => (
+    <div key={`${keyPrefix}-skeleton-${index}`} className="apple-card overflow-hidden">
+      <div className="aspect-video bg-slate-200 animate-pulse" />
+      <div className="p-4 space-y-3">
+        <div className="h-3 w-1/2 rounded bg-slate-200 animate-pulse" />
+        <div className="h-4 w-11/12 rounded bg-slate-200 animate-pulse" />
+        <div className="flex items-center justify-between mt-2">
+          <div className="h-4 w-24 rounded bg-slate-200 animate-pulse" />
+          <div className="h-4 w-16 rounded bg-slate-200 animate-pulse" />
+        </div>
+        <div className="flex gap-2 mt-3">
+          <div className="h-8 flex-1 rounded bg-slate-200 animate-pulse" />
+          <div className="h-8 flex-1 rounded bg-slate-200 animate-pulse" />
+          <div className="h-8 flex-1 rounded bg-slate-200 animate-pulse" />
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
+    <div className="relative min-h-screen bg-gradient-to-br from-green-50 to-white" aria-busy={isLoading}>
+      {isLoading && (
+        <div className="pointer-events-none fixed inset-x-0 top-0 z-50">
+          <div className="h-1 bg-primary/15">
+            <div className="h-full w-full animate-pulse bg-primary/60"></div>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-reverse space-x-4">
+            <div className="flex items-center space-x-reverse space-x-4 rtl:space-x-reverse">
               <div className="flex items-center">
-                <img src={agarkomLogo} alt="عقارکم" className="h-36 ml-3" />
+                <img
+                  src={agarkomLogo}
+                  alt="عقارکم"
+                  width={256}
+                  height={144}
+                  loading="eager"
+                  decoding="async"
+                  className="h-36 w-auto ml-3"
+                />
               </div>
             </div>
             <nav className="hidden md:flex space-x-reverse space-x-8">
-              {combinedNavigation.map((item) => (
-                <a key={`${item.href}-${item.label}`} href={item.href} className="text-gray-700 hover:text-primary">
-                  {item.label}
-                </a>
-              ))}
+              {/* Use Wouter links for internal pages so landing navigation stays within the SPA. */}
+              {combinedNavigation.map((item) => {
+                if (item.href.startsWith('#')) {
+                  return (
+                    <a
+                      key={`${item.href}-${item.label}`}
+                      href={item.href}
+                      className="text-gray-700 hover:text-primary"
+                    >
+                      {item.label}
+                    </a>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={`${item.href}-${item.label}`}
+                    href={item.href}
+                    className="text-gray-700 hover:text-primary"
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
-            <div className="flex items-center space-x-reverse space-x-4">
+            <div className="flex items-center space-x-reverse space-x-4 rtl:space-x-reverse">
               <Button onClick={handleLogin} variant="outline" className="text-primary border-primary hover:bg-primary/10">
                 {landingContent?.heroLoginButton || "تسجيل الدخول"}
               </Button>
@@ -162,7 +384,12 @@ for (const link of defaultNavigation) {
               </div>
             </div>
             <div className="lg:text-left">
-              <div className="bg-white rounded-2xl shadow-2xl p-3 transform rotate-3 hover:rotate-0 transition-transform duration-300 overflow-hidden">
+              <div
+                className={cn(
+                  "bg-white rounded-2xl shadow-2xl p-3 transform rotate-3 hover:rotate-0 transition-transform duration-300 overflow-hidden",
+                  isLoading && "animate-pulse"
+                )}
+              >
                 <div className="space-y-2">
                   {/* Header */}
                   <div className="flex items-center justify-between border-b border-gray-100 pb-1">
@@ -183,6 +410,7 @@ for (const link of defaultNavigation) {
                   <div className="grid grid-cols-4 gap-1 text-center">
                     {landingContent?.heroDashboardMetrics && landingContent.heroDashboardMetrics.length > 0 ? (
                       landingContent.heroDashboardMetrics
+                        .slice()
                         .sort((a, b) => a.order - b.order)
                         .map((metric) => (
                           <div key={metric.id} className={`bg-gradient-to-br from-${metric.color}-50 to-${metric.color}-100 p-1.5 rounded`}>
@@ -914,9 +1142,13 @@ for (const link of defaultNavigation) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-6">عقارات مميزة</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {featured.slice(0,6).map((p:any) => (
-              <ListingCard key={p.id} item={p} />
-            ))}
+            {(showFeaturedSkeleton ? featuredSkeletons : featured.slice(0, SKELETON_LISTING_COUNT)).map((item: any, index: number) =>
+              showFeaturedSkeleton ? (
+                renderListingSkeleton(index, "featured")
+              ) : (
+                <ListingCard key={item.id ?? `featured-${index}`} item={item} />
+              )
+            )}
           </div>
         </div>
       </section>
@@ -926,9 +1158,13 @@ for (const link of defaultNavigation) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold mb-6">أحدث الإعلانات</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {recent.slice(0,6).map((p:any) => (
-              <ListingCard key={p.id} item={p} />
-            ))}
+            {(showRecentSkeleton ? featuredSkeletons : recent.slice(0, SKELETON_LISTING_COUNT)).map((item: any, index: number) =>
+              showRecentSkeleton ? (
+                renderListingSkeleton(index, "recent")
+              ) : (
+                <ListingCard key={item.id ?? `recent-${index}`} item={item} />
+              )
+            )}
           </div>
         </div>
       </section>
@@ -1033,8 +1269,12 @@ for (const link of defaultNavigation) {
               <div className="flex items-center mb-4">
                 <img
                   src={agarkomFooterLogo}
-                  alt="عقارکم"
-                  className="h-36 object-contain"
+                  alt="عقاركم"
+                  width={256}
+                  height={144}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-36 w-auto object-contain"
                 />
               </div>
               <p className="text-gray-400 mb-4">

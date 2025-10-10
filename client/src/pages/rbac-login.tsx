@@ -1,62 +1,33 @@
 import React, { useState } from 'react';
-import { useAuth } from '@/components/auth/AuthProvider';
+import { useAuth, UserRole } from '@/components/auth/AuthProvider';
 import LoginForm from '@/components/auth/LoginForm';
 import { Button } from '@/components/ui/button';
 import { Loader2, LogOut } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import agarkomLogo from '@assets/Aqarkom (3)_1756501849666.png';
+import { useLocation } from 'wouter';
 
 export default function RBACLoginPage() {
   const { login, logout, isLoading, user } = useAuth();
   const [error, setError] = useState<string | null>(null);
-
-  const hasAdminRole = (rolesLike: any): boolean => {
-    try {
-      if (!rolesLike) return false;
-      // Normalize to array of strings
-      const arr = Array.isArray(rolesLike)
-        ? rolesLike
-        : typeof rolesLike === 'string'
-          ? (() => { try { const j = JSON.parse(rolesLike); return Array.isArray(j) ? j : [rolesLike]; } catch { return [rolesLike]; } })()
-          : rolesLike.roles || rolesLike.user?.roles || [];
-      const flat = Array.isArray(arr) ? arr.flat(Infinity) : [];
-      const joined = JSON.stringify(flat);
-      return joined.includes('WEBSITE_ADMIN');
-    } catch {
-      return false;
-    }
-  };
+  const [, setLocation] = useLocation();
 
   const handleLogout = async () => {
     await logout();
+    setLocation('/');
   };
 
   const handleGoToDashboard = () => {
-    try {
-      const stored = localStorage.getItem('user_data');
-      const parsed = stored ? JSON.parse(stored) : null;
-      const roles = (user as any)?.roles || parsed?.roles;
-      const isAdmin = hasAdminRole(roles);
-      window.location.href = isAdmin ? 'http://localhost:3000/home/admin' : 'http://localhost:3000/home/platform';
-    } catch {
-      window.location.href = 'http://localhost:3000/home/platform';
-    }
+    // Check if user has admin role
+    const isAdmin = user?.roles?.includes(UserRole.WEBSITE_ADMIN);
+    setLocation(isAdmin ? '/rbac-dashboard' : '/home/platform');
   };
 
   const handleLogin = async (username: string, password: string) => {
     try {
       setError(null);
+      // The AuthProvider's login function will handle navigation after successful login
       await login(username, password);
-      // After successful login, route admins to /home/admin, others to /home/platform (both on 3000)
-      try {
-        const stored = localStorage.getItem('user_data');
-        const parsed = stored ? JSON.parse(stored) : null;
-        const roles = parsed?.roles || (user as any)?.roles;
-        const isAdmin = hasAdminRole(roles);
-        window.location.href = isAdmin ? 'http://localhost:3000/home/admin' : 'http://localhost:3000/home/platform';
-      } catch {
-        window.location.href = 'http://localhost:3000/home/platform';
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'حدث خطأ أثناء تسجيل الدخول');
     }
@@ -65,7 +36,7 @@ export default function RBACLoginPage() {
   const isAuthenticating = isLoading && !user;
 
   const goHome = () => {
-    window.location.href = '/home';
+    setLocation('/');
   };
 
   let primaryCard: React.ReactNode;
@@ -135,7 +106,15 @@ export default function RBACLoginPage() {
               className="flex flex-row-reverse items-center"
             >
               <span className="sr-only">الانتقال إلى الصفحة الرئيسية</span>
-              <img src={agarkomLogo} alt="شعار منصة عقاراتي" className="h-16 object-contain" />
+              <img
+                src={agarkomLogo}
+                alt="شعار منصة عقاراتي"
+                width={114}
+                height={64}
+                loading="eager"
+                decoding="async"
+                className="h-16 w-auto object-contain"
+              />
             </button>
           </div>
         </div>
@@ -152,9 +131,12 @@ export default function RBACLoginPage() {
           <div className="flex flex-col items-center gap-3 text-center">
             <p className="text-sm text-slate-500">
               لا تملك حساباً بعد؟
-              <a href="/signup" className="mr-2 font-semibold text-emerald-600 hover:text-emerald-700">
+              <button 
+                onClick={() => setLocation('/signup')}
+                className="mr-2 font-semibold text-emerald-600 hover:text-emerald-700 underline bg-transparent border-none cursor-pointer"
+              >
                 إنشاء حساب جديد
-              </a>
+              </button>
             </p>
           </div>
         </div>

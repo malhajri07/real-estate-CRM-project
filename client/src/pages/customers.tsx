@@ -160,13 +160,13 @@ export default function Customers() {
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
-      case "new": return "bg-yellow-100 text-yellow-800";
-      case "qualified": return "bg-blue-100 text-blue-800";
-      case "showing": return "bg-purple-100 text-purple-800";
-      case "negotiation": return "bg-orange-100 text-orange-800";
-      case "closed": return "bg-green-100 text-green-800";
-      case "lost": return "bg-red-100 text-red-800";
-      default: return "bg-slate-100 text-slate-800";
+      case "new": return "bg-indigo-100 text-indigo-700 border border-indigo-200";
+      case "qualified": return "bg-blue-100 text-blue-800 border border-blue-200";
+      case "showing": return "bg-purple-100 text-purple-800 border border-purple-200";
+      case "negotiation": return "bg-orange-100 text-orange-800 border border-orange-200";
+      case "closed": return "bg-emerald-100 text-emerald-700 border border-emerald-200";
+      case "lost": return "bg-red-100 text-red-800 border border-red-200";
+      default: return "bg-slate-100 text-slate-700 border border-slate-200";
     }
   };
 
@@ -437,92 +437,74 @@ export default function Customers() {
               </div>
             ) : (
               <>
-                <div className="table-container">
-                  <table className="professional-table">
-                    <thead className="professional-table-header">
-                      <tr>
-                        <th>العميل</th>
-                        <th>المدينة</th>
-                        <th>العمر</th>
-                        <th>الحالة الاجتماعية</th>
-                        <th>المُعالين</th>
-                        <th>نوع الاهتمام</th>
-                        <th>نطاق الميزانية</th>
-                        <th>الحالة</th>
-                        <th>تاريخ الانضمام</th>
-                        <th>الإجراءات</th>
+                <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+                  <table className="min-w-[900px] w-full text-right text-xs">
+                    <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+                      <tr className="text-xs font-semibold text-slate-700 tracking-wide uppercase">
+                        <th className="px-4 py-3">العميل</th>
+                        <th className="px-4 py-3">المدينة</th>
+                        <th className="px-4 py-3">العمر</th>
+                        <th className="px-4 py-3">الحالة الاجتماعية</th>
+                        <th className="px-4 py-3">المُعالين</th>
+                        <th className="px-4 py-3">نوع الاهتمام</th>
+                        <th className="px-4 py-3">نطاق الميزانية</th>
+                        <th className="px-4 py-3">الحالة</th>
+                        <th className="px-4 py-3">تاريخ الانضمام</th>
+                        <th className="px-4 py-3">الإجراءات</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-slate-100">
                       {currentPageLeads.map((lead) => (
-                      <tr key={lead.id} className="professional-table-row">
-                        <td className="professional-table-cell-name">
-                          <div className="name">{lead.firstName} {lead.lastName}</div>
-                          <div className="contact">
-                            <div className="contact-item">
-                              <Phone size={12} />
-                              <span>{lead.phone}</span>
-                            </div>
+                      <tr key={lead.id} className="transition-colors hover:bg-slate-50/50">
+                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                          <div className="text-sm font-semibold text-slate-900">{lead.firstName} {lead.lastName}</div>
+                          <div className="mt-1 flex items-center gap-2 text-slate-500">
+                            <Phone size={12} />
+                            <span>{lead.phone}</span>
                           </div>
                         </td>
-                        <td className="professional-table-cell">
-                          <div className="info-cell">
-                            <div className="primary">{lead.city || "غير محدد"}</div>
-                          </div>
+                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                          {lead.city || "غير محدد"}
                         </td>
-                        <td className="professional-table-cell">
-                          <div className="info-cell">
-                            <div className="primary">{lead.age || "غير محدد"}</div>
-                          </div>
+                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                          {lead.age || "غير محدد"}
                         </td>
-                        <td className="professional-table-cell">
-                          <div className="info-cell">
-                            <div className="primary">{getMaritalStatusLabel(lead.maritalStatus || "")}</div>
-                          </div>
+                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                          {getMaritalStatusLabel(lead.maritalStatus || "")}
                         </td>
-                        <td className="professional-table-cell">
-                          <div className="info-cell">
-                            <div className="primary">{lead.numberOfDependents || 0}</div>
-                          </div>
+                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                          {lead.numberOfDependents || 0}
                         </td>
-                        <td className="professional-table-cell">
-                          <div className="info-cell">
-                            <div className="primary">{getInterestTypeLabel(lead.interestType || "")}</div>
-                          </div>
+                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                          {getInterestTypeLabel(lead.interestType || "")}
                         </td>
-                        <td className="professional-table-cell">
-                          <div className="info-cell">
-                            <div className="primary">{formatBudgetRange(lead.budgetRange)}</div>
-                          </div>
+                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                          {formatBudgetRange(lead.budgetRange)}
                         </td>
-                        <td className="professional-table-cell">
-                          <span className={`status-badge ${lead.status}`}>
+                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                          <span className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(lead.status)}`}>
                             {getStatusLabel(lead.status)}
                           </span>
                         </td>
-                        <td className="professional-table-cell">
-                          <div className="info-cell">
-                            <div className="primary">
-                              {new Date(lead.createdAt).toLocaleDateString('en-GB')}
-                            </div>
-                          </div>
+                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                          {new Date(lead.createdAt).toLocaleDateString('en-GB')}
                         </td>
-                        <td className="professional-table-actions">
-                          <div className="action-group">
+                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                          <div className="flex items-center justify-end gap-1">
                             <button 
-                              className="action-btn action-btn-contact"
+                              className="p-2 rounded-md text-emerald-600 transition-colors duration-150 hover:text-emerald-800 hover:bg-emerald-50"
                               title="اتصال"
                             >
                               <Phone size={16} />
                             </button>
                             <button 
-                              className="action-btn action-btn-edit"
+                              className="p-2 rounded-md text-blue-600 transition-colors duration-150 hover:text-blue-800 hover:bg-blue-50"
                               title="تعديل"
                             >
                               <Edit size={16} />
                             </button>
                             <button 
-                              className="action-btn action-btn-delete"
+                              className="p-2 rounded-md text-red-600 transition-colors duration-150 hover:text-red-800 hover:bg-red-50"
                               onClick={() => handleDelete(lead)}
                               title="حذف"
                             >

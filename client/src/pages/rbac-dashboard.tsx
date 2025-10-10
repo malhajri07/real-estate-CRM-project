@@ -15,12 +15,16 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Shield, Users, Building2, UserCheck, Activity, RefreshCw, Settings, Lock, Bell, BarChart3, Database, DollarSign, MessageSquare, Share2, Mail, Smartphone, FileText, TrendingUp, PieChart, CreditCard, AlertTriangle, Save, Edit, Eye, Plus, Trash2, GripVertical, Phone, MapPin, Link, Navigation, Star, Target, Zap, Globe, Heart, Award, CheckCircle, XCircle, Moon, Sun, LogOut } from 'lucide-react';
 import { AdminHeader } from '@/components/rbac/AdminHeader';
 import { AdminSidebar, type SidebarItem } from '@/components/rbac/AdminSidebar';
+import { useLocation } from 'wouter';
+import { LandingStudio } from '@/components/cms/LandingStudio';
 
 interface User {
   id: string;
   username: string;
   email: string;
-  fullName: string;
+  name: string;
+  phone?: string;
+  licenseNumber?: string;
   isActive: boolean;
   roles: string[];
   organizationId: string;
@@ -31,10 +35,11 @@ interface User {
 interface Organization {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   isActive: boolean;
   userCount: number;
   createdAt: string;
+  status?: string;
 }
 
 interface Stats {
@@ -137,9 +142,17 @@ interface LandingPageContent {
   footerLinks: LandingPageFooterLink[];
 }
 
+interface RoleDefinition {
+  name: string;
+  displayName?: string;
+  description?: string;
+  permissions?: string[];
+}
+
 export default function RBACDashboard() {
   const { user, token, logout } = useAuth();
   const { dir } = useLanguage();
+  const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
@@ -156,7 +169,76 @@ export default function RBACDashboard() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
   const [showUserDialog, setShowUserDialog] = useState(false);
+  const [showUserDetailsDialog, setShowUserDetailsDialog] = useState(false);
   const [showOrgDialog, setShowOrgDialog] = useState(false);
+  const [roleDefinitions, setRoleDefinitions] = useState<RoleDefinition[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(false);
+  const [rolesError, setRolesError] = useState<string | null>(null);
+  const [userFilterStatus, setUserFilterStatus] = useState<'all' | 'active' | 'inactive'>('all');
+  const [userFilterRole, setUserFilterRole] = useState<string>('all');
+  const [userSearchQuery, setUserSearchQuery] = useState<string>('');
+  const [userActionLoading, setUserActionLoading] = useState<string | null>(null); // تتبع حالة التحميل أثناء اتخاذ قرارات الموافقة على المستخدمين
+
+  const normalizeUsersResponse = (payload: any): User[] => {
+    if (!payload) return [];
+    const rawUsers = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.users)
+        ? payload.users
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : [];
+
+    return rawUsers.map((entry: any) => {
+      const roles = Array.isArray(entry?.roles)
+        ? entry.roles
+        : typeof entry?.roles === 'string'
+          ? [entry.roles]
+          : [];
+
+      const resolvedName = entry?.name || [entry?.firstName, entry?.lastName].filter(Boolean).join(' ').trim();
+
+      return {
+        id: entry?.id ?? '',
+        username: entry?.username ?? '',
+        email: entry?.email ?? '',
+        name: resolvedName || entry?.username || '—',
+        phone: entry?.phone ?? entry?.mobileNumber ?? entry?.mobile ?? entry?.contactPhone ?? '',
+        licenseNumber: entry?.licenseNumber ?? entry?.agentProfile?.licenseNo ?? '',
+        isActive: entry?.isActive ?? false,
+        roles,
+        organizationId: entry?.organization?.id ?? entry?.organizationId ?? '',
+        lastActiveAt: entry?.lastLoginAt ?? entry?.lastActiveAt ?? '',
+        createdAt: entry?.createdAt ?? '',
+      };
+    });
+  };
+
+  const normalizeOrganizationsResponse = (payload: any): Organization[] => {
+    if (!payload) return [];
+    const rawOrgs = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.organizations)
+        ? payload.organizations
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : [];
+
+    return rawOrgs.map((entry: any) => {
+      const status = entry?.status ?? entry?.state;
+      const tradeOrLegalName = entry?.tradeName || entry?.legalName || entry?.name;
+
+      return {
+        id: entry?.id ?? '',
+        name: tradeOrLegalName || '—',
+        description: entry?.description ?? entry?.address ?? tradeOrLegalName ?? '',
+        isActive: status ? String(status).toUpperCase() === 'ACTIVE' : entry?.isActive ?? false,
+        userCount: entry?._count?.users ?? entry?.userCount ?? 0,
+        createdAt: entry?.createdAt ?? '',
+        status: status,
+      };
+    });
+  };
 
   const authDisplayName =
     user?.name ||
@@ -699,32 +781,40 @@ export default function RBACDashboard() {
     setLoading(true);
     try {
       const [usersRes, orgsRes] = await Promise.all([
-        fetch('/api/rbac/users', {
+        fetch('/api/rbac-admin/users', {
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
           }
         }),
-        fetch('/api/rbac/organizations', {
+        fetch('/api/rbac-admin/organizations', {
         headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
           }
         })
       ]);
 
-      if (usersRes.ok && orgsRes.ok) {
-        const usersData = await usersRes.json();
-        const orgsData = await orgsRes.json();
-        
-        setUsers(usersData);
-        setOrganizations(orgsData);
-        
-        setStats({
-          totalUsers: usersData.length,
-          activeUsers: usersData.filter((u: User) => u.isActive).length,
-          totalOrganizations: orgsData.length,
-          activeOrganizations: orgsData.filter((o: Organization) => o.isActive).length
-        });
+      const usersPayload = await usersRes.json().catch(() => null);
+      const orgsPayload = await orgsRes.json().catch(() => null);
+
+      if (!usersRes.ok) {
+        console.error('Failed to fetch RBAC users', usersRes.status, usersPayload);
       }
+      if (!orgsRes.ok) {
+        console.error('Failed to fetch RBAC organizations', orgsRes.status, orgsPayload);
+      }
+
+      const normalizedUsers = usersRes.ok ? normalizeUsersResponse(usersPayload) : [];
+      const normalizedOrganizations = orgsRes.ok ? normalizeOrganizationsResponse(orgsPayload) : [];
+
+      setUsers(normalizedUsers);
+      setOrganizations(normalizedOrganizations);
+
+      setStats({
+        totalUsers: normalizedUsers.length,
+        activeUsers: normalizedUsers.filter((u: User) => u.isActive).length,
+        totalOrganizations: normalizedOrganizations.length,
+        activeOrganizations: normalizedOrganizations.filter((o: Organization) => o.isActive).length
+      });
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -744,8 +834,93 @@ export default function RBACDashboard() {
     }
   }, [activeSubPage]);
 
+  useEffect(() => {
+    if (activeSidebarItem === 'user-management' && (activeSubPage === 'user-roles' || activeSubPage === 'user-permissions')) {
+      if (!roleDefinitions.length && !rolesLoading) {
+        fetchRolesCatalog();
+      }
+    }
+  }, [activeSidebarItem, activeSubPage, roleDefinitions.length, rolesLoading]);
+
   const refreshData = () => {
     fetchData();
+  };
+
+  const handleViewUserDetails = (userRecord: User) => {
+    setSelectedUser(userRecord);
+    setShowUserDetailsDialog(true);
+  };
+
+  const resolveOrganizationName = (organizationId?: string) => {
+    if (!organizationId) return '—';
+    const org = organizations.find((entry) => entry.id === organizationId);
+    return org?.name ?? `#${organizationId}`;
+  };
+
+  const fetchRolesCatalog = async () => {
+    if (rolesLoading) return;
+    try {
+      setRolesLoading(true);
+      setRolesError(null);
+      const response = await fetch('/api/rbac-admin/roles', {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(localStorage.getItem('auth_token') ? { 'Authorization': `Bearer ${localStorage.getItem('auth_token')}` } : {}),
+        },
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        console.error('Failed to fetch RBAC roles', response.status, payload);
+        setRolesError('تعذر تحميل الأدوار');
+        return;
+      }
+      const rolesList = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.roles)
+          ? payload.roles
+          : [];
+      setRoleDefinitions(rolesList as RoleDefinition[]);
+    } catch (error) {
+      console.error('Error fetching RBAC roles:', error);
+      setRolesError('حدث خطأ أثناء تحميل الأدوار');
+    } finally {
+      setRolesLoading(false);
+    }
+  };
+
+  const formatDate = (iso?: string) => {
+    if (!iso) return '—';
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return '—';
+    return new Intl.DateTimeFormat('en-GB', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(date);
+  };
+
+  const formatRelativeTime = (iso?: string) => {
+    if (!iso) return '';
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return '';
+    const diffMs = Date.now() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays <= 0) {
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      if (diffHours <= 0) {
+        const diffMinutes = Math.max(1, Math.floor(diffMs / (1000 * 60)));
+        return `منذ ${diffMinutes} دقيقة`;
+      }
+      return `منذ ${diffHours} ساعة`;
+    }
+    if (diffDays === 1) return 'منذ يوم';
+    if (diffDays < 7) return `منذ ${diffDays} أيام`;
+    const diffWeeks = Math.floor(diffDays / 7);
+    if (diffWeeks === 1) return 'منذ أسبوع';
+    if (diffWeeks < 5) return `منذ ${diffWeeks} أسابيع`;
+    const diffMonths = Math.floor(diffDays / 30);
+    if (diffMonths === 1) return 'منذ شهر';
+    return `منذ ${diffMonths} أشهر`;
   };
 
   // Analytics state for الإحصائيات العامة
@@ -761,6 +936,29 @@ export default function RBACDashboard() {
     (systemStats?.counts?.organizationsPendingVerification ?? 0) +
     (systemStats?.counts?.agentsPendingVerification ?? 0);
   const notificationBadgeCount = pendingUserApprovals + pendingOrgApprovals + pendingVerifications;
+  const notificationMessage =
+    notificationBadgeCount > 0
+      ? `لديك ${notificationBadgeCount} إشعارات تحتاج إلى المراجعة`
+      : null; // نعرض التنبيه العائم فقط عندما توجد إشعارات قيد المتابعة
+  const handleNotificationNavigate = () => {
+    if (pendingUserApprovals > 0) {
+      setActiveSidebarItem('user-management');
+      setExpandedItems(['user-management']);
+      setActiveSubPage('pending-users');
+      return;
+    }
+    if (pendingOrgApprovals > 0) {
+      setActiveSidebarItem('organization-management');
+      setExpandedItems(['organization-management']);
+      setActiveSubPage('organizations-list');
+      return;
+    }
+    if (pendingVerifications > 0) {
+      setActiveSidebarItem('overview');
+      setExpandedItems(['overview']);
+      setActiveSubPage('statistics');
+    }
+  }; // عند النقر على التنبيه نوجه المستخدم للقسم الأكثر صلة بالتحديث
 
   const fetchAnalytics = async () => {
     try {
@@ -803,11 +1001,93 @@ export default function RBACDashboard() {
 
   const handleLogout = () => {
     logout();
-    window.location.href = '/home/login';
+    setLocation('/login');
   };
 
   const handleBackToSelection = () => {
-    window.location.href = '/home/platform';
+    setLocation('/home/platform');
+  };
+
+  // User approval handlers
+  const handleApproveUser = async (userId: string) => {
+    setUserActionLoading(userId); // تأكد من تعطيل الأزرار حتى تكتمل العملية
+    try {
+      const response = await fetch(`/api/rbac-admin/users/${userId}/approve`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        // Refresh users list
+        fetchData();
+        alert('تمت الموافقة على المستخدم بنجاح');
+      } else {
+        alert('حدث خطأ في الموافقة على المستخدم');
+      }
+    } catch (error) {
+      console.error('Error approving user:', error);
+      alert('حدث خطأ في الموافقة على المستخدم');
+    }
+    setUserActionLoading(null); // إعادة تفعيل الأزرار بعد انتهاء الطلب
+  };
+
+  const handleRejectUser = async (userId: string) => {
+    const reason = prompt('يرجى إدخال سبب الرفض:');
+    if (!reason) return;
+
+    setUserActionLoading(userId); // منع إرسال طلبات متعددة لنفس المستخدم أثناء الرفض
+    try {
+      const response = await fetch(`/api/rbac-admin/users/${userId}/reject`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ reason })
+      });
+
+      if (response.ok) {
+        // Refresh users list
+        fetchData();
+        alert('تم رفض المستخدم بنجاح');
+      } else {
+        alert('حدث خطأ في رفض المستخدم');
+      }
+    } catch (error) {
+      console.error('Error rejecting user:', error);
+      alert('حدث خطأ في رفض المستخدم');
+    }
+    setUserActionLoading(null); // فك القفل بعد معالجة الرفض
+  };
+
+  const handleRequestMoreInfo = async (userId: string) => {
+    const message = prompt('يرجى إدخال المعلومات المطلوبة من المستخدم:');
+    if (!message) return;
+
+    setUserActionLoading(userId); // حظر الأزرار أثناء إرسال طلب المعلومات
+    try {
+      const response = await fetch(`/api/rbac-admin/users/${userId}/request-info`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message })
+      });
+
+      if (response.ok) {
+        alert('تم إرسال طلب المعلومات للمستخدم');
+      } else {
+        alert('حدث خطأ في إرسال طلب المعلومات');
+      }
+    } catch (error) {
+      console.error('Error requesting more info:', error);
+      alert('حدث خطأ في إرسال طلب المعلومات');
+    }
+    setUserActionLoading(null); // إعادة الحالة الافتراضية بعد اكتمال الطلب
   };
 
   const renderContent = () => {
@@ -853,12 +1133,12 @@ export default function RBACDashboard() {
 
           return (
             <div className="space-y-6">
-              <div className="content-header">
+              <div className="mb-6 flex items-center justify-between gap-4">
                 <div>
-                  <h3 className="content-title">الإحصائيات العامة</h3>
-                  <p className="content-subtitle">أداء الحسابات والمحتوى والتواصل عبر الفترات الزمنية</p>
+                  <h3 className="text-2xl font-bold text-gray-900">الإحصائيات العامة</h3>
+                  <p className="text-gray-600">أداء الحسابات والمحتوى والتواصل عبر الفترات الزمنية</p>
                 </div>
-                <div className="content-actions">
+                <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={fetchAnalytics} disabled={analyticsLoading}>
                     <RefreshCw size={16} className={cn(analyticsLoading ? 'animate-spin' : '')} /> تحديث
                   </Button>
@@ -1198,28 +1478,28 @@ export default function RBACDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-4 ">
+                  <div className="flex items-center space-x-4 rtl:space-x-reverse ">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <div className="flex-1">
                       <p className="text-sm font-medium">مستخدم جديد انضم للنظام</p>
                       <p className="text-xs text-gray-500">أحمد محمد - منذ 5 دقائق</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4 ">
+                  <div className="flex items-center space-x-4 rtl:space-x-reverse ">
                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">عقار جديد تم إضافته</p>
                       <p className="text-xs text-gray-500">فيلا في الرياض - منذ 12 دقيقة</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4 ">
+                  <div className="flex items-center space-x-4 rtl:space-x-reverse ">
                     <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">منظمة جديدة تم تسجيلها</p>
                       <p className="text-xs text-gray-500">شركة العقارات المتقدمة - منذ 1 ساعة</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4 ">
+                  <div className="flex items-center space-x-4 rtl:space-x-reverse ">
                     <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">معاملة مكتملة</p>
@@ -1232,27 +1512,282 @@ export default function RBACDashboard() {
           </div>
         );
 
-      case 'users':
-  return (
+      case 'user-management': {
+        const totalUsers = users.length;
+        const activeUsersList = users.filter((candidate) => candidate?.isActive);
+        const pendingUsersList = users.filter((candidate) => candidate && !candidate.isActive);
+        const uniqueRoles = Array.from(new Set(users.flatMap((candidate) => candidate?.roles || []))).sort();
+        const newUsersThisMonth = users.filter((candidate) => {
+          if (!candidate?.createdAt) return false;
+          const created = new Date(candidate.createdAt);
+          if (Number.isNaN(created.getTime())) return false;
+          const now = new Date();
+          return created.getFullYear() === now.getFullYear() && created.getMonth() === now.getMonth();
+        }).length;
+
+        const statusBySubPage = activeSubPage === 'active-users'
+          ? 'active'
+          : activeSubPage === 'pending-users'
+            ? 'inactive'
+            : userFilterStatus;
+
+        const effectiveRoleFilter = userFilterRole;
+        const searchQuery = userSearchQuery.trim().toLowerCase();
+
+        const filteredUsers = users
+          .filter((candidate) => {
+            if (!candidate) return false;
+            if (statusBySubPage === 'active' && !candidate.isActive) return false;
+            if (statusBySubPage === 'inactive' && candidate.isActive) return false;
+            if (effectiveRoleFilter !== 'all' && !(candidate.roles || []).includes(effectiveRoleFilter)) {
+              return false;
+            }
+            if (searchQuery) {
+              const haystack = [candidate.name, candidate.username, candidate.phone, candidate.licenseNumber]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+              if (!haystack.includes(searchQuery)) return false;
+            }
+            return true;
+          })
+          .sort((a, b) => {
+            const aTime = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const bTime = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return bTime - aTime;
+          });
+
+        const computedRoles = Array.from(new Set([
+          ...uniqueRoles,
+          ...roleDefinitions.map((role) => role.name),
+        ])).sort();
+
+        const rolesData = computedRoles.map((roleName) => {
+          const roleDef = roleDefinitions.find((role) => role.name === roleName);
+          const assignedUsers = users.filter((candidate) => (candidate.roles || []).includes(roleName));
+          return {
+            name: roleName,
+            displayName: roleDef?.displayName || roleName,
+            description: roleDef?.description || 'لم يتم توفير وصف لهذا الدور بعد.',
+            permissions: roleDef?.permissions || [],
+            assignedUsers,
+            assignedCount: assignedUsers.length,
+          };
+        }).sort((a, b) => b.assignedCount - a.assignedCount);
+
+        const permissionMap = new Map<string, { roles: string[]; assignedUsers: number }>();
+        rolesData.forEach((role) => {
+          role.permissions.forEach((permission) => {
+            if (!permissionMap.has(permission)) {
+              permissionMap.set(permission, { roles: [], assignedUsers: 0 });
+            }
+            const entry = permissionMap.get(permission)!;
+            if (!entry.roles.includes(role.displayName)) {
+              entry.roles.push(role.displayName);
+            }
+            entry.assignedUsers += role.assignedCount;
+          });
+        });
+
+        const permissionEntries = Array.from(permissionMap.entries())
+          .sort((a, b) => b[1].assignedUsers - a[1].assignedUsers);
+
+        const usersViewTitle = activeSubPage === 'active-users'
+          ? 'المستخدمون النشطون'
+          : activeSubPage === 'pending-users'
+            ? 'المستخدمون المعلقون'
+            : 'جميع المستخدمين';
+
+        const usersViewSubtitle = activeSubPage === 'active-users'
+          ? 'عرض جميع المستخدمين الذين تم تفعيلهم ويمكنهم الوصول للنظام'
+          : activeSubPage === 'pending-users'
+            ? 'طلبات الانضمام التي تحتاج إلى موافقة أو متابعة'
+            : 'قائمة شاملة بجميع حسابات المستخدمين داخل النظام';
+
+        if (activeSubPage === 'user-roles') {
+          if (rolesLoading && !rolesData.length) {
+            return (
+              <div className="flex items-center justify-center py-16">
+                <div className="flex flex-col items-center gap-3 text-gray-500">
+                  <div className="h-10 w-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-sm">جار تحميل الأدوار...</span>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-2xl font-bold">أدوار المستخدمين</h3>
+                  <p className="text-sm text-gray-500">نظرة عامة على الأدوار المتاحة وعدد المستخدمين المرتبطين بكل دور</p>
+                </div>
+                <Badge variant="outline" className="text-blue-600 border-blue-200">
+                  {computedRoles.length} دور معرف
+                </Badge>
+              </div>
+
+              {rolesError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{rolesError}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {rolesData.length > 0 ? rolesData.map((role) => (
+                  <Card key={role.name} className="h-full">
+                    <CardHeader>
+                      <CardTitle className="flex items-center justify-between text-lg">
+                        <span>{role.displayName}</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {role.assignedCount} مستخدم
+                        </Badge>
+                      </CardTitle>
+                      <CardDescription>{role.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">الصلاحيات المرتبطة</p>
+                          {role.permissions.length ? (
+                            <div className="flex flex-wrap gap-2">
+                              {role.permissions.map((permission) => (
+                                <Badge key={permission} variant="outline" className="bg-slate-50 text-xs">
+                                  {permission}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-gray-400">لا توجد صلاحيات محددة لهذا الدور.</p>
+                          )}
+                        </div>
+                        <div className="border-t pt-3">
+                          <p className="text-xs text-gray-500 mb-1">أحدث المستخدمين المرتبطين</p>
+                          {role.assignedUsers.slice(0, 3).map((candidate) => (
+                            <div key={candidate.id} className="flex items-center justify-between text-sm text-gray-600">
+                              <span>{candidate.name || candidate.username}</span>
+                              <span>{formatDate(candidate.createdAt)}</span>
+                            </div>
+                          ))}
+                          {role.assignedCount > 3 && (
+                            <p className="text-xs text-gray-400 mt-1">و{role.assignedCount - 3} مستخدمين آخرين</p>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )) : (
+                  <Card className="col-span-full">
+                    <CardContent className="py-10 text-center text-gray-500">
+                      لم يتم تعريف أدوار حتى الآن.
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
+          );
+        }
+
+        if (activeSubPage === 'user-permissions') {
+          if (rolesLoading && !permissionEntries.length) {
+            return (
+              <div className="flex items-center justify-center py-16">
+                <div className="flex flex-col items-center gap-3 text-gray-500">
+                  <div className="h-10 w-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-sm">جار تحميل الصلاحيات...</span>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-2xl font-bold">صلاحيات المستخدمين</h3>
+                  <p className="text-sm text-gray-500">توزيع الصلاحيات على الأدوار وعدد المستخدمين الذين يمتلكون كل صلاحية</p>
+                </div>
+                <Badge variant="outline" className="text-indigo-600 border-indigo-200">
+                  {permissionEntries.length} صلاحية
+                </Badge>
+              </div>
+
+              {rolesError && (
+                <Alert variant="destructive">
+                  <AlertDescription>{rolesError}</AlertDescription>
+                </Alert>
+              )}
+
+              <Card>
+                <CardContent className="p-0">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-right text-sm">
+                      <thead className="bg-slate-100 text-gray-600">
+                        <tr>
+                          <th className="py-3 px-4 font-medium">الصلاحية</th>
+                          <th className="py-3 px-4 font-medium">الأدوار المرتبطة</th>
+                          <th className="py-3 px-4 font-medium">عدد المستخدمين</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {permissionEntries.length ? permissionEntries.map(([permission, info]) => (
+                          <tr key={permission} className="border-b last:border-0">
+                            <td className="py-3 px-4 text-gray-700">{permission}</td>
+                            <td className="py-3 px-4">
+                              <div className="flex flex-wrap gap-2 justify-end">
+                                {info.roles.map((roleName) => (
+                                  <Badge key={`${permission}-${roleName}`} variant="outline" className="bg-white text-xs">
+                                    {roleName}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 text-gray-600">{info.assignedUsers}</td>
+                          </tr>
+                        )) : (
+                          <tr>
+                            <td colSpan={3} className="py-8 text-center text-gray-500">
+                              لا توجد صلاحيات مسجلة حتى الآن.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          );
+        }
+
+        return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-bold">إدارة المستخدمين</h3>
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                إضافة مستخدم جديد
-              </Button>
+              <div>
+                <h3 className="text-2xl font-bold">{usersViewTitle}</h3>
+                <p className="text-sm text-gray-500">{usersViewSubtitle}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-blue-600 border-blue-200">
+                  {filteredUsers.length} مستخدم
+                </Badge>
+                <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setShowUserDialog(true)}>
+                  إضافة مستخدم جديد
+                </Button>
+              </div>
             </div>
 
-            {/* User Statistics */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
-              <div>
+                    <div>
                       <p className="text-sm text-gray-600">إجمالي المستخدمين</p>
-                      <p className="text-2xl font-bold">{stats.totalUsers}</p>
-              </div>
+                      <p className="text-2xl font-bold">{totalUsers.toLocaleString()}</p>
+                    </div>
                     <Users className="w-6 h-6 text-blue-600" />
-            </div>
+                  </div>
                 </CardContent>
               </Card>
               <Card>
@@ -1260,7 +1795,7 @@ export default function RBACDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600">المستخدمون النشطون</p>
-                      <p className="text-2xl font-bold text-green-600">{stats.activeUsers}</p>
+                      <p className="text-2xl font-bold text-green-600">{activeUsersList.length.toLocaleString()}</p>
                     </div>
                     <UserCheck className="w-6 h-6 text-green-600" />
                   </div>
@@ -1270,10 +1805,10 @@ export default function RBACDashboard() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">المديرون</p>
-                      <p className="text-2xl font-bold text-purple-600">12</p>
+                      <p className="text-sm text-gray-600">الحسابات المعلقة</p>
+                      <p className="text-2xl font-bold text-orange-600">{pendingUsersList.length.toLocaleString()}</p>
                     </div>
-                    <Shield className="w-6 h-6 text-purple-600" />
+                    <Activity className="w-6 h-6 text-orange-600" />
                   </div>
                 </CardContent>
               </Card>
@@ -1281,24 +1816,27 @@ export default function RBACDashboard() {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">المستخدمون الجدد</p>
-                      <p className="text-2xl font-bold text-orange-600">23</p>
+                      <p className="text-sm text-gray-600">مستخدمون جدد (هذا الشهر)</p>
+                      <p className="text-2xl font-bold text-purple-600">{newUsersThisMonth.toLocaleString()}</p>
                     </div>
-                    <Activity className="w-6 h-6 text-orange-600" />
+                    <TrendingUp className="w-6 h-6 text-purple-600" />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* User Filters */}
             <Card>
               <CardHeader>
                 <CardTitle>فلترة المستخدمين</CardTitle>
+                <CardDescription>حدد المعايير لعرض المستخدمين المطلوبين</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-4">
-                  <Select>
-                    <SelectTrigger className="w-48">
+                  <Select
+                    value={statusBySubPage}
+                    onValueChange={(value) => setUserFilterStatus(value as 'all' | 'active' | 'inactive')}
+                  >
+                    <SelectTrigger className="w-48" disabled={activeSubPage !== 'all-users'}>
                       <SelectValue placeholder="اختر الحالة" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1307,67 +1845,162 @@ export default function RBACDashboard() {
                       <SelectItem value="inactive">غير النشطون</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select>
+
+                  <Select
+                    value={effectiveRoleFilter}
+                    onValueChange={(value) => setUserFilterRole(value)}
+                  >
                     <SelectTrigger className="w-48">
                       <SelectValue placeholder="اختر الدور" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">جميع الأدوار</SelectItem>
-                      <SelectItem value="admin">المديرون</SelectItem>
-                      <SelectItem value="agent">الوكلاء</SelectItem>
-                      <SelectItem value="user">المستخدمون</SelectItem>
+                      {computedRoles.map((roleName) => (
+                        <SelectItem key={roleName} value={roleName}>
+                          {roleDefinitions.find((role) => role.name === roleName)?.displayName || roleName}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <Input placeholder="البحث بالاسم أو البريد الإلكتروني" className="w-64" />
+
+                  <Input
+                    value={userSearchQuery}
+                    onChange={(event) => setUserSearchQuery(event.target.value)}
+                    placeholder="البحث بالاسم، اسم المستخدم، أو رقم الرخصة"
+                    className="w-64"
+                  />
                 </div>
               </CardContent>
             </Card>
 
-            {/* Users List */}
             <Card>
               <CardHeader>
                 <CardTitle>قائمة المستخدمين</CardTitle>
-                <CardDescription>إدارة جميع مستخدمي النظام</CardDescription>
+                <CardDescription>آخر تحديث {new Date().toLocaleTimeString('ar-SA')}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {users.length > 0 ? users.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-4 ">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                          <span className="text-white font-semibold text-sm">
-                            {user.fullName?.charAt(0) || user.username?.charAt(0) || 'U'}
-                          </span>
-                            </div>
-                              <div>
-                          <p className="font-medium">{user.fullName || 'غير محدد'}</p>
-                          <p className="text-sm text-gray-500">{user.username}</p>
-                          <p className="text-xs text-gray-400">{user.email}</p>
+                {filteredUsers.length ? (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-[960px] w-full text-right border-separate border-spacing-y-2 caption-top text-xs">
+                      <caption className="pb-1 text-[11px] text-slate-500">
+                        يعرض الجدول أحدث حسابات المستخدمين مع حالة الموافقة والإجراءات المتاحة
+                      </caption>
+                      <thead className="text-[11px] uppercase tracking-wide text-slate-500">
+                        <tr>
+                          <th className="bg-slate-50 px-3 py-2 rounded-s-2xl">الاسم</th>
+                          <th className="bg-slate-50 px-3 py-2">اسم المستخدم</th>
+                          <th className="bg-slate-50 px-3 py-2">رقم الجوال</th>
+                          <th className="bg-slate-50 px-3 py-2">رقم رخصة فال</th>
+                          <th className="bg-slate-50 px-3 py-2">تاريخ التسجيل</th>
+                          <th className="bg-slate-50 px-3 py-2">آخر نشاط</th>
+                          <th className="bg-slate-50 px-3 py-2">المنظمة</th>
+                          <th className="bg-slate-50 px-3 py-2">الحالة</th>
+                          <th className="bg-slate-50 px-3 py-2 rounded-e-2xl">الإجراءات</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-xs text-slate-600">
+                        {filteredUsers.map((candidate) => (
+                          <tr key={candidate.id} className="bg-white shadow-sm rounded-2xl">
+                            <td className="px-3 py-3 align-top rounded-s-2xl">
+                              <div className="space-y-1.5">
+                                <p className="font-medium text-slate-900 text-sm">{candidate.name || 'غير محدد'}</p>
+                                <div className="flex flex-wrap gap-1.5 pt-1">
+                                  {(candidate.roles || []).map((roleName) => (
+                                    <Badge key={`${candidate.id}-${roleName}`} variant="outline" className="bg-slate-50 text-[10px] px-2 py-0.5">
+                                      {roleDefinitions.find((role) => role.name === roleName)?.displayName || roleName}
+                                    </Badge>
+                                  ))}
+                                </div>
                               </div>
-                      </div>
-                      <div className="flex items-center space-x-4 ">
-                            <Badge variant={user.isActive ? "default" : "secondary"}>
-                          {user.isActive ? "نشط" : "غير نشط"}
-                            </Badge>
-                        <div className="flex space-x-2 ">
-                          <Button variant="outline" size="sm">تعديل</Button>
-                          <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                            حذف
-                              </Button>
-                            </div>
-                      </div>
-                    </div>
-                  )) : (
-                    <div className="text-center py-8">
-                      <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">لا يوجد مستخدمون في النظام</p>
-                    </div>
-                  )}
-                </div>
+                            </td>
+                            <td className="px-3 py-3 align-top">
+                              <p className="font-medium text-slate-800">@{candidate.username}</p>
+                            </td>
+                            <td className="px-3 py-3 align-top">
+                              <p className="font-medium text-slate-800">{candidate.phone || '—'}</p>
+                            </td>
+                            <td className="px-3 py-3 align-top">
+                              <p className="font-medium text-slate-800">{candidate.licenseNumber || '—'}</p>
+                            </td>
+                            <td className="px-3 py-3 align-top">
+                              <div className="space-y-1">
+                                <p className="font-medium text-slate-800">{formatDate(candidate.createdAt)}</p>
+                                <p className="text-[11px] text-slate-400">{formatRelativeTime(candidate.createdAt)}</p>
+                              </div>
+                            </td>
+                            <td className="px-3 py-3 align-top">
+                              <p className="font-medium text-slate-800">
+                                {formatRelativeTime(candidate.lastActiveAt) || '—'}
+                              </p>
+                            </td>
+                            <td className="px-3 py-3 align-top">
+                              <p className="font-medium text-slate-800">{candidate.organizationId ? `#${candidate.organizationId}` : '—'}</p>
+                            </td>
+                            <td className="px-3 py-3 align-top">
+                              <Badge variant={candidate.isActive ? 'default' : 'secondary'} className="px-2.5 py-0.5 text-[11px]">
+                                {candidate.isActive ? 'نشط' : 'معلق'}
+                              </Badge>
+                            </td>
+                            <td className="px-3 py-3 align-top rounded-e-2xl">
+                              <div className="flex flex-wrap justify-end gap-1.5">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 px-3 text-xs"
+                                  onClick={() => handleViewUserDetails(candidate)}
+                                >
+                                  تفاصيل
+                                </Button>
+                                {/* تبديل الأزرار بناءً على حالة المستخدم لإظهار خيارات الموافقة عند الحاجة */}
+                                {candidate.isActive ? (
+                                  <Button variant="outline" size="sm" className="h-7 px-3 text-xs text-red-600 hover:text-red-700">إيقاف</Button>
+                                ) : (
+                                  <>
+                                    <Button
+                                      size="sm"
+                                      className="h-7 px-3 text-xs bg-green-600 hover:bg-green-700 text-white"
+                                      disabled={!candidate.id || userActionLoading === candidate.id}
+                                      onClick={() => handleApproveUser(candidate.id)}
+                                    >
+                                      {userActionLoading === candidate.id ? 'جاري الموافقة...' : 'موافقة'}
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-7 px-3 text-xs text-red-600 hover:text-red-700"
+                                      disabled={!candidate.id || userActionLoading === candidate.id}
+                                      onClick={() => handleRejectUser(candidate.id)}
+                                    >
+                                      {userActionLoading === candidate.id ? 'قيد المعالجة...' : 'رفض'}
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="h-7 px-3 text-xs"
+                                      disabled={!candidate.id || userActionLoading === candidate.id}
+                                      onClick={() => handleRequestMoreInfo(candidate.id)}
+                                    >
+                                      {userActionLoading === candidate.id ? 'بانتظار الإنهاء...' : 'طلب معلومات'}
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-gray-500">
+                    لا توجد نتائج مطابقة للمعايير المحددة.
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
         );
+      }
 
       case 'organizations':
         return (
@@ -1426,7 +2059,7 @@ export default function RBACDashboard() {
                 <div className="space-y-4">
                   {organizations.length > 0 ? organizations.map((org) => (
                     <div key={org.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center space-x-4 ">
+                      <div className="flex items-center space-x-4 rtl:space-x-reverse ">
                         <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
                           <Building2 className="w-6 h-6 text-white" />
                         </div>
@@ -1436,11 +2069,11 @@ export default function RBACDashboard() {
                           <p className="text-xs text-gray-400">{org.userCount} مستخدم</p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-4 ">
+                      <div className="flex items-center space-x-4 rtl:space-x-reverse ">
                             <Badge variant={org.isActive ? "default" : "secondary"}>
                           {org.isActive ? "نشط" : "غير نشط"}
                             </Badge>
-                        <div className="flex space-x-2 ">
+                        <div className="flex space-x-2 rtl:space-x-reverse ">
                           <Button variant="outline" size="sm">تعديل</Button>
                           <Button variant="outline" size="sm">المستخدمون</Button>
                           <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
@@ -1474,7 +2107,7 @@ export default function RBACDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 ">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse ">
                     <Shield className="w-5 h-5 text-red-600" />
                     <span>مدير النظام</span>
                   </CardTitle>
@@ -1482,20 +2115,20 @@ export default function RBACDashboard() {
               <CardContent>
                   <p className="text-sm text-gray-600 mb-4">صلاحيات كاملة على النظام</p>
                   <div className="space-y-2">
-                    <div className="flex items-center space-x-2 ">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse ">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       <span className="text-xs">إدارة المستخدمين</span>
                         </div>
-                    <div className="flex items-center space-x-2 ">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse ">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       <span className="text-xs">إدارة المنظمات</span>
                     </div>
-                    <div className="flex items-center space-x-2 ">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse ">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       <span className="text-xs">إعدادات النظام</span>
                     </div>
                   </div>
-                  <div className="mt-4 flex space-x-2 ">
+                  <div className="mt-4 flex space-x-2 rtl:space-x-reverse ">
                     <Button variant="outline" size="sm">تعديل</Button>
                     <Button variant="outline" size="sm">المستخدمون</Button>
                 </div>
@@ -1504,7 +2137,7 @@ export default function RBACDashboard() {
 
             <Card>
               <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 ">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse ">
                     <Users className="w-5 h-5 text-blue-600" />
                     <span>مدير المنظمة</span>
                   </CardTitle>
@@ -1512,20 +2145,20 @@ export default function RBACDashboard() {
               <CardContent>
                   <p className="text-sm text-gray-600 mb-4">إدارة منظمة واحدة</p>
                         <div className="space-y-2">
-                    <div className="flex items-center space-x-2 ">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse ">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       <span className="text-xs">إدارة وكلاء المنظمة</span>
                         </div>
-                    <div className="flex items-center space-x-2 ">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse ">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       <span className="text-xs">عرض التقارير</span>
                           </div>
-                    <div className="flex items-center space-x-2 ">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse ">
                       <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                       <span className="text-xs">صلاحيات محدودة</span>
                     </div>
                   </div>
-                  <div className="mt-4 flex space-x-2 ">
+                  <div className="mt-4 flex space-x-2 rtl:space-x-reverse ">
                     <Button variant="outline" size="sm">تعديل</Button>
                     <Button variant="outline" size="sm">المستخدمون</Button>
                         </div>
@@ -1534,7 +2167,7 @@ export default function RBACDashboard() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 ">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse ">
                     <UserCheck className="w-5 h-5 text-green-600" />
                     <span>وكيل عقاري</span>
                   </CardTitle>
@@ -1542,20 +2175,20 @@ export default function RBACDashboard() {
                       <CardContent>
                   <p className="text-sm text-gray-600 mb-4">إدارة العقارات والعمليات</p>
                         <div className="space-y-2">
-                    <div className="flex items-center space-x-2 ">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse ">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       <span className="text-xs">إدارة العقارات</span>
                               </div>
-                    <div className="flex items-center space-x-2 ">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse ">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       <span className="text-xs">إدارة العملاء</span>
                           </div>
-                    <div className="flex items-center space-x-2 ">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse ">
                       <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                       <span className="text-xs">عرض التقارير الأساسية</span>
                     </div>
                   </div>
-                  <div className="mt-4 flex space-x-2 ">
+                  <div className="mt-4 flex space-x-2 rtl:space-x-reverse ">
                     <Button variant="outline" size="sm">تعديل</Button>
                     <Button variant="outline" size="sm">المستخدمون</Button>
                         </div>
@@ -1628,7 +2261,7 @@ export default function RBACDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 ">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse ">
                     <Lock className="w-5 h-5 text-red-600" />
                     <span>إعدادات الأمان</span>
                   </CardTitle>
@@ -1954,7 +2587,6 @@ export default function RBACDashboard() {
           </div>
         );
 
-      case 'complaints':
       case 'complaints':
         return (
           <div className="space-y-6">
@@ -2402,1273 +3034,7 @@ export default function RBACDashboard() {
 
       case 'content-management':
         return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">المشتركون اليوم</p>
-                      <p className="text-3xl font-bold text-gray-900">23</p>
-                      <p className="text-xs text-green-600 mt-1">+15% من أمس</p>
-                    </div>
-                    <TrendingUp className="w-8 h-8 text-green-600" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">المشتركون هذا الأسبوع</p>
-                      <p className="text-3xl font-bold text-gray-900">156</p>
-                      <p className="text-xs text-blue-600 mt-1">+8% من الأسبوع الماضي</p>
-                    </div>
-                    <BarChart3 className="w-8 h-8 text-blue-600" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">المشتركون هذا الشهر</p>
-                      <p className="text-3xl font-bold text-gray-900">1,234</p>
-                      <p className="text-xs text-purple-600 mt-1">+12% من الشهر الماضي</p>
-                    </div>
-                    <PieChart className="w-8 h-8 text-purple-600" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">المشتركون هذا العام</p>
-                      <p className="text-3xl font-bold text-gray-900">8,567</p>
-                      <p className="text-xs text-orange-600 mt-1">+25% من العام الماضي</p>
-                    </div>
-                    <Activity className="w-8 h-8 text-orange-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>اتجاهات الاشتراك (آخر 30 يوم)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-                    <div className="text-center">
-                      <TrendingUp className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">رسم بياني للاتجاهات</p>
-                      <p className="text-sm text-gray-500">سيتم إضافة الرسوم البيانية قريباً</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>توزيع المشتركين حسب النوع</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                        <span>الأفراد</span>
-                      </div>
-                      <span className="font-medium">1,456 (65%)</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-4 h-4 bg-green-500 rounded"></div>
-                        <span>الشركات الصغيرة</span>
-                      </div>
-                      <span className="font-medium">567 (25%)</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-4 h-4 bg-purple-500 rounded"></div>
-                        <span>الشركات الكبيرة</span>
-                      </div>
-                      <span className="font-medium">234 (10%)</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        );
-      case 'invoicing':
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">الفواتير المرسلة</p>
-                      <p className="text-3xl font-bold text-gray-900">1,247</p>
-                      <p className="text-xs text-green-600 mt-1">+23 هذا الشهر</p>
-            </div>
-                    <FileText className="w-8 h-8 text-blue-600" />
-            </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">المدفوعات المستلمة</p>
-                      <p className="text-3xl font-bold text-gray-900">1,189</p>
-                      <p className="text-xs text-green-600 mt-1">95.3% معدل الدفع</p>
-            </div>
-                    <CreditCard className="w-8 h-8 text-green-600" />
-            </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">الفواتير المعلقة</p>
-                      <p className="text-3xl font-bold text-gray-900">58</p>
-                      <p className="text-xs text-orange-600 mt-1">تحتاج متابعة</p>
-            </div>
-                    <AlertTriangle className="w-8 h-8 text-orange-600" />
-            </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">إجمالي المبالغ</p>
-                      <p className="text-3xl font-bold text-gray-900">$45,230</p>
-                      <p className="text-xs text-purple-600 mt-1">هذا الشهر</p>
-          </div>
-                    <DollarSign className="w-8 h-8 text-purple-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>الفواتير الأخيرة</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <p className="font-medium">#INV-2024-001</p>
-                        <p className="text-sm text-gray-600">شركة العقارات المتقدمة</p>
-            </div>
-                      <div className="text-right">
-                        <p className="font-bold">$199.00</p>
-                        <Badge variant="default">مدفوعة</Badge>
-            </div>
-            </div>
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <p className="font-medium">#INV-2024-002</p>
-                        <p className="text-sm text-gray-600">أحمد محمد - وكيل عقاري</p>
-            </div>
-                      <div className="text-right">
-                        <p className="font-bold">$79.00</p>
-                        <Badge variant="secondary">معلقة</Badge>
-            </div>
-          </div>
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <p className="font-medium">#INV-2024-003</p>
-                        <p className="text-sm text-gray-600">فاطمة أحمد - مستشارة عقارية</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold">$29.00</p>
-                        <Badge variant="default">مدفوعة</Badge>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>طرق الدفع</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <CreditCard className="w-5 h-5 text-blue-600" />
-                        <span>البطاقات الائتمانية</span>
-                      </div>
-                      <span className="font-medium">$28,450 (63%)</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Smartphone className="w-5 h-5 text-green-600" />
-                        <span>التحويل البنكي</span>
-                      </div>
-                      <span className="font-medium">$12,340 (27%)</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <DollarSign className="w-5 h-5 text-purple-600" />
-                        <span>الدفع النقدي</span>
-                      </div>
-                      <span className="font-medium">$4,440 (10%)</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        );
-
-      case 'content-management':
-        return (
-          <div className="space-y-6">
-            {activeSubPage === 'landing-pages' && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">إدارة صفحة الهبوط</h2>
-                    <p className="text-gray-600">تحرير محتوى الصفحة الرئيسية</p>
-                  </div>
-                  <div className="flex space-x-3">
-                    <Button
-                      variant="outline"
-                      onClick={() => window.open('/home', '_blank')}
-                      className="flex items-center space-x-2"
-                    >
-                      <Eye className="w-4 h-4" />
-                      <span>معاينة الصفحة</span>
-                    </Button>
-                    <Button
-                      onClick={() => setIsEditingContent(!isEditingContent)}
-                      className="flex items-center space-x-2"
-                    >
-                      <Edit className="w-4 h-4" />
-                      <span>{isEditingContent ? 'إلغاء التحرير' : 'تحرير المحتوى'}</span>
-                    </Button>
-                  </div>
-                </div>
-
-                {contentLoading ? (
-                  <div className="text-center py-8">
-                    <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4" />
-                    <p>جار تحميل المحتوى...</p>
-                  </div>
-                ) : landingPageContent ? (
-                  <div className="space-y-6">
-                    {/* Content Tabs */}
-                    <Tabs value={activeContentTab} onValueChange={setActiveContentTab}>
-                      <div className="w-full">
-                      <TabsList
-                        className="w-full flex flex-row-reverse flex-wrap items-center justify-end gap-4 rounded-2xl bg-white p-2 ring-1 ring-slate-200 shadow-sm"
-                      >
-                        <TabsTrigger
-                          value="hero"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
-                        >
-                          <span>البطل</span>
-                          <Zap className="w-4 h-4 opacity-70" />
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="features"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
-                        >
-                          <span>الميزات</span>
-                          <Star className="w-4 h-4 opacity-70" />
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="stats"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
-                        >
-                          <span>الإحصائيات</span>
-                          <PieChart className="w-4 h-4 opacity-70" />
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="solutions"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
-                        >
-                          <span>الحلول</span>
-                          <Target className="w-4 h-4 opacity-70" />
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="pricing"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
-                        >
-                          <span>الأسعار</span>
-                          <DollarSign className="w-4 h-4 opacity-70" />
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="contact"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
-                        >
-                          <span>التواصل</span>
-                          <Mail className="w-4 h-4 opacity-70" />
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="navigation"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
-                        >
-                          <span>التنقل</span>
-                          <Navigation className="w-4 h-4 opacity-70" />
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="footer"
-                          className="flex items-center justify-center gap-2 flex-row-reverse rounded-xl px-5 py-2 text-sm font-medium text-blue-800/90 transition min-w-[7.5rem] hover:bg-white/70 data-[state=active]:bg-white data-[state=active]:text-blue-900 data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-blue-100"
-                        >
-                          <span>التذييل</span>
-                          <FileText className="w-4 h-4 opacity-70" />
-                        </TabsTrigger>
-                      </TabsList>
-                      </div>
-
-                      {/* Hero Section */}
-                      <TabsContent value="hero" className="space-y-6">
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>قسم البطل (Hero Section)</CardTitle>
-                            <CardDescription>النص الرئيسي في أعلى الصفحة</CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="heroWelcomeText">نص الترحيب</Label>
-              <Input
-                                  id="heroWelcomeText"
-                                  value={landingPageContent.heroWelcomeText}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    heroWelcomeText: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-              />
-            </div>
-                              <div>
-                                <Label htmlFor="heroTitle">العنوان الرئيسي</Label>
-              <Input
-                                  id="heroTitle"
-                                  value={landingPageContent.heroTitle}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    heroTitle: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-              />
-            </div>
-                            </div>
-                            <div>
-                              <Label htmlFor="heroSubtitle">العنوان الفرعي</Label>
-                              <Textarea
-                                id="heroSubtitle"
-                                value={landingPageContent.heroSubtitle}
-                                onChange={(e) => setLandingPageContent({
-                                  ...landingPageContent,
-                                  heroSubtitle: e.target.value
-                                })}
-                                disabled={!isEditingContent}
-                                rows={3}
-                              />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="heroButton">نص زر البدء</Label>
-              <Input
-                                  id="heroButton"
-                                  value={landingPageContent.heroButton}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    heroButton: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-              />
-            </div>
-                              <div>
-                                <Label htmlFor="heroLoginButton">نص زر تسجيل الدخول</Label>
-              <Input
-                                  id="heroLoginButton"
-                                  value={landingPageContent.heroLoginButton}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    heroLoginButton: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-              />
-            </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-
-                        {/* Hero Dashboard Metrics */}
-                        <Card>
-                          <CardHeader>
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <CardTitle>مقاييس لوحة التحكم</CardTitle>
-                                <CardDescription>الإحصائيات المعروضة في قسم البطل</CardDescription>
-                              </div>
-                              {isEditingContent && (
-                                <Button onClick={addHeroMetric} size="sm" className="flex items-center space-x-2">
-                                  <Plus className="w-4 h-4" />
-                                  <span>إضافة مقياس</span>
-                                </Button>
-                              )}
-                            </div>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="space-y-4">
-                              {landingPageContent.heroDashboardMetrics.map((metric, index) => (
-                                <Card key={metric.id} className="p-4">
-                                  <div className="flex items-center space-x-4">
-                                    <GripVertical className="w-5 h-5 text-gray-400" />
-                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
-                                      <div>
-                                        <Label>القيمة</Label>
-              <Input
-                                          value={metric.value}
-                                          onChange={(e) => updateHeroMetric(metric.id, { value: e.target.value })}
-                                          disabled={!isEditingContent}
-              />
-            </div>
-                                      <div>
-                                        <Label>التسمية</Label>
-                                        <Input
-                                          value={metric.label}
-                                          onChange={(e) => updateHeroMetric(metric.id, { label: e.target.value })}
-                                          disabled={!isEditingContent}
-                                        />
-                                      </div>
-                                      <div>
-                                        <Label>اللون</Label>
-                                        <Select
-                                          value={metric.color}
-                                          onValueChange={(value) => updateHeroMetric(metric.id, { color: value })}
-                                          disabled={!isEditingContent}
-                                        >
-                                          <SelectTrigger>
-                                            <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                                            <SelectItem value="blue">أزرق</SelectItem>
-                                            <SelectItem value="green">أخضر</SelectItem>
-                                            <SelectItem value="orange">برتقالي</SelectItem>
-                                            <SelectItem value="purple">بنفسجي</SelectItem>
-                                            <SelectItem value="red">أحمر</SelectItem>
-                                            <SelectItem value="yellow">أصفر</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-                                    {isEditingContent && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => deleteHeroMetric(metric.id)}
-                                        className="text-red-600 hover:text-red-700"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-            </Button>
-                                    )}
-                                  </div>
-                                </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-                      {/* Features Section */}
-                      <TabsContent value="features" className="space-y-6">
-                        <Card>
-                          <CardHeader>
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <CardTitle>قسم الميزات</CardTitle>
-                                <CardDescription>إدارة ميزات المنصة</CardDescription>
-                              </div>
-                              {isEditingContent && (
-                                <Button onClick={addFeature} size="sm" className="flex items-center space-x-2">
-                                  <Plus className="w-4 h-4" />
-                                  <span>إضافة ميزة</span>
-            </Button>
-                              )}
-                            </div>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="featuresTitle">عنوان الميزات</Label>
-                                <Input
-                                  id="featuresTitle"
-                                  value={landingPageContent.featuresTitle}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    featuresTitle: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="featuresDescription">وصف الميزات</Label>
-                                <Textarea
-                                  id="featuresDescription"
-                                  value={landingPageContent.featuresDescription}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    featuresDescription: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-                                  rows={3}
-                                />
-                              </div>
-      </div>
-
-                            {/* Features List */}
-                            <div className="space-y-4">
-                              <h4 className="font-medium">قائمة الميزات</h4>
-                              {landingPageContent.features.map((feature, index) => (
-                                <Card key={feature.id} className="p-4">
-                                  <div className="flex items-start space-x-4">
-                                    <GripVertical className="w-5 h-5 text-gray-400 mt-1" />
-                                    <div className="flex-1 space-y-3">
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        <div>
-                                          <Label>عنوان الميزة</Label>
-              <Input
-                                            value={feature.title}
-                                            onChange={(e) => updateFeature(feature.id, { title: e.target.value })}
-                                            disabled={!isEditingContent}
-              />
-            </div>
-                                        <div>
-                                          <Label>الأيقونة</Label>
-                                          <Select
-                                            value={feature.icon}
-                                            onValueChange={(value) => updateFeature(feature.id, { icon: value })}
-                                            disabled={!isEditingContent}
-                                          >
-                                            <SelectTrigger>
-                                              <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              <SelectItem value="Star">نجمة</SelectItem>
-                                              <SelectItem value="Shield">درع</SelectItem>
-                                              <SelectItem value="Users">مستخدمون</SelectItem>
-                                              <SelectItem value="Building2">مبنى</SelectItem>
-                                              <SelectItem value="BarChart3">رسم بياني</SelectItem>
-                                              <SelectItem value="Zap">صاعقة</SelectItem>
-                                              <SelectItem value="Target">هدف</SelectItem>
-                                              <SelectItem value="Award">جائزة</SelectItem>
-                                            </SelectContent>
-                                          </Select>
-                                        </div>
-                                      </div>
-                                      <div>
-                                        <Label>وصف الميزة</Label>
-                                        <Textarea
-                                          value={feature.description}
-                                          onChange={(e) => updateFeature(feature.id, { description: e.target.value })}
-                                          disabled={!isEditingContent}
-                                          rows={2}
-                                        />
-                                      </div>
-                                    </div>
-                                    {isEditingContent && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => deleteFeature(feature.id)}
-                                        className="text-red-600 hover:text-red-700"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </Button>
-                                    )}
-                                  </div>
-                                </Card>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-
-                      {/* Stats Section */}
-                      <TabsContent value="stats" className="space-y-6">
-                        <Card>
-                          <CardHeader>
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <CardTitle>قسم الإحصائيات</CardTitle>
-                                <CardDescription>إدارة الإحصائيات والأرقام</CardDescription>
-                              </div>
-                              {isEditingContent && (
-                                <Button onClick={addStat} size="sm" className="flex items-center space-x-2">
-                                  <Plus className="w-4 h-4" />
-                                  <span>إضافة إحصائية</span>
-                                </Button>
-                              )}
-                            </div>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div>
-                              <Label htmlFor="statsTitle">عنوان الإحصائيات</Label>
-              <Input
-                                id="statsTitle"
-                                value={landingPageContent.statsTitle}
-                                onChange={(e) => setLandingPageContent({
-                                  ...landingPageContent,
-                                  statsTitle: e.target.value
-                                })}
-                                disabled={!isEditingContent}
-              />
-            </div>
-                            
-                            {/* Stats List */}
-                            <div className="space-y-4">
-                              <h4 className="font-medium">قائمة الإحصائيات</h4>
-                              {landingPageContent.stats.map((stat, index) => (
-                                <Card key={stat.id} className="p-4">
-                                  <div className="flex items-center space-x-4">
-                                    <GripVertical className="w-5 h-5 text-gray-400" />
-                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
-                                      <div>
-                                        <Label>الرقم</Label>
-              <Input
-                                          value={stat.number}
-                                          onChange={(e) => updateStat(stat.id, { number: e.target.value })}
-                                          disabled={!isEditingContent}
-              />
-            </div>
-                                      <div>
-                                        <Label>التسمية</Label>
-              <Input
-                                          value={stat.label}
-                                          onChange={(e) => updateStat(stat.id, { label: e.target.value })}
-                                          disabled={!isEditingContent}
-              />
-            </div>
-                                      <div>
-                                        <Label>اللاحقة (اختياري)</Label>
-              <Input
-                                          value={stat.suffix || ''}
-                                          onChange={(e) => updateStat(stat.id, { suffix: e.target.value })}
-                                          disabled={!isEditingContent}
-                                          placeholder="مثل: ﷼، +، %"
-              />
-            </div>
-          </div>
-                                    {isEditingContent && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => deleteStat(stat.id)}
-                                        className="text-red-600 hover:text-red-700"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </Button>
-                                    )}
-                                  </div>
-                                </Card>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-
-                      {/* Solutions Section */}
-                      <TabsContent value="solutions" className="space-y-6">
-                        <Card>
-                          <CardHeader>
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <CardTitle>قسم الحلول</CardTitle>
-                                <CardDescription>إدارة حلول المنصة</CardDescription>
-                              </div>
-                              {isEditingContent && (
-                                <Button onClick={addSolution} size="sm" className="flex items-center space-x-2">
-                                  <Plus className="w-4 h-4" />
-                                  <span>إضافة حل</span>
-                                </Button>
-                              )}
-                            </div>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="solutionsTitle">عنوان الحلول</Label>
-                                <Input
-                                  id="solutionsTitle"
-                                  value={landingPageContent.solutionsTitle}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    solutionsTitle: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="solutionsDescription">وصف الحلول</Label>
-                                <Textarea
-                                  id="solutionsDescription"
-                                  value={landingPageContent.solutionsDescription}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    solutionsDescription: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-                                  rows={3}
-                                />
-                              </div>
-                            </div>
-                            
-                            {/* Solutions List */}
-                            <div className="space-y-4">
-                              <h4 className="font-medium">قائمة الحلول</h4>
-                              {landingPageContent.solutions.map((solution, index) => (
-                                <Card key={solution.id} className="p-4">
-                                  <div className="flex items-start space-x-4">
-                                    <GripVertical className="w-5 h-5 text-gray-400 mt-1" />
-                                    <div className="flex-1 space-y-3">
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        <div>
-                                          <Label>عنوان الحل</Label>
-                                          <Input
-                                            value={solution.title}
-                                            onChange={(e) => updateSolution(solution.id, { title: e.target.value })}
-                                            disabled={!isEditingContent}
-                                          />
-                                        </div>
-                                        <div>
-                                          <Label>الأيقونة</Label>
-                                          <Select
-                                            value={solution.icon}
-                                            onValueChange={(value) => updateSolution(solution.id, { icon: value })}
-                                            disabled={!isEditingContent}
-                                          >
-                                            <SelectTrigger>
-                                              <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                                              <SelectItem value="Target">هدف</SelectItem>
-                                              <SelectItem value="Building2">مبنى</SelectItem>
-                                              <SelectItem value="Users">مستخدمون</SelectItem>
-                                              <SelectItem value="BarChart3">رسم بياني</SelectItem>
-                                              <SelectItem value="Shield">درع</SelectItem>
-                                              <SelectItem value="Zap">صاعقة</SelectItem>
-                                              <SelectItem value="Star">نجمة</SelectItem>
-                                              <SelectItem value="Award">جائزة</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-                                      <div>
-                                        <Label>وصف الحل</Label>
-                                        <Textarea
-                                          value={solution.description}
-                                          onChange={(e) => updateSolution(solution.id, { description: e.target.value })}
-                                          disabled={!isEditingContent}
-                                          rows={2}
-                                        />
-                                      </div>
-                                    </div>
-                                    
-                                    {/* Solution Features */}
-                                    <div className="mt-4">
-                                      <div className="flex justify-between items-center mb-3">
-                                        <h5 className="font-medium text-sm">ميزات الحل</h5>
-                                        {isEditingContent && (
-                                          <Button 
-                                            onClick={() => addSolutionFeature(solution.id)} 
-                                            size="sm" 
-                                            variant="outline"
-                                            className="text-xs"
-                                          >
-                                            <Plus className="w-3 h-3 mr-1" />
-                                            إضافة ميزة
-            </Button>
-                                        )}
-                                      </div>
-                                      <div className="space-y-2">
-                                        {solution.features.map((feature) => (
-                                          <div key={feature.id} className="flex items-center space-x-2 p-2 bg-gray-50 rounded">
-                                            <GripVertical className="w-4 h-4 text-gray-400" />
-                                            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
-                                              <Input
-                                                value={feature.text}
-                                                onChange={(e) => updateSolutionFeature(solution.id, feature.id, { text: e.target.value })}
-                                                disabled={!isEditingContent}
-                                                placeholder="نص الميزة"
-                                                className="text-sm"
-                                              />
-                                              <Select
-                                                value={feature.icon}
-                                                onValueChange={(value) => updateSolutionFeature(solution.id, feature.id, { icon: value })}
-                                                disabled={!isEditingContent}
-                                              >
-                                                <SelectTrigger className="text-sm">
-                                                  <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                  <SelectItem value="CheckCircle">✓</SelectItem>
-                                                  <SelectItem value="Star">★</SelectItem>
-                                                  <SelectItem value="Zap">⚡</SelectItem>
-                                                  <SelectItem value="Shield">🛡️</SelectItem>
-                                                  <SelectItem value="Target">🎯</SelectItem>
-                                                  <SelectItem value="Award">🏆</SelectItem>
-                                                </SelectContent>
-                                              </Select>
-                                            </div>
-                                            {isEditingContent && (
-                                              <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => deleteSolutionFeature(solution.id, feature.id)}
-                                                className="text-red-600 hover:text-red-700 p-1"
-                                              >
-                                                <Trash2 className="w-3 h-3" />
-            </Button>
-                                            )}
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                    
-                                    {isEditingContent && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => deleteSolution(solution.id)}
-                                        className="text-red-600 hover:text-red-700 mt-4"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                        حذف الحل
-                                      </Button>
-                                    )}
-                                  </div>
-                                </Card>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-
-                      {/* Pricing Section */}
-                      <TabsContent value="pricing" className="space-y-6">
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>قسم الأسعار</CardTitle>
-                            <CardDescription>محتوى قسم الأسعار</CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="pricingTitle">عنوان الأسعار</Label>
-              <Input
-                                  id="pricingTitle"
-                                  value={landingPageContent.pricingTitle}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    pricingTitle: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-              />
-            </div>
-                              <div>
-                                <Label htmlFor="pricingSubtitle">العنوان الفرعي للأسعار</Label>
-              <Input
-                                  id="pricingSubtitle"
-                                  value={landingPageContent.pricingSubtitle}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    pricingSubtitle: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-              />
-            </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-
-                      {/* Contact Section */}
-                      <TabsContent value="contact" className="space-y-6">
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>قسم التواصل</CardTitle>
-                            <CardDescription>محتوى قسم التواصل</CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="contactTitle">عنوان التواصل</Label>
-              <Input
-                                  id="contactTitle"
-                                  value={landingPageContent.contactTitle}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    contactTitle: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-              />
-            </div>
-                              <div>
-                                <Label htmlFor="contactDescription">وصف التواصل</Label>
-                                <Textarea
-                                  id="contactDescription"
-                                  value={landingPageContent.contactDescription}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    contactDescription: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-                                  rows={3}
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-
-                        {/* Contact Information */}
-                        <Card>
-                          <CardHeader>
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <CardTitle>معلومات التواصل</CardTitle>
-                                <CardDescription>إدارة معلومات التواصل</CardDescription>
-                              </div>
-                              {isEditingContent && (
-                                <Button onClick={addContactInfo} size="sm" className="flex items-center space-x-2">
-                                  <Plus className="w-4 h-4" />
-                                  <span>إضافة معلومات</span>
-                                </Button>
-                              )}
-                            </div>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="space-y-4">
-                              {landingPageContent.contactInfo.map((contact, index) => (
-                                <Card key={contact.id} className="p-4">
-                                  <div className="flex items-center space-x-4">
-                                    <GripVertical className="w-5 h-5 text-gray-400" />
-                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-3">
-                                      <div>
-                                        <Label>النوع</Label>
-                                        <Select
-                                          value={contact.type}
-                                          onValueChange={(value) => updateContactInfo(contact.id, { type: value })}
-                                          disabled={!isEditingContent}
-                                        >
-                                          <SelectTrigger>
-                                            <SelectValue />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            <SelectItem value="phone">هاتف</SelectItem>
-                                            <SelectItem value="email">بريد إلكتروني</SelectItem>
-                                            <SelectItem value="address">عنوان</SelectItem>
-                                            <SelectItem value="whatsapp">واتساب</SelectItem>
-                                            <SelectItem value="website">موقع ويب</SelectItem>
-                                          </SelectContent>
-                                        </Select>
-                                      </div>
-                                      <div>
-                                        <Label>التسمية</Label>
-              <Input
-                                          value={contact.label}
-                                          onChange={(e) => updateContactInfo(contact.id, { label: e.target.value })}
-                                          disabled={!isEditingContent}
-              />
-            </div>
-                                      <div>
-                                        <Label>القيمة</Label>
-              <Input
-                                          value={contact.value}
-                                          onChange={(e) => updateContactInfo(contact.id, { value: e.target.value })}
-                                          disabled={!isEditingContent}
-              />
-            </div>
-                                      <div>
-                                        <Label>الأيقونة</Label>
-                                        <Select
-                                          value={contact.icon}
-                                          onValueChange={(value) => updateContactInfo(contact.id, { icon: value })}
-                                          disabled={!isEditingContent}
-                                        >
-                                          <SelectTrigger>
-                                            <SelectValue />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            <SelectItem value="Phone">هاتف</SelectItem>
-                                            <SelectItem value="Mail">بريد</SelectItem>
-                                            <SelectItem value="MapPin">موقع</SelectItem>
-                                            <SelectItem value="MessageSquare">رسالة</SelectItem>
-                                            <SelectItem value="Globe">موقع ويب</SelectItem>
-                                          </SelectContent>
-                                        </Select>
-          </div>
-                                    </div>
-                                    {isEditingContent && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => deleteContactInfo(contact.id)}
-                                        className="text-red-600 hover:text-red-700"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </Button>
-                                    )}
-                                  </div>
-                                </Card>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-
-                      {/* Navigation Section */}
-                      <TabsContent value="navigation" className="space-y-6">
-                        <Card>
-                          <CardHeader>
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <CardTitle>قائمة التنقل</CardTitle>
-                                <CardDescription>إدارة روابط التنقل الرئيسية</CardDescription>
-                              </div>
-                              {isEditingContent && (
-                                <Button onClick={addNavigation} size="sm" className="flex items-center space-x-2">
-                                  <Plus className="w-4 h-4" />
-                                  <span>إضافة رابط</span>
-                                </Button>
-                              )}
-                            </div>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="space-y-4">
-                              {landingPageContent.navigation.map((nav, index) => (
-                                <Card key={nav.id} className="p-4">
-                                  <div className="flex items-center space-x-4">
-                                    <GripVertical className="w-5 h-5 text-gray-400" />
-                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                                      <div>
-                                        <Label>نص الرابط</Label>
-                                        <Input
-                                          value={nav.text}
-                                          onChange={(e) => updateNavigation(nav.id, { text: e.target.value })}
-                                          disabled={!isEditingContent}
-                                        />
-                                      </div>
-                                      <div>
-                                        <Label>الرابط</Label>
-                                        <Input
-                                          value={nav.url}
-                                          onChange={(e) => updateNavigation(nav.id, { url: e.target.value })}
-                                          disabled={!isEditingContent}
-                                          placeholder="#section أو /page"
-                                        />
-                                      </div>
-                                    </div>
-                                    {isEditingContent && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => deleteNavigation(nav.id)}
-                                        className="text-red-600 hover:text-red-700"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </Button>
-                                    )}
-                                  </div>
-                                </Card>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-
-                      {/* Footer Section */}
-                      <TabsContent value="footer" className="space-y-6">
-                        <Card>
-                          <CardHeader>
-                            <CardTitle>معلومات التذييل</CardTitle>
-                            <CardDescription>محتوى التذييل</CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="footerDescription">وصف التذييل</Label>
-                                <Textarea
-                                  id="footerDescription"
-                                  value={landingPageContent.footerDescription}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    footerDescription: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-                                  rows={3}
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="footerCopyright">حقوق النشر</Label>
-                                <Input
-                                  id="footerCopyright"
-                                  value={landingPageContent.footerCopyright}
-                                  onChange={(e) => setLandingPageContent({
-                                    ...landingPageContent,
-                                    footerCopyright: e.target.value
-                                  })}
-                                  disabled={!isEditingContent}
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-
-                        {/* Footer Links */}
-                        <Card>
-                          <CardHeader>
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <CardTitle>روابط التذييل</CardTitle>
-                                <CardDescription>إدارة روابط التذييل</CardDescription>
-                              </div>
-                              {isEditingContent && (
-                                <Button onClick={addFooterLink} size="sm" className="flex items-center space-x-2">
-                                  <Plus className="w-4 h-4" />
-                                  <span>إضافة رابط</span>
-                                </Button>
-                              )}
-                            </div>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="space-y-4">
-                              {landingPageContent.footerLinks.map((link, index) => (
-                                <Card key={link.id} className="p-4">
-                                  <div className="flex items-center space-x-4">
-                                    <GripVertical className="w-5 h-5 text-gray-400" />
-                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-3">
-                                      <div>
-                                        <Label>نص الرابط</Label>
-                                        <Input
-                                          value={link.text}
-                                          onChange={(e) => updateFooterLink(link.id, { text: e.target.value })}
-                                          disabled={!isEditingContent}
-                                        />
-                                      </div>
-                                      <div>
-                                        <Label>الرابط</Label>
-                                        <Input
-                                          value={link.url}
-                                          onChange={(e) => updateFooterLink(link.id, { url: e.target.value })}
-                                          disabled={!isEditingContent}
-                                        />
-                                      </div>
-                                      <div>
-                                        <Label>الفئة</Label>
-                                        <Input
-                                          value={link.category}
-                                          onChange={(e) => updateFooterLink(link.id, { category: e.target.value })}
-                                          disabled={!isEditingContent}
-                                          placeholder="عام، خدمات، دعم"
-                                        />
-                                      </div>
-                                    </div>
-                                    {isEditingContent && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => deleteFooterLink(link.id)}
-                                        className="text-red-600 hover:text-red-700"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </Button>
-                                    )}
-                                  </div>
-                                </Card>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
-                    </Tabs>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-600 mb-2">لا يوجد محتوى</h3>
-                    <p className="text-gray-500">لم يتم العثور على محتوى صفحة الهبوط</p>
-                  </div>
-                )}
-
-                {isEditingContent && (
-                  <div className="flex justify-end space-x-3 pt-6 border-t">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setIsEditingContent(false);
-                        fetchLandingPageContent(); // Reset to original content
-                      }}
-                    >
-              إلغاء
-            </Button>
-                    <Button
-                      onClick={() => landingPageContent && saveLandingPageContent(landingPageContent)}
-                      disabled={contentLoading}
-                      className="flex items-center space-x-2"
-                    >
-                      <Save className="w-4 h-4" />
-                      <span>حفظ التغييرات</span>
-            </Button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeSubPage === 'articles' && (
-              <div className="text-center py-8">
-                <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">إدارة المقالات</h3>
-                <p className="text-gray-500">هذه الصفحة قيد التطوير وسيتم إضافتها قريباً</p>
-              </div>
-            )}
-
-            {activeSubPage === 'media-library' && (
-              <div className="text-center py-8">
-                <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">مكتبة الوسائط</h3>
-                <p className="text-gray-500">هذه الصفحة قيد التطوير وسيتم إضافتها قريباً</p>
-              </div>
-            )}
-
-            {activeSubPage === 'seo-settings' && (
-              <div className="text-center py-8">
-                <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">إعدادات SEO</h3>
-                <p className="text-gray-500">هذه الصفحة قيد التطوير وسيتم إضافتها قريباً</p>
-              </div>
-            )}
-
-            {activeSubPage === 'content-templates' && (
-              <div className="text-center py-8">
-                <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">قوالب المحتوى</h3>
-                <p className="text-gray-500">هذه الصفحة قيد التطوير وسيتم إضافتها قريباً</p>
-              </div>
-            )}
-          </div>
+          <LandingStudio />
         );
 
       default:
@@ -3683,7 +3049,90 @@ export default function RBACDashboard() {
   };
 
   return (
-    <div className="h-screen bg-gray-50">
+    <>
+      <Dialog open={showUserDetailsDialog} onOpenChange={setShowUserDetailsDialog}>
+        <DialogContent className="sm:max-w-xl text-right">
+          <DialogHeader>
+            <DialogTitle>تفاصيل المتقدم</DialogTitle>
+            <DialogDescription>
+              نظرة شاملة على بيانات صاحب الطلب لتسهيل قرار الاعتماد أو التواصل.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-3 text-sm text-slate-600">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-slate-500">الاسم الكامل</span>
+                <span className="text-slate-900">{selectedUser?.name || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-slate-500">اسم المستخدم</span>
+                <span className="text-slate-900">@{selectedUser?.username || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-slate-500">البريد الإلكتروني</span>
+                <span className="text-slate-900">{selectedUser?.email || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-slate-500">رقم التواصل</span>
+                <span className="text-slate-900">{selectedUser?.phone || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-slate-500">الرقم المهني</span>
+                <span className="text-slate-900">{selectedUser?.licenseNumber || '—'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-slate-500">المنظمة</span>
+                <span className="text-slate-900">{resolveOrganizationName(selectedUser?.organizationId)}</span>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <p className="text-xs font-medium text-slate-500 mb-2">الأدوار الحالية</p>
+              <div className="flex flex-wrap gap-2 justify-end">
+                {(selectedUser?.roles || []).length > 0 ? (
+                  selectedUser?.roles.map((role) => (
+                    <Badge key={role} variant="outline" className="bg-white text-xs">
+                      {role}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-xs text-slate-400">لم يتم تعيين أدوار بعد</span>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 text-xs text-slate-500">
+              <div className="flex items-center justify-between">
+                <span>تاريخ التسجيل</span>
+                <span className="text-slate-900 text-sm">{formatDate(selectedUser?.createdAt)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>آخر نشاط</span>
+                <span className="text-slate-900 text-sm">
+                  {selectedUser?.lastActiveAt ? formatRelativeTime(selectedUser.lastActiveAt) : '—'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex justify-between sm:justify-between">
+            <Button variant="outline" onClick={() => setShowUserDetailsDialog(false)}>
+              إغلاق
+            </Button>
+            <Button onClick={() => {
+              if (selectedUser?.email) {
+                window.location.href = `mailto:${selectedUser.email}`;
+              } else {
+                setShowUserDetailsDialog(false);
+              }
+            }}>
+              مراسلة عبر البريد الإلكتروني
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <div className="h-screen bg-gray-50">
       <AdminHeader
         title="لوحة التحكم المتقدمة"
         subtitle="إدارة الأدوار والصلاحيات المتقدمة"
@@ -3694,6 +3143,8 @@ export default function RBACDashboard() {
         loading={loading}
         userName={authDisplayName}
         notificationCount={notificationBadgeCount}
+        notificationMessage={notificationMessage} // تمرير الرسالة لعرض تنبيه عائم فوق أيقونة الإشعارات
+        onNotificationAction={handleNotificationNavigate}
       />
       <div className="fixed inset-x-0 top-20 bottom-0 flex flex-col md:flex-row min-h-0">
         <AdminSidebar
@@ -3722,5 +3173,6 @@ export default function RBACDashboard() {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -52,10 +52,14 @@ export default function Sidebar({ onLogout }: SidebarProps) {
     <div className="w-64 md:w-72 bg-white text-slate-700 shadow-md border-l border-slate-200 fixed right-0 top-0 h-full overflow-y-auto z-50">
       <div className="p-4">
         <div className="flex justify-center">
-          <img 
-            src={agarkomLogo} 
-            alt="عقارکم" 
-            className="h-24 object-contain"
+          <img
+            src={agarkomLogo}
+            alt="عقاركم"
+            width={180}
+            height={101}
+            loading="lazy"
+            decoding="async"
+            className="h-24 w-auto object-contain"
           />
         </div>
       </div>

@@ -11,7 +11,15 @@ export default function PublicHeader() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center">
           <a href="/" className="flex items-center">
-            <img src={agarkomLogo} alt="عقاركم" className="h-10 ml-2" />
+            <img
+              src={agarkomLogo}
+              alt="عقاركم"
+              width={72}
+              height={40}
+              loading="eager"
+              decoding="async"
+              className="h-10 w-auto ml-2"
+            />
           </a>
         </div>
         <nav className="hidden md:flex items-center gap-6 text-sm text-gray-700">

@@ -264,7 +264,7 @@ export default function Clients() {
                                 {getActivityIcon(activity.activityType)}
                               </div>
                               <div className="flex-1">
-                                <div className="flex items-center space-x-2 mb-1">
+                                <div className="flex items-center space-x-2 rtl:space-x-reverse mb-1">
                                   <h4 className="font-medium text-slate-900">{activity.title}</h4>
                                   <Badge variant="outline" className="text-xs">
                                     {activity.activityType}
@@ -278,7 +278,7 @@ export default function Clients() {
                                 {activity.description && (
                                   <p className="text-sm text-slate-600 mb-2">{activity.description}</p>
                                 )}
-                                <div className="flex items-center space-x-4 text-xs text-slate-500">
+                                <div className="flex items-center space-x-4 rtl:space-x-reverse text-xs text-slate-500">
                                   {activity.scheduledDate && (
                                     <span>
                                       مجدول: {new Date(activity.scheduledDate).toLocaleString('ar-SA')}

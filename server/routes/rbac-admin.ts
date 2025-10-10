@@ -26,7 +26,7 @@ const requireAdmin = async (req: any, res: any, next: any) => {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as any;
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: decoded.userId }
     });
 
@@ -71,12 +71,12 @@ router.get('/stats', async (req, res) => {
       totalRoles,
       recentLogins
     ] = await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { isActive: true } }),
-      prisma.organization.count(),
-      prisma.organization.count({ where: { isActive: true } }),
-      prisma.user.groupBy({ by: ['roles'] }).then((result: any[]) => result.length),
-      prisma.user.count({
+      prisma.users.count(),
+      prisma.users.count({ where: { isActive: true } }),
+      prisma.organizations.count(),
+      prisma.organizations.count({ where: { status: 'ACTIVE' } }),
+      prisma.users.groupBy({ by: ['roles'] }).then((result: any[]) => result.length),
+      prisma.users.count({
         where: {
           lastLoginAt: {
             gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
@@ -108,7 +108,7 @@ router.get('/stats', async (req, res) => {
  */
 router.get('/activities', async (req, res) => {
   try {
-    const activities = await prisma.auditLog.findMany({
+    const activities = await prisma.audit_logs.findMany({
       take: 20,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -167,7 +167,7 @@ router.get('/users', async (req, res) => {
     }
 
     const [users, total] = await Promise.all([
-      prisma.user.findMany({
+      prisma.users.findMany({
         where,
         skip,
         take: limit,
@@ -179,10 +179,15 @@ router.get('/users', async (req, res) => {
               legalName: true,
               tradeName: true
             }
+          },
+          agentProfile: {
+            select: {
+              licenseNo: true
+            }
           }
         }
       }),
-      prisma.user.count({ where })
+      prisma.users.count({ where })
     ]);
 
     const formattedUsers = users.map((user: any) => {
@@ -197,6 +202,7 @@ router.get('/users', async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        phone: user.phone,
         firstName: user.firstName,
         lastName: user.lastName,
         name: `${user.firstName} ${user.lastName}`,
@@ -204,7 +210,8 @@ router.get('/users', async (req, res) => {
         organization: user.organization,
         isActive: user.isActive,
         lastLoginAt: user.lastLoginAt,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
+        licenseNumber: user.agentProfile?.licenseNo || null
       };
     });
 
@@ -236,7 +243,7 @@ router.post('/users', async (req, res) => {
     }
 
     // Check if username already exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { username: username.toLowerCase().trim() }
     });
 
@@ -249,7 +256,7 @@ router.post('/users', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 12);
 
     // Create user
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         username: username.toLowerCase().trim(),
         email,
@@ -264,7 +271,7 @@ router.post('/users', async (req, res) => {
     });
 
     // Audit log
-    await prisma.auditLog.create({
+    await prisma.audit_logs.create({
       data: {
         userId: req.user?.id || 'unknown',
         action: 'CREATE_USER',
@@ -304,14 +311,14 @@ router.put('/users/:id', async (req, res) => {
     const { id } = req.params;
     const { username, email, firstName, lastName, phone, roles, organizationId, isActive } = req.body;
 
-    const existingUser = await prisma.user.findUnique({ where: { id } });
+    const existingUser = await prisma.users.findUnique({ where: { id } });
     if (!existingUser) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     // Check if username is being changed and if it already exists
     if (username && username !== existingUser.username) {
-      const usernameExists = await prisma.user.findUnique({
+      const usernameExists = await prisma.users.findUnique({
         where: { username: username.toLowerCase().trim() }
       });
       if (usernameExists) {
@@ -329,13 +336,13 @@ router.put('/users/:id', async (req, res) => {
     if (organizationId !== undefined) updateData.organizationId = organizationId;
     if (isActive !== undefined) updateData.isActive = isActive;
 
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id },
       data: updateData
     });
 
     // Audit log
-    await prisma.auditLog.create({
+    await prisma.audit_logs.create({
       data: {
         userId: req.user?.id || 'unknown',
         action: 'UPDATE_USER',
@@ -383,7 +390,7 @@ router.delete('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await prisma.user.findUnique({ where: { id } });
+    const user = await prisma.users.findUnique({ where: { id } });
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -393,10 +400,10 @@ router.delete('/users/:id', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Cannot delete your own account' });
     }
 
-    await prisma.user.delete({ where: { id } });
+    await prisma.users.delete({ where: { id } });
 
     // Audit log
-    await prisma.auditLog.create({
+    await prisma.audit_logs.create({
       data: {
         userId: req.user?.id || 'unknown',
         action: 'DELETE_USER',
@@ -438,7 +445,7 @@ router.get('/organizations', async (req, res) => {
     }
 
     const [organizations, total] = await Promise.all([
-      prisma.organization.findMany({
+      prisma.organizations.findMany({
         where,
         skip,
         take: limit,
@@ -449,7 +456,7 @@ router.get('/organizations', async (req, res) => {
           }
         }
       }),
-      prisma.organization.count({ where })
+      prisma.organizations.count({ where })
     ]);
 
     res.json({
@@ -473,13 +480,13 @@ router.get('/organizations', async (req, res) => {
  */
 router.post('/organizations', async (req, res) => {
   try {
-    const { legalName, tradeName, licenseNumber, address, phone, email, isActive = true } = req.body;
+    const { legalName, tradeName, licenseNumber, address, phone, email } = req.body;
 
     if (!legalName || !tradeName) {
       return res.status(400).json({ success: false, message: 'Legal name and trade name are required' });
     }
 
-    const organization = await prisma.organization.create({
+    const organization = await prisma.organizations.create({
       data: {
         legalName,
         tradeName,
@@ -492,7 +499,7 @@ router.post('/organizations', async (req, res) => {
     });
 
     // Audit log
-    await prisma.auditLog.create({
+    await prisma.audit_logs.create({
       data: {
         userId: req.user?.id || 'unknown',
         action: 'CREATE_ORGANIZATION',
@@ -636,5 +643,89 @@ function getTimeAgo(date: Date): string {
   if (diffInSeconds < 86400) return `منذ ${Math.floor(diffInSeconds / 3600)} ساعة`;
   return `منذ ${Math.floor(diffInSeconds / 86400)} يوم`;
 }
+
+// User approval endpoints
+router.post('/users/:userId/approve', requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const adminId = req.user?.id;
+    if (!adminId) {
+      return res.status(401).json({ success: false, message: 'Admin user not found' });
+    }
+
+    // Update user to active
+    const updatedUser = await prisma.users.update({
+      where: { id: userId },
+      data: {
+        isActive: true
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'User approved successfully',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Error approving user:', error);
+    res.status(500).json({ success: false, message: 'Failed to approve user' });
+  }
+});
+
+router.post('/users/:userId/reject', requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { reason } = req.body;
+    const adminId = req.user?.id;
+    if (!adminId) {
+      return res.status(401).json({ success: false, message: 'Admin user not found' });
+    }
+
+    // Update user to rejected (keep inactive)
+    const updatedUser = await prisma.users.update({
+      where: { id: userId },
+      data: {
+        isActive: false
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'User rejected successfully',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Error rejecting user:', error);
+    res.status(500).json({ success: false, message: 'Failed to reject user' });
+  }
+});
+
+router.post('/users/:userId/request-info', requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { message } = req.body;
+    const adminId = req.user?.id;
+    if (!adminId) {
+      return res.status(401).json({ success: false, message: 'Admin user not found' });
+    }
+
+    // Keep user inactive and log the request
+    const updatedUser = await prisma.users.update({
+      where: { id: userId },
+      data: {
+        isActive: false
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Information request sent successfully',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Error requesting more info:', error);
+    res.status(500).json({ success: false, message: 'Failed to request more information' });
+  }
+});
 
 export default router;

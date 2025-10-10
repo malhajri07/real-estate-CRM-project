@@ -2,13 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { User, Calendar, Phone, CreditCard, Upload, ArrowRight, MapPin, Building, FileText, Check } from "lucide-react";
+import { Upload, ArrowRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocation } from "wouter";
-import logoImage from "@assets/Aqaraty_logo_selected_1755461935189.png";
-import agarkomFooterLogo from "@assets/6_1756507125793.png";
 
 export default function SignupIndividual() {
   // Account credentials
@@ -17,12 +14,11 @@ export default function SignupIndividual() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
   const [saudiId, setSaudiId] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [certificationNumber, setCertificationNumber] = useState("");
   const [certificationStartDate, setCertificationStartDate] = useState("");
-  const [certificationEndDate, setCertificationEndDate] = useState("");
+  // Certification end date field intentionally removed per new onboarding requirements.
   const [certificationFile, setCertificationFile] = useState<FileList | null>(null);
   const [gender, setGender] = useState("");
   const [city, setCity] = useState("");
@@ -48,25 +44,9 @@ export default function SignupIndividual() {
     "الجوف"
   ];
 
-  // Convert English numbers to Arabic numbers
-  const toArabicNumerals = (str: string) => {
-    const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    return str.replace(/[0-9]/g, (digit) => arabicNumerals[parseInt(digit)]);
-  };
-
-  // Convert Arabic numbers to English for validation
-  const toEnglishNumerals = (str: string) => {
-    const englishNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    return str.replace(/[٠-٩]/g, (digit) => {
-      const arabicNumerals = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-      return englishNumerals[arabicNumerals.indexOf(digit)];
-    });
-  };
-
   const handleNumericInput = (value: string, setter: (val: string) => void) => {
-    // Only allow Arabic numerals
-    const arabicOnly = value.replace(/[^٠-٩]/g, '');
-    setter(arabicOnly);
+    const digitsOnly = value.replace(/[^0-9]/g, "");
+    setter(digitsOnly);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -85,7 +65,8 @@ export default function SignupIndividual() {
     }
 
     // Validate required fields
-    if (!firstName || !lastName || !dateOfBirth || !saudiId || !mobileNumber || !certificationNumber || !gender || !city || !certificationStartDate || !certificationEndDate) {
+    // certificationEndDate removed from required check in line with field removal.
+    if (!firstName || !lastName || !saudiId || !mobileNumber || !certificationNumber || !gender || !city || !certificationStartDate) {
       toast({
         title: "خطأ في البيانات",
         description: "الرجاء ملء جميع الحقول المطلوبة",
@@ -137,12 +118,9 @@ export default function SignupIndividual() {
       return;
     }
 
-    // Convert Arabic numerals to English for validation
-    const saudiIdEnglish = toEnglishNumerals(saudiId);
-    const mobileEnglish = toEnglishNumerals(mobileNumber);
-
     // Validate Saudi ID (should be 10 digits)
-    if (!/^\d{10}$/.test(saudiIdEnglish)) {
+    const normalizedSaudiId = saudiId.trim();
+    if (!/^\d{10}$/.test(normalizedSaudiId)) {
       toast({
         title: "رقم الهوية غير صحيح",
         description: "رقم الهوية الوطنية يجب أن يكون ١٠ أرقام",
@@ -153,7 +131,8 @@ export default function SignupIndividual() {
     }
 
     // Validate mobile number (Saudi format)
-    if (!/^(05|5)\d{8}$/.test(mobileEnglish)) {
+    const normalizedMobile = mobileNumber.trim();
+    if (!/^05\d{8}$/.test(normalizedMobile)) {
       toast({
         title: "رقم الجوال غير صحيح",
         description: "الرجاء إدخال رقم جوال سعودي صحيح",
@@ -171,11 +150,11 @@ export default function SignupIndividual() {
         body: JSON.stringify({
           username: normalizedUsername,
           // Optional temp email for contact only
-          email: `${saudiIdEnglish}@temp.aqaraty.sa`,
+          email: `${normalizedSaudiId}@temp.aqaraty.sa`,
           password,
           firstName,
           lastName,
-          phone: mobileEnglish.startsWith('05') ? mobileEnglish : `05${mobileEnglish}`,
+          phone: normalizedMobile,
           roles: JSON.stringify(['INDIV_AGENT'])
         })
       });
@@ -216,71 +195,60 @@ export default function SignupIndividual() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-slate-100">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center items-center h-20">
-            <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
-              <img 
-                src={logoImage} 
-                alt="شعار عقاراتي" 
-                className="w-12 h-12 object-contain ml-3"
-              />
-              <span className="text-2xl font-bold text-gray-900 hover:text-green-600 transition-colors font-droid-kufi">منصة عقاراتي</span>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-100 px-4 py-16">
+      <div className="max-w-5xl mx-auto space-y-10">
+        <div className="flex items-center justify-end text-sm text-slate-500">
+          <Button
+            type="button"
+            variant="link"
+            className="text-emerald-700 hover:text-emerald-800"
+            onClick={() => setLocation('/home')}
+          >
+            العودة للصفحة الرئيسية
+          </Button>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <div className="flex items-center justify-center p-6 py-12">
-        <div className="w-full max-w-2xl bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-          {/* Header Section */}
-          <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4 text-white text-center relative overflow-hidden">
-            <div className="absolute inset-x-4 inset-y-2 bg-gradient-to-br from-green-400/20 to-transparent rounded-2xl"></div>
-            <div className="relative z-10">
-              <div className="flex justify-center mb-3">
-                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                  <User className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <h1 className="text-2xl font-bold mb-2 font-droid-kufi">إنشاء حساب فردي</h1>
-              <p className="text-green-100 text-base">انضم إلى منصة عقاراتي كوسيط عقاري معتمد</p>
-            </div>
-          </div>
+        <div className="space-y-3 text-right">
+          <span className="inline-block rounded-full bg-emerald-100 px-4 py-1 text-sm font-semibold text-emerald-700">
+            تسجيل وسيط عقاري مستقل
+          </span>
+          <h1 className="text-4xl font-bold text-slate-900">إنشاء حساب فردي لوسيط عقاري</h1>
+          <p className="text-lg text-slate-500 leading-relaxed">
+            أكمل البيانات التالية للانضمام كوسيط عقاري معتمد والاستفادة من أدوات إدارة العملاء والعروض داخل المنصة.
+          </p>
+        </div>
 
-          {/* Form Content */}
-          <div className="px-6 py-6">
-
-            <form onSubmit={handleSubmit} className="space-y-12">
+        <form
+          onSubmit={handleSubmit}
+          dir="rtl"
+          className="relative space-y-10 rounded-[32px] border border-white/80 bg-white/90 backdrop-blur-xl px-6 py-10 shadow-[0_35px_120px_rgba(148,163,184,0.18)]"
+        >
               {/* Account Credentials */}
-              <div className="space-y-6">
-                <div className="flex items-center mb-4">
-                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center ml-4">
-                    <User className="w-5 h-5 text-green-600" />
-                  </div>
-                  <h2 className="text-xl font-semibold text-gray-900">بيانات الحساب</h2>
+              <section className="space-y-4">
+                <div className="flex flex-col gap-2 text-right md:flex-row md:items-center md:justify-between">
+                  <h2 className="text-xl font-semibold text-slate-900">بيانات الحساب الأساسية</h2>
+                  <span className="text-sm text-slate-400">* الحقول الإلزامية</span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-3 md:col-span-1">
-                    <Label htmlFor="username" className="text-sm font-medium text-gray-700 text-right block">
-                      اسم المستخدم *
-                    </Label>
-                    <Input
-                      id="username"
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="اسم المستخدم (a-z, 0-9, _ .)"
-                      required
-                      className="text-right h-12 border-gray-200 rounded-xl"
-                    />
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                  <Label htmlFor="username" className="block text-sm font-medium text-slate-600">
+                    اسم المستخدم *
+                  </Label>
+                  {/* Placeholder removed per request; label provides sufficient guidance. */}
+                  <Input
+                    id="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    dir="ltr"
+                    className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  />
                   </div>
 
-                  <div className="space-y-3">
-                    <Label htmlFor="password" className="text-sm font-medium text-gray-700 text-right block">
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="block text-sm font-medium text-slate-600">
                       كلمة المرور *
                     </Label>
                     <Input
@@ -290,12 +258,13 @@ export default function SignupIndividual() {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="text-right h-12 border-gray-200 rounded-xl font-password"
+                      dir="ltr"
+                      className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500 font-password"
                     />
                   </div>
 
-                  <div className="space-y-3">
-                    <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 text-right block">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-600">
                       تأكيد كلمة المرور *
                     </Label>
                     <Input
@@ -305,24 +274,41 @@ export default function SignupIndividual() {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      className="text-right h-12 border-gray-200 rounded-xl font-password"
+                      dir="ltr"
+                      className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500 font-password"
                     />
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Personal Information */}
-              <div className="space-y-6">
-                <div className="flex items-center mb-8">
-                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center ml-4">
-                    <User className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <h2 className="text-xl font-semibold text-gray-900">المعلومات الشخصية</h2>
+              <section className="space-y-4 pt-6 border-t border-slate-100">
+                <div className="text-right space-y-1">
+                  <h2 className="text-xl font-semibold text-slate-900">المعلومات الشخصية</h2>
+                  <p className="text-sm text-slate-500">
+                    ساعدنا في التعرف عليك للتواصل والتحقق من بياناتك المهنية.
+                  </p>
                 </div>
-              
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700 text-right block">
+
+                <div className="space-y-2">
+                  <Label htmlFor="mobileNumber" className="block text-sm font-medium text-slate-600">
+                    رقم الجوال *
+                  </Label>
+                  <Input
+                    id="mobileNumber"
+                    type="tel"
+                    value={mobileNumber}
+                    onChange={(e) => handleNumericInput(e.target.value, setMobileNumber)}
+                    placeholder="05XXXXXXXX"
+                    required
+                    maxLength={10}
+                    className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="block text-sm font-medium text-slate-600">
                       الاسم الأول *
                     </Label>
                     <Input
@@ -332,12 +318,12 @@ export default function SignupIndividual() {
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="أدخل الاسم الأول"
                       required
-                      className="text-right h-12 border-gray-200 rounded-xl"
+                      className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
                     />
                   </div>
 
-                  <div className="space-y-3">
-                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700 text-right block">
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="block text-sm font-medium text-slate-600">
                       اسم العائلة *
                     </Label>
                     <Input
@@ -347,70 +333,38 @@ export default function SignupIndividual() {
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="أدخل اسم العائلة"
                       required
-                      className="text-right h-12 border-gray-200 rounded-xl"
+                      className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="dateOfBirth" className="text-sm font-medium text-gray-700 text-right block">
-                      تاريخ الميلاد *
-                    </Label>
-                    <Input
-                      id="dateOfBirth"
-                      type="date"
-                      value={dateOfBirth}
-                      onChange={(e) => setDateOfBirth(e.target.value)}
-                      required
-                      className="text-right h-12 border-gray-200 rounded-xl"
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label htmlFor="gender" className="text-sm font-medium text-gray-700 text-right block">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="gender" className="block text-sm font-medium text-slate-600">
                       النوع *
                     </Label>
                     <Select value={gender} onValueChange={setGender} required>
-                      <SelectTrigger className="text-right h-12 border-gray-200 rounded-xl">
+                      <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white text-right focus:ring-emerald-500">
                         <SelectValue placeholder="اختر النوع" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4} align="end" className="z-[100]">
-                        <SelectItem value="male">ذكر</SelectItem>
-                        <SelectItem value="female">أنثى</SelectItem>
+                      <SelectContent position="popper" sideOffset={4} align="end" className="z-[100] text-right">
+                        <SelectItem value="male" className="flex justify-end text-right">ذكر</SelectItem>
+                        <SelectItem value="female" className="flex justify-end text-right">أنثى</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="saudiId" className="text-sm font-medium text-gray-700 text-right block">
-                      رقم الهوية الوطنية *
-                    </Label>
-                    <Input
-                      id="saudiId"
-                      type="text"
-                      value={saudiId}
-                      onChange={(e) => handleNumericInput(e.target.value, setSaudiId)}
-                      placeholder="أدخل رقم الهوية الوطنية (١٠ أرقام)"
-                      required
-                      className="text-right h-12 border-gray-200 rounded-xl"
-                      maxLength={10}
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label htmlFor="city" className="text-sm font-medium text-gray-700 text-right block">
+                  <div className="space-y-2">
+                    <Label htmlFor="city" className="block text-sm font-medium text-slate-600">
                       المنطقة *
                     </Label>
                     <Select value={city} onValueChange={setCity} required>
-                      <SelectTrigger className="text-right h-12 border-gray-200 rounded-xl">
+                      <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white text-right focus:ring-emerald-500">
                         <SelectValue placeholder="اختر المنطقة" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4} align="end" className="z-[100]">
+                      <SelectContent position="popper" sideOffset={4} align="end" className="z-[100] text-right">
                         {saudiRegions.map((region) => (
-                          <SelectItem key={region} value={region}>
+                          <SelectItem key={region} value={region} className="flex justify-end text-right">
                             {region}
                           </SelectItem>
                         ))}
@@ -419,34 +373,35 @@ export default function SignupIndividual() {
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <Label htmlFor="mobileNumber" className="text-sm font-medium text-gray-700 text-right block">
-                    رقم الجوال *
+                <div className="space-y-2">
+                  <Label htmlFor="saudiId" className="block text-sm font-medium text-slate-600">
+                    رقم الهوية الوطنية *
                   </Label>
                   <Input
-                    id="mobileNumber"
-                    type="tel"
-                    value={mobileNumber}
-                    onChange={(e) => handleNumericInput(e.target.value, setMobileNumber)}
-                    placeholder="٠٥xxxxxxxx"
+                    id="saudiId"
+                    type="text"
+                    value={saudiId}
+                    onChange={(e) => handleNumericInput(e.target.value, setSaudiId)}
+                    placeholder="أدخل رقم الهوية الوطنية (10 أرقام)"
                     required
-                    className="text-right h-12 border-gray-200 rounded-xl"
+                    maxLength={10}
+                    className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
                   />
                 </div>
-              </div>
+              </section>
 
               {/* Certification Information */}
-              <div className="space-y-6">
-                <div className="flex items-center mb-8 pt-8 border-t border-gray-100">
-                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center ml-4">
-                    <FileText className="w-5 h-5 text-green-600" />
-                  </div>
-                  <h2 className="text-xl font-semibold text-gray-900">معلومات ترخيص فال العقاري</h2>
+              <section className="space-y-4 pt-6 border-t border-slate-100">
+                <div className="text-right space-y-1">
+                  <h2 className="text-xl font-semibold text-slate-900">معلومات رخصة فال</h2>
+                  <p className="text-sm text-slate-500">
+                    أدخل بيانات الترخيص المهنية للتأكد من أهليتك كممارس معتمد.
+                  </p>
                 </div>
-                
-                <div className="space-y-3">
-                  <Label htmlFor="certificationNumber" className="text-sm font-medium text-gray-700 text-right block">
-                    رقم ترخيص فال العقاري *
+
+                <div className="space-y-2">
+                  <Label htmlFor="certificationNumber" className="block text-sm font-medium text-slate-600">
+                    رقم رخصة فال العقاري *
                   </Label>
                   <Input
                     id="certificationNumber"
@@ -455,42 +410,26 @@ export default function SignupIndividual() {
                     onChange={(e) => setCertificationNumber(e.target.value)}
                     placeholder="أدخل رقم الترخيص"
                     required
-                    className="text-right h-12 border-gray-200 rounded-xl"
+                    className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="certificationStartDate" className="text-sm font-medium text-gray-700 text-right block">
-                      تاريخ بداية الترخيص *
-                    </Label>
-                    <Input
-                      id="certificationStartDate"
-                      type="date"
-                      value={certificationStartDate}
-                      onChange={(e) => setCertificationStartDate(e.target.value)}
-                      required
-                      className="text-right h-12 border-gray-200 rounded-xl"
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label htmlFor="certificationEndDate" className="text-sm font-medium text-gray-700 text-right block">
-                      تاريخ انتهاء الترخيص *
-                    </Label>
-                    <Input
-                      id="certificationEndDate"
-                      type="date"
-                      value={certificationEndDate}
-                      onChange={(e) => setCertificationEndDate(e.target.value)}
-                      required
-                      className="text-right h-12 border-gray-200 rounded-xl"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="certificationStartDate" className="block text-sm font-medium text-slate-600">
+                    تاريخ بداية الترخيص *
+                  </Label>
+                  <Input
+                    id="certificationStartDate"
+                    type="date"
+                    value={certificationStartDate}
+                    onChange={(e) => setCertificationStartDate(e.target.value)}
+                    required
+                    className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  />
                 </div>
 
-                <div className="space-y-3">
-                  <Label htmlFor="certificationFile" className="text-sm font-medium text-gray-700 text-right block">
+                <div className="space-y-2">
+                  <Label htmlFor="certificationFile" className="block text-sm font-medium text-slate-600">
                     ملف ترخيص فال العقاري (PDF) *
                   </Label>
                   <div className="relative">
@@ -500,30 +439,30 @@ export default function SignupIndividual() {
                       accept="application/pdf"
                       onChange={handleFileChange}
                       required
-                      className="text-right h-12 border-gray-200 rounded-xl file:mr-10 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 pl-10"
+                      className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500 file:mr-10 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100 pl-10"
                     />
                     <Upload className="w-4 h-4 text-gray-500 absolute left-3 top-4 pointer-events-none" />
                   </div>
-                  <div className="bg-green-50 border border-green-200 p-4 rounded-xl">
-                    <p className="text-sm text-green-700 font-medium text-right">
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-right">
+                    <p className="text-sm font-medium text-emerald-700">
                       📋 يجب رفع ملف ترخيص فال العقاري بصيغة PDF فقط
                     </p>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Terms and Conditions */}
-              <div className="space-y-6">
-                <div className="flex items-center mb-8 pt-8 border-t border-gray-100">
-                  <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center ml-4">
-                    <FileText className="w-5 h-5 text-red-600" />
-                  </div>
-                  <h2 className="text-xl font-semibold text-gray-900">الشروط والأحكام</h2>
+              <section className="space-y-4 pt-6 border-t border-slate-100">
+                <div className="text-right space-y-1">
+                  <h2 className="text-xl font-semibold text-slate-900">الشروط والأحكام</h2>
+                  <p className="text-sm text-slate-500">
+                    يرجى قراءة الشروط التالية بعناية قبل الموافقة والمتابعة لإكمال التسجيل.
+                  </p>
                 </div>
 
-                <div className="bg-gray-50 border border-gray-200 p-6 rounded-xl max-h-80 overflow-y-auto">
-                  <div className="space-y-4 text-sm text-gray-700 text-right">
-                    <h3 className="font-semibold text-base text-gray-900">شروط استخدام منصة عقاراتي للوسطاء العقاريين:</h3>
+                <div className="rounded-3xl border border-emerald-100 bg-emerald-50/60 p-6 text-right shadow-sm">
+                  <div className="space-y-4 text-sm leading-7 text-slate-700 max-h-80 overflow-y-auto">
+                    <h3 className="text-base font-semibold text-slate-900">شروط استخدام منصة عقاراتي للوسطاء العقاريين:</h3>
                     
                     <div className="space-y-3">
                       <p><strong>1. الأهلية والتسجيل:</strong></p>
@@ -533,7 +472,7 @@ export default function SignupIndividual() {
                       <p>يتعهد المستخدم بتقديم معلومات صحيحة ودقيقة عن هويته الشخصية وترخيصه المهني، وتحديث هذه المعلومات عند الحاجة. أي معلومات مضللة قد تؤدي إلى إلغاء الحساب نهائياً.</p>
                       
                       <p><strong>3. استخدام النظام:</strong></p>
-                      <ul className="space-y-2 mr-4">
+                      <ul className="space-y-2 pr-4">
                         <li>• الالتزام بأخلاقيات المهنة وقواعد السلوك المهني للوسطاء العقاريين</li>
                         <li>• عدم استخدام النظام لأغراض غير مشروعة أو مخالفة للأنظمة</li>
                         <li>• الحفاظ على سرية بيانات العملاء وعدم إساءة استخدامها</li>
@@ -545,7 +484,7 @@ export default function SignupIndividual() {
                       <p>يجب المحافظة على سريان ترخيص فال العقاري وإشعار المنصة بأي تغيير في حالة الترخيص فوراً. انتهاء صلاحية الترخيص يؤدي إلى تعليق الحساب تلقائياً حتى تجديده.</p>
                       
                       <p><strong>5. العمولات والرسوم:</strong></p>
-                      <ul className="space-y-2 mr-4">
+                      <ul className="space-y-2 pr-4">
                         <li>• رسوم الاشتراك الشهري/السنوي وفقاً للخطة المختارة</li>
                         <li>• عمولة المنصة على الصفقات المنجزة حسب الاتفاقية</li>
                         <li>• جميع المبالغ غير قابلة للاسترداد بعد التأكيد</li>
@@ -559,7 +498,7 @@ export default function SignupIndividual() {
                       <p>تتحمل المسؤولية الكاملة عن جميع تصرفاتك المهنية وتعاملاتك مع العملاء. المنصة غير مسؤولة عن أي نزاعات قد تنشأ بينك وبين عملائك.</p>
                       
                       <p><strong>8. قواعد السلوك:</strong></p>
-                      <ul className="space-y-2 mr-4">
+                      <ul className="space-y-2 pr-4">
                         <li>• احترام حقوق الملكية الفكرية للمنصة</li>
                         <li>• عدم محاولة اختراق أو إلحاق الضرر بالنظام</li>
                         <li>• التعامل بأدب واحترام مع جميع المستخدمين</li>
@@ -581,96 +520,46 @@ export default function SignupIndividual() {
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3 space-x-reverse">
-                  <div className="flex items-center h-5">
-                    <input
-                      id="terms-agreement"
-                      type="checkbox"
-                      checked={agreedToTerms}
-                      onChange={(e) => setAgreedToTerms(e.target.checked)}
-                      className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
-                    />
-                  </div>
-                  <div className="text-sm">
-                    <Label htmlFor="terms-agreement" className="text-gray-700 text-right cursor-pointer">
-                      أوافق على جميع الشروط والأحكام المذكورة أعلاه وأقر بأنني قد قرأتها وفهمتها بالكامل. كما أتعهد بالالتزام بأخلاقيات المهنة وقواعد السلوك للوسطاء العقاريين وأؤكد صحة جميع البيانات المقدمة.
-                    </Label>
-                  </div>
+                <div className="flex flex-row-reverse items-start gap-3">
+                  <input
+                    id="terms-agreement"
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  <Label htmlFor="terms-agreement" className="text-sm text-slate-600 cursor-pointer leading-7">
+                    أوافق على جميع الشروط والأحكام المذكورة أعلاه وأقر بأنني قد قرأتها وفهمتها بالكامل. كما أتعهد بالالتزام بأخلاقيات المهنة وقواعد السلوك للوسطاء العقاريين وأؤكد صحة جميع البيانات المقدمة.
+                  </Label>
                 </div>
-              </div>
+              </section>
 
+              {/* Submit actions live outside the terms section to keep JSX nesting valid. */}
               <div className="pt-8">
                 <Button
                   type="submit"
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-4 text-lg font-semibold rounded-xl h-14 transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-14 rounded-2xl bg-emerald-600 text-lg font-semibold text-white shadow-[0_20px_60px_rgba(16,185,129,0.18)] transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={isLoading || !agreedToTerms}
                 >
                   {isLoading ? "جار إرسال الطلب..." : "إنشاء الحساب"}
                 </Button>
                 {!agreedToTerms && (
-                  <p className="text-sm text-red-600 mt-2 text-center">يجب الموافقة على الشروط والأحكام قبل المتابعة</p>
+                  <p className="mt-2 text-center text-sm text-red-600">يجب الموافقة على الشروط والأحكام قبل المتابعة</p>
                 )}
               </div>
-            </form>
+          </form>
 
-            <div className="mt-8 text-center">
-              <Button 
-                variant="outline" 
-                onClick={() => setLocation("/signup")}
-                className="text-gray-600 border-gray-300 hover:bg-gray-50 h-12 px-8 rounded-xl"
-              >
-                <ArrowRight className="w-4 h-4 ml-2" />
-                العودة إلى خيارات التسجيل
-              </Button>
-            </div>
-
+          <div className="mt-8 text-center">
+            <Button
+              variant="outline"
+              onClick={() => setLocation("/signup")}
+              className="h-12 rounded-2xl border-slate-200 px-8 text-slate-600 transition-colors hover:bg-slate-100"
+            >
+              <ArrowRight className="ml-2 h-4 w-4" />
+              العودة إلى خيارات التسجيل
+            </Button>
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center mb-4">
-                <img 
-                  src={agarkomFooterLogo} 
-                  alt="عقارکم" 
-                  className="h-36 object-contain"
-                />
-              </div>
-              <p className="text-gray-400 mb-4">
-                نظام شامل لإدارة العقارات والعملاء والصفقات مع واجهة حديثة وسهلة الاستخدام
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-semibold mb-4">روابط سريعة</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="/" className="hover:text-green-400 transition-colors">الرئيسية</a></li>
-                <li><a href="/#features" className="hover:text-green-400 transition-colors">المميزات</a></li>
-                <li><a href="/#solutions" className="hover:text-green-400 transition-colors">الحلول</a></li>
-                <li><a href="/#pricing" className="hover:text-green-400 transition-colors">الأسعار</a></li>
-                <li><a href="/#contact" className="hover:text-green-400 transition-colors">اتصل بنا</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-4">الدعم</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>الهاتف: +966 50 123 4567</li>
-                <li>البريد: support@aqaraty.sa</li>
-                <li>الدعم الفني متاح 24/7</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>جميع الحقوق محفوظة © 2025 منصة عقاراتي لإدارة العقارات</p>
-          </div>
-        </div>
-      </footer>
-    </div>
   );
 }

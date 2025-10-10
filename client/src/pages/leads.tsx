@@ -214,7 +214,7 @@ export default function Leads() {
           <CardHeader className="border-b border-slate-200">
             <div className="flex items-center justify-between">
               <CardTitle>جميع العملاء المحتملين ({displayLeads?.length || 0})</CardTitle>
-              <div className="flex items-center space-x-2 space-x-reverse">
+              <div className="flex items-center space-x-2 rtl:space-x-reverse">
                 <CSVUploader
                   onGetUploadParameters={handleGetUploadParameters}
                   onComplete={handleCSVUploadComplete}
@@ -287,7 +287,7 @@ export default function Leads() {
                       <TableCell>{lead.budgetRange || '-'}</TableCell>
                       <TableCell>{new Date(lead.createdAt).toLocaleDateString()}</TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2 space-x-reverse">
+                        <div className="flex items-center space-x-2 rtl:space-x-reverse">
                           {lead.phone && (
                             <Button 
                               variant="ghost" 

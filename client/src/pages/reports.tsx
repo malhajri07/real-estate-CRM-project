@@ -304,8 +304,8 @@ export default function Reports() {
       <main className="w-full space-y-6">
         {/* Report Controls */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4 rtl:space-x-reverse">
+            <div className="flex items-center space-x-2 rtl:space-x-reverse">
               <Calendar size={20} className="text-slate-500" />
               <span className="text-sm font-medium text-slate-700">فترة التقرير:</span>
               <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
@@ -384,7 +384,7 @@ export default function Reports() {
               {/* Time Series Chart */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <LineChart size={20} />
                     <span>الاتجاهات الزمنية</span>
                   </CardTitle>
@@ -408,7 +408,7 @@ export default function Reports() {
               {/* Lead Sources Pie Chart */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <PieChart size={20} />
                     <span>مصادر العملاء المحتملين</span>
                   </CardTitle>
@@ -441,7 +441,7 @@ export default function Reports() {
               {/* Property Types Bar Chart */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <BarChart3 size={20} />
                     <span>أنواع العقارات</span>
                   </CardTitle>
@@ -462,7 +462,7 @@ export default function Reports() {
               {/* Deal Stages */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <Target size={20} />
                     <span>مراحل الصفقات</span>
                   </CardTitle>
@@ -488,7 +488,7 @@ export default function Reports() {
               {/* Agent Performance */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <Users size={20} />
                     <span>أداء الوسطاء</span>
                   </CardTitle>
@@ -509,7 +509,7 @@ export default function Reports() {
               {/* Conversion Rates */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <TrendingUp size={20} />
                     <span>معدلات التحويل</span>
                   </CardTitle>
@@ -535,7 +535,7 @@ export default function Reports() {
               {/* Revenue Trend */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <DollarSign size={20} />
                     <span>اتجاه الإيرادات</span>
                   </CardTitle>
@@ -557,7 +557,7 @@ export default function Reports() {
               {/* Revenue by Agent */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <Building size={20} />
                     <span>الإيرادات حسب الوكيل</span>
                   </CardTitle>
@@ -583,7 +583,7 @@ export default function Reports() {
               {/* Market Trends */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <Activity size={20} />
                     <span>اتجاهات السوق</span>
                   </CardTitle>
@@ -608,7 +608,7 @@ export default function Reports() {
               {/* Property Distribution */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <PieChart size={20} />
                     <span>توزيع العقارات</span>
                   </CardTitle>
@@ -644,7 +644,7 @@ export default function Reports() {
               {/* Agent Performance Table */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <Users size={20} />
                     <span>جدول أداء الوسطاء</span>
                   </CardTitle>
@@ -689,7 +689,7 @@ export default function Reports() {
               {/* Deal Pipeline Summary */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <Target size={20} />
                     <span>ملخص خط الأنابيب</span>
                   </CardTitle>
@@ -729,7 +729,7 @@ export default function Reports() {
               {/* Property Analytics */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <Building size={20} />
                     <span>تحليلات العقارات</span>
                   </CardTitle>
@@ -765,7 +765,7 @@ export default function Reports() {
               {/* Performance Metrics */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                     <Zap size={20} />
                     <span>مقاييس الأداء</span>
                   </CardTitle>

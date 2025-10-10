@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { ArrowLeft, UploadCloud, X } from "lucide-react";
+import { useLocation } from "wouter";
 
 const MAX_IMAGE_COUNT = 15;
 const MAX_VIDEO_COUNT = 5;
@@ -70,6 +71,7 @@ export default function UnverfiedListingPage() {
   const [errors, setErrors] = useState<ErrorState>([]);
   const [message, setMessage] = useState<MessageState>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -275,7 +277,7 @@ export default function UnverfiedListingPage() {
 
   const goBackToLanding = () => {
     window.location.hash = "";
-    window.location.href = "/home";
+    setLocation("/");
   };
 
   return (

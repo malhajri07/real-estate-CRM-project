@@ -49,13 +49,13 @@ class PrismaStorage {
    * 
    * Retrieves a user from the database by their unique identifier.
    * 
-   * Dependencies: prisma.user.findUnique()
+   * Dependencies: prisma.users.findUnique()
    * Routes affected: Authentication, user management
    * Pages affected: User profile, admin panel
    */
   async getUser(id: string): Promise<any | undefined> {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id },
         include: {
           organization: true,
@@ -75,13 +75,13 @@ class PrismaStorage {
    * Retrieves a user from the database by their email address.
    * Used for authentication and user lookup.
    * 
-   * Dependencies: prisma.user.findUnique()
+   * Dependencies: prisma.users.findUnique()
    * Routes affected: Authentication, login
    * Pages affected: Login page, user management
    */
   async getUserByEmail(email: string): Promise<any | undefined> {
     try {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { email },
         include: {
           organization: true,
@@ -213,13 +213,13 @@ class PrismaStorage {
    * Retrieves all users from the database.
    * Used for user management and admin functionality.
    * 
-   * Dependencies: prisma.user.findMany()
+   * Dependencies: prisma.users.findMany()
    * Routes affected: User management, admin panel
    * Pages affected: User management page, admin dashboard
    */
   async getAllUsers(): Promise<any[]> {
     try {
-      const users = await prisma.user.findMany({
+      const users = await prisma.users.findMany({
         include: {
           organization: true,
           agentProfile: true,
@@ -241,13 +241,13 @@ class PrismaStorage {
    * Creates a new user in the database.
    * Used for user registration and admin user creation.
    * 
-   * Dependencies: prisma.user.create()
+   * Dependencies: prisma.users.create()
    * Routes affected: User registration, admin user creation
    * Pages affected: Registration page, admin panel
    */
   async createUser(userData: any): Promise<any> {
     try {
-      const user = await prisma.user.create({
+      const user = await prisma.users.create({
         data: {
           id: randomUUID(),
           ...userData,
@@ -270,13 +270,13 @@ class PrismaStorage {
    * Updates an existing user in the database.
    * Used for user profile updates and admin user management.
    * 
-   * Dependencies: prisma.user.update()
+   * Dependencies: prisma.users.update()
    * Routes affected: User profile update, admin user management
    * Pages affected: User profile page, admin panel
    */
   async updateUser(id: string, userData: Partial<any>): Promise<any> {
     try {
-      const user = await prisma.user.update({
+      const user = await prisma.users.update({
         where: { id },
         data: userData,
         include: {
@@ -297,13 +297,13 @@ class PrismaStorage {
    * Deletes a user from the database.
    * Used for user management and admin functionality.
    * 
-   * Dependencies: prisma.user.delete()
+   * Dependencies: prisma.users.delete()
    * Routes affected: User management, admin panel
    * Pages affected: User management page, admin dashboard
    */
   async deleteUser(id: string): Promise<void> {
     try {
-      await prisma.user.delete({
+      await prisma.users.delete({
         where: { id },
       });
     } catch (error) {

@@ -375,13 +375,13 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
                         <RadioGroup
                           onValueChange={field.onChange}
                           defaultValue={field.value || ""}
-                          className="flex space-x-4 space-x-reverse"
+                          className="flex space-x-4 rtl:space-x-reverse"
                         >
-                          <div className="flex items-center space-x-2 space-x-reverse">
+                          <div className="flex items-center space-x-2 rtl:space-x-reverse">
                             <RadioGroupItem value="buying" id="buying" />
                             <Label htmlFor="buying" className="text-xxs">شراء</Label>
                           </div>
-                          <div className="flex items-center space-x-2 space-x-reverse">
+                          <div className="flex items-center space-x-2 rtl:space-x-reverse">
                             <RadioGroupItem value="selling" id="selling" />
                             <Label htmlFor="selling" className="text-xxs">بيع</Label>
                           </div>

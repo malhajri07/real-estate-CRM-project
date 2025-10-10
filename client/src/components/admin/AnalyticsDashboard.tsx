@@ -418,7 +418,7 @@ export default function AnalyticsDashboard() {
 
       <Tabs defaultValue="users" className="w-full">
         {isInitialLoad ? (
-          <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+          <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="flex-1 h-10 bg-gray-200 rounded animate-pulse"></div>
             ))}

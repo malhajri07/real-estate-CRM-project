@@ -28,7 +28,7 @@ import { useState, useEffect, lazy, Suspense, type ComponentType, type LazyExoti
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
+import { AuthProvider, useAuth, UserRole } from "@/components/auth/AuthProvider";
 
 // Core page imports - loaded immediately for critical routes
 import Landing from "@/pages/landing";
@@ -38,11 +38,9 @@ import SignupCorporate from "@/pages/signup-corporate";
 import SignupSuccess from "@/pages/signup-success";
 import KYCSubmitted from "@/pages/kyc-submitted";
 import CMSAdmin from "@/pages/cms-admin";
+import CMSTest from "@/pages/cms-test";
 import Dashboard from "@/pages/dashboard";
 import SearchProperties from "@/pages/search-properties";
-import TestPage from "@/pages/test-page";
-import SimpleTest from "@/pages/simple-test";
-import WorkingTest from "@/pages/working-test";
 import Leads from "@/pages/leads";
 import Customers from "@/pages/customers";
 import Properties from "@/pages/properties";
@@ -56,9 +54,6 @@ import Sidebar from "@/components/layout/sidebar";
 import PlatformShell from "@/components/layout/PlatformShell";
 import Header from "@/components/layout/header";
 import RBACDashboard from "@/pages/rbac-dashboard";
-import AuthTestPage from "@/pages/auth-test";
-import SimpleAdminPage from "@/pages/simple-admin";
-import DirectAdminPage from "@/pages/direct-admin";
 import RBACLoginPage from "@/pages/rbac-login";
 import PlatformPage from "@/pages/app";
 import UnverfiedListingPage from "@/pages/unverfied_Listing";
@@ -97,10 +92,19 @@ const AdminRequestsPage = lazy(() => import("@/pages/admin-requests"));
 function Router() {
   // Get authentication state from AuthProvider context
   const { user, isLoading, logout } = useAuth();
+  const [location, setLocation] = useLocation();
+  const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN); // Helper flag to distinguish admin flow from standard platform users.
+
+  // Guard against admins momentarily visiting the platform shell; if they land there (e.g. via browser history) we immediately send them back to RBAC.
+  // Navigation loading overlay should only run for normal platform users, never for admins (so RBAC loads without flashing the platform shell).
+  useEffect(() => {
+    if (isAdmin && location.startsWith('/home/platform')) {
+      setLocation('/rbac-dashboard', { replace: true });
+    }
+  }, [isAdmin, location, setLocation]);
   
   // Navigation loading state for smooth transitions
   const [isNavigationLoading, setIsNavigationLoading] = useState(false);
-  const [location, setLocation] = useLocation();
   const [previousLocation, setPreviousLocation] = useState("");
   const [isNormalizingUrl, setIsNormalizingUrl] = useState(false);
   const [hash, setHash] = useState(() => window.location.hash);
@@ -145,6 +149,13 @@ function Router() {
   // Determine if user is authenticated
   const isAuthenticated = !!user;
   
+  // Debug authentication state
+  console.log('Auth Debug:', {
+    isAuthenticated,
+    isLoading,
+    user: user ? 'authenticated' : 'not authenticated'
+  });
+  
   // Detect which server port is being used
   const isDashboardPort = (window as any).SERVER_PORT === '3000' || window.location.port === '3000';
   
@@ -154,7 +165,7 @@ function Router() {
     locationPort: window.location.port,
     isDashboardPort,
     isAuthenticated,
-    user: user ? 'authenticated' : 'not authenticated'
+    location
   });
 
   // Logout handler for platform routes
@@ -236,15 +247,6 @@ function Router() {
     { path: '/saved-searches', component: SavedSearchesPage },
   ];
 
-  const createRedirectComponent = (target: string, message: string) => () => {
-    setLocation(target, { replace: true });
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-sm text-gray-600">{message}</div>
-      </div>
-    );
-  };
-
   /**
    * Handle navigation loading effect for authenticated pages
    * 
@@ -253,16 +255,20 @@ function Router() {
    * provide visual feedback during route changes.
    */
   useEffect(() => {
-    if (isAuthenticated && location !== previousLocation && previousLocation !== "") {
+    if (!isAuthenticated || isAdmin) {
+      setIsNavigationLoading(false);
+      setPreviousLocation(location);
+      return;
+    }
+    if (location !== previousLocation && previousLocation !== "") {
       setIsNavigationLoading(true);
       const timer = setTimeout(() => {
         setIsNavigationLoading(false);
-      }, 2500); // 2.5 seconds loading
-      
+      }, 2500);
       return () => clearTimeout(timer);
     }
     setPreviousLocation(location);
-  }, [location, isAuthenticated, previousLocation]);
+  }, [location, isAuthenticated, previousLocation, isAdmin]);
 
   /**
    * Handle logout functionality
@@ -287,6 +293,32 @@ function Router() {
   // - Port 3000 (Express server): primary host serving both API and frontend
   // - Any other port (e.g. standalone Vite dev server): keep public experience and redirect
   console.log('Port routing check:', { isDashboardPort, isAuthenticated });
+
+  const dashboardRedirectPaths = [
+    "/dashboard",
+    "/leads",
+    "/customers",
+    "/properties",
+    "/pipeline",
+    "/clients",
+    "/reports",
+    "/notifications",
+    "/rbac-dashboard",
+    "/buyer-pool",
+    "/inquiries",
+    "/requests",
+    "/locations",
+    "/cms-admin",
+  ];
+
+  const createRedirectComponent = (target: string, message: string) => () => {
+    setLocation(target, { replace: true });
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-sm text-gray-600">{message}</div>
+      </div>
+    );
+  };
   
   // Standalone Vite dev server (non-dashboard ports) should redirect back to Express
   if (!isDashboardPort) {
@@ -297,62 +329,21 @@ function Router() {
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
       <Switch>
         {/* Dashboard and authenticated routes should redirect to the unified server */}
-        <Route path="/dashboard" component={() => {
-          window.location.href = 'http://localhost:3000/dashboard';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/leads" component={() => {
-          window.location.href = 'http://localhost:3000/leads';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/customers" component={() => {
-          window.location.href = 'http://localhost:3000/customers';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/properties" component={() => {
-          window.location.href = 'http://localhost:3000/properties';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/pipeline" component={() => {
-          window.location.href = 'http://localhost:3000/pipeline';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/clients" component={() => {
-          window.location.href = 'http://localhost:3000/clients';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/reports" component={() => {
-          window.location.href = 'http://localhost:3000/reports';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/notifications" component={() => {
-          window.location.href = 'http://localhost:3000/notifications';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/rbac-dashboard" component={() => {
-          window.location.href = 'http://localhost:3000/rbac-dashboard';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/buyer-pool" component={() => {
-          window.location.href = 'http://localhost:3000/buyer-pool';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/inquiries" component={() => {
-          window.location.href = 'http://localhost:3000/inquiries';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/requests" component={() => {
-          window.location.href = 'http://localhost:3000/requests';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/locations" component={() => {
-          window.location.href = 'http://localhost:3000/locations';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
-        <Route path="/cms-admin" component={() => {
-          window.location.href = 'http://localhost:3000/cms-admin';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى لوحة التحكم...</div>;
-        }} />
+        {dashboardRedirectPaths.map((path) => (
+          <Route
+            key={path}
+            path={path}
+            component={() => {
+              window.location.href = `http://localhost:3000${path}`;
+              return (
+                <div className="min-h-screen flex items-center justify-center">
+                  جاري التوجيه إلى لوحة التحكم...
+                </div>
+              );
+            }}
+          />
+        ))}
+        {/* Login route removed - handled by dashboard port section */}
         {/* Landing page */}
         <Route path="/home" component={Landing} />
         <Route path="/unverfied-listing" component={UnverfiedListingPage} />
@@ -375,12 +366,7 @@ function Router() {
         {/* Admin Route with RBAC Dashboard - No sidebar/header */}
         <Route path="/home/admin" component={RBACDashboard} />
         
-        {/* Landing page route */}
-        <Route path="/home" component={Landing} />
         <Route path="/rbac-login" component={RBACLoginPage} />
-        <Route path="/auth-test" component={AuthTestPage} />
-        <Route path="/simple-admin" component={SimpleAdminPage} />
-        <Route path="/direct-admin" component={DirectAdminPage} />
         <Route path="/signup" component={SignupSelection} />
         <Route path="/signup/individual" component={SignupIndividual} />
         <Route path="/signup/corporate" component={SignupCorporate} />
@@ -408,19 +394,35 @@ function Router() {
 
   // Port 3000 logic: Show dashboard for authenticated users, landing page for unauthenticated users
   if (isDashboardPort && !isAuthenticated) {
-    console.log('Port 3000: Showing landing page (unauthenticated user)');
     return (
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
       <Switch>
         {/* Use RBAC-aware login that integrates with AuthProvider */}
         <Route path="/login" component={RBACLoginPage} />
         <Route path="/rbac-login" component={RBACLoginPage} />
-        <Route path="/auth-test" component={AuthTestPage} />
+        {/* Test route to verify routing works */}
+        <Route path="/test-login">
+          {() => {
+            console.log('✅ TEST ROUTE MATCHED - /test-login');
+            return (
+              <div className="min-h-screen flex items-center justify-center bg-red-100">
+                <div className="text-center">
+                  <h1 className="text-2xl font-bold text-red-800">TEST ROUTE WORKING!</h1>
+                  <p className="text-red-600">If you see this, routing is working correctly.</p>
+                  <button 
+                    onClick={() => window.location.href = '/login'}
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+                  >
+                    Go to Real Login
+                  </button>
+                </div>
+              </div>
+            );
+          }}
+        </Route>
         <Route path="/unverfied-listing" component={UnverfiedListingPage} />
         <Route path="/unverified-listings" component={UnverfiedListingPage} />
         <Route path="/marketing-request" component={MarketingRequestSubmissionPage} />
-        <Route path="/simple-admin" component={SimpleAdminPage} />
-        <Route path="/direct-admin" component={DirectAdminPage} />
         <Route path="/signup" component={SignupSelection} />
         <Route path="/signup/individual" component={SignupIndividual} />
         <Route path="/signup/corporate" component={SignupCorporate} />
@@ -453,7 +455,8 @@ function Router() {
    * authenticated pages. It maintains the sidebar and header while
    * showing a loading spinner over the main content area.
    */
-  if (isNavigationLoading) {
+  // Only render the animated loading overlay for non-admin users; admins should see the RBAC dashboard immediately.
+  if (isNavigationLoading && !isAdmin) {
     return (
       <div className="flex h-screen bg-background layout-container">
         <div className="flex-1 flex flex-col pr-72 relative main-content">
@@ -489,7 +492,28 @@ function Router() {
   if (isDashboardPort && isAuthenticated) {
     console.log('Port 3000: Showing authenticated routes (dashboard)');
 
+    if (isAdmin) {
+      if (location !== '/rbac-dashboard' && location !== '/') {
+        // Defensive redirect: admins arriving via stale URLs jump straight to RBAC without flashing the platform shell.
+        const Redirector = createRedirectComponent('/rbac-dashboard', 'جاري التوجيه إلى لوحة التحكم...');
+        return <Redirector />;
+      }
+      // Admin-only basket: keep routing minimal so we never mount the platform shell for RBAC users.
+      return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
+          <Switch>
+            <Route path="/rbac-dashboard" component={RBACDashboard} />
+            <Route path="/" component={Landing} />
+            <Route
+              component={createRedirectComponent('/rbac-dashboard', 'جاري التوجيه إلى لوحة التحكم...')}
+            />
+          </Switch>
+        </Suspense>
+      );
+    }
+
     const legacyRedirects = [
+      // Legacy links (e.g. /dashboard) for non-admin users still land on the platform shell.
       { path: '/dashboard', target: '/home/platform' },
     ];
 
@@ -540,10 +564,9 @@ function Router() {
             />
           ))}
 
-          <Route
-            path="/rbac-dashboard"
-            component={renderPlatformShellRoute(RBACDashboard)}
-          />
+          {/* RBAC admin dashboard lives outside PlatformShell so it renders without the sidebar header. */}
+          <Route path="/rbac-dashboard" component={RBACDashboard} />
+          <Route path="/cms-test" component={CMSTest} />
 
           {legacyRedirects.map(({ path, target }) => (
             <Route
@@ -553,14 +576,10 @@ function Router() {
             />
           ))}
 
-          <Route
-            path="/"
-            component={createRedirectComponent('/home/platform', 'جاري التوجيه إلى لوحة التحكم...')}
-          />
+          // Default to landing even for authenticated platform users so root url remains public-facing.
+          <Route path="/" component={Landing} />
 
-          <Route
-            component={createRedirectComponent('/home/platform', 'جاري التوجيه إلى لوحة التحكم...')}
-          />
+          <Route component={Landing} />
         </Switch>
       </Suspense>
     );

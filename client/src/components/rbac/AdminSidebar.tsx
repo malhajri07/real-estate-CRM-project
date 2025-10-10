@@ -61,13 +61,16 @@ export function AdminSidebar({
                   }}
                 >
                   <div className="flex items-center gap-2 w-full">
-                    {isExpanded ? (
-                      <ChevronDown className="w-4 h-4" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4" />
-                    )}
+                    {/* Swap icon ordering so the primary icon now sits opposite the chevron indicator (per request). */}
+                    <Icon className={`w-5 h-5 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} />
                     <span className="flex-1 text-right text-sm font-medium">{item.label}</span>
-                    <Icon className={`w-5 h-5 ${dir === 'rtl' ? 'ml-4' : 'mr-4'}`} />
+                    <span className={dir === 'rtl' ? 'mr-0 ml-auto' : 'ml-0 mr-auto'}>
+                      {isExpanded ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )}
+                    </span>
                   </div>
                 </button>
 

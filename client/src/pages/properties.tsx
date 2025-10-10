@@ -151,14 +151,19 @@ export default function Properties() {
   const uniqueCities = Array.from(new Set(properties?.map(p => p.city) || [])).filter(city => city && city.trim() !== "");
   const uniquePropertyTypes = Array.from(new Set(properties?.map(p => p.propertyType) || [])).filter(type => type && type.trim() !== "");
 
-  // Map property status to customer status CSS classes  
-  const mapPropertyStatus = (status: string) => {
+  // Map property status to Tailwind badge classes
+  const getStatusBadgeClasses = (status: string) => {
     switch (status) {
-      case "active": return "new";      // متاح -> جديد
-      case "pending": return "qualified"; // في الانتظار -> مؤهل
-      case "sold": return "closed";     // مباع -> مغلق
-      case "withdrawn": return "lost";  // مسحوب -> مفقود
-      default: return "new";
+      case "active":
+        return "bg-yellow-100 text-yellow-800 border border-yellow-200";
+      case "pending":
+        return "bg-blue-100 text-blue-800 border border-blue-200";
+      case "sold":
+        return "bg-green-100 text-green-800 border border-green-200";
+      case "withdrawn":
+        return "bg-red-100 text-red-800 border border-red-200";
+      default:
+        return "bg-slate-100 text-slate-700 border border-slate-200";
     }
   };
 
@@ -524,7 +529,7 @@ export default function Properties() {
                             <h3 className="font-semibold text-lg text-foreground line-clamp-1 tracking-tight">
                               {property.title}
                             </h3>
-                            <span className={`status-badge ${mapPropertyStatus(property.status)} rounded-full px-3 py-1 text-xs font-medium`}>
+                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getStatusBadgeClasses(property.status)}`}>
                               {property.status}
                             </span>
                           </div>
@@ -534,7 +539,7 @@ export default function Properties() {
                           </p>
                           
                           
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-4">
+                          <div className="flex items-center space-x-4 rtl:space-x-reverse text-sm text-muted-foreground mb-4">
                             {property.bedrooms && (
                               <div className="flex items-center space-x-1">
                                 <Bed size={14} />
@@ -655,29 +660,29 @@ export default function Properties() {
                     ))}
                   </div>
                 ) : (
-                  <div className="table-container">
-                    <table className="professional-table">
-                      <thead className="professional-table-header">
-                        <tr>
-                          <th>الصورة</th>
-                          <th>العقار</th>
-                          <th>الموقع</th>
-                          <th>النوع</th>
-                          <th>الحالة</th>
-                          <th>السعر</th>
-                          <th>المساحة</th>
-                          <th>الغرف</th>
-                          <th>الإجراءات</th>
+                  <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
+                    <table className="min-w-[900px] w-full text-right text-xs">
+                      <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+                        <tr className="text-xs font-semibold text-slate-700 tracking-wide uppercase">
+                          <th className="px-4 py-3">الصورة</th>
+                          <th className="px-4 py-3">العقار</th>
+                          <th className="px-4 py-3">الموقع</th>
+                          <th className="px-4 py-3">النوع</th>
+                          <th className="px-4 py-3">الحالة</th>
+                          <th className="px-4 py-3">السعر</th>
+                          <th className="px-4 py-3">المساحة</th>
+                          <th className="px-4 py-3">الغرف</th>
+                          <th className="px-4 py-3">الإجراءات</th>
                         </tr>
                       </thead>
-                      <tbody>
+                      <tbody className="divide-y divide-slate-100">
                         {displayProperties.map((property) => (
-                          <tr 
-                            key={property.id} 
-                            className="professional-table-row cursor-pointer"
+                          <tr
+                            key={property.id}
+                            className="cursor-pointer transition-colors hover:bg-slate-50/50"
                             onClick={() => setLocation(`/properties/${property.id}`)}
                           >
-                            <td className="professional-table-cell">
+                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
                               {property.photoUrls && property.photoUrls.length > 0 ? (
                                 <img 
                                   src={property.photoUrls[0]} 
@@ -689,78 +694,66 @@ export default function Properties() {
                                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400">
                                     <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
                                     <circle cx="9" cy="9" r="2"/>
-                                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-                                  </svg>
-                                </div>
-                              )}
-                            </td>
-                            <td className="professional-table-cell-name">
-                              <div className="name">{property.title}</div>
-                              <div className="contact">
-                                <div className="contact-item">
+                                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                                </svg>
+                              </div>
+                            )}
+                          </td>
+                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                              <div className="text-sm font-semibold text-slate-900 line-clamp-1">{property.title}</div>
+                              <div className="mt-1 flex items-center gap-2 text-slate-500">
+                                <span className="flex items-center gap-1">
                                   <Square size={12} />
-                                  <span>{property.propertyType}</span>
-                                </div>
+                                  {property.propertyType}
+                                </span>
                               </div>
                             </td>
-                            <td className="professional-table-cell">
-                              <div className="info-cell">
-                                <div className="primary">{property.city}, {property.state}</div>
-                                <div className="secondary">{property.address}</div>
-                              </div>
+                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                              <div className="text-slate-900">{property.city}, {property.state}</div>
+                              <div className="mt-1 text-slate-500">{property.address}</div>
                             </td>
-                            <td className="professional-table-cell">
-                              <div className="info-cell">
-                                <div className="primary">{property.propertyType}</div>
-                              </div>
+                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                              <div className="text-slate-900">{property.propertyType}</div>
                             </td>
-                            <td className="professional-table-cell">
-                              <span className={`status-badge ${mapPropertyStatus(property.status)}`}>
+                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                              <span className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full ${getStatusBadgeClasses(property.status)}`}>
                                 {property.status}
                               </span>
                             </td>
-                            <td className="professional-table-cell">
-                              <div className="info-cell">
-                                <div className="primary text-primary font-semibold">
-                                  {formatCurrency(property.price)}
-                                </div>
+                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                              <div className="text-primary font-semibold text-sm">
+                                {formatCurrency(property.price)}
                               </div>
                             </td>
-                            <td className="professional-table-cell">
-                              <div className="info-cell">
-                                <div className="primary">
-                                  {(property as any).areaSqm ? `${((property as any).areaSqm?.toLocaleString?.() ?? (property as any).areaSqm)} متر²` : '-'}
-                                </div>
+                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                              {(property as any).areaSqm ? `${((property as any).areaSqm?.toLocaleString?.() ?? (property as any).areaSqm)} متر²` : '-'}
+                            </td>
+                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                              <div className="flex items-center gap-2 text-slate-900">
+                                {property.bedrooms && (
+                                  <span className="flex items-center gap-1">
+                                    <Bed size={12} />
+                                    {property.bedrooms}
+                                  </span>
+                                )}
+                                {property.bathrooms && (
+                                  <span className="flex items-center gap-1">
+                                    <Bath size={12} />
+                                    {property.bathrooms}
+                                  </span>
+                                )}
+                                {(property as any).livingRooms && (
+                                  <span className="flex items-center gap-1">
+                                    <Sofa size={12} />
+                                    {(property as any).livingRooms}
+                                  </span>
+                                )}
                               </div>
                             </td>
-                            <td className="professional-table-cell">
-                              <div className="info-cell">
-                                <div className="primary flex items-center gap-2">
-                                  {property.bedrooms && (
-                                    <span className="flex items-center gap-1">
-                                      <Bed size={12} />
-                                      {property.bedrooms}
-                                    </span>
-                                  )}
-                                  {property.bathrooms && (
-                                    <span className="flex items-center gap-1">
-                                      <Bath size={12} />
-                                      {property.bathrooms}
-                                    </span>
-                                  )}
-                                  {(property as any).livingRooms && (
-                                    <span className="flex items-center gap-1">
-                                      <Sofa size={12} />
-                                      {(property as any).livingRooms}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="professional-table-actions">
-                              <div className="action-group" onClick={(e) => e.stopPropagation()}>
+                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                              <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                                 <button 
-                                  className="action-btn action-btn-view"
+                                  className="p-2 rounded-md text-slate-600 transition-colors duration-150 hover:text-slate-800 hover:bg-slate-50"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setLocation(`/properties/${property.id}`);
@@ -770,7 +763,7 @@ export default function Properties() {
                                   <Eye size={14} />
                                 </button>
                                 <button 
-                                  className="action-btn action-btn-share"
+                                  className="p-2 rounded-md text-purple-600 transition-colors duration-150 hover:text-purple-800 hover:bg-purple-50"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     shareProperty(property, 'whatsapp');
@@ -780,14 +773,14 @@ export default function Properties() {
                                   <Share2 size={14} />
                                 </button>
                                 <button 
-                                  className="action-btn action-btn-edit"
+                                  className="p-2 rounded-md text-blue-600 transition-colors duration-150 hover:text-blue-800 hover:bg-blue-50"
                                   onClick={(e) => e.stopPropagation()}
                                   title="تعديل العقار"
                                 >
                                   <Edit size={14} />
                                 </button>
                                 <button 
-                                  className="action-btn action-btn-delete"
+                                  className="p-2 rounded-md text-red-600 transition-colors duration-150 hover:text-red-800 hover:bg-red-50 disabled:opacity-50"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleDelete(property.id);

@@ -9,13 +9,13 @@ async function ensurePrimaryAdmin() {
   const email = process.env.PRIMARY_ADMIN_EMAIL || 'admin@aqaraty.com';
 
   try {
-    let user = await prisma.user.findUnique({ where: { username } });
+    let user = await prisma.users.findUnique({ where: { username } });
 
     const passwordHash = await hashPassword(password);
     const roles = JSON.stringify(['WEBSITE_ADMIN']);
 
     if (!user) {
-      user = await prisma.user.create({
+      user = await prisma.users.create({
         data: {
           username,
           email,
@@ -29,7 +29,7 @@ async function ensurePrimaryAdmin() {
       });
       console.log(`Created primary admin '${username}'`);
     } else {
-      await prisma.user.update({
+      await prisma.users.update({
         where: { id: user.id },
         data: {
           email: email || user.email,

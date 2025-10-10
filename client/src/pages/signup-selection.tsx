@@ -30,7 +30,15 @@ export default function SignupSelection() {
               className="flex flex-row-reverse items-center"
             >
               <span className="sr-only">الانتقال إلى الصفحة الرئيسية</span>
-              <img src={agarkomLogo} alt="شعار منصة عقاراتي" className="h-16 object-contain" />
+              <img
+                src={agarkomLogo}
+                alt="شعار منصة عقاراتي"
+                width={114}
+                height={64}
+                loading="eager"
+                decoding="async"
+                className="h-16 w-auto object-contain"
+              />
             </button>
           </div>
         </div>

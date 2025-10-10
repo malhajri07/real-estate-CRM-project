@@ -42,23 +42,23 @@ async function main() {
   console.log('🌱 Starting RBAC seed...');
 
   // Clear existing data
-  await prisma.auditLog.deleteMany();
-  await prisma.contactLog.deleteMany();
+  await prisma.audit_logs.deleteMany();
+  await prisma.contact_logs.deleteMany();
   await prisma.claim.deleteMany();
   await prisma.lead.deleteMany();
   await prisma.sellerSubmission.deleteMany();
   await prisma.buyerRequest.deleteMany();
   await prisma.listing.deleteMany();
-  await prisma.property.deleteMany();
-  await prisma.agentProfile.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.organization.deleteMany();
+  await prisma.properties.deleteMany();
+  await prisma.agent_profiles.deleteMany();
+  await prisma.users.deleteMany();
+  await prisma.organizations.deleteMany();
 
   console.log('✅ Cleared existing data');
 
   // Create organizations
   const organizations = await Promise.all([
-    prisma.organization.create({
+    prisma.organizations.create({
       data: {
         legalName: 'شركة الرياض العقارية المحدودة',
         tradeName: 'الرياض العقارية',
@@ -70,7 +70,7 @@ async function main() {
         website: 'https://riyadh-realestate.com'
       }
     }),
-    prisma.organization.create({
+    prisma.organizations.create({
       data: {
         legalName: 'مجموعة جدة الاستثمارية',
         tradeName: 'جدة الاستثمارية',
@@ -89,7 +89,7 @@ async function main() {
   // Create users with different roles
   const users = await Promise.all([
     // Website Admin
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'admin',
         email: 'admin@aqaraty.com',
@@ -102,7 +102,7 @@ async function main() {
       }
     }),
     // Corporate Owners
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'owner1',
         email: 'owner1@riyadh-realestate.com',
@@ -115,7 +115,7 @@ async function main() {
         isActive: true
       }
     }),
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'owner2',
         email: 'owner2@jeddah-investment.com',
@@ -129,7 +129,7 @@ async function main() {
       }
     }),
     // Corporate Agents
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'agent1',
         email: 'agent1@riyadh-realestate.com',
@@ -142,7 +142,7 @@ async function main() {
         isActive: true
       }
     }),
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'agent2',
         email: 'agent2@riyadh-realestate.com',
@@ -155,7 +155,7 @@ async function main() {
         isActive: true
       }
     }),
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'agent3',
         email: 'agent3@jeddah-investment.com',
@@ -169,7 +169,7 @@ async function main() {
       }
     }),
     // Individual Agents
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'indiv1',
         email: 'indiv1@example.com',
@@ -181,7 +181,7 @@ async function main() {
         isActive: true
       }
     }),
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'indiv2',
         email: 'indiv2@example.com',
@@ -194,7 +194,7 @@ async function main() {
       }
     }),
     // Sellers
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'seller1',
         email: 'seller1@example.com',
@@ -206,7 +206,7 @@ async function main() {
         isActive: true
       }
     }),
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'seller2',
         email: 'seller2@example.com',
@@ -219,7 +219,7 @@ async function main() {
       }
     }),
     // Buyers
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'buyer1',
         email: 'buyer1@example.com',
@@ -231,7 +231,7 @@ async function main() {
         isActive: true
       }
     }),
-    prisma.user.create({
+    prisma.users.create({
       data: {
         username: 'buyer2',
         email: 'buyer2@example.com',
@@ -250,7 +250,7 @@ async function main() {
   // Create agent profiles
   const agentProfiles = await Promise.all([
     // Corporate agents
-    prisma.agentProfile.create({
+    prisma.agent_profiles.create({
       data: {
         userId: users[3].id, // agent1@riyadh-realestate.com
         organizationId: organizations[0].id,
@@ -264,7 +264,7 @@ async function main() {
         bio: 'متخصص في العقارات السكنية في الرياض'
       }
     }),
-    prisma.agentProfile.create({
+    prisma.agent_profiles.create({
       data: {
         userId: users[4].id, // agent2@riyadh-realestate.com
         organizationId: organizations[0].id,
@@ -278,7 +278,7 @@ async function main() {
         bio: 'متخصص في العقارات السكنية المتوسطة'
       }
     }),
-    prisma.agentProfile.create({
+    prisma.agent_profiles.create({
       data: {
         userId: users[5].id, // agent3@jeddah-investment.com
         organizationId: organizations[1].id,
@@ -293,7 +293,7 @@ async function main() {
       }
     }),
     // Individual agents
-    prisma.agentProfile.create({
+    prisma.agent_profiles.create({
       data: {
         userId: users[6].id, // indiv1@example.com
         licenseNo: 'RE-004-2024',
@@ -306,7 +306,7 @@ async function main() {
         bio: 'وكيل عقاري مستقل في المنطقة الشرقية'
       }
     }),
-    prisma.agentProfile.create({
+    prisma.agent_profiles.create({
       data: {
         userId: users[7].id, // indiv2@example.com
         licenseNo: 'RE-005-2024',
@@ -334,7 +334,7 @@ async function main() {
     const category = PROPERTY_CATEGORIES[Math.floor(Math.random() * PROPERTY_CATEGORIES.length)];
     const agent = agents[Math.floor(Math.random() * agents.length)];
     
-    const property = await prisma.property.create({
+    const property = await prisma.properties.create({
       data: {
         agentId: agent.id,
         organizationId: agent.organizationId,
@@ -517,7 +517,7 @@ async function main() {
     const actions = ['CREATE', 'UPDATE', 'DELETE', 'CLAIM', 'RELEASE'];
     const entities = ['PROPERTY', 'BUYER_REQUEST', 'CLAIM', 'LEAD'];
     
-    await prisma.auditLog.create({
+    await prisma.audit_logs.create({
       data: {
         userId: user.id,
         action: actions[Math.floor(Math.random() * actions.length)],
@@ -544,8 +544,8 @@ async function main() {
   console.log(`- ${await prisma.sellerSubmission.count()} seller submissions`);
   console.log(`- ${await prisma.claim.count()} claims`);
   console.log(`- ${await prisma.lead.count()} leads`);
-  console.log(`- ${await prisma.contactLog.count()} contact logs`);
-  console.log(`- ${await prisma.auditLog.count()} audit logs`);
+  console.log(`- ${await prisma.contact_logs.count()} contact logs`);
+  console.log(`- ${await prisma.audit_logs.count()} audit logs`);
 
   console.log('\n🔑 Test Accounts:');
   console.log('Website Admin: admin@aqaraty.com / admin123');

@@ -41,14 +41,11 @@ import { createServer, type Server } from "http";
  * Pages affected: All pages that interact with data
  */
 import { storage } from "./storage-prisma";
-// Removed unused schema imports - using Prisma schema instead
 import { z } from "zod";
-import { setupMockAuth, isAuthenticated } from "./authMock";
-// import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage"; // Removed - Replit-specific
+import { isAuthenticated } from "./authMock";
 // import { registerRoleBasedRoutes } from "./roleRoutes"; // Temporarily disabled - requires migration to Prisma
 
 // Route module imports - Each handles specific functionality
-// import accountRoutes from "./routes/accounts";        // Account management - Temporarily disabled
 import listingsRoutes from "./routes/listings";       // Property listings
 import unverifiedListingsRoutes from "./routes/unverified-listings"; // Public unverified submissions
 import marketingRequestRoutes from "./routes/marketing-requests"; // Marketing request marketplace
@@ -66,9 +63,10 @@ import sitemapRoutes from "./routes/sitemap";         // SEO sitemap
 // import authRoutes from "./routes/auth";               // Authentication - Temporarily disabled
 import simpleAuthRoutes from "./routes/simple-auth";  // Simple authentication
 import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
-import cmsRoutes from "./routes/cms";                 // Custom CMS (replaces Strapi)
 import analyticsRoutes from "./src/routes/analytics"; // Analytics data
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
+import cmsLandingRoutes from "./routes/cms-landing";
+import { LandingService } from "./services/landingService";
 
 /**
  * registerRoutes - Main route registration function
@@ -88,9 +86,6 @@ import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
  * 5. Catch-all routes (sitemap, etc.)
  */
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Disabled mock authentication - using real database authentication
-  // await setupMockAuth(app);
-
   /**
    * RBAC System Routes
    * 
@@ -132,22 +127,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
    */
   app.use("/api/pool", buyerPoolRoutes);
 
-  /**
-   * CMS Routes - /api/cms/*
-   * 
-   * Handles content management system functionality including:
-   * - GET /api/cms/landing-page - Get landing page content
-   * - PUT /api/cms/landing-page - Update landing page content
-   * - GET /api/cms/pricing-plans - Get pricing plans
-   * - POST /api/cms/pricing-plans - Create pricing plan
-   * - PUT /api/cms/pricing-plans/:id - Update pricing plan
-   * - DELETE /api/cms/pricing-plans/:id - Delete pricing plan
-   * 
-   * Dependencies: cmsRoutes from ./routes/cms.ts
-   * Pages affected: Landing page, CMS admin panel
-   * Status: Custom CMS replacing Strapi
-   */
-  app.use("/api/cms", cmsRoutes);
+  app.use("/api/cms", cmsLandingRoutes);
   app.use("/api/unverified-listings", unverifiedListingsRoutes);
   app.use("/api/marketing-requests", marketingRequestRoutes);
 
@@ -169,20 +149,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Pages affected: RBAC dashboard, user management, organization management
    */
   app.use("/api/rbac-admin", rbacAdminRoutes);
-
-  /**
-   * Account Management Routes - /api/accounts/*
-   * 
-   * Handles user account management:
-   * - GET /api/accounts/profile - Get user profile
-   * - PUT /api/accounts/profile - Update user profile
-   * - POST /api/accounts/change-password - Change password
-   * 
-   * Dependencies: accountRoutes from ./routes/accounts.ts
-   * Pages affected: User settings, profile management, account settings
-   * Status: Temporarily disabled - requires migration to Prisma
-   */
-  // app.use("/api/accounts", accountRoutes);
 
   /**
    * Property Listings Routes - /api/listings/*
@@ -408,103 +374,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "CSV URL is required" });
       }
 
-      // Extract object path from URL
-      const url = new URL(csvUrl);
-      const pathParts = url.pathname.split('/');
-      const objectPath = pathParts.slice(2).join('/'); // Remove bucket name
-
       // TODO: Implement local file system CSV processing
       // For now, return an error indicating this needs to be implemented
       return res.status(501).json({ error: "CSV processing not implemented - requires local file system implementation" });
-
-      // Parse CSV content
-      const lines = csvContent.split('\n').filter(line => line.trim());
-      if (lines.length === 0) {
-        return res.status(400).json({ error: "ملف CSV فارغ" });
-      }
-
-      // Assume first line is header
-      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-      const dataLines = lines.slice(1);
-
-      const results = {
-        total: dataLines.length,
-        successful: 0,
-        failed: 0,
-        errors: [] as string[]
-      };
-
-      // Process each line
-      for (let i = 0; i < dataLines.length; i++) {
-        try {
-          const values = dataLines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-          const leadData: any = {};
-
-          // Map CSV columns to lead fields
-          headers.forEach((header, index) => {
-            const value = values[index] || '';
-
-            // Map common column names (case insensitive)
-            const lowerHeader = header.toLowerCase();
-            if (lowerHeader.includes('firstname') || lowerHeader.includes('first_name') || lowerHeader === 'الاسم الأول') {
-              leadData.firstName = value;
-            } else if (lowerHeader.includes('lastname') || lowerHeader.includes('last_name') || lowerHeader === 'الاسم الأخير') {
-              leadData.lastName = value;
-            } else if (lowerHeader.includes('email') || lowerHeader === 'البريد الإلكتروني') {
-              leadData.email = value;
-            } else if (lowerHeader.includes('phone') || lowerHeader === 'الهاتف') {
-              leadData.phone = value;
-            } else if (lowerHeader.includes('budget') || lowerHeader === 'الميزانية') {
-              leadData.budgetRange = value;
-            } else if (lowerHeader.includes('source') || lowerHeader === 'المصدر') {
-              leadData.leadSource = value;
-            } else if (lowerHeader.includes('interest') || lowerHeader === 'نوع الاهتمام') {
-              leadData.interestType = value;
-            } else if (lowerHeader.includes('notes') || lowerHeader === 'ملاحظات') {
-              leadData.notes = value;
-            }
-          });
-
-          // Validate required fields
-          if (!leadData.firstName || !leadData.lastName || !leadData.email) {
-            results.errors.push(`السطر ${i + 2}: مطلوب الاسم الأول والأخير والبريد الإلكتروني`);
-            results.failed++;
-            continue;
-          }
-
-          // Set defaults
-          leadData.status = leadData.status || "new";
-          leadData.leadSource = leadData.leadSource || "csv_import";
-          leadData.interestType = leadData.interestType || "buying";
-
-          // Validate using schema
-          const validatedData = insertLeadSchema.parse(leadData);
-
-          // Create lead
-          await storage.createLead(validatedData);
-          results.successful++;
-
-        } catch (error) {
-          console.error(`Error processing line ${i + 2}:`, error);
-          results.errors.push(`السطر ${i + 2}: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`);
-          results.failed++;
-        }
-      }
-
-      res.json({
-        success: true,
-        message: `تم معالجة ${results.total} سطر. نجح: ${results.successful}, فشل: ${results.failed}`,
-        results
-      });
-
     } catch (error) {
-      console.error("Error processing CSV:", error);
-      if (error instanceof ObjectNotFoundError) {
-        return res.status(404).json({ error: "ملف CSV غير موجود" });
-      }
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("Error processing CSV:", message);
       res.status(500).json({ error: "خطأ في معالجة ملف CSV" });
     }
   });
+
+  const insertLeadSchema = z.object({
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    email: z.union([z.string().email(), z.literal("")]).optional().transform((value) => (value ? value : undefined)),
+    phone: z.string().min(1).optional(),
+    status: z.string().optional(),
+    leadSource: z.string().optional(),
+    interestType: z.string().optional(),
+    city: z.string().optional(),
+    budgetRange: z.union([z.string(), z.number()]).optional(),
+    notes: z.string().optional(),
+  }).passthrough();
+
+  const insertPropertySchema = z.object({
+    title: z.string().min(1),
+    description: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    price: z.union([z.number(), z.string()]).optional(),
+    status: z.string().optional(),
+    propertyType: z.string().optional(),
+    propertyCategory: z.string().optional(),
+    bedrooms: z.number().optional(),
+    bathrooms: z.number().optional(),
+    squareFeet: z.number().optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
+  }).passthrough();
+
+  const insertDealSchema = z.object({
+    title: z.string().min(1),
+    stage: z.string().optional(),
+    value: z.union([z.number(), z.string()]).optional(),
+    leadId: z.string().optional(),
+    agentId: z.string().optional(),
+    notes: z.string().optional(),
+  }).passthrough();
+
+  const insertActivitySchema = z.object({
+    leadId: z.string().min(1),
+    type: z.string().min(1),
+    notes: z.string().optional(),
+    scheduledAt: z.union([z.string(), z.date()]).optional(),
+  }).passthrough();
+
+  const insertMessageSchema = z.object({
+    leadId: z.string().min(1),
+    content: z.string().min(1),
+    direction: z.string().optional(),
+    channel: z.string().optional(),
+    metadata: z.any().optional(),
+  }).passthrough();
 
   // Lead routes
   // Helper: decode roles/org from Authorization header (simple-auth JWT)
@@ -571,13 +502,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/leads", requireAnyPerm(['requests:manage:all','requests:manage:corporate','requests:pool:pickup']), async (req, res) => {
     try {
       const validatedData = insertLeadSchema.parse(req.body);
-      const lead = await storage.createLead(validatedData);
+      const auth = decodeAuth(req);
+      if (!auth.id) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      const tenantId = auth.organizationId ?? "default-tenant";
+      const lead = await storage.createLead(validatedData, auth.id, tenantId);
       res.status(201).json(lead);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to create lead" });
+      const message = error instanceof Error ? error.message : "Failed to create lead";
+      res.status(500).json({ message });
     }
   });
 
@@ -676,13 +613,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/properties", async (req, res) => {
     try {
       const validatedData = insertPropertySchema.parse(req.body);
-      const property = await storage.createProperty(validatedData);
+      const auth = decodeAuth(req);
+      if (!auth.id) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      const tenantId = auth.organizationId ?? "default-tenant";
+      const property = await storage.createProperty(validatedData, auth.id, tenantId);
       res.status(201).json(property);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to create property" });
+      const message = error instanceof Error ? error.message : "Failed to create property";
+      res.status(500).json({ message });
     }
   });
 
@@ -736,13 +679,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/deals", async (req, res) => {
     try {
       const validatedData = insertDealSchema.parse(req.body);
-      const deal = await storage.createDeal(validatedData);
+      const auth = decodeAuth(req);
+      const tenantId = auth.organizationId ?? "default-tenant";
+      const deal = await storage.createDeal(validatedData, tenantId);
       res.status(201).json(deal);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to create deal" });
+      const message = error instanceof Error ? error.message : "Failed to create deal";
+      res.status(500).json({ message });
     }
   });
 
@@ -784,13 +730,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/activities", async (req, res) => {
     try {
       const validatedData = insertActivitySchema.parse(req.body);
-      const activity = await storage.createActivity(validatedData);
+      const auth = decodeAuth(req);
+      const tenantId = auth.organizationId ?? "default-tenant";
+      const activity = await storage.createActivity(validatedData, tenantId);
       res.status(201).json(activity);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to create activity" });
+      const message = error instanceof Error ? error.message : "Failed to create activity";
+      res.status(500).json({ message });
     }
   });
 
@@ -852,15 +801,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/messages", async (req, res) => {
     try {
       const messageData = insertMessageSchema.parse(req.body);
-      const message = await storage.createMessage(messageData);
-
+      const auth = decodeAuth(req);
+      const tenantId = auth.organizationId ?? "default-tenant";
+      const message = await storage.createMessage(messageData, tenantId);
       res.json(message);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        res.status(400).json({ error: error.errors });
-      } else {
-        res.status(500).json({ error: "Failed to create message" });
+        return res.status(400).json({ error: error.errors });
       }
+      const message = error instanceof Error ? error.message : "Failed to create message";
+      res.status(500).json({ error: message });
     }
   });
 
@@ -955,6 +905,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to seed Saudi cities" });
+    }
+  });
+
+  const previewToken = process.env.LANDING_PREVIEW_TOKEN;
+
+  app.get("/api/landing", async (_req, res) => {
+    try {
+      const data = await LandingService.getPublicLanding();
+      res.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
+      res.json({ data });
+    } catch (error) {
+      console.error("Failed to fetch landing data:", error);
+      res.status(500).json({ message: "Failed to load landing data" });
+    }
+  });
+
+  app.get("/preview/landing", async (req, res) => {
+    if (previewToken) {
+      const token = req.query.token;
+      if (!token || token !== previewToken) {
+        return res.status(401).json({ message: "Invalid preview token" });
+      }
+    } else {
+      const auth = decodeAuth(req);
+      const roleSet = new Set(auth.roles.map((r) => r.toUpperCase()));
+      if (!roleSet.has("WEBSITE_ADMIN") && !roleSet.has("CMS_ADMIN") && !roleSet.has("EDITOR")) {
+        return res.status(403).json({ message: "Preview unavailable" });
+      }
+    }
+
+    try {
+      const data = await LandingService.listSections({
+        status: "draft",
+        includeArchived: false,
+      });
+      res.json({ data });
+    } catch (error) {
+      console.error("Failed to load preview landing data:", error);
+      res.status(500).json({ message: "Failed to load preview landing data" });
     }
   });
 

@@ -92,7 +92,7 @@ export default function CMSAdmin() {
             <div className="flex items-center cursor-pointer" onClick={() => setLocation("/")}>
               <span className="text-2xl font-bold text-gray-900 hover:text-green-600 transition-colors font-droid-kufi">منصة عقاراتي</span>
             </div>
-            <div className="flex items-center space-x-4 space-x-reverse">
+            <div className="flex items-center space-x-4 rtl:space-x-reverse">
               <Settings className="w-6 h-6 text-green-600" />
               <h1 className="text-xl font-bold text-gray-900 font-droid-kufi">
                 إدارة المحتوى (CMS)
@@ -247,7 +247,7 @@ export default function CMSAdmin() {
                     ))}
                   </div>
                   
-                  <div className="flex space-x-2 space-x-reverse">
+                  <div className="flex space-x-2 rtl:space-x-reverse">
                     <Button variant="outline" size="sm" className="flex-1">
                       <Edit3 className="w-4 h-4 ml-1" />
                       تعديل

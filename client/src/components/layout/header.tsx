@@ -70,19 +70,21 @@ export default function Header({
       aria-label={title || "الشريط العلوي"}
     >
       <div className="flex items-center gap-4 px-6 h-full w-full" dir="ltr">
-        <div className="flex items-center gap-2 order-5 ml-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onToggleSidebar}
-            className="h-10 w-10 p-0 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-600 border border-transparent transition lg:hover:border-gray-200"
-            aria-label={isSidebarOpen ? "إخفاء القائمة" : "إظهار القائمة"}
-            disabled={!onToggleSidebar}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-        </div>
+        {/* Only render the sidebar toggle when a handler is provided; prevents duplicate icon on public pages. */}
+        {onToggleSidebar && (
+          <div className="flex items-center gap-2 order-5 ml-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onToggleSidebar}
+              className="h-10 w-10 p-0 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-600 border border-transparent transition lg:hover:border-gray-200"
+              aria-label={isSidebarOpen ? "إخفاء القائمة" : "إظهار القائمة"}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
+        )}
         {/* Notifications (far left) */}
         {showActions && (
           <div className="flex items-center shrink-0 order-1">

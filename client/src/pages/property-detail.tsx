@@ -90,7 +90,7 @@ export default function PropertyDetail() {
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
         <div className="flex items-center justify-between p-4 max-w-[1600px] mx-auto">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 rtl:space-x-reverse">
             <Button
               variant="ghost"
               onClick={() => setLocation('/properties')}
@@ -103,7 +103,7 @@ export default function PropertyDetail() {
             <h1 className="text-xl font-semibold">{property.title}</h1>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 rtl:space-x-reverse">
             {/* Share Dropdown */}
             <div className="relative group">
               <Button variant="outline" size="sm" className="rounded-xl">
@@ -172,7 +172,7 @@ export default function PropertyDetail() {
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="text-2xl mb-2">{property.title}</CardTitle>
-                    <div className="flex items-center space-x-2 text-muted-foreground">
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse text-muted-foreground">
                       <MapPin size={16} />
                       <span>{property.address}, {property.city}, {property.state}</span>
                     </div>
@@ -191,19 +191,19 @@ export default function PropertyDetail() {
                   
                   <div className="grid grid-cols-3 gap-4">
                     {property.bedrooms && (
-                      <div className="flex items-center space-x-2 text-muted-foreground">
+                      <div className="flex items-center space-x-2 rtl:space-x-reverse text-muted-foreground">
                         <Bed size={20} />
                         <span>{property.bedrooms} غرف نوم</span>
                       </div>
                     )}
                     {property.bathrooms && (
-                      <div className="flex items-center space-x-2 text-muted-foreground">
+                      <div className="flex items-center space-x-2 rtl:space-x-reverse text-muted-foreground">
                         <Bath size={20} />
                         <span>{property.bathrooms} حمام</span>
                       </div>
                     )}
                     {(property as any).areaSqm && (
-                      <div className="flex items-center space-x-2 text-muted-foreground">
+                      <div className="flex items-center space-x-2 rtl:space-x-reverse text-muted-foreground">
                         <Square size={20} />
                         <span>{((property as any).areaSqm?.toLocaleString?.() ?? (property as any).areaSqm)} متر²</span>
                       </div>

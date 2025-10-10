@@ -69,7 +69,7 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
 
   try {
     // Fetch user from database to ensure they still exist and are active
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: payload.userId },
       select: {
         id: true,
@@ -114,7 +114,7 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
   }
 
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: payload.userId },
       select: {
         id: true,
@@ -163,19 +163,19 @@ export async function login(identifier: string, password: string): Promise<{
 }> {
   try {
     // Try to find by username first, then by email for compatibility
-    let user = await prisma.user.findUnique({
+    let user = await prisma.users.findUnique({
       where: { username: identifier }
     });
 
     if (!user) {
-      user = await prisma.user.findUnique({
+      user = await prisma.users.findUnique({
         where: { email: identifier }
       });
     }
 
     // Load relations if user found
     if (user) {
-      user = await prisma.user.findUnique({
+      user = await prisma.users.findUnique({
         where: { id: user.id },
         include: {
           organization: true,
@@ -194,7 +194,7 @@ export async function login(identifier: string, password: string): Promise<{
     }
 
     // Update last login
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() }
     });
@@ -242,7 +242,7 @@ export async function register(userData: {
 }> {
   try {
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { email: userData.email }
     });
 
@@ -254,7 +254,7 @@ export async function register(userData: {
     const passwordHash = await hashPassword(userData.password);
 
     // Create user
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         email: userData.email,
         passwordHash,
@@ -303,7 +303,7 @@ export async function impersonateUser(adminUserId: string, targetUserId: string)
 }> {
   try {
     // Check if admin user has WEBSITE_ADMIN role
-    const adminUser = await prisma.user.findUnique({
+    const adminUser = await prisma.users.findUnique({
       where: { id: adminUserId },
       select: { roles: true }
     });
@@ -313,7 +313,7 @@ export async function impersonateUser(adminUserId: string, targetUserId: string)
     }
 
     // Get target user
-    const targetUser = await prisma.user.findUnique({
+    const targetUser = await prisma.users.findUnique({
       where: { id: targetUserId },
       include: {
         organization: true,

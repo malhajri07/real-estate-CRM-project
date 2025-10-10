@@ -27,6 +27,7 @@
  */
 
 import type { Config } from "tailwindcss";
+import plugin from "tailwindcss/plugin";
 
 export default {
   // Dark mode configuration using class strategy
@@ -153,7 +154,7 @@ export default {
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
         inter: ["Inter", "sans-serif"],
-        arabic: ["Noto Sans Arabic", "sans-serif"],
+        arabic: ["Noto Kufi Arabic", "sans-serif"],
       },
       maxWidth: {
         '10xl': '96rem',
@@ -182,5 +183,12 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [
+    plugin(({ addVariant }) => {
+      addVariant("rtl", '[dir="rtl"] &');
+      addVariant("ltr", '[dir="ltr"] &');
+    }),
+    require("tailwindcss-animate"),
+    require("@tailwindcss/typography"),
+  ],
 } satisfies Config;
