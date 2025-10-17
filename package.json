@@ -4,19 +4,27 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development tsx server/index.ts",
-    "dev:server": "PORT=${PORT:-3000} NODE_ENV=development tsx server/index.ts",
+    "dev": "NODE_ENV=development tsx apps/api/index.ts",
+    "dev:server": "PORT=${PORT:-3000} NODE_ENV=development tsx apps/api/index.ts",
     "dev:client": "vite",
     "dev:all": "bash -c 'npm run dev:server & npm run dev:client'",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build": "vite build && esbuild apps/api/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
-    "ensure:admin": "tsx server/ensure-primary-admin.ts",
+    "ensure:admin": "tsx apps/api/ensure-primary-admin.ts",
     "check": "tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**'",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**' --fix"
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**' --fix",
+    "db:deploy": "prisma migrate deploy --schema=data/schema/prisma/schema.prisma",
+    "db:generate": "prisma generate --schema=data/schema/prisma/schema.prisma",
+    "db:seed": "tsx apps/api/lib/seeds/index.ts",
+    "db:reseed": "pnpm db:deploy && pnpm db:seed"
+  },
+  "prisma": {
+    "schema": "data/schema/prisma/schema.prisma"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.17.0",
+    "@faker-js/faker": "^9.0.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",

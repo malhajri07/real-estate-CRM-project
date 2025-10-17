@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 // Read the file
-const filePath = 'client/src/pages/rbac-dashboard.tsx';
+const filePath = 'apps/web/src/pages/rbac-dashboard.tsx';
 let content = fs.readFileSync(filePath, 'utf8');
 
 // Find the line numbers of duplicate cases

@@ -1,0 +1,2002 @@
+{
+  "generatedAt": "2025-10-17T11:29:09.777Z",
+  "totals": {
+    "groups": 14,
+    "pages": 66,
+    "byStatus": {
+      "live": 4,
+      "mocked": 13,
+      "stub": 49
+    }
+  },
+  "groups": [
+    {
+      "id": "overview",
+      "label": {
+        "en": "Overview",
+        "ar": "نظرة عامة"
+      },
+      "children": [
+        {
+          "id": "overview-main-dashboard",
+          "label": {
+            "en": "Main Dashboard",
+            "ar": "لوحة التحكم الرئيسية"
+          },
+          "path": "/admin/overview/main-dashboard",
+          "status": "live",
+          "purpose": "[Live] Executive overview for platform KPIs (users, organizations, health) with recent activity context.",
+          "keyUiWidgets": [
+            "Metric summary cards",
+            "Recent activity list",
+            "Manual refresh"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/stats",
+            "GET /api/rbac-admin/activities"
+          ],
+          "dbEntities": [
+            "users",
+            "organizations",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN"
+          ]
+        },
+        {
+          "id": "overview-general-statistics",
+          "label": {
+            "en": "General Statistics",
+            "ar": "الإحصائيات العامة"
+          },
+          "path": "/admin/overview/general-statistics",
+          "status": "live",
+          "purpose": "[Live] Trend analytics for adoption and revenue; should add time slicing beyond current stat snapshot.",
+          "keyUiWidgets": [
+            "Trend charts",
+            "Segment filters",
+            "Export CSV"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/stats?granularity=monthly (proposed)",
+            "GET /api/rbac-admin/activities?type=aggregated (proposed)"
+          ],
+          "dbEntities": [
+            "users",
+            "organizations",
+            "transactions_summary"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "DATA_ANALYST"
+          ]
+        },
+        {
+          "id": "overview-recent-activity",
+          "label": {
+            "en": "Recent Activity",
+            "ar": "النشاط الأخير"
+          },
+          "path": "/admin/overview/recent-activity",
+          "status": "live",
+          "purpose": "[Live] Audit timeline of recent administrative actions for compliance monitoring.",
+          "keyUiWidgets": [
+            "Activity feed",
+            "Action type filters",
+            "Export JSON"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/activities"
+          ],
+          "dbEntities": [
+            "audit_logs",
+            "users"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SECURITY_ADMIN"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "user-management",
+      "label": {
+        "en": "User Management",
+        "ar": "إدارة المستخدمين"
+      },
+      "children": [
+        {
+          "id": "user-management-all-users",
+          "label": {
+            "en": "All Users",
+            "ar": "جميع المستخدمين"
+          },
+          "path": "/admin/users/all-users",
+          "status": "mocked",
+          "purpose": "[Mocked] Manage full user directory; current UI uses static seed data and must integrate with admin APIs.",
+          "keyUiWidgets": [
+            "Status KPI cards",
+            "Search & filters",
+            "User data table",
+            "Edit dialog"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/users",
+            "POST /api/rbac-admin/users",
+            "PUT /api/rbac-admin/users/:id",
+            "DELETE /api/rbac-admin/users/:id"
+          ],
+          "dbEntities": [
+            "users",
+            "organizations",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN"
+          ]
+        },
+        {
+          "id": "user-management-active-users",
+          "label": {
+            "en": "Active Users",
+            "ar": "المستخدمون النشطون"
+          },
+          "path": "/admin/users/active-users",
+          "status": "mocked",
+          "purpose": "[Mocked] Focused roster of active accounts with session monitoring; UI duplicates all-users view.",
+          "keyUiWidgets": [
+            "Active count card",
+            "Real-time status badges",
+            "Filter chips"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/users?status=active",
+            "GET /api/rbac-admin/users/online (proposed)"
+          ],
+          "dbEntities": [
+            "users",
+            "sessions",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SUPPORT_ADMIN"
+          ]
+        },
+        {
+          "id": "user-management-pending-users",
+          "label": {
+            "en": "Pending Users",
+            "ar": "المستخدمون المعلقون"
+          },
+          "path": "/admin/users/pending-users",
+          "status": "mocked",
+          "purpose": "[Mocked] Approval queue for onboarding (KYC); needs wiring to approval endpoints.",
+          "keyUiWidgets": [
+            "Pending list table",
+            "Document status indicators",
+            "Bulk approve/reject dialog"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/users?status=pending",
+            "POST /api/rbac-admin/users/:userId/approve",
+            "POST /api/rbac-admin/users/:userId/reject",
+            "POST /api/rbac-admin/users/:userId/request-info"
+          ],
+          "dbEntities": [
+            "users",
+            "kyc_documents",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "COMPLIANCE_ADMIN"
+          ]
+        },
+        {
+          "id": "user-management-user-roles",
+          "label": {
+            "en": "User Roles",
+            "ar": "أدوار المستخدمين"
+          },
+          "path": "/admin/users/user-roles",
+          "status": "mocked",
+          "purpose": "[Mocked] Matrix of roles per user; currently static, should leverage role endpoints and inline editing.",
+          "keyUiWidgets": [
+            "Role summary cards",
+            "Role assignment table",
+            "Role filter tabs"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/users?includeRoles=true",
+            "PUT /api/rbac-admin/users/:id (roles)"
+          ],
+          "dbEntities": [
+            "users",
+            "user_roles",
+            "roles"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "RBAC_ADMIN"
+          ]
+        },
+        {
+          "id": "user-management-user-permissions",
+          "label": {
+            "en": "User Permissions",
+            "ar": "صلاحيات المستخدمين"
+          },
+          "path": "/admin/users/user-permissions",
+          "status": "mocked",
+          "purpose": "[Mocked] Fine-grained permission inspector; requires dedicated permission schema.",
+          "keyUiWidgets": [
+            "Permission category list",
+            "Toggle matrix",
+            "Audit trail panel"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/roles",
+            "GET /api/rbac-admin/permissions (proposed)",
+            "PUT /api/rbac-admin/users/:id/permissions (proposed)"
+          ],
+          "dbEntities": [
+            "permissions",
+            "role_permissions",
+            "user_permissions",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "RBAC_ADMIN"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "role-management",
+      "label": {
+        "en": "Role Management",
+        "ar": "إدارة الأدوار"
+      },
+      "children": [
+        {
+          "id": "role-management-roles-list",
+          "label": {
+            "en": "Roles List",
+            "ar": "قائمة الأدوار"
+          },
+          "path": "/admin/roles/roles-list",
+          "status": "mocked",
+          "purpose": "[Mocked] Catalog existing roles with counts; UI uses mock arrays and lacks API integration.",
+          "keyUiWidgets": [
+            "Role KPI cards",
+            "Role list table",
+            "Detail drawer"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/roles",
+            "GET /api/rbac-admin/users?role=...",
+            "DELETE /api/rbac-admin/roles/:id (proposed)"
+          ],
+          "dbEntities": [
+            "roles",
+            "role_permissions",
+            "users"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "RBAC_ADMIN"
+          ]
+        },
+        {
+          "id": "role-management-create-role",
+          "label": {
+            "en": "Create Role",
+            "ar": "إنشاء دور جديد"
+          },
+          "path": "/admin/roles/create-role",
+          "status": "mocked",
+          "purpose": "[Mocked] Wizard to add custom roles; needs backend support for creation and validation.",
+          "keyUiWidgets": [
+            "Role builder dialog",
+            "Permission checklist",
+            "Review step"
+          ],
+          "requiredApi": [
+            "POST /api/rbac-admin/roles (proposed)",
+            "GET /api/rbac-admin/permissions (proposed)"
+          ],
+          "dbEntities": [
+            "roles",
+            "role_permissions",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "RBAC_ADMIN"
+          ]
+        },
+        {
+          "id": "role-management-permissions",
+          "label": {
+            "en": "Permissions Management",
+            "ar": "إدارة الصلاحيات"
+          },
+          "path": "/admin/roles/permissions",
+          "status": "mocked",
+          "purpose": "[Mocked] Central permission matrix across modules; currently informational only.",
+          "keyUiWidgets": [
+            "Module grid",
+            "Permission filters",
+            "Export CSV"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/permissions (proposed)",
+            "PUT /api/rbac-admin/roles/:id/permissions (proposed)"
+          ],
+          "dbEntities": [
+            "permissions",
+            "role_permissions"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "RBAC_ADMIN"
+          ]
+        },
+        {
+          "id": "role-management-assignments",
+          "label": {
+            "en": "Role Assignments",
+            "ar": "تعيين الأدوار"
+          },
+          "path": "/admin/roles/assignments",
+          "status": "mocked",
+          "purpose": "[Mocked] Bulk assignment dashboard to map users to roles.",
+          "keyUiWidgets": [
+            "Assignment table",
+            "Bulk assign dialog",
+            "History timeline"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/users?includeRoles=true",
+            "POST /api/rbac-admin/roles/:id/assign (proposed)"
+          ],
+          "dbEntities": [
+            "user_roles",
+            "roles",
+            "users",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "RBAC_ADMIN"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "organization-management",
+      "label": {
+        "en": "Organization Management",
+        "ar": "إدارة المنظمات"
+      },
+      "children": [
+        {
+          "id": "organization-management-list",
+          "label": {
+            "en": "Organizations List",
+            "ar": "قائمة المنظمات"
+          },
+          "path": "/admin/organizations/organizations-list",
+          "status": "mocked",
+          "purpose": "[Mocked] Directory of partner organizations; UI seeded with mock data.",
+          "keyUiWidgets": [
+            "Organization summary cards",
+            "Filter controls",
+            "Organization table"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/organizations"
+          ],
+          "dbEntities": [
+            "organizations",
+            "subscriptions",
+            "users"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "PARTNERSHIPS_ADMIN"
+          ]
+        },
+        {
+          "id": "organization-management-create",
+          "label": {
+            "en": "Create Organization",
+            "ar": "إنشاء منظمة جديدة"
+          },
+          "path": "/admin/organizations/create",
+          "status": "mocked",
+          "purpose": "[Mocked] Intake form to onboard new organizations; lacks API wiring.",
+          "keyUiWidgets": [
+            "Organization create dialog",
+            "Validation alerts",
+            "Plan selector"
+          ],
+          "requiredApi": [
+            "POST /api/rbac-admin/organizations",
+            "POST /api/rbac-admin/subscriptions (proposed)"
+          ],
+          "dbEntities": [
+            "organizations",
+            "subscriptions",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "PARTNERSHIPS_ADMIN"
+          ]
+        },
+        {
+          "id": "organization-management-types",
+          "label": {
+            "en": "Organization Types",
+            "ar": "أنواع المنظمات"
+          },
+          "path": "/admin/organizations/types",
+          "status": "mocked",
+          "purpose": "[Mocked] Taxonomy management for organization classifications.",
+          "keyUiWidgets": [
+            "Type list",
+            "Edit modal",
+            "Usage count badges"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/organization-types (proposed)",
+            "POST /api/rbac-admin/organization-types (proposed)"
+          ],
+          "dbEntities": [
+            "organization_types",
+            "organizations"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "PARTNERSHIPS_ADMIN"
+          ]
+        },
+        {
+          "id": "organization-management-settings",
+          "label": {
+            "en": "Organization Settings",
+            "ar": "إعدادات المنظمات"
+          },
+          "path": "/admin/organizations/settings",
+          "status": "mocked",
+          "purpose": "[Mocked] Administer per-organization feature flags and billing settings.",
+          "keyUiWidgets": [
+            "Settings tabs",
+            "Toggle switches",
+            "Audit log feed"
+          ],
+          "requiredApi": [
+            "GET /api/rbac-admin/organizations/:id/settings (proposed)",
+            "PUT /api/rbac-admin/organizations/:id/settings (proposed)"
+          ],
+          "dbEntities": [
+            "organization_settings",
+            "feature_flags",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "PARTNERSHIPS_ADMIN"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "revenue",
+      "label": {
+        "en": "Revenue",
+        "ar": "الإيرادات والاشتراكات"
+      },
+      "children": [
+        {
+          "id": "revenue-overview",
+          "label": {
+            "en": "Overview",
+            "ar": "نظرة عامة على الإيرادات"
+          },
+          "path": "/admin/revenue/overview",
+          "status": "stub",
+          "purpose": "[Stub] Revenue dashboard summarizing ARR/MRR, churn, channel performance.",
+          "keyUiWidgets": [
+            "Revenue KPI cards",
+            "Trend charts",
+            "Plan mix donut"
+          ],
+          "requiredApi": [
+            "GET /api/revenue/summary (proposed)",
+            "GET /api/revenue/trends (proposed)"
+          ],
+          "dbEntities": [
+            "subscriptions",
+            "payments",
+            "invoices"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "FINANCE_ADMIN"
+          ]
+        },
+        {
+          "id": "revenue-active-subscriptions",
+          "label": {
+            "en": "Active Subscriptions",
+            "ar": "الاشتراكات النشطة"
+          },
+          "path": "/admin/revenue/active-subscriptions",
+          "status": "stub",
+          "purpose": "[Stub] Monitor active subscription roster with renewal health.",
+          "keyUiWidgets": [
+            "Subscription table",
+            "Renewal reminders",
+            "Filter chips"
+          ],
+          "requiredApi": [
+            "GET /api/revenue/subscriptions (proposed)",
+            "PATCH /api/revenue/subscriptions/:id (proposed)"
+          ],
+          "dbEntities": [
+            "subscriptions",
+            "organizations",
+            "plans"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "FINANCE_ADMIN"
+          ]
+        },
+        {
+          "id": "revenue-payment-methods",
+          "label": {
+            "en": "Payment Methods",
+            "ar": "طرق الدفع"
+          },
+          "path": "/admin/revenue/payment-methods",
+          "status": "stub",
+          "purpose": "[Stub] Manage allowed payment gateways and tokens.",
+          "keyUiWidgets": [
+            "Gateway cards",
+            "Credential status badges",
+            "Edit modal"
+          ],
+          "requiredApi": [
+            "GET /api/revenue/payment-providers (proposed)",
+            "POST /api/revenue/payment-providers (proposed)"
+          ],
+          "dbEntities": [
+            "payment_providers",
+            "organization_payment_methods"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "FINANCE_ADMIN"
+          ]
+        },
+        {
+          "id": "revenue-reports",
+          "label": {
+            "en": "Reports",
+            "ar": "تقارير الإيرادات"
+          },
+          "path": "/admin/revenue/reports",
+          "status": "stub",
+          "purpose": "[Stub] Generate exportable finance reports (revenue, AR aging).",
+          "keyUiWidgets": [
+            "Report builder",
+            "Schedule panel",
+            "Export queue"
+          ],
+          "requiredApi": [
+            "POST /api/revenue/reports (proposed)",
+            "GET /api/revenue/reports/:id (proposed)"
+          ],
+          "dbEntities": [
+            "financial_reports",
+            "invoices",
+            "payments"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "FINANCE_ADMIN",
+            "ACCOUNTANT"
+          ]
+        },
+        {
+          "id": "revenue-plans",
+          "label": {
+            "en": "Subscription Plans",
+            "ar": "خطط الاشتراك"
+          },
+          "path": "/admin/revenue/subscription-plans",
+          "status": "stub",
+          "purpose": "[Stub] Configure pricing plans and feature bundles.",
+          "keyUiWidgets": [
+            "Plan comparison table",
+            "Plan editor",
+            "Change log"
+          ],
+          "requiredApi": [
+            "GET /api/revenue/plans (proposed)",
+            "POST /api/revenue/plans (proposed)",
+            "PUT /api/revenue/plans/:id (proposed)"
+          ],
+          "dbEntities": [
+            "plans",
+            "plan_features",
+            "feature_flags"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "PRODUCT_MANAGER"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "complaints",
+      "label": {
+        "en": "Complaints",
+        "ar": "إدارة الشكاوى"
+      },
+      "children": [
+        {
+          "id": "complaints-all",
+          "label": {
+            "en": "All Complaints",
+            "ar": "جميع الشكاوى"
+          },
+          "path": "/admin/complaints/all",
+          "status": "stub",
+          "purpose": "[Stub] Master queue of customer complaints and internal escalations.",
+          "keyUiWidgets": [
+            "Complaint table",
+            "Priority badges",
+            "Assignment controls"
+          ],
+          "requiredApi": [
+            "GET /api/complaints (proposed)",
+            "PUT /api/complaints/:id (proposed)"
+          ],
+          "dbEntities": [
+            "complaints",
+            "complaint_assignments",
+            "users"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SUPPORT_ADMIN"
+          ]
+        },
+        {
+          "id": "complaints-open",
+          "label": {
+            "en": "Open Complaints",
+            "ar": "الشكاوى المفتوحة"
+          },
+          "path": "/admin/complaints/open",
+          "status": "stub",
+          "purpose": "[Stub] Focus on unresolved complaints with SLA tracking.",
+          "keyUiWidgets": [
+            "Kanban board",
+            "SLA timer",
+            "Escalation buttons"
+          ],
+          "requiredApi": [
+            "GET /api/complaints?status=open (proposed)",
+            "POST /api/complaints/:id/escalate (proposed)"
+          ],
+          "dbEntities": [
+            "complaints",
+            "complaint_escalations",
+            "users"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SUPPORT_ADMIN"
+          ]
+        },
+        {
+          "id": "complaints-resolved",
+          "label": {
+            "en": "Resolved Complaints",
+            "ar": "الشكاوى المحلولة"
+          },
+          "path": "/admin/complaints/resolved",
+          "status": "stub",
+          "purpose": "[Stub] Archive of resolved cases with satisfaction insights.",
+          "keyUiWidgets": [
+            "Resolved list",
+            "Survey scores chart",
+            "Reopen action"
+          ],
+          "requiredApi": [
+            "GET /api/complaints?status=resolved (proposed)",
+            "POST /api/complaints/:id/reopen (proposed)"
+          ],
+          "dbEntities": [
+            "complaints",
+            "resolution_surveys"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SUPPORT_ADMIN"
+          ]
+        },
+        {
+          "id": "complaints-categories",
+          "label": {
+            "en": "Categories",
+            "ar": "فئات الشكاوى"
+          },
+          "path": "/admin/complaints/categories",
+          "status": "stub",
+          "purpose": "[Stub] Taxonomy management for complaint routing.",
+          "keyUiWidgets": [
+            "Category tree",
+            "Routing rule editor",
+            "Usage counts"
+          ],
+          "requiredApi": [
+            "GET /api/complaints/categories (proposed)",
+            "POST /api/complaints/categories (proposed)"
+          ],
+          "dbEntities": [
+            "complaint_categories",
+            "complaints"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SUPPORT_ADMIN"
+          ]
+        },
+        {
+          "id": "complaints-response-templates",
+          "label": {
+            "en": "Response Templates",
+            "ar": "قوالب الردود"
+          },
+          "path": "/admin/complaints/response-templates",
+          "status": "stub",
+          "purpose": "[Stub] Library of SLA-compliant response templates.",
+          "keyUiWidgets": [
+            "Template list",
+            "Rich text editor",
+            "Version history"
+          ],
+          "requiredApi": [
+            "GET /api/complaints/templates (proposed)",
+            "POST /api/complaints/templates (proposed)"
+          ],
+          "dbEntities": [
+            "response_templates",
+            "template_versions"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SUPPORT_ADMIN",
+            "CONTENT_EDITOR"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "integrations",
+      "label": {
+        "en": "Integrations",
+        "ar": "التكاملات"
+      },
+      "children": [
+        {
+          "id": "integrations-whatsapp",
+          "label": {
+            "en": "Whatsapp Settings",
+            "ar": "إعدادات WhatsApp"
+          },
+          "path": "/admin/integrations/whatsapp",
+          "status": "stub",
+          "purpose": "[Stub] Configure WhatsApp Business API credentials and templates.",
+          "keyUiWidgets": [
+            "Credential card",
+            "Template gallery",
+            "Webhook status"
+          ],
+          "requiredApi": [
+            "GET /api/integrations/whatsapp (proposed)",
+            "POST /api/integrations/whatsapp (proposed)"
+          ],
+          "dbEntities": [
+            "integration_credentials",
+            "message_templates",
+            "webhook_events"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "INTEGRATIONS_ADMIN"
+          ]
+        },
+        {
+          "id": "integrations-email",
+          "label": {
+            "en": "Email Settings",
+            "ar": "إعدادات البريد الإلكتروني"
+          },
+          "path": "/admin/integrations/email",
+          "status": "stub",
+          "purpose": "[Stub] Manage SMTP providers, domains, and deliverability tracking.",
+          "keyUiWidgets": [
+            "Provider list",
+            "Verified domain table",
+            "Deliverability chart"
+          ],
+          "requiredApi": [
+            "GET /api/integrations/email (proposed)",
+            "POST /api/integrations/email (proposed)"
+          ],
+          "dbEntities": [
+            "integration_credentials",
+            "email_domains",
+            "deliverability_metrics"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "INTEGRATIONS_ADMIN"
+          ]
+        },
+        {
+          "id": "integrations-sms",
+          "label": {
+            "en": "Sms Settings",
+            "ar": "إعدادات الرسائل النصية"
+          },
+          "path": "/admin/integrations/sms",
+          "status": "stub",
+          "purpose": "[Stub] Configure SMS providers, cost tracking, and templates.",
+          "keyUiWidgets": [
+            "Provider cards",
+            "Usage chart",
+            "Template list"
+          ],
+          "requiredApi": [
+            "GET /api/integrations/sms (proposed)",
+            "POST /api/integrations/sms (proposed)"
+          ],
+          "dbEntities": [
+            "integration_credentials",
+            "sms_usage",
+            "message_templates"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "INTEGRATIONS_ADMIN"
+          ]
+        },
+        {
+          "id": "integrations-social",
+          "label": {
+            "en": "Social Media",
+            "ar": "وسائل التواصل الاجتماعي"
+          },
+          "path": "/admin/integrations/social-media",
+          "status": "stub",
+          "purpose": "[Stub] Link social accounts for lead generation and posting.",
+          "keyUiWidgets": [
+            "Account connection list",
+            "Content scheduler",
+            "Engagement chart"
+          ],
+          "requiredApi": [
+            "GET /api/integrations/social (proposed)",
+            "POST /api/integrations/social/connect (proposed)"
+          ],
+          "dbEntities": [
+            "integration_credentials",
+            "scheduled_posts",
+            "engagement_metrics"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "MARKETING_ADMIN"
+          ]
+        },
+        {
+          "id": "integrations-api",
+          "label": {
+            "en": "Api Integrations",
+            "ar": "تكاملات API"
+          },
+          "path": "/admin/integrations/api",
+          "status": "stub",
+          "purpose": "[Stub] Manage API keys, rate limits, and webhook sinks for partners.",
+          "keyUiWidgets": [
+            "API key table",
+            "Rate limit editor",
+            "Webhook test console"
+          ],
+          "requiredApi": [
+            "GET /api/integrations/api-keys (proposed)",
+            "POST /api/integrations/api-keys (proposed)",
+            "GET /api/integrations/webhooks (proposed)"
+          ],
+          "dbEntities": [
+            "api_keys",
+            "api_usage",
+            "webhooks"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "INTEGRATIONS_ADMIN"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "content-management",
+      "label": {
+        "en": "Content Management",
+        "ar": "إدارة المحتوى"
+      },
+      "children": [
+        {
+          "id": "content-management-landing",
+          "label": {
+            "en": "Landing Pages",
+            "ar": "صفحات الهبوط"
+          },
+          "path": "/admin/content/landing-pages",
+          "status": "live",
+          "purpose": "[Live] Drag-and-drop CMS for the public landing page with draft/publish workflow.",
+          "keyUiWidgets": [
+            "Section list with drag reorder",
+            "Section editor form",
+            "Card editor modal"
+          ],
+          "requiredApi": [
+            "GET /api/cms/landing/sections",
+            "PUT /api/cms/landing/sections/:id",
+            "POST /api/cms/landing/cards",
+            "PUT /api/cms/landing/cards/:id",
+            "POST /api/cms/landing/sections/reorder"
+          ],
+          "dbEntities": [
+            "landingSection",
+            "landingCard",
+            "landingVersion",
+            "landingAuditLog"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "CMS_ADMIN",
+            "EDITOR"
+          ]
+        },
+        {
+          "id": "content-management-articles",
+          "label": {
+            "en": "Articles",
+            "ar": "المقالات"
+          },
+          "path": "/admin/content/articles",
+          "status": "stub",
+          "purpose": "[Stub] Editorial workspace for knowledge center/blog articles.",
+          "keyUiWidgets": [
+            "Article list",
+            "Rich text editor",
+            "Publication workflow"
+          ],
+          "requiredApi": [
+            "GET /api/cms/articles (proposed)",
+            "POST /api/cms/articles (proposed)",
+            "PUT /api/cms/articles/:id (proposed)"
+          ],
+          "dbEntities": [
+            "cms_articles",
+            "cms_article_versions",
+            "mediaLibrary"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "CMS_ADMIN",
+            "EDITOR"
+          ]
+        },
+        {
+          "id": "content-management-media",
+          "label": {
+            "en": "Media Library",
+            "ar": "مكتبة الوسائط"
+          },
+          "path": "/admin/content/media-library",
+          "status": "stub",
+          "purpose": "[Stub] Asset manager for images, videos, and documents.",
+          "keyUiWidgets": [
+            "Media grid",
+            "Metadata panel",
+            "Bulk upload"
+          ],
+          "requiredApi": [
+            "GET /api/cms/media (proposed)",
+            "POST /api/cms/media (proposed)",
+            "DELETE /api/cms/media/:id (proposed)"
+          ],
+          "dbEntities": [
+            "mediaLibrary",
+            "mediaUsage"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "CMS_ADMIN",
+            "EDITOR"
+          ]
+        },
+        {
+          "id": "content-management-seo",
+          "label": {
+            "en": "Seo Settings",
+            "ar": "إعدادات SEO"
+          },
+          "path": "/admin/content/seo",
+          "status": "stub",
+          "purpose": "[Stub] SEO settings for landing pages, sitemaps, and metadata.",
+          "keyUiWidgets": [
+            "SEO checklist",
+            "Preview cards",
+            "Sitemap generation button"
+          ],
+          "requiredApi": [
+            "GET /api/cms/seo (proposed)",
+            "PUT /api/cms/seo (proposed)"
+          ],
+          "dbEntities": [
+            "seo_settings",
+            "landingSection"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "CMS_ADMIN"
+          ]
+        },
+        {
+          "id": "content-management-templates",
+          "label": {
+            "en": "Content Templates",
+            "ar": "قوالب المحتوى"
+          },
+          "path": "/admin/content/templates",
+          "status": "stub",
+          "purpose": "[Stub] Manage reusable content templates across channels.",
+          "keyUiWidgets": [
+            "Template catalog",
+            "Version history",
+            "Clone action"
+          ],
+          "requiredApi": [
+            "GET /api/cms/templates (proposed)",
+            "POST /api/cms/templates (proposed)"
+          ],
+          "dbEntities": [
+            "content_templates",
+            "template_versions"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "CMS_ADMIN",
+            "EDITOR"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "features",
+      "label": {
+        "en": "Features",
+        "ar": "الميزات والخطط"
+      },
+      "children": [
+        {
+          "id": "features-comparison",
+          "label": {
+            "en": "Feature Comparison",
+            "ar": "مقارنة الميزات"
+          },
+          "path": "/admin/features/comparison",
+          "status": "stub",
+          "purpose": "[Stub] Comparison matrix for plan features vs competitors.",
+          "keyUiWidgets": [
+            "Feature comparison table",
+            "Toggle competitor columns",
+            "Notes drawer"
+          ],
+          "requiredApi": [
+            "GET /api/features/comparison (proposed)"
+          ],
+          "dbEntities": [
+            "feature_matrix",
+            "competitor_benchmarks"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "PRODUCT_MANAGER"
+          ]
+        },
+        {
+          "id": "features-pricing",
+          "label": {
+            "en": "Pricing Plans",
+            "ar": "خطط الأسعار"
+          },
+          "path": "/admin/features/pricing",
+          "status": "stub",
+          "purpose": "[Stub] Manage pricing experiments and plan positioning.",
+          "keyUiWidgets": [
+            "Pricing tier cards",
+            "AB test config",
+            "Rollout slider"
+          ],
+          "requiredApi": [
+            "GET /api/features/pricing (proposed)",
+            "POST /api/features/pricing-experiments (proposed)"
+          ],
+          "dbEntities": [
+            "plans",
+            "pricing_experiments",
+            "feature_flags"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "PRODUCT_MANAGER"
+          ]
+        },
+        {
+          "id": "features-corporate",
+          "label": {
+            "en": "Corporate Features",
+            "ar": "ميزات الشركات"
+          },
+          "path": "/admin/features/corporate",
+          "status": "stub",
+          "purpose": "[Stub] Configure enterprise-only capabilities and SLAs.",
+          "keyUiWidgets": [
+            "Feature toggle list",
+            "SLA form",
+            "Usage metrics"
+          ],
+          "requiredApi": [
+            "GET /api/features/corporate (proposed)",
+            "PUT /api/features/corporate (proposed)"
+          ],
+          "dbEntities": [
+            "feature_flags",
+            "enterprise_settings"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "PRODUCT_MANAGER",
+            "PARTNERSHIPS_ADMIN"
+          ]
+        },
+        {
+          "id": "features-individual",
+          "label": {
+            "en": "Individual Features",
+            "ar": "ميزات الأفراد"
+          },
+          "path": "/admin/features/individual",
+          "status": "stub",
+          "purpose": "[Stub] Calibrate individual agent plan entitlements.",
+          "keyUiWidgets": [
+            "Feature list",
+            "Usage caps editor",
+            "Upgrade prompts"
+          ],
+          "requiredApi": [
+            "GET /api/features/individual (proposed)",
+            "PUT /api/features/individual (proposed)"
+          ],
+          "dbEntities": [
+            "feature_flags",
+            "usage_limits"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "PRODUCT_MANAGER"
+          ]
+        },
+        {
+          "id": "features-requests",
+          "label": {
+            "en": "Feature Requests",
+            "ar": "طلبات الميزات"
+          },
+          "path": "/admin/features/requests",
+          "status": "stub",
+          "purpose": "[Stub] Backlog of feature requests with voting and prioritization.",
+          "keyUiWidgets": [
+            "Request board",
+            "Vote tally",
+            "Roadmap lane"
+          ],
+          "requiredApi": [
+            "GET /api/features/requests (proposed)",
+            "POST /api/features/requests/:id/status (proposed)"
+          ],
+          "dbEntities": [
+            "feature_requests",
+            "user_votes",
+            "roadmap_items"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "PRODUCT_MANAGER",
+            "SUPPORT_ADMIN"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "advanced-analytics",
+      "label": {
+        "en": "Analytics",
+        "ar": "التحليلات المتقدمة"
+      },
+      "children": [
+        {
+          "id": "analytics-user",
+          "label": {
+            "en": "User Analytics",
+            "ar": "تحليلات المستخدمين"
+          },
+          "path": "/admin/analytics/users",
+          "status": "stub",
+          "purpose": "[Stub] Deep dive into user cohorts, retention, and funnels.",
+          "keyUiWidgets": [
+            "Cohort chart",
+            "Funnel visualization",
+            "Segment filters"
+          ],
+          "requiredApi": [
+            "GET /api/analytics/users (proposed)",
+            "GET /api/analytics/funnels (proposed)"
+          ],
+          "dbEntities": [
+            "analytics_user_cohorts",
+            "events",
+            "sessions"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "DATA_ANALYST"
+          ]
+        },
+        {
+          "id": "analytics-revenue",
+          "label": {
+            "en": "Revenue Analytics",
+            "ar": "تحليلات الإيرادات"
+          },
+          "path": "/admin/analytics/revenue",
+          "status": "stub",
+          "purpose": "[Stub] Revenue analytics across plans, regions, and lifecycle.",
+          "keyUiWidgets": [
+            "Revenue trend chart",
+            "Plan mix table",
+            "Forecast widget"
+          ],
+          "requiredApi": [
+            "GET /api/analytics/revenue (proposed)",
+            "GET /api/analytics/forecast (proposed)"
+          ],
+          "dbEntities": [
+            "analytics_revenue_daily",
+            "subscriptions",
+            "payments"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "DATA_ANALYST",
+            "FINANCE_ADMIN"
+          ]
+        },
+        {
+          "id": "analytics-usage",
+          "label": {
+            "en": "Usage Statistics",
+            "ar": "إحصائيات الاستخدام"
+          },
+          "path": "/admin/analytics/usage",
+          "status": "stub",
+          "purpose": "[Stub] Feature usage statistics to inform adoption and churn risk.",
+          "keyUiWidgets": [
+            "Usage heatmap",
+            "Feature filters",
+            "Time range selector"
+          ],
+          "requiredApi": [
+            "GET /api/analytics/usage (proposed)",
+            "GET /api/analytics/feature-events (proposed)"
+          ],
+          "dbEntities": [
+            "feature_usage_events",
+            "sessions",
+            "users"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "DATA_ANALYST",
+            "PRODUCT_MANAGER"
+          ]
+        },
+        {
+          "id": "analytics-performance",
+          "label": {
+            "en": "Performance Metrics",
+            "ar": "مقاييس الأداء"
+          },
+          "path": "/admin/analytics/performance",
+          "status": "stub",
+          "purpose": "[Stub] Monitor system performance (latency, uptime, error rates).",
+          "keyUiWidgets": [
+            "Latency chart",
+            "Error rate gauges",
+            "Region selector"
+          ],
+          "requiredApi": [
+            "GET /api/analytics/performance (proposed)",
+            "GET /api/analytics/incidents (proposed)"
+          ],
+          "dbEntities": [
+            "system_metrics",
+            "incident_reports",
+            "uptime_checks"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SYS_ADMIN",
+            "SECURITY_ADMIN"
+          ]
+        },
+        {
+          "id": "analytics-custom-reports",
+          "label": {
+            "en": "Custom Reports",
+            "ar": "التقارير المخصصة"
+          },
+          "path": "/admin/analytics/custom-reports",
+          "status": "stub",
+          "purpose": "[Stub] Self-serve builder for exporting tailored analytics sets.",
+          "keyUiWidgets": [
+            "Drag/drop report builder",
+            "Visualization picker",
+            "Schedule form"
+          ],
+          "requiredApi": [
+            "POST /api/analytics/custom-reports (proposed)",
+            "GET /api/analytics/custom-reports/:id (proposed)"
+          ],
+          "dbEntities": [
+            "custom_reports",
+            "report_schedules"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "DATA_ANALYST"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "billing",
+      "label": {
+        "en": "Billing",
+        "ar": "الفواتير والمدفوعات"
+      },
+      "children": [
+        {
+          "id": "billing-invoices",
+          "label": {
+            "en": "Invoices List",
+            "ar": "قائمة الفواتير"
+          },
+          "path": "/admin/billing/invoices",
+          "status": "stub",
+          "purpose": "[Stub] Invoice ledger with status tracking and resend controls.",
+          "keyUiWidgets": [
+            "Invoice table",
+            "Status filters",
+            "Download PDF action"
+          ],
+          "requiredApi": [
+            "GET /api/billing/invoices (proposed)",
+            "POST /api/billing/invoices/:id/send (proposed)"
+          ],
+          "dbEntities": [
+            "invoices",
+            "payments",
+            "organizations"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "FINANCE_ADMIN",
+            "ACCOUNTANT"
+          ]
+        },
+        {
+          "id": "billing-create-invoice",
+          "label": {
+            "en": "Create Invoice",
+            "ar": "إنشاء فاتورة جديدة"
+          },
+          "path": "/admin/billing/create-invoice",
+          "status": "stub",
+          "purpose": "[Stub] Guided flow to create manual invoices and credits.",
+          "keyUiWidgets": [
+            "Invoice wizard",
+            "Line item builder",
+            "Tax calculator"
+          ],
+          "requiredApi": [
+            "POST /api/billing/invoices (proposed)",
+            "GET /api/billing/tax-rates (proposed)"
+          ],
+          "dbEntities": [
+            "invoices",
+            "invoice_items",
+            "tax_rates"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "FINANCE_ADMIN",
+            "ACCOUNTANT"
+          ]
+        },
+        {
+          "id": "billing-payment-tracking",
+          "label": {
+            "en": "Payment Tracking",
+            "ar": "تتبع المدفوعات"
+          },
+          "path": "/admin/billing/payment-tracking",
+          "status": "stub",
+          "purpose": "[Stub] Track incoming payments, reconciliation, and disputes.",
+          "keyUiWidgets": [
+            "Payment timeline",
+            "Reconciliation checklist",
+            "Dispute alerts"
+          ],
+          "requiredApi": [
+            "GET /api/billing/payments (proposed)",
+            "POST /api/billing/payments/:id/reconcile (proposed)"
+          ],
+          "dbEntities": [
+            "payments",
+            "payment_reconciliation",
+            "disputes"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "FINANCE_ADMIN"
+          ]
+        },
+        {
+          "id": "billing-payment-methods",
+          "label": {
+            "en": "Payment Methods",
+            "ar": "طرق الدفع"
+          },
+          "path": "/admin/billing/payment-methods",
+          "status": "stub",
+          "purpose": "[Stub] Catalog of stored payment instruments per organization.",
+          "keyUiWidgets": [
+            "Payment method list",
+            "Verification status badges",
+            "Remove button"
+          ],
+          "requiredApi": [
+            "GET /api/billing/payment-methods (proposed)",
+            "DELETE /api/billing/payment-methods/:id (proposed)"
+          ],
+          "dbEntities": [
+            "organization_payment_methods",
+            "payment_providers"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "FINANCE_ADMIN"
+          ]
+        },
+        {
+          "id": "billing-settings",
+          "label": {
+            "en": "Billing Settings",
+            "ar": "إعدادات الفواتير"
+          },
+          "path": "/admin/billing/settings",
+          "status": "stub",
+          "purpose": "[Stub] Configure billing cycles, late fees, and dunning rules.",
+          "keyUiWidgets": [
+            "Settings form",
+            "Preview schedule",
+            "Audit log"
+          ],
+          "requiredApi": [
+            "GET /api/billing/settings (proposed)",
+            "PUT /api/billing/settings (proposed)"
+          ],
+          "dbEntities": [
+            "billing_settings",
+            "dunning_rules",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "FINANCE_ADMIN"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "label": {
+        "en": "Security",
+        "ar": "الأمان"
+      },
+      "children": [
+        {
+          "id": "security-access-control",
+          "label": {
+            "en": "Access Control",
+            "ar": "التحكم في الوصول"
+          },
+          "path": "/admin/security/access-control",
+          "status": "stub",
+          "purpose": "[Stub] Policy dashboard for RBAC scopes and session controls.",
+          "keyUiWidgets": [
+            "Policy table",
+            "Session limits editor",
+            "Access review queue"
+          ],
+          "requiredApi": [
+            "GET /api/security/policies (proposed)",
+            "PUT /api/security/policies (proposed)"
+          ],
+          "dbEntities": [
+            "security_policies",
+            "user_sessions",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SECURITY_ADMIN"
+          ]
+        },
+        {
+          "id": "security-logs",
+          "label": {
+            "en": "Security Logs",
+            "ar": "سجلات الأمان"
+          },
+          "path": "/admin/security/logs",
+          "status": "stub",
+          "purpose": "[Stub] Centralized security event log with filters and exports.",
+          "keyUiWidgets": [
+            "Log stream",
+            "Severity filters",
+            "Export button"
+          ],
+          "requiredApi": [
+            "GET /api/security/logs (proposed)",
+            "GET /api/rbac-admin/activities?type=security (proposed)"
+          ],
+          "dbEntities": [
+            "security_events",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SECURITY_ADMIN"
+          ]
+        },
+        {
+          "id": "security-two-factor",
+          "label": {
+            "en": "Two Factor",
+            "ar": "المصادقة الثنائية"
+          },
+          "path": "/admin/security/two-factor",
+          "status": "stub",
+          "purpose": "[Stub] Manage two-factor enforcement and recovery codes.",
+          "keyUiWidgets": [
+            "Policy toggles",
+            "Enrollment table",
+            "Reset codes modal"
+          ],
+          "requiredApi": [
+            "GET /api/security/mfa (proposed)",
+            "POST /api/security/mfa/enroll (proposed)",
+            "POST /api/security/mfa/reset (proposed)"
+          ],
+          "dbEntities": [
+            "mfa_settings",
+            "users",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SECURITY_ADMIN"
+          ]
+        },
+        {
+          "id": "security-password-policies",
+          "label": {
+            "en": "Password Policies",
+            "ar": "سياسات كلمات المرور"
+          },
+          "path": "/admin/security/password-policies",
+          "status": "stub",
+          "purpose": "[Stub] Configure password complexity and rotation policies.",
+          "keyUiWidgets": [
+            "Policy form",
+            "Compliance tracker",
+            "Exception list"
+          ],
+          "requiredApi": [
+            "GET /api/security/password-policy (proposed)",
+            "PUT /api/security/password-policy (proposed)"
+          ],
+          "dbEntities": [
+            "security_policies",
+            "users",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SECURITY_ADMIN",
+            "COMPLIANCE_ADMIN"
+          ]
+        },
+        {
+          "id": "security-alerts",
+          "label": {
+            "en": "Security Alerts",
+            "ar": "تنبيهات الأمان"
+          },
+          "path": "/admin/security/alerts",
+          "status": "stub",
+          "purpose": "[Stub] Alerting rules for suspicious activity and incident response.",
+          "keyUiWidgets": [
+            "Alert rule list",
+            "Notification channels",
+            "Acknowledge workflow"
+          ],
+          "requiredApi": [
+            "GET /api/security/alerts (proposed)",
+            "POST /api/security/alerts (proposed)",
+            "POST /api/security/alerts/:id/acknowledge (proposed)"
+          ],
+          "dbEntities": [
+            "security_alerts",
+            "alert_channels",
+            "incident_actions"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SECURITY_ADMIN"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "notifications",
+      "label": {
+        "en": "Notifications",
+        "ar": "الإشعارات"
+      },
+      "children": [
+        {
+          "id": "notifications-center",
+          "label": {
+            "en": "Notification Center",
+            "ar": "مركز الإشعارات"
+          },
+          "path": "/admin/notifications/center",
+          "status": "stub",
+          "purpose": "[Stub] Unified inbox of system notifications with prioritization.",
+          "keyUiWidgets": [
+            "Notification feed",
+            "Priority filters",
+            "Bulk actions"
+          ],
+          "requiredApi": [
+            "GET /api/notifications (proposed)",
+            "PUT /api/notifications/:id (proposed)"
+          ],
+          "dbEntities": [
+            "notifications",
+            "notification_preferences",
+            "users"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "COMMUNICATIONS_ADMIN"
+          ]
+        },
+        {
+          "id": "notifications-email",
+          "label": {
+            "en": "Email Notifications",
+            "ar": "إشعارات البريد الإلكتروني"
+          },
+          "path": "/admin/notifications/email",
+          "status": "stub",
+          "purpose": "[Stub] Configure and monitor outbound email campaigns and alerts.",
+          "keyUiWidgets": [
+            "Campaign list",
+            "Delivery analytics",
+            "Template picker"
+          ],
+          "requiredApi": [
+            "GET /api/notifications/email (proposed)",
+            "POST /api/notifications/email/send (proposed)"
+          ],
+          "dbEntities": [
+            "email_notifications",
+            "message_templates",
+            "deliverability_metrics"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "COMMUNICATIONS_ADMIN",
+            "MARKETING_ADMIN"
+          ]
+        },
+        {
+          "id": "notifications-push",
+          "label": {
+            "en": "Push Notifications",
+            "ar": "الإشعارات الفورية"
+          },
+          "path": "/admin/notifications/push",
+          "status": "stub",
+          "purpose": "[Stub] Manage push notification topics and performance.",
+          "keyUiWidgets": [
+            "Topic manager",
+            "Delivery chart",
+            "Test push button"
+          ],
+          "requiredApi": [
+            "GET /api/notifications/push (proposed)",
+            "POST /api/notifications/push/send (proposed)"
+          ],
+          "dbEntities": [
+            "push_notifications",
+            "notification_tokens"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "COMMUNICATIONS_ADMIN"
+          ]
+        },
+        {
+          "id": "notifications-templates",
+          "label": {
+            "en": "Notification Templates",
+            "ar": "قوالب الإشعارات"
+          },
+          "path": "/admin/notifications/templates",
+          "status": "stub",
+          "purpose": "[Stub] Template governance for omni-channel messaging.",
+          "keyUiWidgets": [
+            "Template library",
+            "Version diff viewer",
+            "Approval workflow"
+          ],
+          "requiredApi": [
+            "GET /api/notifications/templates (proposed)",
+            "POST /api/notifications/templates (proposed)"
+          ],
+          "dbEntities": [
+            "notification_templates",
+            "template_versions",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "COMMUNICATIONS_ADMIN",
+            "CONTENT_EDITOR"
+          ]
+        },
+        {
+          "id": "notifications-settings",
+          "label": {
+            "en": "Notification Settings",
+            "ar": "إعدادات الإشعارات"
+          },
+          "path": "/admin/notifications/settings",
+          "status": "stub",
+          "purpose": "[Stub] Fine-tune notification policies, quiet hours, and preferences.",
+          "keyUiWidgets": [
+            "Settings form",
+            "Channel toggles",
+            "Preview panel"
+          ],
+          "requiredApi": [
+            "GET /api/notifications/settings (proposed)",
+            "PUT /api/notifications/settings (proposed)"
+          ],
+          "dbEntities": [
+            "notification_settings",
+            "notification_preferences"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "COMMUNICATIONS_ADMIN"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "system-settings",
+      "label": {
+        "en": "System Settings",
+        "ar": "إعدادات النظام"
+      },
+      "children": [
+        {
+          "id": "system-settings-general",
+          "label": {
+            "en": "General Settings",
+            "ar": "الإعدادات العامة"
+          },
+          "path": "/admin/system/general",
+          "status": "stub",
+          "purpose": "[Stub] Global platform configuration (locale, branding, feature flags).",
+          "keyUiWidgets": [
+            "Settings tabs",
+            "Feature toggle list",
+            "Audit log"
+          ],
+          "requiredApi": [
+            "GET /api/system/settings (proposed)",
+            "PUT /api/system/settings (proposed)"
+          ],
+          "dbEntities": [
+            "system_settings",
+            "feature_flags",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SYS_ADMIN"
+          ]
+        },
+        {
+          "id": "system-settings-database",
+          "label": {
+            "en": "Database Management",
+            "ar": "إدارة قاعدة البيانات"
+          },
+          "path": "/admin/system/database",
+          "status": "stub",
+          "purpose": "[Stub] Monitor database connectivity, migrations, and replicas.",
+          "keyUiWidgets": [
+            "Connection status cards",
+            "Migration history table",
+            "Query performance chart"
+          ],
+          "requiredApi": [
+            "GET /api/system/database/health (proposed)",
+            "GET /api/system/database/migrations (proposed)"
+          ],
+          "dbEntities": [
+            "database_migrations",
+            "metrics_database",
+            "backup_jobs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SYS_ADMIN",
+            "DATA_ENGINEER"
+          ]
+        },
+        {
+          "id": "system-settings-backup",
+          "label": {
+            "en": "Backup Restore",
+            "ar": "النسخ الاحتياطي والاستعادة"
+          },
+          "path": "/admin/system/backup",
+          "status": "stub",
+          "purpose": "[Stub] Schedule and monitor backups with restore workflow.",
+          "keyUiWidgets": [
+            "Backup schedule timeline",
+            "Restore wizard",
+            "Checksum status"
+          ],
+          "requiredApi": [
+            "GET /api/system/backups (proposed)",
+            "POST /api/system/backups/run (proposed)",
+            "POST /api/system/backups/restore (proposed)"
+          ],
+          "dbEntities": [
+            "backup_jobs",
+            "backup_artifacts",
+            "restore_tickets"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SYS_ADMIN"
+          ]
+        },
+        {
+          "id": "system-settings-logs",
+          "label": {
+            "en": "System Logs",
+            "ar": "سجلات النظام"
+          },
+          "path": "/admin/system/logs",
+          "status": "stub",
+          "purpose": "[Stub] Aggregate system logs for troubleshooting.",
+          "keyUiWidgets": [
+            "Log stream",
+            "Source filters",
+            "Search bar"
+          ],
+          "requiredApi": [
+            "GET /api/system/logs (proposed)",
+            "GET /api/system/logs/export (proposed)"
+          ],
+          "dbEntities": [
+            "system_logs",
+            "audit_logs"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SYS_ADMIN",
+            "SECURITY_ADMIN"
+          ]
+        },
+        {
+          "id": "system-settings-maintenance",
+          "label": {
+            "en": "Maintenance",
+            "ar": "الصيانة"
+          },
+          "path": "/admin/system/maintenance",
+          "status": "stub",
+          "purpose": "[Stub] Plan maintenance windows, cache purges, and update orchestration.",
+          "keyUiWidgets": [
+            "Maintenance calendar",
+            "Task checklist",
+            "Status banner editor"
+          ],
+          "requiredApi": [
+            "GET /api/system/maintenance (proposed)",
+            "POST /api/system/maintenance (proposed)"
+          ],
+          "dbEntities": [
+            "maintenance_windows",
+            "system_tasks",
+            "status_banners"
+          ],
+          "rbac": [
+            "WEBSITE_ADMIN",
+            "SYS_ADMIN"
+          ]
+        }
+      ]
+    }
+  ]
+}

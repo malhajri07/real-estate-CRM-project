@@ -45,15 +45,15 @@ fi
 
 # Generate Prisma client
 echo "🔧 Generating Prisma client..."
-npx prisma generate
+npx prisma generate --schema data/schema/prisma/schema.prisma
 
 # Run database migrations
 echo "📦 Running database migrations..."
-npx prisma migrate dev --name init
+npx prisma migrate dev --name init --schema data/schema/prisma/schema.prisma
 
 # Apply RLS policies
 echo "🔒 Applying Row Level Security policies..."
-for policy_file in db/policies/*.sql; do
+for policy_file in data/schema/db/policies/*.sql; do
     if [ -f "$policy_file" ]; then
         echo "Applying $(basename "$policy_file")..."
         psql $DATABASE_URL -f "$policy_file"
@@ -62,7 +62,7 @@ done
 
 # Seed the database
 echo "🌱 Seeding database with sample data..."
-npx tsx server/seed-rbac.ts
+npx tsx apps/api/seed-rbac.ts
 
 echo "✅ Database setup completed!"
 echo ""

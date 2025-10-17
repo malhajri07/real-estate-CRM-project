@@ -58,7 +58,7 @@ export default defineConfig({
         if (!html.includes('window.SERVER_PORT')) {
           return html.replace(
             '</head>',
-            `<script>window.SERVER_PORT = '3000';</script></head>`
+            `<script>window.SERVER_PORT = '5173';</script></head>`
           );
         }
         return html;
@@ -69,14 +69,14 @@ export default defineConfig({
   // Path resolution aliases for clean imports
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "client", "src"),           // Frontend source files
-      "@shared": path.resolve(__dirname, "shared"),            // Shared utilities and types
-      "@assets": path.resolve(__dirname, "attached_assets"),   // Static assets (images, fonts)
+      "@": path.resolve(__dirname, "apps", "web", "src"),        // Frontend source files
+      "@shared": path.resolve(__dirname, "packages", "shared"),   // Shared utilities and types
+      "@assets": path.resolve(__dirname, "data", "raw-assets"),  // Static assets (images, fonts)
     },
   },
   
   // Root directory for the frontend application
-  root: path.resolve(__dirname, "client"),
+  root: path.resolve(__dirname, "apps", "web"),
   
   // Build configuration for production
   build: {
@@ -86,7 +86,7 @@ export default defineConfig({
   
   // Development server configuration
   server: {
-    port: 3000,
+    port: 5173,
     strictPort: true,
     // File system security settings
     fs: {

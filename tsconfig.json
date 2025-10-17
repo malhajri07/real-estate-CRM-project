@@ -1,15 +1,15 @@
 {
-  "include": ["client/src/**/*", "shared/**/*", "server/**/*"],
+  "include": ["apps/web/src/**/*", "packages/shared/**/*", "apps/api/**/*"],
   "exclude": [
     "node_modules", 
     "build", 
     "dist", 
     "**/*.test.ts",
-    "server/populateDatabase.ts",
-    "server/seedData.ts",
-    "server/testRoleSystem.ts",
-    "server/import-saudi-customers.ts",
-    "server/roleRoutes.ts"
+    "apps/api/populateDatabase.ts",
+    "apps/api/seedData.ts",
+    "apps/api/testRoleSystem.ts",
+    "apps/api/import-saudi-customers.ts",
+    "apps/api/roleRoutes.ts"
   ],
   "compilerOptions": {
     "incremental": true,
@@ -26,8 +26,8 @@
     "baseUrl": ".",
     "types": ["node", "vite/client"],
     "paths": {
-      "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"]
+      "@/*": ["./apps/web/src/*"],
+      "@shared/*": ["./packages/shared/*"]
     }
   }
 }
