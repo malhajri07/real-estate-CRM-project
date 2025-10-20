@@ -222,14 +222,22 @@ export async function login(identifier: string, password: string): Promise<{
   try {
     const trimmedIdentifier = identifier.trim();
     const normalizedIdentifier = trimmedIdentifier.toLowerCase();
-    // Try to find by username first, then by email for compatibility
-    const user =
-      (await prisma.users.findUnique({
-        where: { username: normalizedIdentifier }
-      })) ??
-      (await prisma.users.findUnique({
-        where: { email: trimmedIdentifier }
-      }));
+
+    let user = await prisma.users.findUnique({
+      where: { username: normalizedIdentifier }
+    });
+
+    if (!user) {
+      user = await prisma.users.findUnique({
+        where: { email: normalizedIdentifier }
+      });
+
+      if (!user && normalizedIdentifier !== trimmedIdentifier) {
+        user = await prisma.users.findUnique({
+          where: { email: trimmedIdentifier }
+        });
+      }
+    }
 
     if (!user || !user.isActive) {
       return { success: false, message: 'Invalid credentials' };

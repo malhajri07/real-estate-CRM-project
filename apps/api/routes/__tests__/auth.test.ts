@@ -284,6 +284,32 @@ async function testLoginPersistsSession() {
   });
 }
 
+async function testLoginWithEmailIsCaseInsensitive() {
+  resetState();
+  const passwordHash = await hashPassword('secret123');
+  await seedUser({
+    id: 'email-user-1',
+    username: 'mailuser',
+    email: 'mailuser@example.com',
+    firstName: 'Mail',
+    lastName: 'User',
+    passwordHash,
+    roles: JSON.stringify(['BUYER'])
+  });
+
+  await withTestApp(async (client) => {
+    const loginResponse = await client.post('/api/auth/login', {
+      email: 'MAILUSER@EXAMPLE.COM',
+      password: 'secret123'
+    });
+
+    assert.equal(loginResponse.status, 200);
+    assert.equal(loginResponse.body.success, true);
+    assert.equal(loginResponse.body.user.email, 'mailuser@example.com');
+    assert.equal(loginResponse.body.user.username, 'mailuser');
+  });
+}
+
 async function testImpersonationFlow() {
   resetState();
   const adminPassword = await hashPassword('secret123');
@@ -367,6 +393,7 @@ async function testMeResolvesFromSession() {
 
 async function run() {
   await testLoginPersistsSession();
+  await testLoginWithEmailIsCaseInsensitive();
   await testImpersonationFlow();
   await testMeResolvesFromSession();
   console.log('Auth route regression tests completed successfully');
