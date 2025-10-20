@@ -218,6 +218,9 @@ function Router() {
   const [isNormalizingUrl, setIsNormalizingUrl] = useState(false);
   const [hash, setHash] = useState(() => window.location.hash);
 
+  // Determine if user is authenticated
+  const isAuthenticated = !!user;
+
   useEffect(() => {
     const handleHashChange = () => setHash(window.location.hash);
     window.addEventListener('hashchange', handleHashChange);
@@ -238,6 +241,31 @@ function Router() {
     }
   }, [location, setLocation, hasTrailingSlash, isNormalizingUrl]);
 
+  /**
+   * Handle navigation loading effect for authenticated pages
+   *
+   * This creates a smooth loading transition when navigating between
+   * authenticated pages. The loading state lasts for 2.5 seconds to
+   * provide visual feedback during route changes.
+   */
+  useEffect(() => {
+    if (!isAuthenticated || isAdmin) {
+      setIsNavigationLoading(false);
+      setPreviousLocation(location);
+      return;
+    }
+
+    if (location !== previousLocation && previousLocation !== "") {
+      setIsNavigationLoading(true);
+      const timer = setTimeout(() => {
+        setIsNavigationLoading(false);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+
+    setPreviousLocation(location);
+  }, [location, isAuthenticated, previousLocation, isAdmin]);
+
   const shouldShowNormalizationScreen = hasTrailingSlash || isNormalizingUrl;
 
 
@@ -257,10 +285,6 @@ function Router() {
     return <SuspendedUnverifiedListingPage />;
   }
 
-=======
-  // Determine if user is authenticated
-  const isAuthenticated = !!user;
-  
   // Debug authentication state
   console.log('Auth Debug:', {
     isAuthenticated,
@@ -392,53 +416,6 @@ function Router() {
     { path: '/home/platform/post-listing', component: PostListingPage, aliases: ['/post-listing'], allowedRoles: EXTENDED_PLATFORM_ROLES },
     { path: '/home/platform/saved-searches', component: SavedSearchesPage, aliases: ['/saved-searches'], allowedRoles: EXTENDED_PLATFORM_ROLES },
   ];
-
-  /**
-   * Handle navigation loading effect for authenticated pages
-   *
-   * This creates a smooth loading transition when navigating between
-   * authenticated pages. The loading state lasts for 2.5 seconds to
-   * provide visual feedback during route changes.
-   */
-  useEffect(() => {
-    if (!isAuthenticated || isAdmin) {
-      setIsNavigationLoading(false);
-      setPreviousLocation(location);
-      return;
-    }
-    if (location !== previousLocation && previousLocation !== "") {
-      setIsNavigationLoading(true);
-      const timer = setTimeout(() => {
-        setIsNavigationLoading(false);
-      }, 2500);
-      return () => clearTimeout(timer);
-    }
-    setPreviousLocation(location);
-  }, [location, isAuthenticated, previousLocation, isAdmin]);
-
-  if (shouldShowNormalizationScreen) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-gray-700 text-sm">جار تهيئة الرابط...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (hash === '#list') {
-    return <UnverfiedListingPage />;
-  }
-
-  // Provide standalone rendering for the public property search page
-  if (location.startsWith('/search-properties')) {
-    return (
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
-        <SearchProperties />
-      </Suspense>
-    );
-  }
 
   /**
    * Handle logout functionality

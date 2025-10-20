@@ -14,7 +14,10 @@
 
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import RTLPreviewPage from "./dev/rtl-preview";
 import "./index.css";
 
-// Create React root and render the application
-createRoot(document.getElementById("root")!).render(<App />);
+const rootElement = document.getElementById("root")!;
+const isRTLPreview = window.location.pathname.startsWith("/dev/rtl-preview");
+
+createRoot(rootElement).render(isRTLPreview ? <RTLPreviewPage /> : <App />);

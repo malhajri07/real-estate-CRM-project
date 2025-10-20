@@ -32,40 +32,15 @@
 
   html {
     @apply bg-slate-50 text-slate-900 antialiased;
-    font-family: var(--font-sans);
-  }
-
-  html[dir="rtl"],
-  body[dir="rtl"] {
     direction: rtl;
   }
 
-  html[dir="ltr"],
-  body[dir="ltr"] {
-    direction: ltr;
-  }
-
-  html[dir="rtl"] {
-    --font-sans: var(--font-stack-arabic);
-  }
-
   body {
-    @apply bg-slate-50 text-slate-900 font-sans;
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-slate-50 text-slate-900 font-sans antialiased bg-background text-foreground;
+    direction: rtl;
+    font-feature-settings: "ss01" on, "ss02" on, 'rlig' 1, 'calt' 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  body,
-  button,
-  input,
-  textarea,
-  select {
-    font-family: var(--font-sans);
-    font-feature-settings: "ss01" on, "ss02" on;
-    -webkit-font-smoothing: antialiased;
   }
 
   body[dir="rtl"],
@@ -113,70 +88,6 @@
 
   table {
     @apply w-full text-sm text-right;
-  }
-}
-
-@layer components {
-  .page-container {
-    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8;
-  }
-
-  .page-section {
-    @apply bg-white rounded-3xl border border-slate-200/60 shadow-sm hover:shadow-md transition-shadow duration-200;
-  }
-
-  .page-section__header {
-    @apply px-6 py-4 border-b border-slate-200/70 flex items-center justify-between gap-3;
-  }
-
-  .page-section__body {
-    @apply px-6 py-5 space-y-4;
-  }
-
-  .stats-grid {
-    @apply grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4;
-  }
-
-  .metric-card {
-    @apply bg-white rounded-3xl border border-slate-200/60 shadow-sm p-6 flex flex-col gap-3 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg;
-  }
-
-  .metric-card__label {
-    @apply text-sm text-slate-500 font-medium;
-  }
-
-  .metric-card__value {
-    @apply text-2xl font-bold text-slate-900 font-arabic;
-  }
-
-  .surface-panel {
-    @apply bg-white rounded-3xl border border-slate-200/70 shadow-sm;
-  }
-
-  .surface-panel__title {
-    @apply text-lg font-semibold text-slate-800;
-  }
-
-  .surface-panel__subtitle {
-    @apply text-sm text-slate-500;
-  }
-
-  .data-list {
-    @apply divide-y divide-slate-200/70;
-  }
-
-  .data-list__item {
-    @apply flex items-center justify-between gap-4 py-3;
-  }
-}
-
-@layer utilities {
-  .shadow-soft {
-    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.05);
-  }
-
-  .glass-surface {
-    @apply bg-white/80 backdrop-blur-xl border border-white/70;
   }
 }
 
@@ -412,10 +323,23 @@
   --brand-cream: hsl(48 26% 97%);
   --brand-green-light: hsl(145 25% 85%);
   --brand-blue-dark: hsl(205 70% 20%);
+  --font-sans: 'Noto Kufi Arabic', 'Noto Sans Arabic', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Inter', serif;
+  --font-mono: 'Inter', monospace;
+  --font-display: 'Janat Bold', 'Noto Sans Arabic', sans-serif;
+  --font-arabic: 'Noto Kufi Arabic', 'Noto Sans Arabic', sans-serif;
+  --font-password: Arial, Helvetica, sans-serif;
   --radius: 0.875rem;
   --success: hsl(142 76% 36%);
   --warning: hsl(35 91% 65%);
   --error: hsl(0 84% 60%);
+}
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
 }
 
 /* Layout stability fixes */
@@ -438,22 +362,6 @@ html, body {
   bottom: 0;
   overflow-y: auto;
   overflow-x: hidden;
-}
-
-/* Font Family Classes */
-.font-arabic-display,
-.font-droid-kufi,
-.font-janat-bold,
-.font-arabic-stack {
-  font-family: var(--font-stack-display);
-}
-
-.font-arabic-body {
-  font-family: var(--font-stack-arabic);
-}
-
-.font-password {
-  font-family: var(--font-sans);
 }
 
 /* Direction and Alignment Classes */

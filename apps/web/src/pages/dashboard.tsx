@@ -202,7 +202,7 @@ export default function Dashboard() {
             {/* Deal Pipeline Overview - Moved to Top */}
             <div className="page-section overflow-hidden">
               <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-droid-kufi">
+                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
                   <Filter className="w-5 h-5 text-slate-500" />
                   مراحل الصفقات
                 </h2>
@@ -210,35 +210,35 @@ export default function Dashboard() {
               <div className="p-6">
                 <div className="grid grid-cols-5 gap-4">
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <div className="text-xl font-semibold text-slate-700 mb-1 font-droid-kufi">
+                    <div className="text-xl font-semibold text-slate-700 mb-1 font-display">
                       {metrics?.pipelineByStage?.lead || 0}
                     </div>
                     <div className="text-xs text-slate-500 font-medium">عملاء محتملين</div>
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <div className="text-xl font-semibold text-slate-700 mb-1 font-droid-kufi">
+                    <div className="text-xl font-semibold text-slate-700 mb-1 font-display">
                       {metrics?.pipelineByStage?.qualified || 0}
                     </div>
                     <div className="text-xs text-slate-500 font-medium">مؤهل</div>
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <div className="text-xl font-semibold text-slate-700 mb-1 font-droid-kufi">
+                    <div className="text-xl font-semibold text-slate-700 mb-1 font-display">
                       {metrics?.pipelineByStage?.showing || 0}
                     </div>
                     <div className="text-xs text-slate-500 font-medium">عرض</div>
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <div className="text-xl font-semibold text-slate-700 mb-1 font-droid-kufi">
+                    <div className="text-xl font-semibold text-slate-700 mb-1 font-display">
                       {metrics?.pipelineByStage?.negotiation || 0}
                     </div>
                     <div className="text-xs text-slate-500 font-medium">تفاوض</div>
                   </div>
 
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <div className="text-xl font-semibold text-slate-700 mb-1 font-droid-kufi">
+                    <div className="text-xl font-semibold text-slate-700 mb-1 font-display">
                       {metrics?.pipelineByStage?.closed || 0}
                     </div>
                     <div className="text-xs text-slate-500 font-medium">مغلق</div>
@@ -251,7 +251,7 @@ export default function Dashboard() {
             <div className="page-section overflow-hidden">
               <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-droid-kufi">
+                  <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
                     <Users className="w-5 h-5 text-slate-500" />
                     العملاء المحتملين الجدد
                   </h2>
@@ -271,7 +271,7 @@ export default function Dashboard() {
                       <div key={lead.id} className="flex items-center justify-between px-3 py-2 rounded-lg border border-slate-100 bg-white hover:bg-slate-50 transition">
                         <div className="flex items-center justify-between w-full">
                           <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                            <span className="font-semibold text-gray-900 tracking-tight font-droid-kufi">{lead.firstName} {lead.lastName}</span>
+                            <span className="font-semibold text-gray-900 tracking-tight font-display">{lead.firstName} {lead.lastName}</span>
                             <span className="text-sm text-gray-600">{lead.phone}</span>
                             <span className="text-sm text-gray-700 font-medium">{lead.city || 'غير محدد'}</span>
                             <span className="text-xs text-gray-500">{lead.age ? `${lead.age} سنة` : 'غير محدد'}</span>
@@ -304,7 +304,7 @@ export default function Dashboard() {
             {/* Quick Actions */}
             <div className="page-section overflow-hidden">
               <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-droid-kufi">
+                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
                   <Plus className="w-5 h-5 text-slate-500" />
                   إجراءات سريعة
                 </h2>
@@ -342,7 +342,7 @@ export default function Dashboard() {
             {/* Today's Tasks */}
             <div className="page-section overflow-hidden">
               <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-droid-kufi">
+                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
                   <Calendar className="w-5 h-5 text-slate-500" />
                   مهام اليوم
                 </h2>

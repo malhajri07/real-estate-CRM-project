@@ -29,6 +29,30 @@
 import type { Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
 
+const fontSans = [
+  "var(--font-sans)",
+];
+
+const fontSerif = [
+  "var(--font-serif)",
+];
+
+const fontMono = [
+  "var(--font-mono)",
+];
+
+const fontDisplay = [
+  "var(--font-display)",
+];
+
+const fontArabic = [
+  "var(--font-arabic)",
+];
+
+const fontPassword = [
+  "var(--font-password)",
+];
+
 export default {
   // Dark mode configuration using class strategy
   darkMode: ["class"],
@@ -126,10 +150,13 @@ export default {
        * Pages affected: All pages with text content
        */
       fontFamily: {
-        sans: ["var(--font-sans)"],
-        serif: ["var(--font-serif)"],
-        mono: ["var(--font-mono)"],
-        arabic: ["var(--font-arabic)"],
+        sans: fontSans,
+        serif: fontSerif,
+        mono: fontMono,
+        inter: ["Inter", "sans-serif"],
+        arabic: fontArabic,
+        display: fontDisplay,
+        password: fontPassword,
       },
       maxWidth: {
         '10xl': '96rem',
@@ -159,9 +186,60 @@ export default {
     },
   },
   plugins: [
-    plugin(({ addVariant }) => {
+    plugin(({ addVariant, addComponents, addUtilities }) => {
       addVariant("rtl", '[dir="rtl"] &');
       addVariant("ltr", '[dir="ltr"] &');
+
+      addComponents({
+        ".page-container": {
+          "@apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8": {},
+        },
+        ".page-section": {
+          "@apply bg-white rounded-3xl border border-slate-200/60 shadow-sm hover:shadow-md transition-shadow duration-200": {},
+        },
+        ".page-section__header": {
+          "@apply px-6 py-4 border-b border-slate-200/70 flex items-center justify-between gap-3": {},
+        },
+        ".page-section__body": {
+          "@apply px-6 py-5 space-y-4": {},
+        },
+        ".stats-grid": {
+          "@apply grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4": {},
+        },
+        ".metric-card": {
+          "@apply bg-white rounded-3xl border border-slate-200/60 shadow-sm p-6 flex flex-col gap-3 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg": {},
+        },
+        ".metric-card__label": {
+          "@apply text-sm text-slate-500 font-medium": {},
+        },
+        ".metric-card__value": {
+          "@apply text-2xl font-bold text-slate-900 font-arabic": {},
+        },
+        ".surface-panel": {
+          "@apply bg-white rounded-3xl border border-slate-200/70 shadow-sm": {},
+        },
+        ".surface-panel__title": {
+          "@apply text-lg font-semibold text-slate-800": {},
+        },
+        ".surface-panel__subtitle": {
+          "@apply text-sm text-slate-500": {},
+        },
+        ".data-list": {
+          "@apply divide-y divide-slate-200/70": {},
+        },
+        ".data-list__item": {
+          "@apply flex items-center justify-between gap-4 py-3": {},
+        },
+      });
+
+      addUtilities({
+        ".shadow-soft": {
+          boxShadow: "0 12px 40px rgba(15, 23, 42, 0.05)",
+        },
+        ".glass-surface": {
+          "@apply bg-white/80 backdrop-blur-xl border border-white/70": {},
+        },
+      });
     }),
     require("tailwindcss-animate"),
     require("@tailwindcss/typography"),

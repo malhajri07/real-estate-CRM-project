@@ -82,7 +82,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl mx-4 my-2 p-3 bg-gray-50">
         <DialogHeader className="mb-3 text-right">
-          <DialogTitle className="text-title-small font-bold text-gray-900 font-droid-kufi">إضافة عميل محتمل جديد</DialogTitle>
+          <DialogTitle className="text-title-small font-bold text-gray-900 font-display">إضافة عميل محتمل جديد</DialogTitle>
           <DialogDescription className="text-xxs text-gray-600 mt-1">
             املأ المعلومات التالية لإضافة عميل محتمل جديد إلى النظام
           </DialogDescription>
@@ -92,7 +92,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
             {/* Personal & Contact Information Combined */}
             <div className="bg-gray-100 p-2 rounded-md">
-              <h3 className="text-xxs font-bold text-gray-900 mb-1 font-droid-kufi text-right">
+              <h3 className="text-xxs font-bold text-gray-900 mb-1 font-display text-right">
                 المعلومات الشخصية والاتصال
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-6 gap-2">
@@ -252,7 +252,7 @@ export default function AddLeadModal({ open, onOpenChange }: AddLeadModalProps) 
 
             {/* Demographics & Business Information Combined */}
             <div className="bg-gray-100 p-2 rounded-md">
-              <h3 className="text-xxs font-bold text-gray-900 mb-1 font-droid-kufi text-right">
+              <h3 className="text-xxs font-bold text-gray-900 mb-1 font-display text-right">
                 المعلومات الديموغرافية والتجارية
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
