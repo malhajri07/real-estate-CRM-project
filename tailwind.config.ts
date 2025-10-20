@@ -12,7 +12,7 @@
  * 
  * Key Features:
  * - Brand Colors: Custom primary, secondary, success, warning, error colors
- * - Arabic Typography: Noto Sans Arabic font for RTL text
+ * - Arabic Typography: Noto Kufi Arabic font for RTL text
  * - Component Theming: Sidebar, cards, and chart color schemes
  * - Responsive Design: Mobile-first responsive utilities
  * - Animation System: Custom keyframes and animations
@@ -141,11 +141,10 @@ export default {
        * Font Family Configuration
        * 
        * Defines font families for different text types:
-       * - sans: Default sans-serif fonts
+       * - sans: Default sans-serif font stack (Inter)
        * - serif: Serif fonts for headings
        * - mono: Monospace fonts for code
-       * - inter: Inter font for English text
-       * - arabic: Noto Sans Arabic for Arabic text (RTL support)
+       * - arabic: Arabic-first stack powered by CSS variable token
        * 
        * Used in: All text elements, RTL layout
        * Pages affected: All pages with text content

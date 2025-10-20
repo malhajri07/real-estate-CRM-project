@@ -797,7 +797,7 @@ router.post('/users', async (req, res) => {
 
     const result = await prisma.$transaction(async (tx) => {
       // Hash password inside the transaction scope to keep secrets contained
-      const bcrypt = require('bcrypt');
+      const bcrypt = require('bcryptjs');
       const passwordHash = await bcrypt.hash(password, 12);
 
       const createdUser = await tx.users.create({

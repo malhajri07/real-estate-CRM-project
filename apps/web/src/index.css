@@ -2,8 +2,7 @@
  * index.css - Global Styles and CSS Configuration
  * 
  * This file contains:
- * - Google Fonts import for Inter font family
- * - Custom Arabic font definitions (Noto Sans Arabic, Janat Bold)
+ * - Global font token definitions for Inter and Arabic stacks
  * - Tailwind CSS imports and configuration
  * - RTL (Right-to-Left) layout fixes for Arabic language support
  * - Custom CSS variables and utility classes
@@ -18,9 +17,8 @@
  * 6. Utility classes
  */
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@200;300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Google Fonts import to centralize font loading */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Kufi+Arabic:wght@200;300;400;500;600;700;800&display=swap");
 
 /* Tailwind CSS imports - Base, components, and utilities */
 @tailwind base;
@@ -28,6 +26,10 @@
 @tailwind utilities;
 
 @layer base {
+  * {
+    @apply border-border;
+  }
+
   html {
     @apply bg-slate-50 text-slate-900 antialiased;
     direction: rtl;
@@ -42,8 +44,14 @@
   }
 
   body[dir="rtl"],
-  html[dir="rtl"] body {
-    @apply font-arabic tracking-tight;
+  html[dir="rtl"] body,
+  body.rtl {
+    font-family: var(--font-stack-arabic);
+    letter-spacing: -0.01em;
+  }
+
+  body.ltr {
+    font-family: var(--font-stack-latin);
   }
 
   main {
@@ -265,6 +273,16 @@
 }
 
 :root {
+  /* Shared font stacks */
+  --font-stack-latin: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-stack-arabic: 'Noto Kufi Arabic', 'Noto Sans Arabic', var(--font-stack-latin);
+  --font-stack-display: 'Janat Bold', 'Noto Sans Arabic', var(--font-stack-latin);
+
+  /* Tailwind font variables */
+  --font-sans: var(--font-stack-latin);
+  --font-serif: 'Inter', serif;
+  --font-mono: 'Inter', monospace;
+
   /* Custom color palette using specified colors */
   --background: hsl(48 26% 97%);
   --foreground: hsl(205 70% 27%);
@@ -298,7 +316,7 @@
   --sidebar-accent-foreground: hsl(205 70% 27%);
   --sidebar-border: hsl(145 15% 91%);
   --sidebar-ring: hsl(145 35% 58%);
-  
+
   /* Custom brand colors */
   --brand-green: hsl(145 35% 58%);
   --brand-blue: hsl(205 70% 27%);
