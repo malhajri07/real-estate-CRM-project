@@ -30,31 +30,8 @@
 
 import * as express from 'express';
 import { z } from 'zod';
-import { login, register, impersonateUser, authenticateToken } from '../auth';
+import { login, register, impersonateUser, authenticateToken, UserRole } from '../auth';
 import { requireRole } from '../rbac';
-
-/**
- * UserRole Enum - Local definition for route validation
- * 
- * Defines the 6 user roles in the RBAC system:
- * - WEBSITE_ADMIN: Platform owner with full system access
- * - CORP_OWNER: Corporate account owner/manager
- * - CORP_AGENT: Licensed agent under a corporate organization
- * - INDIV_AGENT: Licensed independent agent (no corporate affiliation)
- * - SELLER: Individual customer selling property
- * - BUYER: Individual customer looking to buy property
- * 
- * Used in: Request validation, role-based access control
- * Pages affected: All pages with role-based access
- */
-enum UserRole {
-  WEBSITE_ADMIN = 'WEBSITE_ADMIN',
-  CORP_OWNER = 'CORP_OWNER',
-  CORP_AGENT = 'CORP_AGENT',
-  INDIV_AGENT = 'INDIV_AGENT',
-  SELLER = 'SELLER',
-  BUYER = 'BUYER'
-}
 
 const router = express.Router();
 

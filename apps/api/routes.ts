@@ -68,6 +68,7 @@ import analyticsRoutes from "./src/routes/analytics"; // Analytics data
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
 import cmsLandingRoutes from "./routes/cms-landing";
 import { LandingService } from "./services/landingService";
+import { JWT_SECRET as getJwtSecret } from "./config/env";
 
 /**
  * registerRoutes - Main route registration function
@@ -436,7 +437,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '');
       if (!token) return { roles: [] };
-      const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        const decoded: any = jwt.verify(token, getJwtSecret());
       let roles: string[] = [];
       try { roles = JSON.parse(decoded.roles || '[]'); } catch { if (decoded.roles) roles = [decoded.roles]; }
       return { id: decoded.userId, roles, organizationId: decoded.organizationId };

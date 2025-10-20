@@ -21,7 +21,8 @@ import {
   Save,
   RefreshCw
 } from 'lucide-react';
-import { useAuth, UserRole } from '@/components/auth/AuthProvider';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { UserRole } from '@shared/rbac';
 
 interface AdminSettings {
   // Platform Features

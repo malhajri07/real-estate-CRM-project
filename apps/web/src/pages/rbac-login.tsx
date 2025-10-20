@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useAuth, UserRole } from '@/components/auth/AuthProvider';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { UserRole } from '@shared/rbac';
 import LoginForm from '@/components/auth/LoginForm';
 import { Button } from '@/components/ui/button';
 import { Loader2, LogOut } from 'lucide-react';

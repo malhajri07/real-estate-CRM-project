@@ -7,48 +7,32 @@
  * and system analytics.
  */
 
-import { Router } from "express";
+import { Router, type Request, type Response, type NextFunction } from "express";
 import { Prisma } from "@prisma/client";
 import { startOfDay, endOfDay, subDays, addDays } from "date-fns";
 import { prisma } from "../prismaClient";
 import jwt from "jsonwebtoken";
+import { JWT_SECRET as getJwtSecret } from "../config/env";
+import {
+  DEFAULT_USER_ROLE,
+  ROLE_DISPLAY_TRANSLATIONS,
+  UserRole,
+  normalizeRoleKeys,
+  parseStoredRoles,
+  serializeRoles,
+} from "@shared/rbac";
+import type { Session, SessionData } from "express-session";
 
 const router = Router();
 
-// JWT secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-
-const DEFAULT_USER_ROLE = 'BUYER';
-
-const ROLE_DISPLAY_TRANSLATIONS: Record<string, string> = {
-  WEBSITE_ADMIN: 'مدير النظام',
-  CORP_OWNER: 'مالك الشركة',
-  CORP_AGENT: 'وكيل شركة',
-  INDIV_AGENT: 'وكيل مستقل',
-  SELLER: 'بائع',
-  BUYER: 'مشتري'
-};
-
-const normalizeRoleKeys = (input?: unknown): string[] => {
-  if (!input) return [DEFAULT_USER_ROLE];
-  if (Array.isArray(input)) {
-    const cleaned = input
-      .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
-      .map((value) => value.trim().toUpperCase());
-    return cleaned.length ? Array.from(new Set(cleaned)) : [DEFAULT_USER_ROLE];
-  }
-  if (typeof input === 'string' && input.trim().length > 0) {
-    return [input.trim().toUpperCase()];
-  }
-  return [DEFAULT_USER_ROLE];
-};
+const JWT_SECRET = getJwtSecret();
 
 const syncUserRoleAssignments = async (
   client: Prisma.TransactionClient,
   userId: string,
-  requestedRoles: string[],
+  requestedRoles: unknown,
   actorId?: string
-): Promise<string[]> => {
+): Promise<UserRole[]> => {
   const normalized = normalizeRoleKeys(requestedRoles);
 
   const roles = await client.system_roles.findMany({
@@ -77,7 +61,7 @@ const syncUserRoleAssignments = async (
     skipDuplicates: true
   });
 
-  return roles.map((role) => role.key);
+  return roles.map((role) => role.key as UserRole);
 };
 
 const syncOrganizationMembership = async (
@@ -130,27 +114,20 @@ const syncOrganizationMembership = async (
   });
 };
 
-const serializeRolesForUser = (roles: string[]) => JSON.stringify(roles.length ? roles : [DEFAULT_USER_ROLE]);
+const serializeRolesForUser = (roles: readonly UserRole[]) => serializeRoles(roles);
 
-const mapUserRoles = (user: any): string[] => {
+const mapUserRoles = (user: any): UserRole[] => {
   if (user?.user_roles?.length) {
     const keys = user.user_roles
       .map((assignment: any) => assignment.role?.key)
       .filter((key: unknown): key is string => typeof key === 'string' && key.length);
     if (keys.length) {
-      return Array.from(new Set(keys));
+      return normalizeRoleKeys(keys);
     }
   }
 
   if (user?.roles) {
-    try {
-      const parsed = JSON.parse(user.roles ?? '[]');
-      if (Array.isArray(parsed) && parsed.length) {
-        return parsed.filter((value): value is string => typeof value === 'string');
-      }
-    } catch (error) {
-      return [user.roles];
-    }
+    return parseStoredRoles(user.roles);
   }
 
   return [DEFAULT_USER_ROLE];
@@ -164,10 +141,14 @@ const appendApprovalHistory = (existingMetadata: any, entry: { action: string; a
   return metadata;
 };
 
-const resolveAccessibleOrganizationIds = async (user: any): Promise<string[]> => {
+const resolveAccessibleOrganizationIds = async (user: any | null | undefined): Promise<string[]> => {
+  if (!user) {
+    return [];
+  }
+
   const roles = mapUserRoles(user);
 
-  if (roles.includes('WEBSITE_ADMIN')) {
+  if (roles.includes(UserRole.WEBSITE_ADMIN)) {
     const all = await prisma.organizations.findMany({ select: { id: true } });
     return all.map((org) => org.id);
   }
@@ -181,35 +162,36 @@ const resolveAccessibleOrganizationIds = async (user: any): Promise<string[]> =>
 };
 
 // Middleware to verify admin access
-const requireAdmin = async (req: any, res: any, next: any) => {
+type AdminSession = Session & Partial<SessionData> & {
+  authToken?: string;
+  user?: any;
+};
+
+const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const headerToken = req.headers.authorization?.replace('Bearer ', '');
-    const sessionToken = req.session?.authToken as string | undefined;
-    const sessionUser = req.session?.user;
+    const session = req.session as AdminSession | undefined;
+    const sessionToken = session?.authToken;
+    const sessionUser = session?.user;
+    
+    console.log('[requireAdmin] Headers auth:', !!headerToken);
+    console.log('[requireAdmin] Session exists:', !!session);
+    console.log('[requireAdmin] Session token:', !!sessionToken);
+    console.log('[requireAdmin] Session user:', !!sessionUser);
+    console.log('[requireAdmin] Session user roles:', sessionUser?.roles);
 
+    
     if (!headerToken && !sessionToken && !sessionUser) {
       return res.status(401).json({ success: false, message: 'No token provided' });
     }
 
-    const loadUser = async (userId: string) => {
-      return prisma.users.findUnique({
+    const loadUser = async (userId: string) =>
+      prisma.users.findUnique({
         where: { id: userId }
       });
-    };
 
-    const ensureAdmin = (rolesValue: string | string[]) => {
-      let roles: string[] = [];
-      if (Array.isArray(rolesValue)) {
-        roles = rolesValue;
-      } else {
-        try {
-          roles = JSON.parse(rolesValue);
-        } catch {
-          roles = [rolesValue];
-        }
-      }
-      return roles.includes('WEBSITE_ADMIN');
-    };
+    const ensureAdmin = (rolesValue: unknown) =>
+      normalizeRoleKeys(rolesValue).includes(UserRole.WEBSITE_ADMIN);
 
     if (headerToken) {
       const decoded = jwt.verify(headerToken, JWT_SECRET) as any;
@@ -217,35 +199,71 @@ const requireAdmin = async (req: any, res: any, next: any) => {
       if (!user) {
         return res.status(401).json({ success: false, message: 'User not found' });
       }
-      if (!ensureAdmin(user.roles)) {
+      // Parse roles from string to array
+      let parsedRoles: string[] = [];
+      try {
+        parsedRoles = JSON.parse(user.roles);
+      } catch {
+        parsedRoles = [user.roles];
+      }
+      const userRoles = normalizeRoleKeys(parsedRoles);
+      if (!ensureAdmin(userRoles)) {
         return res.status(403).json({ success: false, message: 'Admin access required' });
       }
-      req.user = user;
+      req.user = { ...user, roles: userRoles };
       return next();
     }
 
     if (sessionToken) {
-      const decoded = jwt.verify(sessionToken, JWT_SECRET) as any;
-      const user = await loadUser(decoded.userId);
-      if (!user) {
-        return res.status(401).json({ success: false, message: 'User not found' });
+      try {
+        const decoded = jwt.verify(sessionToken, JWT_SECRET) as any;
+        const user = await loadUser(decoded.userId);
+        if (!user) {
+          return res.status(401).json({ success: false, message: 'User not found' });
+        }
+        // Parse roles from string to array
+        let parsedRoles: string[] = [];
+        try {
+          parsedRoles = JSON.parse(user.roles);
+        } catch {
+          parsedRoles = [user.roles];
+        }
+        const userRoles = normalizeRoleKeys(parsedRoles);
+        if (!ensureAdmin(userRoles)) {
+          return res.status(403).json({ success: false, message: 'Admin access required' });
+        }
+        req.user = { ...user, roles: userRoles };
+        return next();
+      } catch (error) {
+        console.error('Session token verification failed:', error);
       }
-      if (!ensureAdmin(user.roles)) {
-        return res.status(403).json({ success: false, message: 'Admin access required' });
-      }
-      req.user = user;
-      return next();
     }
 
     if (sessionUser) {
-      if (!ensureAdmin(sessionUser.roles)) {
+      // Handle case where roles might be serialized as JSON string
+      let sessionRoles = sessionUser.roles;
+      if (typeof sessionRoles === 'string') {
+        try {
+          sessionRoles = JSON.parse(sessionRoles);
+        } catch {
+          sessionRoles = [sessionRoles];
+        }
+      }
+      
+      // Direct check for WEBSITE_ADMIN role
+      const isAdmin = Array.isArray(sessionRoles) && sessionRoles.includes('WEBSITE_ADMIN');
+      
+      if (!isAdmin) {
         return res.status(403).json({ success: false, message: 'Admin access required' });
       }
-      req.user = sessionUser;
+      req.user = {
+        ...sessionUser,
+        roles: normalizeRoleKeys(sessionRoles),
+      };
       return next();
     }
 
-    return res.status(401).json({ success: false, message: 'No token provided' });
+    return res.status(401).json({ success: false, message: 'Invalid admin session' });
   } catch (error) {
     console.error('Admin auth error:', error);
     res.status(401).json({ success: false, message: 'Invalid token' });
@@ -253,6 +271,23 @@ const requireAdmin = async (req: any, res: any, next: any) => {
 };
 
 // Apply admin middleware to all routes
+// Test endpoint to check session (before requireAdmin middleware)
+router.get("/test-session", (req, res) => {
+  const session = req.session as AdminSession | undefined;
+  const sessionUser = session?.user;
+  const sessionToken = session?.authToken;
+  res.json({
+    success: true,
+    hasSession: !!session,
+    hasSessionUser: !!sessionUser,
+    hasSessionToken: !!sessionToken,
+    sessionUser: sessionUser,
+    sessionUserRoles: sessionUser?.roles,
+    sessionUserRolesType: typeof sessionUser?.roles,
+    sessionUserRolesIsArray: Array.isArray(sessionUser?.roles)
+  });
+});
+
 router.use(requireAdmin);
 
 /**
@@ -1271,21 +1306,24 @@ router.get('/roles', async (req, res) => {
       }
     });
 
-    const payload = roles.map((role) => ({
-      name: role.key,
-      displayName: ROLE_DISPLAY_TRANSLATIONS[role.key] ?? role.name,
-      description: role.description,
-      scope: role.scope,
-      isSystem: role.isSystem,
-      isDefault: role.isDefault,
-      permissions: role.role_permissions.map((assignment) => assignment.permission.key),
-      permissionDetails: role.role_permissions.map((assignment) => ({
-        key: assignment.permission.key,
-        label: assignment.permission.label,
-        description: assignment.permission.description,
-        domain: assignment.permission.domain
-      }))
-    }));
+    const payload = roles.map((role) => {
+      const normalizedKey = normalizeRoleKeys(role.key)[0] ?? DEFAULT_USER_ROLE;
+      return {
+        name: role.key,
+        displayName: ROLE_DISPLAY_TRANSLATIONS[normalizedKey] ?? role.name,
+        description: role.description,
+        scope: role.scope,
+        isSystem: role.isSystem,
+        isDefault: role.isDefault,
+        permissions: role.role_permissions.map((assignment) => assignment.permission.key),
+        permissionDetails: role.role_permissions.map((assignment) => ({
+          key: assignment.permission.key,
+          label: assignment.permission.label,
+          description: assignment.permission.description,
+          domain: assignment.permission.domain
+        }))
+      };
+    });
 
     res.json({
       success: true,

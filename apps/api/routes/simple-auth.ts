@@ -11,11 +11,14 @@ import { Router } from "express";
 import { prisma } from "../prismaClient";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { randomUUID } from "crypto";
+import { JWT_SECRET as getJwtSecret } from "../config/env";
+import { normalizeRoleKeys } from "@shared/rbac";
 
 const router = Router();
 
 // JWT secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = getJwtSecret();
 
 // Simple in-memory rate limiting for login attempts (per IP)
 const LOGIN_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
@@ -110,8 +113,9 @@ router.post('/login', async (req, res) => {
     try {
       const ip = (req.headers['x-forwarded-for'] as string) || req.ip || '';
       const ua = req.headers['user-agent'] || '';
-      await prisma.auditLog.create({
+      await prisma.audit_logs.create({
         data: {
+          id: randomUUID(),
           userId: user.id,
           action: 'LOGIN',
           entity: 'USER',
@@ -126,12 +130,13 @@ router.post('/login', async (req, res) => {
     }
 
     // Parse roles from string to array
-    let parsedRoles = [];
+    let parsedRoles: string[] = [];
     try {
       parsedRoles = JSON.parse(user.roles);
-    } catch (e) {
-      parsedRoles = [user.roles]; // Fallback to single role
+    } catch {
+      parsedRoles = [user.roles];
     }
+    const normalizedRoles = normalizeRoleKeys(parsedRoles);
 
     const sessionUser = {
       id: user.id,
@@ -140,9 +145,10 @@ router.post('/login', async (req, res) => {
       name: `${user.firstName} ${user.lastName}`,
       firstName: user.firstName,
       lastName: user.lastName,
-      roles: parsedRoles,
+      roles: normalizedRoles, // This should be an array of UserRole values
       organizationId: user.organizationId,
     };
+    
 
     req.session.user = sessionUser; // Store the active user in the session to allow parallel user sessions
     req.session.authToken = token; // Keep the JWT handy for session-authenticated API calls

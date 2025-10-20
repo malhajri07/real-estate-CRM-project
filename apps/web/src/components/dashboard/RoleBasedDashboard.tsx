@@ -16,7 +16,8 @@ import {
   ShoppingCart,
   User
 } from 'lucide-react';
-import { useAuth, UserRole } from '@/components/auth/AuthProvider';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { UserRole, ROLE_DISPLAY_TRANSLATIONS } from '@shared/rbac';
 
 export default function RoleBasedDashboard() {
   const { user, hasRole, hasPermission } = useAuth();
@@ -31,17 +32,7 @@ export default function RoleBasedDashboard() {
     );
   }
 
-  const getRoleDisplayName = (role: UserRole) => {
-    const roleNames = {
-      WEBSITE_ADMIN: 'مدير النظام',
-      CORP_OWNER: 'مالك شركة',
-      CORP_AGENT: 'وكيل شركة',
-      INDIV_AGENT: 'وكيل مستقل',
-      SELLER: 'بائع',
-      BUYER: 'مشتري'
-    };
-    return roleNames[role] || role;
-  };
+  const getRoleDisplayName = (role: UserRole) => ROLE_DISPLAY_TRANSLATIONS[role] ?? role;
 
   const getRoleColor = (role: UserRole) => {
     const roleColors = {

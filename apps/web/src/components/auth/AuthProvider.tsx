@@ -2,22 +2,8 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 import { useLocation } from 'wouter';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-
-/**
- * UserRole Enum - Defines all possible user roles in the RBAC system
- * 
- * This enum is defined locally on the client side since @prisma/client 
- * is not available in the browser environment. Each role represents
- * a different level of access and permissions within the real estate platform.
- */
-export enum UserRole {
-  WEBSITE_ADMIN = 'WEBSITE_ADMIN',    // Platform owner/admin with full system access
-  CORP_OWNER = 'CORP_OWNER',          // Corporate account owner/manager
-  CORP_AGENT = 'CORP_AGENT',          // Licensed agent under a corporate organization
-  INDIV_AGENT = 'INDIV_AGENT',        // Licensed independent agent (no corporate affiliation)
-  SELLER = 'SELLER',                  // Individual customer selling property
-  BUYER = 'BUYER',                    // Individual customer looking to buy property
-}
+import { UserRole, ROLE_PERMISSIONS, normalizeRoleKeys } from '@shared/rbac';
+export { UserRole } from '@shared/rbac';
 
 /**
  * User Interface - Defines the structure of a user object
@@ -69,57 +55,7 @@ interface AuthContextType {
 // Create the React context for authentication state management
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * ROLE_PERMISSIONS - Permission mapping for each user role
- * 
- * This object defines what permissions each role has in the system.
- * It implements the RBAC (Role-Based Access Control) system by mapping
- * each role to an array of specific permissions they can perform.
- * 
- * Permissions are granular actions that can be performed in the system,
- * such as managing users, viewing data, or performing specific operations.
- */
-const ROLE_PERMISSIONS = {
-  WEBSITE_ADMIN: [              // Platform administrator with full system access
-    'manage_users',             // Create, edit, delete user accounts
-    'manage_organizations',     // Manage corporate organizations
-    'manage_roles',             // Assign and modify user roles
-    'view_all_data',            // Access to all system data across all organizations
-    'impersonate_users',        // Login as other users for support purposes
-    'manage_site_settings',     // Configure global platform settings
-    'view_audit_logs'           // Access to system audit and activity logs
-  ],
-  CORP_OWNER: [                 // Corporate account owner/manager
-    'manage_org_profile',       // Update organization information
-    'manage_org_agents',        // Invite, enable/disable agents in their organization
-    'view_org_data',            // View all data within their organization
-    'search_buyer_pool',        // Search the global buyer pool
-    'reassign_leads',           // Reassign leads between agents in their organization
-    'view_org_reports'          // Access to organization-specific reports and analytics
-  ],
-  CORP_AGENT: [                 // Licensed agent under a corporate organization
-    'manage_own_properties',    // Create, edit, delete their own property listings
-    'view_org_properties',      // View properties listed by other agents in their organization
-    'search_buyer_pool',        // Search the global buyer pool for potential clients
-    'claim_buyer_requests',     // Claim buyer requests to work with potential clients
-    'manage_own_leads',         // Manage leads they have claimed or been assigned
-    'view_org_leads'            // View leads from other agents in their organization
-  ],
-  INDIV_AGENT: [                // Independent licensed agent (no corporate affiliation)
-    'manage_own_properties',    // Create, edit, delete their own property listings
-    'search_buyer_pool',        // Search the global buyer pool for potential clients
-    'claim_buyer_requests',     // Claim buyer requests to work with potential clients
-    'manage_own_leads'          // Manage only their own leads (no organization access)
-  ],
-  SELLER: [                     // Individual customer selling property
-    'manage_own_submissions',   // Create and manage their property sale submissions
-    'view_own_leads'            // View leads from agents interested in their property
-  ],
-  BUYER: [                      // Individual customer looking to buy property
-    'manage_own_requests',      // Create and manage their property purchase requests
-    'view_own_claims'           // View which agents have claimed their requests
-  ]
-};
+// ROLE_PERMISSIONS comes from the shared RBAC module so the client stays in sync with the API.
 
 /**
  * AuthProvider Component - Main authentication context provider
@@ -223,19 +159,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Process successful authentication
       if (data.success) {
-        setUser(data.user);                    // Set user in React state
+        const normalizedRoles = normalizeRoleKeys(data.user?.roles);
+        const normalizedUser = { ...data.user, roles: normalizedRoles } as User;
+        setUser(normalizedUser);                    // Set user in React state
         setToken(data.token);                  // Set token in React state
         localStorage.setItem('auth_token', data.token);              // Persist token in localStorage
-        localStorage.setItem('user_data', JSON.stringify(data.user)); // Persist user data in localStorage
+        localStorage.setItem('user_data', JSON.stringify(normalizedUser)); // Persist user data in localStorage
         setSessionExpired(false);
         console.log('Login successful, user set:', data.user);
 
-        // Redirect users based on role after the auth state is stored. Admins land on the RBAC dashboard,
-        // while everyone else goes to the main platform shell. (Requested to document every change.)
-        const roles: string[] = Array.isArray(data.user?.roles) ? data.user.roles : [];
+        // Redirect users based on role after the auth state is stored. 
+        // WEBSITE_ADMIN → Admin Dashboard
+        // CORP_OWNER, CORP_AGENT, INDIV_AGENT → Platform Dashboard
+        // SELLER, BUYER → Platform Dashboard (limited access for now)
+        const roles = normalizedRoles;
         if (roles.includes(UserRole.WEBSITE_ADMIN)) {
           setLocation('/admin/overview/main-dashboard');
+        } else if (roles.some(role => 
+          [UserRole.CORP_OWNER, UserRole.CORP_AGENT, UserRole.INDIV_AGENT].includes(role)
+        )) {
+          setLocation('/home/platform');
+        } else if (roles.some(role => 
+          [UserRole.SELLER, UserRole.BUYER].includes(role)
+        )) {
+          setLocation('/home/platform');
         } else {
+          // Fallback for users with no recognized roles
           setLocation('/home/platform');
         }
       } else {
@@ -310,8 +259,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const data = await response.json();
             if (data.success) {
               // Token is valid, restore user session
-              setUser(data.user);
+              const normalizedUser = { ...data.user, roles: normalizeRoleKeys(data.user?.roles) } as User;
+              setUser(normalizedUser);
               setToken(storedToken);
+              localStorage.setItem('user_data', JSON.stringify(normalizedUser));
             } else {
               // Token is invalid, clear storage
               localStorage.removeItem('auth_token');

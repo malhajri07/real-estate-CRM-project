@@ -3,17 +3,8 @@ import express from 'express';
 import { z } from 'zod';
 import { BuyerRequestStatus, ClaimStatus } from '@prisma/client';
 import { prisma } from '../prismaClient';
-import { requireRole, isAgent, canClaimBuyerRequest, canReleaseClaim, maskContact, CLAIM_RATE_LIMITS } from '../rbac';
+import { requireRole, isAgent, canClaimBuyerRequest, canReleaseClaim, maskContact, CLAIM_RATE_LIMITS, UserRole } from '../rbac';
 import { authenticateToken } from '../auth';
-// Define UserRole enum locally since it's not exported from Prisma client
-enum UserRole {
-  WEBSITE_ADMIN = 'WEBSITE_ADMIN',
-  CORP_OWNER = 'CORP_OWNER',
-  CORP_AGENT = 'CORP_AGENT',
-  INDIV_AGENT = 'INDIV_AGENT',
-  SELLER = 'SELLER',
-  BUYER = 'BUYER'
-}
 
 const router = express.Router();
 

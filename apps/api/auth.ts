@@ -2,19 +2,17 @@ import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { prisma } from './prismaClient';
-
-// Define UserRole enum locally since it's not exported from Prisma client
-enum UserRole {
-  WEBSITE_ADMIN = 'WEBSITE_ADMIN',
-  CORP_OWNER = 'CORP_OWNER',
-  CORP_AGENT = 'CORP_AGENT',
-  INDIV_AGENT = 'INDIV_AGENT',
-  SELLER = 'SELLER',
-  BUYER = 'BUYER'
-}
+import {
+  UserRole,
+  parseStoredRoles,
+  serializeRoles,
+  normalizeRoleKeys,
+} from '@shared/rbac';
+export { UserRole } from '@shared/rbac';
+import { JWT_SECRET as getJwtSecret } from './config/env';
 
 // JWT secret (should be in environment variables)
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = getJwtSecret();
 
 // JWT payload interface
 interface JWTPayload {
@@ -87,7 +85,7 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
     req.user = {
       id: user.id,
       email: user.email ?? null,
-      roles: user.roles,
+      roles: parseStoredRoles(user.roles),
       organizationId: user.organizationId || undefined
     };
 
@@ -128,7 +126,7 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
       req.user = {
         id: user.id,
         email: user.email ?? null,
-        roles: user.roles,
+        roles: parseStoredRoles(user.roles),
         organizationId: user.organizationId || undefined
       };
     }
@@ -185,6 +183,7 @@ export async function login(identifier: string, password: string): Promise<{
       data: { lastLoginAt: new Date(), updatedAt: new Date() }
     });
 
+    const parsedRoles = parseStoredRoles(user.roles);
     const token = generateToken({
       id: user.id,
       email: user.email ?? null,
@@ -200,7 +199,7 @@ export async function login(identifier: string, password: string): Promise<{
         username: (user as any).username,
         firstName: user.firstName,
         lastName: user.lastName,
-        roles: safeParseRoles(user.roles),
+        roles: parsedRoles,
         organizationId: user.organizationId
       },
       token
@@ -240,6 +239,8 @@ export async function register(userData: {
     // Hash password
     const passwordHash = await hashPassword(userData.password);
 
+    const normalizedRoles = serializeRoles(normalizeRoleKeys(userData.roles));
+
     // Create user
     const now = new Date();
     const username = (userData.username ?? userData.email ?? `user-${Date.now()}`)
@@ -254,7 +255,7 @@ export async function register(userData: {
         firstName: userData.firstName,
         lastName: userData.lastName,
         phone: userData.phone,
-        roles: userData.roles,
+        roles: normalizedRoles,
         organizationId: userData.organizationId ?? null,
         updatedAt: now
       }
@@ -274,7 +275,7 @@ export async function register(userData: {
         email: user.email ?? null,
         firstName: user.firstName,
         lastName: user.lastName,
-        roles: safeParseRoles(user.roles),
+        roles: parseStoredRoles(user.roles),
         organizationId: user.organizationId
       },
       token
@@ -298,7 +299,12 @@ export async function impersonateUser(adminUserId: string, targetUserId: string)
       select: { roles: true }
     });
 
-    if (!adminUser || !adminUser.roles.includes(UserRole.WEBSITE_ADMIN)) {
+    if (!adminUser) {
+      return { success: false, message: 'Insufficient permissions' };
+    }
+
+    const adminRoles = parseStoredRoles(adminUser.roles);
+    if (!adminRoles.includes(UserRole.WEBSITE_ADMIN)) {
       return { success: false, message: 'Insufficient permissions' };
     }
 
@@ -335,15 +341,5 @@ export async function impersonateUser(adminUserId: string, targetUserId: string)
   } catch (error) {
     console.error('Impersonation error:', error);
     return { success: false, message: 'Impersonation failed' };
-  }
-}
-
-function safeParseRoles(raw: string | null | undefined): string[] {
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
   }
 }

@@ -1,14 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import {
+  UserRole,
+  normalizeRoleKeys,
+  hasPermission as rolesHavePermission,
+} from '@shared/rbac';
 
-// Define UserRole enum locally since it's not exported from Prisma client
-enum UserRole {
-  WEBSITE_ADMIN = 'WEBSITE_ADMIN',
-  CORP_OWNER = 'CORP_OWNER',
-  CORP_AGENT = 'CORP_AGENT',
-  INDIV_AGENT = 'INDIV_AGENT',
-  SELLER = 'SELLER',
-  BUYER = 'BUYER'
-}
+export { UserRole } from '@shared/rbac';
 
 // Extend Express Request to include user and roles
 declare global {
@@ -17,85 +14,17 @@ declare global {
       user?: {
         id: string;
         email: string | null;
-        roles: string | string[]; // Allow either JSON string or parsed array
+        roles: UserRole[] | string | null; // Supports parsed arrays and legacy string payloads
         organizationId?: string;
       };
     }
   }
 }
 
-// Helper function to parse roles string to array
-function parseRoles(rolesValue: string | string[]): UserRole[] {
-  const rawArray = Array.isArray(rolesValue)
-    ? rolesValue
-    : (() => {
-        if (!rolesValue) return [];
-        try {
-          const parsed = JSON.parse(rolesValue);
-          if (Array.isArray(parsed)) {
-            return parsed;
-          }
-          return rolesValue ? [rolesValue] : [];
-        } catch {
-          return rolesValue ? [rolesValue] : [];
-        }
-      })();
-
-  const validRoles = new Set<UserRole>(Object.values(UserRole));
-  return rawArray
-    .filter((role): role is string => typeof role === 'string')
-    .filter((role): role is UserRole => validRoles.has(role as UserRole));
-}
-
-// Role hierarchy and permissions
-export const ROLE_PERMISSIONS = {
-  WEBSITE_ADMIN: [
-    'manage_users',
-    'manage_organizations',
-    'manage_roles',
-    'view_all_data',
-    'impersonate_users',
-    'manage_site_settings',
-    'view_audit_logs'
-  ],
-  CORP_OWNER: [
-    'manage_org_profile',
-    'manage_org_agents',
-    'view_org_data',
-    'search_buyer_pool',
-    'reassign_leads',
-    'view_org_reports'
-  ],
-  CORP_AGENT: [
-    'manage_own_properties',
-    'view_org_properties',
-    'search_buyer_pool',
-    'claim_buyer_requests',
-    'manage_own_leads',
-    'view_org_leads'
-  ],
-  INDIV_AGENT: [
-    'manage_own_properties',
-    'search_buyer_pool',
-    'claim_buyer_requests',
-    'manage_own_leads'
-  ],
-  SELLER: [
-    'manage_own_submissions',
-    'view_own_leads'
-  ],
-  BUYER: [
-    'manage_own_requests',
-    'view_own_claims'
-  ]
-};
-
 // Check if user has specific permission
-export function hasPermission(userRoles: string | string[], permission: string): boolean {
-  const roles = parseRoles(userRoles);
-  return roles.some(role => 
-    ROLE_PERMISSIONS[role]?.includes(permission)
-  );
+export function hasPermission(userRoles: unknown, permission: string): boolean {
+  const roles = normalizeRoleKeys(userRoles);
+  return rolesHavePermission(roles, permission);
 }
 
 // Check if user has any of the specified roles
@@ -152,7 +81,7 @@ export function requireRole(roles: UserRole[]) {
     if (!req.user) {
       return res.status(401).json({ message: 'Authentication required' });
     }
-    const userRoles = parseRoles(req.user.roles);
+    const userRoles = normalizeRoleKeys(req.user.roles);
     
     if (!hasRole(userRoles, roles)) {
       return res.status(403).json({ 
@@ -172,7 +101,7 @@ export function requirePermission(permission: string) {
     if (!req.user) {
       return res.status(401).json({ message: 'Authentication required' });
     }
-    const userRoles = parseRoles(req.user.roles);
+    const userRoles = normalizeRoleKeys(req.user.roles);
 
     if (!hasPermission(userRoles, permission)) {
       return res.status(403).json({ 
@@ -205,7 +134,7 @@ export function canAccessOrganization(organizationId: string) {
     if (!req.user) {
       return res.status(401).json({ message: 'Authentication required' });
     }
-    const userRoles = parseRoles(req.user.roles);
+    const userRoles = normalizeRoleKeys(req.user.roles);
 
     // Website admin can access any organization
     if (isWebsiteAdmin(userRoles)) {
@@ -227,7 +156,7 @@ export function canAccessResource(resourceType: 'property' | 'listing' | 'lead' 
     if (!req.user) {
       return res.status(401).json({ message: 'Authentication required' });
     }
-    const userRoles = parseRoles(req.user.roles);
+    const userRoles = normalizeRoleKeys(req.user.roles);
     
     // Website admin can access any resource
     if (isWebsiteAdmin(userRoles)) {

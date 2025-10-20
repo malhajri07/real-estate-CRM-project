@@ -20,6 +20,7 @@ import session from "express-session"; // Enable per-user session storage so mul
 import path from "path";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { SESSION_SECRET as getSessionSecret, JWT_SECRET as getJwtSecret } from "./config/env";
 
 // Create Express application instance
 const app = express();
@@ -31,7 +32,7 @@ app.use(express.urlencoded({ extended: false })); // Parse URL-encoded request b
 // Wire up cookie-based sessions so several users can stay logged in at the same time
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "dev-session-secret", // Basic secret; override in production
+    secret: getSessionSecret(), // Fail fast if the session secret is missing
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -122,8 +123,8 @@ app.use((req, res, next) => {
       console.error('[startup] Production mode is disabled for this environment. Set ALLOW_PRODUCTION=true to enable.');
       process.exit(1);
     }
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret || jwtSecret === 'your-secret-key') {
+    const jwtSecret = getJwtSecret();
+    if (!jwtSecret.length) {
       console.error('[startup] Missing or insecure JWT_SECRET in production. Please set a strong JWT_SECRET env var.');
       process.exit(1);
     }

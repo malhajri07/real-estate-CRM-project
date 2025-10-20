@@ -22,6 +22,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { storage } from './storage-prisma';
+import { normalizeRoleKeys, UserRole } from '@shared/rbac';
 
 /**
  * AuthenticatedUser Interface - User data structure for authenticated requests
@@ -49,7 +50,7 @@ export interface AuthenticatedUser {
   companyName?: string | null;
   tenantId: string;
   permissions?: any;
-  roles: string[];
+  roles: UserRole[];
   organizationId?: string;
 }
 
@@ -68,24 +69,7 @@ export interface AuthenticatedRequest extends Request {
   tenantId?: string;
 }
 
-const parseUserRoles = (raw: unknown): string[] => {
-  if (!raw) return [];
-  if (Array.isArray(raw)) {
-    return raw.filter((role): role is string => typeof role === 'string');
-  }
-  if (typeof raw === 'string') {
-    try {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        return parsed.filter((role): role is string => typeof role === 'string');
-      }
-      return raw ? [raw] : [];
-    } catch {
-      return raw ? [raw] : [];
-    }
-  }
-  return [];
-};
+const parseUserRoles = (raw: unknown): UserRole[] => normalizeRoleKeys(raw);
 
 /**
  * UserLevel Enum - User access levels

@@ -58,6 +58,84 @@ export default function Dashboard() {
     }).format(amount) + ' ﷼';
   };
 
+  const formatNumber = (value: number, fractionDigits = 0) =>
+    new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits,
+    }).format(value);
+
+  const summaryDate = new Intl.DateTimeFormat('ar-SA', {
+    dateStyle: 'full',
+    numberingSystem: 'latn',
+  }).format(new Date());
+
+  const primarySnapshotCards = [
+    {
+      title: 'العملاء المحتملون',
+      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
+      values: { today: 0, week: 0, month: 0 },
+      accent: 'from-emerald-200/70 via-emerald-100/60 to-transparent',
+    },
+    {
+      title: 'الإعلانات المنشورة',
+      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
+      values: { today: 0, week: 0, month: 0 },
+      accent: 'from-sky-200/70 via-sky-100/60 to-transparent',
+    },
+    {
+      title: 'المواعيد المجدولة',
+      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
+      values: { today: 0, week: 0, month: 0 },
+      accent: 'from-rose-200/70 via-rose-100/60 to-transparent',
+    },
+  ];
+
+  const secondarySnapshotCards = [
+    {
+      title: 'الصفقات الرابحة',
+      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
+      values: { today: 0, week: 0, month: 0 },
+      accent: 'from-violet-200/70 via-violet-100/60 to-transparent',
+    },
+    {
+      title: 'إجمالي قيمة المبيعات (GMV)',
+      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
+      values: { today: 0, week: 0, month: 0 },
+      accent: 'from-amber-200/70 via-amber-100/60 to-transparent',
+      suffix: 'ر.س',
+      fractionDigits: 2,
+    },
+    {
+      title: 'الفواتير الصادرة',
+      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
+      values: { today: 0, week: 0, month: 0 },
+      accent: 'from-cyan-200/70 via-cyan-100/60 to-transparent',
+      suffix: 'ر.س',
+      fractionDigits: 2,
+    },
+    {
+      title: 'التحصيلات النقدية',
+      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
+      values: { today: 0, week: 0, month: 0 },
+      accent: 'from-slate-200/70 via-slate-100/60 to-transparent',
+      suffix: 'ر.س',
+      fractionDigits: 2,
+    },
+  ];
+
+  const tertiaryPanels = [
+    {
+      title: 'أفضل الوكلاء (آخر 90 يوم)',
+      description: 'استنادًا إلى عدد الصفقات الرابحة وقيمتها',
+      body: 'لا توجد بيانات كافية عن أداء الوكلاء.',
+    },
+    {
+      title: 'التذاكر الحديثة',
+      description: 'آخر عشرة تحديثات ضمن نطاق صلاحياتك',
+      body: 'لا توجد تذاكر حالياً.',
+    },
+  ];
+
   if (metricsLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -68,7 +146,9 @@ export default function Dashboard() {
 
   return (
     <>
-      <div className="space-y-8">
+      
+
+      <div className="space-y-8 mt-10">
         {/* Dashboard Metrics Cards */}
         <div className="stats-grid">
           <div className="metric-card">

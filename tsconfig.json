@@ -9,7 +9,8 @@
     "apps/api/seedData.ts",
     "apps/api/testRoleSystem.ts",
     "apps/api/import-saudi-customers.ts",
-    "apps/api/roleRoutes.ts"
+    "apps/api/roleRoutes.ts",
+    "apps/api/lib/seeds/**/*"
   ],
   "compilerOptions": {
     "incremental": true,

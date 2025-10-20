@@ -4,9 +4,12 @@ import { Menu } from "lucide-react";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { UserRole } from "@shared/rbac";
 
 export default function PublicHeader() {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -16,8 +19,23 @@ export default function PublicHeader() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const isAuth = typeof window !== "undefined" && !!localStorage.getItem("auth_token");
+  const isAuth = !!user;
   const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+  
+  // Determine dashboard URL based on user role
+  const getDashboardUrl = () => {
+    if (!user?.roles) return "/home/platform";
+    
+    if (user.roles.includes(UserRole.WEBSITE_ADMIN)) {
+      return "/admin/overview/main-dashboard";
+    } else if (user.roles.some(role => 
+      [UserRole.CORP_OWNER, UserRole.CORP_AGENT, UserRole.INDIV_AGENT, UserRole.SELLER, UserRole.BUYER].includes(role)
+    )) {
+      return "/home/platform";
+    }
+    
+    return "/home/platform";
+  };
 
   const navLinks = useMemo(
     () => [
@@ -80,7 +98,7 @@ export default function PublicHeader() {
             variant="ghost"
             size="icon"
             className="md:hidden rounded-full border border-slate-200 text-slate-600"
-            onClick={() => (window.location.href = isAuth ? "/admin/overview/main-dashboard" : "/login")}
+            onClick={() => (window.location.href = isAuth ? getDashboardUrl() : "/login")}
             aria-label="فتح القائمة أو تسجيل الدخول"
           >
             <Menu className="h-4 w-4" />
@@ -89,7 +107,7 @@ export default function PublicHeader() {
             <Button
               variant="secondary"
               className="hidden md:inline-flex rounded-2xl bg-emerald-600 text-white shadow-soft hover:bg-emerald-700"
-              onClick={() => (window.location.href = "/admin/overview/main-dashboard")}
+              onClick={() => (window.location.href = getDashboardUrl())}
             >
               {t("nav.dashboard")}
             </Button>

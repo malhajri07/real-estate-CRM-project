@@ -24,7 +24,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { UserRole } from '@/components/auth/AuthProvider';
+import { UserRole } from '@shared/rbac';
 
 interface UserData {
   id: string;

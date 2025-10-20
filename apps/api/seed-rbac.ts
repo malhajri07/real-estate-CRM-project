@@ -1,17 +1,8 @@
 // @ts-nocheck
 import { OrganizationStatus, AgentStatus, PropertyStatus, ListingType, ListingStatus, BuyerRequestStatus, SellerSubmissionStatus, LeadStatus, ClaimStatus, ContactChannel } from '@prisma/client';
-
-// Define UserRole enum locally since it's not exported from Prisma client
-enum UserRole {
-  WEBSITE_ADMIN = 'WEBSITE_ADMIN',
-  CORP_OWNER = 'CORP_OWNER',
-  CORP_AGENT = 'CORP_AGENT',
-  INDIV_AGENT = 'INDIV_AGENT',
-  SELLER = 'SELLER',
-  BUYER = 'BUYER'
-}
 import { hashPassword } from './auth';
 import { prisma } from './prismaClient';
+import { UserRole, serializeRoles } from '@shared/rbac';
 
 // Saudi cities and districts
 const SAUDI_CITIES = [
@@ -97,7 +88,7 @@ async function main() {
         firstName: 'أحمد',
         lastName: 'المدير',
         phone: '0501234567',
-        roles: JSON.stringify([UserRole.WEBSITE_ADMIN]),
+        roles: serializeRoles([UserRole.WEBSITE_ADMIN]),
         isActive: true
       }
     }),
@@ -110,7 +101,7 @@ async function main() {
         firstName: 'خالد',
         lastName: 'العتيبي',
         phone: '0502345678',
-        roles: JSON.stringify([UserRole.CORP_OWNER]),
+        roles: serializeRoles([UserRole.CORP_OWNER]),
         organizationId: organizations[0].id,
         isActive: true
       }
@@ -123,7 +114,7 @@ async function main() {
         firstName: 'سعد',
         lastName: 'الغامدي',
         phone: '0503456789',
-        roles: JSON.stringify([UserRole.CORP_OWNER]),
+        roles: serializeRoles([UserRole.CORP_OWNER]),
         organizationId: organizations[1].id,
         isActive: true
       }
@@ -137,7 +128,7 @@ async function main() {
         firstName: 'فهد',
         lastName: 'الحربي',
         phone: '0504567890',
-        roles: JSON.stringify([UserRole.CORP_AGENT]),
+        roles: serializeRoles([UserRole.CORP_AGENT]),
         organizationId: organizations[0].id,
         isActive: true
       }
@@ -150,7 +141,7 @@ async function main() {
         firstName: 'عبدالرحمن',
         lastName: 'الزهراني',
         phone: '0505678901',
-        roles: JSON.stringify([UserRole.CORP_AGENT]),
+        roles: serializeRoles([UserRole.CORP_AGENT]),
         organizationId: organizations[0].id,
         isActive: true
       }
@@ -163,7 +154,7 @@ async function main() {
         firstName: 'عبدالعزيز',
         lastName: 'القرني',
         phone: '0506789012',
-        roles: JSON.stringify([UserRole.CORP_AGENT]),
+        roles: serializeRoles([UserRole.CORP_AGENT]),
         organizationId: organizations[1].id,
         isActive: true
       }
@@ -177,7 +168,7 @@ async function main() {
         firstName: 'محمد',
         lastName: 'المطيري',
         phone: '0507890123',
-        roles: JSON.stringify([UserRole.INDIV_AGENT]),
+        roles: serializeRoles([UserRole.INDIV_AGENT]),
         isActive: true
       }
     }),
@@ -189,7 +180,7 @@ async function main() {
         firstName: 'عبدالله',
         lastName: 'الرشيد',
         phone: '0508901234',
-        roles: JSON.stringify([UserRole.INDIV_AGENT]),
+        roles: serializeRoles([UserRole.INDIV_AGENT]),
         isActive: true
       }
     }),
@@ -202,7 +193,7 @@ async function main() {
         firstName: 'فاطمة',
         lastName: 'السعيد',
         phone: '0509012345',
-        roles: JSON.stringify([UserRole.SELLER]),
+        roles: serializeRoles([UserRole.SELLER]),
         isActive: true
       }
     }),
@@ -214,7 +205,7 @@ async function main() {
         firstName: 'عائشة',
         lastName: 'الخالدي',
         phone: '0500123456',
-        roles: JSON.stringify([UserRole.SELLER]),
+        roles: serializeRoles([UserRole.SELLER]),
         isActive: true
       }
     }),
@@ -227,7 +218,7 @@ async function main() {
         firstName: 'خديجة',
         lastName: 'المالكي',
         phone: '0501234568',
-        roles: JSON.stringify([UserRole.BUYER]),
+        roles: serializeRoles([UserRole.BUYER]),
         isActive: true
       }
     }),
@@ -239,7 +230,7 @@ async function main() {
         firstName: 'مريم',
         lastName: 'النجدي',
         phone: '0502345679',
-        roles: JSON.stringify([UserRole.BUYER]),
+        roles: serializeRoles([UserRole.BUYER]),
         isActive: true
       }
     })

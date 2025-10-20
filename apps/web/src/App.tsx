@@ -28,7 +28,9 @@ import { useState, useEffect, lazy, Suspense, type ComponentType, type LazyExoti
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
-import { AuthProvider, useAuth, UserRole } from "@/components/auth/AuthProvider";
+import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
+import { UserRole } from "@shared/rbac";
+import { Button } from "@/components/ui/button";
 
 // Core page imports - loaded immediately for critical routes
 import Landing from "@/pages/landing";
@@ -102,14 +104,69 @@ const ADMIN_DASHBOARD_ROUTES = Array.from(
  */
 function Router() {
   // Get authentication state from AuthProvider context
-  const { user, isLoading, logout } = useAuth();
+  const { user, isLoading, logout, hasRole, hasPermission } = useAuth();
   const [location, setLocation] = useLocation();
+
+  const PLATFORM_CORE_ROLES: readonly UserRole[] = [
+    UserRole.WEBSITE_ADMIN,
+    UserRole.CORP_OWNER,
+    UserRole.CORP_AGENT,
+    UserRole.INDIV_AGENT,
+  ];
+  const CORPORATE_MANAGEMENT_ROLES: readonly UserRole[] = [
+    UserRole.WEBSITE_ADMIN,
+    UserRole.CORP_OWNER,
+  ];
+  const ADMIN_ONLY_ROLES: readonly UserRole[] = [UserRole.WEBSITE_ADMIN];
+  const EXTENDED_PLATFORM_ROLES: readonly UserRole[] = [
+    UserRole.WEBSITE_ADMIN,
+    UserRole.CORP_OWNER,
+    UserRole.CORP_AGENT,
+    UserRole.INDIV_AGENT,
+    UserRole.SELLER,
+    UserRole.BUYER,
+  ];
+
+  const AccessDenied = ({
+    redirectTo = '/home/platform',
+    message = 'ليس لديك الصلاحية للوصول إلى هذه الصفحة.',
+  }: {
+    redirectTo?: string;
+    message?: string;
+  }) => (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <div className="max-w-md w-full space-y-4 text-center">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+          <span className="text-2xl">🔒</span>
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-xl font-semibold text-slate-900">صلاحية غير كافية</h1>
+          <p className="text-sm text-slate-600">{message}</p>
+        </div>
+        <div className="flex items-center justify-center gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setLocation(redirectTo, { replace: true })}
+            className="rounded-full"
+          >
+            العودة إلى المنصة
+          </Button>
+          <Button
+            onClick={() => setLocation('/home', { replace: true })}
+            className="rounded-full bg-emerald-600 hover:bg-emerald-700"
+          >
+            الذهاب إلى الصفحة الرئيسية
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
   const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN); // Helper flag to distinguish admin flow from standard platform users.
 
   // Guard against admins momentarily visiting the platform shell; if they land there (e.g. via browser history) we immediately send them back to RBAC.
   // Navigation loading overlay should only run for normal platform users, never for admins (so RBAC loads without flashing the platform shell).
   useEffect(() => {
-    if (isAdmin && location.startsWith('/home/platform')) {
+    if (isAdmin && (location.startsWith('/home/platform') || location === '/')) {
       setLocation('/admin/overview/main-dashboard', { replace: true });
     }
   }, [isAdmin, location, setLocation]);
@@ -203,35 +260,60 @@ function Router() {
 
   const renderPlatformShellRoute = (
     Component: PlatformRenderableComponent,
-    options: PlatformRouteOptions = {}
-  ) => () => (
-    <PlatformShell
-      onLogout={handlePlatformLogout}
-      title={options.title}
-      searchPlaceholder={options.searchPlaceholder}
-    >
-      <Component />
-    </PlatformShell>
-  );
+    options: PlatformRouteOptions = {},
+    allowedRoles?: readonly UserRole[],
+    requiredPermission?: string
+  ) => () => {
+    if (allowedRoles && !hasRole(Array.from(allowedRoles))) {
+      return (
+        <AccessDenied message="حسابك الحالي لا يمتلك صلاحية الوصول إلى هذه الصفحة داخل المنصة." />
+      );
+    }
+
+    if (requiredPermission && !hasPermission(requiredPermission)) {
+      return (
+        <AccessDenied message="صلاحية إضافية مطلوبة للوصول إلى هذه الصفحة. يرجى التواصل مع مدير النظام." />
+      );
+    }
+
+    return (
+      <PlatformShell
+        onLogout={handlePlatformLogout}
+        title={options.title}
+        searchPlaceholder={options.searchPlaceholder}
+      >
+        <Component />
+      </PlatformShell>
+    );
+  };
+
+  const renderAdminDashboardRoute = () => {
+    if (!hasRole(Array.from(ADMIN_ONLY_ROLES))) {
+      return <AccessDenied message="هذه الصفحة متاحة للمشرفين فقط وفق سياسات التحكم في الصلاحيات." />;
+    }
+    return <RBACDashboard />;
+  };
 
   const platformShellRoutes: Array<{
     path: string;
     component: PlatformRenderableComponent;
     options?: PlatformRouteOptions;
     aliases?: string[];
+    allowedRoles?: readonly UserRole[];
+    requiredPermission?: string;
   }> = [
-    { path: '/home/platform/customers', component: Customers, aliases: ['/customers'] },
-    { path: '/home/platform/properties', component: Properties, aliases: ['/properties'] },
-    { path: '/home/platform/leads', component: Leads, aliases: ['/leads'] },
-    { path: '/home/platform/pipeline', component: Pipeline, aliases: ['/pipeline'] },
-    { path: '/home/platform/clients', component: Clients, aliases: ['/clients'] },
-    { path: '/home/platform/reports', component: Reports, aliases: ['/reports'] },
-    { path: '/home/platform/notifications', component: Notifications, aliases: ['/notifications'] },
-    { path: '/home/platform/settings', component: Settings, aliases: ['/settings'] },
-    { path: '/home/platform/agencies', component: AgenciesPage, aliases: ['/agencies'] },
-    { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'] },
-    { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms', '/cms-admin'] },
-    { path: '/home/platform/marketing-requests', component: MarketingRequestsBoardPage, aliases: ['/marketing-requests'] },
+    { path: '/home/platform/customers', component: Customers, aliases: ['/customers'], allowedRoles: PLATFORM_CORE_ROLES },
+    { path: '/home/platform/properties', component: Properties, aliases: ['/properties'], allowedRoles: PLATFORM_CORE_ROLES },
+    { path: '/home/platform/leads', component: Leads, aliases: ['/leads'], allowedRoles: PLATFORM_CORE_ROLES },
+    { path: '/home/platform/pipeline', component: Pipeline, aliases: ['/pipeline'], allowedRoles: PLATFORM_CORE_ROLES },
+    { path: '/home/platform/clients', component: Clients, aliases: ['/clients'], allowedRoles: PLATFORM_CORE_ROLES },
+    { path: '/home/platform/reports', component: Reports, aliases: ['/reports'], allowedRoles: PLATFORM_CORE_ROLES },
+    { path: '/home/platform/notifications', component: Notifications, aliases: ['/notifications'], allowedRoles: PLATFORM_CORE_ROLES },
+    { path: '/home/platform/settings', component: Settings, aliases: ['/settings'], allowedRoles: PLATFORM_CORE_ROLES },
+    { path: '/home/platform/agencies', component: AgenciesPage, aliases: ['/agencies'], allowedRoles: CORPORATE_MANAGEMENT_ROLES },
+    { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: ADMIN_ONLY_ROLES },
+    { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms', '/cms-admin'], allowedRoles: ADMIN_ONLY_ROLES },
+    { path: '/home/platform/marketing-requests', component: MarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },
   ];
 
   const platformDynamicRoutes: Array<{
@@ -239,10 +321,11 @@ function Router() {
     component: PlatformRenderableComponent;
     options?: PlatformRouteOptions;
     aliases?: string[];
+    allowedRoles?: readonly UserRole[];
   }> = [
-    { path: '/home/platform/agency/:id', component: AgencyPage, aliases: ['/agency/:id'] },
-    { path: '/home/platform/agent/:id', component: AgentPage, aliases: ['/agent/:id'] },
-    { path: '/home/platform/properties/:id', component: PropertyDetail, aliases: ['/properties/:id'] },
+    { path: '/home/platform/agency/:id', component: AgencyPage, aliases: ['/agency/:id'], allowedRoles: CORPORATE_MANAGEMENT_ROLES },
+    { path: '/home/platform/agent/:id', component: AgentPage, aliases: ['/agent/:id'], allowedRoles: PLATFORM_CORE_ROLES },
+    { path: '/home/platform/properties/:id', component: PropertyDetail, aliases: ['/properties/:id'], allowedRoles: PLATFORM_CORE_ROLES },
     { path: '/home/platform/listing/:id', component: PublicListingPage, aliases: ['/listing/:id'] },
   ];
 
@@ -251,18 +334,21 @@ function Router() {
     component: PlatformRenderableComponent;
     options?: PlatformRouteOptions;
     aliases?: string[];
+    allowedRoles?: readonly UserRole[];
+    requiredPermission?: string;
   }> = [
     {
       path: '/home/platform/customer-requests',
       component: CustomerRequestsPage,
       options: { title: 'طلبات العملاء', searchPlaceholder: 'ابحث في بيانات العملاء' },
-      aliases: ['/customer-requests']
+      aliases: ['/customer-requests'],
+      allowedRoles: CORPORATE_MANAGEMENT_ROLES
     },
-    { path: '/home/platform/admin-requests', component: AdminRequestsPage, aliases: ['/admin/requests'] },
-    { path: '/home/platform/favorites', component: FavoritesPage, aliases: ['/favorites'] },
-    { path: '/home/platform/compare', component: ComparePage, aliases: ['/compare'] },
-    { path: '/home/platform/post-listing', component: PostListingPage, aliases: ['/post-listing'] },
-    { path: '/home/platform/saved-searches', component: SavedSearchesPage, aliases: ['/saved-searches'] },
+    { path: '/home/platform/admin-requests', component: AdminRequestsPage, aliases: ['/admin/requests'], allowedRoles: ADMIN_ONLY_ROLES },
+    { path: '/home/platform/favorites', component: FavoritesPage, aliases: ['/favorites'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+    { path: '/home/platform/compare', component: ComparePage, aliases: ['/compare'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+    { path: '/home/platform/post-listing', component: PostListingPage, aliases: ['/post-listing'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+    { path: '/home/platform/saved-searches', component: SavedSearchesPage, aliases: ['/saved-searches'], allowedRoles: EXTENDED_PLATFORM_ROLES },
   ];
 
   /**
@@ -377,12 +463,12 @@ function Router() {
         <Route path="/home/platform" component={PlatformPage} />
 
         {/* Platform Dashboard Routes - All dashboard functionality under /home/platform/ */}
-        {platformShellRoutes.flatMap(({ path, component, options, aliases }) => {
+        {platformShellRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
           const routes = [
             <Route
               key={path}
               path={path}
-              component={renderPlatformShellRoute(component, options)}
+              component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
             />
           ];
           if (aliases) {
@@ -391,7 +477,7 @@ function Router() {
                 <Route
                   key={`${path}-alias-${alias}`}
                   path={alias}
-                  component={renderPlatformShellRoute(component, options)}
+                  component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
                 />
               ))
             );
@@ -399,12 +485,12 @@ function Router() {
           return routes;
         })}
 
-        {platformAdditionalRoutes.flatMap(({ path, component, options, aliases }) => {
+        {platformAdditionalRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
           const routes = [
             <Route
               key={path}
               path={path}
-              component={renderPlatformShellRoute(component, options)}
+              component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
             />
           ];
           if (aliases) {
@@ -413,7 +499,7 @@ function Router() {
                 <Route
                   key={`${path}-alias-${alias}`}
                   path={alias}
-                  component={renderPlatformShellRoute(component, options)}
+                  component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
                 />
               ))
             );
@@ -421,12 +507,12 @@ function Router() {
           return routes;
         })}
 
-        {platformDynamicRoutes.flatMap(({ path, component, options, aliases }) => {
+        {platformDynamicRoutes.flatMap(({ path, component, options, aliases, allowedRoles }) => {
           const routes = [
             <Route
               key={path}
               path={path}
-              component={renderPlatformShellRoute(component, options)}
+              component={renderPlatformShellRoute(component, options, allowedRoles)}
             />
           ];
           if (aliases) {
@@ -435,7 +521,7 @@ function Router() {
                 <Route
                   key={`${path}-alias-${alias}`}
                   path={alias}
-                  component={renderPlatformShellRoute(component, options)}
+                  component={renderPlatformShellRoute(component, options, allowedRoles)}
                 />
               ))
             );
@@ -444,7 +530,7 @@ function Router() {
         })}
         
         {/* Admin Route with RBAC Dashboard - No sidebar/header */}
-        <Route path="/home/admin" component={RBACDashboard} />
+        <Route path="/home/admin" component={renderAdminDashboardRoute} />
         
         <Route path="/rbac-login" component={RBACLoginPage} />
         <Route path="/signup" component={SignupSelection} />
@@ -561,6 +647,15 @@ function Router() {
   if (isDashboardPort && isAuthenticated) {
     console.log('Port 3000: Showing authenticated routes (dashboard)');
 
+    // Separate admin users from platform users
+    const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN);
+    const isPlatformUser = !!user?.roles?.some(role => 
+      [UserRole.CORP_OWNER, UserRole.CORP_AGENT, UserRole.INDIV_AGENT].includes(role)
+    );
+    const isSellerBuyer = !!user?.roles?.some(role => 
+      [UserRole.SELLER, UserRole.BUYER].includes(role)
+    );
+
     // Admin users get access to everything - both platform features and admin features
 
     const legacyRedirects = [
@@ -571,85 +666,115 @@ function Router() {
     return (
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
         <Switch>
-          <Route path="/home/platform" component={PlatformPage} />
-          <Route path="/unverfied-listing" component={UnverfiedListingPage} />
-          <Route path="/unverified-listings" component={UnverfiedListingPage} />
+          {/* Admin Dashboard Routes - Only for WEBSITE_ADMIN users */}
+          {isAdmin && (
+            <>
+              <Route path="/login" component={createRedirectComponent('/admin/overview/main-dashboard', 'جاري التوجيه إلى لوحة التحكم الإدارية...')} />
+              {ADMIN_DASHBOARD_ROUTES.map((path) => (
+                <Route key={`admin-${path}`} path={path} component={renderAdminDashboardRoute} />
+              ))}
+              {/* Redirect admin users from platform routes to admin dashboard */}
+              <Route path="/home/platform" component={createRedirectComponent('/admin/overview/main-dashboard', 'جاري التوجيه إلى لوحة التحكم الإدارية...')} />
+            </>
+          )}
 
-          {platformShellRoutes.flatMap(({ path, component, options, aliases }) => {
-            const routes = [
-              <Route
-                key={path}
-                path={path}
-                component={renderPlatformShellRoute(component, options)}
-              />,
-            ];
+          {/* Platform Routes - For CORP_OWNER, CORP_AGENT, INDIV_AGENT users */}
+          {isPlatformUser && (
+            <>
+              <Route path="/home/platform" component={PlatformPage} />
+              <Route path="/unverfied-listing" component={UnverfiedListingPage} />
+              <Route path="/unverified-listings" component={UnverfiedListingPage} />
 
-            if (aliases) {
-              routes.push(
-                ...aliases.map((alias) => (
+              {platformShellRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
+                const routes = [
                   <Route
-                    key={alias}
-                    path={alias}
-                    component={renderPlatformShellRoute(component, options)}
+                    key={path}
+                    path={path}
+                    component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
+                  />,
+                ];
+
+                if (aliases) {
+                  routes.push(
+                    ...aliases.map((alias) => (
+                      <Route
+                        key={alias}
+                        path={alias}
+                        component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
+                      />
+                    )),
+                  );
+                }
+
+                return routes;
+              })}
+
+              {platformAdditionalRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
+                const routes = [
+                  <Route
+                    key={path}
+                    path={path}
+                    component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
                   />
-                )),
-              );
-            }
+                ];
+                if (aliases) {
+                  routes.push(
+                    ...aliases.map((alias) => (
+                      <Route
+                        key={`${path}-alias-${alias}`}
+                        path={alias}
+                        component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
+                      />
+                    ))
+                  );
+                }
+                return routes;
+              })}
 
-            return routes;
-          })}
+              {platformDynamicRoutes.flatMap(({ path, component, options, aliases, allowedRoles }) => {
+                const routes = [
+                  <Route
+                    key={path}
+                    path={path}
+                    component={renderPlatformShellRoute(component, options, allowedRoles)}
+                  />
+                ];
+                if (aliases) {
+                  routes.push(
+                    ...aliases.map((alias) => (
+                      <Route
+                        key={`${path}-alias-${alias}`}
+                        path={alias}
+                        component={renderPlatformShellRoute(component, options, allowedRoles)}
+                      />
+                    ))
+                  );
+                }
+                return routes;
+              })}
 
-        {platformAdditionalRoutes.flatMap(({ path, component, options, aliases }) => {
-          const routes = [
-            <Route
-              key={path}
-              path={path}
-              component={renderPlatformShellRoute(component, options)}
-            />
-          ];
-          if (aliases) {
-            routes.push(
-              ...aliases.map((alias) => (
-                <Route
-                  key={`${path}-alias-${alias}`}
-                  path={alias}
-                  component={renderPlatformShellRoute(component, options)}
-                />
-              ))
-            );
-          }
-          return routes;
-        })}
+              {/* Redirect platform users from admin routes to platform dashboard */}
+              {ADMIN_DASHBOARD_ROUTES.map((path) => (
+                <Route key={`redirect-admin-${path}`} path={path} component={createRedirectComponent('/home/platform', 'جاري التوجيه إلى لوحة التحكم...')} />
+              ))}
+            </>
+          )}
 
-        {platformDynamicRoutes.flatMap(({ path, component, options, aliases }) => {
-          const routes = [
-            <Route
-              key={path}
-              path={path}
-              component={renderPlatformShellRoute(component, options)}
-            />
-          ];
-          if (aliases) {
-            routes.push(
-              ...aliases.map((alias) => (
-                <Route
-                  key={`${path}-alias-${alias}`}
-                  path={alias}
-                  component={renderPlatformShellRoute(component, options)}
-                />
-              ))
-            );
-          }
-          return routes;
-        })}
+          {/* Seller/Buyer Routes - Limited access for now */}
+          {isSellerBuyer && (
+            <>
+              <Route path="/home/platform" component={PlatformPage} />
+              <Route path="/unverfied-listing" component={UnverfiedListingPage} />
+              <Route path="/unverified-listings" component={UnverfiedListingPage} />
 
-          {/* Ensure direct admin access and redirect legacy login requests for authenticated users */}
-          <Route path="/login" component={createRedirectComponent('/admin/overview/main-dashboard', 'جاري التوجيه إلى لوحة التحكم الإدارية...')} />
-          {/* RBAC admin dashboard lives outside PlatformShell so it renders without the sidebar header. */}
-          {ADMIN_DASHBOARD_ROUTES.map((path) => (
-            <Route key={`admin-${path}`} path={path} component={RBACDashboard} />
-          ))}
+              {/* Redirect seller/buyer users from admin routes to platform dashboard */}
+              {ADMIN_DASHBOARD_ROUTES.map((path) => (
+                <Route key={`redirect-admin-sb-${path}`} path={path} component={createRedirectComponent('/home/platform', 'جاري التوجيه إلى لوحة التحكم...')} />
+              ))}
+            </>
+          )}
 
+          {/* Legacy redirects */}
           {legacyRedirects.map(({ path, target }) => (
             <Route
               key={path}
@@ -658,9 +783,8 @@ function Router() {
             />
           ))}
 
-          // Default to landing even for authenticated platform users so root url remains public-facing.
+          {/* Default routes */}
           <Route path="/" component={Landing} />
-
           <Route component={Landing} />
         </Switch>
       </Suspense>

@@ -2,7 +2,9 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../../prismaClient';
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+import { JWT_SECRET as getJwtSecret } from '../../config/env';
+import { normalizeRoleKeys } from '@shared/rbac';
+const JWT_SECRET = getJwtSecret();
 
 // Real authentication middleware using Prisma
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
@@ -36,7 +38,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     }
 
     // Parse roles from JSON string
-    const roles = JSON.parse(user.roles);
+    const roles = normalizeRoleKeys(user.roles);
     
     // Set user in request object
     req.user = {
