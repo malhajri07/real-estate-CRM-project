@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * storage-prisma.ts - Prisma-based Database Storage Implementation
  * 
@@ -26,6 +25,55 @@ import { Prisma } from '@prisma/client';
 import { prisma } from './prismaClient';
 import { randomUUID } from 'crypto';
 
+type PrismaUserWithRelations = PrismaTypes.usersGetPayload<{
+  include: {
+    organization: true;
+    agent_profiles: true;
+  };
+}>;
+
+type PrismaLeadWithRelations = PrismaTypes.leadsGetPayload<{
+  include: {
+    users: true;
+    buyer_requests: true;
+    seller_submissions: true;
+    contact_logs: true;
+  };
+}>;
+
+type PrismaPropertyWithRelations = PrismaTypes.propertiesGetPayload<{
+  include: {
+    listings: true;
+  };
+}>;
+
+type NormalizedUser = Omit<PrismaUserWithRelations, 'agent_profiles'> & {
+  agentProfile: PrismaUserWithRelations['agent_profiles'];
+  companyName?: string | null;
+  tenantId?: string | null;
+};
+
+type NormalizedLead = Omit<
+  PrismaLeadWithRelations,
+  'users' | 'buyer_requests' | 'seller_submissions' | 'contact_logs'
+> & {
+  agent: PrismaLeadWithRelations['users'];
+  buyerRequest: PrismaLeadWithRelations['buyer_requests'];
+  sellerSubmission: PrismaLeadWithRelations['seller_submissions'];
+  contactLogs: PrismaLeadWithRelations['contact_logs'];
+};
+
+type NormalizedProperty = PrismaPropertyWithRelations & {
+  organization?: unknown;
+  propertyCategory?: string | null;
+  propertyType?: string | null;
+  listingType?: string | null;
+  squareFeet?: number | null;
+  viewCount?: number | null;
+};
+
+type PropertySeekerRecord = PrismaTypes.properties_seekerGetPayload<{}>;
+
 // Initialize Prisma client for database operations
 
 /**
@@ -38,6 +86,61 @@ import { randomUUID } from 'crypto';
  * Pages affected: All pages that interact with data
  */
 class PrismaStorage {
+  private mapUser(user: PrismaUserWithRelations | null): NormalizedUser | undefined {
+    if (!user) {
+      return undefined;
+    }
+
+    const { agent_profiles, ...rest } = user;
+    const companyName = (rest as { companyName?: string | null }).companyName ?? null;
+    const tenantId = (rest as { tenantId?: string | null }).tenantId ?? null;
+    return {
+      ...rest,
+      agentProfile: agent_profiles ?? null,
+      companyName,
+      tenantId,
+    };
+  }
+
+  private mapLead(lead: PrismaLeadWithRelations | null): NormalizedLead | undefined {
+    if (!lead) {
+      return undefined;
+    }
+
+    const { users, buyer_requests, seller_submissions, contact_logs, ...rest } = lead;
+    return {
+      ...rest,
+      agent: users,
+      buyerRequest: buyer_requests ?? null,
+      sellerSubmission: seller_submissions ?? null,
+      contactLogs: contact_logs,
+    };
+  }
+
+  private mapProperty(property: PrismaPropertyWithRelations | null): NormalizedProperty | undefined {
+    if (!property) {
+      return undefined;
+    }
+
+    const propertyRecord = property as PrismaPropertyWithRelations & {
+      propertyCategory?: string | null;
+      propertyType?: string | null;
+      listingType?: string | null;
+      squareFeet?: number | null;
+      viewCount?: number | null;
+    };
+
+    return {
+      ...propertyRecord,
+      organization: undefined,
+      propertyCategory: propertyRecord.propertyCategory ?? (propertyRecord as { category?: string | null }).category ?? null,
+      propertyType: propertyRecord.propertyType ?? (propertyRecord as { type?: string | null }).type ?? null,
+      listingType: propertyRecord.listingType ?? null,
+      squareFeet: propertyRecord.squareFeet ?? (propertyRecord as { areaSqm?: number | null }).areaSqm ?? null,
+      viewCount: propertyRecord.viewCount ?? null,
+    };
+  }
+
   private decimalToNumber(value: Prisma.Decimal | null | undefined): number | null {
     if (value === null || value === undefined) {
       return null;
@@ -54,16 +157,16 @@ class PrismaStorage {
    * Routes affected: Authentication, user management
    * Pages affected: User profile, admin panel
    */
-  async getUser(id: string): Promise<any | undefined> {
+  async getUser(id: string): Promise<NormalizedUser | undefined> {
     try {
       const user = await prisma.users.findUnique({
         where: { id },
         include: {
           organization: true,
-          agentProfile: true,
+          agent_profiles: true,
         },
       });
-      return user || undefined;
+      return this.mapUser(user);
     } catch (error) {
       console.error('Error fetching user:', error);
       return undefined;
@@ -80,16 +183,16 @@ class PrismaStorage {
    * Routes affected: Authentication, login
    * Pages affected: Login page, user management
    */
-  async getUserByEmail(email: string): Promise<any | undefined> {
+  async getUserByEmail(email: string): Promise<NormalizedUser | undefined> {
     try {
       const user = await prisma.users.findUnique({
         where: { email },
         include: {
           organization: true,
-          agentProfile: true,
+          agent_profiles: true,
         },
       });
-      return user || undefined;
+      return this.mapUser(user);
     } catch (error) {
       console.error('Error fetching user by email:', error);
       return undefined;
@@ -106,18 +209,20 @@ class PrismaStorage {
    * Routes affected: Property listings, search
    * Pages affected: Property listings page, search results
    */
-  async getAllProperties(tenantId?: string): Promise<any[]> {
+  async getAllProperties(_tenantId?: string): Promise<NormalizedProperty[]> {
     try {
       const properties = await prisma.property.findMany({
         include: {
           listings: true,
-          organization: true,
         },
         orderBy: {
           createdAt: 'desc',
         },
       });
-      return properties;
+      const mapped = properties
+        .map(property => this.mapProperty(property))
+        .filter((prop): prop is NormalizedProperty => prop !== undefined);
+      return mapped;
     } catch (error) {
       console.error('Error fetching properties:', error);
       return [];
@@ -134,16 +239,15 @@ class PrismaStorage {
    * Routes affected: Property detail, property management
    * Pages affected: Property detail page, property editing
    */
-  async getProperty(id: string, tenantId?: string): Promise<any | undefined> {
+  async getProperty(id: string, _tenantId?: string): Promise<NormalizedProperty | undefined> {
     try {
       const property = await prisma.property.findUnique({
         where: { id },
         include: {
           listings: true,
-          organization: true,
         },
       });
-      return property || undefined;
+      return this.mapProperty(property);
     } catch (error) {
       console.error('Error fetching property:', error);
       return undefined;
@@ -160,20 +264,22 @@ class PrismaStorage {
    * Routes affected: Lead management, CRM
    * Pages affected: Leads page, CRM dashboard
    */
-  async getAllLeads(tenantId?: string): Promise<any[]> {
+  async getAllLeads(_tenantId?: string): Promise<NormalizedLead[]> {
     try {
       const leads = await prisma.lead.findMany({
         include: {
-          agent: true,
-          buyerRequest: true,
-          sellerSubmission: true,
-          contactLogs: true,
+          users: true,
+          buyer_requests: true,
+          seller_submissions: true,
+          contact_logs: true,
         },
         orderBy: {
           createdAt: 'desc',
         },
       });
-      return leads;
+      return leads
+        .map(lead => this.mapLead(lead))
+        .filter((lead): lead is NormalizedLead => lead !== undefined);
     } catch (error) {
       console.error('Error fetching leads:', error);
       return [];
@@ -190,18 +296,18 @@ class PrismaStorage {
    * Routes affected: Lead detail, lead management
    * Pages affected: Lead detail page, lead editing
    */
-  async getLead(id: string, tenantId?: string): Promise<any | undefined> {
+  async getLead(id: string, _tenantId?: string): Promise<NormalizedLead | undefined> {
     try {
       const lead = await prisma.lead.findUnique({
         where: { id },
         include: {
-          agent: true,
-          buyerRequest: true,
-          sellerSubmission: true,
-          contactLogs: true,
+          users: true,
+          buyer_requests: true,
+          seller_submissions: true,
+          contact_logs: true,
         },
       });
-      return lead || undefined;
+      return this.mapLead(lead);
     } catch (error) {
       console.error('Error fetching lead:', error);
       return undefined;
@@ -218,18 +324,20 @@ class PrismaStorage {
    * Routes affected: User management, admin panel
    * Pages affected: User management page, admin dashboard
    */
-  async getAllUsers(): Promise<any[]> {
+  async getAllUsers(): Promise<NormalizedUser[]> {
     try {
       const users = await prisma.users.findMany({
         include: {
           organization: true,
-          agentProfile: true,
+          agent_profiles: true,
         },
         orderBy: {
           createdAt: 'desc',
         },
       });
-      return users;
+      return users
+        .map(user => this.mapUser(user))
+        .filter((user): user is NormalizedUser => user !== undefined);
     } catch (error) {
       console.error('Error fetching users:', error);
       return [];
@@ -246,19 +354,23 @@ class PrismaStorage {
    * Routes affected: User registration, admin user creation
    * Pages affected: Registration page, admin panel
    */
-  async createUser(userData: any): Promise<any> {
+  async createUser(userData: Record<string, unknown>): Promise<NormalizedUser> {
     try {
       const user = await prisma.users.create({
         data: {
           id: randomUUID(),
           ...userData,
-        },
+        } as PrismaTypes.usersUncheckedCreateInput,
         include: {
           organization: true,
-          agentProfile: true,
+          agent_profiles: true,
         },
       });
-      return user;
+      const normalized = this.mapUser(user);
+      if (!normalized) {
+        throw new Error('Failed to create user');
+      }
+      return normalized;
     } catch (error) {
       console.error('Error creating user:', error);
       throw error;
@@ -275,17 +387,21 @@ class PrismaStorage {
    * Routes affected: User profile update, admin user management
    * Pages affected: User profile page, admin panel
    */
-  async updateUser(id: string, userData: Partial<any>): Promise<any> {
+  async updateUser(id: string, userData: Record<string, unknown>): Promise<NormalizedUser> {
     try {
       const user = await prisma.users.update({
         where: { id },
-        data: userData,
+        data: userData as PrismaTypes.usersUncheckedUpdateInput,
         include: {
           organization: true,
-          agentProfile: true,
+          agent_profiles: true,
         },
       });
-      return user;
+      const normalized = this.mapUser(user);
+      if (!normalized) {
+        throw new Error('Failed to update user');
+      }
+      return normalized;
     } catch (error) {
       console.error('Error updating user:', error);
       throw error;
@@ -354,47 +470,57 @@ class PrismaStorage {
     return [];
   }
 
-  async createLead(lead: any, userId: string, tenantId: string): Promise<any> {
+  async createLead(lead: Record<string, unknown>, userId: string, tenantId: string): Promise<NormalizedLead> {
     try {
       const newLead = await prisma.lead.create({
         data: {
           id: randomUUID(),
-          agentId: userId, // Set the agentId to the provided userId
+          agentId: userId,
+          organizationId: tenantId,
           ...lead,
-        },
+        } as PrismaTypes.leadsUncheckedCreateInput,
         include: {
-          agent: true,
-          buyerRequest: true,
-          sellerSubmission: true,
+          users: true,
+          buyer_requests: true,
+          seller_submissions: true,
+          contact_logs: true,
         },
       });
-      return newLead;
+      const normalized = this.mapLead(newLead);
+      if (!normalized) {
+        throw new Error('Failed to create lead');
+      }
+      return normalized;
     } catch (error) {
       console.error('Error creating lead:', error);
       throw error;
     }
   }
 
-  async updateLead(id: string, lead: Partial<any>, tenantId?: string): Promise<any | undefined> {
+  async updateLead(
+    id: string,
+    lead: Record<string, unknown>,
+    _tenantId?: string,
+  ): Promise<NormalizedLead | undefined> {
     try {
       const updatedLead = await prisma.lead.update({
         where: { id },
-        data: lead,
+        data: lead as PrismaTypes.leadsUncheckedUpdateInput,
         include: {
-          agent: true,
-          buyerRequest: true,
-          sellerSubmission: true,
-          contactLogs: true,
+          users: true,
+          buyer_requests: true,
+          seller_submissions: true,
+          contact_logs: true,
         },
       });
-      return updatedLead;
+      return this.mapLead(updatedLead);
     } catch (error) {
       console.error('Error updating lead:', error);
       return undefined;
     }
   }
 
-  async deleteLead(id: string, tenantId?: string): Promise<boolean> {
+  async deleteLead(id: string, _tenantId?: string): Promise<boolean> {
     try {
       await prisma.lead.delete({
         where: { id },
@@ -406,77 +532,85 @@ class PrismaStorage {
     }
   }
 
-  async searchLeads(query: string, tenantId?: string): Promise<any[]> {
+  async searchLeads(query: string, _tenantId?: string): Promise<NormalizedLead[]> {
     try {
       const leads = await prisma.lead.findMany({
         where: {
           OR: [
             { notes: { contains: query } },
-            { 
-              agent: {
+            {
+              users: {
                 OR: [
                   { firstName: { contains: query } },
                   { lastName: { contains: query } },
                   { email: { contains: query } },
                   { phone: { contains: query } },
-                ]
-              }
+                ],
+              },
             },
           ],
         },
         include: {
-          agent: true,
-          buyerRequest: true,
-          sellerSubmission: true,
-          contactLogs: true,
+          users: true,
+          buyer_requests: true,
+          seller_submissions: true,
+          contact_logs: true,
         },
       });
-      return leads;
+      return leads
+        .map(leadItem => this.mapLead(leadItem))
+        .filter((leadItem): leadItem is NormalizedLead => leadItem !== undefined);
     } catch (error) {
       console.error('Error searching leads:', error);
       return [];
     }
   }
 
-  async createProperty(property: any, userId: string, tenantId: string): Promise<any> {
+  async createProperty(property: Record<string, unknown>, userId: string, tenantId: string): Promise<NormalizedProperty> {
     try {
       const newProperty = await prisma.property.create({
         data: {
           id: randomUUID(),
           agentId: userId, // Set the agentId to the provided userId
+          organizationId: tenantId,
           ...property,
         },
         include: {
-          agent: true,
-          organization: true,
           listings: true,
         },
       });
-      return newProperty;
+      const mapped = this.mapProperty(newProperty);
+      if (!mapped) {
+        throw new Error('Failed to create property');
+      }
+      return mapped;
     } catch (error) {
       console.error('Error creating property:', error);
       throw error;
     }
   }
 
-  async updateProperty(id: string, property: Partial<any>, tenantId?: string): Promise<any | undefined> {
+  async updateProperty(
+    id: string,
+    property: Record<string, unknown>,
+    _tenantId?: string,
+  ): Promise<NormalizedProperty | undefined> {
     try {
       const updatedProperty = await prisma.property.update({
         where: { id },
-        data: property,
+        data: property as PrismaTypes.propertiesUncheckedUpdateInput,
         include: {
           listings: true,
-          organization: true,
         },
       });
-      return updatedProperty;
+      return this.mapProperty(updatedProperty);
     } catch (error) {
       console.error('Error updating property:', error);
       return undefined;
     }
   }
 
-  async deleteProperty(id: string, tenantId?: string): Promise<boolean> {
+  async deleteProperty(id: string, _tenantId?: string): Promise<boolean> {
     try {
       await prisma.property.delete({
         where: { id },
@@ -488,7 +622,7 @@ class PrismaStorage {
     }
   }
 
-  async searchProperties(query: string, tenantId?: string): Promise<any[]> {
+  async searchProperties(query: string, _tenantId?: string): Promise<NormalizedProperty[]> {
     try {
       const properties = await prisma.property.findMany({
         where: {
@@ -500,10 +634,11 @@ class PrismaStorage {
         },
         include: {
           listings: true,
-          organization: true,
         },
       });
-      return properties;
+      return properties
+        .map(property => this.mapProperty(property))
+        .filter((property): property is NormalizedProperty => property !== undefined);
     } catch (error) {
       console.error('Error searching properties:', error);
       return [];
@@ -609,7 +744,7 @@ class PrismaStorage {
         take,
       } = filters;
 
-      const where: PrismaTypes.MarketingRequestWhereInput = {};
+      const where: Record<string, unknown> = {};
 
       if (status) {
         where.status = status as any;
@@ -883,14 +1018,14 @@ class PrismaStorage {
   async createReport(report: any, tenantId: string): Promise<any> { return report; }
   async updateReport(id: string, report: Partial<any>, tenantId?: string): Promise<any | undefined> { return undefined; }
   async deleteReport(id: string, tenantId?: string): Promise<boolean> { return false; }
-  private propertySeekerWhere(id: string) {
+  private propertySeekerWhere(id: string): PrismaTypes.properties_seekerWhereUniqueInput {
     if (id && /^\d+$/.test(id)) {
-      return { seekerNum: Number(id) };
+      return { seeker_num: BigInt(id) };
     }
-    return { seekerId: id };
+    return { seeker_id: id };
   }
 
-  private mapPropertySeekerData(payload: any) {
+  private mapPropertySeekerData(payload: Record<string, unknown>) {
     const optionalString = (value: unknown) => {
       if (value === undefined || value === null) return null;
       const str = String(value).trim();
@@ -929,37 +1064,37 @@ class PrismaStorage {
     const sqmInt = optionalInt(payload.sqm);
 
     return {
-      firstName: requiredString(payload.firstName, "firstName"),
-      lastName: requiredString(payload.lastName, "lastName"),
-      mobileNumber: requiredString(payload.mobileNumber, "mobileNumber"),
+      first_name: requiredString(payload.firstName, "firstName"),
+      last_name: requiredString(payload.lastName, "lastName"),
+      mobile_number: requiredString(payload.mobileNumber, "mobileNumber"),
       email: requiredString(payload.email, "email"),
       nationality: requiredString(payload.nationality, "nationality"),
       age: Number(payload.age),
-      monthlyIncome: requiredDecimal(payload.monthlyIncome, "monthlyIncome"),
+      monthly_income: requiredDecimal(payload.monthlyIncome, "monthlyIncome"),
       gender: ensureGender(payload.gender),
-      typeOfProperty: requiredString(payload.typeOfProperty, "typeOfProperty"),
-      typeOfContract: requiredString(payload.typeOfContract, "typeOfContract"),
-      numberOfRooms: Number(payload.numberOfRooms),
-      numberOfBathrooms: Number(payload.numberOfBathrooms),
-      numberOfLivingRooms: Number(payload.numberOfLivingRooms),
-      houseDirection: optionalString(payload.houseDirection),
-      budgetSize: requiredDecimal(payload.budgetSize, "budgetSize"),
-      hasMaidRoom: Boolean(payload.hasMaidRoom),
-      hasDriverRoom: Boolean(payload.hasDriverRoom),
-      kitchenInstalled: Boolean(payload.kitchenInstalled),
-      hasElevator: Boolean(payload.hasElevator),
-      parkingAvailable: Boolean(payload.parkingAvailable),
+      type_of_property: requiredString(payload.typeOfProperty, "typeOfProperty"),
+      type_of_contract: requiredString(payload.typeOfContract, "typeOfContract"),
+      number_of_rooms: Number(payload.numberOfRooms),
+      number_of_bathrooms: Number(payload.numberOfBathrooms),
+      number_of_living_rooms: Number(payload.numberOfLivingRooms),
+      house_direction: optionalString(payload.houseDirection),
+      budget_size: requiredDecimal(payload.budgetSize, "budgetSize"),
+      has_maid_room: Boolean(payload.hasMaidRoom),
+      has_driver_room: payload.hasDriverRoom === null ? null : Boolean(payload.hasDriverRoom),
+      kitchen_installed: payload.kitchenInstalled === null ? null : Boolean(payload.kitchenInstalled),
+      has_elevator: payload.hasElevator === null ? null : Boolean(payload.hasElevator),
+      parking_available: payload.parkingAvailable === null ? null : Boolean(payload.parkingAvailable),
       city: optionalString(payload.city),
       district: optionalString(payload.district),
       region: optionalString(payload.region),
-      otherComments: optionalString(payload.otherComments ?? payload.notes),
-      sqm: sqmInt === null ? null : BigInt(sqmInt),
-    };
+      other_comments: optionalString((payload as { otherComments?: unknown }).otherComments ?? payload.notes),
+      Sqm: sqmInt === null ? null : BigInt(sqmInt),
+    } satisfies PrismaTypes.properties_seekerUncheckedCreateInput;
   }
-  private serializePropertySeeker(record: any) {
+  private serializePropertySeeker(record: PropertySeekerRecord | null | undefined) {
     if (!record) return record;
-    const seekerNumValue = record.seekerNum;
-    const sqmValue = record.sqm;
+    const seekerNumValue = record.seeker_num;
+    const sqmValue = record.Sqm;
 
     return {
       ...record,
@@ -973,8 +1108,8 @@ class PrismaStorage {
   }
   async getAllRealEstateRequests(): Promise<any[]> {
     try {
-      const items = await prisma.propertySeeker.findMany({
-        orderBy: { createdAt: 'desc' }
+      const items = await prisma.properties_seeker.findMany({
+        orderBy: { created_at: 'desc' }
       });
       // Convert BigInt values to strings for JSON serialization
       return items.map(item => this.serializePropertySeeker(item));
@@ -986,7 +1121,7 @@ class PrismaStorage {
 
   async getRealEstateRequest(id: string): Promise<any | undefined> {
     try {
-      const item = await prisma.propertySeeker.findUnique({ where: this.propertySeekerWhere(id) });
+      const item = await prisma.properties_seeker.findUnique({ where: this.propertySeekerWhere(id) });
       return item ? this.serializePropertySeeker(item) : undefined;
     } catch (error) {
       console.error('Error fetching property seeker request:', error);
@@ -1000,24 +1135,22 @@ class PrismaStorage {
 
       // Use an explicit transaction so the select/update runs atomically.
       return await prisma.$transaction(async (tx) => {
-        const existing = await tx.propertySeeker.findUnique({
+        const existing = await tx.properties_seeker.findFirst({
           where: {
-            uniq_properties_seeker_email_mobile: {
-              email: data.email,
-              mobileNumber: data.mobileNumber,
-            },
+            email: data.email,
+            mobile_number: data.mobile_number,
           },
         });
 
         if (existing) {
-          const result = await tx.propertySeeker.update({
-            where: { seekerNum: existing.seekerNum },
+          const result = await tx.properties_seeker.update({
+            where: { seeker_num: existing.seeker_num },
             data,
           });
           return this.serializePropertySeeker(result);
         }
 
-        const result = await tx.propertySeeker.create({
+        const result = await tx.properties_seeker.create({
           data,
         });
         return this.serializePropertySeeker(result);
@@ -1030,45 +1163,45 @@ class PrismaStorage {
 
   async updateRealEstateRequest(id: string, request: Partial<any>): Promise<any | undefined> {
     try {
-      const data: any = {};
+      const data: PrismaTypes.properties_seekerUncheckedUpdateInput = {};
 
-      if (request.firstName !== undefined) data.firstName = request.firstName;
-      if (request.lastName !== undefined) data.lastName = request.lastName;
-      if (request.mobileNumber !== undefined) data.mobileNumber = request.mobileNumber;
+      if (request.firstName !== undefined) data.first_name = request.firstName;
+      if (request.lastName !== undefined) data.last_name = request.lastName;
+      if (request.mobileNumber !== undefined) data.mobile_number = request.mobileNumber;
       if (request.email !== undefined) data.email = request.email;
       if (request.nationality !== undefined) data.nationality = request.nationality;
       if (request.age !== undefined) data.age = Number(request.age);
-      if (request.monthlyIncome !== undefined) data.monthlyIncome = new Prisma.Decimal(request.monthlyIncome as any);
+      if (request.monthlyIncome !== undefined) data.monthly_income = new Prisma.Decimal(request.monthlyIncome as any);
       if (request.gender !== undefined) data.gender = request.gender;
-      if (request.typeOfProperty !== undefined) data.typeOfProperty = request.typeOfProperty;
-      if (request.typeOfContract !== undefined) data.typeOfContract = request.typeOfContract;
-      if (request.numberOfRooms !== undefined) data.numberOfRooms = Number(request.numberOfRooms);
-      if (request.numberOfBathrooms !== undefined) data.numberOfBathrooms = Number(request.numberOfBathrooms);
-      if (request.numberOfLivingRooms !== undefined) data.numberOfLivingRooms = Number(request.numberOfLivingRooms);
-      if (request.houseDirection !== undefined) data.houseDirection = request.houseDirection ?? null;
-      if (request.budgetSize !== undefined) data.budgetSize = new Prisma.Decimal(request.budgetSize as any);
-      if (request.hasMaidRoom !== undefined) data.hasMaidRoom = Boolean(request.hasMaidRoom);
-      if (request.hasDriverRoom !== undefined) data.hasDriverRoom = request.hasDriverRoom === null ? null : Boolean(request.hasDriverRoom);
-      if (request.kitchenInstalled !== undefined) data.kitchenInstalled = request.kitchenInstalled === null ? null : Boolean(request.kitchenInstalled);
-      if (request.hasElevator !== undefined) data.hasElevator = request.hasElevator === null ? null : Boolean(request.hasElevator);
-      if (request.parkingAvailable !== undefined) data.parkingAvailable = request.parkingAvailable === null ? null : Boolean(request.parkingAvailable);
+      if (request.typeOfProperty !== undefined) data.type_of_property = request.typeOfProperty;
+      if (request.typeOfContract !== undefined) data.type_of_contract = request.typeOfContract;
+      if (request.numberOfRooms !== undefined) data.number_of_rooms = Number(request.numberOfRooms);
+      if (request.numberOfBathrooms !== undefined) data.number_of_bathrooms = Number(request.numberOfBathrooms);
+      if (request.numberOfLivingRooms !== undefined) data.number_of_living_rooms = Number(request.numberOfLivingRooms);
+      if (request.houseDirection !== undefined) data.house_direction = request.houseDirection ?? null;
+      if (request.budgetSize !== undefined) data.budget_size = new Prisma.Decimal(request.budgetSize as any);
+      if (request.hasMaidRoom !== undefined) data.has_maid_room = Boolean(request.hasMaidRoom);
+      if (request.hasDriverRoom !== undefined) data.has_driver_room = request.hasDriverRoom === null ? null : Boolean(request.hasDriverRoom);
+      if (request.kitchenInstalled !== undefined) data.kitchen_installed = request.kitchenInstalled === null ? null : Boolean(request.kitchenInstalled);
+      if (request.hasElevator !== undefined) data.has_elevator = request.hasElevator === null ? null : Boolean(request.hasElevator);
+      if (request.parkingAvailable !== undefined) data.parking_available = request.parkingAvailable === null ? null : Boolean(request.parkingAvailable);
       if (request.city !== undefined) data.city = request.city ?? null;
       if (request.district !== undefined) data.district = request.district ?? null;
       if (request.region !== undefined) data.region = request.region ?? null;
       if (request.notes !== undefined || request.otherComments !== undefined) {
-        data.otherComments = (request as any).otherComments ?? request.notes ?? null;
+        data.other_comments = (request as any).otherComments ?? request.notes ?? null;
       }
       if (request.sqm !== undefined) {
         const sqmValue = request.sqm === null ? null : Math.round(Number(request.sqm));
-        data.sqm = sqmValue === null ? null : BigInt(sqmValue);
+        data.Sqm = sqmValue === null ? null : BigInt(sqmValue);
       }
 
       if (Object.keys(data).length === 0) {
-        const existing = await prisma.propertySeeker.findUnique({ where: this.propertySeekerWhere(id) });
+        const existing = await prisma.properties_seeker.findUnique({ where: this.propertySeekerWhere(id) });
         return existing ? this.serializePropertySeeker(existing) : undefined;
       }
 
-      const updated = await prisma.propertySeeker.update({ where: this.propertySeekerWhere(id), data });
+      const updated = await prisma.properties_seeker.update({ where: this.propertySeekerWhere(id), data });
       return this.serializePropertySeeker(updated);
     } catch (error) {
       if ((error as any)?.code === 'P2025') return undefined;
@@ -1079,7 +1212,7 @@ class PrismaStorage {
 
   async deleteRealEstateRequest(id: string): Promise<boolean> {
     try {
-      await prisma.propertySeeker.delete({ where: this.propertySeekerWhere(id) });
+      await prisma.properties_seeker.delete({ where: this.propertySeekerWhere(id) });
       return true;
     } catch (error) {
       if ((error as any)?.code === 'P2025') return false;

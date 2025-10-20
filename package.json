@@ -11,7 +11,7 @@
     "build": "vite build && esbuild apps/api/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "ensure:admin": "tsx apps/api/ensure-primary-admin.ts",
-    "check": "tsc",
+    "check": "node ./scripts/check-ts-nocheck.mjs && tsc",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**'",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --ignore-pattern 'cms/types/**' --ignore-pattern '**/generated/**' --fix",
     "db:deploy": "prisma migrate deploy --schema=data/schema/prisma/schema.prisma",

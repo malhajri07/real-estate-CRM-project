@@ -556,7 +556,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const properties = await storage.getAllProperties();
       // Filter to only include active properties with coordinates and essential info
       const mapProperties = properties
-        .filter(p => p.status === 'active' && p.latitude && p.longitude)
+        .filter(p => p.status === 'ACTIVE' && p.latitude && p.longitude)
         .map(p => ({
           id: p.id,
           title: p.title,
@@ -754,7 +754,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const metrics = {
         totalLeads: leads.length,
-        activeProperties: properties.filter(p => p.status === 'active').length,
+        activeProperties: properties.filter(p => p.status === 'ACTIVE').length,
         dealsInPipeline: activeDeals.length,
         monthlyRevenue: monthlyRevenue,
         pipelineByStage: {

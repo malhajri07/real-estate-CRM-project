@@ -18,6 +18,34 @@
 
 import { z } from "zod";
 
+const usernameSchema = z
+  .string()
+  .min(3, "Username must be at least 3 characters long")
+  .max(32, "Username must be at most 32 characters long")
+  .regex(/^[a-zA-Z0-9_.]+$/, "Username may only contain letters, numbers, underscores, and dots")
+  .transform((value) => value.trim().toLowerCase());
+
+const rawRoleInputSchema = z.union([z.string(), z.array(z.string())]).optional();
+
+export const authLoginSchema = z.object({
+  username: usernameSchema,
+  password: z.string().min(1, "Password is required"),
+});
+
+export const authRegisterSchema = z.object({
+  username: usernameSchema,
+  email: z.string().email().optional(),
+  password: z.string().min(1, "Password is required"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  phone: z.string().optional(),
+  roles: rawRoleInputSchema,
+  organizationId: z.string().optional(),
+});
+
+export type AuthLoginInput = z.infer<typeof authLoginSchema>;
+export type AuthRegisterInput = z.infer<typeof authRegisterSchema>;
+
 // User types
 export interface User {
   id: string;

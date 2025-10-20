@@ -1,12 +1,57 @@
-// @ts-nocheck
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { z } from 'zod';
-import { BuyerRequestStatus, ClaimStatus } from '@prisma/client';
+import { BuyerRequestStatus, ClaimStatus, Prisma } from '@prisma/client';
 import { prisma } from '../prismaClient';
 import { requireRole, isAgent, canClaimBuyerRequest, canReleaseClaim, maskContact, CLAIM_RATE_LIMITS, UserRole } from '../rbac';
 import { authenticateToken } from '../auth';
+import { normalizeRoleKeys } from '@shared/rbac';
+import { randomUUID } from 'crypto';
 
 const router = express.Router();
+
+type BuyerRequestWithRelations = Prisma.buyer_requestsGetPayload<{
+  include: {
+    users: {
+      select: {
+        id: true;
+        firstName: true;
+        lastName: true;
+      };
+    };
+    claims: {
+      select: {
+        agentId: true;
+        status: true;
+      };
+    };
+  };
+}>;
+
+type ClaimWithBuyer = Prisma.claimsGetPayload<{
+  include: {
+    buyer_requests: {
+      select: {
+        id: true;
+        city: true;
+        type: true;
+        minBedrooms: true;
+        maxBedrooms: true;
+        minPrice: true;
+        maxPrice: true;
+        fullContactJson: true;
+        users: {
+          select: {
+            id: true;
+            firstName: true;
+            lastName: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+
+const getUserRoles = (req: Request): UserRole[] => normalizeRoleKeys(req.user?.roles ?? []);
 
 // Validation schemas
 const searchBuyerRequestsSchema = z.object({
@@ -31,7 +76,7 @@ const releaseClaimSchema = z.object({
 });
 
 // GET /api/pool/buyers/search
-router.get('/search', authenticateToken, async (req, res) => {
+router.get('/search', authenticateToken, async (req: Request, res: Response) => {
   try {
     const query = searchBuyerRequestsSchema.parse({
       ...req.query,
@@ -44,7 +89,8 @@ router.get('/search', authenticateToken, async (req, res) => {
     });
 
     // Check if user can search buyer pool
-    if (!isAgent(req.user!.roles)) {
+    const userRoles = getUserRoles(req);
+    if (!isAgent(userRoles)) {
       return res.status(403).json({ message: 'Only agents can search buyer pool' });
     }
 
@@ -81,29 +127,31 @@ router.get('/search', authenticateToken, async (req, res) => {
         take: query.pageSize,
         orderBy: { createdAt: 'desc' },
         include: {
-          createdBy: {
+          users: {
             select: {
               id: true,
               firstName: true,
-              lastName: true
-            }
+              lastName: true,
+            },
           },
           claims: {
-            where: {
-              agentId: req.user!.id,
-              status: ClaimStatus.ACTIVE
-            }
-          }
-        }
-      }),
-      prisma.buyerRequest.count({ where })
+            select: {
+              agentId: true,
+              status: true,
+            },
+          },
+        },
+      }) as Promise<BuyerRequestWithRelations[]>,
+      prisma.buyerRequest.count({ where }),
     ]);
 
     // Process results - mask contact information
-    const processedRequests = buyerRequests.map(request => {
-      const hasActiveClaim = request.claims.length > 0;
-      const canViewFullContact = hasActiveClaim || req.user!.roles.includes(UserRole.WEBSITE_ADMIN);
-      
+    const processedRequests = buyerRequests.map((request) => {
+      const hasActiveClaim = request.claims.some(
+        (claim) => claim.status === ClaimStatus.ACTIVE && claim.agentId === req.user!.id,
+      );
+      const canViewFullContact = hasActiveClaim || userRoles.includes(UserRole.WEBSITE_ADMIN);
+
       return {
         id: request.id,
         city: request.city,
@@ -119,9 +167,9 @@ router.get('/search', authenticateToken, async (req, res) => {
         hasActiveClaim,
         createdAt: request.createdAt,
         createdBy: {
-          id: request.createdBy.id,
-          firstName: request.createdBy.firstName,
-          lastName: request.createdBy.lastName
+          id: request.users.id,
+          firstName: request.users.firstName,
+          lastName: request.users.lastName,
         }
       };
     });
@@ -150,13 +198,14 @@ router.get('/search', authenticateToken, async (req, res) => {
 });
 
 // POST /api/pool/buyers/:id/claim
-router.post('/:id/claim', authenticateToken, async (req, res) => {
+router.post('/:id/claim', authenticateToken, async (req: Request, res: Response) => {
   try {
     const { id: buyerRequestId } = req.params;
     const { notes } = claimBuyerRequestSchema.parse(req.body);
 
     // Check if user can claim buyer requests
-    if (!canClaimBuyerRequest(req.user!.roles, req.user!.organizationId)) {
+    const userRoles = getUserRoles(req);
+    if (!canClaimBuyerRequest(userRoles, req.user!.organizationId)) {
       return res.status(403).json({ message: 'Cannot claim buyer requests' });
     }
 
@@ -222,20 +271,23 @@ router.post('/:id/claim', authenticateToken, async (req, res) => {
     
     const claim = await prisma.claim.create({
       data: {
+        id: randomUUID(),
         agentId: req.user!.id,
         buyerRequestId,
         expiresAt,
         notes,
-        status: ClaimStatus.ACTIVE
+        status: ClaimStatus.ACTIVE,
       }
     });
 
     // Create lead
     const lead = await prisma.lead.create({
       data: {
+        id: randomUUID(),
         agentId: req.user!.id,
         buyerRequestId,
-        status: 'NEW'
+        status: 'NEW',
+        updatedAt: new Date(),
       }
     });
 
@@ -248,11 +300,12 @@ router.post('/:id/claim', authenticateToken, async (req, res) => {
     // Log audit event
     await prisma.auditLog.create({
       data: {
+        id: randomUUID(),
         userId: req.user!.id,
         action: 'CLAIM',
         entity: 'BUYER_REQUEST',
         entityId: buyerRequestId,
-        afterJson: { claimId: claim.id, leadId: lead.id }
+        afterJson: JSON.stringify({ claimId: claim.id, leadId: lead.id }),
       }
     });
 
@@ -283,7 +336,7 @@ router.post('/:id/claim', authenticateToken, async (req, res) => {
 });
 
 // POST /api/pool/buyers/:id/release
-router.post('/:id/release', authenticateToken, async (req, res) => {
+router.post('/:id/release', authenticateToken, async (req: Request, res: Response) => {
   try {
     const { id: buyerRequestId } = req.params;
     const { notes } = releaseClaimSchema.parse(req.body);
@@ -302,7 +355,8 @@ router.post('/:id/release', authenticateToken, async (req, res) => {
     }
 
     // Check if user can release this claim
-    if (!canReleaseClaim(req.user!.roles, claim.agentId, req.user!.id)) {
+    const userRoles = getUserRoles(req);
+    if (!canReleaseClaim(userRoles, claim.agentId, req.user!.id)) {
       return res.status(403).json({ message: 'Cannot release this claim' });
     }
 
@@ -324,12 +378,13 @@ router.post('/:id/release', authenticateToken, async (req, res) => {
     // Log audit event
     await prisma.auditLog.create({
       data: {
+        id: randomUUID(),
         userId: req.user!.id,
         action: 'RELEASE',
         entity: 'CLAIM',
         entityId: claim.id,
-        beforeJson: { status: ClaimStatus.ACTIVE },
-        afterJson: { status: ClaimStatus.RELEASED }
+        beforeJson: JSON.stringify({ status: ClaimStatus.ACTIVE }),
+        afterJson: JSON.stringify({ status: ClaimStatus.RELEASED }),
       }
     });
 
@@ -351,36 +406,37 @@ router.post('/:id/release', authenticateToken, async (req, res) => {
 });
 
 // GET /api/pool/buyers/my-claims
-router.get('/my-claims', authenticateToken, async (req, res) => {
+router.get('/my-claims', authenticateToken, async (req: Request, res: Response) => {
   try {
-    if (!isAgent(req.user!.roles)) {
+    const userRoles = getUserRoles(req);
+    if (!isAgent(userRoles)) {
       return res.status(403).json({ message: 'Only agents can view claims' });
     }
 
-    const claims = await prisma.claim.findMany({
+    const claims = (await prisma.claim.findMany({
       where: {
         agentId: req.user!.id,
         status: ClaimStatus.ACTIVE
       },
       include: {
-        buyerRequest: {
+        buyer_requests: {
           include: {
-            createdBy: {
+            users: {
               select: {
                 id: true,
                 firstName: true,
-                lastName: true
-              }
-            }
-          }
-        }
+                lastName: true,
+              },
+            },
+          },
+        },
       },
       orderBy: { claimedAt: 'desc' }
-    });
+    })) as ClaimWithBuyer[];
 
     res.json({
       success: true,
-      claims: claims.map(claim => ({
+      claims: claims.map((claim) => ({
         id: claim.id,
         buyerRequestId: claim.buyerRequestId,
         claimedAt: claim.claimedAt,
@@ -388,15 +444,19 @@ router.get('/my-claims', authenticateToken, async (req, res) => {
         status: claim.status,
         notes: claim.notes,
         buyerRequest: {
-          id: claim.buyerRequest.id,
-          city: claim.buyerRequest.city,
-          type: claim.buyerRequest.type,
-          minBedrooms: claim.buyerRequest.minBedrooms,
-          maxBedrooms: claim.buyerRequest.maxBedrooms,
-          minPrice: claim.buyerRequest.minPrice,
-          maxPrice: claim.buyerRequest.maxPrice,
-          fullContact: claim.buyerRequest.fullContactJson,
-          createdBy: claim.buyerRequest.createdBy
+          id: claim.buyer_requests.id,
+          city: claim.buyer_requests.city,
+          type: claim.buyer_requests.type,
+          minBedrooms: claim.buyer_requests.minBedrooms,
+          maxBedrooms: claim.buyer_requests.maxBedrooms,
+          minPrice: claim.buyer_requests.minPrice,
+          maxPrice: claim.buyer_requests.maxPrice,
+          fullContact: claim.buyer_requests.fullContactJson,
+          createdBy: {
+            id: claim.buyer_requests.users.id,
+            firstName: claim.buyer_requests.users.firstName,
+            lastName: claim.buyer_requests.users.lastName,
+          },
         }
       }))
     });

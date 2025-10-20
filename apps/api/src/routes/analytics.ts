@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * routes/analytics.ts - Analytics and KPI API Routes
  * 
@@ -28,6 +27,7 @@
  */
 
 import { Router } from 'express';
+import type { Request, Response } from 'express';
 import { storage } from '../../storage-prisma'; // Updated to use Prisma-based storage
 import { authenticate } from '../middleware/auth';
 import os from 'os';
@@ -35,8 +35,44 @@ import fs from 'fs';
 import path from 'path';
 import { prisma } from '../../prismaClient';
 
-
 const router = Router();
+
+interface AnalyticsSnapshot {
+  totalUsers: number;
+  activeUsers: number;
+  totalProperties: number;
+  activeProperties: number;
+  totalDeals: number;
+  totalLeads: number;
+  conversionRate: number;
+  avgDealValue: number;
+  monthlyGrowth: number;
+  userEngagement: number;
+  propertyViews: number;
+  leadResponseTime: number;
+  dealCloseRate: number;
+}
+
+const DEFAULT_ANALYTICS: AnalyticsSnapshot = {
+  totalUsers: 1250,
+  activeUsers: 980,
+  totalProperties: 450,
+  activeProperties: 380,
+  totalDeals: 120,
+  totalLeads: 890,
+  conversionRate: 13.5,
+  avgDealValue: 850000,
+  monthlyGrowth: 8.2,
+  userEngagement: 72.5,
+  propertyViews: 15600,
+  leadResponseTime: 2.4,
+  dealCloseRate: 15.8,
+};
+
+const getMockAnalyticsData = (): AnalyticsSnapshot => DEFAULT_ANALYTICS;
+
+const parsePeriod = (value: unknown): string =>
+  typeof value === 'string' && value.trim().length > 0 ? value : 'month';
 
 // Apply authentication to all analytics routes
 router.use(authenticate);
@@ -78,21 +114,7 @@ const getAnalyticsData = async () => {
   } catch (error) {
     console.error('Error fetching analytics data:', error);
     // Fallback to mock data if database query fails
-    return {
-      totalUsers: 1250,
-      activeUsers: 980,
-      totalProperties: 450,
-      activeProperties: 380,
-      totalDeals: 120,
-      totalLeads: 890,
-      conversionRate: 13.5,
-      avgDealValue: 850000,
-      monthlyGrowth: 8.2,
-      userEngagement: 72.5,
-      propertyViews: 15600,
-      leadResponseTime: 2.4,
-      dealCloseRate: 15.8
-    };
+    return DEFAULT_ANALYTICS;
   }
 };
 
@@ -123,10 +145,10 @@ const getDateRange = (period: string) => {
 };
 
 // Get overview analytics
-router.get('/overview', async (req, res) => {
+router.get('/overview', async (req: Request, res: Response) => {
   try {
-    const { period = 'month' } = req.query;
-    // const storage = await getStorage(); // Temporarily disabled
+    const period = parsePeriod(req.query?.period);
+    const dateRange = getDateRange(period);
 
     // Get real analytics data from database
     const mockData = await getAnalyticsData();
@@ -148,6 +170,8 @@ router.get('/overview', async (req, res) => {
     const revenueGrowth = mockData.monthlyGrowth * 1.2;
 
     res.json({
+      period,
+      dateRange,
       totalUsers,
       activeUsers,
       totalProperties,
@@ -166,11 +190,9 @@ router.get('/overview', async (req, res) => {
 });
 
 // Get user statistics
-router.get('/users', async (req, res) => {
+router.get('/users', async (req: Request, res: Response) => {
   try {
-    const { period = 'month' } = req.query;
-    // const storage = await getStorage(); // Temporarily disabled
-    const mockData = getMockAnalyticsData();
+    const period = parsePeriod(req.query?.period);
 
     // Get all leads (using as users for now)
     const allLeads = await storage.getAllLeads();
@@ -192,6 +214,7 @@ router.get('/users', async (req, res) => {
     const newUsersLastMonth = 12;
 
     res.json({
+      period,
       byRole,
       byStatus: {
         active: activeUsers,
@@ -207,36 +230,36 @@ router.get('/users', async (req, res) => {
 });
 
 // Get property statistics
-router.get('/properties', async (req, res) => {
+router.get('/properties', async (_req: Request, res: Response) => {
   try {
     // const storage = await getStorage(); // Temporarily disabled
-    const mockData = getMockAnalyticsData();
     const allProperties = await storage.getAllProperties();
 
     // Calculate properties by type
     const byType: Record<string, number> = {};
-    allProperties.forEach((prop: any) => {
-      const type = prop.propertyType || 'غير محدد';
+    allProperties.forEach((prop) => {
+      const type = prop.propertyType ?? 'غير محدد';
       byType[type] = (byType[type] || 0) + 1;
     });
 
     // Calculate properties by city
     const byCity: Record<string, number> = {};
-    allProperties.forEach((prop: any) => {
-      const city = prop.city || 'غير محدد';
+    allProperties.forEach((prop) => {
+      const city = prop.city ?? 'غير محدد';
       byCity[city] = (byCity[city] || 0) + 1;
     });
 
     // Calculate properties by status
     const byStatus: Record<string, number> = {};
-    allProperties.forEach((prop: any) => {
-      const status = prop.status || 'غير محدد';
-      byStatus[status] = (byStatus[status] || 0) + 1;
+    allProperties.forEach((prop) => {
+      const statusKey = prop.status ?? 'غير محدد';
+      byStatus[String(statusKey)] = (byStatus[String(statusKey)] || 0) + 1;
     });
 
     // Calculate average price
-    const totalPrice = allProperties.reduce((sum: number, prop: any) => {
-      return sum + (parseFloat(prop.price) || 0);
+    const totalPrice = allProperties.reduce((sum, prop) => {
+      const priceValue = typeof prop.price === 'number' ? prop.price : Number(prop.price ?? 0);
+      return sum + priceValue;
     }, 0);
     const averagePrice = allProperties.length > 0 ? totalPrice / allProperties.length : 0;
 
@@ -257,11 +280,9 @@ router.get('/properties', async (req, res) => {
 });
 
 // Get communication statistics
-router.get('/communication', async (req, res) => {
+router.get('/communication', async (req: Request, res: Response) => {
   try {
-    const { period = 'month' } = req.query;
-    // const storage = await getStorage(); // Temporarily disabled
-    const mockData = getMockAnalyticsData();
+    const period = parsePeriod(req.query?.period);
 
     // Get all messages
     const allMessages = await storage.getAllMessages();
@@ -280,6 +301,7 @@ router.get('/communication', async (req, res) => {
     const responseRate = 78.5;
 
     res.json({
+      period,
       whatsappMessages,
       smsSent: smsMessages,
       emailsSent,
@@ -293,18 +315,17 @@ router.get('/communication', async (req, res) => {
 });
 
 // Get revenue statistics
-router.get('/revenue', async (req, res) => {
+router.get('/revenue', async (req: Request, res: Response) => {
   try {
-    const { period = 'month' } = req.query;
-    // const storage = await getStorage(); // Temporarily disabled
-    const mockData = getMockAnalyticsData();
+    const period = parsePeriod(req.query?.period);
 
     // Get all deals
     const allDeals = await storage.getAllDeals();
 
     // Calculate average transaction value
-    const totalRevenue = allDeals.reduce((sum: number, deal: any) => {
-      return sum + (parseFloat(deal.dealValue) || 0);
+    const totalRevenue = allDeals.reduce((sum, deal) => {
+      const value = typeof deal.dealValue === 'number' ? deal.dealValue : Number(deal.dealValue ?? 0);
+      return sum + value;
     }, 0);
     const averageTransactionValue = allDeals.length > 0 ? totalRevenue / allDeals.length : 0;
 
@@ -326,6 +347,7 @@ router.get('/revenue', async (req, res) => {
     };
 
     res.json({
+      period,
       monthly,
       bySource,
       averageTransactionValue
@@ -337,11 +359,15 @@ router.get('/revenue', async (req, res) => {
 });
 
 // Get comprehensive analytics (all data in one call)
-router.get('/comprehensive', async (req, res) => {
+router.get('/comprehensive', async (req: Request, res: Response) => {
   try {
-    const { period = 'month' } = req.query;
-    // const storage = await getStorage(); // Temporarily disabled
+    const period = parsePeriod(req.query?.period);
     const mockData = getMockAnalyticsData();
+    const [allProperties, allMessages, allDeals] = await Promise.all([
+      storage.getAllProperties(),
+      storage.getAllMessages(),
+      storage.getAllDeals(),
+    ]);
 
     // Use mock data
     const totalUsers = mockData.totalUsers;
@@ -381,44 +407,49 @@ router.get('/comprehensive', async (req, res) => {
     };
 
     // Calculate property stats
-    const byType: Record<string, number> = {};
-    const byCity: Record<string, number> = {};
-    const byStatus: Record<string, number> = {};
-    
-    allProperties.forEach((prop: any) => {
-      const type = prop.propertyType || 'غير محدد';
-      const city = prop.city || 'غير محدد';
-      const status = prop.status || 'غير محدد';
-      
-      byType[type] = (byType[type] || 0) + 1;
-      byCity[city] = (byCity[city] || 0) + 1;
-      byStatus[status] = (byStatus[status] || 0) + 1;
-    });
+    const propertyStats = (() => {
+      const byType: Record<string, number> = {};
+      const byCity: Record<string, number> = {};
+      const byStatus: Record<string, number> = {};
 
-    const totalPrice = allProperties.reduce((sum: number, prop: any) => {
-      return sum + (parseFloat(prop.price) || 0);
-    }, 0);
-    const averagePrice = allProperties.length > 0 ? totalPrice / allProperties.length : 0;
+      allProperties.forEach((prop) => {
+        const type = prop.propertyType ?? 'غير محدد';
+        const city = prop.city ?? 'غير محدد';
+        const status = prop.status ?? 'غير محدد';
 
-    const propertyStats = {
-      byType,
-      byCity,
-      byStatus,
-      averagePrice,
-      priceGrowth: 5.2
-    };
+        byType[type] = (byType[type] || 0) + 1;
+        byCity[city] = (byCity[city] || 0) + 1;
+        byStatus[String(status)] = (byStatus[String(status)] || 0) + 1;
+      });
 
-    // Calculate communication stats
-    const whatsappMessages = allMessages.filter((msg: any) => msg.messageType === 'whatsapp').length;
-    const smsMessages = allMessages.filter((msg: any) => msg.messageType === 'sms').length;
+      const totalPrice = allProperties.reduce((sum, prop) => {
+        const priceValue = typeof prop.price === 'number' ? prop.price : Number(prop.price ?? 0);
+        return sum + priceValue;
+      }, 0);
 
-    const communicationStats = {
-      whatsappMessages,
-      smsSent: smsMessages,
-      emailsSent: 45,
-      socialMediaShares: 2345,
-      responseRate: 78.5
-    };
+      const averagePrice = allProperties.length > 0 ? totalPrice / allProperties.length : 0;
+
+      return {
+        byType,
+        byCity,
+        byStatus,
+        averagePrice,
+        priceGrowth: 5.2,
+      };
+    })();
+
+    const communicationStats = (() => {
+      const whatsappMessages = allMessages.filter((msg: { messageType?: string }) => msg.messageType === 'whatsapp').length;
+      const smsMessages = allMessages.filter((msg: { messageType?: string }) => msg.messageType === 'sms').length;
+
+      return {
+        whatsappMessages,
+        smsSent: smsMessages,
+        emailsSent: 45,
+        socialMediaShares: 2345,
+        responseRate: 78.5,
+      };
+    })();
 
     // Calculate revenue stats
     const monthly = [
@@ -441,6 +472,7 @@ router.get('/comprehensive', async (req, res) => {
     };
 
     res.json({
+      period,
       overview,
       userStats,
       propertyStats,

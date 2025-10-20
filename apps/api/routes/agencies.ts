@@ -1,21 +1,30 @@
-// @ts-nocheck
-import express from "express";
+import express, { Request, Response } from "express";
 import { storage } from "../storage-prisma";
 
 const router = express.Router();
 
-router.get("/", async (_req, res) => {
+type AgencyRecord = {
+  id: string;
+  companyName?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  isVerified?: boolean | null;
+};
+
+router.get("/", async (_req: Request, res: Response) => {
   try {
-    const agencies = await storage.listAgencies();
+    const agencies = (await storage.listAgencies()) as AgencyRecord[];
     // Enrich with counts (agents, listings)
     const enriched = await Promise.all(
-      agencies.map(async (a: any) => {
-        const agents = await storage.listAgencyAgents(a.id);
-        const listings = await storage.getAgencyListings(a.id);
+      agencies.map(async (agency) => {
+        const agents = await storage.listAgencyAgents(agency.id);
+        const listings = await storage.getAgencyListings(agency.id);
         return {
-          id: a.id,
-          name: a.companyName || `${a.firstName || ''} ${a.lastName || ''}`.trim(),
-          verified: !!a.isVerified,
+          id: agency.id,
+          name:
+            agency.companyName ||
+            `${agency.firstName ?? ""} ${agency.lastName ?? ""}`.trim(),
+          verified: Boolean(agency.isVerified),
           agentsCount: agents.length,
           listingsCount: listings.length,
         };
@@ -28,7 +37,7 @@ router.get("/", async (_req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req: Request, res: Response) => {
   try {
     const agency = await storage.getAgency(req.params.id);
     if (!agency) return res.status(404).json({ message: "Agency not found" });
@@ -41,14 +50,17 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.get("/agent/:id", async (req, res) => {
+router.get("/agent/:id", async (req: Request, res: Response) => {
   try {
     // Reuse general user fetch via storage.getUser
     const agent = await storage.getUser(req.params.id);
     if (!agent) return res.status(404).json({ message: "Agent not found" });
     // Find agent listings by ownerId
     const all = await storage.getAllProperties();
-    const listings = all.filter((p: any) => p.ownerId === req.params.id);
+    const listings = all.filter((property) => {
+      const ownerId = (property as { ownerId?: string | null }).ownerId;
+      return ownerId === req.params.id;
+    });
     res.json({ agent, listings });
   } catch (err) {
     console.error("Error getting agent:", err);

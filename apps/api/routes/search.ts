@@ -1,15 +1,12 @@
-// @ts-nocheck
-import express from "express";
+import express, { Request, Response } from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";
 
 const router = express.Router();
 
-function getUserId(req: any) {
-  return req?.user?.id || "sample-user-1";
-}
+const getUserId = (req: Request): string => req.user?.id ?? "sample-user-1";
 
-router.get("/saved", async (req, res) => {
+router.get("/saved", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
     const items = await storage.getSavedSearches(userId);
@@ -32,7 +29,7 @@ const SavedSearchSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-router.post("/saved", async (req, res) => {
+router.post("/saved", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
     const data = SavedSearchSchema.parse(req.body);
@@ -50,10 +47,10 @@ router.post("/saved", async (req, res) => {
   }
 });
 
-router.delete("/saved/:id", async (req, res) => {
+router.delete("/saved/:id", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
-    const ok = await storage.deleteSavedSearch(req.params.id, userId);
+    const ok = await storage.deleteSavedSearch(req.params.id);
     if (!ok) return res.status(404).json({ message: "Saved search not found" });
     res.status(204).send();
   } catch (err) {
@@ -65,18 +62,26 @@ router.delete("/saved/:id", async (req, res) => {
 export default router;
 
 // Simulate running saved search alerts (dev helper)
-router.post("/run-alerts", async (req, res) => {
+router.post("/run-alerts", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
     const alerts = await storage.getSavedSearches(userId);
-    const all = await storage.getAllProperties();
-    const results = alerts.map((a: any) => {
-      let items = all.slice();
-      if (a.cities && a.cities.length) items = items.filter((p) => a.cities.includes(p.city));
-      if (a.propertyTypes && a.propertyTypes.length) items = items.filter((p) => a.propertyTypes.includes(p.propertyType));
-      if (a.minPrice) items = items.filter((p) => Number(p.price || 0) >= Number(a.minPrice));
-      if (a.maxPrice) items = items.filter((p) => Number(p.price || 0) <= Number(a.maxPrice));
-      return { alertId: a.id, alertName: a.alertName, matches: items.length };
+    const allProperties = await storage.getAllProperties();
+    const results = alerts.map((alert) => {
+      let items = allProperties.slice();
+      if (alert.cities && alert.cities.length) {
+        items = items.filter((property) => alert.cities!.includes(property.city ?? ""));
+      }
+      if (alert.propertyTypes && alert.propertyTypes.length) {
+        items = items.filter((property) => alert.propertyTypes!.includes(property.propertyType ?? ""));
+      }
+      if (alert.minPrice) {
+        items = items.filter((property) => Number(property.price ?? 0) >= Number(alert.minPrice));
+      }
+      if (alert.maxPrice) {
+        items = items.filter((property) => Number(property.price ?? 0) <= Number(alert.maxPrice));
+      }
+      return { alertId: alert.id, alertName: alert.alertName, matches: items.length };
     });
     res.json({ alerts: results });
   } catch (err) {

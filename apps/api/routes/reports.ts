@@ -1,5 +1,4 @@
-// @ts-nocheck
-import express from "express";
+import express, { Request, Response } from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";
 
@@ -10,14 +9,16 @@ const ReportSchema = z.object({
   reason: z.string().min(3),
 });
 
-router.post("/", async (req, res) => {
+const getUserId = (req: Request): string | undefined => req.user?.id ?? undefined;
+
+router.post("/", async (req: Request, res: Response) => {
   try {
     const data = ReportSchema.parse(req.body);
-    const userId = (req as any)?.user?.id || null;
+    const userId = getUserId(req);
     const rec = await storage.createReport({
       listingId: data.listingId,
       reason: data.reason,
-    } as any, userId);
+    }, userId ?? "");
     res.status(201).json(rec);
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -28,21 +29,25 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const { status } = req.query as Record<string, string | undefined>;
-    const items = await storage.listReports(status);
-    res.json(items);
+    const items = await storage.getAllReports();
+    const filtered = status ? items.filter((item: { status?: string }) => item.status === status) : items;
+    res.json(filtered);
   } catch (err) {
     console.error("Error listing reports:", err);
     res.status(500).json({ message: "Failed to list reports" });
   }
 });
 
-router.post("/:id/resolve", async (req, res) => {
+router.post("/:id/resolve", async (req: Request, res: Response) => {
   try {
     const { note } = req.body || {};
-    const updated = await storage.resolveReport(req.params.id, note);
+    const updated = await storage.updateReport(req.params.id, {
+      status: "RESOLVED",
+      resolutionNote: note,
+    });
     if (!updated) return res.status(404).json({ message: "Report not found" });
     res.json(updated);
   } catch (err) {

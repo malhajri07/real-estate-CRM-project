@@ -1,4 +1,5 @@
 import "express-session"; // Extend express-session types so we can store authenticated user snapshots
+import type { UserRole } from "@shared/rbac";
 
 declare module "express-session" {
   interface SessionData {
@@ -9,7 +10,7 @@ declare module "express-session" {
       name?: string | null;
       firstName?: string | null;
       lastName?: string | null;
-      roles?: string[];
+      roles?: UserRole[];
       organizationId?: string | null;
     };
     authToken?: string;
