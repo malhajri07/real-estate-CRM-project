@@ -57,7 +57,7 @@ import Header from "@/components/layout/header";
 import RBACDashboard from "@/pages/rbac-dashboard";
 import RBACLoginPage from "@/pages/rbac-login";
 import PlatformPage from "@/pages/app";
-import UnverfiedListingPage from "@/pages/unverfied_Listing";
+import UnverifiedListingPage from "@/pages/unverified-listing";
 import MarketingRequestSubmissionPage from "@/pages/marketing-request";
 import MarketingRequestsBoardPage from "@/pages/marketing-requests";
 import { adminSidebarConfig } from "@/config/admin-sidebar";
@@ -211,7 +211,7 @@ function Router() {
   }
 
   if (hash === '#list') {
-    return <UnverfiedListingPage />;
+    return <UnverifiedListingPage />;
   }
 
   // Determine if user is authenticated
@@ -427,6 +427,11 @@ function Router() {
       </div>
     );
   };
+
+  const LegacyUnverifiedListingRedirect = createRedirectComponent(
+    '/unverified-listings',
+    'جارٍ تحويلك إلى صفحة عرض العقار...'
+  );
   
   // Standalone Vite dev server (non-dashboard ports) should redirect back to Express
   if (!isDashboardPort) {
@@ -454,8 +459,8 @@ function Router() {
         {/* Login route removed - handled by dashboard port section */}
         {/* Landing page */}
         <Route path="/home" component={Landing} />
-        <Route path="/unverfied-listing" component={UnverfiedListingPage} />
-        <Route path="/unverified-listings" component={UnverfiedListingPage} />
+        <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
+        <Route path="/unverified-listings" component={UnverifiedListingPage} />
         <Route path="/marketing-request" component={MarketingRequestSubmissionPage} />
 
         {/* RBAC-aware login accessible from landing */}
@@ -577,8 +582,8 @@ function Router() {
             );
           }}
         </Route>
-        <Route path="/unverfied-listing" component={UnverfiedListingPage} />
-        <Route path="/unverified-listings" component={UnverfiedListingPage} />
+        <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
+        <Route path="/unverified-listings" component={UnverifiedListingPage} />
         <Route path="/marketing-request" component={MarketingRequestSubmissionPage} />
         <Route path="/signup" component={SignupSelection} />
         <Route path="/signup/individual" component={SignupIndividual} />
@@ -682,8 +687,8 @@ function Router() {
           {isPlatformUser && (
             <>
               <Route path="/home/platform" component={PlatformPage} />
-              <Route path="/unverfied-listing" component={UnverfiedListingPage} />
-              <Route path="/unverified-listings" component={UnverfiedListingPage} />
+              <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
+              <Route path="/unverified-listings" component={UnverifiedListingPage} />
 
               {platformShellRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
                 const routes = [
@@ -764,8 +769,8 @@ function Router() {
           {isSellerBuyer && (
             <>
               <Route path="/home/platform" component={PlatformPage} />
-              <Route path="/unverfied-listing" component={UnverfiedListingPage} />
-              <Route path="/unverified-listings" component={UnverfiedListingPage} />
+              <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
+              <Route path="/unverified-listings" component={UnverifiedListingPage} />
 
               {/* Redirect seller/buyer users from admin routes to platform dashboard */}
               {ADMIN_DASHBOARD_ROUTES.map((path) => (
