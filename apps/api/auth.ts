@@ -138,8 +138,8 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
   }
 }
 
-// Hash password (using bcrypt)
-import * as bcrypt from 'bcrypt';
+// Hash password (using bcryptjs)
+import bcrypt from 'bcryptjs';
 
 export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 12;

@@ -10,7 +10,7 @@
 import { Router } from "express";
 import { prisma } from "../prismaClient";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { JWT_SECRET as getJwtSecret } from "../config/env";
 import { normalizeRoleKeys } from "@shared/rbac";

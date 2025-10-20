@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { differenceInDays, subDays } from "date-fns";
 import { SeedContext, SeedResult, SeedCredential } from "./types";
 
