@@ -28,17 +28,57 @@
 @tailwind utilities;
 
 @layer base {
+  * {
+    @apply border-border;
+  }
+
   html {
     @apply bg-slate-50 text-slate-900 antialiased;
+    font-family: var(--font-sans);
+  }
+
+  html[dir="rtl"],
+  body[dir="rtl"] {
+    direction: rtl;
+  }
+
+  html[dir="ltr"],
+  body[dir="ltr"] {
+    direction: ltr;
+  }
+
+  html[dir="rtl"] {
+    --font-sans: var(--font-stack-arabic);
   }
 
   body {
     @apply bg-slate-50 text-slate-900 font-sans;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body,
+  button,
+  input,
+  textarea,
+  select {
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01" on, "ss02" on;
+    -webkit-font-smoothing: antialiased;
   }
 
   body[dir="rtl"],
-  html[dir="rtl"] body {
-    @apply font-arabic tracking-tight;
+  html[dir="rtl"] body,
+  body.rtl {
+    font-family: var(--font-stack-arabic);
+    letter-spacing: -0.01em;
+  }
+
+  body.ltr {
+    font-family: var(--font-stack-latin);
   }
 
   main {
@@ -176,20 +216,6 @@
   border-color: hsl(var(--border));
 }
 
-:root {
-  font-family: 'Noto Kufi Arabic', 'Noto Sans Arabic', 'Inter', 'Helvetica Neue', Arial, sans-serif;
-}
-
-body,
-button,
-input,
-textarea,
-select {
-  font-family: 'Noto Kufi Arabic', 'Noto Sans Arabic', 'Inter', 'Helvetica Neue', Arial, sans-serif;
-  font-feature-settings: "ss01" on, "ss02" on;
-  -webkit-font-smoothing: antialiased;
-}
-
 /* Leaflet popup theming for the property search map */
 .property-map-popup .leaflet-popup-content {
   margin: 0;
@@ -273,15 +299,6 @@ select {
   box-shadow: none;
 }
 
-body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-  /* font-family is controlled by Tailwind's font-sans */
-  font-feature-settings: 'rlig' 1, 'calt' 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 /* Apple-style glass effect */
 .glass-effect {
   background: rgba(255, 255, 255, 0.8);
@@ -347,6 +364,16 @@ body {
 }
 
 :root {
+  /* Shared font stacks */
+  --font-stack-latin: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-stack-arabic: 'Noto Kufi Arabic', 'Noto Sans Arabic', var(--font-stack-latin);
+  --font-stack-display: 'Janat Bold', 'Noto Sans Arabic', var(--font-stack-latin);
+
+  /* Tailwind font variables */
+  --font-sans: var(--font-stack-latin);
+  --font-serif: 'Inter', serif;
+  --font-mono: 'Inter', monospace;
+
   /* Custom color palette using specified colors */
   --background: hsl(48 26% 97%);
   --foreground: hsl(205 70% 27%);
@@ -380,36 +407,17 @@ body {
   --sidebar-accent-foreground: hsl(205 70% 27%);
   --sidebar-border: hsl(145 15% 91%);
   --sidebar-ring: hsl(145 35% 58%);
-  
+
   /* Custom brand colors */
   --brand-green: hsl(145 35% 58%);
   --brand-blue: hsl(205 70% 27%);
   --brand-cream: hsl(48 26% 97%);
   --brand-green-light: hsl(145 25% 85%);
   --brand-blue-dark: hsl(205 70% 20%);
-  --font-sans: 'Noto Kufi Arabic', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-serif: 'Inter', serif;
-  --font-mono: 'Inter', monospace;
   --radius: 0.875rem;
   --success: hsl(142 76% 36%);
   --warning: hsl(35 91% 65%);
   --error: hsl(0 84% 60%);
-}
-
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply font-sans antialiased bg-background text-foreground;
-    direction: rtl;
-  }
-  
-  html {
-    direction: rtl;
-  }
 }
 
 /* Layout stability fixes */
@@ -435,16 +443,15 @@ html, body {
 }
 
 /* Font Family Classes */
-.font-droid-kufi {
-  font-family: 'Janat Bold', 'Noto Sans Arabic', sans-serif;
-}
-
-.font-janat-bold {
-  font-family: 'Janat Bold', 'Noto Sans Arabic', sans-serif;
-}
-
+.font-arabic-display,
+.font-droid-kufi,
+.font-janat-bold,
 .font-arabic-stack {
-  font-family: 'Janat Bold', 'Noto Sans Arabic', Arial, sans-serif;
+  font-family: var(--font-stack-display);
+}
+
+.font-arabic-body {
+  font-family: var(--font-stack-arabic);
 }
 
 .font-password {
