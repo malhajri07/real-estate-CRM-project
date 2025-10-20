@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
+import bcrypt from 'bcrypt';
 import { prisma } from './prismaClient';
 import {
   UserRole,
@@ -50,96 +51,156 @@ export function verifyToken(token: string): JWTPayload | null {
   }
 }
 
+function extractToken(req: Request): string | null {
+  const authHeader = req.headers['authorization'];
+
+  if (Array.isArray(authHeader)) {
+    for (const value of authHeader) {
+      if (typeof value === 'string' && value.startsWith('Bearer ')) {
+        const token = value.slice('Bearer '.length).trim();
+        if (token) {
+          return token;
+        }
+      }
+    }
+  } else if (typeof authHeader === 'string') {
+    if (authHeader.startsWith('Bearer ')) {
+      const token = authHeader.slice('Bearer '.length).trim();
+      if (token) {
+        return token;
+      }
+    }
+  }
+
+  return req.session?.authToken ?? null;
+}
+
+function persistSessionSnapshot(
+  req: Request,
+  token: string,
+  user: {
+    id: string;
+    email: string | null;
+    username?: string | null;
+    firstName: string;
+    lastName: string;
+    roles: ReturnType<typeof parseStoredRoles>;
+    organizationId?: string | null;
+  }
+) {
+  if (!req.session) return;
+
+  const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
+
+  req.session.user = {
+    id: user.id,
+    email: user.email,
+    username: user.username ?? null,
+    name: fullName.length ? fullName : null,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    roles: user.roles,
+    organizationId: user.organizationId ?? null
+  };
+  req.session.authToken = token;
+}
+
+function clearSessionSnapshot(req: Request) {
+  if (!req.session) return;
+  delete req.session.user;
+  delete req.session.authToken;
+}
+
+async function attachUserFromToken(req: Request, token: string) {
+  const payload = verifyToken(token);
+  if (!payload) {
+    return null;
+  }
+
+  const user = await prisma.users.findUnique({
+    where: { id: payload.userId },
+    select: {
+      id: true,
+      email: true,
+      username: true,
+      firstName: true,
+      lastName: true,
+      roles: true,
+      organizationId: true,
+      isActive: true
+    }
+  });
+
+  if (!user || !user.isActive) {
+    return null;
+  }
+
+  const parsedRoles = parseStoredRoles(user.roles);
+
+  req.user = {
+    id: user.id,
+    email: user.email ?? null,
+    roles: parsedRoles,
+    organizationId: user.organizationId || undefined
+  };
+
+  persistSessionSnapshot(req, token, {
+    id: user.id,
+    email: user.email ?? null,
+    username: user.username,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    roles: parsedRoles,
+    organizationId: user.organizationId ?? null
+  });
+
+  return req.user;
+}
+
 // Authentication middleware
 export async function authenticateToken(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  const token = extractToken(req);
 
   if (!token) {
+    clearSessionSnapshot(req);
     return res.status(401).json({ message: 'Access token required' });
   }
 
-  const payload = verifyToken(token);
-  if (!payload) {
-    return res.status(403).json({ message: 'Invalid or expired token' });
-  }
-
   try {
-    // Fetch user from database to ensure they still exist and are active
-    const user = await prisma.users.findUnique({
-      where: { id: payload.userId },
-      select: {
-        id: true,
-        email: true,
-        roles: true,
-        organizationId: true,
-        isActive: true
-      }
-    });
-
-    if (!user || !user.isActive) {
-      return res.status(403).json({ message: 'User not found or inactive' });
+    const user = await attachUserFromToken(req, token);
+    if (!user) {
+      clearSessionSnapshot(req);
+      return res.status(403).json({ message: 'Invalid or expired token' });
     }
-
-    // Set user in request object
-    req.user = {
-      id: user.id,
-      email: user.email ?? null,
-      roles: parseStoredRoles(user.roles),
-      organizationId: user.organizationId || undefined
-    };
 
     next();
   } catch (error) {
     console.error('Authentication error:', error);
+    clearSessionSnapshot(req);
     return res.status(500).json({ message: 'Authentication failed' });
   }
 }
 
 // Optional authentication middleware (doesn't fail if no token)
-export async function optionalAuth(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+export async function optionalAuth(req: Request, _res: Response, next: NextFunction) {
+  const token = extractToken(req);
 
   if (!token) {
-    return next(); // Continue without authentication
-  }
-
-  const payload = verifyToken(token);
-  if (!payload) {
-    return next(); // Continue without authentication
+    return next();
   }
 
   try {
-    const user = await prisma.users.findUnique({
-      where: { id: payload.userId },
-      select: {
-        id: true,
-        email: true,
-        roles: true,
-        organizationId: true,
-        isActive: true
-      }
-    });
-
-    if (user && user.isActive) {
-      req.user = {
-        id: user.id,
-        email: user.email ?? null,
-        roles: parseStoredRoles(user.roles),
-        organizationId: user.organizationId || undefined
-      };
+    const user = await attachUserFromToken(req, token);
+    if (!user) {
+      clearSessionSnapshot(req);
     }
-
-    next();
   } catch (error) {
     console.error('Optional authentication error:', error);
-    next(); // Continue even if authentication fails
+    clearSessionSnapshot(req);
   }
-}
 
-// Hash password (using bcrypt)
-import * as bcrypt from 'bcrypt';
+  next();
+}
 
 export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 12;
@@ -159,13 +220,15 @@ export async function login(identifier: string, password: string): Promise<{
   message?: string;
 }> {
   try {
+    const trimmedIdentifier = identifier.trim();
+    const normalizedIdentifier = trimmedIdentifier.toLowerCase();
     // Try to find by username first, then by email for compatibility
     const user =
       (await prisma.users.findUnique({
-        where: { username: identifier }
+        where: { username: normalizedIdentifier }
       })) ??
       (await prisma.users.findUnique({
-        where: { email: identifier }
+        where: { email: trimmedIdentifier }
       }));
 
     if (!user || !user.isActive) {
@@ -199,6 +262,7 @@ export async function login(identifier: string, password: string): Promise<{
         username: (user as any).username,
         firstName: user.firstName,
         lastName: user.lastName,
+        name: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
         roles: parsedRoles,
         organizationId: user.organizationId
       },
@@ -217,7 +281,7 @@ export async function register(userData: {
   firstName: string;
   lastName: string;
   phone?: string;
-  roles: string; // Store as string to match database
+  roles?: string | string[];
   organizationId?: string;
   username?: string;
 }): Promise<{
@@ -227,13 +291,16 @@ export async function register(userData: {
   message?: string;
 }> {
   try {
-    // Check if user already exists
-    const existingUser = await prisma.users.findUnique({
-      where: { email: userData.email }
-    });
+    const normalizedEmail = userData.email.trim().toLowerCase();
 
-    if (existingUser) {
-      return { success: false, message: 'User already exists' };
+    if (normalizedEmail) {
+      const existingUser = await prisma.users.findUnique({
+        where: { email: normalizedEmail }
+      });
+
+      if (existingUser) {
+        return { success: false, message: 'User already exists' };
+      }
     }
 
     // Hash password
@@ -243,14 +310,21 @@ export async function register(userData: {
 
     // Create user
     const now = new Date();
-    const username = (userData.username ?? userData.email ?? `user-${Date.now()}`)
+    const username = (userData.username ?? normalizedEmail ?? `user-${Date.now()}`)
       .trim()
       .toLowerCase();
+    const existingUsername = await prisma.users.findUnique({
+      where: { username }
+    });
+
+    if (existingUsername) {
+      return { success: false, message: 'Username already exists' };
+    }
     const user = await prisma.users.create({
       data: {
         id: randomUUID(),
         username,
-        email: userData.email,
+        email: normalizedEmail,
         passwordHash,
         firstName: userData.firstName,
         lastName: userData.lastName,
@@ -268,16 +342,18 @@ export async function register(userData: {
       organizationId: user.organizationId || undefined
     });
 
-    return {
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email ?? null,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        roles: parseStoredRoles(user.roles),
-        organizationId: user.organizationId
-      },
+      return {
+        success: true,
+        user: {
+          id: user.id,
+          email: user.email ?? null,
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          name: `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+          roles: parseStoredRoles(user.roles),
+          organizationId: user.organizationId
+        },
       token
     };
   } catch (error) {

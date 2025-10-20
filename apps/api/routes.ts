@@ -61,8 +61,7 @@ import agenciesRoutes from "./routes/agencies";       // Agency management
 import requestsRoutes from "./routes/requests";       // General requests
 import populateRoutes from "./routes/populate";       // Data population
 import sitemapRoutes from "./routes/sitemap";         // SEO sitemap
-// import authRoutes from "./routes/auth";               // Authentication - Temporarily disabled
-import simpleAuthRoutes from "./routes/simple-auth";  // Simple authentication
+import authRoutes from "./routes/auth";               // Authentication routes
 import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
 import analyticsRoutes from "./src/routes/analytics"; // Analytics data
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
@@ -113,8 +112,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Dependencies: authRoutes from ./routes/auth.ts
    * Pages affected: Login page, RBAC login page, user profile
    */
-  // app.use("/api/auth", authRoutes); // Temporarily disabled due to import errors
-  app.use("/api/auth", simpleAuthRoutes); // Simple authentication system
+  app.use("/api/auth", authRoutes);
 
   /**
    * Buyer Pool Routes - /api/pool/*
@@ -432,7 +430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   }).passthrough();
 
   // Lead routes
-  // Helper: decode roles/org from Authorization header (simple-auth JWT)
+  // Helper: decode roles/org from Authorization header
   function decodeAuth(req: any): { id?: string; roles: string[]; organizationId?: string } {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '');
