@@ -1,11 +1,17 @@
-import { createContext, useContext, useEffect, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
 
 interface LanguageContextType {
   t: (key: string) => string;
-  dir: 'rtl';
+  dir: 'rtl' | 'ltr';
+  language: SupportedLanguage;
+  setLanguage: (language: SupportedLanguage) => void;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+type SupportedLanguage = 'ar' | 'en';
+
+const LANGUAGE_STORAGE_KEY = 'crm-language';
 
 // Arabic translations only
 const translations = {
@@ -253,6 +259,33 @@ const translations = {
   'saved.run': 'تشغيل التنبيهات',
   'saved.delete': 'حذف',
   'saved.none': 'لا توجد عمليات بحث محفوظة',
+  },
+  en: {},
+};
+
+const SUPPORTED_LANGUAGES = Object.keys(translations) as SupportedLanguage[];
+
+const RTL_LANGUAGES = new Set<SupportedLanguage>(['ar']);
+
+const isSupportedLanguage = (value: string | null): value is SupportedLanguage =>
+  value !== null && SUPPORTED_LANGUAGES.includes(value as SupportedLanguage);
+
+const getInitialLanguage = (): SupportedLanguage => {
+  if (typeof window !== 'undefined') {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (isSupportedLanguage(stored)) {
+      return stored;
+    }
+  }
+
+  if (typeof document !== 'undefined') {
+    const docLang = document.documentElement.lang;
+    if (isSupportedLanguage(docLang)) {
+      return docLang;
+    }
+  }
+
+  return 'ar';
 };
 
 interface LanguageProviderProps {
@@ -260,28 +293,78 @@ interface LanguageProviderProps {
 }
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
+  const [language, setLanguage] = useState<SupportedLanguage>(() => {
+    if (typeof window === 'undefined') {
+      return 'ar';
+    }
+
+    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY) as SupportedLanguage | null;
+    return stored === 'en' ? 'en' : 'ar';
+  });
+
+  const dir: LanguageContextType['dir'] = language === 'ar' ? 'rtl' : 'ltr';
+
   useEffect(() => {
-    // Set document to Arabic RTL
-    document.documentElement.lang = 'ar';
-    document.documentElement.dir = 'rtl';
-    document.body.classList.add('rtl');
-    document.body.classList.remove('ltr');
-  }, []);
+    if (typeof window === 'undefined') {
+      return;
+    }
 
-  const t = (key: string): string => {
-    return translations[key as keyof typeof translations] || key;
-  };
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+  }, [language]);
 
-  const contextValue: LanguageContextType = {
-    t,
-    dir: 'rtl'
-  };
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
 
-  return (
-    <LanguageContext.Provider value={contextValue}>
-      {children}
-    </LanguageContext.Provider>
+    document.documentElement.lang = language;
+    document.documentElement.dir = dir;
+    document.body.setAttribute('dir', dir);
+    document.body.classList.toggle('rtl', dir === 'rtl');
+    document.body.classList.toggle('ltr', dir === 'ltr');
+  }, [dir, language]);
+
+  const t = useCallback(
+    (key: string): string => {
+      if (language === 'ar') {
+        return translations[key as keyof typeof translations] || key;
+      }
+
+      return key;
+    },
+    [language]
   );
+
+  const contextValue = useMemo<LanguageContextType>(() => ({
+    t,
+    dir,
+    language,
+    setLanguage,
+  }), [dir, language, t]);
+
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, language);
+    }
+  }, [language, dir]);
+
+  const t = useCallback(
+    (key: string): string => {
+      return translations[language]?.[key] ?? key;
+    },
+    [language]
+  );
+
+  const contextValue = useMemo<LanguageContextType>(
+    () => ({
+      t,
+      dir,
+      language,
+      setLanguage,
+    }),
+    [t, dir, language, setLanguage]
+  );
+
+  return <LanguageContext.Provider value={contextValue}>{children}</LanguageContext.Provider>;
 }
 
 export function useLanguage() {

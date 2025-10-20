@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Upload, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function SignupCorporate() {
   // Account credentials for corporate owner
@@ -39,6 +40,7 @@ export default function SignupCorporate() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const { dir } = useLanguage();
 
   const saudiRegions = [
     "الرياض",
@@ -209,7 +211,7 @@ export default function SignupCorporate() {
 
         <form
           onSubmit={handleSubmit}
-          dir="rtl"
+          dir={dir}
           className="relative space-y-10 rounded-[32px] border border-white/80 bg-white/90 backdrop-blur-xl px-6 py-10 shadow-[0_35px_120px_rgba(148,163,184,0.18)]"
         >
           <section className="space-y-4">

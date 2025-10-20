@@ -6,3 +6,5 @@ server/public
 vite.config.ts.*
 *.tar.gz
 /generated/prisma
+playwright-report
+test-results

@@ -747,7 +747,29 @@ class PrismaStorage {
   }
 
   // Additional placeholder methods for full interface compatibility
-  async getAllDeals(tenantId?: string): Promise<any[]> { return []; }
+  async getAllDeals(tenantId?: string): Promise<any[]> {
+    try {
+      const deals = await prisma.deals.findMany({
+        where: tenantId ? { organizationId: tenantId } : undefined,
+        include: {
+          property: true,
+          listing: true,
+          customer: true,
+          agent: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return deals.map((deal) => ({
+        ...deal,
+        agreedPrice: this.decimalToNumber(deal.agreedPrice),
+      }));
+    } catch (error) {
+      console.error('Error fetching deals:', error);
+      return [];
+    }
+  }
+
   async getDeal(id: string, tenantId?: string): Promise<any | undefined> { return undefined; }
   async createDeal(deal: any, tenantId: string): Promise<any> { return deal; }
   async updateDeal(id: string, deal: Partial<any>, tenantId?: string): Promise<any | undefined> { return undefined; }
