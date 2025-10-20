@@ -233,6 +233,7 @@ function Router() {
 
   const shouldShowNormalizationScreen = hasTrailingSlash || isNormalizingUrl;
 
+
   if (shouldShowNormalizationScreen) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -248,6 +249,7 @@ function Router() {
     return <SuspendedUnverifiedListingPage />;
   }
 
+=======
   // Determine if user is authenticated
   const isAuthenticated = !!user;
   
@@ -385,7 +387,7 @@ function Router() {
 
   /**
    * Handle navigation loading effect for authenticated pages
-   * 
+   *
    * This creates a smooth loading transition when navigating between
    * authenticated pages. The loading state lasts for 2.5 seconds to
    * provide visual feedback during route changes.
@@ -405,6 +407,30 @@ function Router() {
     }
     setPreviousLocation(location);
   }, [location, isAuthenticated, previousLocation, isAdmin]);
+
+  if (shouldShowNormalizationScreen) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <p className="text-gray-700 text-sm">جار تهيئة الرابط...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (hash === '#list') {
+    return <UnverfiedListingPage />;
+  }
+
+  // Provide standalone rendering for the public property search page
+  if (location.startsWith('/search-properties')) {
+    return (
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
+        <SearchProperties />
+      </Suspense>
+    );
+  }
 
   /**
    * Handle logout functionality

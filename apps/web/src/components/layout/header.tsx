@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useState, type ReactNode } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { cn } from "@/lib/utils";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -42,10 +43,17 @@ export default function Header({
   isSidebarOpen,
 }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const { user } = useAuth();
-  
+
   const defaultPlaceholder = searchPlaceholder || t('form.search') || "البحث...";
+
+  const searchInputDirectionalClasses =
+    dir === 'rtl'
+      ? 'pr-12 pl-4 text-right placeholder:text-right'
+      : 'pl-12 pr-4 text-left placeholder:text-left';
+
+  const searchIconPosition = dir === 'rtl' ? 'right-4' : 'left-4';
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -69,10 +77,10 @@ export default function Header({
       className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm h-16"
       aria-label={title || "الشريط العلوي"}
     >
-      <div className="flex items-center gap-4 px-6 h-full w-full" dir="ltr">
+      <div className="flex items-center gap-4 px-6 h-full w-full" dir={dir}>
         {/* Only render the sidebar toggle when a handler is provided; prevents duplicate icon on public pages. */}
         {onToggleSidebar && (
-          <div className="flex items-center gap-2 order-5 ml-2">
+          <div className={cn('flex items-center gap-2 order-5', dir === 'rtl' ? 'ml-2' : 'mr-2')}>
             <Button
               type="button"
               variant="ghost"
@@ -111,22 +119,28 @@ export default function Header({
               placeholder={defaultPlaceholder}
               value={searchQuery}
               onChange={handleSearchChange}
-              className="w-full h-10 bg-gray-50/80 border-gray-200 rounded-md pr-12 pl-4 text-sm text-right placeholder:text-right focus:bg-white focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 focus:shadow-sm transition-all duration-200"
+              className={cn(
+                'w-full h-10 bg-gray-50/80 border-gray-200 rounded-md text-sm focus:bg-white focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 focus:shadow-sm transition-all duration-200',
+                searchInputDirectionalClasses
+              )}
             />
-            <Search className="absolute right-4 top-3 text-gray-400" size={16} />
+            <Search className={cn('absolute top-3 text-gray-400', searchIconPosition)} size={16} />
           </div>
         )}
 
         {/* Extra controls */}
         {extraContent && (
-          <div className="flex flex-wrap items-center gap-2 order-3 ml-2" dir="rtl">
+          <div
+            className={cn('flex flex-wrap items-center gap-2 order-3', dir === 'rtl' ? 'ml-2' : 'mr-2')}
+            dir={dir}
+          >
             {extraContent}
           </div>
         )}
 
         {/* User cluster (far right) */}
         {showActions && (
-          <div className="flex items-center gap-3 shrink-0 order-4 ml-2">
+          <div className={cn('flex items-center gap-3 shrink-0 order-4', dir === 'rtl' ? 'ml-2' : 'mr-2')}>
             <span className="text-sm font-medium text-gray-700">{getUsername()}</span>
             <div className="h-8 w-8 rounded-full flex items-center justify-center shadow-sm bg-emerald-600">
               <User className="h-4 w-4 text-white" />

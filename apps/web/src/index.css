@@ -2,8 +2,7 @@
  * index.css - Global Styles and CSS Configuration
  * 
  * This file contains:
- * - Google Fonts import for Inter font family
- * - Custom Arabic font definitions (Noto Sans Arabic, Janat Bold)
+ * - Global font token definitions for Inter and Arabic stacks
  * - Tailwind CSS imports and configuration
  * - RTL (Right-to-Left) layout fixes for Arabic language support
  * - Custom CSS variables and utility classes
@@ -18,9 +17,8 @@
  * 6. Utility classes
  */
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@200;300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Google Fonts import to centralize font loading */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Kufi+Arabic:wght@200;300;400;500;600;700;800&display=swap");
 
 /* Tailwind CSS imports - Base, components, and utilities */
 @tailwind base;
@@ -177,17 +175,23 @@
 }
 
 :root {
-  font-family: 'Noto Kufi Arabic', 'Noto Sans Arabic', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans);
 }
 
-body,
+body {
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01" on, "ss02" on, 'rlig' 1, 'calt' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 button,
 input,
 textarea,
 select {
-  font-family: 'Noto Kufi Arabic', 'Noto Sans Arabic', 'Inter', 'Helvetica Neue', Arial, sans-serif;
-  font-feature-settings: "ss01" on, "ss02" on;
-  -webkit-font-smoothing: antialiased;
+  font: inherit;
+  font-feature-settings: inherit;
+  -webkit-font-smoothing: inherit;
 }
 
 /* Leaflet popup theming for the property search map */
@@ -276,10 +280,6 @@ select {
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  /* font-family is controlled by Tailwind's font-sans */
-  font-feature-settings: 'rlig' 1, 'calt' 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Apple-style glass effect */
@@ -387,7 +387,8 @@ body {
   --brand-cream: hsl(48 26% 97%);
   --brand-green-light: hsl(145 25% 85%);
   --brand-blue-dark: hsl(205 70% 20%);
-  --font-sans: 'Noto Kufi Arabic', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-arabic: 'Noto Kufi Arabic', var(--font-sans);
   --font-serif: 'Inter', serif;
   --font-mono: 'Inter', monospace;
   --radius: 0.875rem;
@@ -435,20 +436,14 @@ html, body {
 }
 
 /* Font Family Classes */
-.font-droid-kufi {
-  font-family: 'Janat Bold', 'Noto Sans Arabic', sans-serif;
-}
-
-.font-janat-bold {
-  font-family: 'Janat Bold', 'Noto Sans Arabic', sans-serif;
-}
-
+.font-droid-kufi,
+.font-janat-bold,
 .font-arabic-stack {
-  font-family: 'Janat Bold', 'Noto Sans Arabic', Arial, sans-serif;
+  font-family: var(--font-arabic);
 }
 
 .font-password {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
 
 /* Direction and Alignment Classes */
