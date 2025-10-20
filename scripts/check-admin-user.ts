@@ -8,7 +8,7 @@ async function checkAndCreateAdminUser() {
     console.log('🔍 Checking for admin1 user...');
     
     // Check if admin1 user exists
-    const existingAdmin = await prisma.user.findUnique({
+    const existingAdmin = await prisma.users.findUnique({
       where: { username: 'admin1' }
     });
 
@@ -27,7 +27,7 @@ async function checkAndCreateAdminUser() {
       } else {
         console.log('❌ Password verification failed - updating password');
         const hashedPassword = await bcrypt.hash('admin123', 10);
-        await prisma.user.update({
+        await prisma.users.update({
           where: { username: 'admin1' },
           data: { passwordHash: hashedPassword }
         });
@@ -38,7 +38,7 @@ async function checkAndCreateAdminUser() {
       
       // Create admin1 user
       const hashedPassword = await bcrypt.hash('admin123', 10);
-      const newAdmin = await prisma.user.create({
+      const newAdmin = await prisma.users.create({
         data: {
           username: 'admin1',
           passwordHash: hashedPassword,
@@ -59,7 +59,7 @@ async function checkAndCreateAdminUser() {
 
     // List all admin users
     console.log('\n📋 All admin users in database:');
-    const allUsers = await prisma.user.findMany({
+    const allUsers = await prisma.users.findMany({
       select: {
         id: true,
         username: true,
