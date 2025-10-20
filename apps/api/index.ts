@@ -114,9 +114,8 @@ app.use((req, res, next) => {
  * - log() from ./vite.ts - Logging functionality
  */
 (async () => {
-  // Force development environment for now
-  process.env.NODE_ENV = 'development';
-  app.set('env', 'development');
+  const nodeEnv = process.env.NODE_ENV ?? 'development';
+  app.set('env', nodeEnv);
   // Mandatory production checks (disabled unless explicitly allowed)
   if (process.env.NODE_ENV === 'production') {
     if (process.env.ALLOW_PRODUCTION !== 'true') {
