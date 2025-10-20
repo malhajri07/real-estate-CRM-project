@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../../prismaClient';
 import { JWT_SECRET as getJwtSecret } from '../../config/env';
-import { normalizeRoleKeys } from '@shared/rbac';
+import { normalizeRoleKeys, parseStoredRoles } from '@shared/rbac';
 const JWT_SECRET = getJwtSecret();
 
 // Real authentication middleware using Prisma
@@ -20,11 +20,12 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     
     // Fetch user from database
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: decoded.userId },
       select: {
         id: true,
         email: true,
+        username: true,
         firstName: true,
         lastName: true,
         roles: true,
@@ -38,16 +39,23 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     }
 
     // Parse roles from JSON string
-    const roles = normalizeRoleKeys(user.roles);
-    
+    const parsedRoles = parseStoredRoles(user.roles);
+    const roles = normalizeRoleKeys(parsedRoles);
+    const displayName = [user.firstName, user.lastName]
+      .filter((part): part is string => Boolean(part && part.trim()))
+      .join(' ')
+      .trim();
+
     // Set user in request object
     req.user = {
       id: user.id,
       email: user.email,
+      username: user.username ?? null,
+      name: displayName.length ? displayName : (user.username ?? user.email ?? null),
       firstName: user.firstName,
       lastName: user.lastName,
       roles: roles,
-      organizationId: user.organizationId
+      organizationId: user.organizationId ?? null
     };
 
     next();
@@ -63,9 +71,13 @@ declare global {
     interface Request {
       user?: {
         id: string;
-        email: string;
+        email: string | null;
+        username: string | null;
+        name: string | null;
+        firstName?: string | null;
+        lastName?: string | null;
         roles: string[];
-        name: string;
+        organizationId?: string | null;
       };
     }
   }

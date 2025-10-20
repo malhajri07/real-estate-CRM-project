@@ -38,7 +38,7 @@ import { Loader2, Eye, EyeOff } from 'lucide-react';
  * - error: Error message to display if authentication fails
  */
 interface LoginFormProps {
-  onLogin: (username: string, password: string) => Promise<void>;
+  onLogin: (identifier: string, password: string) => Promise<void>;
   isLoading?: boolean;
   error?: string;
 }
@@ -63,7 +63,7 @@ interface LoginFormProps {
  */
 export default function LoginForm({ onLogin, isLoading = false, error }: LoginFormProps) {
   // Form state management
-  const [username, setUsername] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -80,8 +80,8 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !password) return;
-    await onLogin(username, password);
+    if (!identifier || !password) return;
+    await onLogin(identifier, password);
   };
 
   return (
@@ -103,15 +103,15 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="username" className="block text-sm font-medium text-slate-700">
-              اسم المستخدم
+            <Label htmlFor="identifier" className="block text-sm font-medium text-slate-700">
+              البريد الإلكتروني أو اسم المستخدم
             </Label>
             <Input
-              id="username"
+              id="identifier"
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="أدخل اسم المستخدم"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="أدخل البريد الإلكتروني أو اسم المستخدم"
               autoComplete="username"
               required
               disabled={isLoading}
@@ -168,7 +168,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
           <Button
             type="submit"
             className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold shadow-[0_20px_45px_rgba(16,185,129,0.25)] hover:bg-emerald-700 hover:shadow-[0_25px_60px_rgba(16,185,129,0.28)] transition-all disabled:opacity-60"
-            disabled={isLoading || !username || !password}
+            disabled={isLoading || !identifier || !password}
           >
             {isLoading ? (
               <>

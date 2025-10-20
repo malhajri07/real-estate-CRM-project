@@ -45,7 +45,7 @@ interface User {
 interface AuthContextType {
   user: User | null;                                    // Current authenticated user (null if not logged in)
   token: string | null;                                 // JWT token for API authentication (null if not logged in)
-  login: (username: string, password: string) => Promise<void>;  // Function to authenticate user with credentials
+  login: (identifier: string, password: string) => Promise<void>;  // Function to authenticate user with credentials
   logout: () => void;                                   // Function to log out the current user
   isLoading: boolean;                                   // Loading state for authentication operations
   hasRole: (roles: UserRole[]) => boolean;             // Function to check if user has any of the specified roles
@@ -121,17 +121,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * API. On successful authentication, it stores the user data and JWT token in
    * both React state and localStorage for persistence across browser sessions.
    * 
-   * @param email - User's email address
+   * @param identifier - User's email address or username
    * @param password - User's password
    * @throws Error if authentication fails
    */
-  const login = async (username: string, password: string) => {
+  const login = async (identifier: string, password: string) => {
     try {
       // Log login attempt (password is masked for security)
-      console.log('Attempting login with:', { username, password: password ? '***' : 'undefined' });
-      
-      // Normalize username client-side (lowercase/trim)
-      const normalized = (username || '').trim().toLowerCase();
+      console.log('Attempting login with:', { identifier, password: password ? '***' : 'undefined' });
+
+      // Normalize identifier client-side (trim + lowercase for matching)
+      const rawIdentifier = (identifier || '').trim();
+      if (!rawIdentifier) {
+        throw new Error('يرجى إدخال البريد الإلكتروني أو اسم المستخدم');
+      }
+      const isEmail = rawIdentifier.includes('@');
+      const normalized = rawIdentifier.toLowerCase();
+
+      const payload: Record<string, string> = {
+        identifier: normalized,
+        password,
+      };
+
+      if (isEmail) {
+        payload.email = normalized;
+      } else {
+        payload.username = normalized;
+      }
 
       // Send authentication request to backend API
       const response = await fetch('/api/auth/login', {
@@ -139,7 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: normalized, password }),
+        body: JSON.stringify(payload),
       });
 
       // Parse response data robustly (handle non-JSON)
