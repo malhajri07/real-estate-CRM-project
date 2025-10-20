@@ -259,6 +259,33 @@ const translations = {
   'saved.run': 'تشغيل التنبيهات',
   'saved.delete': 'حذف',
   'saved.none': 'لا توجد عمليات بحث محفوظة',
+  },
+  en: {},
+};
+
+const SUPPORTED_LANGUAGES = Object.keys(translations) as SupportedLanguage[];
+
+const RTL_LANGUAGES = new Set<SupportedLanguage>(['ar']);
+
+const isSupportedLanguage = (value: string | null): value is SupportedLanguage =>
+  value !== null && SUPPORTED_LANGUAGES.includes(value as SupportedLanguage);
+
+const getInitialLanguage = (): SupportedLanguage => {
+  if (typeof window !== 'undefined') {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (isSupportedLanguage(stored)) {
+      return stored;
+    }
+  }
+
+  if (typeof document !== 'undefined') {
+    const docLang = document.documentElement.lang;
+    if (isSupportedLanguage(docLang)) {
+      return docLang;
+    }
+  }
+
+  return 'ar';
 };
 
 interface LanguageProviderProps {
@@ -315,11 +342,29 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     setLanguage,
   }), [dir, language, t]);
 
-  return (
-    <LanguageContext.Provider value={contextValue}>
-      {children}
-    </LanguageContext.Provider>
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, language);
+    }
+  }, [language, dir]);
+
+  const t = useCallback(
+    (key: string): string => {
+      return translations[language]?.[key] ?? key;
+    },
+    [language]
   );
+
+  const contextValue = useMemo<LanguageContextType>(
+    () => ({
+      t,
+      dir,
+      language,
+      setLanguage,
+    }),
+    [t, dir, language, setLanguage]
+  );
+
+  return <LanguageContext.Provider value={contextValue}>{children}</LanguageContext.Provider>;
 }
 
 export function useLanguage() {

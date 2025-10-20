@@ -24,7 +24,7 @@
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { useState, useEffect, lazy, Suspense, type ComponentType, type LazyExoticComponent } from "react";
+import { useState, useEffect, lazy, Suspense, type ComponentType, type LazyExoticComponent, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -32,37 +32,44 @@ import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 import { UserRole } from "@shared/rbac";
 import { Button } from "@/components/ui/button";
 
-// Core page imports - loaded immediately for critical routes
+// Core page imports - loaded immediately for critical public routes
 import Landing from "@/pages/landing";
 import SignupSelection from "@/pages/signup-selection";
 import SignupIndividual from "@/pages/signup-individual";
 import SignupCorporate from "@/pages/signup-corporate";
 import SignupSuccess from "@/pages/signup-success";
 import KYCSubmitted from "@/pages/kyc-submitted";
-import CMSAdmin from "@/pages/cms-admin";
-import Dashboard from "@/pages/dashboard";
-import SearchProperties from "@/pages/search-properties";
-import Leads from "@/pages/leads";
-import Customers from "@/pages/customers";
-import Properties from "@/pages/properties";
-import Pipeline from "@/pages/pipeline";
-import Clients from "@/pages/clients";
-import Reports from "@/pages/reports";
-import Notifications from "@/pages/notifications";
-import Settings from "@/pages/settings";
-import PropertyDetail from "@/pages/property-detail";
 import Sidebar from "@/components/layout/sidebar";
 import PlatformShell from "@/components/layout/PlatformShell";
 import Header from "@/components/layout/header";
 import RBACDashboard from "@/pages/rbac-dashboard";
 import RBACLoginPage from "@/pages/rbac-login";
 import PlatformPage from "@/pages/app";
-import UnverfiedListingPage from "@/pages/unverfied_Listing";
+import UnverifiedListingPage from "@/pages/unverified-listing";
 import MarketingRequestSubmissionPage from "@/pages/marketing-request";
 import MarketingRequestsBoardPage from "@/pages/marketing-requests";
+
 import { adminSidebarConfig } from "@/config/admin-sidebar";
 
 // Lazy-loaded page imports - loaded on demand for better performance
+const CMSAdmin = lazy(() => import("@/pages/cms-admin"));
+const Dashboard = lazy(() => import("@/pages/dashboard"));
+const SearchProperties = lazy(() => import("@/pages/search-properties"));
+const Leads = lazy(() => import("@/pages/leads"));
+const Customers = lazy(() => import("@/pages/customers"));
+const Properties = lazy(() => import("@/pages/properties"));
+const Pipeline = lazy(() => import("@/pages/pipeline"));
+const Clients = lazy(() => import("@/pages/clients"));
+const Reports = lazy(() => import("@/pages/reports"));
+const Notifications = lazy(() => import("@/pages/notifications"));
+const Settings = lazy(() => import("@/pages/settings"));
+const PropertyDetail = lazy(() => import("@/pages/property-detail"));
+const RBACDashboard = lazy(() => import("@/pages/rbac-dashboard"));
+const RBACLoginPage = lazy(() => import("@/pages/rbac-login"));
+const PlatformPage = lazy(() => import("@/pages/app"));
+const UnverfiedListingPage = lazy(() => import("@/pages/unverfied_Listing"));
+const MarketingRequestSubmissionPage = lazy(() => import("@/pages/marketing-request"));
+const MarketingRequestsBoardPage = lazy(() => import("@/pages/marketing-requests"));
 const FavoritesPage = lazy(() => import("@/pages/favorites"));
 const ComparePage = lazy(() => import("@/pages/compare"));
 const PostListingPage = lazy(() => import("@/pages/post-listing"));
@@ -106,6 +113,40 @@ function Router() {
   // Get authentication state from AuthProvider context
   const { user, isLoading, logout, hasRole, hasPermission } = useAuth();
   const [location, setLocation] = useLocation();
+
+  const fullScreenSuspenseFallback = (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="text-sm text-gray-600">جار التحميل...</div>
+    </div>
+  );
+
+  const shellSuspenseFallback = (
+    <div className="flex h-full items-center justify-center py-16 text-sm text-gray-600">
+      جار تحميل بيانات الصفحة...
+    </div>
+  );
+
+  type LoadableComponent<P = Record<string, unknown>> = ComponentType<P> | LazyExoticComponent<ComponentType<P>>;
+
+  const withSuspense = <P extends Record<string, unknown>>(
+    Component: LoadableComponent<P>,
+    fallback: ReactNode = fullScreenSuspenseFallback
+  ): ComponentType<P> => {
+    const SuspendedComponent: ComponentType<P> = (props) => (
+      <Suspense fallback={fallback}>
+        <Component {...props} />
+      </Suspense>
+    );
+    return SuspendedComponent;
+  };
+
+  const SuspendedRBACLoginPage = withSuspense(RBACLoginPage);
+  const SuspendedRBACDashboard = withSuspense(RBACDashboard);
+  const SuspendedPlatformPage = withSuspense(PlatformPage);
+  const SuspendedUnverifiedListingPage = withSuspense(UnverfiedListingPage);
+  const SuspendedMarketingRequestSubmissionPage = withSuspense(MarketingRequestSubmissionPage);
+  const SuspendedSearchPropertiesPage = withSuspense(SearchProperties);
+  const SuspendedRealEstateRequestsPage = withSuspense(RealEstateRequestsPage);
 
   const PLATFORM_CORE_ROLES: readonly UserRole[] = [
     UserRole.WEBSITE_ADMIN,
@@ -199,6 +240,7 @@ function Router() {
 
   const shouldShowNormalizationScreen = hasTrailingSlash || isNormalizingUrl;
 
+
   if (shouldShowNormalizationScreen) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -211,9 +253,11 @@ function Router() {
   }
 
   if (hash === '#list') {
-    return <UnverfiedListingPage />;
+    return <UnverifiedListingPage />;
+    return <SuspendedUnverifiedListingPage />;
   }
 
+=======
   // Determine if user is authenticated
   const isAuthenticated = !!user;
   
@@ -244,11 +288,7 @@ function Router() {
 
   // Provide standalone rendering for the public property search page
   if (location.startsWith('/search-properties')) {
-    return (
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
-        <SearchProperties />
-      </Suspense>
-    );
+    return <SuspendedSearchPropertiesPage />;
   }
 
   type PlatformRouteOptions = {
@@ -282,7 +322,9 @@ function Router() {
         title={options.title}
         searchPlaceholder={options.searchPlaceholder}
       >
-        <Component />
+        <Suspense fallback={shellSuspenseFallback}>
+          <Component />
+        </Suspense>
       </PlatformShell>
     );
   };
@@ -291,7 +333,7 @@ function Router() {
     if (!hasRole(Array.from(ADMIN_ONLY_ROLES))) {
       return <AccessDenied message="هذه الصفحة متاحة للمشرفين فقط وفق سياسات التحكم في الصلاحيات." />;
     }
-    return <RBACDashboard />;
+    return <SuspendedRBACDashboard />;
   };
 
   const platformShellRoutes: Array<{
@@ -353,7 +395,7 @@ function Router() {
 
   /**
    * Handle navigation loading effect for authenticated pages
-   * 
+   *
    * This creates a smooth loading transition when navigating between
    * authenticated pages. The loading state lasts for 2.5 seconds to
    * provide visual feedback during route changes.
@@ -373,6 +415,30 @@ function Router() {
     }
     setPreviousLocation(location);
   }, [location, isAuthenticated, previousLocation, isAdmin]);
+
+  if (shouldShowNormalizationScreen) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <p className="text-gray-700 text-sm">جار تهيئة الرابط...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (hash === '#list') {
+    return <UnverfiedListingPage />;
+  }
+
+  // Provide standalone rendering for the public property search page
+  if (location.startsWith('/search-properties')) {
+    return (
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
+        <SearchProperties />
+      </Suspense>
+    );
+  }
 
   /**
    * Handle logout functionality
@@ -427,6 +493,11 @@ function Router() {
       </div>
     );
   };
+
+  const LegacyUnverifiedListingRedirect = createRedirectComponent(
+    '/unverified-listings',
+    'جارٍ تحويلك إلى صفحة عرض العقار...'
+  );
   
   // Standalone Vite dev server (non-dashboard ports) should redirect back to Express
   if (!isDashboardPort) {
@@ -434,8 +505,8 @@ function Router() {
     // When running the standalone Vite server, keep public routes here and redirect
     // any authenticated routes back to the Express instance on port 3000
     return (
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
-      <Switch>
+      <Suspense fallback={fullScreenSuspenseFallback}>
+        <Switch>
         {/* Dashboard and authenticated routes should redirect to the unified server */}
         {dashboardRedirectPaths.map((path) => (
           <Route
@@ -454,13 +525,13 @@ function Router() {
         {/* Login route removed - handled by dashboard port section */}
         {/* Landing page */}
         <Route path="/home" component={Landing} />
-        <Route path="/unverfied-listing" component={UnverfiedListingPage} />
-        <Route path="/unverified-listings" component={UnverfiedListingPage} />
+        <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
+        <Route path="/unverified-listings" component={UnverifiedListingPage} />
         <Route path="/marketing-request" component={MarketingRequestSubmissionPage} />
 
         {/* RBAC-aware login accessible from landing */}
-        <Route path="/home/login" component={RBACLoginPage} />
-        <Route path="/home/platform" component={PlatformPage} />
+        <Route path="/home/login" component={SuspendedRBACLoginPage} />
+        <Route path="/home/platform" component={SuspendedPlatformPage} />
 
         {/* Platform Dashboard Routes - All dashboard functionality under /home/platform/ */}
         {platformShellRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
@@ -532,19 +603,19 @@ function Router() {
         {/* Admin Route with RBAC Dashboard - No sidebar/header */}
         <Route path="/home/admin" component={renderAdminDashboardRoute} />
         
-        <Route path="/rbac-login" component={RBACLoginPage} />
+        <Route path="/rbac-login" component={SuspendedRBACLoginPage} />
         <Route path="/signup" component={SignupSelection} />
         <Route path="/signup/individual" component={SignupIndividual} />
         <Route path="/signup/corporate" component={SignupCorporate} />
         <Route path="/signup/success" component={SignupSuccess} />
         <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
-        <Route path="/real-estate-requests" component={RealEstateRequestsPage} />
+        <Route path="/real-estate-requests" component={SuspendedRealEstateRequestsPage} />
         {/* Default route for non-dashboard port - redirect to home */}
         <Route component={() => {
           window.location.href = '/home';
           return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى الصفحة الرئيسية...</div>;
         }} />
-      </Switch>
+        </Switch>
       </Suspense>
     );
   }
@@ -552,11 +623,11 @@ function Router() {
   // Port 3000 logic: Show dashboard for authenticated users, landing page for unauthenticated users
   if (isDashboardPort && !isAuthenticated) {
     return (
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
-      <Switch>
+      <Suspense fallback={fullScreenSuspenseFallback}>
+        <Switch>
         {/* Use RBAC-aware login that integrates with AuthProvider */}
-        <Route path="/login" component={RBACLoginPage} />
-        <Route path="/rbac-login" component={RBACLoginPage} />
+        <Route path="/login" component={SuspendedRBACLoginPage} />
+        <Route path="/rbac-login" component={SuspendedRBACLoginPage} />
         {/* Test route to verify routing works */}
         <Route path="/test-login">
           {() => {
@@ -577,16 +648,16 @@ function Router() {
             );
           }}
         </Route>
-        <Route path="/unverfied-listing" component={UnverfiedListingPage} />
-        <Route path="/unverified-listings" component={UnverfiedListingPage} />
+        <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
+        <Route path="/unverified-listings" component={UnverifiedListingPage} />
         <Route path="/marketing-request" component={MarketingRequestSubmissionPage} />
         <Route path="/signup" component={SignupSelection} />
         <Route path="/signup/individual" component={SignupIndividual} />
         <Route path="/signup/corporate" component={SignupCorporate} />
         <Route path="/signup/success" component={SignupSuccess} />
         <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
-        <Route path="/search-properties" component={SearchProperties} />
-        <Route path="/real-estate-requests" component={RealEstateRequestsPage} />
+        <Route path="/search-properties" component={SuspendedSearchPropertiesPage} />
+        <Route path="/real-estate-requests" component={SuspendedRealEstateRequestsPage} />
         {ADMIN_DASHBOARD_ROUTES.map((path) => (
           <Route
             key={`guest-admin-${path}`}
@@ -598,7 +669,7 @@ function Router() {
         <Route path="/" component={Landing} />
         {/* Fallback */}
         <Route component={Landing} />
-      </Switch>
+        </Switch>
       </Suspense>
     );
   }
@@ -664,7 +735,7 @@ function Router() {
     ];
 
     return (
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جار التحميل...</div>}>
+      <Suspense fallback={fullScreenSuspenseFallback}>
         <Switch>
           {/* Admin Dashboard Routes - Only for WEBSITE_ADMIN users */}
           {isAdmin && (
@@ -682,8 +753,8 @@ function Router() {
           {isPlatformUser && (
             <>
               <Route path="/home/platform" component={PlatformPage} />
-              <Route path="/unverfied-listing" component={UnverfiedListingPage} />
-              <Route path="/unverified-listings" component={UnverfiedListingPage} />
+              <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
+              <Route path="/unverified-listings" component={UnverifiedListingPage} />
 
               {platformShellRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
                 const routes = [
@@ -764,8 +835,8 @@ function Router() {
           {isSellerBuyer && (
             <>
               <Route path="/home/platform" component={PlatformPage} />
-              <Route path="/unverfied-listing" component={UnverfiedListingPage} />
-              <Route path="/unverified-listings" component={UnverfiedListingPage} />
+              <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
+              <Route path="/unverified-listings" component={UnverifiedListingPage} />
 
               {/* Redirect seller/buyer users from admin routes to platform dashboard */}
               {ADMIN_DASHBOARD_ROUTES.map((path) => (

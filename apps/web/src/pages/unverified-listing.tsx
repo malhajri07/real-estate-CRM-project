@@ -63,7 +63,7 @@ type MessageState = { type: "success" | "error"; text: string } | null;
 
 type ErrorState = string[];
 
-export default function UnverfiedListingPage() {
+export default function UnverifiedListingPage() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [images, setImages] = useState<MediaItem[]>([]);

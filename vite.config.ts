@@ -26,7 +26,7 @@
  * Pages affected: All frontend pages
  */
 
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from 'url';
@@ -35,10 +35,137 @@ import { fileURLToPath } from 'url';
 // Get current directory for path resolution
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig({
+const normalizePath = (filepath: string) => filepath.split(path.sep).join("/");
+
+const adminManualChunkGroups: Array<{ name: string; patterns: string[] }> = [
+  {
+    name: "admin-dashboard-core",
+    patterns: [
+      "/apps/web/src/pages/dashboard",
+    ],
+  },
+  {
+    name: "admin-reports",
+    patterns: [
+      "/apps/web/src/pages/reports",
+    ],
+  },
+  {
+    name: "admin-sales",
+    patterns: [
+      "/apps/web/src/pages/leads",
+      "/apps/web/src/pages/customers",
+      "/apps/web/src/pages/clients",
+      "/apps/web/src/pages/pipeline",
+    ],
+  },
+  {
+    name: "admin-properties",
+    patterns: [
+      "/apps/web/src/pages/properties",
+      "/apps/web/src/pages/property-detail",
+      "/apps/web/src/pages/listing",
+      "/apps/web/src/pages/agencies",
+      "/apps/web/src/pages/agency",
+      "/apps/web/src/pages/agent",
+      "/apps/web/src/pages/compare",
+    ],
+  },
+  {
+    name: "admin-operations",
+    patterns: [
+      "/apps/web/src/pages/cms-admin",
+      "/apps/web/src/pages/moderation",
+      "/apps/web/src/pages/marketing-requests",
+      "/apps/web/src/pages/admin-requests",
+      "/apps/web/src/pages/customer-requests",
+      "/apps/web/src/pages/real-estate-requests",
+      "/apps/web/src/pages/post-listing",
+    ],
+  },
+  {
+    name: "admin-rbac-dashboard",
+    patterns: [
+      "/apps/web/src/pages/rbac-dashboard",
+    ],
+  },
+  {
+    name: "admin-rbac-login",
+    patterns: [
+      "/apps/web/src/pages/rbac-login",
+    ],
+  },
+  {
+    name: "platform-shell",
+    patterns: [
+      "/apps/web/src/pages/app",
+      "/apps/web/src/pages/unverfied_Listing",
+    ],
+  },
+  {
+    name: "admin-engagement",
+    patterns: [
+      "/apps/web/src/pages/favorites",
+      "/apps/web/src/pages/saved-searches",
+      "/apps/web/src/pages/notifications",
+      "/apps/web/src/pages/settings",
+    ],
+  },
+];
+
+const publicLandingChunkIdentifiers = [
+  "/apps/web/src/pages/landing",
+  "/apps/web/src/pages/signup-selection",
+  "/apps/web/src/pages/signup-individual",
+  "/apps/web/src/pages/signup-corporate",
+  "/apps/web/src/pages/signup-success",
+  "/apps/web/src/pages/kyc-submitted",
+  "/apps/web/src/pages/marketing-request",
+  "/apps/web/src/pages/search-properties",
+];
+
+const resolveManualChunk = (id: string): string | undefined => {
+  const normalizedId = normalizePath(id);
+  for (const { name, patterns } of adminManualChunkGroups) {
+    if (patterns.some((pattern) => normalizedId.includes(pattern))) {
+      return name;
+    }
+  }
+  if (publicLandingChunkIdentifiers.some((identifier) => normalizedId.includes(identifier))) {
+    return "public-landing";
+  }
+  return undefined;
+};
+
+const loadBundleVisualizerPlugins = async (): Promise<Plugin[]> => {
+  if (process.env.ANALYZE_BUNDLE !== "true") {
+    return [];
+  }
+
+  return import("vite-bundle-visualizer")
+    .then(({ visualizer }) => [
+      visualizer({
+        filename: "dist/bundle-visualizer.html",
+        template: "treemap",
+        gzipSize: true,
+        brotliSize: true,
+        open: false,
+      }),
+    ])
+    .catch((error) => {
+      console.warn("[vite] Failed to load vite-bundle-visualizer. Run `npm install vite-bundle-visualizer` to enable bundle analysis.", error);
+      return [];
+    });
+};
+
+export default defineConfig(async () => {
+  const visualizerPlugins = await loadBundleVisualizerPlugins();
+
+  return {
   // Plugin configuration
   plugins: [
     react(), // React plugin for JSX/TSX support
+    ...visualizerPlugins,
     // runtimeErrorOverlay(), // Temporarily disabled for debugging
     // Conditional plugins for development environment
     ...(process.env.NODE_ENV !== "production" &&
@@ -82,6 +209,13 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "dist/public"), // Output directory for built files
     emptyOutDir: true, // Clear output directory before building
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          return resolveManualChunk(id);
+        },
+      },
+    },
   },
   
   // Development server configuration
@@ -113,4 +247,5 @@ export default defineConfig({
       },
     },
   },
+  };
 });

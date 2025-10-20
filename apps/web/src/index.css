@@ -2,8 +2,7 @@
  * index.css - Global Styles and CSS Configuration
  * 
  * This file contains:
- * - Google Fonts import for Inter font family
- * - Custom Arabic font definitions (Noto Sans Arabic, Janat Bold)
+ * - Global font token definitions for Inter and Arabic stacks
  * - Tailwind CSS imports and configuration
  * - RTL (Right-to-Left) layout fixes for Arabic language support
  * - Custom CSS variables and utility classes
@@ -18,9 +17,8 @@
  * 6. Utility classes
  */
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@200;300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Google Fonts import to centralize font loading */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Kufi+Arabic:wght@200;300;400;500;600;700;800&display=swap");
 
 /* Tailwind CSS imports - Base, components, and utilities */
 @tailwind base;
@@ -455,7 +453,7 @@ html, body {
 }
 
 .font-password {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
 }
 
 /* Direction and Alignment Classes */
