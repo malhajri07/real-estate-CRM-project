@@ -18,6 +18,7 @@ const JWT_SECRET = getJwtSecret();
 interface JWTPayload {
   userId: string;
   email: string | null;
+  username?: string | null;
   roles: string; // Store as string to match database
   organizationId?: string;
   iat?: number;
@@ -28,12 +29,14 @@ interface JWTPayload {
 export function generateToken(user: {
   id: string;
   email: string | null;
+  username?: string | null;
   roles: string; // Store as string to match database
   organizationId?: string;
 }): string {
   const payload: JWTPayload = {
     userId: user.id,
     email: user.email,
+    username: user.username ?? null,
     roles: user.roles,
     organizationId: user.organizationId
   };
@@ -71,6 +74,9 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
       select: {
         id: true,
         email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
         roles: true,
         organizationId: true,
         isActive: true
@@ -82,10 +88,21 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
     }
 
     // Set user in request object
+    const parsedRoles = parseStoredRoles(user.roles);
+    const normalizedRoles = normalizeRoleKeys(parsedRoles);
+    const displayName = [user.firstName, user.lastName]
+      .filter((part): part is string => Boolean(part && part.trim()))
+      .join(' ')
+      .trim();
+
     req.user = {
       id: user.id,
       email: user.email ?? null,
-      roles: parseStoredRoles(user.roles),
+      username: user.username ?? null,
+      name: displayName.length ? displayName : (user.username ?? user.email ?? null),
+      firstName: user.firstName,
+      lastName: user.lastName,
+      roles: normalizedRoles,
       organizationId: user.organizationId || undefined
     };
 
@@ -116,6 +133,9 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
       select: {
         id: true,
         email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
         roles: true,
         organizationId: true,
         isActive: true
@@ -123,10 +143,21 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
     });
 
     if (user && user.isActive) {
+      const parsedRoles = parseStoredRoles(user.roles);
+      const normalizedRoles = normalizeRoleKeys(parsedRoles);
+      const displayName = [user.firstName, user.lastName]
+        .filter((part): part is string => Boolean(part && part.trim()))
+        .join(' ')
+        .trim();
+
       req.user = {
         id: user.id,
         email: user.email ?? null,
-        roles: parseStoredRoles(user.roles),
+        username: user.username ?? null,
+        name: displayName.length ? displayName : (user.username ?? user.email ?? null),
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: normalizedRoles,
         organizationId: user.organizationId || undefined
       };
     }
@@ -159,14 +190,23 @@ export async function login(identifier: string, password: string): Promise<{
   message?: string;
 }> {
   try {
+    const normalizedIdentifier = identifier.trim();
+    if (!normalizedIdentifier) {
+      return { success: false, message: 'Invalid credentials' };
+    }
+
+    const lookupIdentifier = normalizedIdentifier.toLowerCase();
+
     // Try to find by username first, then by email for compatibility
-    const user =
-      (await prisma.users.findUnique({
-        where: { username: identifier }
-      })) ??
-      (await prisma.users.findUnique({
-        where: { email: identifier }
-      }));
+    let user = await prisma.users.findUnique({
+      where: { username: lookupIdentifier }
+    });
+
+    if (!user) {
+      user = await prisma.users.findUnique({
+        where: { email: lookupIdentifier }
+      });
+    }
 
     if (!user || !user.isActive) {
       return { success: false, message: 'Invalid credentials' };
@@ -184,9 +224,15 @@ export async function login(identifier: string, password: string): Promise<{
     });
 
     const parsedRoles = parseStoredRoles(user.roles);
+    const normalizedRoles = normalizeRoleKeys(parsedRoles);
+    const displayName = [user.firstName, user.lastName]
+      .filter((part): part is string => Boolean(part && part.trim()))
+      .join(' ')
+      .trim();
     const token = generateToken({
       id: user.id,
       email: user.email ?? null,
+      username: (user as any).username ?? null,
       roles: user.roles,
       organizationId: user.organizationId || undefined
     });
@@ -196,10 +242,11 @@ export async function login(identifier: string, password: string): Promise<{
       user: {
         id: user.id,
         email: user.email ?? null,
-        username: (user as any).username,
+        username: (user as any).username ?? null,
+        name: displayName.length ? displayName : ((user as any).username ?? user.email ?? null),
         firstName: user.firstName,
         lastName: user.lastName,
-        roles: parsedRoles,
+        roles: normalizedRoles,
         organizationId: user.organizationId
       },
       token
@@ -239,7 +286,8 @@ export async function register(userData: {
     // Hash password
     const passwordHash = await hashPassword(userData.password);
 
-    const normalizedRoles = serializeRoles(normalizeRoleKeys(userData.roles));
+    const normalizedRolesArray = normalizeRoleKeys(userData.roles);
+    const normalizedRoles = serializeRoles(normalizedRolesArray);
 
     // Create user
     const now = new Date();
@@ -264,18 +312,28 @@ export async function register(userData: {
     const token = generateToken({
       id: user.id,
       email: user.email ?? null,
+      username: user.username ?? null,
       roles: user.roles,
       organizationId: user.organizationId || undefined
     });
+
+    const parsedRoles = parseStoredRoles(user.roles);
+    const normalizedRolesForResponse = normalizeRoleKeys(parsedRoles);
+    const displayName = [user.firstName, user.lastName]
+      .filter((part): part is string => Boolean(part && part.trim()))
+      .join(' ')
+      .trim();
 
     return {
       success: true,
       user: {
         id: user.id,
         email: user.email ?? null,
+        username: user.username ?? null,
+        name: displayName.length ? displayName : (user.username ?? user.email ?? null),
         firstName: user.firstName,
         lastName: user.lastName,
-        roles: parseStoredRoles(user.roles),
+        roles: normalizedRolesForResponse,
         organizationId: user.organizationId
       },
       token
@@ -321,6 +379,7 @@ export async function impersonateUser(adminUserId: string, targetUserId: string)
     const token = generateToken({
       id: targetUser.id,
       email: targetUser.email ?? null,
+      username: targetUser.username ?? null,
       roles: targetUser.roles,
       organizationId: targetUser.organizationId || undefined
     });
@@ -341,5 +400,22 @@ export async function impersonateUser(adminUserId: string, targetUserId: string)
   } catch (error) {
     console.error('Impersonation error:', error);
     return { success: false, message: 'Impersonation failed' };
+  }
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string | null;
+        username: string | null;
+        name: string | null;
+        firstName?: string | null;
+        lastName?: string | null;
+        roles: UserRole[];
+        organizationId?: string | null;
+      };
+    }
   }
 }

@@ -43,7 +43,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage-prisma";
 import { z } from "zod";
 import { insertMessageSchema } from "@shared/types";
-import { isAuthenticated } from "./authMock";
 // import { registerRoleBasedRoutes } from "./roleRoutes"; // Temporarily disabled - requires migration to Prisma
 
 // Route module imports - Each handles specific functionality
@@ -61,8 +60,7 @@ import agenciesRoutes from "./routes/agencies";       // Agency management
 import requestsRoutes from "./routes/requests";       // General requests
 import populateRoutes from "./routes/populate";       // Data population
 import sitemapRoutes from "./routes/sitemap";         // SEO sitemap
-// import authRoutes from "./routes/auth";               // Authentication - Temporarily disabled
-import simpleAuthRoutes from "./routes/simple-auth";  // Simple authentication
+import authRoutes from "./routes/auth";               // Authentication routes (Prisma-backed)
 import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
 import analyticsRoutes from "./src/routes/analytics"; // Analytics data
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
@@ -113,8 +111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Dependencies: authRoutes from ./routes/auth.ts
    * Pages affected: Login page, RBAC login page, user profile
    */
-  // app.use("/api/auth", authRoutes); // Temporarily disabled due to import errors
-  app.use("/api/auth", simpleAuthRoutes); // Simple authentication system
+  app.use("/api/auth", authRoutes);
 
   /**
    * Buyer Pool Routes - /api/pool/*

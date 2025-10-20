@@ -37,8 +37,13 @@ const router = express.Router();
 
 // Validation schemas
 const loginSchema = z.object({
-  email: z.string().email(),
+  identifier: z.string().min(1, 'Email or username is required').optional(),
+  email: z.string().email().optional(),
+  username: z.string().min(1).optional(),
   password: z.string().min(6)
+}).refine((data) => Boolean(data.identifier || data.email || data.username), {
+  message: 'Email or username is required',
+  path: ['identifier']
 });
 
 const registerSchema = z.object({
@@ -58,14 +63,21 @@ const impersonateSchema = z.object({
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = loginSchema.parse(req.body);
-    
-    const result = await login(email, password);
+    const { identifier, email, username, password } = loginSchema.parse(req.body);
+
+    const loginIdentifier = (identifier ?? email ?? username ?? '').trim();
+
+    const result = await login(loginIdentifier, password);
     
     if (!result.success) {
       return res.status(401).json({ message: result.message });
     }
-    
+
+    if (req.session) {
+      req.session.user = result.user;
+      req.session.authToken = result.token;
+    }
+
     res.json({
       success: true,
       user: result.user,
@@ -94,7 +106,12 @@ router.post('/register', async (req, res) => {
     if (!result.success) {
       return res.status(400).json({ message: result.message });
     }
-    
+
+    if (req.session) {
+      req.session.user = result.user;
+      req.session.authToken = result.token;
+    }
+
     res.status(201).json({
       success: true,
       user: result.user,
