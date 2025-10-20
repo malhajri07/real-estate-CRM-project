@@ -8,6 +8,7 @@
     "dev:server": "PORT=${PORT:-3000} NODE_ENV=development tsx apps/api/index.ts",
     "dev:client": "vite",
     "dev:all": "bash -c 'npm run dev:server & npm run dev:client'",
+    "test": "tsx apps/api/src/routes/__tests__/analytics.test.ts",
     "build": "vite build && esbuild apps/api/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "ensure:admin": "tsx apps/api/ensure-primary-admin.ts",

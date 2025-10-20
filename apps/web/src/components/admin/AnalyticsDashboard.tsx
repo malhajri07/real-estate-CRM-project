@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -62,79 +63,6 @@ interface AnalyticsData {
   };
 }
 
-const mockAnalytics: AnalyticsData = {
-  overview: {
-    totalUsers: 1234,
-    activeUsers: 987,
-    totalProperties: 8901,
-    totalListings: 12456,
-    totalTransactions: 2345,
-    totalRevenue: 45678900,
-    userGrowth: 12.5,
-    propertyGrowth: 8.3,
-    revenueGrowth: 15.7,
-  },
-  userStats: {
-    byRole: {
-      'WEBSITE_ADMIN': 2,
-      'CORP_OWNER': 15,
-      'CORP_AGENT': 234,
-      'INDIV_AGENT': 156,
-      'SELLER': 345,
-      'BUYER': 482,
-    },
-    byStatus: { active: 987, inactive: 247 },
-    newUsersThisMonth: 89,
-    newUsersLastMonth: 76,
-  },
-  propertyStats: {
-    byType: {
-      'شقة': 3456,
-      'فيلا': 2345,
-      'أرض': 1890,
-      'مكتب': 567,
-      'محل': 643,
-    },
-    byCity: {
-      'الرياض': 3456,
-      'جدة': 2345,
-      'الدمام': 1890,
-      'مكة': 1234,
-      'المدينة': 976,
-    },
-    byStatus: {
-      'متاح': 5678,
-      'محجوز': 1234,
-      'مباع': 1989,
-    },
-    averagePrice: 850000,
-    priceGrowth: 5.2,
-  },
-  communicationStats: {
-    whatsappMessages: 12345,
-    smsSent: 8765,
-    emailsSent: 15678,
-    socialMediaShares: 2345,
-    responseRate: 78.5,
-  },
-  revenueStats: {
-    monthly: [
-      { month: 'يناير', revenue: 3200000 },
-      { month: 'فبراير', revenue: 3800000 },
-      { month: 'مارس', revenue: 4200000 },
-      { month: 'أبريل', revenue: 3900000 },
-      { month: 'مايو', revenue: 4500000 },
-      { month: 'يونيو', revenue: 4800000 },
-    ],
-    bySource: {
-      'عمولات البيع': 65,
-      'عمولات الإيجار': 25,
-      'خدمات إضافية': 10,
-    },
-    averageTransactionValue: 19500,
-  },
-};
-
 const roleLabels: Record<string, string> = {
   'WEBSITE_ADMIN': 'مدير المنصة',
   'CORP_OWNER': 'مالك شركة',
@@ -145,12 +73,31 @@ const roleLabels: Record<string, string> = {
 };
 
 export default function AnalyticsDashboard() {
-  const [analytics, setAnalytics] = useState<AnalyticsData>(mockAnalytics);
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState('month');
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
+  const {
+    data: analytics,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+  } = useQuery<AnalyticsData>({
+    queryKey: ['analytics', 'comprehensive', selectedPeriod],
+    queryFn: async () => {
+      const response = await fetch(`/api/analytics/comprehensive?period=${selectedPeriod}`);
+      if (!response.ok) {
+        throw new Error('فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.');
+      }
+      return response.json();
+    },
+    keepPreviousData: true,
+  });
+
+  const showSkeleton = isLoading && !analytics;
+  const errorMessage = isError
+    ? (error instanceof Error ? error.message : 'فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.')
+    : null;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -191,38 +138,10 @@ export default function AnalyticsDashboard() {
     return new Intl.NumberFormat('en-US').format(num);
   };
 
-  const fetchAnalyticsData = async (period: string) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const response = await fetch(`/api/analytics/comprehensive?period=${period}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setAnalytics(data);
-    } catch (err) {
-      console.error('Error fetching analytics data:', err);
-      setError('فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.');
-      // Keep using mock data as fallback
-    } finally {
-      setIsLoading(false);
-      setIsInitialLoad(false);
-    }
+  const refreshData = () => {
+    void refetch();
   };
 
-  const refreshData = async () => {
-    await fetchAnalyticsData(selectedPeriod);
-  };
-
-  // Load data on component mount and when period changes
-  useEffect(() => {
-    fetchAnalyticsData(selectedPeriod);
-  }, [selectedPeriod]);
-
-  // Handle period change
   const handlePeriodChange = (period: string) => {
     setSelectedPeriod(period);
   };
@@ -244,8 +163,8 @@ export default function AnalyticsDashboard() {
   );
 
   // Stacked bar chart component for Users by Role
-  const UsersByRoleChart = () => {
-    const totalUsers = Object.values(analytics.userStats.byRole).reduce((sum, count) => sum + count, 0);
+  const UsersByRoleChart = ({ data }: { data: AnalyticsData }) => {
+    const totalUsers = Object.values(data.userStats.byRole).reduce((sum, count) => sum + count, 0);
     const roleColors = {
       'WEBSITE_ADMIN': 'bg-primary',
       'CORP_OWNER': 'bg-success',
@@ -261,11 +180,11 @@ export default function AnalyticsDashboard() {
           <h3 className="text-lg font-semibold">توزيع المستخدمين حسب الدور</h3>
           <span className="text-sm text-gray-500">إجمالي: {formatNumber(totalUsers)}</span>
         </div>
-        
+
         {/* Stacked Bar */}
         <div className="relative">
           <div className="h-8 bg-gray-100 rounded-lg overflow-hidden flex">
-            {Object.entries(analytics.userStats.byRole).map(([role, count]) => {
+            {Object.entries(data.userStats.byRole).map(([role, count]) => {
               const percentage = (count / totalUsers) * 100;
               return (
                 <div
@@ -281,7 +200,7 @@ export default function AnalyticsDashboard() {
 
         {/* Legend */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {Object.entries(analytics.userStats.byRole).map(([role, count]) => {
+          {Object.entries(data.userStats.byRole).map(([role, count]) => {
             const percentage = (count / totalUsers) * 100;
             return (
               <div key={role} className="flex items-center gap-2 text-sm">
@@ -303,10 +222,10 @@ export default function AnalyticsDashboard() {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">لوحة التحليلات</h2>
           <p className="text-gray-600">إحصائيات شاملة عن أداء المنصة</p>
-          {error && (
+          {errorMessage && (
             <div className="flex items-center gap-2 mt-2 text-red-600">
               <AlertCircle className="h-4 w-4" />
-              <span className="text-sm">{error}</span>
+              <span className="text-sm">{errorMessage}</span>
             </div>
           )}
         </div>
@@ -322,8 +241,8 @@ export default function AnalyticsDashboard() {
               <SelectItem value="year">هذا العام</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={refreshData} disabled={isLoading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          <Button variant="outline" onClick={refreshData} disabled={isFetching}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
             تحديث
           </Button>
           <Button>
@@ -335,7 +254,7 @@ export default function AnalyticsDashboard() {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {isInitialLoad ? (
+        {showSkeleton || !analytics ? (
           <>
             <SkeletonCard />
             <SkeletonCard />
@@ -417,7 +336,7 @@ export default function AnalyticsDashboard() {
       </div>
 
       <Tabs defaultValue="users" className="w-full">
-        {isInitialLoad ? (
+        {showSkeleton || !analytics ? (
           <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="flex-1 h-10 bg-gray-200 rounded animate-pulse"></div>
@@ -446,7 +365,7 @@ export default function AnalyticsDashboard() {
 
         {/* Users Analytics */}
         <TabsContent value="users" className="space-y-4">
-          {isInitialLoad ? (
+          {showSkeleton || !analytics ? (
             <div className="space-y-4">
               <div className="h-64 bg-gray-100 rounded-lg animate-pulse"></div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -462,7 +381,7 @@ export default function AnalyticsDashboard() {
                   <CardTitle>توزيع المستخدمين حسب الدور</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <UsersByRoleChart />
+                  <UsersByRoleChart data={analytics} />
                 </CardContent>
               </Card>
 

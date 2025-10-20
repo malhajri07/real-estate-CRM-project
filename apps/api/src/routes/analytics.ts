@@ -41,57 +41,247 @@ const router = Router();
 // Apply authentication to all analytics routes
 router.use(authenticate);
 
-/**
- * getAnalyticsData - Get real analytics data from database
- * 
- * Retrieves analytics data from the database using Prisma storage.
- * This replaces the mock data with real database queries.
- * 
- * Dependencies: storage.getAllUsers(), storage.getAllProperties(), storage.getAllLeads()
- * Routes affected: Analytics dashboard, KPI displays
- * Pages affected: RBAC dashboard, analytics dashboard
- */
+const roundToOneDecimal = (value: number) => Math.round(value * 10) / 10;
+
+const calculatePercentChange = (current: number, previous: number) => {
+  if (previous === 0) {
+    return current === 0 ? 0 : 100;
+  }
+  return roundToOneDecimal(((current - previous) / previous) * 100);
+};
+
+const parseRoles = (raw: unknown): string[] => {
+  if (Array.isArray(raw)) {
+    return raw.filter((role): role is string => typeof role === 'string');
+  }
+  if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((role): role is string => typeof role === 'string');
+      }
+    } catch {}
+    return raw ? [raw] : [];
+  }
+  return [];
+};
+
+const toNumber = (value: any): number => {
+  if (value === null || value === undefined) {
+    return 0;
+  }
+  if (typeof value === 'number') {
+    return value;
+  }
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  if (typeof value === 'object' && 'toNumber' in value && typeof (value as any).toNumber === 'function') {
+    return (value as any).toNumber();
+  }
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : 0;
+};
+
 const getAnalyticsData = async () => {
   try {
-    // Get real data from database
-    const [users, properties, leads] = await Promise.all([
-      storage.getAllUsers(),
-      storage.getAllProperties(),
-      storage.getAllLeads(),
+    const now = new Date();
+    const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const startOfPreviousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalUsers,
+      activeUsers,
+      totalProperties,
+      activeProperties,
+      totalLeads,
+      wonDealsAggregate,
+      totalDealsCount,
+      currentMonthWonDeals,
+      previousMonthWonDeals,
+      newUsersThisMonth,
+      newUsersLastMonth,
+      newPropertiesThisMonth,
+      newPropertiesLastMonth,
+      revenueThisMonthAggregate,
+      revenueLastMonthAggregate,
+      engagedUsers,
+      propertyViewCount,
+      firstContactByLead,
+      leadsWithContact,
+      leadsWithCreation,
+      totalListings,
+    ] = await Promise.all([
+      prisma.users.count(),
+      prisma.users.count({ where: { isActive: true } }),
+      prisma.properties.count(),
+      prisma.properties.count({ where: { status: 'ACTIVE' as any } }),
+      prisma.leads.count(),
+      prisma.deals.aggregate({
+        where: { stage: 'WON' as any, wonAt: { not: null } },
+        _avg: { agreedPrice: true },
+        _sum: { agreedPrice: true },
+        _count: { _all: true },
+      }),
+      prisma.deals.count(),
+      prisma.deals.count({
+        where: {
+          stage: 'WON' as any,
+          wonAt: { gte: startOfCurrentMonth, lt: startOfNextMonth },
+        },
+      }),
+      prisma.deals.count({
+        where: {
+          stage: 'WON' as any,
+          wonAt: { gte: startOfPreviousMonth, lt: startOfCurrentMonth },
+        },
+      }),
+      prisma.users.count({
+        where: { createdAt: { gte: startOfCurrentMonth, lt: startOfNextMonth } },
+      }),
+      prisma.users.count({
+        where: { createdAt: { gte: startOfPreviousMonth, lt: startOfCurrentMonth } },
+      }),
+      prisma.properties.count({
+        where: { createdAt: { gte: startOfCurrentMonth, lt: startOfNextMonth } },
+      }),
+      prisma.properties.count({
+        where: { createdAt: { gte: startOfPreviousMonth, lt: startOfCurrentMonth } },
+      }),
+      prisma.deals.aggregate({
+        where: {
+          stage: 'WON' as any,
+          wonAt: { gte: startOfCurrentMonth, lt: startOfNextMonth },
+        },
+        _sum: { agreedPrice: true },
+      }),
+      prisma.deals.aggregate({
+        where: {
+          stage: 'WON' as any,
+          wonAt: { gte: startOfPreviousMonth, lt: startOfCurrentMonth },
+        },
+        _sum: { agreedPrice: true },
+      }),
+      prisma.analytics_event_logs.findMany({
+        where: {
+          userId: { not: null },
+          occurredAt: { gte: thirtyDaysAgo },
+        },
+        select: { userId: true },
+        distinct: ['userId'],
+      }),
+      prisma.analytics_event_logs.count({
+        where: {
+          eventName: 'PROPERTY_VIEW',
+          occurredAt: { gte: thirtyDaysAgo },
+        },
+      }),
+      prisma.contact_logs.groupBy({
+        by: ['leadId'],
+        _min: { contactedAt: true },
+      }),
+      prisma.contact_logs.findMany({
+        distinct: ['leadId'],
+        select: { leadId: true },
+      }),
+      prisma.leads.findMany({
+        select: { id: true, createdAt: true },
+      }),
+      prisma.listings.count(),
     ]);
 
+    const wonDeals = wonDealsAggregate._count?._all ?? 0;
+    const totalRevenue = toNumber(wonDealsAggregate._sum?.agreedPrice ?? 0);
+    const avgDealValueRaw = wonDealsAggregate._avg?.agreedPrice;
+    const avgDealValue = avgDealValueRaw ? toNumber(avgDealValueRaw) : 0;
+
+    const leadCreatedAtMap = new Map(
+      leadsWithCreation.map((lead) => [lead.id, lead.createdAt])
+    );
+
+    const responseDurations = firstContactByLead
+      .map((record) => {
+        const createdAt = leadCreatedAtMap.get(record.leadId);
+        const contactedAt = record._min?.contactedAt;
+        if (!createdAt || !contactedAt) {
+          return null;
+        }
+        const diffHours = (contactedAt.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+        return diffHours >= 0 ? diffHours : null;
+      })
+      .filter((value): value is number => value !== null);
+
+    const leadResponseTime = responseDurations.length
+      ? roundToOneDecimal(
+          responseDurations.reduce((sum, value) => sum + value, 0) / responseDurations.length
+        )
+      : 0;
+
+    const leadsWithContactCount = leadsWithContact.filter((entry) => !!entry.leadId).length;
+    const revenueThisMonth = toNumber(revenueThisMonthAggregate._sum?.agreedPrice ?? 0);
+    const revenueLastMonth = toNumber(revenueLastMonthAggregate._sum?.agreedPrice ?? 0);
+
     return {
-      totalUsers: users.length,
-      activeUsers: users.filter(u => u.isActive !== false).length,
-      totalProperties: properties.length,
-      activeProperties: properties.filter(p => p.status === 'ACTIVE').length,
-      totalDeals: 0, // TODO: Implement deals tracking
-      totalLeads: leads.length,
-      conversionRate: 13.5, // TODO: Calculate from real data
-      avgDealValue: 850000, // TODO: Calculate from real data
-      monthlyGrowth: 8.2, // TODO: Calculate from real data
-      userEngagement: 72.5, // TODO: Calculate from real data
-      propertyViews: 15600, // TODO: Calculate from real data
-      leadResponseTime: 2.4, // TODO: Calculate from real data
-      dealCloseRate: 15.8 // TODO: Calculate from real data
+      totalUsers,
+      activeUsers,
+      totalProperties,
+      activeProperties,
+      totalListings,
+      totalLeads,
+      totalDeals: wonDeals,
+      totalRevenue,
+      conversionRate: totalLeads > 0 ? roundToOneDecimal((wonDeals / totalLeads) * 100) : 0,
+      avgDealValue,
+      monthlyGrowth: calculatePercentChange(currentMonthWonDeals, previousMonthWonDeals),
+      userGrowth: calculatePercentChange(newUsersThisMonth, newUsersLastMonth),
+      propertyGrowth: calculatePercentChange(newPropertiesThisMonth, newPropertiesLastMonth),
+      revenueGrowth: calculatePercentChange(revenueThisMonth, revenueLastMonth),
+      userEngagement:
+        activeUsers > 0
+          ? roundToOneDecimal(Math.min(100, (engagedUsers.length / activeUsers) * 100))
+          : 0,
+      propertyViews: propertyViewCount,
+      leadResponseTime,
+      dealCloseRate: totalDealsCount > 0 ? roundToOneDecimal((wonDeals / totalDealsCount) * 100) : 0,
+      leadsWithContactCount,
+      newUsersThisMonth,
+      newUsersLastMonth,
+      newPropertiesThisMonth,
+      newPropertiesLastMonth,
+      revenueThisMonth,
+      revenueLastMonth,
     };
   } catch (error) {
     console.error('Error fetching analytics data:', error);
-    // Fallback to mock data if database query fails
     return {
-      totalUsers: 1250,
-      activeUsers: 980,
-      totalProperties: 450,
-      activeProperties: 380,
-      totalDeals: 120,
-      totalLeads: 890,
-      conversionRate: 13.5,
-      avgDealValue: 850000,
-      monthlyGrowth: 8.2,
-      userEngagement: 72.5,
-      propertyViews: 15600,
-      leadResponseTime: 2.4,
-      dealCloseRate: 15.8
+      totalUsers: 0,
+      activeUsers: 0,
+      totalProperties: 0,
+      activeProperties: 0,
+      totalListings: 0,
+      totalLeads: 0,
+      totalDeals: 0,
+      totalRevenue: 0,
+      conversionRate: 0,
+      avgDealValue: 0,
+      monthlyGrowth: 0,
+      userGrowth: 0,
+      propertyGrowth: 0,
+      revenueGrowth: 0,
+      userEngagement: 0,
+      propertyViews: 0,
+      leadResponseTime: 0,
+      dealCloseRate: 0,
+      leadsWithContactCount: 0,
+      newUsersThisMonth: 0,
+      newUsersLastMonth: 0,
+      newPropertiesThisMonth: 0,
+      newPropertiesLastMonth: 0,
+      revenueThisMonth: 0,
+      revenueLastMonth: 0,
     };
   }
 };
@@ -122,42 +312,46 @@ const getDateRange = (period: string) => {
   return { startDate, endDate: now };
 };
 
+const buildMonthlyRevenue = async (months = 6) => {
+  const results: Array<{ month: string; revenue: number }> = [];
+  const now = new Date();
+
+  for (let index = months - 1; index >= 0; index -= 1) {
+    const monthStart = new Date(now.getFullYear(), now.getMonth() - index, 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() - index + 1, 1);
+    const aggregate = await prisma.deals.aggregate({
+      where: {
+        stage: 'WON' as any,
+        wonAt: { gte: monthStart, lt: monthEnd },
+      },
+      _sum: { agreedPrice: true },
+    });
+
+    results.push({
+      month: `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, '0')}`,
+      revenue: toNumber(aggregate._sum?.agreedPrice ?? 0),
+    });
+  }
+
+  return results;
+};
+
 // Get overview analytics
-router.get('/overview', async (req, res) => {
+router.get('/overview', async (_req, res) => {
   try {
-    const { period = 'month' } = req.query;
-    // const storage = await getStorage(); // Temporarily disabled
-
-    // Get real analytics data from database
-    const mockData = await getAnalyticsData();
-    
-    // Calculate totals from mock data
-    const totalUsers = mockData.totalUsers;
-    const activeUsers = mockData.activeUsers;
-    const totalProperties = mockData.totalProperties;
-    const totalLeads = mockData.totalLeads;
-    const totalDeals = mockData.totalDeals;
-
-    // Calculate revenue from mock data
-    const totalRevenue = mockData.totalDeals * mockData.avgDealValue;
-    const averageTransactionValue = mockData.avgDealValue;
-
-    // Use mock growth data
-    const userGrowth = mockData.monthlyGrowth;
-    const propertyGrowth = mockData.monthlyGrowth * 0.8;
-    const revenueGrowth = mockData.monthlyGrowth * 1.2;
+    const analytics = await getAnalyticsData();
 
     res.json({
-      totalUsers,
-      activeUsers,
-      totalProperties,
-      totalListings: totalProperties, // Same as properties for now
-      totalTransactions: totalDeals,
-      totalRevenue,
-      userGrowth,
-      propertyGrowth,
-      revenueGrowth,
-      averageTransactionValue
+      totalUsers: analytics.totalUsers,
+      activeUsers: analytics.activeUsers,
+      totalProperties: analytics.totalProperties,
+      totalListings: analytics.totalListings,
+      totalTransactions: analytics.totalDeals,
+      totalRevenue: analytics.totalRevenue,
+      userGrowth: analytics.userGrowth,
+      propertyGrowth: analytics.propertyGrowth,
+      revenueGrowth: analytics.revenueGrowth,
+      averageTransactionValue: analytics.avgDealValue
     });
   } catch (error) {
     console.error('Error fetching overview analytics:', error);
@@ -166,39 +360,31 @@ router.get('/overview', async (req, res) => {
 });
 
 // Get user statistics
-router.get('/users', async (req, res) => {
+router.get('/users', async (_req, res) => {
   try {
-    const { period = 'month' } = req.query;
-    // const storage = await getStorage(); // Temporarily disabled
-    const mockData = getMockAnalyticsData();
+    const analytics = await getAnalyticsData();
+    const users = await storage.getAllUsers();
 
-    // Get all leads (using as users for now)
-    const allLeads = await storage.getAllLeads();
-
-    // Mock user role data for now
-    const byRole = {
-      'BUYER': 45,
-      'INDIV_AGENT': 12,
-      'CORP_OWNER': 8,
-      'WEBSITE_ADMIN': 2
-    };
-
-    // Calculate status data
-    const activeUsers = allLeads.filter((lead: any) => lead.status !== 'inactive').length;
-    const inactiveUsers = allLeads.filter((lead: any) => lead.status === 'inactive').length;
-
-    // Mock new user data
-    const newUsersThisMonth = 15;
-    const newUsersLastMonth = 12;
+    const byRole: Record<string, number> = {};
+    users.forEach((user: any) => {
+      const roles = parseRoles(user.roles);
+      if (!roles.length) {
+        byRole['UNSPECIFIED'] = (byRole['UNSPECIFIED'] || 0) + 1;
+      } else {
+        roles.forEach((role) => {
+          byRole[role] = (byRole[role] || 0) + 1;
+        });
+      }
+    });
 
     res.json({
       byRole,
       byStatus: {
-        active: activeUsers,
-        inactive: inactiveUsers
+        active: analytics.activeUsers,
+        inactive: Math.max(analytics.totalUsers - analytics.activeUsers, 0)
       },
-      newUsersThisMonth,
-      newUsersLastMonth
+      newUsersThisMonth: analytics.newUsersThisMonth,
+      newUsersLastMonth: analytics.newUsersLastMonth
     });
   } catch (error) {
     console.error('Error fetching user analytics:', error);
@@ -207,48 +393,37 @@ router.get('/users', async (req, res) => {
 });
 
 // Get property statistics
-router.get('/properties', async (req, res) => {
+router.get('/properties', async (_req, res) => {
   try {
-    // const storage = await getStorage(); // Temporarily disabled
-    const mockData = getMockAnalyticsData();
-    const allProperties = await storage.getAllProperties();
+    const analytics = await getAnalyticsData();
+    const properties = await storage.getAllProperties();
 
-    // Calculate properties by type
     const byType: Record<string, number> = {};
-    allProperties.forEach((prop: any) => {
-      const type = prop.propertyType || 'غير محدد';
-      byType[type] = (byType[type] || 0) + 1;
-    });
-
-    // Calculate properties by city
     const byCity: Record<string, number> = {};
-    allProperties.forEach((prop: any) => {
-      const city = prop.city || 'غير محدد';
-      byCity[city] = (byCity[city] || 0) + 1;
-    });
-
-    // Calculate properties by status
     const byStatus: Record<string, number> = {};
-    allProperties.forEach((prop: any) => {
-      const status = prop.status || 'غير محدد';
+
+    properties.forEach((property: any) => {
+      const type = property.propertyType || property.type || 'غير محدد';
+      const city = property.city || 'غير محدد';
+      const status = property.status || 'غير محدد';
+
+      byType[type] = (byType[type] || 0) + 1;
+      byCity[city] = (byCity[city] || 0) + 1;
       byStatus[status] = (byStatus[status] || 0) + 1;
     });
 
-    // Calculate average price
-    const totalPrice = allProperties.reduce((sum: number, prop: any) => {
-      return sum + (parseFloat(prop.price) || 0);
+    const totalPrice = properties.reduce((sum: number, property: any) => {
+      return sum + toNumber(property.price);
     }, 0);
-    const averagePrice = allProperties.length > 0 ? totalPrice / allProperties.length : 0;
 
-    // Mock price growth
-    const priceGrowth = 5.2;
+    const averagePrice = properties.length ? totalPrice / properties.length : 0;
 
     res.json({
       byType,
       byCity,
       byStatus,
       averagePrice,
-      priceGrowth
+      priceGrowth: analytics.propertyGrowth
     });
   } catch (error) {
     console.error('Error fetching property analytics:', error);
@@ -257,32 +432,35 @@ router.get('/properties', async (req, res) => {
 });
 
 // Get communication statistics
-router.get('/communication', async (req, res) => {
+router.get('/communication', async (_req, res) => {
   try {
-    const { period = 'month' } = req.query;
-    // const storage = await getStorage(); // Temporarily disabled
-    const mockData = getMockAnalyticsData();
+    const analytics = await getAnalyticsData();
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    // Get all messages
-    const allMessages = await storage.getAllMessages();
+    const channelGroups = await prisma.contact_logs.groupBy({
+      by: ['channel'],
+      _count: { _all: true },
+    });
 
-    // Calculate message statistics
-    const whatsappMessages = allMessages.filter((msg: any) => msg.messageType === 'whatsapp').length;
-    const smsMessages = allMessages.filter((msg: any) => msg.messageType === 'sms').length;
+    const whatsappMessages = channelGroups.find((group) => group.channel === 'WHATSAPP')?._count._all ?? 0;
+    const smsMessages = channelGroups.find((group) => group.channel === 'SMS')?._count._all ?? 0;
+    const emailMessages = channelGroups.find((group) => group.channel === 'EMAIL')?._count._all ?? 0;
 
-    // Mock email inquiries (would need actual email tracking)
-    const emailsSent = 45;
+    const socialMediaShares = await prisma.analytics_event_logs.count({
+      where: {
+        eventName: 'SOCIAL_SHARE',
+        occurredAt: { gte: thirtyDaysAgo },
+      },
+    });
 
-    // Mock social media shares
-    const socialMediaShares = 2345;
-
-    // Mock response rate
-    const responseRate = 78.5;
+    const responseRate = analytics.totalLeads > 0
+      ? roundToOneDecimal((analytics.leadsWithContactCount / analytics.totalLeads) * 100)
+      : 0;
 
     res.json({
       whatsappMessages,
       smsSent: smsMessages,
-      emailsSent,
+      emailsSent: emailMessages,
       socialMediaShares,
       responseRate
     });
@@ -293,42 +471,30 @@ router.get('/communication', async (req, res) => {
 });
 
 // Get revenue statistics
-router.get('/revenue', async (req, res) => {
+router.get('/revenue', async (_req, res) => {
   try {
-    const { period = 'month' } = req.query;
-    // const storage = await getStorage(); // Temporarily disabled
-    const mockData = getMockAnalyticsData();
+    const analytics = await getAnalyticsData();
+    const monthly = await buildMonthlyRevenue();
 
-    // Get all deals
-    const allDeals = await storage.getAllDeals();
+    const groupedBySource = await prisma.deals.groupBy({
+      by: ['source'],
+      where: { stage: 'WON' as any },
+      _count: { _all: true },
+    });
 
-    // Calculate average transaction value
-    const totalRevenue = allDeals.reduce((sum: number, deal: any) => {
-      return sum + (parseFloat(deal.dealValue) || 0);
-    }, 0);
-    const averageTransactionValue = allDeals.length > 0 ? totalRevenue / allDeals.length : 0;
+    const totalBySource = groupedBySource.reduce((sum, entry) => sum + entry._count._all, 0);
+    const bySource: Record<string, number> = {};
 
-    // Mock monthly revenue data for the last 6 months
-    const monthly = [
-      { month: '2024-01', revenue: 125000 },
-      { month: '2024-02', revenue: 142000 },
-      { month: '2024-03', revenue: 138000 },
-      { month: '2024-04', revenue: 156000 },
-      { month: '2024-05', revenue: 168000 },
-      { month: '2024-06', revenue: 175000 }
-    ];
-
-    // Mock revenue by source
-    const bySource = {
-      'عمولات البيع': 65,
-      'عمولات الإيجار': 25,
-      'خدمات إضافية': 10
-    };
+    groupedBySource.forEach((entry) => {
+      const key = entry.source || 'غير محدد';
+      const share = totalBySource ? roundToOneDecimal((entry._count._all / totalBySource) * 100) : 0;
+      bySource[key] = share;
+    });
 
     res.json({
       monthly,
       bySource,
-      averageTransactionValue
+      averageTransactionValue: analytics.avgDealValue
     });
   } catch (error) {
     console.error('Error fetching revenue analytics:', error);
@@ -337,115 +503,123 @@ router.get('/revenue', async (req, res) => {
 });
 
 // Get comprehensive analytics (all data in one call)
-router.get('/comprehensive', async (req, res) => {
+router.get('/comprehensive', async (_req, res) => {
   try {
-    const { period = 'month' } = req.query;
-    // const storage = await getStorage(); // Temporarily disabled
-    const mockData = getMockAnalyticsData();
+    const analytics = await getAnalyticsData();
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    // Use mock data
-    const totalUsers = mockData.totalUsers;
-    const activeUsers = mockData.activeUsers;
-    const totalProperties = mockData.totalProperties;
-    const totalDeals = mockData.totalDeals;
-    const totalRevenue = mockData.totalDeals * mockData.avgDealValue;
-    const averageTransactionValue = mockData.avgDealValue;
+    const [
+      users,
+      properties,
+      channelGroups,
+      monthlyRevenue,
+      groupedBySource,
+      socialMediaShares
+    ] = await Promise.all([
+      storage.getAllUsers(),
+      storage.getAllProperties(),
+      prisma.contact_logs.groupBy({
+        by: ['channel'],
+        _count: { _all: true },
+      }),
+      buildMonthlyRevenue(),
+      prisma.deals.groupBy({
+        by: ['source'],
+        where: { stage: 'WON' as any },
+        _count: { _all: true },
+      }),
+      prisma.analytics_event_logs.count({
+        where: {
+          eventName: 'SOCIAL_SHARE',
+          occurredAt: { gte: thirtyDaysAgo },
+        },
+      })
+    ]);
 
-    const overview = {
-      totalUsers,
-      activeUsers,
-      totalProperties,
-      totalListings: totalProperties,
-      totalTransactions: totalDeals,
-      totalRevenue,
-      userGrowth: 12.5,
-      propertyGrowth: 8.3,
-      revenueGrowth: 15.7,
-      averageTransactionValue
-    };
+    const byRole: Record<string, number> = {};
+    users.forEach((user: any) => {
+      const roles = parseRoles(user.roles);
+      if (!roles.length) {
+        byRole['UNSPECIFIED'] = (byRole['UNSPECIFIED'] || 0) + 1;
+      } else {
+        roles.forEach((role) => {
+          byRole[role] = (byRole[role] || 0) + 1;
+        });
+      }
+    });
 
-    // Calculate user stats
-    const userStats = {
-      byRole: {
-        'BUYER': 45,
-        'INDIV_AGENT': 12,
-        'CORP_OWNER': 8,
-        'WEBSITE_ADMIN': 2
-      },
-      byStatus: {
-        active: activeUsers,
-        inactive: totalUsers - activeUsers
-      },
-      newUsersThisMonth: 15,
-      newUsersLastMonth: 12
-    };
-
-    // Calculate property stats
     const byType: Record<string, number> = {};
     const byCity: Record<string, number> = {};
     const byStatus: Record<string, number> = {};
-    
-    allProperties.forEach((prop: any) => {
-      const type = prop.propertyType || 'غير محدد';
-      const city = prop.city || 'غير محدد';
-      const status = prop.status || 'غير محدد';
-      
+
+    properties.forEach((property: any) => {
+      const type = property.propertyType || property.type || 'غير محدد';
+      const city = property.city || 'غير محدد';
+      const status = property.status || 'غير محدد';
+
       byType[type] = (byType[type] || 0) + 1;
       byCity[city] = (byCity[city] || 0) + 1;
       byStatus[status] = (byStatus[status] || 0) + 1;
     });
 
-    const totalPrice = allProperties.reduce((sum: number, prop: any) => {
-      return sum + (parseFloat(prop.price) || 0);
-    }, 0);
-    const averagePrice = allProperties.length > 0 ? totalPrice / allProperties.length : 0;
+    const totalPrice = properties.reduce((sum: number, property: any) => sum + toNumber(property.price), 0);
+    const averagePrice = properties.length ? totalPrice / properties.length : 0;
 
-    const propertyStats = {
-      byType,
-      byCity,
-      byStatus,
-      averagePrice,
-      priceGrowth: 5.2
-    };
+    const whatsappMessages = channelGroups.find((group) => group.channel === 'WHATSAPP')?._count._all ?? 0;
+    const smsMessages = channelGroups.find((group) => group.channel === 'SMS')?._count._all ?? 0;
+    const emailMessages = channelGroups.find((group) => group.channel === 'EMAIL')?._count._all ?? 0;
 
-    // Calculate communication stats
-    const whatsappMessages = allMessages.filter((msg: any) => msg.messageType === 'whatsapp').length;
-    const smsMessages = allMessages.filter((msg: any) => msg.messageType === 'sms').length;
-
-    const communicationStats = {
-      whatsappMessages,
-      smsSent: smsMessages,
-      emailsSent: 45,
-      socialMediaShares: 2345,
-      responseRate: 78.5
-    };
-
-    // Calculate revenue stats
-    const monthly = [
-      { month: '2024-01', revenue: 125000 },
-      { month: '2024-02', revenue: 142000 },
-      { month: '2024-03', revenue: 138000 },
-      { month: '2024-04', revenue: 156000 },
-      { month: '2024-05', revenue: 168000 },
-      { month: '2024-06', revenue: 175000 }
-    ];
-
-    const revenueStats = {
-      monthly,
-      bySource: {
-        'عمولات البيع': 65,
-        'عمولات الإيجار': 25,
-        'خدمات إضافية': 10
-      },
-      averageTransactionValue
-    };
+    const totalBySource = groupedBySource.reduce((sum, entry) => sum + entry._count._all, 0);
+    const revenueBySource: Record<string, number> = {};
+    groupedBySource.forEach((entry) => {
+      const key = entry.source || 'غير محدد';
+      const share = totalBySource ? roundToOneDecimal((entry._count._all / totalBySource) * 100) : 0;
+      revenueBySource[key] = share;
+    });
 
     res.json({
-      overview,
-      userStats,
-      propertyStats,
-      communicationStats,
-      revenueStats
+      overview: {
+        totalUsers: analytics.totalUsers,
+        activeUsers: analytics.activeUsers,
+        totalProperties: analytics.totalProperties,
+        totalListings: analytics.totalListings,
+        totalTransactions: analytics.totalDeals,
+        totalRevenue: analytics.totalRevenue,
+        userGrowth: analytics.userGrowth,
+        propertyGrowth: analytics.propertyGrowth,
+        revenueGrowth: analytics.revenueGrowth,
+        averageTransactionValue: analytics.avgDealValue
+      },
+      userStats: {
+        byRole,
+        byStatus: {
+          active: analytics.activeUsers,
+          inactive: Math.max(analytics.totalUsers - analytics.activeUsers, 0)
+        },
+        newUsersThisMonth: analytics.newUsersThisMonth,
+        newUsersLastMonth: analytics.newUsersLastMonth
+      },
+      propertyStats: {
+        byType,
+        byCity,
+        byStatus,
+        averagePrice,
+        priceGrowth: analytics.propertyGrowth
+      },
+      communicationStats: {
+        whatsappMessages,
+        smsSent: smsMessages,
+        emailsSent: emailMessages,
+        socialMediaShares,
+        responseRate: analytics.totalLeads > 0
+          ? roundToOneDecimal((analytics.leadsWithContactCount / analytics.totalLeads) * 100)
+          : 0
+      },
+      revenueStats: {
+        monthly: monthlyRevenue,
+        bySource: revenueBySource,
+        averageTransactionValue: analytics.avgDealValue
+      }
     });
   } catch (error) {
     console.error('Error fetching comprehensive analytics:', error);
