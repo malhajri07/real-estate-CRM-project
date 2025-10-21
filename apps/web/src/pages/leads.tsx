@@ -208,9 +208,9 @@ export default function Leads() {
 
   return (
     <div className="space-y-6">
-      <section className="page-section">
-        <header className="page-section__header">
-          <h2 className="surface-panel__title">جميع العملاء المحتملين ({displayLeads?.length || 0})</h2>
+      <section className="ui-section">
+        <header className="ui-section__header">
+          <h2 className="text-lg font-semibold text-foreground">جميع العملاء المحتملين ({displayLeads?.length || 0})</h2>
           <div className="flex items-center gap-2">
             <CSVUploader
               onGetUploadParameters={handleGetUploadParameters}
@@ -230,7 +230,7 @@ export default function Leads() {
           </div>
         </header>
 
-        <div className="page-section__body">
+        <div className="ui-section__body">
           {csvProcessMutation.isPending && (
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-3 text-blue-700">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700 ml-2"></div>
@@ -251,7 +251,7 @@ export default function Leads() {
               )}
             </div>
           ) : (
-            <div className="surface-panel">
+            <div className="ui-surface">
               <Table>
                 <TableHeader>
                   <TableRow>

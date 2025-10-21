@@ -107,7 +107,7 @@ export default function PropertyDetail() {
             <Button
               variant="ghost"
               onClick={() => setLocation('/home/platform/properties')}
-              className="rounded-xl apple-transition"
+              className="rounded-xl ui-transition"
             >
               <ArrowRight size={18} className="rotate-180" />
               العودة إلى العقارات
@@ -163,7 +163,7 @@ export default function PropertyDetail() {
           <div className="lg:col-span-2 space-y-6">
             {/* Property Images Carousel */}
             {property.photoUrls && property.photoUrls.length > 0 ? (
-              <Card className="apple-card overflow-hidden">
+              <Card className="ui-surface overflow-hidden">
                 <PhotoCarousel 
                   photos={property.photoUrls} 
                   alt={property.title}
@@ -172,7 +172,7 @@ export default function PropertyDetail() {
                 />
               </Card>
             ) : (
-              <Card className="apple-card">
+              <Card className="ui-surface">
                 <CardContent className="flex items-center justify-center h-64 text-muted-foreground">
                   لا توجد صور متاحة
                 </CardContent>
@@ -180,7 +180,7 @@ export default function PropertyDetail() {
             )}
 
             {/* Property Details */}
-            <Card className="apple-card">
+            <Card className="ui-surface">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
@@ -260,7 +260,7 @@ export default function PropertyDetail() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Location Map */}
-            <Card className="apple-card">
+            <Card className="ui-surface">
               <CardHeader>
                 <CardTitle className="text-lg">الموقع</CardTitle>
               </CardHeader>
@@ -283,25 +283,25 @@ export default function PropertyDetail() {
             </Card>
 
             {/* Contact Actions */}
-            <Card className="apple-card">
+            <Card className="ui-surface">
               <CardHeader>
                 <CardTitle className="text-lg">إجراءات سريعة</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full apple-transition">
+                <Button className="w-full ui-transition">
                   جدولة معاينة
                 </Button>
-                <Button variant="outline" className="w-full apple-transition">
+                <Button variant="outline" className="w-full ui-transition">
                   طلب معلومات إضافية
                 </Button>
-                <Button variant="outline" className="w-full apple-transition">
+                <Button variant="outline" className="w-full ui-transition">
                   إضافة إلى المفضلة
                 </Button>
               </CardContent>
             </Card>
 
             {/* Property Stats */}
-            <Card className="apple-card">
+            <Card className="ui-surface">
               <CardHeader>
                 <CardTitle className="text-lg">إحصائيات العقار</CardTitle>
               </CardHeader>

@@ -1,86 +1,35 @@
-/**
- * tailwind.config.ts - Tailwind CSS Configuration
- * 
- * This file configures Tailwind CSS for the real estate CRM platform.
- * It provides:
- * - Custom color palette with CSS variables for theming
- * - Typography configuration with Arabic font support
- * - Component-specific styling (sidebar, cards, charts)
- * - Animation and transition definitions
- * - RTL (Right-to-Left) layout support
- * - Dark mode configuration
- * 
- * Key Features:
- * - Brand Colors: Custom primary, secondary, success, warning, error colors
- * - Arabic Typography: Noto Kufi Arabic font for RTL text
- * - Component Theming: Sidebar, cards, and chart color schemes
- * - Responsive Design: Mobile-first responsive utilities
- * - Animation System: Custom keyframes and animations
- * 
- * Dependencies:
- * - Tailwind CSS core
- * - tailwindcss-animate plugin for animations
- * - @tailwindcss/typography plugin for rich text
- * 
- * Routes affected: All frontend routes (styling)
- * Pages affected: All frontend pages
- */
-
 import type { Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
 
-const fontSans = [
-  "var(--font-sans)",
-];
+const fontSans = ["var(--font-sans)"];
+const fontSerif = ["var(--font-serif)"];
+const fontMono = ["var(--font-mono)"];
+const fontDisplay = ["var(--font-display)"];
+const fontArabic = ["var(--font-arabic)"];
+const fontPassword = ["var(--font-password)"];
 
-const fontSerif = [
-  "var(--font-serif)",
-];
-
-const fontMono = [
-  "var(--font-mono)",
-];
-
-const fontDisplay = [
-  "var(--font-display)",
-];
-
-const fontArabic = [
-  "var(--font-arabic)",
-];
-
-const fontPassword = [
-  "var(--font-password)",
-];
-
-export default {
-  // Dark mode configuration using class strategy
+const config: Config = {
   darkMode: ["class"],
-  
-  // Content paths for Tailwind to scan for classes
   content: ["./apps/web/index.html", "./apps/web/src/**/*.{js,jsx,ts,tsx}"],
-  
   theme: {
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: "1.25rem",
+        sm: "1.5rem",
+        lg: "2rem",
+        xl: "2.5rem",
+      },
+      screens: {
+        "2xl": "1440px",
+      },
+    },
     extend: {
-      // Border radius configuration using CSS variables
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      
-      /**
-       * Color Palette Configuration
-       * 
-       * Defines the complete color system for the application:
-       * - Semantic colors (primary, secondary, success, warning, error)
-       * - Component-specific colors (card, popover, sidebar)
-       * - Chart colors for data visualization
-       * - All colors use CSS variables for easy theming
-       * 
-       * Used in: All UI components, theming system
-       * Pages affected: All pages with UI components
-       */
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -115,40 +64,28 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        chart: {
-          "1": "hsl(var(--chart-1))",
-          "2": "hsl(var(--chart-2))",
-          "3": "hsl(var(--chart-3))",
-          "4": "hsl(var(--chart-4))",
-          "5": "hsl(var(--chart-5))",
-        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar))",
           foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          muted: "hsl(var(--sidebar-muted))",
           accent: "hsl(var(--sidebar-accent))",
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
         },
         success: "hsl(var(--success))",
         warning: "hsl(var(--warning))",
         error: "hsl(var(--error))",
+        info: "hsl(var(--info))",
+        brand: {
+          25: "hsl(var(--brand-25))",
+          50: "hsl(var(--brand-50))",
+          100: "hsl(var(--brand-100))",
+          200: "hsl(var(--brand-200))",
+          400: "hsl(var(--brand-400))",
+          500: "hsl(var(--brand-500))",
+          600: "hsl(var(--brand-600))",
+          700: "hsl(var(--brand-700))",
+        },
       },
-      
-      /**
-       * Font Family Configuration
-       * 
-       * Defines font families for different text types:
-       * - sans: Default sans-serif font stack (Inter)
-       * - serif: Serif fonts for headings
-       * - mono: Monospace fonts for code
-       * - arabic: Arabic-first stack powered by CSS variable token
-       * 
-       * Used in: All text elements, RTL layout
-       * Pages affected: All pages with text content
-       */
       fontFamily: {
         sans: fontSans,
         serif: fontSerif,
@@ -158,90 +95,106 @@ export default {
         display: fontDisplay,
         password: fontPassword,
       },
-      maxWidth: {
-        '10xl': '96rem',
+      fontSize: {
+        xxs: ["0.6875rem", { lineHeight: "1rem", letterSpacing: "-0.01em" }],
+        "title-small": ["0.95rem", { lineHeight: "1.35rem", fontWeight: "600" }],
+      },
+      boxShadow: {
+        elevated: "0 28px 55px -35px rgba(15, 23, 42, 0.45)",
+        floating: "0 20px 45px -28px rgba(15, 23, 42, 0.55)",
+        outline: "0 0 0 1px rgba(148, 163, 184, 0.12)",
+      },
+      backgroundImage: {
+        "subtle-grid":
+          "radial-gradient(circle at 1px 1px, rgba(148, 163, 184, 0.15) 1px, transparent 0)",
+      },
+      backgroundSize: {
+        grid: "24px 24px",
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
+      transitionTimingFunction: {
+        "in-out-soft": "cubic-bezier(0.4, 0, 0.2, 1)",
+      },
+      maxWidth: {
+        "10xl": "96rem",
+      },
     },
   },
   plugins: [
-    plugin(({ addVariant, addComponents, addUtilities }) => {
+    plugin(({ addVariant, addUtilities, addComponents }) => {
       addVariant("rtl", '[dir="rtl"] &');
       addVariant("ltr", '[dir="ltr"] &');
 
       addComponents({
-        ".page-container": {
-          "@apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8": {},
+        ".ui-surface": {
+          "@apply rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl transition-colors duration-300 dark:bg-card/40": {},
         },
-        ".page-section": {
-          "@apply bg-white rounded-3xl border border-slate-200/60 shadow-sm hover:shadow-md transition-shadow duration-200": {},
+        ".ui-surface-interactive": {
+          "@apply rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl transition-transform duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-floating dark:bg-card/40": {},
         },
-        ".page-section__header": {
-          "@apply px-6 py-4 border-b border-slate-200/70 flex items-center justify-between gap-3": {},
+        ".ui-section": {
+          "@apply rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl overflow-hidden dark:bg-card/40": {},
         },
-        ".page-section__body": {
-          "@apply px-6 py-5 space-y-4": {},
+        ".ui-section__header": {
+          "@apply flex flex-col gap-3 border-b border-border/50 px-6 py-5 sm:flex-row sm:items-center sm:justify-between": {},
         },
-        ".stats-grid": {
-          "@apply grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4": {},
+        ".ui-section__body": {
+          "@apply px-6 py-6 space-y-5": {},
         },
-        ".metric-card": {
-          "@apply bg-white rounded-3xl border border-slate-200/60 shadow-sm p-6 flex flex-col gap-3 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg": {},
+        ".ui-metric-card": {
+          "@apply flex flex-col gap-3 rounded-2xl border border-border/50 bg-card/80 p-6 shadow-outline backdrop-blur-xl transition-transform duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-floating": {},
         },
-        ".metric-card__label": {
-          "@apply text-sm text-slate-500 font-medium": {},
+        ".ui-metric-card__value": {
+          "@apply text-3xl font-semibold text-foreground": {},
         },
-        ".metric-card__value": {
-          "@apply text-2xl font-bold text-slate-900 font-arabic": {},
+        ".ui-metric-card__label": {
+          "@apply text-sm font-medium text-muted-foreground": {},
         },
-        ".surface-panel": {
-          "@apply bg-white rounded-3xl border border-slate-200/70 shadow-sm": {},
+        ".ui-stat-grid": {
+          "@apply grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4": {},
         },
-        ".surface-panel__title": {
-          "@apply text-lg font-semibold text-slate-800": {},
+        ".ui-data-list": {
+          "@apply divide-y divide-border/50": {},
         },
-        ".surface-panel__subtitle": {
-          "@apply text-sm text-slate-500": {},
-        },
-        ".data-list": {
-          "@apply divide-y divide-slate-200/70": {},
-        },
-        ".data-list__item": {
+        ".ui-data-list__item": {
           "@apply flex items-center justify-between gap-4 py-3": {},
         },
       });
 
       addUtilities({
         ".shadow-soft": {
-          boxShadow: "0 12px 40px rgba(15, 23, 42, 0.05)",
+          boxShadow: "0 24px 60px -32px rgba(15, 23, 42, 0.45)",
         },
-        ".glass-surface": {
-          "@apply bg-white/80 backdrop-blur-xl border border-white/70": {},
+        ".focus-ring": {
+          "@apply outline-none ring-2 ring-primary/40 ring-offset-2 ring-offset-background": {},
+        },
+        ".ui-transition": {
+          "@apply transition-all duration-300 ease-in-out": {},
+        },
+        ".ui-stable": {
+          "@apply transform-gpu will-change-transform": {},
+        },
+        ".text-subtle": {
+          "@apply text-muted-foreground": {},
         },
       });
     }),
     require("tailwindcss-animate"),
     require("@tailwindcss/typography"),
   ],
-} satisfies Config;
+};
+
+export default config;

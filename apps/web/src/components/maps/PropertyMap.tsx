@@ -6,6 +6,7 @@ import markerIconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
 import markerIconUrl from "leaflet/dist/images/marker-icon.png";
 import markerShadowUrl from "leaflet/dist/images/marker-shadow.png";
 import type { Property } from "@shared/types";
+import { cn } from "@/lib/utils";
 
 const defaultIcon = L.icon({
   iconUrl: markerIconUrl,
@@ -116,8 +117,10 @@ export function PropertyMap({ properties, activeProperty, className = "" }: Prop
   return (
     <div
       ref={mapContainerRef}
-      className={`h-full w-full rounded-2xl border border-slate-200 ${className}`}
-      style={{ minHeight: "240px" }}
+      className={cn(
+        "h-full w-full min-h-[240px] rounded-3xl border border-border/60 bg-card/80 shadow-outline",
+        className
+      )}
     />
   );
 }

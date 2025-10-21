@@ -92,7 +92,7 @@ export default function Settings() {
 
   return (
     <div className="space-y-8">
-      <div className="apple-card px-6 py-5 flex flex-col gap-4">
+      <div className="ui-surface px-6 py-5 flex flex-col gap-4">
         <div>
           <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 px-3 py-1 rounded-full text-xs">
             إعدادات المنصة والملف الشخصي
@@ -108,7 +108,7 @@ export default function Settings() {
       </div>
 
       <div className="grid gap-6">
-        <Card className="apple-card">
+        <Card className="ui-surface">
           <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Building2 size={18} /></span>
@@ -133,7 +133,7 @@ export default function Settings() {
                   <Label htmlFor="companyName" className="block text-sm font-medium text-slate-700">اسم الشركة</Label>
                   <Input
                     id="companyName"
-                    className="text-fade"
+                    className="text-subtle"
                     value={accountDetails.companyName}
                     onChange={(e) => setAccountDetails({ ...accountDetails, companyName: e.target.value })}
                     data-testid="input-company-name"
@@ -142,7 +142,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label htmlFor="businessType" className="block text-sm font-medium text-slate-700">نوع النشاط</Label>
                   <Select value={accountDetails.businessType} onValueChange={(value) => setAccountDetails({ ...accountDetails, businessType: value })}>
-                    <SelectTrigger className="text-fade" data-testid="select-business-type">
+                    <SelectTrigger className="text-subtle" data-testid="select-business-type">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -159,7 +159,7 @@ export default function Settings() {
                     <Label htmlFor="taxId" className="block text-sm font-medium text-slate-700">الرقم الضريبي</Label>
                     <Input
                       id="taxId"
-                      className="text-fade"
+                      className="text-subtle"
                       value={accountDetails.taxId}
                       onChange={(e) => setAccountDetails({ ...accountDetails, taxId: e.target.value })}
                       data-testid="input-tax-id"
@@ -170,7 +170,7 @@ export default function Settings() {
                     <Input
                       id="website"
                       type="url"
-                      className="text-fade"
+                      className="text-subtle"
                       value={accountDetails.website}
                       onChange={(e) => setAccountDetails({ ...accountDetails, website: e.target.value })}
                       data-testid="input-website"
@@ -182,7 +182,7 @@ export default function Settings() {
                   <Textarea
                     id="description"
                     rows={3}
-                    className="text-fade"
+                    className="text-subtle"
                     value={accountDetails.description}
                     onChange={(e) => setAccountDetails({ ...accountDetails, description: e.target.value })}
                     data-testid="textarea-description"
@@ -195,7 +195,7 @@ export default function Settings() {
                   <Label htmlFor="address" className="block text-sm font-medium text-slate-700">العنوان</Label>
                   <Input
                     id="address"
-                    className="text-fade"
+                    className="text-subtle"
                     value={accountDetails.address}
                     onChange={(e) => setAccountDetails({ ...accountDetails, address: e.target.value })}
                     data-testid="input-address"
@@ -206,7 +206,7 @@ export default function Settings() {
                     <Label htmlFor="city" className="block text-sm font-medium text-slate-700">المدينة</Label>
                     <Input
                       id="city"
-                      className="text-fade"
+                      className="text-subtle"
                       value={accountDetails.city}
                       onChange={(e) => setAccountDetails({ ...accountDetails, city: e.target.value })}
                       data-testid="input-city"
@@ -216,7 +216,7 @@ export default function Settings() {
                     <Label htmlFor="postalCode" className="block text-sm font-medium text-slate-700">الرمز البريدي</Label>
                     <Input
                       id="postalCode"
-                      className="text-fade"
+                      className="text-subtle"
                       value={accountDetails.postalCode}
                       onChange={(e) => setAccountDetails({ ...accountDetails, postalCode: e.target.value })}
                       data-testid="input-postal-code"
@@ -226,7 +226,7 @@ export default function Settings() {
                 <div className="space-y-2">
                   <Label htmlFor="country" className="block text-sm font-medium text-slate-700">البلد</Label>
                   <Select value={accountDetails.country} onValueChange={(value) => setAccountDetails({ ...accountDetails, country: value })}>
-                    <SelectTrigger className="text-fade" data-testid="select-country">
+                    <SelectTrigger className="text-subtle" data-testid="select-country">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent position="popper" sideOffset={4}>
@@ -245,7 +245,7 @@ export default function Settings() {
                     <Input
                       id="phone"
                       type="tel"
-                      className="text-fade"
+                      className="text-subtle"
                       value={accountDetails.phone}
                       onChange={(e) => setAccountDetails({ ...accountDetails, phone: e.target.value })}
                       data-testid="input-company-phone"
@@ -256,7 +256,7 @@ export default function Settings() {
                     <Input
                       id="email"
                       type="email"
-                      className="text-fade"
+                      className="text-subtle"
                       value={accountDetails.email}
                       onChange={(e) => setAccountDetails({ ...accountDetails, email: e.target.value })}
                       data-testid="input-company-email"
@@ -279,7 +279,7 @@ export default function Settings() {
                   <Label htmlFor="contactPerson" className="block text-sm font-medium text-slate-700">الاسم الكامل</Label>
                   <Input
                     id="contactPerson"
-                    className="text-fade"
+                    className="text-subtle"
                     value={accountDetails.contactPerson}
                     onChange={(e) => setAccountDetails({ ...accountDetails, contactPerson: e.target.value })}
                     data-testid="input-contact-person"
@@ -289,7 +289,7 @@ export default function Settings() {
                   <Label htmlFor="contactTitle" className="block text-sm font-medium text-slate-700">المسمى الوظيفي</Label>
                   <Input
                     id="contactTitle"
-                    className="text-fade"
+                    className="text-subtle"
                     value={accountDetails.contactTitle}
                     onChange={(e) => setAccountDetails({ ...accountDetails, contactTitle: e.target.value })}
                     data-testid="input-contact-title"
@@ -300,7 +300,7 @@ export default function Settings() {
                   <Input
                     id="contactPhone"
                     type="tel"
-                    className="text-fade"
+                    className="text-subtle"
                     value={accountDetails.contactPhone}
                     onChange={(e) => setAccountDetails({ ...accountDetails, contactPhone: e.target.value })}
                     data-testid="input-contact-phone"
@@ -311,7 +311,7 @@ export default function Settings() {
                   <Input
                     id="contactEmail"
                     type="email"
-                    className="text-fade"
+                    className="text-subtle"
                     value={accountDetails.contactEmail}
                     onChange={(e) => setAccountDetails({ ...accountDetails, contactEmail: e.target.value })}
                     data-testid="input-contact-email"
@@ -328,7 +328,7 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        <Card className="apple-card">
+        <Card className="ui-surface">
           <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Users size={18} /></span>
@@ -367,7 +367,7 @@ export default function Settings() {
                 <Label htmlFor="firstName" className="block text-sm font-medium text-slate-700">الاسم الأول</Label>
                 <Input
                   id="firstName"
-                  className="text-fade"
+                  className="text-subtle"
                   value={userProfile.firstName}
                   onChange={(e) => setUserProfile({ ...userProfile, firstName: e.target.value })}
                   data-testid="input-first-name"
@@ -377,7 +377,7 @@ export default function Settings() {
                 <Label htmlFor="lastName" className="block text-sm font-medium text-slate-700">اسم العائلة</Label>
                 <Input
                   id="lastName"
-                  className="text-fade"
+                  className="text-subtle"
                   value={userProfile.lastName}
                   onChange={(e) => setUserProfile({ ...userProfile, lastName: e.target.value })}
                   data-testid="input-last-name"
@@ -388,7 +388,7 @@ export default function Settings() {
                 <Input
                   id="userEmail"
                   type="email"
-                  className="text-fade"
+                  className="text-subtle"
                   value={userProfile.email}
                   onChange={(e) => setUserProfile({ ...userProfile, email: e.target.value })}
                   data-testid="input-user-email"
@@ -399,7 +399,7 @@ export default function Settings() {
                 <Input
                   id="userPhone"
                   type="tel"
-                  className="text-fade"
+                  className="text-subtle"
                   value={userProfile.phone}
                   onChange={(e) => setUserProfile({ ...userProfile, phone: e.target.value })}
                   data-testid="input-user-phone"
@@ -409,7 +409,7 @@ export default function Settings() {
                 <Label htmlFor="title" className="block text-sm font-medium text-slate-700">المسمى الوظيفي</Label>
                 <Input
                   id="title"
-                  className="text-fade"
+                  className="text-subtle"
                   value={userProfile.title}
                   onChange={(e) => setUserProfile({ ...userProfile, title: e.target.value })}
                   data-testid="input-user-title"
@@ -418,7 +418,7 @@ export default function Settings() {
               <div className="space-y-2">
                 <Label htmlFor="department" className="block text-sm font-medium text-slate-700">القسم</Label>
                 <Select value={userProfile.department} onValueChange={(value) => setUserProfile({ ...userProfile, department: value })}>
-                  <SelectTrigger className="text-fade" data-testid="select-department">
+                  <SelectTrigger className="text-subtle" data-testid="select-department">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent position="popper" sideOffset={4}>
@@ -441,7 +441,7 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        <Card className="apple-card">
+        <Card className="ui-surface">
           <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Shield size={18} /></span>
@@ -462,15 +462,15 @@ export default function Settings() {
           <CardContent className={`space-y-4 pt-6 ${securityOpen ? "" : "hidden"}`}>
             <div className="space-y-2">
               <Label htmlFor="currentPassword" className="block text-sm font-medium text-slate-700">كلمة المرور الحالية</Label>
-              <Input id="currentPassword" type="password" className="text-fade" data-testid="input-current-password" />
+              <Input id="currentPassword" type="password" className="text-subtle" data-testid="input-current-password" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="newPassword" className="block text-sm font-medium text-slate-700">كلمة المرور الجديدة</Label>
-              <Input id="newPassword" type="password" className="text-fade" data-testid="input-new-password" />
+              <Input id="newPassword" type="password" className="text-subtle" data-testid="input-new-password" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700">تأكيد كلمة المرور الجديدة</Label>
-              <Input id="confirmPassword" type="password" className="text-fade" data-testid="input-confirm-password" />
+              <Input id="confirmPassword" type="password" className="text-subtle" data-testid="input-confirm-password" />
             </div>
             <Button className="mt-4 flex items-center gap-2" data-testid="button-change-password">
               <Shield size={16} />
@@ -479,7 +479,7 @@ export default function Settings() {
           </CardContent>
         </Card>
 
-        <Card className="apple-card">
+        <Card className="ui-surface">
           <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Bell size={18} /></span>

@@ -51,7 +51,7 @@ export default function ListingCard({ item }: { item: Listing }) {
   };
 
   return (
-    <div className="apple-card overflow-hidden group">
+    <div className="ui-surface overflow-hidden group">
       <div className="aspect-video bg-gray-100 relative">
         {img ? (
           <img src={img} alt={item.title} className="w-full h-full object-cover" />
