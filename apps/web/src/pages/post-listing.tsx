@@ -48,7 +48,7 @@ export default function PostListingPage() {
 
   return (
     <>
-      <form onSubmit={onSubmit} className="apple-card p-6 space-y-4">
+      <form onSubmit={onSubmit} className="ui-surface p-6 space-y-4">
         <input className="border p-2 w-full" placeholder="العنوان" name="title" value={form.title} onChange={onChange} required />
         <input className="border p-2 w-full" placeholder="العنوان التفصيلي" name="address" value={form.address} onChange={onChange} required />
         <div className="grid grid-cols-3 gap-2">

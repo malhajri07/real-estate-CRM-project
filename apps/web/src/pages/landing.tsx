@@ -550,7 +550,7 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
   const featuredSkeletons = Array.from({ length: SKELETON_LISTING_COUNT });
 
   const renderListingSkeleton = (index: number, keyPrefix: string) => (
-    <div key={`${keyPrefix}-skeleton-${index}`} className="apple-card overflow-hidden">
+    <div key={`${keyPrefix}-skeleton-${index}`} className="ui-surface overflow-hidden">
       <div className="aspect-video bg-slate-200 animate-pulse" />
       <div className="p-4 space-y-3">
         <div className="h-3 w-1/2 rounded bg-slate-200 animate-pulse" />

@@ -19,6 +19,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session"; // Enable per-user session storage so multiple logins can coexist
 import "./types/express-session";
 import path from "path";
+import { createServer as createNetServer } from "node:net";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { SESSION_SECRET as getSessionSecret, JWT_SECRET as getJwtSecret } from "./config/env";
@@ -99,15 +100,60 @@ app.use((req, res, next) => {
   next();
 });
 
+async function findAvailablePort(preferredPort: number): Promise<number> {
+  const testPort = (port: number) => new Promise<number | null>((resolve, reject) => {
+    const tester = createNetServer()
+      .once("error", (err: NodeJS.ErrnoException) => {
+        if (err.code === "EADDRINUSE" || err.code === "EACCES") {
+          resolve(null);
+        } else {
+          reject(err);
+        }
+      })
+      .once("listening", () => {
+        tester.close(() => resolve(port));
+      });
+
+    tester.listen({
+      port,
+      host: "0.0.0.0",
+    });
+  });
+
+  for (let port = preferredPort; port < preferredPort + 20; port += 1) {
+    const availablePort = await testPort(port);
+    if (availablePort !== null) {
+      return availablePort;
+    }
+  }
+
+  return await new Promise<number>((resolve, reject) => {
+    const tester = createNetServer();
+    tester
+      .once("error", reject)
+      .once("listening", () => {
+        const address = tester.address();
+        tester.close(() => {
+          if (!address || typeof address === "string") {
+            reject(new Error("Unable to determine available port"));
+            return;
+          }
+          resolve(address.port);
+        });
+      })
+      .listen({ port: 0, host: "0.0.0.0" });
+  });
+}
+
 /**
  * Server Initialization and Startup
- * 
+ *
  * This async function handles:
  * - Route registration (all API endpoints)
  * - Error handling middleware
  * - Development vs production environment setup
  * - Server startup and port configuration
- * 
+ *
  * Dependencies:
  * - registerRoutes() from ./routes.ts - Registers all API routes
  * - setupVite() from ./vite.ts - Development hot reloading
@@ -176,7 +222,12 @@ app.use((req, res, next) => {
    * 
    * This serves both the API and the frontend application.
    */
-  const port = parseInt(process.env.PORT || '3000', 10);
+  const preferredPort = parseInt(process.env.PORT || '3000', 10);
+  const port = await findAvailablePort(preferredPort);
+  if (port !== preferredPort) {
+    log(`[startup] Port ${preferredPort} in use, switching to ${port}`);
+  }
+  process.env.PORT = String(port);
   server.listen({
     port,
     host: "0.0.0.0",

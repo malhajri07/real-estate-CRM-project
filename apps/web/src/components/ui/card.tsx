@@ -9,8 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      // Pure Tailwind base card style (no index.css dependency)
-      "rounded-2xl border border-slate-200/70 bg-white shadow-sm transition-all duration-200",
+      "rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl transition-all duration-300 dark:bg-card/40",
       className
     )}
     {...props}

@@ -15,9 +15,14 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import RTLPreviewPage from "./dev/rtl-preview";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import "./index.css";
 
 const rootElement = document.getElementById("root")!;
 const isRTLPreview = window.location.pathname.startsWith("/dev/rtl-preview");
 
-createRoot(rootElement).render(isRTLPreview ? <RTLPreviewPage /> : <App />);
+createRoot(rootElement).render(
+  <ThemeProvider>
+    {isRTLPreview ? <RTLPreviewPage /> : <App />}
+  </ThemeProvider>
+);

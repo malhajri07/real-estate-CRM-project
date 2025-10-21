@@ -13,7 +13,7 @@ export default function AgenciesPage() {
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {data.map((a) => (
-          <a key={a.id} href={`/home/platform/agency/${a.id}`} className="apple-card p-5 hover:shadow-lg apple-transition">
+          <a key={a.id} href={`/home/platform/agency/${a.id}`} className="ui-surface p-5 hover:shadow-lg ui-transition">
             <div className="flex justify-between items-center">
               <div>
                 <div className="font-semibold text-gray-900">{a.name}{a.verified && <span className="ml-2 text-green-600">✓</span>}</div>

@@ -45,29 +45,27 @@ export default function Sidebar({ onLogout }: SidebarProps) {
   }, [location]);
 
   const toggleGroup = (groupId: string) => {
-    setExpandedGroups((prev) =>
-      prev.includes(groupId) ? prev.filter((id) => id !== groupId) : [...prev, groupId]
-    );
+    setExpandedGroups((prev) => (prev.includes(groupId) ? prev.filter((id) => id !== groupId) : [...prev, groupId]));
   };
 
   return (
-    <div className="w-64 md:w-72 bg-white text-slate-700 shadow-md border-l border-slate-200 fixed right-0 top-0 h-full overflow-y-auto z-50">
-      <div className="p-4">
-        <div className="flex justify-center">
+    <div className="flex h-full flex-col overflow-y-auto bg-sidebar/95 bg-subtle-grid bg-[length:36px_36px] pb-8 pt-6 text-sidebar-foreground">
+      <div className="px-6">
+        <div className="flex items-center justify-center rounded-2xl border border-border/40 bg-card/80 py-6 shadow-outline backdrop-blur">
           <img
             src={agarkomLogo}
             alt="عقاركم"
-            width={180}
-            height={101}
+            width={164}
+            height={92}
             loading="lazy"
             decoding="async"
-            className="h-24 w-auto object-contain"
+            className="h-20 w-auto object-contain"
           />
         </div>
       </div>
 
-      <nav className="px-4 md:px-6 pb-6">
-        <ul className="space-y-3">
+      <nav className="mt-6 flex-1 space-y-6 px-4">
+        <ul className="space-y-4">
           {platformSidebarConfig.map((group) => {
             const GroupIcon = group.icon;
             const groupLabel = group.label ?? (group.labelKey ? t(group.labelKey) : group.id);
@@ -75,33 +73,44 @@ export default function Sidebar({ onLogout }: SidebarProps) {
             const isActiveGroup = group.children.some((child) => routeMatches(child, location));
 
             return (
-              <li key={group.id} className="space-y-2">
+              <li key={group.id}>
                 <button
                   type="button"
-                  className={cn(
-                    "w-full flex items-center px-4 py-3 rounded-lg transition-colors text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
-                    isActiveGroup ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-100"
-                  )}
                   onClick={() => toggleGroup(group.id)}
                   aria-expanded={isExpanded}
+                  className={cn(
+                    "group flex w-full items-center justify-between rounded-2xl border border-transparent bg-transparent px-4 py-3 text-sm font-semibold transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                    isActiveGroup ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-sidebar-muted/70"
+                  )}
                 >
-                  <div
-                    className={cn(
-                      "w-6 h-6 flex items-center justify-center rounded-md",
-                      dir === "rtl" ? "ml-3" : "mr-3",
-                      isActiveGroup ? "text-emerald-600" : "text-slate-500"
-                    )}
-                  >
-                    <GroupIcon size={18} />
-                  </div>
-                  <span className={cn("flex-1", dir === "rtl" ? "text-right" : "text-left")}>{groupLabel}</span>
-                  <span className={cn(dir === "rtl" ? "mr-2" : "ml-2")}>
-                    {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  <span className="flex items-center gap-3" dir={dir}>
+                    <span
+                      className={cn(
+                        "flex h-9 w-9 items-center justify-center rounded-xl border border-border/40 bg-card/80 text-muted-foreground shadow-outline",
+                        isActiveGroup && "border-primary/40 text-primary"
+                      )}
+                    >
+                      <GroupIcon size={18} />
+                    </span>
+                    <span className="text-sm font-semibold tracking-tight">{groupLabel}</span>
+                  </span>
+                  <span className="text-muted-foreground transition-transform duration-200 group-hover:text-foreground">
+                    {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                   </span>
                 </button>
 
-                {isExpanded && (
-                  <ul className="space-y-1">
+                <div
+                  className={cn(
+                    "mt-2 space-y-1 overflow-hidden rounded-2xl border border-border/40 bg-card/75 backdrop-blur transition-all duration-300",
+                    isExpanded ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
+                  )}
+                >
+                  <ul
+                    className={cn(
+                      "space-y-1 px-2 py-3 transition-opacity duration-300",
+                      isExpanded ? "opacity-100" : "opacity-0"
+                    )}
+                  >
                     {group.children.map((item) => {
                       const ItemIcon = item.icon;
                       const itemLabel = item.label ?? (item.labelKey ? t(item.labelKey) : item.id);
@@ -112,49 +121,43 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                           <Link
                             href={item.path}
                             className={cn(
-                              "flex items-center px-4 py-2 rounded-md transition-colors text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
+                              "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
                               dir === "rtl" ? "text-right" : "text-left",
-                              isActive ? "bg-emerald-600 text-white shadow" : "text-slate-600 hover:bg-slate-100"
+                              isActive
+                                ? "bg-primary text-primary-foreground shadow-floating"
+                                : "text-muted-foreground hover:bg-sidebar-muted/80 hover:text-foreground"
                             )}
                             aria-current={isActive ? "page" : undefined}
                           >
-                            <div
+                            <span
                               className={cn(
-                                "w-6 h-6 flex items-center justify-center rounded-md",
-                                dir === "rtl" ? "ml-3" : "mr-3",
-                                isActive ? "text-white" : "text-slate-500"
+                                "flex h-7 w-7 items-center justify-center rounded-lg border border-border/40 bg-card/80 text-muted-foreground",
+                                isActive && "border-transparent bg-primary/90 text-primary-foreground"
                               )}
                             >
                               <ItemIcon size={16} />
-                            </div>
-                            <span className="flex-1">{itemLabel}</span>
+                            </span>
+                            <span className="flex-1 truncate">{itemLabel}</span>
                           </Link>
                         </li>
                       );
                     })}
                   </ul>
-                )}
+                </div>
               </li>
             );
           })}
         </ul>
 
         {onLogout && (
-          <div className="mt-6 pt-4 border-t border-slate-200">
+          <div className="rounded-2xl border border-border/40 bg-card/80 p-4 shadow-outline backdrop-blur">
             <button
               onClick={onLogout}
-              className="w-full flex items-center px-4 py-2 rounded-md transition-colors text-slate-600 hover:bg-slate-100 font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-destructive/10 px-4 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
               data-testid="button-logout"
             >
-              <div
-                className={cn(
-                  "w-6 h-6 flex items-center justify-center rounded-md",
-                  dir === "rtl" ? "ml-3" : "mr-3"
-                )}
-              >
-                <LogOut size={18} />
-              </div>
-              <span className="text-sm tracking-tight">تسجيل الخروج</span>
+              <LogOut className="h-4 w-4" />
+              <span>{t("auth.logout") || "تسجيل الخروج"}</span>
             </button>
           </div>
         )}
