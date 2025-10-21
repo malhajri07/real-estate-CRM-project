@@ -96,12 +96,20 @@
 
   html {
     @apply bg-background text-foreground antialiased scroll-smooth;
-    direction: rtl;
   }
 
   body {
     @apply min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/10 selection:text-primary;
-    direction: inherit;
+  }
+
+  body.ltr {
+    direction: ltr;
+    font-family: var(--font-sans);
+  }
+
+  body.rtl {
+    direction: rtl;
+    font-family: var(--font-arabic);
   }
 
   ::selection {
