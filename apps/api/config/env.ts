@@ -67,3 +67,5 @@ export const SESSION_SECRET = () =>
     allowInDev: true,
     fallback: () => `dev-session-${crypto.randomBytes(32).toString('hex')}`,
   });
+
+export const DATABASE_URL = () => requireEnv('DATABASE_URL');
