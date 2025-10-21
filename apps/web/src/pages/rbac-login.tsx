@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { UserRole } from '@shared/rbac';
 import LoginForm from '@/components/auth/LoginForm';
@@ -39,6 +39,15 @@ export default function RBACLoginPage() {
   const goHome = () => {
     setLocation('/');
   };
+
+  useEffect(() => {
+    if (isAuthenticating || !user) {
+      return;
+    }
+
+    const isAdmin = user.roles?.includes(UserRole.WEBSITE_ADMIN);
+    setLocation(isAdmin ? '/admin/overview/main-dashboard' : '/home/platform');
+  }, [isAuthenticating, user, setLocation]);
 
   let primaryCard: React.ReactNode;
 
