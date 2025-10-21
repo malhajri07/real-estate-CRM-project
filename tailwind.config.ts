@@ -29,6 +29,8 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "1rem",
+        "2xl": "1.25rem",
       },
       colors: {
         background: "hsl(var(--background))",
@@ -76,14 +78,17 @@ const config: Config = {
         error: "hsl(var(--error))",
         info: "hsl(var(--info))",
         brand: {
-          25: "hsl(var(--brand-25))",
-          50: "hsl(var(--brand-50))",
-          100: "hsl(var(--brand-100))",
-          200: "hsl(var(--brand-200))",
-          400: "hsl(var(--brand-400))",
-          500: "hsl(var(--brand-500))",
-          600: "hsl(var(--brand-600))",
-          700: "hsl(var(--brand-700))",
+          25: "#f7f9ff",
+          50: "#f5f8ff",
+          100: "#e8efff",
+          200: "#cddcff",
+          300: "#a1baff",
+          400: "#7292ff",
+          500: "#4b6bff",
+          600: "#3a54db",
+          700: "#2f43ad",
+          800: "#283885",
+          900: "#222f69",
         },
       },
       fontFamily: {
@@ -100,6 +105,7 @@ const config: Config = {
         "title-small": ["0.95rem", { lineHeight: "1.35rem", fontWeight: "600" }],
       },
       boxShadow: {
+        card: "0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08)",
         elevated: "0 28px 55px -35px rgba(15, 23, 42, 0.45)",
         floating: "0 20px 45px -28px rgba(15, 23, 42, 0.55)",
         outline: "0 0 0 1px rgba(148, 163, 184, 0.12)",
@@ -110,6 +116,15 @@ const config: Config = {
       },
       backgroundSize: {
         grid: "24px 24px",
+      },
+      zIndex: {
+        base: "0",
+        sticky: "10",
+        dropdown: "20",
+        overlay: "30",
+        modal: "40",
+        toast: "50",
+        tooltip: "60",
       },
       keyframes: {
         "accordion-down": {

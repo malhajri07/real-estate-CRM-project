@@ -1,386 +1,411 @@
+import { ReactNode, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Users, Building, Filter, Plus, Home, Calendar, Download, Banknote } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Activity,
+  Lead,
+} from "@shared/types";
+import {
+  Badge,
+} from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Banknote,
+  Building,
+  Calendar,
+  Check,
+  Clock3,
+  Download,
+  Filter,
+  Home,
+  MapPin,
+  Phone,
+  Plus,
+  Users,
+} from "lucide-react";
 import AddLeadModal from "@/components/modals/add-lead-modal";
 import AddPropertyModal from "@/components/modals/add-property-modal";
-import type { Lead, Activity } from "@shared/types";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
+
+const statusBadges: Record<string, { label: string; variant: "success" | "info" | "warning" | "destructive" | "secondary" }> = {
+  new: { label: "جديد", variant: "info" },
+  qualified: { label: "مؤهل", variant: "success" },
+  showing: { label: "معاينة", variant: "secondary" },
+  negotiation: { label: "تفاوض", variant: "warning" },
+  closed: { label: "مغلق", variant: "success" },
+};
+
+type MetricResponse = {
+  totalLeads: number;
+  activeProperties: number;
+  dealsInPipeline: number;
+  monthlyRevenue: number;
+  pipelineByStage: {
+    lead: number;
+    qualified: number;
+    showing: number;
+    negotiation: number;
+    closed: number;
+  };
+};
 
 export default function Dashboard() {
   const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
   const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false);
-  const { t, dir } = useLanguage();
+  const { dir } = useLanguage();
 
-  const { data: metrics, isLoading: metricsLoading } = useQuery<{
-    totalLeads: number;
-    activeProperties: number;
-    dealsInPipeline: number;
-    monthlyRevenue: number;
-    pipelineByStage: {
-      lead: number;
-      qualified: number;
-      showing: number;
-      negotiation: number;
-      closed: number;
-    };
-  }>({
+  const {
+    data: metrics,
+    isLoading: metricsLoading,
+  } = useQuery<MetricResponse>({
     queryKey: ["/api/dashboard/metrics"],
   });
 
-  const { data: leads } = useQuery<Lead[]>({
+  const { data: leads, isLoading: leadsLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
   });
 
-  const { data: todaysActivities } = useQuery<Activity[]>({
+  const { data: todaysActivities, isLoading: activitiesLoading } = useQuery<Activity[]>({
     queryKey: ["/api/activities/today"],
   });
 
-  const recentLeads = leads?.slice(0, 10) || [];
+  const recentLeads = leads?.slice(0, 10) ?? [];
 
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case "new": return "bg-yellow-100 text-yellow-800";
-      case "qualified": return "bg-blue-100 text-blue-800";
-      case "showing": return "bg-orange-100 text-orange-800";
-      case "negotiation": return "bg-purple-100 text-purple-800";
-      case "closed": return "bg-green-100 text-green-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("en-US", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount) + ' ﷼';
-  };
+    }).format(value) + " ﷼";
 
-  const formatNumber = (value: number, fractionDigits = 0) =>
-    new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: fractionDigits,
-      maximumFractionDigits: fractionDigits,
-    }).format(value);
+  const metricCards = useMemo(
+    () => [
+      {
+        id: "leads",
+        label: "إجمالي العملاء المحتملين",
+        value: metrics?.totalLeads ?? 0,
+        icon: Users,
+        accent: "bg-gradient-to-br from-brand-50 via-white to-white text-brand-700",
+        delta: { value: 12, tone: "up" as const },
+      },
+      {
+        id: "properties",
+        label: "العقارات النشطة",
+        value: metrics?.activeProperties ?? 0,
+        icon: Building,
+        accent: "bg-gradient-to-br from-emerald-50 via-white to-white text-emerald-700",
+        delta: { value: 8, tone: "up" as const },
+      },
+      {
+        id: "pipeline",
+        label: "الصفقات في المسار",
+        value: metrics?.dealsInPipeline ?? 0,
+        icon: Filter,
+        accent: "bg-gradient-to-br from-amber-50 via-white to-white text-amber-600",
+        delta: { value: -2, tone: "down" as const },
+      },
+      {
+        id: "revenue",
+        label: "الإيرادات الشهرية",
+        value: formatCurrency(metrics?.monthlyRevenue ?? 0),
+        icon: Banknote,
+        accent: "bg-gradient-to-br from-rose-50 via-white to-white text-rose-600",
+        delta: { value: 24, tone: "up" as const },
+      },
+    ],
+    [metrics]
+  );
 
-  const summaryDate = new Intl.DateTimeFormat('ar-SA', {
-    dateStyle: 'full',
-    numberingSystem: 'latn',
-  }).format(new Date());
+  const pipelineStages = useMemo(
+    () => [
+      { id: "lead", label: "عملاء محتملين", value: metrics?.pipelineByStage?.lead ?? 0 },
+      { id: "qualified", label: "مؤهل", value: metrics?.pipelineByStage?.qualified ?? 0 },
+      { id: "showing", label: "عرض", value: metrics?.pipelineByStage?.showing ?? 0 },
+      { id: "negotiation", label: "تفاوض", value: metrics?.pipelineByStage?.negotiation ?? 0 },
+      { id: "closed", label: "مغلق", value: metrics?.pipelineByStage?.closed ?? 0 },
+    ],
+    [metrics]
+  );
 
-  const primarySnapshotCards = [
+  const quickActions = [
     {
-      title: 'العملاء المحتملون',
-      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
-      values: { today: 0, week: 0, month: 0 },
-      accent: 'from-emerald-200/70 via-emerald-100/60 to-transparent',
+      id: "add-lead",
+      label: "إضافة عميل محتمل جديد",
+      icon: Plus,
+      onClick: () => setAddLeadModalOpen(true),
     },
     {
-      title: 'الإعلانات المنشورة',
-      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
-      values: { today: 0, week: 0, month: 0 },
-      accent: 'from-sky-200/70 via-sky-100/60 to-transparent',
+      id: "add-property",
+      label: "إدراج عقار",
+      icon: Home,
+      onClick: () => setAddPropertyModalOpen(true),
     },
     {
-      title: 'المواعيد المجدولة',
-      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
-      values: { today: 0, week: 0, month: 0 },
-      accent: 'from-rose-200/70 via-rose-100/60 to-transparent',
-    },
-  ];
-
-  const secondarySnapshotCards = [
-    {
-      title: 'الصفقات الرابحة',
-      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
-      values: { today: 0, week: 0, month: 0 },
-      accent: 'from-violet-200/70 via-violet-100/60 to-transparent',
+      id: "schedule-showing",
+      label: "جدولة عرض",
+      icon: Calendar,
     },
     {
-      title: 'إجمالي قيمة المبيعات (GMV)',
-      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
-      values: { today: 0, week: 0, month: 0 },
-      accent: 'from-amber-200/70 via-amber-100/60 to-transparent',
-      suffix: 'ر.س',
-      fractionDigits: 2,
-    },
-    {
-      title: 'الفواتير الصادرة',
-      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
-      values: { today: 0, week: 0, month: 0 },
-      accent: 'from-cyan-200/70 via-cyan-100/60 to-transparent',
-      suffix: 'ر.س',
-      fractionDigits: 2,
-    },
-    {
-      title: 'التحصيلات النقدية',
-      hint: 'أداء اليوم وآخر ٧ / ٣٠ يوم',
-      values: { today: 0, week: 0, month: 0 },
-      accent: 'from-slate-200/70 via-slate-100/60 to-transparent',
-      suffix: 'ر.س',
-      fractionDigits: 2,
-    },
-  ];
-
-  const tertiaryPanels = [
-    {
-      title: 'أفضل الوكلاء (آخر 90 يوم)',
-      description: 'استنادًا إلى عدد الصفقات الرابحة وقيمتها',
-      body: 'لا توجد بيانات كافية عن أداء الوكلاء.',
-    },
-    {
-      title: 'التذاكر الحديثة',
-      description: 'آخر عشرة تحديثات ضمن نطاق صلاحياتك',
-      body: 'لا توجد تذاكر حالياً.',
+      id: "export-leads",
+      label: "تصدير العملاء المحتملين",
+      icon: Download,
     },
   ];
 
   if (metricsLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">{t('dashboard.loading') || 'جار تحميل لوحة التحكم...'}</div>
-      </div>
+      <>
+        <DashboardSkeleton />
+        <AddLeadModal open={addLeadModalOpen} onOpenChange={setAddLeadModalOpen} />
+        <AddPropertyModal open={addPropertyModalOpen} onOpenChange={setAddPropertyModalOpen} />
+      </>
     );
   }
 
   return (
-    <>
-      
-
-      <div className="space-y-8 mt-10">
-        {/* Dashboard Metrics Cards */}
-        <div className="ui-stat-grid">
-          <div className="ui-metric-card">
-            <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-sky-50 text-sky-700">
-                <Users size={20} />
+    <div className="space-y-10 py-6" dir={dir}>
+      <section aria-label="ملخص سريع" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {metricCards.map((metric) => (
+          <Card key={metric.id} className={cn("border border-border/60 shadow-card transition hover:-translate-y-0.5", metric.accent)}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/70 shadow-inner">
+                <metric.icon className="h-5 w-5" />
               </div>
-              <div className="ui-metric-card__value">{metrics?.totalLeads || 0}</div>
-            </div>
-            <p className="ui-metric-card__label">إجمالي العملاء المحتملين</p>
-            <p className="text-xs font-medium text-emerald-600">+12% من الشهر الماضي</p>
-          </div>
-          
-          <div className="ui-metric-card">
-            <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-50 text-emerald-700">
-                <Building size={20} />
+              <Badge variant={metric.delta.tone === "down" ? "warning" : "success"} className="rounded-full px-3 py-1 text-xs font-semibold">
+                {metric.delta.tone === "down" ? "-" : "+"}
+                {Math.abs(metric.delta.value)}%
+              </Badge>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-3xl font-semibold text-slate-900">{metric.value}</p>
+              <CardDescription className="text-sm text-slate-600">
+                {metric.label}
+              </CardDescription>
+            </CardContent>
+          </Card>
+        ))}
+      </section>
+
+      <div className="grid gap-8 lg:grid-cols-3" aria-label="تفاصيل لوحة القيادة">
+        <div className="space-y-8 lg:col-span-2">
+          <Card className="shadow-card">
+            <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <CardTitle className="text-lg font-semibold">مراحل الصفقات</CardTitle>
+                <CardDescription>نظرة على تقدم الصفقات عبر المراحل الرئيسية</CardDescription>
               </div>
-              <div className="ui-metric-card__value">{metrics?.activeProperties || 0}</div>
-            </div>
-            <p className="ui-metric-card__label">العقارات النشطة</p>
-            <p className="text-xs font-medium text-emerald-600">+8% من الشهر الماضي</p>
-          </div>
-          
-          <div className="ui-metric-card">
-            <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-amber-100 text-amber-600">
-                <Filter size={20} />
+              <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs">
+                {new Intl.DateTimeFormat("ar-SA", {
+                  dateStyle: "medium",
+                }).format(new Date())}
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                {pipelineStages.map((stage) => (
+                  <div key={stage.id} className="rounded-2xl border border-border/60 bg-white/70 p-4 text-center shadow-sm dark:bg-neutral-900/60">
+                    <p className="text-2xl font-semibold text-foreground">{stage.value}</p>
+                    <p className="mt-1 text-xs font-medium text-muted-foreground">{stage.label}</p>
+                  </div>
+                ))}
               </div>
-              <div className="ui-metric-card__value">{metrics?.dealsInPipeline || 0}</div>
-            </div>
-            <p className="ui-metric-card__label">الصفقات في المسار</p>
-            <p className="text-xs font-medium text-rose-600">-2% من الشهر الماضي</p>
-          </div>
-          
-          <div className="ui-metric-card">
-            <div className="flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-pink-50 text-pink-700">
-                <Banknote size={20} />
+            </CardContent>
+          </Card>
+
+          <Card className="shadow-card">
+            <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <CardTitle className="text-lg font-semibold">العملاء المحتملين الجدد</CardTitle>
+                <CardDescription>أحدث العملاء المحتملين خلال الفترة الحالية</CardDescription>
               </div>
-              <div className="ui-metric-card__value">{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
-            </div>
-            <p className="ui-metric-card__label">الإيرادات الشهرية</p>
-            <p className="text-xs font-medium text-emerald-600">+24% من الشهر الماضي</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent Leads & Activities */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Deal Pipeline Overview - Moved to Top */}
-            <div className="ui-section overflow-hidden">
-              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
-                  <Filter className="w-5 h-5 text-slate-500" />
-                  مراحل الصفقات
-                </h2>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-5 gap-4">
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <div className="text-xl font-semibold text-slate-700 mb-1 font-display">
-                      {metrics?.pipelineByStage?.lead || 0}
-                    </div>
-                    <div className="text-xs text-slate-500 font-medium">عملاء محتملين</div>
-                  </div>
-
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <div className="text-xl font-semibold text-slate-700 mb-1 font-display">
-                      {metrics?.pipelineByStage?.qualified || 0}
-                    </div>
-                    <div className="text-xs text-slate-500 font-medium">مؤهل</div>
-                  </div>
-
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <div className="text-xl font-semibold text-slate-700 mb-1 font-display">
-                      {metrics?.pipelineByStage?.showing || 0}
-                    </div>
-                    <div className="text-xs text-slate-500 font-medium">عرض</div>
-                  </div>
-
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <div className="text-xl font-semibold text-slate-700 mb-1 font-display">
-                      {metrics?.pipelineByStage?.negotiation || 0}
-                    </div>
-                    <div className="text-xs text-slate-500 font-medium">تفاوض</div>
-                  </div>
-
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <div className="text-xl font-semibold text-slate-700 mb-1 font-display">
-                      {metrics?.pipelineByStage?.closed || 0}
-                    </div>
-                    <div className="text-xs text-slate-500 font-medium">مغلق</div>
-                  </div>
+              <Button variant="ghost" size="sm" className="rounded-full px-4">
+                عرض الكل
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {leadsLoading ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <Skeleton key={index} className="h-16 w-full rounded-2xl" />
+                  ))}
                 </div>
-              </div>
-            </div>
+              ) : recentLeads.length === 0 ? (
+                <EmptyState
+                  title="لا توجد عملاء محتملين"
+                  description="قم بإضافة أول عميل محتمل لتحريك نشاطك."
+                  action={<Button onClick={() => setAddLeadModalOpen(true)}>إضافة عميل</Button>}
+                />
+              ) : (
+                <ul className="space-y-3" aria-live="polite">
+                  {recentLeads.slice(0, 6).map((lead) => {
+                    const status = statusBadges[lead.status ?? ""] ?? {
+                      label: lead.status,
+                      variant: "secondary" as const,
+                    };
 
-            {/* Recent Leads */}
-            <div className="ui-section overflow-hidden">
-              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
-                    <Users className="w-5 h-5 text-slate-500" />
-                    العملاء المحتملين الجدد
-                  </h2>
-                  <Button variant="ghost" className="text-sm font-medium text-gray-600 hover:text-gray-800">
-                    عرض الكل
-                  </Button>
-                </div>
-              </div>
-              <div className="p-6">
-                {recentLeads.length === 0 ? (
-                  <div className="text-center py-6 text-gray-500">
-                    لا توجد عملاء محتملين. قم بإنشاء أول عميل محتمل للبدء.
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {recentLeads.slice(0, 5).map((lead) => (
-                      <div key={lead.id} className="flex items-center justify-between px-3 py-2 rounded-lg border border-slate-100 bg-white hover:bg-slate-50 transition">
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                            <span className="font-semibold text-gray-900 tracking-tight font-display">{lead.firstName} {lead.lastName}</span>
-                            <span className="text-sm text-gray-600">{lead.phone}</span>
-                            <span className="text-sm text-gray-700 font-medium">{lead.city || 'غير محدد'}</span>
-                            <span className="text-xs text-gray-500">{lead.age ? `${lead.age} سنة` : 'غير محدد'}</span>
+                    return (
+                      <li key={lead.id} className="rounded-2xl border border-border/60 bg-white/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card dark:bg-neutral-900/60">
+                        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-foreground">
+                              {lead.firstName} {lead.lastName}
+                            </p>
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                              {lead.phone && (
+                                <span className="inline-flex items-center gap-1">
+                                  <Phone className="h-3.5 w-3.5" />
+                                  {lead.phone}
+                                </span>
+                              )}
+                              {lead.city && (
+                                <span className="inline-flex items-center gap-1">
+                                  <MapPin className="h-3.5 w-3.5" />
+                                  {lead.city}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-3 space-x-reverse">
-                            <Badge className={`${getStatusBadgeColor(lead.status)} font-medium px-3 py-1 rounded-xl`}>
-                              {lead.status === 'new' ? 'جديد' : 
-                               lead.status === 'qualified' ? 'مؤهل' : 
-                               lead.status === 'showing' ? 'معاينة' : 
-                               lead.status === 'negotiation' ? 'تفاوض' : 
-                               lead.status === 'closed' ? 'مغلق' : 'مفقود'}
+
+                          <div className="flex flex-col items-start gap-2 lg:items-end">
+                            <Badge variant={status.variant} className="rounded-full px-3 py-1 text-xs font-semibold">
+                              {status.label}
                             </Badge>
-                            <span className="text-sm text-gray-500 font-medium">
+                            <span className="text-xs text-muted-foreground">
                               {new Date(lead.createdAt).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
+        <div className="space-y-8">
+          <Card className="shadow-card">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">إجراءات سريعة</CardTitle>
+              <CardDescription>ابدأ في التحرك فوراً باستخدام الإجراءات الأكثر شيوعاً</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {quickActions.map((action) => (
+                <Button
+                  key={action.id}
+                  variant="secondary"
+                  className="w-full justify-between rounded-2xl px-4"
+                  onClick={action.onClick}
+                >
+                  <span className="text-sm font-semibold text-foreground">{action.label}</span>
+                  <action.icon className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
 
-          </div>
-
-          {/* Sidebar Widgets */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <div className="ui-section overflow-hidden">
-              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
-                  <Plus className="w-5 h-5 text-slate-500" />
-                  إجراءات سريعة
-                </h2>
-              </div>
-              <div className="p-6">
+          <Card className="shadow-card">
+            <CardHeader>
+              <CardTitle className="text-lg font-semibold">مهام اليوم</CardTitle>
+              <CardDescription>تابع الأنشطة المجدولة للحفاظ على الزخم</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {activitiesLoading ? (
                 <div className="space-y-3">
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-right hover:bg-slate-100 transition"
-                    onClick={() => setAddLeadModalOpen(true)}
-                  >
-                    <Plus className="ml-3 text-gray-600" size={16} />
-                    <span className="font-semibold text-gray-800">إضافة عميل محتمل جديد</span>
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-right hover:bg-slate-100 transition"
-                    onClick={() => setAddPropertyModalOpen(true)}
-                  >
-                    <Home className="ml-3 text-gray-600" size={16} />
-                    <span className="font-semibold text-gray-800">إدراج عقار</span>
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-right hover:bg-slate-100 transition">
-                    <Calendar className="ml-3 text-gray-600" size={16} />
-                    <span className="font-semibold text-gray-800">جدولة عرض</span>
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-right hover:bg-slate-100 transition">
-                    <Download className="ml-3 text-gray-600" size={16} />
-                    <span className="font-semibold text-gray-800">تصدير العملاء المحتملين</span>
-                  </Button>
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <Skeleton key={index} className="h-16 w-full rounded-2xl" />
+                  ))}
                 </div>
-              </div>
-            </div>
-
-            {/* Today's Tasks */}
-            <div className="ui-section overflow-hidden">
-              <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-                <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
-                  <Calendar className="w-5 h-5 text-slate-500" />
-                  مهام اليوم
-                </h2>
-              </div>
-              <div className="p-6">
-                {!todaysActivities || todaysActivities.length === 0 ? (
-                  <div className="text-center py-4 text-gray-500">
-                    لا توجد مهام مجدولة لهذا اليوم
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {todaysActivities.map((activity) => (
-                      <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50">
-                        <input 
-                          type="checkbox" 
-                          checked={Boolean(activity.completed)}
-                          className="mt-1 h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300 rounded"
-                        />
-                        <div className="flex-1">
-                          <p className={`text-sm font-semibold ${activity.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                            {activity.title}
-                          </p>
-                          <p className="text-xs text-gray-500 font-medium">
-                            {activity.scheduledDate ? new Date(activity.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'لم يتم تحديد وقت'}
-                          </p>
-                        </div>
+              ) : !todaysActivities || todaysActivities.length === 0 ? (
+                <EmptyState
+                  title="لا توجد مهام اليوم"
+                  description="أضف مهاماً جديدة لضمان المتابعة مع عملائك."
+                />
+              ) : (
+                <ul className="space-y-3" aria-live="polite">
+                  {todaysActivities.map((activity) => (
+                    <li
+                      key={activity.id}
+                      className={cn(
+                        "flex items-start gap-3 rounded-2xl border border-border/60 bg-white/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card dark:bg-neutral-900/60",
+                        activity.completed && "opacity-60"
+                      )}
+                    >
+                      <span className={cn(
+                        "mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full border text-brand-600",
+                        activity.completed ? "border-emerald-300 bg-emerald-50 text-emerald-600" : "border-brand-200 bg-brand-50"
+                      )}>
+                        {activity.completed ? (
+                          <Check className="h-4 w-4" />
+                        ) : (
+                          <Clock3 className="h-4 w-4" />
+                        )}
+                      </span>
+                      <div className="space-y-1">
+                        <p className={cn("text-sm font-semibold", activity.completed && "line-through text-muted-foreground")}>{activity.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {activity.scheduledDate
+                            ? new Date(activity.scheduledDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                            : "لم يتم تحديد وقت"}
+                        </p>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       <AddLeadModal open={addLeadModalOpen} onOpenChange={setAddLeadModalOpen} />
       <AddPropertyModal open={addPropertyModalOpen} onOpenChange={setAddPropertyModalOpen} />
-    </>
+    </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-10 py-6">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Skeleton key={index} className="h-36 w-full rounded-2xl" />
+        ))}
+      </section>
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="space-y-8 lg:col-span-2">
+          <Skeleton className="h-72 w-full rounded-3xl" />
+          <Skeleton className="h-96 w-full rounded-3xl" />
+        </div>
+        <div className="space-y-8">
+          <Skeleton className="h-64 w-full rounded-3xl" />
+          <Skeleton className="h-72 w-full rounded-3xl" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface EmptyStateProps {
+  title: string;
+  description: string;
+  action?: ReactNode;
+}
+
+function EmptyState({ title, description, action }: EmptyStateProps) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border/60 bg-muted/40 px-6 py-12 text-center">
+      <p className="text-base font-semibold text-foreground">{title}</p>
+      <p className="text-sm text-muted-foreground">{description}</p>
+      {action}
+    </div>
   );
 }
