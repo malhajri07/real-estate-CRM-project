@@ -10,7 +10,7 @@ export default function SignupSuccess() {
   };
 
   const handleGoToLogin = () => {
-    setLocation("/login");
+    setLocation("/rbac-login");
   };
 
   return (

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import * as jwt from 'jsonwebtoken';
+import './types/express-session';
+import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { prisma } from './prismaClient';
 import {
@@ -10,9 +11,10 @@ import {
 } from '@shared/rbac';
 export { UserRole } from '@shared/rbac';
 import { JWT_SECRET as getJwtSecret } from './config/env';
+import type { AuthenticatedUser } from './authMiddleware';
 
 // JWT secret (should be in environment variables)
-const JWT_SECRET = getJwtSecret();
+const JWT_SECRET = getJwtSecret() || 'fallback-jwt-secret-key-12345';
 
 // JWT payload interface
 interface JWTPayload {
@@ -102,8 +104,12 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
       name: displayName.length ? displayName : (user.username ?? user.email ?? null),
       firstName: user.firstName,
       lastName: user.lastName,
+      userLevel: 1,
+      tenantId: user.organizationId ?? user.id,
+      accountOwnerId: null,
+      companyName: null,
       roles: normalizedRoles,
-      organizationId: user.organizationId || undefined
+      organizationId: user.organizationId ?? null
     };
 
     next();
@@ -157,8 +163,12 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
         name: displayName.length ? displayName : (user.username ?? user.email ?? null),
         firstName: user.firstName,
         lastName: user.lastName,
+        userLevel: 1,
+        tenantId: user.organizationId ?? user.id,
+        accountOwnerId: null,
+        companyName: null,
         roles: normalizedRoles,
-        organizationId: user.organizationId || undefined
+        organizationId: user.organizationId ?? null
       };
     }
 
@@ -406,16 +416,8 @@ export async function impersonateUser(adminUserId: string, targetUserId: string)
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        id: string;
-        email: string | null;
-        username: string | null;
-        name: string | null;
-        firstName?: string | null;
-        lastName?: string | null;
-        roles: UserRole[];
-        organizationId?: string | null;
-      };
+      user?: AuthenticatedUser;
+      tenantId?: string;
     }
   }
 }

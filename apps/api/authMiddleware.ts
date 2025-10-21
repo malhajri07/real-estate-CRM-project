@@ -43,6 +43,8 @@ import { normalizeRoleKeys, UserRole } from '@shared/rbac';
 export interface AuthenticatedUser {
   id: string;
   email: string | null;
+  username: string | null;
+  name: string | null;
   firstName: string | null;
   lastName: string | null;
   userLevel: number; // 1: Platform Admin, 2: Account Owner, 3: Sub-Account
@@ -51,7 +53,7 @@ export interface AuthenticatedUser {
   tenantId: string;
   permissions?: any;
   roles: UserRole[];
-  organizationId?: string;
+  organizationId?: string | null;
 }
 
 /**
@@ -115,13 +117,15 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     (req as AuthenticatedRequest).user = {
       id: user.id,
       email: user.email,
+      username: user.username ?? null,
+      name: user.name ?? (user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName ?? user.lastName ?? null),
       firstName: user.firstName,
       lastName: user.lastName,
       userLevel: (user as any).userLevel ?? 1,
       accountOwnerId: (user as any).accountOwnerId ?? (user as any).parentCompanyId ?? null,
       companyName: user.companyName,
       tenantId: user.tenantId || user.id, // Use user ID as tenant ID if not set
-      organizationId: user.organizationId ?? undefined,
+      organizationId: user.organizationId ?? null,
       roles: parseUserRoles((user as any).roles),
     };
 

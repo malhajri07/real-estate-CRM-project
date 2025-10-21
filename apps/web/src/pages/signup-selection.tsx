@@ -170,7 +170,7 @@ export default function SignupSelection() {
           <div className="flex flex-col items-center gap-3 text-right">
             <p className="text-sm text-slate-500">
               لديك حساب بالفعل؟
-              <a href="/login" className="mr-2 font-semibold text-emerald-600 hover:text-emerald-700">
+              <a href="/rbac-login" className="mr-2 font-semibold text-emerald-600 hover:text-emerald-700">
                 تسجيل الدخول
               </a>
             </p>

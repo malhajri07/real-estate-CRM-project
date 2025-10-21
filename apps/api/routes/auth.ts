@@ -29,6 +29,7 @@
  */
 
 import * as express from 'express';
+import '../types/express-session';
 import { z } from 'zod';
 import { login, register, impersonateUser, authenticateToken, UserRole } from '../auth';
 import { requireRole } from '../rbac';
@@ -95,6 +96,7 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Login failed' });
   }
 });
+
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {

@@ -89,12 +89,12 @@ export default function AnalyticsDashboard() {
       if (!response.ok) {
         throw new Error('فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.');
       }
-      return response.json();
+      return response.json() as Promise<AnalyticsData>;
     },
-    keepPreviousData: true,
   });
 
-  const showSkeleton = isLoading && !analytics;
+  const isInitialLoading = isLoading && !analytics;
+  const showSkeleton = isFetching && !isInitialLoading;
   const errorMessage = isError
     ? (error instanceof Error ? error.message : 'فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.')
     : null;
@@ -215,6 +215,53 @@ export default function AnalyticsDashboard() {
       </div>
     );
   };
+
+  if (isInitialLoading || !analytics) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">لوحة التحليلات</h2>
+            <p className="text-gray-600">إحصائيات شاملة عن أداء المنصة</p>
+            {errorMessage && (
+              <div className="flex items-center gap-2 mt-2 text-red-600">
+                <AlertCircle className="h-4 w-4" />
+                <span className="text-sm">{errorMessage}</span>
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2 items-center">
+            <Select value={selectedPeriod} onValueChange={handlePeriodChange}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="الفترة" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="week">هذا الأسبوع</SelectItem>
+                <SelectItem value="month">هذا الشهر</SelectItem>
+                <SelectItem value="quarter">هذا الربع</SelectItem>
+                <SelectItem value="year">هذا العام</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" onClick={refreshData} disabled={isFetching}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} />
+              تحديث
+            </Button>
+            <Button disabled>
+              <Download className="h-4 w-4 mr-2" />
+              تصدير
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

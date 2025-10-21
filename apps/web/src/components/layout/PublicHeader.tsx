@@ -98,7 +98,7 @@ export default function PublicHeader() {
             variant="ghost"
             size="icon"
             className="md:hidden rounded-full border border-slate-200 text-slate-600"
-            onClick={() => (window.location.href = isAuth ? getDashboardUrl() : "/login")}
+            onClick={() => (window.location.href = isAuth ? getDashboardUrl() : "/rbac-login")}
             aria-label="فتح القائمة أو تسجيل الدخول"
           >
             <Menu className="h-4 w-4" />
@@ -116,7 +116,7 @@ export default function PublicHeader() {
               <Button
                 variant="ghost"
                 className="hidden md:inline-flex rounded-2xl text-emerald-600 hover:bg-emerald-50"
-                onClick={() => (window.location.href = "/login")}
+                onClick={() => (window.location.href = "/rbac-login")}
               >
                 {t("nav.login")}
               </Button>

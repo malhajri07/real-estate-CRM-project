@@ -5,8 +5,7 @@ import path from "path";
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
-import viteConfig from "../../vite.config";
-import { nanoid } from "nanoid";
+import rawViteConfig from "../../vite.config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -24,6 +23,14 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express, server: Server) {
+  const viteConfig =
+    typeof rawViteConfig === "function"
+      ? await rawViteConfig({
+          command: "serve",
+          mode: process.env.NODE_ENV ?? "development",
+        })
+      : rawViteConfig;
+
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
@@ -63,11 +70,6 @@ export async function setupVite(app: Express, server: Server) {
 
       // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
-      template = template.replace(
-        `src="/src/main.tsx"`,
-        `src="/src/main.tsx?v=${nanoid()}"`,
-      );
-      
       // Add a script to set the server port for client-side detection
       // This will override any existing SERVER_PORT from Vite plugins
       const portScript = `

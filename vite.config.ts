@@ -180,7 +180,7 @@ export default defineConfig(async () => {
     // Only inject when running as standalone Vite dev server (not through Express middleware)
     {
       name: 'inject-server-port',
-      transformIndexHtml(html) {
+      transformIndexHtml(html: string) {
         // Only inject if not already present (to avoid conflicts with Express server)
         if (!html.includes('window.SERVER_PORT')) {
           return html.replace(
@@ -211,7 +211,7 @@ export default defineConfig(async () => {
     emptyOutDir: true, // Clear output directory before building
     rollupOptions: {
       output: {
-        manualChunks(id) {
+        manualChunks(id: string) {
           return resolveManualChunk(id);
         },
       },

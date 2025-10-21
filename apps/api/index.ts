@@ -17,6 +17,7 @@
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session"; // Enable per-user session storage so multiple logins can coexist
+import "./types/express-session";
 import path from "path";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -45,7 +46,7 @@ app.use(
 // Promote session user info onto req.user when no bearer token is provided
 app.use((req, _res, next) => {
   if (!req.headers.authorization && req.session?.user) {
-    (req as any).user = req.session.user;
+    req.user = req.session.user;
   }
   next();
 });

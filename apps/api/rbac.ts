@@ -7,20 +7,6 @@ import {
 
 export { UserRole } from '@shared/rbac';
 
-// Extend Express Request to include user and roles
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string | null;
-        roles: UserRole[] | string | null; // Supports parsed arrays and legacy string payloads
-        organizationId?: string;
-      };
-    }
-  }
-}
-
 // Check if user has specific permission
 export function hasPermission(userRoles: unknown, permission: string): boolean {
   const roles = normalizeRoleKeys(userRoles);

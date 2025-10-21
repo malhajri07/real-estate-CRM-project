@@ -42,12 +42,6 @@ import KYCSubmitted from "@/pages/kyc-submitted";
 import Sidebar from "@/components/layout/sidebar";
 import PlatformShell from "@/components/layout/PlatformShell";
 import Header from "@/components/layout/header";
-import RBACDashboard from "@/pages/rbac-dashboard";
-import RBACLoginPage from "@/pages/rbac-login";
-import PlatformPage from "@/pages/app";
-import UnverifiedListingPage from "@/pages/unverified-listing";
-import MarketingRequestSubmissionPage from "@/pages/marketing-request";
-import MarketingRequestsBoardPage from "@/pages/marketing-requests";
 
 import { adminSidebarConfig } from "@/config/admin-sidebar";
 
@@ -64,12 +58,12 @@ const Reports = lazy(() => import("@/pages/reports"));
 const Notifications = lazy(() => import("@/pages/notifications"));
 const Settings = lazy(() => import("@/pages/settings"));
 const PropertyDetail = lazy(() => import("@/pages/property-detail"));
-const RBACDashboard = lazy(() => import("@/pages/rbac-dashboard"));
-const RBACLoginPage = lazy(() => import("@/pages/rbac-login"));
-const PlatformPage = lazy(() => import("@/pages/app"));
-const UnverfiedListingPage = lazy(() => import("@/pages/unverfied_Listing"));
-const MarketingRequestSubmissionPage = lazy(() => import("@/pages/marketing-request"));
-const MarketingRequestsBoardPage = lazy(() => import("@/pages/marketing-requests"));
+const LazyRBACDashboard = lazy(() => import("@/pages/rbac-dashboard"));
+const LazyRBACLoginPage = lazy(() => import("@/pages/rbac-login"));
+const LazyPlatformPage = lazy(() => import("@/pages/app"));
+const LazyUnverifiedListingPage = lazy(() => import("@/pages/unverified-listing"));
+const LazyMarketingRequestSubmissionPage = lazy(() => import("@/pages/marketing-request"));
+const LazyMarketingRequestsBoardPage = lazy(() => import("@/pages/marketing-requests"));
 const FavoritesPage = lazy(() => import("@/pages/favorites"));
 const ComparePage = lazy(() => import("@/pages/compare"));
 const PostListingPage = lazy(() => import("@/pages/post-listing"));
@@ -126,13 +120,13 @@ function Router() {
     </div>
   );
 
-  type LoadableComponent<P = Record<string, unknown>> = ComponentType<P> | LazyExoticComponent<ComponentType<P>>;
+  type LoadableComponent = ComponentType<any> | LazyExoticComponent<ComponentType<any>>;
 
-  const withSuspense = <P extends Record<string, unknown>>(
-    Component: LoadableComponent<P>,
+  const withSuspense = (
+    Component: LoadableComponent,
     fallback: ReactNode = fullScreenSuspenseFallback
-  ): ComponentType<P> => {
-    const SuspendedComponent: ComponentType<P> = (props) => (
+  ): ComponentType<any> => {
+    const SuspendedComponent: ComponentType<any> = (props: any) => (
       <Suspense fallback={fallback}>
         <Component {...props} />
       </Suspense>
@@ -140,11 +134,11 @@ function Router() {
     return SuspendedComponent;
   };
 
-  const SuspendedRBACLoginPage = withSuspense(RBACLoginPage);
-  const SuspendedRBACDashboard = withSuspense(RBACDashboard);
-  const SuspendedPlatformPage = withSuspense(PlatformPage);
-  const SuspendedUnverifiedListingPage = withSuspense(UnverfiedListingPage);
-  const SuspendedMarketingRequestSubmissionPage = withSuspense(MarketingRequestSubmissionPage);
+  const SuspendedRBACLoginPage = withSuspense(LazyRBACLoginPage);
+  const SuspendedRBACDashboard = withSuspense(LazyRBACDashboard);
+  const SuspendedPlatformPage = withSuspense(LazyPlatformPage);
+  const SuspendedUnverifiedListingPage = withSuspense(LazyUnverifiedListingPage);
+  const SuspendedMarketingRequestSubmissionPage = withSuspense(LazyMarketingRequestSubmissionPage);
   const SuspendedSearchPropertiesPage = withSuspense(SearchProperties);
   const SuspendedRealEstateRequestsPage = withSuspense(RealEstateRequestsPage);
 
@@ -281,7 +275,6 @@ function Router() {
   }
 
   if (hash === '#list') {
-    return <UnverifiedListingPage />;
     return <SuspendedUnverifiedListingPage />;
   }
 
@@ -379,7 +372,7 @@ function Router() {
     { path: '/home/platform/agencies', component: AgenciesPage, aliases: ['/agencies'], allowedRoles: CORPORATE_MANAGEMENT_ROLES },
     { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: ADMIN_ONLY_ROLES },
     { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms', '/cms-admin'], allowedRoles: ADMIN_ONLY_ROLES },
-    { path: '/home/platform/marketing-requests', component: MarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },
+    { path: '/home/platform/marketing-requests', component: LazyMarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },
   ];
 
   const platformDynamicRoutes: Array<{
@@ -503,8 +496,8 @@ function Router() {
         {/* Landing page */}
         <Route path="/home" component={Landing} />
         <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
-        <Route path="/unverified-listings" component={UnverifiedListingPage} />
-        <Route path="/marketing-request" component={MarketingRequestSubmissionPage} />
+        <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
+        <Route path="/marketing-request" component={SuspendedMarketingRequestSubmissionPage} />
 
         {/* RBAC-aware login accessible from landing */}
         <Route path="/home/login" component={SuspendedRBACLoginPage} />
@@ -580,7 +573,6 @@ function Router() {
         {/* Admin Route with RBAC Dashboard - No sidebar/header */}
         <Route path="/home/admin" component={renderAdminDashboardRoute} />
         
-        <Route path="/rbac-login" component={SuspendedRBACLoginPage} />
         <Route path="/signup" component={SignupSelection} />
         <Route path="/signup/individual" component={SignupIndividual} />
         <Route path="/signup/corporate" component={SignupCorporate} />
@@ -603,8 +595,11 @@ function Router() {
       <Suspense fallback={fullScreenSuspenseFallback}>
         <Switch>
         {/* Use RBAC-aware login that integrates with AuthProvider */}
-        <Route path="/login" component={SuspendedRBACLoginPage} />
         <Route path="/rbac-login" component={SuspendedRBACLoginPage} />
+        <Route path="/login" component={() => {
+          window.location.href = '/rbac-login';
+          return null;
+        }} />
         {/* Test route to verify routing works */}
         <Route path="/test-login">
           {() => {
@@ -615,10 +610,10 @@ function Router() {
                   <h1 className="text-2xl font-bold text-red-800">TEST ROUTE WORKING!</h1>
                   <p className="text-red-600">If you see this, routing is working correctly.</p>
                   <button 
-                    onClick={() => window.location.href = '/login'}
+                    onClick={() => window.location.href = '/rbac-login'}
                     className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
                   >
-                    Go to Real Login
+                    Go to RBAC Login
                   </button>
                 </div>
               </div>
@@ -626,8 +621,8 @@ function Router() {
           }}
         </Route>
         <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
-        <Route path="/unverified-listings" component={UnverifiedListingPage} />
-        <Route path="/marketing-request" component={MarketingRequestSubmissionPage} />
+        <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
+        <Route path="/marketing-request" component={SuspendedMarketingRequestSubmissionPage} />
         <Route path="/signup" component={SignupSelection} />
         <Route path="/signup/individual" component={SignupIndividual} />
         <Route path="/signup/corporate" component={SignupCorporate} />
@@ -639,7 +634,7 @@ function Router() {
           <Route
             key={`guest-admin-${path}`}
             path={path}
-            component={createRedirectComponent('/login', 'يرجى تسجيل الدخول للوصول إلى لوحة التحكم')}
+            component={createRedirectComponent('/rbac-login', 'يرجى تسجيل الدخول للوصول إلى لوحة التحكم')}
           />
         ))}
         {/* Root path for unauthenticated users on port 3000 - show landing */}
@@ -729,9 +724,9 @@ function Router() {
           {/* Platform Routes - For CORP_OWNER, CORP_AGENT, INDIV_AGENT users */}
           {isPlatformUser && (
             <>
-              <Route path="/home/platform" component={PlatformPage} />
+              <Route path="/home/platform" component={SuspendedPlatformPage} />
               <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
-              <Route path="/unverified-listings" component={UnverifiedListingPage} />
+              <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
 
               {platformShellRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
                 const routes = [
@@ -811,9 +806,9 @@ function Router() {
           {/* Seller/Buyer Routes - Limited access for now */}
           {isSellerBuyer && (
             <>
-              <Route path="/home/platform" component={PlatformPage} />
+              <Route path="/home/platform" component={SuspendedPlatformPage} />
               <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
-              <Route path="/unverified-listings" component={UnverifiedListingPage} />
+              <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
 
               {/* Redirect seller/buyer users from admin routes to platform dashboard */}
               {ADMIN_DASHBOARD_ROUTES.map((path) => (

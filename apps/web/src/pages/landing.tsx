@@ -536,7 +536,7 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
   }, []);
 
   const handleLogin = () => {
-    setLocation("/login"); // Route internally to avoid issues with direct window navigation.
+    setLocation("/rbac-login"); // Route internally to avoid issues with direct window navigation.
   };
 
   const handleSignUp = () => {

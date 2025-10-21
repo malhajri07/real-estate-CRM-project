@@ -739,7 +739,7 @@ const SectionEditor: React.FC<SectionEditorProps> = ({
                     onChange={(event) =>
                       setField("secondaryCtaHref", event.target.value)
                     }
-                    placeholder="/login"
+                    placeholder="/rbac-login"
                   />
                 </div>
               </div>
