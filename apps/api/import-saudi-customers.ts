@@ -1,189 +1,311 @@
-import { readFileSync } from 'fs';
-import { parse } from 'csv-parse/sync';
-import { storage } from './storage-prisma';
-import { Lead, Activity, Deal, Message } from '@shared/types';
+import { readFileSync } from "fs";
+import { parse } from "csv-parse/sync";
+import { randomUUID } from "crypto";
+import {
+  CustomerType,
+  LeadStatus,
+  type customers,
+  type leads,
+  type users
+} from "@prisma/client";
+import { prisma } from "./prismaClient";
 
-// تعريف نوع البيانات للسجل الواحد
-interface CustomerRecord {
-  'اسم العميل': string;
-  'رقم الهاتف': string;
-  'الجنس': string;
-  'الحالة الاجتماعية': string;
-  'العمر': string;
-  'عدد المعالين': string;
-  'المهنة': string;
-  'متوسط الدخل الشهري': string;
-  'نوع العقار الذي يبحث عنه': string;
-  'ميزانية العميل': string;
-  'المدينة': string;
-}
+type CustomerRecord = {
+  "اسم العميل": string;
+  "رقم الهاتف": string;
+  "الجنس": string;
+  "الحالة الاجتماعية": string;
+  "العمر": string;
+  "عدد المعالين": string;
+  "المهنة": string;
+  "متوسط الدخل الشهري": string;
+  "نوع العقار الذي يبحث عنه": string;
+  "ميزانية العميل": string;
+  "المدينة": string;
+};
 
-// تنظيف البيانات السابقة
-async function clearExistingData() {
-  console.log('🗑️ حذف البيانات السابقة...');
-  await db.delete(messages);
-  await db.delete(activities);
-  await db.delete(deals);
-  await db.delete(leads);
-  console.log('✅ تم حذف البيانات السابقة');
-}
+const IMPORT_SOURCE = "استيراد بيانات";
+const DATASET_PATH = "data/raw-assets/saudi_customers_dataset_with_city (2)_1756513642047.csv";
 
-// تحويل الحالة الاجتماعية من العربية إلى الإنجليزية
 function convertMaritalStatus(arabicStatus: string): string {
-  const statusMap: { [key: string]: string } = {
-    'أعزب': 'single',
-    'عزباء': 'single',
-    'متزوج': 'married',
-    'متزوجة': 'married',
-    'مطلق': 'divorced',
-    'مطلقة': 'divorced',
-    'أرمل': 'widowed',
-    'أرملة': 'widowed'
+  const statusMap: Record<string, string> = {
+    "أعزب": "single",
+    "عزباء": "single",
+    "متزوج": "married",
+    "متزوجة": "married",
+    "مطلق": "divorced",
+    "مطلقة": "divorced",
+    "أرمل": "widowed",
+    "أرملة": "widowed"
   };
-  return statusMap[arabicStatus] || 'single';
+  return statusMap[arabicStatus] ?? "single";
 }
 
-// تحويل الميزانية إلى نطاق سعري
 function convertBudgetRange(budget: number): string {
-  if (budget < 500000) return 'أقل من 500,000 ريال';
-  if (budget < 1000000) return '500,000 - 1,000,000 ريال';
-  if (budget < 2000000) return '1,000,000 - 2,000,000 ريال';
-  if (budget < 3000000) return '2,000,000 - 3,000,000 ريال';
-  if (budget < 5000000) return '3,000,000 - 5,000,000 ريال';
-  return 'أكثر من 5,000,000 ريال';
+  if (budget < 500_000) return "أقل من 500,000 ريال";
+  if (budget < 1_000_000) return "500,000 - 1,000,000 ريال";
+  if (budget < 2_000_000) return "1,000,000 - 2,000,000 ريال";
+  if (budget < 3_000_000) return "2,000,000 - 3,000,000 ريال";
+  if (budget < 5_000_000) return "3,000,000 - 5,000,000 ريال";
+  return "أكثر من 5,000,000 ريال";
 }
 
-// تقسيم الاسم الكامل إلى اسم أول وأخير
-function splitName(fullName: string | undefined): { firstName: string; lastName: string } {
-  if (!fullName || typeof fullName !== 'string') {
-    return {
-      firstName: 'غير محدد',
-      lastName: 'العميل'
-    };
+function splitName(fullName?: string): { firstName: string; lastName: string } {
+  if (!fullName) {
+    return { firstName: "غير محدد", lastName: "العميل" };
   }
-  
-  const nameParts = fullName.trim().split(' ');
-  if (nameParts.length >= 2) {
-    return {
-      firstName: nameParts[0] || 'غير محدد',
-      lastName: nameParts.slice(1).join(' ') || 'العميل'
-    };
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) {
+    return { firstName: "غير محدد", lastName: "العميل" };
   }
-  return {
-    firstName: nameParts[0] || 'غير محدد',
-    lastName: 'العميل'
-  };
+  if (parts.length === 1) {
+    return { firstName: parts[0], lastName: "العميل" };
+  }
+  return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
 }
 
-// إنشاء بريد إلكتروني من الاسم ورقم الهاتف
+function normalizePhone(phone?: string): string {
+  if (!phone) return "0500000000";
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("05")) return digits;
+  if (digits.startsWith("5")) return `0${digits}`;
+  if (digits.startsWith("966")) return `0${digits.slice(3)}`;
+  if (digits.startsWith("00966")) return `0${digits.slice(5)}`;
+  if (digits.length === 9) return `0${digits}`;
+  return digits || "0500000000";
+}
+
 function generateEmail(fullName: string, phone: string): string {
   const { firstName, lastName } = splitName(fullName);
-  const cleanPhone = phone.replace(/\D/g, '').slice(-4);
-  const transliteratedName = `${firstName.replace(/\s+/g, '')}.${lastName.replace(/\s+/g, '')}`.toLowerCase();
-  return `${transliteratedName}${cleanPhone}@customer.sa`;
+  const sanitized = `${firstName}.${lastName}`
+    .replace(/[^\p{Script=Arabic}A-Za-z0-9\.]/gu, "")
+    .replace(/\.+/g, ".")
+    .toLowerCase();
+  const suffix = phone.replace(/\D/g, "").slice(-4) || "0000";
+  return `${sanitized || "customer"}${suffix}@customer.sa`;
 }
 
-async function importSaudiCustomers() {
-  try {
-    console.log('🚀 بدء استيراد بيانات العملاء السعوديين...');
-    
-    // قراءة ملف CSV
-    const csvContent = readFileSync('data/raw-assets/saudi_customers_dataset_with_city (2)_1756513642047.csv', 'utf-8');
-    const records: CustomerRecord[] = parse(csvContent, {
-      columns: true,
-      skip_empty_lines: true,
-      encoding: 'utf8'
-    });
+async function findImportAgent(): Promise<users> {
+  const byRole = await prisma.users.findFirst({
+    where: {
+      isActive: true,
+      roles: {
+        contains: '"CORP_AGENT"'
+      }
+    },
+    orderBy: { createdAt: "asc" }
+  });
+  if (byRole) return byRole;
 
-    console.log(`📊 تم العثور على ${records.length} عميل`);
+  const fallback = await prisma.users.findFirst({ orderBy: { createdAt: "asc" } });
+  if (!fallback) {
+    throw new Error("لم يتم العثور على مستخدم لتعيين العملاء له. الرجاء تشغيل بيانات seed أولاً.");
+  }
+  return fallback;
+}
 
-    // حذف البيانات السابقة
-    await clearExistingData();
+async function resolveOrganization(agent: users) {
+  if (agent.organizationId) {
+    const organization = await prisma.organizations.findUnique({ where: { id: agent.organizationId } });
+    if (organization) {
+      return organization;
+    }
+  }
 
-    // استيراد البيانات الجديدة
-    console.log('👥 بدء استيراد العملاء...');
-    
-    const leads_to_insert = [];
-    
-    for (const record of records) {
-      // التحقق من وجود البيانات المطلوبة
-      if (!record || typeof record !== 'object') continue;
-      
-      const fullName = record['اسم العميل'] || 'غير محدد';
-      const phone = record['رقم الهاتف'] || '0500000000';
-      const maritalStatus = record['الحالة الاجتماعية'] || 'أعزب';
-      const age = parseInt(record['العمر']) || 25;
-      const dependents = parseInt(record['عدد المعالين']) || 0;
-      const profession = record['المهنة'] || 'غير محدد';
-      const income = record['متوسط الدخل الشهري'] || '0';
-      const propertyType = record['نوع العقار الذي يبحث عنه'] || 'شقة';
-      const budget = parseInt(record['ميزانية العميل']) || 500000;
-      const city = record['المدينة'] || 'الرياض';
+  const organization = await prisma.organizations.findFirst({ orderBy: { createdAt: "asc" } });
+  if (!organization) {
+    throw new Error("لا توجد منظمات مسجلة في قاعدة البيانات.");
+  }
+  return organization;
+}
 
-      // تقسيم الاسم
-      const { firstName, lastName } = splitName(fullName);
+async function clearExistingData(organizationId: string) {
+  console.log("🗑️ تنظيف بيانات الاستيراد السابقة...");
 
-      // إنشاء البريد الإلكتروني
-      const email = generateEmail(fullName, phone);
+  const importedLeads = await prisma.leads.findMany({
+    where: {
+      organizationId,
+      source: IMPORT_SOURCE
+    },
+    select: { id: true }
+  });
 
-      // تحويل الحالة الاجتماعية
-      const convertedMaritalStatus = convertMaritalStatus(maritalStatus);
+  const leadIds = importedLeads.map((lead) => lead.id);
 
-      // تحويل الميزانية إلى نطاق
-      const budgetRange = convertBudgetRange(budget);
+  if (leadIds.length) {
+    await prisma.contact_logs.deleteMany({ where: { leadId: { in: leadIds } } });
+    await prisma.messages.deleteMany({ where: { leadId: { in: leadIds } } });
+    await prisma.leads.deleteMany({ where: { id: { in: leadIds } } });
+  }
 
-      // إنشاء ملاحظات تتضمن تفاصيل إضافية
-      const notes = `المهنة: ${profession}
-متوسط الدخل الشهري: ${income} ريال
-نوع العقار المطلوب: ${propertyType}
-الميزانية: ${budget.toLocaleString()} ريال`;
+  await prisma.customers.deleteMany({
+    where: {
+      organizationId,
+      source: IMPORT_SOURCE
+    }
+  });
 
-      const leadData = {
+  console.log("✅ تم مسح بيانات الاستيراد السابقة");
+}
+
+async function upsertCustomer(options: {
+  organizationId: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string | null;
+  city: string | null;
+  notes: string;
+}): Promise<customers> {
+  const { organizationId, firstName, lastName, phone, email, city, notes } = options;
+
+  const existing = await prisma.customers.findFirst({
+    where: {
+      organizationId,
+      phone
+    }
+  });
+
+  if (existing) {
+    return prisma.customers.update({
+      where: { id: existing.id },
+      data: {
         firstName,
         lastName,
         email,
-        phone,
         city,
-        age,
-        maritalStatus: convertedMaritalStatus,
-        numberOfDependents: dependents,
-        leadSource: 'استيراد بيانات',
-        interestType: 'buying',
-        budgetRange,
-        status: 'new' as const,
-        notes,
-        tenantId: 'default-tenant',
-        createdBy: 'system-import'
-      };
-
-      leads_to_insert.push(leadData);
-    }
-
-    // إدراج البيانات في قاعدة البيانات
-    await db.insert(leads).values(leads_to_insert as any);
-
-    console.log(`✅ تم استيراد ${leads_to_insert.length} عميل بنجاح!`);
-    console.log('🎉 اكتمل استيراد البيانات السعودية');
-
-  } catch (error) {
-    console.error('❌ خطأ في استيراد البيانات:', error);
-    throw error;
+        source: IMPORT_SOURCE,
+        notes
+      }
+    });
   }
+
+  return prisma.customers.create({
+    data: {
+      id: randomUUID(),
+      organizationId,
+      type: CustomerType.BUYER,
+      firstName,
+      lastName,
+      email,
+      phone,
+      city,
+      source: IMPORT_SOURCE,
+      notes
+    }
+  });
 }
 
-// تشغيل السكريبت
+async function createLead(options: {
+  agentId: string;
+  organizationId: string;
+  customerId: string;
+  notes: string;
+}): Promise<leads> {
+  const { agentId, organizationId, customerId, notes } = options;
+  const now = new Date();
+  return prisma.leads.create({
+    data: {
+      id: randomUUID(),
+      agentId,
+      organizationId,
+      customerId,
+      status: LeadStatus.NEW,
+      source: IMPORT_SOURCE,
+      notes,
+      createdAt: now,
+      updatedAt: now
+    }
+  });
+}
+
+async function importSaudiCustomers() {
+  console.log("🚀 بدء استيراد بيانات العملاء السعوديين...");
+
+  const csvContent = readFileSync(DATASET_PATH, "utf-8");
+  const records = parse(csvContent, {
+    columns: true,
+    skip_empty_lines: true,
+    encoding: "utf8"
+  }) as CustomerRecord[];
+
+  console.log(`📊 تم العثور على ${records.length} عميل في الملف`);
+
+  const agent = await findImportAgent();
+  const organization = await resolveOrganization(agent);
+
+  await clearExistingData(organization.id);
+
+  let importedCount = 0;
+
+  for (const record of records) {
+    const fullName = (record?.["اسم العميل"] ?? "غير محدد").trim();
+    const { firstName, lastName } = splitName(fullName);
+    const rawPhone = record?.["رقم الهاتف"] ?? "";
+    const phone = normalizePhone(rawPhone);
+    const maritalStatus = convertMaritalStatus(record?.["الحالة الاجتماعية"] ?? "");
+    const age = Number.parseInt(record?.["العمر"] ?? "", 10) || undefined;
+    const dependents = Number.parseInt(record?.["عدد المعالين"] ?? "", 10) || undefined;
+    const profession = record?.["المهنة"] ?? "غير محدد";
+    const income = record?.["متوسط الدخل الشهري"] ?? "0";
+    const propertyType = record?.["نوع العقار الذي يبحث عنه"] ?? "شقة";
+    const budget = Number.parseInt(record?.["ميزانية العميل"] ?? "", 10) || 0;
+    const city = record?.["المدينة"]?.trim() || null;
+
+    const email = generateEmail(fullName, phone);
+    const budgetRange = convertBudgetRange(budget);
+
+    const notes = [
+      `المهنة: ${profession}`,
+      `متوسط الدخل الشهري: ${income} ريال`,
+      `نوع العقار المطلوب: ${propertyType}`,
+      `الميزانية: ${budget.toLocaleString("ar-EG")} ريال`,
+      `الحالة الاجتماعية: ${maritalStatus}`,
+      dependents ? `عدد المعالين: ${dependents}` : null,
+      age ? `العمر: ${age}` : null,
+      `نطاق الميزانية: ${budgetRange}`
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const customer = await upsertCustomer({
+      organizationId: organization.id,
+      firstName,
+      lastName,
+      phone,
+      email,
+      city,
+      notes
+    });
+
+    await createLead({
+      agentId: agent.id,
+      organizationId: organization.id,
+      customerId: customer.id,
+      notes
+    });
+
+    importedCount += 1;
+  }
+
+  console.log(`✅ تم استيراد ${importedCount} عميل وربطهم بالمنصة بنجاح!`);
+}
+
 async function main() {
   try {
     await importSaudiCustomers();
-    console.log('✅ تم الانتهاء من استيراد البيانات');
+    console.log("🎉 اكتمل استيراد البيانات السعودية");
     process.exit(0);
   } catch (error) {
-    console.error('❌ فشل في استيراد البيانات:', error);
+    console.error("❌ خطأ في استيراد البيانات:", error instanceof Error ? error.message : error);
     process.exit(1);
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
-// تشغيل الدالة الرئيسية
-main();
+if (require.main === module) {
+  main();
+}
 
 export { importSaudiCustomers };
