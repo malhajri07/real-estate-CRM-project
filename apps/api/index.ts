@@ -17,12 +17,17 @@
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session"; // Enable per-user session storage so multiple logins can coexist
+import connectPgSimple from "connect-pg-simple";
 import "./types/express-session";
 import path from "path";
 import { createServer as createNetServer } from "node:net";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { SESSION_SECRET as getSessionSecret, JWT_SECRET as getJwtSecret } from "./config/env";
+import {
+  SESSION_SECRET as getSessionSecret,
+  JWT_SECRET as getJwtSecret,
+  DATABASE_URL as getDatabaseUrl,
+} from "./config/env";
 
 // Create Express application instance
 const app = express();
@@ -32,14 +37,28 @@ app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: false })); // Parse URL-encoded request bodies
 
 // Wire up cookie-based sessions so several users can stay logged in at the same time
+const PgSessionStore = connectPgSimple(session);
+
+const sessionSchema = process.env.SESSION_SCHEMA?.trim();
+const sessionTable = process.env.SESSION_TABLE?.trim();
+
+const sessionStore = new PgSessionStore({
+  conString: getDatabaseUrl(),
+  createTableIfMissing: true,
+  ...(sessionSchema ? { schemaName: sessionSchema } : {}),
+  ...(sessionTable ? { tableName: sessionTable } : {}),
+});
+
 app.use(
   session({
     secret: getSessionSecret(), // Fail fast if the session secret is missing
     resave: false,
     saveUninitialized: false,
+    store: sessionStore,
     cookie: {
       secure: false, // We run in HTTP during development; swap to true behind HTTPS
       maxAge: 24 * 60 * 60 * 1000, // Keep sessions for 24 hours
+      sameSite: "lax",
     },
   }),
 );
