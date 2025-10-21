@@ -1,23 +1,11 @@
-/**
- * Header Component - Main Application Header
- * 
- * This component provides a floating header that appears above the main content area.
- * It includes:
- * - Page title display
- * - Search functionality
- * - Action buttons (optional)
- * - Proper RTL support
- * - Responsive design
- * 
- * The header is positioned as a floating element above the main content,
- * following modern UI/UX best practices.
- */
-
-import { Search, Bell, User, Menu } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import type { ChangeEvent } from "react";
+import { motion } from "framer-motion";
+import { Bell, Menu, MoonStar, Search, SunMedium, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState, type ReactNode } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 
@@ -32,8 +20,13 @@ interface HeaderProps {
   isSidebarOpen?: boolean;
 }
 
-export default function Header({ 
-  onSearch, 
+const HEADER_VARIANTS = {
+  hidden: { opacity: 0, y: -18 },
+  visible: { opacity: 1, y: 0 },
+};
+
+export default function Header({
+  onSearch,
   searchPlaceholder,
   showSearch = true,
   showActions = true,
@@ -43,111 +36,130 @@ export default function Header({
   isSidebarOpen,
 }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { t, dir } = useLanguage();
+  const { dir, t } = useLanguage();
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
-  const defaultPlaceholder = searchPlaceholder || t('form.search') || "البحث...";
+  const defaultPlaceholder = searchPlaceholder || t("form.search") || "البحث...";
 
-  const searchInputDirectionalClasses =
-    dir === 'rtl'
-      ? 'pr-12 pl-4 text-right placeholder:text-right'
-      : 'pl-12 pr-4 text-left placeholder:text-left';
+  const searchAlignment = dir === "rtl"
+    ? "pr-12 pl-4 text-right placeholder:text-right"
+    : "pl-12 pr-4 text-left placeholder:text-left";
+  const searchIconPosition = dir === "rtl" ? "right-4" : "left-4";
 
-  const searchIconPosition = dir === 'rtl' ? 'right-4' : 'left-4';
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
     setSearchQuery(value);
     onSearch?.(value);
   };
 
-  // Extract username from email (everything before @)
-  const getUsername = () => {
-    if (user?.name) return user.name;
-    if (user?.username) return user.username;
-    if (user?.email) return user.email.split('@')[0];
-    return "المستخدم";
-  };
-
-  // Mock notification count - in real app this would come from API
   const notificationCount = 3;
 
+  const username = user?.name || user?.username || user?.email?.split("@")[0] || "المستخدم";
+
   return (
-    <header
-      className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm h-16"
+    <motion.header
+      variants={HEADER_VARIANTS}
+      initial="hidden"
+      animate="visible"
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70"
       aria-label={title || "الشريط العلوي"}
     >
-      <div className="flex items-center gap-4 px-6 h-full w-full" dir={dir}>
-        {/* Only render the sidebar toggle when a handler is provided; prevents duplicate icon on public pages. */}
+      <div className="mx-auto flex h-[4.25rem] w-full max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8" dir={dir}>
         {onToggleSidebar && (
-          <div className={cn('flex items-center gap-2 order-5', dir === 'rtl' ? 'ml-2' : 'mr-2')}>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={onToggleSidebar}
-              className="h-10 w-10 p-0 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-600 border border-transparent transition lg:hover:border-gray-200"
-              aria-label={isSidebarOpen ? "إخفاء القائمة" : "إظهار القائمة"}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onToggleSidebar}
+            aria-label={isSidebarOpen ? "إخفاء القائمة" : "إظهار القائمة"}
+            className="inline-flex rounded-full border border-border/60 bg-card/70 text-muted-foreground shadow-outline transition hover:bg-card/90 focus-visible:ring-primary/40"
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
         )}
-        {/* Notifications (far left) */}
-        {showActions && (
-          <div className="flex items-center shrink-0 order-1">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="relative h-10 w-10 p-0 hover:bg-gray-100 rounded-full"
-            >
-              <Bell className="h-5 w-5 text-gray-600" />
-              {notificationCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs font-medium rounded-full flex items-center justify-center shadow-sm">
-                  {notificationCount > 9 ? '9+' : notificationCount}
-                </span>
-              )}
-            </Button>
+
+        {title && (
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">
+              {t("app.subtitle") || "Aqarkom Platform"}
+            </span>
+            <h1 className="truncate text-lg font-semibold text-foreground lg:text-xl">{title}</h1>
           </div>
         )}
 
-        {/* Search Bar (center, grows) */}
         {showSearch && (
-          <div className="relative flex-1 min-w-0 order-2">
+          <div className="relative flex-1">
             <Input
-              type="text"
+              type="search"
               placeholder={defaultPlaceholder}
               value={searchQuery}
               onChange={handleSearchChange}
               className={cn(
-                'w-full h-10 bg-gray-50/80 border-gray-200 rounded-md text-sm focus:bg-white focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/50 focus:shadow-sm transition-all duration-200',
-                searchInputDirectionalClasses
+                "h-11 w-full rounded-full border border-border/70 bg-card/80 pr-4 text-sm shadow-outline transition focus:border-primary/40 focus:ring-primary/40",
+                "dark:bg-card/40",
+                searchAlignment
               )}
             />
-            <Search className={cn('absolute top-3 text-gray-400', searchIconPosition)} size={16} />
+            <Search className={cn("absolute top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60", searchIconPosition)} />
           </div>
         )}
 
-        {/* Extra controls */}
         {extraContent && (
-          <div
-            className={cn('flex flex-wrap items-center gap-2 order-3', dir === 'rtl' ? 'ml-2' : 'mr-2')}
-            dir={dir}
-          >
+          <div className="hidden items-center gap-2 sm:flex" dir={dir}>
             {extraContent}
           </div>
         )}
 
-        {/* User cluster (far right) */}
         {showActions && (
-          <div className={cn('flex items-center gap-3 shrink-0 order-4', dir === 'rtl' ? 'ml-2' : 'mr-2')}>
-            <span className="text-sm font-medium text-gray-700">{getUsername()}</span>
-            <div className="h-8 w-8 rounded-full flex items-center justify-center shadow-sm bg-emerald-600">
-              <User className="h-4 w-4 text-white" />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن"}
+              className="relative rounded-full border border-border/60 bg-card/70 text-muted-foreground shadow-outline transition hover:bg-card/90 focus-visible:ring-primary/40"
+            >
+              <SunMedium
+                className={cn(
+                  "h-4 w-4 pointer-events-none transition-all",
+                  theme === "dark" ? "scale-0 opacity-0 rotate-90" : "scale-100 opacity-100 rotate-0"
+                )}
+              />
+              <MoonStar
+                className={cn(
+                  "absolute h-4 w-4 pointer-events-none transition-all",
+                  theme === "dark" ? "scale-100 opacity-100 rotate-0" : "scale-0 opacity-0 -rotate-90"
+                )}
+              />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative rounded-full border border-border/60 bg-card/70 text-muted-foreground shadow-outline transition hover:bg-card/90 focus-visible:ring-primary/40"
+            >
+              <Bell className="h-4 w-4" />
+              {notificationCount > 0 && (
+                <span className="absolute -top-1 -left-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1 text-[0.625rem] font-medium text-primary-foreground shadow-floating">
+                  {notificationCount > 9 ? "9+" : notificationCount}
+                </span>
+              )}
+            </Button>
+
+            <div className="flex items-center gap-3 rounded-full border border-border/60 bg-card/70 px-3 py-1.5 shadow-outline">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <User className="h-4 w-4" />
+              </div>
+              <div className="hidden flex-col text-right sm:flex">
+                <span className="text-sm font-medium text-foreground">{username}</span>
+                <span className="text-[0.65rem] text-muted-foreground/80">{t("auth.loggedIn") || "مرحباً بعودتك"}</span>
+              </div>
             </div>
           </div>
         )}
       </div>
-    </header>
+    </motion.header>
   );
 }

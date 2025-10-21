@@ -298,7 +298,7 @@ export default function Customers() {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="apple-transition"
+                  className="ui-transition"
                 >
                   <SlidersHorizontal size={16} className="ml-2" />
                   الفلاتر
@@ -312,7 +312,7 @@ export default function Customers() {
 
             {/* Filters Panel */}
             {showFilters && (
-              <div className="rounded-2xl p-5 space-y-4 border border-slate-200/60 shadow-sm no-layout-shift backdrop-blur-xl bg-white/90 ring-1 ring-emerald-200/40">
+              <div className="rounded-2xl p-5 space-y-4 border border-slate-200/60 shadow-sm ui-stable backdrop-blur-xl bg-white/90 ring-1 ring-emerald-200/40">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium text-slate-800">فلاتر البحث</h3>
                   <Button variant="ghost" size="sm" onClick={resetFilters} className="text-slate-600 hover:text-slate-800">

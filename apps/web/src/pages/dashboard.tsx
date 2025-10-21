@@ -150,48 +150,48 @@ export default function Dashboard() {
 
       <div className="space-y-8 mt-10">
         {/* Dashboard Metrics Cards */}
-        <div className="stats-grid">
-          <div className="metric-card">
+        <div className="ui-stat-grid">
+          <div className="ui-metric-card">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-sky-50 text-sky-700">
                 <Users size={20} />
               </div>
-              <div className="metric-card__value">{metrics?.totalLeads || 0}</div>
+              <div className="ui-metric-card__value">{metrics?.totalLeads || 0}</div>
             </div>
-            <p className="metric-card__label">إجمالي العملاء المحتملين</p>
+            <p className="ui-metric-card__label">إجمالي العملاء المحتملين</p>
             <p className="text-xs font-medium text-emerald-600">+12% من الشهر الماضي</p>
           </div>
           
-          <div className="metric-card">
+          <div className="ui-metric-card">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-50 text-emerald-700">
                 <Building size={20} />
               </div>
-              <div className="metric-card__value">{metrics?.activeProperties || 0}</div>
+              <div className="ui-metric-card__value">{metrics?.activeProperties || 0}</div>
             </div>
-            <p className="metric-card__label">العقارات النشطة</p>
+            <p className="ui-metric-card__label">العقارات النشطة</p>
             <p className="text-xs font-medium text-emerald-600">+8% من الشهر الماضي</p>
           </div>
           
-          <div className="metric-card">
+          <div className="ui-metric-card">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-amber-100 text-amber-600">
                 <Filter size={20} />
               </div>
-              <div className="metric-card__value">{metrics?.dealsInPipeline || 0}</div>
+              <div className="ui-metric-card__value">{metrics?.dealsInPipeline || 0}</div>
             </div>
-            <p className="metric-card__label">الصفقات في المسار</p>
+            <p className="ui-metric-card__label">الصفقات في المسار</p>
             <p className="text-xs font-medium text-rose-600">-2% من الشهر الماضي</p>
           </div>
           
-          <div className="metric-card">
+          <div className="ui-metric-card">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-pink-50 text-pink-700">
                 <Banknote size={20} />
               </div>
-              <div className="metric-card__value">{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
+              <div className="ui-metric-card__value">{formatCurrency(metrics?.monthlyRevenue || 0)}</div>
             </div>
-            <p className="metric-card__label">الإيرادات الشهرية</p>
+            <p className="ui-metric-card__label">الإيرادات الشهرية</p>
             <p className="text-xs font-medium text-emerald-600">+24% من الشهر الماضي</p>
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function Dashboard() {
           {/* Recent Leads & Activities */}
           <div className="lg:col-span-2 space-y-8">
             {/* Deal Pipeline Overview - Moved to Top */}
-            <div className="page-section overflow-hidden">
+            <div className="ui-section overflow-hidden">
               <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
                 <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
                   <Filter className="w-5 h-5 text-slate-500" />
@@ -248,7 +248,7 @@ export default function Dashboard() {
             </div>
 
             {/* Recent Leads */}
-            <div className="page-section overflow-hidden">
+            <div className="ui-section overflow-hidden">
               <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
@@ -302,7 +302,7 @@ export default function Dashboard() {
           {/* Sidebar Widgets */}
           <div className="space-y-6">
             {/* Quick Actions */}
-            <div className="page-section overflow-hidden">
+            <div className="ui-section overflow-hidden">
               <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
                 <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
                   <Plus className="w-5 h-5 text-slate-500" />
@@ -340,7 +340,7 @@ export default function Dashboard() {
             </div>
 
             {/* Today's Tasks */}
-            <div className="page-section overflow-hidden">
+            <div className="ui-section overflow-hidden">
               <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
                 <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-3 font-display">
                   <Calendar className="w-5 h-5 text-slate-500" />

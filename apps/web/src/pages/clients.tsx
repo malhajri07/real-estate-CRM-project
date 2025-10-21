@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Lead, Activity } from "@shared/types";
+import { cn } from "@/lib/utils";
+import { interactiveCard, subduedText } from "@/lib/design-system";
 
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,93 +71,95 @@ export default function Clients() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">جار تحميل العملاء...</div>
+      <div className="flex flex-1 items-center justify-center">
+        <div className="text-muted-foreground">جار تحميل العملاء...</div>
       </div>
     );
   }
 
   return (
     <>
-      <main className="w-full space-y-6">
-        {/* KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card className="apple-card">
-            <CardContent className="p-4 flex items-center justify-between">
-              <div>
-                <div className="text-sm text-slate-500">إجمالي العملاء</div>
-                <div className="text-2xl font-bold text-slate-900">{total}</div>
+      <main className="space-y-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <Card className={interactiveCard}>
+            <CardContent className="flex items-center justify-between p-5">
+              <div className="space-y-1">
+                <span className={subduedText}>إجمالي العملاء</span>
+                <span className="text-3xl font-semibold text-foreground">{total}</span>
               </div>
-              <UsersIcon className="text-primary" size={20} />
+              <UsersIcon className="h-6 w-6 text-primary" />
             </CardContent>
           </Card>
-          <Card className="apple-card">
-            <CardContent className="p-4 flex items-center justify-between">
-              <div>
-                <div className="text-sm text-slate-500">المؤهلون</div>
-                <div className="text-2xl font-bold text-slate-900">{qualified}</div>
+          <Card className={interactiveCard}>
+            <CardContent className="flex items-center justify-between p-5">
+              <div className="space-y-1">
+                <span className={subduedText}>المؤهلون</span>
+                <span className="text-3xl font-semibold text-foreground">{qualified}</span>
               </div>
-              <ListChecks className="text-primary" size={20} />
+              <ListChecks className="h-6 w-6 text-primary" />
             </CardContent>
           </Card>
-          <Card className="apple-card">
-            <CardContent className="p-4 flex items-center justify-between">
-              <div>
-                <div className="text-sm text-slate-500">المغلقون</div>
-                <div className="text-2xl font-bold text-slate-900">{closed}</div>
+          <Card className={interactiveCard}>
+            <CardContent className="flex items-center justify-between p-5">
+              <div className="space-y-1">
+                <span className={subduedText}>المغلقون</span>
+                <span className="text-3xl font-semibold text-foreground">{closed}</span>
               </div>
-              <CheckCircle2 className="text-primary" size={20} />
+              <CheckCircle2 className="h-6 w-6 text-primary" />
             </CardContent>
           </Card>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Client List */}
           <div className="lg:col-span-1">
-            <Card className="apple-card h-full">
-              <CardHeader className="border-b border-slate-200 sticky top-0 bg-white/80 backdrop-blur z-10">
+            <Card className={cn("h-full", interactiveCard)}>
+              <CardHeader className="sticky top-0 z-10 border-b border-border/50 bg-card/90 backdrop-blur">
                 <div className="flex items-center justify-between">
                   <CardTitle>العملاء ({filteredLeads.length})</CardTitle>
-                  <Button size="sm" className="bg-primary text-white">
+                  <Button size="sm" className="bg-primary text-primary-foreground">
                     <UserPlus className="ml-2" size={16} />
                     إضافة عميل
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="p-0 overflow-y-auto" style={{maxHeight: 'calc(100vh - 260px)'}}>
+              <CardContent className="max-h-[calc(100vh-260px)] overflow-y-auto p-0">
                 {filteredLeads.length === 0 ? (
-                  <div className="text-center py-8 text-slate-500">
+                  <div className="py-8 text-center text-muted-foreground">
                     {searchQuery ? "لا توجد عملاء تطابق بحثك." : "لا توجد عملاء."}
                   </div>
                 ) : (
-                  <div className="divide-y divide-slate-200">
+                  <div className="ui-data-list">
                     {filteredLeads.map((lead) => (
                       <div
                         key={lead.id}
-                        className={`p-4 cursor-pointer transition-colors ${
-                          selectedLeadId === lead.id ? "bg-primary/5 ring-1 ring-primary" : "hover:bg-slate-50"
-                        }`}
+                        className={cn(
+                          "cursor-pointer p-4 transition-colors",
+                          selectedLeadId === lead.id
+                            ? "bg-primary/10 ring-1 ring-primary/50"
+                            : "hover:bg-muted/60"
+                        )}
                         onClick={() => setSelectedLeadId(lead.id)}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium text-slate-900">
+                          <h4 className="font-medium text-foreground">
                             {lead.firstName} {lead.lastName}
                           </h4>
                           <Badge className={getStatusBadgeColor(lead.status)}>
                             {t(`status.${lead.status}`) || lead.status}
                           </Badge>
                         </div>
-                        
-                        <p className="text-sm text-slate-600 mb-1">{lead.email}</p>
+
+                        <p className="mb-1 text-sm text-muted-foreground">{lead.email}</p>
                         {lead.phone && (
-                          <p className="text-sm text-slate-500">{lead.phone}</p>
+                          <p className="text-sm text-muted-foreground/80">{lead.phone}</p>
                         )}
-                        
+
                         <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-muted-foreground/70">
                             {lead.interestType && `${t(`interest.${lead.interestType}`) || lead.interestType} • `}
                             {lead.budgetRange}
                           </span>
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-muted-foreground/70">
                             {new Date(lead.createdAt).toLocaleDateString()}
                           </span>
                         </div>
@@ -170,28 +174,27 @@ export default function Clients() {
           {/* Client Details */}
           <div className="lg:col-span-2">
             {!selectedLead ? (
-              <Card className="apple-card">
-                <CardContent className="flex items-center justify-center h-96">
-                  <div className="text-center text-slate-500">
-                    <MessageCircle size={48} className="mx-auto mb-4 text-slate-300" />
-                    <h3 className="text-lg font-medium mb-2">اختر عميلاً</h3>
+              <Card>
+                <CardContent className="flex h-96 items-center justify-center">
+                  <div className="space-y-2 text-center text-muted-foreground">
+                    <MessageCircle size={48} className="mx-auto text-muted-foreground/40" />
+                    <h3 className="text-lg font-medium text-foreground">اختر عميلاً</h3>
                     <p>اختر عميلاً من القائمة لعرض تفاصيله وتاريخ نشاطه.</p>
                   </div>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-6">
-                {/* Client Header */}
-                <Card className="apple-card">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h2 className="text-2xl font-semibold text-slate-900">
+                <Card>
+                  <CardContent className="space-y-6 p-6">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                      <div className="space-y-1">
+                        <h2 className="text-2xl font-semibold text-foreground">
                           {selectedLead.firstName} {selectedLead.lastName}
                         </h2>
-                        <p className="text-slate-600">{selectedLead.email}</p>
+                        <p className="text-muted-foreground">{selectedLead.email}</p>
                         {selectedLead.phone && (
-                          <p className="text-slate-600">{selectedLead.phone}</p>
+                          <p className="text-muted-foreground">{selectedLead.phone}</p>
                         )}
                       </div>
                       <Badge className={getStatusBadgeColor(selectedLead.status)}>
@@ -199,30 +202,36 @@ export default function Clients() {
                       </Badge>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                      <div>
-                        <span className="text-sm text-slate-500">Lead Source</span>
-                        <p className="font-medium">{selectedLead.leadSource || "Not specified"}</p>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                      <div className="rounded-2xl bg-muted/30 p-4">
+                        <span className="text-sm text-muted-foreground">مصدر العميل</span>
+                        <p className="mt-1 font-medium text-foreground">
+                          {selectedLead.leadSource || "غير محدد"}
+                        </p>
                       </div>
-                      <div>
-                        <span className="text-sm text-slate-500">Interest Type</span>
-                        <p className="font-medium">{selectedLead.interestType || "Not specified"}</p>
+                      <div className="rounded-2xl bg-muted/30 p-4">
+                        <span className="text-sm text-muted-foreground">نوع الاهتمام</span>
+                        <p className="mt-1 font-medium text-foreground">
+                          {selectedLead.interestType || "غير محدد"}
+                        </p>
                       </div>
-                      <div>
-                        <span className="text-sm text-slate-500">Budget Range</span>
-                        <p className="font-medium">{selectedLead.budgetRange || "Not specified"}</p>
+                      <div className="rounded-2xl bg-muted/30 p-4">
+                        <span className="text-sm text-muted-foreground">نطاق الميزانية</span>
+                        <p className="mt-1 font-medium text-foreground">
+                          {selectedLead.budgetRange || "غير محدد"}
+                        </p>
                       </div>
                     </div>
 
                     {selectedLead.notes && (
-                      <div>
-                        <span className="text-sm text-slate-500">Notes</span>
-                        <p className="text-slate-700 mt-1">{selectedLead.notes}</p>
+                      <div className="rounded-2xl border border-border/50 bg-card/60 p-4">
+                        <span className="text-sm text-muted-foreground">ملاحظات</span>
+                        <p className="mt-2 text-sm text-foreground/90">{selectedLead.notes}</p>
                       </div>
                     )}
 
-                    <div className="flex items-center gap-2 mt-4">
-                      <Button size="sm" className="bg-green-600 text-white">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Button size="sm" className="bg-success text-white">
                         <Phone className="ml-2" size={16} />
                         اتصال
                       </Button>
@@ -238,11 +247,10 @@ export default function Clients() {
                   </CardContent>
                 </Card>
 
-                {/* Activity Tabs */}
-                <Card className="apple-card">
+                <Card>
                   <Tabs defaultValue="activities" className="w-full">
-                    <CardHeader className="border-b border-slate-200">
-                      <TabsList className="grid w-full grid-cols-3">
+                    <CardHeader className="border-b border-border/50">
+                      <TabsList className="grid w-full grid-cols-3 bg-muted/40">
                         <TabsTrigger value="activities">الأنشطة</TabsTrigger>
                         <TabsTrigger value="notes">الملاحظات</TabsTrigger>
                         <TabsTrigger value="timeline">الخط الزمني</TabsTrigger>
@@ -250,39 +258,39 @@ export default function Clients() {
                     </CardHeader>
 
                     <TabsContent value="activities" className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold">سجل الأنشطة</h3>
-                        <Button size="sm" className="bg-primary text-white">
+                      <div className="mb-4 flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-foreground">سجل الأنشطة</h3>
+                        <Button size="sm" className="bg-primary text-primary-foreground">
                           <Plus className="ml-2" size={16} />
                           إضافة نشاط
                         </Button>
                       </div>
 
                       {!activities || activities.length === 0 ? (
-                        <div className="text-center py-8 text-slate-500">لا توجد أنشطة مسجلة لهذا العميل.</div>
+                        <div className="py-8 text-center text-muted-foreground">لا توجد أنشطة مسجلة لهذا العميل.</div>
                       ) : (
                         <div className="space-y-4">
                           {activities.map((activity) => (
-                            <div key={activity.id} className="flex items-start space-x-3 p-3 bg-slate-50 rounded-lg">
+                            <div key={activity.id} className="flex items-start gap-3 rounded-2xl border border-border/40 bg-card/70 p-4 backdrop-blur">
                               <div className="flex-shrink-0 mt-1">
                                 {getActivityIcon(activity.activityType)}
                               </div>
                               <div className="flex-1">
-                                <div className="flex items-center space-x-2 rtl:space-x-reverse mb-1">
-                                  <h4 className="font-medium text-slate-900">{activity.title}</h4>
+                                <div className="mb-1 flex items-center gap-2 rtl:space-x-reverse">
+                                  <h4 className="font-medium text-foreground">{activity.title}</h4>
                                   <Badge variant="outline" className="text-xs">
                                     {activity.activityType}
                                   </Badge>
                                   {activity.completed && (
-                                    <Badge className="bg-green-100 text-green-800 text-xs">
+                                    <Badge className="bg-success/10 text-success text-xs">
                                       مكتمل
                                     </Badge>
                                   )}
                                 </div>
                                 {activity.description && (
-                                  <p className="text-sm text-slate-600 mb-2">{activity.description}</p>
+                                  <p className="mb-2 text-sm text-muted-foreground">{activity.description}</p>
                                 )}
-                                <div className="flex items-center space-x-4 rtl:space-x-reverse text-xs text-slate-500">
+                                <div className="flex items-center gap-4 text-xs text-muted-foreground/70 rtl:space-x-reverse">
                                   {activity.scheduledDate && (
                                     <span>
                                       مجدول: {new Date(activity.scheduledDate).toLocaleString('ar-SA')}
@@ -300,11 +308,11 @@ export default function Clients() {
                     </TabsContent>
 
                     <TabsContent value="notes" className="p-6">
-                      <div className="text-center py-8 text-slate-500">ميزة الملاحظات ستتوفر قريبًا…</div>
+                      <div className="py-8 text-center text-muted-foreground">ميزة الملاحظات ستتوفر قريبًا…</div>
                     </TabsContent>
 
                     <TabsContent value="timeline" className="p-6">
-                      <div className="text-center py-8 text-slate-500">عرض الخط الزمني قريبًا…</div>
+                      <div className="py-8 text-center text-muted-foreground">عرض الخط الزمني قريبًا…</div>
                     </TabsContent>
                   </Tabs>
                 </Card>

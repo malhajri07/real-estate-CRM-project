@@ -283,7 +283,7 @@ export default function Properties() {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="apple-transition"
+                  className="ui-transition"
                 >
                   <SlidersHorizontal size={16} className="ml-2" />
                   الفلاتر
@@ -297,7 +297,7 @@ export default function Properties() {
 
             {/* Filters Panel */}
             {showFilters && (
-              <div className="rounded-2xl p-5 space-y-4 border border-slate-200/60 shadow-sm no-layout-shift backdrop-blur-xl bg-white/90 ring-1 ring-emerald-200/40">
+              <div className="rounded-2xl p-5 space-y-4 border border-slate-200/60 shadow-sm ui-stable backdrop-blur-xl bg-white/90 ring-1 ring-emerald-200/40">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-slate-800 text-lg">فلاتر البحث</h3>
                   <Button variant="ghost" size="sm" onClick={resetFilters} className="text-slate-600 hover:text-slate-800">
@@ -526,7 +526,7 @@ export default function Properties() {
                     {displayProperties.map((property) => (
                       <Card 
                         key={property.id} 
-                        className="apple-card overflow-hidden apple-transition hover:scale-[1.02] cursor-pointer"
+                        className="ui-surface overflow-hidden ui-transition hover:scale-[1.02] cursor-pointer"
                         onClick={() => setLocation(`/home/platform/properties/${property.id}`)}
                       >
                         {property.photoUrls && property.photoUrls.length > 0 ? (

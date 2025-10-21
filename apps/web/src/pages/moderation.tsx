@@ -28,7 +28,7 @@ export default function ModerationQueuePage() {
       {!isLoading && items.length === 0 && <div className="text-gray-600">لا توجد إعلانات للمراجعة</div>}
       <div className="space-y-3">
         {items.map((p) => (
-          <div key={p.id} className="apple-card p-5 flex justify-between items-center">
+          <div key={p.id} className="ui-surface p-5 flex justify-between items-center">
             <div>
               <div className="font-semibold">{p.title}</div>
               <div className="text-sm text-gray-600">{p.address}، {p.city} — {p.propertyType}</div>
