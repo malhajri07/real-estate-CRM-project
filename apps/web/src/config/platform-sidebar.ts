@@ -40,7 +40,7 @@ export type PlatformSidebarGroupConfig = {
 export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
   {
     id: "dashboard",
-    label: "إدارة المبيعات",
+    labelKey: "sidebar.salesManagement",
     icon: LayoutDashboard,
     children: [
       {
@@ -52,7 +52,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
       },
       {
         id: "dashboard-leads",
-        label: "العملاء المحتملون",
+        labelKey: "nav.leads",
         path: "/home/platform/leads",
         icon: Users,
         matchPaths: ["/leads"]
@@ -82,12 +82,12 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
   },
   {
     id: "crm",
-    label: "إدارة العملاء",
+    labelKey: "sidebar.customerManagement",
     icon: Users,
     children: [
       {
         id: "crm-customers",
-        label: "سجل العملاء",
+        labelKey: "nav.customers",
         path: "/home/platform/customers",
         icon: Users,
         matchPaths: ["/customers"]
@@ -101,14 +101,14 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
       },
       {
         id: "crm-customer-requests",
-        label: "طلبات العملاء",
+        labelKey: "nav.customer_requests",
         path: "/home/platform/customer-requests",
         icon: Inbox,
         matchPaths: ["/customer-requests"]
       },
       {
         id: "crm-admin-requests",
-        label: "الطلبات الداخلية",
+        labelKey: "nav.admin_requests",
         path: "/home/platform/admin-requests",
         icon: ClipboardList,
         matchPaths: ["/admin/requests"]
@@ -117,7 +117,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
   },
   {
     id: "marketplace",
-    label: "العقارات والسوق",
+    labelKey: "sidebar.marketplace",
     icon: Building,
     children: [
       {
@@ -138,7 +138,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
       },
       {
         id: "marketplace-moderation",
-        label: "مراجعة القوائم",
+        labelKey: "nav.moderation",
         path: "/home/platform/moderation",
         icon: ShieldCheck,
         matchPaths: ["/moderation"]
@@ -152,7 +152,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
       },
       {
         id: "marketplace-saved-searches",
-        label: "عمليات البحث المحفوظة",
+        labelKey: "nav.saved_searches",
         path: "/home/platform/saved-searches",
         icon: Bookmark,
         matchPaths: ["/saved-searches"]
@@ -175,19 +175,19 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
   },
   {
     id: "marketing",
-    label: "التسويق والمحتوى",
+    labelKey: "sidebar.marketingContent",
     icon: Megaphone,
     children: [
       {
         id: "marketing-requests",
-        label: "طلبات التسويق",
+        labelKey: "nav.marketing_requests",
         path: "/home/platform/marketing-requests",
         icon: Megaphone,
         matchPaths: ["/marketing-requests"]
       },
       {
         id: "marketing-cms",
-        label: "استوديو المحتوى",
+        labelKey: "nav.cms",
         path: "/home/platform/cms",
         icon: FileText,
         matchPaths: ["/cms", "/cms-admin"]
@@ -196,7 +196,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
   },
   {
     id: "settings",
-    label: "الإعدادات والدعم",
+    labelKey: "sidebar.settingsSupport",
     icon: Settings,
     children: [
       {

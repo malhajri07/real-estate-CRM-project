@@ -1,6 +1,7 @@
 import { PropsWithChildren, useEffect, useState, type ReactNode } from "react";
 import Header from "@/components/layout/header";
 import Sidebar from "@/components/layout/sidebar";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { pageContainer } from "@/lib/design-system";
 
@@ -18,6 +19,8 @@ export default function PlatformShell({ children, onLogout, title, searchPlaceho
     }
     return window.matchMedia("(min-width: 1024px)").matches;
   });
+  const { dir } = useLanguage();
+  const isRTL = dir === "rtl";
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
@@ -37,7 +40,10 @@ export default function PlatformShell({ children, onLogout, title, searchPlaceho
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
-    <div className="relative flex min-h-screen bg-gradient-to-br from-brand-25 via-background to-white/90 dark:from-[#0b1726] dark:via-background dark:to-[#04070c]">
+    <div
+      className="relative flex min-h-screen bg-background text-foreground transition-colors"
+      dir={dir}
+    >
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden"
@@ -48,8 +54,9 @@ export default function PlatformShell({ children, onLogout, title, searchPlaceho
 
       <aside
         className={cn(
-          "fixed inset-y-0 right-0 z-50 w-72 max-w-[18rem] transform border-l border-border/50 bg-sidebar/95 shadow-floating backdrop-blur-xl transition-transform duration-300 ease-in-out dark:bg-sidebar/80",
-          sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
+          "fixed inset-y-0 z-50 w-72 max-w-[18rem] transform border-border/50 bg-sidebar/95 shadow-floating backdrop-blur-xl transition-transform duration-300 ease-in-out dark:bg-sidebar/80",
+          isRTL ? "right-0 border-l" : "left-0 border-r",
+          sidebarOpen ? "translate-x-0" : isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
         <Sidebar onLogout={onLogout} />
@@ -58,7 +65,13 @@ export default function PlatformShell({ children, onLogout, title, searchPlaceho
       <div
         className={cn(
           "flex min-h-screen w-full flex-col transition-[padding] duration-300 ease-in-out",
-          sidebarOpen ? "lg:pr-72" : "lg:pr-0"
+          isRTL
+            ? sidebarOpen
+              ? "lg:pr-72"
+              : "lg:pr-0"
+            : sidebarOpen
+              ? "lg:pl-72"
+              : "lg:pl-0"
         )}
       >
         <Header

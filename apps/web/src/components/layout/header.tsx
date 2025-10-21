@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Bell, Menu, MoonStar, Search, SunMedium, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, type SupportedLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
@@ -36,7 +36,7 @@ export default function Header({
   isSidebarOpen,
 }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { dir, t } = useLanguage();
+  const { dir, t, language, setLanguage } = useLanguage();
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
@@ -73,7 +73,7 @@ export default function Header({
             variant="ghost"
             size="icon"
             onClick={onToggleSidebar}
-            aria-label={isSidebarOpen ? "إخفاء القائمة" : "إظهار القائمة"}
+            aria-label={isSidebarOpen ? t("header.toggleSidebarClose") : t("header.toggleSidebarOpen")}
             className="inline-flex rounded-full border border-border/60 bg-card/70 text-muted-foreground shadow-outline transition hover:bg-card/90 focus-visible:ring-primary/40"
           >
             <Menu className="h-4 w-4" />
@@ -114,11 +114,41 @@ export default function Header({
 
         {showActions && (
           <div className="flex items-center gap-2">
+            <div
+              className="flex items-center gap-1 rounded-full border border-border/60 bg-card/70 p-0.5 shadow-outline"
+              role="group"
+              aria-label={t("header.languageToggle")}
+            >
+              {(["ar", "en"] as SupportedLanguage[]).map((option) => {
+                const isActive = language === option;
+                const label = option === "ar" ? t("header.language.ar") : t("header.language.en");
+                const shortLabel = option === "ar" ? "ع" : "En";
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setLanguage(option)}
+                    className={cn(
+                      "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition",
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-floating"
+                        : "text-muted-foreground hover:bg-sidebar-muted/80 hover:text-foreground"
+                    )}
+                    aria-pressed={isActive}
+                    aria-label={label}
+                  >
+                    <span>{shortLabel}</span>
+                    <span className="hidden sm:inline">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              aria-label={theme === "dark" ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن"}
+              aria-label={theme === "dark" ? t("header.lightMode") : t("header.darkMode")}
               className="relative rounded-full border border-border/60 bg-card/70 text-muted-foreground shadow-outline transition hover:bg-card/90 focus-visible:ring-primary/40"
             >
               <SunMedium
@@ -139,6 +169,7 @@ export default function Header({
               variant="ghost"
               size="icon"
               className="relative rounded-full border border-border/60 bg-card/70 text-muted-foreground shadow-outline transition hover:bg-card/90 focus-visible:ring-primary/40"
+              aria-label={t("header.notifications")}
             >
               <Bell className="h-4 w-4" />
               {notificationCount > 0 && (
@@ -152,7 +183,7 @@ export default function Header({
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <User className="h-4 w-4" />
               </div>
-              <div className="hidden flex-col text-right sm:flex">
+              <div className={cn("hidden flex-col sm:flex", dir === "rtl" ? "text-right" : "text-left")}>
                 <span className="text-sm font-medium text-foreground">{username}</span>
                 <span className="text-[0.65rem] text-muted-foreground/80">{t("auth.loggedIn") || "مرحباً بعودتك"}</span>
               </div>

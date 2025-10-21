@@ -49,12 +49,15 @@ export default function Sidebar({ onLogout }: SidebarProps) {
   };
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto bg-sidebar/95 bg-subtle-grid bg-[length:36px_36px] pb-8 pt-6 text-sidebar-foreground">
+    <div
+      className="flex h-full flex-col overflow-y-auto bg-sidebar/95 bg-subtle-grid bg-[length:36px_36px] pb-8 pt-6 text-sidebar-foreground"
+      dir={dir}
+    >
       <div className="px-6">
         <div className="flex items-center justify-center rounded-2xl border border-border/40 bg-card/80 py-6 shadow-outline backdrop-blur">
           <img
             src={agarkomLogo}
-            alt="عقاركم"
+            alt={t("sidebar.brandAlt")}
             width={164}
             height={92}
             loading="lazy"
@@ -64,7 +67,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         </div>
       </div>
 
-      <nav className="mt-6 flex-1 space-y-6 px-4">
+      <nav className="mt-6 flex-1 space-y-6 px-4" aria-label={t("nav.system_title")}>
         <ul className="space-y-4">
           {platformSidebarConfig.map((group) => {
             const GroupIcon = group.icon;
