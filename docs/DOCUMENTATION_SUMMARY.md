@@ -6,6 +6,7 @@
 
 ## Operations & Deployment
 - **Production Runbook**: Build both frontend and backend with `npm run build`, serve `dist/index.js` with production environment variables (`NODE_ENV`, `PORT`, `JWT_SECRET`, `PUBLIC_BASE_URL`), and optionally manage the process via PM2. Core endpoints live under `/api/*`, and troubleshooting focuses on missing secrets, build artifacts, and proxy alignment.
+- **Local Database Schema**: All Prisma connections now target the `real_estate_crm` PostgreSQL schema on the `real_estate_crm` database. Use `postgresql://localhost:5432/real_estate_crm?schema=real_estate_crm` (or credentialed variant) for `DATABASE_URL`, and run `scripts/setup-db.sh` to auto-create the schema when using Docker.
 - **GCP Deployment Guide**: Recommends Cloud Run for app services, Cloud SQL (PostgreSQL) for data, BigQuery + dbt for analytics, and Cloud Storage for assets. Provides gcloud steps for instance provisioning, enabling APIs, deploying builds, running Prisma migrations, and outlines Dockerfile/Cloud Build configurations with monthly cost estimates ($40–105) and security hardening tips.
 
 ## Data & Analytics
@@ -21,4 +22,5 @@
 
 ## Implementation Snapshot
 - **RBAC Implementation Summary**: Confirms delivery of RBAC/ABAC stack with JWT auth, bcrypt hashing, impersonation, rate limiting, RLS-backed Prisma schema, buyer claim workflow (72-hour exclusivity, 5 active claims per agent, 3 claims per buyer per day), seeded test accounts, API endpoints for auth and buyer pool, UI components for dashboards and buyer search, and layered security controls (masking, encryption, audits).
+- **Audit Logging Reliability**: Buyer pool claim/release endpoints stringify audit payloads before persistence so audit trail writes align with the Prisma schema and complete without runtime type errors.
 

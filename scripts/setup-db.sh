@@ -18,14 +18,14 @@ if command -v docker &> /dev/null; then
     
     # Start PostgreSQL container
     docker run --name postgres-rbac \
-        -e POSTGRES_DB=realestate_rbac \
+        -e POSTGRES_DB=real_estate_crm \
         -e POSTGRES_USER=postgres \
         -e POSTGRES_PASSWORD=password \
         -p 5432:5432 \
         -d postgres:15
-    
+
     echo "✅ PostgreSQL container started"
-    echo "📊 Database: realestate_rbac"
+    echo "📊 Database: real_estate_crm"
     echo "👤 User: postgres"
     echo "🔑 Password: password"
     echo "🌐 Port: 5432"
@@ -35,12 +35,20 @@ if command -v docker &> /dev/null; then
     sleep 10
     
     # Set DATABASE_URL
-    export DATABASE_URL="postgresql://postgres:password@localhost:5432/realestate_rbac"
-    
+    export DATABASE_URL="postgresql://postgres:password@localhost:5432/real_estate_crm?schema=real_estate_crm"
+
+    # Ensure the logical schema exists before migrations run
+    PSQL_URL="${DATABASE_URL%%\?schema=*}"
+    psql "$PSQL_URL" -c "CREATE SCHEMA IF NOT EXISTS real_estate_crm;" >/dev/null
+
 else
     echo "⚠️  Docker not found. Please ensure PostgreSQL is running locally."
     echo "Set DATABASE_URL environment variable to your PostgreSQL connection string."
-    echo "Example: postgresql://username:password@localhost:5432/realestate_rbac"
+    echo "Example: postgresql://username:password@localhost:5432/real_estate_crm?schema=real_estate_crm"
+fi
+
+if [ -z "${PSQL_URL:-}" ] && [ -n "${DATABASE_URL:-}" ]; then
+    PSQL_URL="${DATABASE_URL%%\?schema=*}"
 fi
 
 # Generate Prisma client
@@ -56,7 +64,11 @@ echo "🔒 Applying Row Level Security policies..."
 for policy_file in data/schema/db/policies/*.sql; do
     if [ -f "$policy_file" ]; then
         echo "Applying $(basename "$policy_file")..."
-        psql $DATABASE_URL -f "$policy_file"
+        if [ -n "${PSQL_URL:-}" ]; then
+            psql "$PSQL_URL" -f "$policy_file"
+        else
+            echo "Skipping policy application because PSQL_URL is not set."
+        fi
     fi
 done
 
