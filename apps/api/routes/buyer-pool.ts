@@ -252,7 +252,7 @@ router.post('/:id/claim', authenticateToken, async (req, res) => {
         action: 'CLAIM',
         entity: 'BUYER_REQUEST',
         entityId: buyerRequestId,
-        afterJson: { claimId: claim.id, leadId: lead.id }
+        afterJson: JSON.stringify({ claimId: claim.id, leadId: lead.id })
       }
     });
 
@@ -328,8 +328,8 @@ router.post('/:id/release', authenticateToken, async (req, res) => {
         action: 'RELEASE',
         entity: 'CLAIM',
         entityId: claim.id,
-        beforeJson: { status: ClaimStatus.ACTIVE },
-        afterJson: { status: ClaimStatus.RELEASED }
+        beforeJson: JSON.stringify({ status: ClaimStatus.ACTIVE }),
+        afterJson: JSON.stringify({ status: ClaimStatus.RELEASED })
       }
     });
 
