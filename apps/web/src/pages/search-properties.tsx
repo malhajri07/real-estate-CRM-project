@@ -49,6 +49,7 @@ import {
   Bath,
   Eye,
   MapPin,
+  RefreshCcw,
   SlidersHorizontal,
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
@@ -428,6 +429,8 @@ export default function SearchProperties() {
   const activeRegionIdRef = useRef<number | null>(null);
   const activeCityIdRef = useRef<number | null>(null);
   const activeDistrictIdRef = useRef<string | null>(null);
+  const mapHasUserInteractionRef = useRef(false);
+  const manualInteractionHandlerRef = useRef<(() => void) | null>(null);
   const [, setLocation] = useLocation();
 
   // UI state buckets: search/filter inputs, favorites toggles, active overlay bookkeeping, and simple version counters.
@@ -461,9 +464,16 @@ export default function SearchProperties() {
   const [districtGeometryVersion, setDistrictGeometryVersion] = useState(0);
   const [mapReadyVersion, setMapReadyVersion] = useState(0);
 
+  useEffect(() => {
+    if (viewMode === "map") {
+      mapHasUserInteractionRef.current = false;
+    }
+  }, [viewMode]);
+
   // Event helpers keep Select components tidy while synchronising both the id and display label.
   const handleRegionSelect = useCallback(
     (value: string) => {
+      mapHasUserInteractionRef.current = false;
       if (value === "all") {
         setSelectedRegionId("all");
         setSelectedCityId("all");
@@ -484,6 +494,7 @@ export default function SearchProperties() {
 
   const handleCitySelect = useCallback(
     (value: string) => {
+      mapHasUserInteractionRef.current = false;
       if (value === "all") {
         setSelectedCityId("all");
         setSelectedDistrictId("all");
@@ -498,6 +509,7 @@ export default function SearchProperties() {
   );
 
   const handleDistrictSelect = useCallback((value: string) => {
+    mapHasUserInteractionRef.current = false;
     setSelectedDistrictId(value);
   }, []);
 
@@ -751,6 +763,75 @@ export default function SearchProperties() {
       if (!map || !L || !layer) return;
 
       layer.clearLayers();
+      if (!cityId) {
+        updateLayerVisibility();
+        return;
+      }
+
+      const city = cityByIdRef.current.get(cityId);
+      if (!city) {
+        updateLayerVisibility();
+        return;
+      }
+
+      if (city.hull && city.hull.length >= 3) {
+        const isActiveCity = activeCityIdRef.current === cityId;
+        const baseStyle = {
+          ...mapCityStyle,
+          fillOpacity: isActiveCity ? 0.18 : 0.12,
+          weight: isActiveCity ? 2.8 : mapCityStyle.weight,
+        };
+
+        const polygon = L.polygon(city.hull, baseStyle);
+        polygon.bindTooltip(city.nameAr || city.nameEn, {
+          direction: "center",
+          className:
+            "map-city-label border-none bg-white/75 px-2 py-1 text-[11px] font-medium text-sky-700 shadow-sm backdrop-blur",
+          permanent: false,
+          sticky: false,
+        });
+
+        polygon.on("mouseover", () => {
+          polygon.setStyle({
+            ...baseStyle,
+            weight: 3.6,
+            opacity: 0.9,
+            fillOpacity: 0.22,
+          });
+          polygon.bringToFront();
+        });
+
+        polygon.on("mouseout", () => {
+          const isStillActive = activeCityIdRef.current === cityId;
+          polygon.setStyle({
+            ...mapCityStyle,
+            fillOpacity: isStillActive ? 0.18 : 0.12,
+            weight: isStillActive ? 2.8 : mapCityStyle.weight,
+          });
+        });
+
+        layer.addLayer(polygon);
+      } else if (city.center) {
+        const circle = L.circle(city.center, {
+          color: mapCityStyle.color,
+          weight: 1.6,
+          opacity: 0.8,
+          fillColor: mapCityStyle.color,
+          fillOpacity: 0.15,
+          radius: 4000,
+        });
+
+        circle.bindTooltip(city.nameAr || city.nameEn, {
+          direction: "center",
+          className:
+            "map-city-label border-none bg-white/75 px-2 py-1 text-[11px] font-medium text-sky-700 shadow-sm backdrop-blur",
+          permanent: false,
+          sticky: false,
+        });
+
+        layer.addLayer(circle);
+      }
+
       updateLayerVisibility();
     },
     [updateLayerVisibility]
@@ -1240,6 +1321,40 @@ export default function SearchProperties() {
     maxArea,
   ]);
 
+  const recenterMap = useCallback(
+    (options?: { force?: boolean }) => {
+      const map = mapInstanceRef.current;
+      const L = (window as any)?.L;
+      if (!map || !L) return;
+
+      const points: LatLngTuple[] = [];
+      filteredProperties.forEach((property) => {
+        if (property.latitude !== null && property.longitude !== null) {
+          points.push([property.latitude, property.longitude]);
+        }
+      });
+
+      const force = options?.force ?? false;
+      if (mapHasUserInteractionRef.current && !force && points.length > 0) {
+        return;
+      }
+
+      if (points.length > 0) {
+        const bounds = L.latLngBounds(points);
+        map.fitBounds(bounds, { padding: [40, 40] });
+      } else {
+        map.setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
+      }
+    },
+    [filteredProperties]
+  );
+
+  const handleResetMapView = useCallback(() => {
+    if (viewMode !== "map") return;
+    mapHasUserInteractionRef.current = false;
+    recenterMap({ force: true });
+  }, [recenterMap, viewMode]);
+
   const toggleFavorite = (propertyId: string) => {
     setFavoriteIds((prev) =>
       prev.includes(propertyId)
@@ -1259,6 +1374,7 @@ export default function SearchProperties() {
   };
 
   const resetFilters = () => {
+    mapHasUserInteractionRef.current = false;
     setSelectedRegionId("all");
     setSelectedCityId("all");
     setSelectedDistrictId("all");
@@ -1301,6 +1417,7 @@ export default function SearchProperties() {
     if (viewMode !== "map" || mapLoadFailed) return;
 
     let cancelled = false;
+    mapHasUserInteractionRef.current = false;
 
     const initMap = async () => {
       try {
@@ -1363,6 +1480,22 @@ export default function SearchProperties() {
           setMapReadyVersion((prev) => prev + 1);
           updateLayerVisibility();
         }
+
+        const map = mapInstanceRef.current;
+        if (map) {
+          const markManualInteraction = () => {
+            mapHasUserInteractionRef.current = true;
+          };
+
+          if (manualInteractionHandlerRef.current) {
+            map.off("dragstart", manualInteractionHandlerRef.current);
+            map.off("zoomstart", manualInteractionHandlerRef.current);
+          }
+
+          manualInteractionHandlerRef.current = markManualInteraction;
+          map.on("dragstart", markManualInteraction);
+          map.on("zoomstart", markManualInteraction);
+        }
       } catch (error) {
         console.error("Error loading Leaflet:", error);
         setMapLoadFailed(true);
@@ -1375,7 +1508,12 @@ export default function SearchProperties() {
     return () => {
       cancelled = true;
     };
-  }, [viewMode, mapLoadFailed, updateLayerVisibility, userLocation]);
+  }, [
+    viewMode,
+    mapLoadFailed,
+    updateLayerVisibility,
+    userLocation,
+  ]);
 
   useEffect(() => {
     if (viewMode !== "map") return;
@@ -1478,9 +1616,15 @@ export default function SearchProperties() {
   useEffect(() => {
     if (viewMode === "map") return;
     if (mapInstanceRef.current) {
+      if (manualInteractionHandlerRef.current) {
+        mapInstanceRef.current.off("dragstart", manualInteractionHandlerRef.current);
+        mapInstanceRef.current.off("zoomstart", manualInteractionHandlerRef.current);
+      }
       mapInstanceRef.current.remove();
       mapInstanceRef.current = null;
     }
+    manualInteractionHandlerRef.current = null;
+    mapHasUserInteractionRef.current = false;
     markersRef.current = [];
     if (userLocationMarkerRef.current) {
       userLocationMarkerRef.current.remove();
@@ -1520,8 +1664,6 @@ export default function SearchProperties() {
       map.removeLayer(marker);
     });
     markersRef.current = [];
-
-    const points: [number, number][] = [];
 
     const closeAllTooltips = () => {
       markersRef.current.forEach((marker) => marker.closeTooltip());
@@ -1587,20 +1729,14 @@ export default function SearchProperties() {
       marker.on("click", () => marker.openTooltip());
 
       markersRef.current.push(marker);
-      points.push([property.latitude, property.longitude]);
     });
 
-    if (points.length > 0) {
-      const bounds = L.latLngBounds(points);
-      map.fitBounds(bounds, { padding: [40, 40] });
-    } else {
-      map.setView([24.7136, 46.6753], 6);
-    }
+    recenterMap();
 
     return () => {
       map.off("click", closeAllTooltips);
     };
-  }, [filteredProperties, mapReadyVersion, viewMode]);
+  }, [filteredProperties, mapReadyVersion, recenterMap, viewMode]);
 
   // Ensure the region/city cache stays populated and the active region reflects the current viewport.
   useEffect(() => {
@@ -1632,32 +1768,35 @@ export default function SearchProperties() {
     if (viewMode !== "map") return;
 
     if (activeCityId === null) {
+      renderCityHull(null);
       renderDistrictPolygons(null);
       return;
     }
 
     const regionId = activeRegionIdRef.current;
     if (regionId === null) {
+      renderCityHull(null);
       renderDistrictPolygons(null);
       return;
     }
 
     let cancelled = false;
 
-    const paintDistricts = () => {
+    const paintCityAndDistricts = () => {
       if (!cancelled) {
+        renderCityHull(activeCityId);
         renderDistrictPolygons(activeCityId);
       }
     };
 
     if (districtCacheRef.current.has(activeCityId)) {
-      paintDistricts();
+      paintCityAndDistricts();
     } else {
       ensureDistrictsForCity(activeCityId, regionId)
         .catch((error) => {
           console.error("Failed to ensure districts for city", activeCityId, error);
         })
-        .finally(paintDistricts);
+        .finally(paintCityAndDistricts);
     }
 
     return () => {
@@ -1666,9 +1805,11 @@ export default function SearchProperties() {
   }, [
     activeCityId,
     ensureDistrictsForCity,
+    renderCityHull,
     renderDistrictPolygons,
     viewMode,
     districtGeometryVersion,
+    cityGeometryVersion,
   ]);
 
   // Center on the detected user location and render a marker when available.
@@ -1708,6 +1849,10 @@ export default function SearchProperties() {
   useEffect(() => {
     return () => {
       if (mapInstanceRef.current) {
+        if (manualInteractionHandlerRef.current) {
+          mapInstanceRef.current.off("dragstart", manualInteractionHandlerRef.current);
+          mapInstanceRef.current.off("zoomstart", manualInteractionHandlerRef.current);
+        }
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
@@ -1715,6 +1860,8 @@ export default function SearchProperties() {
         userLocationMarkerRef.current.remove();
         userLocationMarkerRef.current = null;
       }
+      manualInteractionHandlerRef.current = null;
+      mapHasUserInteractionRef.current = false;
     };
   }, []);
 
@@ -1801,6 +1948,16 @@ export default function SearchProperties() {
       </Button>
       <Button
         type="button"
+        variant="outline"
+        size="icon"
+        onClick={handleResetMapView}
+        disabled={viewMode !== "map"}
+        aria-label="إعادة ضبط عرض الخريطة"
+      >
+        <RefreshCcw className="h-4 w-4" />
+      </Button>
+      <Button
+        type="button"
         variant={showFavoritesOnly ? "default" : "outline"}
         size="icon"
         onClick={() => setShowFavoritesOnly((prev) => !prev)}
@@ -1812,9 +1969,9 @@ export default function SearchProperties() {
     </div>
   );
 
-const filtersSidebar = (
-  <aside className="w-full lg:w-80 shrink-0">
-    <Card className="lg:sticky lg:top-24 shadow-sm">
+  const filtersSidebar = (
+    <aside className="w-full lg:w-80 shrink-0">
+      <Card className="lg:sticky lg:top-24 shadow-sm">
         <CardContent className="space-y-6 p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-foreground">فلاتر البحث</h2>
