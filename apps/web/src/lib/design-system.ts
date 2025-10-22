@@ -1,7 +1,7 @@
 export const pageContainer = "mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-8";
-export const surfaceCard = "rounded-3xl border border-border/60 bg-card/80 shadow-elevated backdrop-blur-xl transition-all duration-300 dark:bg-card/40";
+export const surfaceCard = "rounded-3xl border border-border/60 bg-card/80 shadow-elevated backdrop-blur-xl transition-all duration-300";
 export const interactiveCard = "transition-transform duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-floating";
-export const sectionShell = "rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl overflow-hidden dark:bg-card/40";
+export const sectionShell = "rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl overflow-hidden";
 export const sectionHeader = "flex flex-col gap-3 border-b border-border/50 px-6 py-5 sm:flex-row sm:items-center sm:justify-between";
 export const sectionBody = "px-6 py-6 space-y-5";
 export const statGrid = "grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4";

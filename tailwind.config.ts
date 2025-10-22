@@ -1,15 +1,14 @@
 import type { Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
 
-const fontSans = ["var(--font-sans)"];
-const fontSerif = ["var(--font-serif)"];
-const fontMono = ["var(--font-mono)"];
-const fontDisplay = ["var(--font-display)"];
-const fontArabic = ["var(--font-arabic)"];
-const fontPassword = ["var(--font-password)"];
+const fontSans = ["Inter", "Noto Kufi Arabic", "system-ui", "sans-serif"];
+const fontSerif = ["IBM Plex Serif", "serif"];
+const fontMono = ["JetBrains Mono", "monospace"];
+const fontDisplay = ["Plus Jakarta Sans", "Noto Kufi Arabic", "sans-serif"];
+const fontArabic = ["Noto Kufi Arabic", "Inter", "sans-serif"];
+const fontPassword = ["JetBrains Mono", "monospace"];
 
 const config: Config = {
-  darkMode: ["class"],
   content: ["./apps/web/index.html", "./apps/web/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     container: {
@@ -26,57 +25,57 @@ const config: Config = {
     },
     extend: {
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "1rem",
+        md: "0.875rem",
+        sm: "0.75rem",
         xl: "1rem",
         "2xl": "1.25rem",
       },
       colors: {
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        background: "hsl(215 45% 97%)",
+        foreground: "hsl(220 50% 12%)",
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "hsl(0 0% 100%)",
+          foreground: "hsl(220 50% 14%)",
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "hsl(0 0% 100%)",
+          foreground: "hsl(220 50% 14%)",
         },
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "hsl(164 72% 40%)",
+          foreground: "hsl(155 86% 95%)",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "hsl(222 62% 45%)",
+          foreground: "hsl(210 40% 98%)",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "hsl(210 38% 96%)",
+          foreground: "hsl(215 18% 38%)",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "hsl(210 40% 96%)",
+          foreground: "hsl(220 50% 18%)",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "hsl(0 72% 51%)",
+          foreground: "hsl(0 0% 98%)",
         },
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
+        border: "hsl(214 32% 88%)",
+        input: "hsl(214 32% 92%)",
+        ring: "hsl(164 72% 40%)",
         sidebar: {
-          DEFAULT: "hsl(var(--sidebar))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          muted: "hsl(var(--sidebar-muted))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          DEFAULT: "hsl(210 28% 98%)",
+          foreground: "hsl(222 47% 16%)",
+          muted: "hsl(214 30% 92%)",
+          accent: "hsl(164 72% 40%)",
+          "accent-foreground": "hsl(155 86% 95%)",
         },
-        success: "hsl(var(--success))",
-        warning: "hsl(var(--warning))",
-        error: "hsl(var(--error))",
-        info: "hsl(var(--info))",
+        success: "hsl(160 84% 39%)",
+        warning: "hsl(35 92% 62%)",
+        error: "hsl(0 72% 51%)",
+        info: "hsl(208 92% 54%)",
         brand: {
           25: "#f7f9ff",
           50: "#f5f8ff",
@@ -155,13 +154,13 @@ const config: Config = {
 
       addComponents({
         ".ui-surface": {
-          "@apply rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl transition-colors duration-300 dark:bg-card/40": {},
+          "@apply rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl transition-colors duration-300": {},
         },
         ".ui-surface-interactive": {
-          "@apply rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl transition-transform duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-floating dark:bg-card/40": {},
+          "@apply rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl transition-transform duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-floating": {},
         },
         ".ui-section": {
-          "@apply rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl overflow-hidden dark:bg-card/40": {},
+          "@apply rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl overflow-hidden": {},
         },
         ".ui-section__header": {
           "@apply flex flex-col gap-3 border-b border-border/50 px-6 py-5 sm:flex-row sm:items-center sm:justify-between": {},
