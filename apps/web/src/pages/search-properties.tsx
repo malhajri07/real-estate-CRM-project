@@ -7,9 +7,9 @@ import {
   type ReactNode,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
-import type { LatLngTuple } from "leaflet";
-import { LatLngBounds } from "leaflet";
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from "react-leaflet";
+import type { LatLngTuple, DivIcon } from "leaflet";
+import { LatLngBounds, divIcon } from "leaflet";
 import { useLocation } from "wouter";
 import {
   Heart,
@@ -174,15 +174,9 @@ interface LeafletTileLayerProps {
   children?: ReactNode;
 }
 
-interface LeafletCircleMarkerProps {
-  center: LatLngTuple;
-  radius: number;
-  pathOptions?: {
-    color?: string;
-    weight?: number;
-    fillColor?: string;
-    fillOpacity?: number;
-  };
+interface LeafletMarkerProps {
+  position: LatLngTuple;
+  icon?: DivIcon;
   eventHandlers?: {
     click?: () => void;
     mouseover?: () => void;
@@ -193,7 +187,7 @@ interface LeafletCircleMarkerProps {
 
 const LeafletMapContainer = MapContainer as unknown as ComponentType<LeafletMapContainerProps>;
 const LeafletTileLayer = TileLayer as unknown as ComponentType<LeafletTileLayerProps>;
-const LeafletCircleMarker = CircleMarker as unknown as ComponentType<LeafletCircleMarkerProps>;
+const LeafletMarker = Marker as unknown as ComponentType<LeafletMarkerProps>;
 
 const asNumber = (value: unknown): number | null => {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -216,6 +210,27 @@ const formatCurrency = (value: number | null) => {
     currency: "SAR",
     minimumFractionDigits: 0,
   }).format(value);
+};
+
+const currencyCompactFormatter = new Intl.NumberFormat("ar-SA", {
+  style: "currency",
+  currency: "SAR",
+  minimumFractionDigits: 0,
+  notation: "compact",
+});
+
+const formatCurrencyCompact = (value: number | null) => {
+  if (typeof value !== "number" || Number.isNaN(value)) return "سعر غير متاح";
+  return currencyCompactFormatter.format(value);
+};
+
+const escapeHtml = (value: string | null | undefined) => {
+  if (!value) return "";
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 };
 
 const parseFilterNumber = (value: string) => {
@@ -483,16 +498,55 @@ function MapAutoFocus({ points, fallbackCenter }: AutoFocusProps) {
   return null;
 }
 
+interface HighlightFocusProps {
+  point: LatLngTuple | null;
+}
+
+function MapHighlightFocus({ point }: HighlightFocusProps) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || !point) return;
+    const currentZoom = map.getZoom();
+    map.flyTo(point, currentZoom < 14 ? 14 : currentZoom, { duration: 0.6 });
+  }, [map, point]);
+
+  return null;
+}
+
+const createPropertyMarkerIcon = (property: PropertySummary, isHighlighted: boolean): DivIcon => {
+  const background = isHighlighted ? "rgba(37, 99, 235, 0.95)" : "rgba(15, 23, 42, 0.9)";
+  const border = isHighlighted ? "rgba(191, 219, 254, 0.8)" : "rgba(148, 163, 184, 0.45)";
+  const price = escapeHtml(formatCurrencyCompact(property.price));
+  const location = escapeHtml(property.city ?? property.region ?? "");
+  const type = escapeHtml(property.propertyType ?? "");
+
+  return divIcon({
+    className: "property-map-marker",
+    iconAnchor: [56, 58],
+    popupAnchor: [0, -48],
+    html: `
+      <div style="position:relative;display:flex;flex-direction:column;gap:6px;min-width:132px;padding:12px 16px;border-radius:20px;background:${background};color:#fff;box-shadow:0 18px 35px rgba(15,23,42,0.25);border:1px solid ${border};">
+        <span style="font-size:14px;font-weight:700;letter-spacing:0.2px;">${price}</span>
+        ${location ? `<span style="font-size:12px;font-weight:500;opacity:0.85;">${location}</span>` : ""}
+        ${type ? `<span style='font-size:11px;font-weight:500;opacity:0.75;'>${type}</span>` : ""}
+        <span style="position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:16px solid ${background};filter:drop-shadow(0 6px 6px rgba(15,23,42,0.25));"></span>
+      </div>
+    `,
+  });
+};
+
 interface PropertiesMapProps {
   properties: PropertySummary[];
   highlightedId: string | null;
   onSelect: (property: PropertySummary) => void;
+  onNavigate: (propertyId: string) => void;
   isClient: boolean;
   mapFocus: boolean;
 }
 
-function PropertiesMap({ properties, highlightedId, onSelect, isClient, mapFocus }: PropertiesMapProps) {
-  const points = useMemo(
+function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClient, mapFocus }: PropertiesMapProps) {
+  const markers = useMemo(
     () =>
       properties
         .filter((property) => typeof property.latitude === "number" && typeof property.longitude === "number")
@@ -504,54 +558,133 @@ function PropertiesMap({ properties, highlightedId, onSelect, isClient, mapFocus
     [properties]
   );
 
-  const fallbackCenter = points.length ? points[0].position : DEFAULT_CENTER;
-  const heightClass = mapFocus ? "h-[520px] lg:h-[680px]" : "h-[360px] lg:h-[420px]";
+  const activeProperty = useMemo(
+    () =>
+      highlightedId
+        ? markers.find((marker) => marker.id === highlightedId)?.property ?? null
+        : markers.length
+          ? markers[0].property
+          : null,
+    [highlightedId, markers]
+  );
+
+  const activePoint = useMemo(() => {
+    if (!activeProperty || typeof activeProperty.latitude !== "number" || typeof activeProperty.longitude !== "number") {
+      return null;
+    }
+    return [activeProperty.latitude, activeProperty.longitude] as LatLngTuple;
+  }, [activeProperty]);
+
+  const fallbackCenter = markers.length ? markers[0].position : DEFAULT_CENTER;
+  const heightClass = mapFocus ? "h-[640px] lg:h-[760px]" : "h-[420px] lg:h-[520px]";
 
   return (
-    <div className={cn("overflow-hidden rounded-3xl border border-border/60 bg-muted/20", heightClass)}>
+    <div className={cn("relative overflow-hidden rounded-3xl border border-border/60 bg-slate-100/70", heightClass)}>
       {isClient ? (
-        <LeafletMapContainer
-          center={fallbackCenter}
-          zoom={6}
-          zoomControl={false}
-          className="h-full w-full"
-          scrollWheelZoom
-          preferCanvas
-        >
-          <LeafletTileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution="&copy; OpenStreetMap contributors"
-          />
-          <MapAutoFocus points={points.map((point) => point.position)} fallbackCenter={fallbackCenter} />
-          {points.map(({ id, position, property }) => {
-            const isHighlighted = highlightedId === id;
-            return (
-              <LeafletCircleMarker
-                key={id}
-                center={position}
-                radius={isHighlighted ? 11 : 8}
-                pathOptions={{
-                  color: isHighlighted ? "#1d4ed8" : "#0369a1",
-                  weight: isHighlighted ? 3 : 1.5,
-                  fillColor: isHighlighted ? "#3b82f6" : "#38bdf8",
-                  fillOpacity: 0.8,
-                }}
-                eventHandlers={{
-                  click: () => onSelect(property),
-                  mouseover: () => onSelect(property),
-                }}
-              >
-                <Popup>
-                  <div className="space-y-1 text-sm">
-                    <p className="font-semibold text-slate-900">{property.title}</p>
-                    <p className="text-muted-foreground">{property.city || property.region}</p>
-                    <p className="font-medium text-brand-600">{formatCurrency(property.price)}</p>
+        <div className="relative h-full w-full">
+          <LeafletMapContainer
+            center={fallbackCenter}
+            zoom={6}
+            zoomControl={false}
+            className="absolute inset-0"
+            style={{ height: "100%", width: "100%" }}
+            scrollWheelZoom
+            preferCanvas
+          >
+            <LeafletTileLayer
+              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              attribution="&copy; OpenStreetMap contributors &copy; CARTO"
+            />
+            <ZoomControl position="topright" />
+            <MapAutoFocus points={markers.map((marker) => marker.position)} fallbackCenter={fallbackCenter} />
+            <MapHighlightFocus point={activePoint} />
+            {markers.map(({ id, position, property }) => {
+              const isHighlighted = highlightedId === id;
+              return (
+                <LeafletMarker
+                  key={id}
+                  position={position}
+                  icon={createPropertyMarkerIcon(property, isHighlighted)}
+                  eventHandlers={{
+                    click: () => onSelect(property),
+                    mouseover: () => onSelect(property),
+                  }}
+                >
+                  <Popup>
+                    <div className="space-y-1 text-sm">
+                      <p className="font-semibold text-slate-900">{property.title}</p>
+                      <p className="text-muted-foreground">{property.city || property.region}</p>
+                      <p className="font-medium text-brand-600">{formatCurrency(property.price)}</p>
+                    </div>
+                  </Popup>
+                </LeafletMarker>
+              );
+            })}
+          </LeafletMapContainer>
+
+          {activeProperty && (
+            <div className="pointer-events-none absolute inset-x-3 bottom-4 z-[401] sm:inset-x-6 md:inset-x-auto md:right-6 md:max-w-sm">
+              <div className="pointer-events-auto space-y-3 rounded-3xl border border-border/60 bg-white/95 p-4 shadow-2xl backdrop-blur">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {activeProperty.transactionType || "عرض"}
+                  </p>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {activeProperty.title || "عقار بدون عنوان"}
+                  </h3>
+                  <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4 text-brand-600" />
+                    <span>
+                      {activeProperty.city
+                        ? `${activeProperty.city}${activeProperty.region ? `، ${activeProperty.region}` : ""}`
+                        : activeProperty.region}
+                    </span>
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between rounded-2xl bg-brand-50/80 px-4 py-2">
+                  <span className="text-sm font-medium text-brand-700">السعر</span>
+                  <span className="text-lg font-semibold text-brand-600">
+                    {formatCurrency(activeProperty.price)}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                  <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
+                    <Bed className="h-4 w-4 text-brand-600" />
+                    <span className="font-semibold text-foreground">
+                      {activeProperty.bedrooms ?? "—"}
+                    </span>
+                    <span>غرف</span>
                   </div>
-                </Popup>
-              </LeafletCircleMarker>
-            );
-          })}
-        </LeafletMapContainer>
+                  <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
+                    <Bath className="h-4 w-4 text-brand-600" />
+                    <span className="font-semibold text-foreground">
+                      {activeProperty.bathrooms ?? "—"}
+                    </span>
+                    <span>دورات مياه</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
+                    <Ruler className="h-4 w-4 text-brand-600" />
+                    <span className="font-semibold text-foreground">
+                      {activeProperty.areaSqm ?? "—"}
+                    </span>
+                    <span>م²</span>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  size="sm"
+                  className="w-full rounded-2xl"
+                  onClick={() => onNavigate(activeProperty.id)}
+                >
+                  عرض التفاصيل كاملة
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
           جار تجهيز الخريطة...
@@ -934,6 +1067,16 @@ export default function SearchProperties() {
     }
   }, [filteredProperties, highlightedPropertyId]);
 
+  useEffect(() => {
+    if (highlightedPropertyId) return;
+    const firstWithCoordinates = filteredProperties.find(
+      (property) => typeof property.latitude === "number" && typeof property.longitude === "number"
+    );
+    if (firstWithCoordinates) {
+      setHighlightedPropertyId(firstWithCoordinates.id);
+    }
+  }, [filteredProperties, highlightedPropertyId]);
+
   const handleFavoritesToggle = (propertyId: string) => {
     setFavoriteIds((prev) =>
       prev.includes(propertyId) ? prev.filter((id) => id !== propertyId) : [...prev, propertyId]
@@ -1050,61 +1193,68 @@ export default function SearchProperties() {
               </aside>
             )}
 
-            <section className={cn("space-y-6", isDesktop && isSidebarOpen ? "lg:col-start-2" : "lg:col-span-full")}> 
-              <Card className="rounded-3xl border border-border/60 bg-white/95 shadow-xl">
-                <CardHeader className="flex flex-col gap-2 pb-4 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <CardTitle className="text-xl">خريطة العقارات</CardTitle>
-                    <CardDescription>استكشف العقارات المتاحة على الخريطة التفاعلية.</CardDescription>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {filteredProperties.filter((property) => property.latitude && property.longitude).length} عقار على الخريطة
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <PropertiesMap
-                    properties={filteredProperties}
-                    highlightedId={highlightedPropertyId}
-                    onSelect={(property) => setHighlightedPropertyId(property.id)}
-                    isClient={isClient}
-                    mapFocus={mapFocus}
-                  />
-                </CardContent>
-              </Card>
+            <section className={cn("space-y-6", isDesktop && isSidebarOpen ? "lg:col-start-2" : "lg:col-span-full")}>
+              <div className="grid gap-6 lg:grid-cols-[minmax(320px,380px)_minmax(0,1fr)] lg:items-start">
+                <div className="order-2 space-y-6 lg:order-1">
+                  <Card className="rounded-3xl border border-border/60 bg-white/95 shadow-xl">
+                    <CardHeader className="flex flex-col gap-2 pb-4 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <CardTitle className="text-xl">قائمة العقارات</CardTitle>
+                        <CardDescription>تم العثور على {filteredProperties.length} عقار مطابق للبحث.</CardDescription>
+                      </div>
+                      {!listingsQuery.isLoading && (
+                        <div className="text-sm text-muted-foreground">
+                          إجمالي النتائج المتاحة: {listingsQuery.data?.total ?? filteredProperties.length}
+                        </div>
+                      )}
+                    </CardHeader>
+                    <CardContent className="space-y-6 pt-0">
+                      {listingsQuery.isLoading ? (
+                        <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
+                          جار تحميل بيانات العقارات...
+                        </div>
+                      ) : listingsQuery.isError ? (
+                        <div className="rounded-3xl border border-destructive/40 bg-red-50 px-6 py-10 text-center text-sm text-red-700">
+                          حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى لاحقًا.
+                        </div>
+                      ) : (
+                        <PropertiesList
+                          properties={filteredProperties}
+                          favoriteIds={favoriteIds}
+                          highlightedId={highlightedPropertyId}
+                          onHighlight={(property) => setHighlightedPropertyId(property?.id ?? null)}
+                          onToggleFavorite={handleFavoritesToggle}
+                          onNavigate={handleNavigate}
+                        />
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
 
-              <Card className="rounded-3xl border border-border/60 bg-white/95 shadow-xl">
-                <CardHeader className="flex flex-col gap-2 pb-4 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <CardTitle className="text-xl">قائمة العقارات</CardTitle>
-                    <CardDescription>تم العثور على {filteredProperties.length} عقار مطابق للبحث.</CardDescription>
-                  </div>
-                  {!listingsQuery.isLoading && (
-                    <div className="text-sm text-muted-foreground">
-                      إجمالي النتائج المتاحة: {listingsQuery.data?.total ?? filteredProperties.length}
-                    </div>
-                  )}
-                </CardHeader>
-                <CardContent className="space-y-6 pt-0">
-                  {listingsQuery.isLoading ? (
-                    <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">
-                      جار تحميل بيانات العقارات...
-                    </div>
-                  ) : listingsQuery.isError ? (
-                    <div className="rounded-3xl border border-destructive/40 bg-red-50 px-6 py-10 text-center text-sm text-red-700">
-                      حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى لاحقًا.
-                    </div>
-                  ) : (
-                    <PropertiesList
-                      properties={filteredProperties}
-                      favoriteIds={favoriteIds}
-                      highlightedId={highlightedPropertyId}
-                      onHighlight={(property) => setHighlightedPropertyId(property?.id ?? null)}
-                      onToggleFavorite={handleFavoritesToggle}
-                      onNavigate={handleNavigate}
-                    />
-                  )}
-                </CardContent>
-              </Card>
+                <div className="order-1 space-y-6 lg:order-2 lg:sticky lg:top-28">
+                  <Card className="overflow-hidden rounded-3xl border border-border/60 bg-white/95 shadow-2xl">
+                    <CardHeader className="flex flex-col gap-2 pb-4 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <CardTitle className="text-xl">خريطة العقارات</CardTitle>
+                        <CardDescription>استكشف العقارات على خريطة تفاعلية بتجربة مماثلة لخريطة عقار.</CardDescription>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {filteredProperties.filter((property) => property.latitude && property.longitude).length} عقار على الخريطة
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <PropertiesMap
+                        properties={filteredProperties}
+                        highlightedId={highlightedPropertyId}
+                        onSelect={(property) => setHighlightedPropertyId(property.id)}
+                        onNavigate={handleNavigate}
+                        isClient={isClient}
+                        mapFocus={mapFocus}
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             </section>
           </div>
         </div>
