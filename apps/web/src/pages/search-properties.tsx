@@ -623,8 +623,10 @@ function MapHighlightFocus({ point }: HighlightFocusProps) {
 }
 
 const createPropertyMarkerIcon = (property: PropertySummary, isHighlighted: boolean): DivIcon => {
-  const background = isHighlighted ? "rgba(37, 99, 235, 0.95)" : "rgba(15, 23, 42, 0.9)";
-  const border = isHighlighted ? "rgba(191, 219, 254, 0.8)" : "rgba(148, 163, 184, 0.45)";
+  const markerSurfaceClass = isHighlighted
+    ? "border-blue-100/70 bg-blue-600/95"
+    : "border-slate-500/40 bg-slate-900/90";
+  const markerArrowClass = isHighlighted ? "bg-blue-600/95" : "bg-slate-900/90";
   const price = escapeHtml(formatCurrencyCompact(property.price));
   const location = escapeHtml(property.city ?? property.region ?? "");
   const type = escapeHtml(property.propertyType ?? "");
@@ -634,11 +636,11 @@ const createPropertyMarkerIcon = (property: PropertySummary, isHighlighted: bool
     iconAnchor: [56, 58],
     popupAnchor: [0, -48],
     html: `
-      <div style="position:relative;display:flex;flex-direction:column;gap:6px;min-width:132px;padding:12px 16px;border-radius:20px;background:${background};color:#fff;box-shadow:0 18px 35px rgba(15,23,42,0.25);border:1px solid ${border};">
-        <span style="font-size:14px;font-weight:700;letter-spacing:0.2px;">${price}</span>
-        ${location ? `<span style="font-size:12px;font-weight:500;opacity:0.85;">${location}</span>` : ""}
-        ${type ? `<span style='font-size:11px;font-weight:500;opacity:0.75;'>${type}</span>` : ""}
-        <span style="position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:16px solid ${background};filter:drop-shadow(0 6px 6px rgba(15,23,42,0.25));"></span>
+      <div class="relative flex min-w-[132px] flex-col gap-1.5 rounded-3xl border px-4 py-3 text-white shadow-[0_18px_35px_rgba(15,23,42,0.25)] ring-1 ring-white/10 ${markerSurfaceClass}">
+        <span class="text-sm font-semibold tracking-[0.02em]">${price}</span>
+        ${location ? `<span class="text-[11px] font-medium text-white/85">${location}</span>` : ""}
+        ${type ? `<span class="text-[10px] font-medium uppercase tracking-wide text-white/70">${type}</span>` : ""}
+        <span class="absolute left-1/2 -bottom-4 h-5 w-5 -translate-x-1/2 rotate-45 rounded-sm shadow-[0_6px_6px_rgba(15,23,42,0.25)] ${markerArrowClass}"></span>
       </div>
     `,
   });
