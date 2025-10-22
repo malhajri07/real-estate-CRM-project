@@ -19,7 +19,7 @@ export default function PlatformShell({ children, onLogout, title, searchPlaceho
     }
     return window.matchMedia("(min-width: 1024px)").matches;
   });
-  const { dir } = useLanguage();
+  const { dir, t } = useLanguage();
   const isRTL = dir === "rtl";
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function PlatformShell({ children, onLogout, title, searchPlaceho
         )}
       >
         <Header
-          searchPlaceholder={searchPlaceholder || "البحث في العملاء أو العقارات..."}
+          searchPlaceholder={searchPlaceholder || t("nav.search")}
           title={title}
           extraContent={headerExtraContent}
           onToggleSidebar={toggleSidebar}

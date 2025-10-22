@@ -35,14 +35,6 @@ import AddPropertyModal from "@/components/modals/add-property-modal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
-const statusBadges: Record<string, { label: string; variant: "success" | "info" | "warning" | "destructive" | "secondary" }> = {
-  new: { label: "جديد", variant: "info" },
-  qualified: { label: "مؤهل", variant: "success" },
-  showing: { label: "معاينة", variant: "secondary" },
-  negotiation: { label: "تفاوض", variant: "warning" },
-  closed: { label: "مغلق", variant: "success" },
-};
-
 type MetricResponse = {
   totalLeads: number;
   activeProperties: number;
@@ -60,7 +52,8 @@ type MetricResponse = {
 export default function Dashboard() {
   const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
   const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false);
-  const { dir } = useLanguage();
+  const { dir, language, t } = useLanguage();
+  const locale = language === "ar" ? "ar-SA" : "en-US";
 
   const {
     data: metrics,
@@ -79,17 +72,40 @@ export default function Dashboard() {
 
   const recentLeads = leads?.slice(0, 10) ?? [];
 
-  const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value) + " ﷼";
+  const statusBadges = useMemo(
+    () => ({
+      new: { label: t("status.new"), variant: "info" as const },
+      qualified: { label: t("status.qualified"), variant: "success" as const },
+      showing: { label: t("status.showing"), variant: "secondary" as const },
+      negotiation: { label: t("status.negotiation"), variant: "warning" as const },
+      closed: { label: t("status.closed"), variant: "success" as const },
+    }),
+    [t]
+  );
+
+  const currencyFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency: "SAR",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+    [locale]
+  );
+
+  const dateFormatter = useMemo(
+    () => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }),
+    [locale]
+  );
+
+  const formatCurrency = (value: number) => currencyFormatter.format(value);
 
   const metricCards = useMemo(
     () => [
       {
         id: "leads",
-        label: "إجمالي العملاء المحتملين",
+        label: t("dashboard.total_leads"),
         value: metrics?.totalLeads ?? 0,
         icon: Users,
         accent: "bg-gradient-to-br from-brand-50 via-white to-white text-brand-700",
@@ -97,7 +113,7 @@ export default function Dashboard() {
       },
       {
         id: "properties",
-        label: "العقارات النشطة",
+        label: t("dashboard.active_properties"),
         value: metrics?.activeProperties ?? 0,
         icon: Building,
         accent: "bg-gradient-to-br from-emerald-50 via-white to-white text-emerald-700",
@@ -105,7 +121,7 @@ export default function Dashboard() {
       },
       {
         id: "pipeline",
-        label: "الصفقات في المسار",
+        label: t("dashboard.deals_in_pipeline"),
         value: metrics?.dealsInPipeline ?? 0,
         icon: Filter,
         accent: "bg-gradient-to-br from-amber-50 via-white to-white text-amber-600",
@@ -113,51 +129,54 @@ export default function Dashboard() {
       },
       {
         id: "revenue",
-        label: "الإيرادات الشهرية",
+        label: t("dashboard.monthly_revenue"),
         value: formatCurrency(metrics?.monthlyRevenue ?? 0),
         icon: Banknote,
         accent: "bg-gradient-to-br from-rose-50 via-white to-white text-rose-600",
         delta: { value: 24, tone: "up" as const },
       },
     ],
-    [metrics]
+    [metrics, formatCurrency, t]
   );
 
   const pipelineStages = useMemo(
     () => [
-      { id: "lead", label: "عملاء محتملين", value: metrics?.pipelineByStage?.lead ?? 0 },
-      { id: "qualified", label: "مؤهل", value: metrics?.pipelineByStage?.qualified ?? 0 },
-      { id: "showing", label: "عرض", value: metrics?.pipelineByStage?.showing ?? 0 },
-      { id: "negotiation", label: "تفاوض", value: metrics?.pipelineByStage?.negotiation ?? 0 },
-      { id: "closed", label: "مغلق", value: metrics?.pipelineByStage?.closed ?? 0 },
+      { id: "lead", label: t("dashboard.pipeline.lead"), value: metrics?.pipelineByStage?.lead ?? 0 },
+      { id: "qualified", label: t("dashboard.pipeline.qualified"), value: metrics?.pipelineByStage?.qualified ?? 0 },
+      { id: "showing", label: t("dashboard.pipeline.showing"), value: metrics?.pipelineByStage?.showing ?? 0 },
+      { id: "negotiation", label: t("dashboard.pipeline.negotiation"), value: metrics?.pipelineByStage?.negotiation ?? 0 },
+      { id: "closed", label: t("dashboard.pipeline.closed"), value: metrics?.pipelineByStage?.closed ?? 0 },
     ],
-    [metrics]
+    [metrics, t]
   );
 
-  const quickActions = [
-    {
-      id: "add-lead",
-      label: "إضافة عميل محتمل جديد",
-      icon: Plus,
-      onClick: () => setAddLeadModalOpen(true),
-    },
-    {
-      id: "add-property",
-      label: "إدراج عقار",
-      icon: Home,
-      onClick: () => setAddPropertyModalOpen(true),
-    },
-    {
-      id: "schedule-showing",
-      label: "جدولة عرض",
-      icon: Calendar,
-    },
-    {
-      id: "export-leads",
-      label: "تصدير العملاء المحتملين",
-      icon: Download,
-    },
-  ];
+  const quickActions = useMemo(
+    () => [
+      {
+        id: "add-lead",
+        label: t("dashboard.quick_actions.add_lead"),
+        icon: Plus,
+        onClick: () => setAddLeadModalOpen(true),
+      },
+      {
+        id: "add-property",
+        label: t("dashboard.quick_actions.add_property"),
+        icon: Home,
+        onClick: () => setAddPropertyModalOpen(true),
+      },
+      {
+        id: "schedule-showing",
+        label: t("dashboard.quick_actions.schedule_showing"),
+        icon: Calendar,
+      },
+      {
+        id: "export-leads",
+        label: t("dashboard.quick_actions.export_leads"),
+        icon: Download,
+      },
+    ],
+    [t]
+  );
 
   if (metricsLoading) {
     return (
@@ -171,7 +190,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-10 py-6" dir={dir}>
-      <section aria-label="ملخص سريع" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section aria-label={t("dashboard.quick_summary")} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((metric) => (
           <Card key={metric.id} className={cn("border border-border/60 shadow-card transition hover:-translate-y-0.5", metric.accent)}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
@@ -193,18 +212,16 @@ export default function Dashboard() {
         ))}
       </section>
 
-      <div className="grid gap-8 lg:grid-cols-3" aria-label="تفاصيل لوحة القيادة">
+      <div className="grid gap-8 lg:grid-cols-3" aria-label={t("dashboard.details_section")}>
         <div className="space-y-8 lg:col-span-2">
           <Card className="shadow-card">
             <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <CardTitle className="text-lg font-semibold">مراحل الصفقات</CardTitle>
-                <CardDescription>نظرة على تقدم الصفقات عبر المراحل الرئيسية</CardDescription>
+                <CardTitle className="text-lg font-semibold">{t("dashboard.pipeline_stages")}</CardTitle>
+                <CardDescription>{t("dashboard.pipeline_description")}</CardDescription>
               </div>
               <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs">
-                {new Intl.DateTimeFormat("ar-SA", {
-                  dateStyle: "medium",
-                }).format(new Date())}
+                {dateFormatter.format(new Date())}
               </Badge>
             </CardHeader>
             <CardContent>
@@ -222,11 +239,11 @@ export default function Dashboard() {
           <Card className="shadow-card">
             <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <CardTitle className="text-lg font-semibold">العملاء المحتملين الجدد</CardTitle>
-                <CardDescription>أحدث العملاء المحتملين خلال الفترة الحالية</CardDescription>
+                <CardTitle className="text-lg font-semibold">{t("dashboard.recent_leads")}</CardTitle>
+                <CardDescription>{t("dashboard.recent_leads_description")}</CardDescription>
               </div>
               <Button variant="ghost" size="sm" className="rounded-full px-4">
-                عرض الكل
+                {t("form.view_all")}
               </Button>
             </CardHeader>
             <CardContent>
@@ -238,15 +255,15 @@ export default function Dashboard() {
                 </div>
               ) : recentLeads.length === 0 ? (
                 <EmptyState
-                  title="لا توجد عملاء محتملين"
-                  description="قم بإضافة أول عميل محتمل لتحريك نشاطك."
-                  action={<Button onClick={() => setAddLeadModalOpen(true)}>إضافة عميل</Button>}
+                  title={t("dashboard.no_recent_leads")}
+                  description={t("dashboard.no_recent_leads_description")}
+                  action={<Button onClick={() => setAddLeadModalOpen(true)}>{t("leads.add_lead")}</Button>}
                 />
               ) : (
                 <ul className="space-y-3" aria-live="polite">
                   {recentLeads.slice(0, 6).map((lead) => {
                     const status = statusBadges[lead.status ?? ""] ?? {
-                      label: lead.status,
+                      label: lead.status ? t(`status.${lead.status}`) ?? lead.status : undefined,
                       variant: "secondary" as const,
                     };
 
@@ -275,10 +292,10 @@ export default function Dashboard() {
 
                           <div className="flex flex-col items-start gap-2 lg:items-end">
                             <Badge variant={status.variant} className="rounded-full px-3 py-1 text-xs font-semibold">
-                              {status.label}
+                              {status.label ?? (lead.status ?? t("status.new"))}
                             </Badge>
                             <span className="text-xs text-muted-foreground">
-                              {new Date(lead.createdAt).toLocaleDateString()}
+                              {new Date(lead.createdAt).toLocaleDateString(locale)}
                             </span>
                           </div>
                         </div>
@@ -294,8 +311,8 @@ export default function Dashboard() {
         <div className="space-y-8">
           <Card className="shadow-card">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">إجراءات سريعة</CardTitle>
-              <CardDescription>ابدأ في التحرك فوراً باستخدام الإجراءات الأكثر شيوعاً</CardDescription>
+              <CardTitle className="text-lg font-semibold">{t("dashboard.quick_actions")}</CardTitle>
+              <CardDescription>{t("dashboard.quick_actions_description")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {quickActions.map((action) => (
@@ -304,6 +321,7 @@ export default function Dashboard() {
                   variant="secondary"
                   className="w-full justify-between rounded-2xl px-4"
                   onClick={action.onClick}
+                  disabled={!action.onClick}
                 >
                   <span className="text-sm font-semibold text-foreground">{action.label}</span>
                   <action.icon className="h-4 w-4 text-muted-foreground" />
@@ -314,8 +332,8 @@ export default function Dashboard() {
 
           <Card className="shadow-card">
             <CardHeader>
-              <CardTitle className="text-lg font-semibold">مهام اليوم</CardTitle>
-              <CardDescription>تابع الأنشطة المجدولة للحفاظ على الزخم</CardDescription>
+              <CardTitle className="text-lg font-semibold">{t("dashboard.tasks_title")}</CardTitle>
+              <CardDescription>{t("dashboard.tasks_description")}</CardDescription>
             </CardHeader>
             <CardContent>
               {activitiesLoading ? (
@@ -326,8 +344,8 @@ export default function Dashboard() {
                 </div>
               ) : !todaysActivities || todaysActivities.length === 0 ? (
                 <EmptyState
-                  title="لا توجد مهام اليوم"
-                  description="أضف مهاماً جديدة لضمان المتابعة مع عملائك."
+                  title={t("dashboard.no_activities_today")}
+                  description={t("dashboard.no_tasks_description")}
                 />
               ) : (
                 <ul className="space-y-3" aria-live="polite">
@@ -353,8 +371,8 @@ export default function Dashboard() {
                         <p className={cn("text-sm font-semibold", activity.completed && "line-through text-muted-foreground")}>{activity.title}</p>
                         <p className="text-xs text-muted-foreground">
                           {activity.scheduledDate
-                            ? new Date(activity.scheduledDate).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                            : "لم يتم تحديد وقت"}
+                            ? new Date(activity.scheduledDate).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })
+                            : t("dashboard.no_time_scheduled")}
                         </p>
                       </div>
                     </li>

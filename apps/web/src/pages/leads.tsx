@@ -10,6 +10,7 @@ import { CSVUploader } from "@/components/CSVUploader";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
 import type { Lead } from "@shared/types";
 import type { UploadResult } from "@uppy/core";
 
@@ -19,7 +20,8 @@ export default function Leads() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, dir, language } = useLanguage();
+  const locale = language === "ar" ? "ar-SA" : "en-US";
   const queryClient = useQueryClient();
 
   const { data: leads, isLoading } = useQuery<Lead[]>({
@@ -44,13 +46,13 @@ export default function Leads() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
-      toast({ title: "نجح", description: "تم حذف العميل المحتمل بنجاح" });
+      toast({ title: t("message.success"), description: t("leads.delete_success") });
     },
     onError: () => {
-      toast({ 
-        title: "خطأ", 
-        description: "فشل في حذف العميل المحتمل",
-        variant: "destructive" 
+      toast({
+        title: t("message.error"),
+        description: t("leads.delete_error"),
+        variant: "destructive"
       });
     },
   });
@@ -67,7 +69,7 @@ export default function Leads() {
       
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'خطأ في معالجة ملف CSV');
+        throw new Error(error.error || t('leads.csv_error'));
       }
       
       return response.json();
@@ -78,22 +80,22 @@ export default function Leads() {
       
       if (data.results.errors.length > 0) {
         toast({
-          title: "تم بنجاح مع أخطاء",
-          description: `${data.message}. تحقق من السجلات للتفاصيل.`,
+          title: t("leads.csv_partial_title"),
+          description: `${data.message}. ${t("leads.csv_partial_description")}`,
           variant: "default"
         });
         console.log("CSV Processing Errors:", data.results.errors);
       } else {
         toast({
-          title: "نجح",
+          title: t("message.success"),
           description: data.message
         });
       }
     },
     onError: (error) => {
       toast({
-        title: "خطأ",
-        description: error instanceof Error ? error.message : "خطأ في رفع ملف CSV",
+        title: t("message.error"),
+        description: error instanceof Error ? error.message : t("leads.csv_error"),
         variant: "destructive"
       });
     },
@@ -119,7 +121,7 @@ export default function Leads() {
     });
     
     if (!response.ok) {
-      throw new Error('خطأ في الحصول على رابط الرفع');
+      throw new Error(t('leads.upload_error'));
     }
     
     const data = await response.json();
@@ -130,6 +132,7 @@ export default function Leads() {
   };
 
   const displayLeads = searchQuery.trim() ? searchResults : leads;
+  const iconSpacing = dir === "rtl" ? "ml-2" : "mr-2";
 
   const getStatusBadgeColor = (status: string) => {
     switch (status) {
@@ -144,7 +147,7 @@ export default function Leads() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("هل أنت متأكد من حذف هذا العميل المحتمل؟")) {
+    if (confirm(t("leads.confirm_delete"))) {
       deleteLeadMutation.mutate(id);
     }
   };
@@ -152,8 +155,8 @@ export default function Leads() {
   const handleSendWhatsApp = (lead: Lead) => {
     if (!lead.phone) {
       toast({
-        title: "خطأ",
-        description: "هذا العميل لا يملك رقم هاتف",
+        title: t("message.error"),
+        description: t("leads.no_phone_error"),
         variant: "destructive"
       });
       return;
@@ -164,10 +167,10 @@ export default function Leads() {
 
   const exportLeads = () => {
     if (!displayLeads || displayLeads.length === 0) {
-      toast({ 
-        title: "No Data", 
-        description: "No leads to export",
-        variant: "destructive" 
+      toast({
+        title: t("leads.export_no_data_title"),
+        description: t("leads.export_no_data_description"),
+        variant: "destructive"
       });
       return;
     }
@@ -195,37 +198,39 @@ export default function Leads() {
     a.click();
     window.URL.revokeObjectURL(url);
 
-    toast({ title: "نجح", description: "تم تصدير العملاء المحتملين بنجاح" });
+    toast({ title: t("message.success"), description: t("leads.export_success") });
   };
 
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">جار تحميل العملاء المحتملين...</div>
+        <div className="text-slate-500">{t("leads.loading")}</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={dir}>
       <section className="ui-section">
         <header className="ui-section__header">
-          <h2 className="text-lg font-semibold text-foreground">جميع العملاء المحتملين ({displayLeads?.length || 0})</h2>
+          <h2 className="text-lg font-semibold text-foreground">
+            {t("leads.all_leads")} ({displayLeads?.length || 0})
+          </h2>
           <div className="flex items-center gap-2">
             <CSVUploader
               onGetUploadParameters={handleGetUploadParameters}
               onComplete={handleCSVUploadComplete}
               buttonClassName="bg-emerald-600 hover:bg-emerald-700"
             >
-              <Upload className="ml-2" size={16} />
-              رفع ملف CSV
+              <Upload className={iconSpacing} size={16} />
+              {t("leads.upload_csv")}
             </CSVUploader>
             <Button variant="outline" onClick={exportLeads}>
-              تصدير CSV
+              {t("leads.export_csv")}
             </Button>
             <Button onClick={() => setAddLeadModalOpen(true)}>
-              <Plus className="ml-2" size={16} />
-              إضافة عميل محتمل
+              <Plus className={iconSpacing} size={16} />
+              {t("leads.add_lead")}
             </Button>
           </div>
         </header>
@@ -233,20 +238,20 @@ export default function Leads() {
         <div className="ui-section__body">
           {csvProcessMutation.isPending && (
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-3 text-blue-700">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700 ml-2"></div>
-              جار معالجة ملف CSV... يرجى الانتظار
+              <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700", dir === "rtl" ? "ml-2" : "mr-2")}></div>
+              {t("leads.csv_processing")}
             </div>
           )}
 
           {!displayLeads || displayLeads.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-slate-500 mb-4">
-                {searchQuery ? "لا توجد عملاء محتملين يطابقون بحثك." : "لا توجد عملاء محتملين. أنشئ أول عميل محتمل للبدء."}
+                {searchQuery ? t("leads.no_results") : t("leads.no_leads")}
               </div>
               {!searchQuery && (
                 <Button onClick={() => setAddLeadModalOpen(true)}>
-                  <Plus className="ml-2" size={16} />
-                  إضافة أول عميل محتمل
+                  <Plus className={iconSpacing} size={16} />
+                  {t("leads.add_first_lead")}
                 </Button>
               )}
             </div>
@@ -255,15 +260,15 @@ export default function Leads() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>الاسم</TableHead>
-                    <TableHead>البريد الإلكتروني</TableHead>
-                    <TableHead>الهاتف</TableHead>
-                    <TableHead>الحالة</TableHead>
-                    <TableHead>مصدر العميل</TableHead>
-                    <TableHead>نوع الاهتمام</TableHead>
-                    <TableHead>الميزانية</TableHead>
-                    <TableHead>تاريخ الإنشاء</TableHead>
-                    <TableHead className="w-[160px]">الإجراءات</TableHead>
+                    <TableHead>{t("leads.table.name")}</TableHead>
+                    <TableHead>{t("leads.table.email")}</TableHead>
+                    <TableHead>{t("leads.table.phone")}</TableHead>
+                    <TableHead>{t("leads.table.status")}</TableHead>
+                    <TableHead>{t("leads.table.source")}</TableHead>
+                    <TableHead>{t("leads.table.interest")}</TableHead>
+                    <TableHead>{t("leads.table.budget")}</TableHead>
+                    <TableHead>{t("leads.table.created_at")}</TableHead>
+                    <TableHead className="w-[160px]">{t("leads.table.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -282,7 +287,7 @@ export default function Leads() {
                       <TableCell>{lead.leadSource || '-'}</TableCell>
                       <TableCell>{lead.interestType ? (t(`interest.${lead.interestType}`) || lead.interestType) : '-'}</TableCell>
                       <TableCell>{lead.budgetRange || '-'}</TableCell>
-                      <TableCell>{new Date(lead.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>{new Date(lead.createdAt).toLocaleDateString(locale)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {lead.phone && (
@@ -291,7 +296,7 @@ export default function Leads() {
                               size="sm"
                               onClick={() => handleSendWhatsApp(lead)}
                               className="text-emerald-600 hover:text-emerald-700"
-                              title="إرسال رسالة WhatsApp"
+                              title={t("whatsapp.send_message")}
                             >
                               <MessageCircle size={16} />
                             </Button>

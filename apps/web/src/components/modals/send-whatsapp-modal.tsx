@@ -10,6 +10,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { MessageCircle, CheckCircle, XCircle, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
 
 interface SendWhatsAppModalProps {
   open: boolean;
@@ -19,16 +21,17 @@ interface SendWhatsAppModalProps {
   leadName: string;
 }
 
-export default function SendWhatsAppModal({ 
-  open, 
-  onOpenChange, 
-  leadId, 
-  phoneNumber, 
-  leadName 
+export default function SendWhatsAppModal({
+  open,
+  onOpenChange,
+  leadId,
+  phoneNumber,
+  leadName
 }: SendWhatsAppModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [messageStatus, setMessageStatus] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle');
+  const { t, dir } = useLanguage();
 
   const form = useForm<InsertMessage>({
     resolver: zodResolver(insertMessageSchema),
@@ -59,9 +62,9 @@ export default function SendWhatsAppModal({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
       setMessageStatus('sent');
-      toast({ 
-        title: "نجح", 
-        description: "تم إرسال رسالة WhatsApp بنجاح" 
+      toast({
+        title: t("message.success"),
+        description: t("whatsapp.status.sent")
       });
       setTimeout(() => {
         onOpenChange(false);
@@ -71,10 +74,10 @@ export default function SendWhatsAppModal({
     },
     onError: () => {
       setMessageStatus('failed');
-      toast({ 
-        title: "خطأ", 
-        description: "فشل في إرسال رسالة WhatsApp",
-        variant: "destructive" 
+      toast({
+        title: t("message.error"),
+        description: t("whatsapp.status.failed"),
+        variant: "destructive"
       });
     },
   });
@@ -104,29 +107,29 @@ export default function SendWhatsAppModal({
   const getStatusText = () => {
     switch (messageStatus) {
       case 'sending':
-        return 'جار الإرسال...';
+        return t('whatsapp.status.sending');
       case 'sent':
-        return 'تم الإرسال بنجاح!';
+        return t('whatsapp.status.sent');
       case 'failed':
-        return 'فشل الإرسال';
+        return t('whatsapp.status.failed');
       default:
-        return 'إرسال رسالة WhatsApp';
+        return t('whatsapp.status.idle');
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" dir={dir}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             {getStatusIcon()}
-            إرسال رسالة WhatsApp
+            {t('whatsapp.send_message')}
           </DialogTitle>
           <div className="text-sm text-slate-600 mt-2">
-            إلى: {leadName} ({phoneNumber})
+            {t('whatsapp.to')}: {leadName} ({phoneNumber})
           </div>
         </DialogHeader>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
@@ -134,11 +137,11 @@ export default function SendWhatsAppModal({
                   name="content"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>نص الرسالة</FormLabel>
+                  <FormLabel>{t('whatsapp.message_label')}</FormLabel>
                   <FormControl>
                     <Textarea
                       rows={6}
-                      placeholder="اكتب رسالة WhatsApp هنا..."
+                      placeholder={t('whatsapp.message_placeholder')}
                       {...field}
                       disabled={messageStatus === 'sending'}
                     />
@@ -148,17 +151,22 @@ export default function SendWhatsAppModal({
               )}
             />
 
-            <div className="flex justify-end space-x-3 space-x-reverse pt-4">
-              <Button 
-                type="button" 
-                variant="outline" 
+            <div
+              className={cn(
+                'flex justify-end pt-4',
+                dir === 'rtl' ? 'space-x-reverse space-x-3' : 'space-x-3'
+              )}
+            >
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={messageStatus === 'sending'}
               >
-                إلغاء
+                {t('form.cancel')}
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={messageStatus === 'sending' || messageStatus === 'sent'}
                 className="bg-green-600 hover:bg-green-700"
               >
