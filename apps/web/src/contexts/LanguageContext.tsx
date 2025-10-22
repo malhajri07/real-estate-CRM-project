@@ -775,9 +775,11 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
     document.documentElement.lang = language;
     document.documentElement.dir = dir;
+    document.documentElement.classList.add('bg-background', 'text-foreground');
     document.body.setAttribute('dir', dir);
-    document.body.classList.toggle('rtl', dir === 'rtl');
-    document.body.classList.toggle('ltr', dir === 'ltr');
+    document.body.classList.add('min-h-screen', 'bg-background', 'text-foreground', 'antialiased');
+    document.body.classList.remove('font-sans', 'font-arabic');
+    document.body.classList.add(dir === 'rtl' ? 'font-arabic' : 'font-sans');
   }, [dir, language]);
 
   const t = useCallback(
