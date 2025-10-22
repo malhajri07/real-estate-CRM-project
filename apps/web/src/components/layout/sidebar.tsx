@@ -3,7 +3,12 @@ import { Link, useLocation } from "wouter";
 import { ChevronDown, ChevronRight, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { platformSidebarConfig, type PlatformSidebarChildConfig } from "@/config/platform-sidebar";
+import {
+  platformSidebarConfig,
+  type PlatformSidebarChildConfig,
+  type PlatformSidebarGroupConfig,
+  type PlatformSidebarSubgroupConfig
+} from "@/config/platform-sidebar";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
 
 interface SidebarProps {
@@ -18,14 +23,58 @@ const routeMatches = (item: PlatformSidebarChildConfig, currentLocation: string)
   return false;
 };
 
+const groupChildren = (group: PlatformSidebarGroupConfig): PlatformSidebarChildConfig[] => {
+  if (group.children?.length) return group.children;
+  if (group.subgroups?.length) {
+    return group.subgroups.flatMap((subgroup) => subgroup.children);
+  }
+  return [];
+};
+
 const findActiveGroupId = (currentLocation: string) => {
   for (const group of platformSidebarConfig) {
-    if (group.children.some((child) => routeMatches(child, currentLocation))) {
+    if (groupChildren(group).some((child) => routeMatches(child, currentLocation))) {
       return group.id;
     }
   }
   return null;
 };
+
+const renderItems = (
+  items: PlatformSidebarChildConfig[],
+  location: string,
+  dir: "rtl" | "ltr",
+  t: (key: string) => string
+) =>
+  items.map((item) => {
+    const ItemIcon = item.icon;
+    const itemLabel = item.label ?? (item.labelKey ? t(item.labelKey) : item.id);
+    const isActive = routeMatches(item, location);
+
+    return (
+      <li key={item.id}>
+        <Link
+          href={item.path}
+          className={cn(
+            "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+            dir === "rtl" ? "text-right" : "text-left",
+            isActive ? "bg-primary text-primary-foreground shadow-floating" : "text-muted-foreground hover:bg-sidebar-muted/80 hover:text-foreground"
+          )}
+          aria-current={isActive ? "page" : undefined}
+        >
+          <span
+            className={cn(
+              "flex h-7 w-7 items-center justify-center rounded-lg border border-border/40 bg-card/80 text-muted-foreground",
+              isActive && "border-transparent bg-primary/90 text-primary-foreground"
+            )}
+          >
+            <ItemIcon size={16} />
+          </span>
+          <span className="flex-1 truncate">{itemLabel}</span>
+        </Link>
+      </li>
+    );
+  });
 
 export default function Sidebar({ onLogout }: SidebarProps) {
   const [location] = useLocation();
@@ -50,7 +99,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
 
   return (
     <div
-      className="flex h-full flex-col overflow-y-auto bg-sidebar/95 bg-subtle-grid bg-[length:36px_36px] pb-8 pt-6 text-sidebar-foreground"
+      className="flex h-full flex-col overflow-y-auto bg-sidebar/95 bg-subtle-grid bg-[length:36px_36px] pb-8 pt-6 text-sidebar-foreground transition-colors duration-300"
       dir={dir}
     >
       <div className="px-6">
@@ -73,7 +122,8 @@ export default function Sidebar({ onLogout }: SidebarProps) {
             const GroupIcon = group.icon;
             const groupLabel = group.label ?? (group.labelKey ? t(group.labelKey) : group.id);
             const isExpanded = expandedGroups.includes(group.id);
-            const isActiveGroup = group.children.some((child) => routeMatches(child, location));
+            const isActiveGroup = groupChildren(group).some((child) => routeMatches(child, location));
+            const hasSubgroups = Boolean(group.subgroups?.length);
 
             return (
               <li key={group.id}>
@@ -108,44 +158,28 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                     isExpanded ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
                   )}
                 >
-                  <ul
+                  <div
                     className={cn(
-                      "space-y-1 px-2 py-3 transition-opacity duration-300",
+                      "space-y-3 px-2 py-3 transition-opacity duration-300",
                       isExpanded ? "opacity-100" : "opacity-0"
                     )}
                   >
-                    {group.children.map((item) => {
-                      const ItemIcon = item.icon;
-                      const itemLabel = item.label ?? (item.labelKey ? t(item.labelKey) : item.id);
-                      const isActive = routeMatches(item, location);
-
-                      return (
-                        <li key={item.id}>
-                          <Link
-                            href={item.path}
-                            className={cn(
-                              "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-                              dir === "rtl" ? "text-right" : "text-left",
-                              isActive
-                                ? "bg-primary text-primary-foreground shadow-floating"
-                                : "text-muted-foreground hover:bg-sidebar-muted/80 hover:text-foreground"
-                            )}
-                            aria-current={isActive ? "page" : undefined}
-                          >
-                            <span
-                              className={cn(
-                                "flex h-7 w-7 items-center justify-center rounded-lg border border-border/40 bg-card/80 text-muted-foreground",
-                                isActive && "border-transparent bg-primary/90 text-primary-foreground"
+                    {hasSubgroups
+                      ? group.subgroups?.map((subgroup: PlatformSidebarSubgroupConfig) => {
+                          const subgroupLabel = subgroup.label ?? (subgroup.labelKey ? t(subgroup.labelKey) : subgroup.id);
+                          return (
+                            <div key={subgroup.id} className="space-y-2">
+                              {subgroupLabel && (
+                                <div className="px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground/80">
+                                  {subgroupLabel}
+                                </div>
                               )}
-                            >
-                              <ItemIcon size={16} />
-                            </span>
-                            <span className="flex-1 truncate">{itemLabel}</span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                              <ul className="space-y-1">{renderItems(subgroup.children, location, dir, t)}</ul>
+                            </div>
+                          );
+                        })
+                      : <ul className="space-y-1">{renderItems(group.children ?? [], location, dir, t)}</ul>}
+                  </div>
                 </div>
               </li>
             );

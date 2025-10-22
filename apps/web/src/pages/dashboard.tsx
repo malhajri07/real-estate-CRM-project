@@ -228,7 +228,7 @@ export default function Dashboard() {
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 {pipelineStages.map((stage) => (
-                  <div key={stage.id} className="rounded-2xl border border-border/60 bg-white/70 p-4 text-center shadow-sm dark:bg-neutral-900/60">
+                  <div key={stage.id} className="rounded-2xl border border-border/60 bg-white/70 p-4 text-center shadow-sm">
                     <p className="text-2xl font-semibold text-foreground">{stage.value}</p>
                     <p className="mt-1 text-xs font-medium text-muted-foreground">{stage.label}</p>
                   </div>
@@ -269,7 +269,7 @@ export default function Dashboard() {
                     };
 
                     return (
-                      <li key={lead.id} className="rounded-2xl border border-border/60 bg-white/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card dark:bg-neutral-900/60">
+                      <li key={lead.id} className="rounded-2xl border border-border/60 bg-white/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                           <div className="space-y-1">
                             <p className="text-sm font-semibold text-foreground">
@@ -353,8 +353,8 @@ export default function Dashboard() {
                   {todaysActivities.map((activity) => (
                     <li
                       key={activity.id}
-                      className={cn(
-                        "flex items-start gap-3 rounded-2xl border border-border/60 bg-white/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card dark:bg-neutral-900/60",
+                        className={cn(
+                          "flex items-start gap-3 rounded-2xl border border-border/60 bg-white/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card",
                         activity.completed && "opacity-60"
                       )}
                     >

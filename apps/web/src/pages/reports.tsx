@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import MetricsCard from "@/components/ui/metrics-card";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
 import type { Lead, Property, Deal } from "@shared/types";
 
 // Recharts components for comprehensive charts
@@ -255,10 +256,16 @@ export default function Reports() {
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg text-right">
           <p className="font-medium text-gray-900 mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ color: entry.color }} className="text-sm flex justify-between items-center">
+            <p
+              key={index}
+              className={cn(
+                "flex items-center justify-between text-sm",
+                entry.color ? `text-[${entry.color}]` : "text-foreground"
+              )}
+            >
               <span>{entry.dataKey}:</span>
               <span className="font-medium">
-                {entry.dataKey === 'revenue' || entry.dataKey === 'commission' 
+                {entry.dataKey === 'revenue' || entry.dataKey === 'commission'
                   ? formatCurrency(entry.value)
                   : formatNumber(entry.value)
                 }

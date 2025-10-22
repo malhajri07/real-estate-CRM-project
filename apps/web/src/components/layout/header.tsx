@@ -1,11 +1,10 @@
 import { useState, type ReactNode } from "react";
 import type { ChangeEvent } from "react";
 import { motion } from "framer-motion";
-import { Bell, Menu, MoonStar, Search, SunMedium, User } from "lucide-react";
+import { Bell, Menu, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useLanguage, type SupportedLanguage } from "@/contexts/LanguageContext";
-import { useTheme } from "@/contexts/ThemeContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 
@@ -36,9 +35,8 @@ export default function Header({
   isSidebarOpen,
 }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { dir, t, language, setLanguage } = useLanguage();
+  const { dir, t } = useLanguage();
   const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
 
   const defaultPlaceholder = searchPlaceholder || t("form.search") || "البحث...";
 
@@ -98,7 +96,6 @@ export default function Header({
               onChange={handleSearchChange}
               className={cn(
                 "h-11 w-full rounded-full border border-border/70 bg-card/80 pr-4 text-sm shadow-outline transition focus:border-primary/40 focus:ring-primary/40",
-                "dark:bg-card/40",
                 searchAlignment
               )}
             />
@@ -114,57 +111,6 @@ export default function Header({
 
         {showActions && (
           <div className="flex items-center gap-2">
-            <div
-              className="flex items-center gap-1 rounded-full border border-border/60 bg-card/70 p-0.5 shadow-outline"
-              role="group"
-              aria-label={t("header.languageToggle")}
-            >
-              {(["ar", "en"] as SupportedLanguage[]).map((option) => {
-                const isActive = language === option;
-                const label = option === "ar" ? t("header.language.ar") : t("header.language.en");
-                const shortLabel = option === "ar" ? "ع" : "En";
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => setLanguage(option)}
-                    className={cn(
-                      "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition",
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-floating"
-                        : "text-muted-foreground hover:bg-sidebar-muted/80 hover:text-foreground"
-                    )}
-                    aria-pressed={isActive}
-                    aria-label={label}
-                  >
-                    <span>{shortLabel}</span>
-                    <span className="hidden sm:inline">{label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              aria-label={theme === "dark" ? t("header.lightMode") : t("header.darkMode")}
-              className="relative rounded-full border border-border/60 bg-card/70 text-muted-foreground shadow-outline transition hover:bg-card/90 focus-visible:ring-primary/40"
-            >
-              <SunMedium
-                className={cn(
-                  "h-4 w-4 pointer-events-none transition-all",
-                  theme === "dark" ? "scale-0 opacity-0 rotate-90" : "scale-100 opacity-100 rotate-0"
-                )}
-              />
-              <MoonStar
-                className={cn(
-                  "absolute h-4 w-4 pointer-events-none transition-all",
-                  theme === "dark" ? "scale-100 opacity-100 rotate-0" : "scale-0 opacity-0 -rotate-90"
-                )}
-              />
-            </Button>
-
             <Button
               variant="ghost"
               size="icon"

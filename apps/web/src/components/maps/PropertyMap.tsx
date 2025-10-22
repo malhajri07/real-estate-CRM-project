@@ -20,6 +20,24 @@ const defaultIcon = L.icon({
 
 const fallbackCenter: [number, number] = [24.7136, 46.6753];
 
+const escapeHtml = (value: string | null | undefined) =>
+  String(value ?? "").replace(/[&<>"']/g, (char) => {
+    switch (char) {
+      case "&":
+        return "&amp;";
+      case "<":
+        return "&lt;";
+      case ">":
+        return "&gt;";
+      case '"':
+        return "&quot;";
+      case "'":
+        return "&#39;";
+      default:
+        return char;
+    }
+  });
+
 export interface PropertyMapProps {
   properties: Property[];
   activeProperty?: Property | null;
@@ -86,11 +104,17 @@ export function PropertyMap({ properties, activeProperty, className = "" }: Prop
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
       const marker = L.marker([lat, lng], { icon: defaultIcon }).addTo(layerGroup);
+      const title = property.title ? escapeHtml(property.title) : "بدون عنوان";
+      const city = property.city ? escapeHtml(property.city) : "غير محدد";
+      const formattedPrice = property.price
+        ? escapeHtml(`${Number(property.price).toLocaleString("en-US")} ﷼`)
+        : "بدون سعر";
+
       marker.bindPopup(
-        `<div style="min-width: 180px; text-align: right;">
-          <strong>${property.title ?? "بدون عنوان"}</strong><br />
-          ${property.city ?? "غير محدد"}<br />
-          ${property.price ? Number(property.price).toLocaleString("en-US") + " ﷼" : "بدون سعر"}
+        `<div class="min-w-[180px] space-y-1 rounded-2xl border border-border/60 bg-slate-900/90 px-4 py-3 text-right text-xs font-medium text-white shadow-[0_18px_35px_rgba(15,23,42,0.25)]">
+          <p class="text-sm font-semibold text-white">${title}</p>
+          <p class="text-white/80">${city}</p>
+          <p class="text-[13px] text-white/70">${formattedPrice}</p>
         </div>`
       );
     });

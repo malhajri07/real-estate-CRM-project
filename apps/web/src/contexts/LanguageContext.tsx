@@ -26,14 +26,20 @@ const englishTranslations: Record<string, string> = {
   'nav.customer_requests': 'Customer Requests',
   'nav.admin_requests': 'Internal Requests',
   'nav.agencies': 'Agencies',
+  'nav.agency_profile': 'Agency Profile',
+  'nav.agent_profile': 'Agent Profile',
   'nav.post_listing': 'Post Listing',
   'nav.favorites': 'Favorites',
   'nav.saved_searches': 'Saved Searches',
   'nav.compare': 'Compare',
+  'nav.property_detail': 'Property Detail',
+  'nav.listing_public': 'Public Listing',
+  'nav.unverified_listings': 'Unverified Listings',
   'nav.marketing_requests': 'Marketing Requests',
   'nav.cms': 'Content Studio',
   'nav.moderation': 'Listing Moderation',
   'nav.settings': 'Settings',
+  'nav.workspace_settings': 'Workspace Settings',
   'nav.system_title': 'Real Estate Management System',
   'nav.logout': 'Log out',
   'nav.welcome': 'Welcome',
@@ -58,6 +64,14 @@ const englishTranslations: Record<string, string> = {
   'sidebar.marketplace': 'Properties & Marketplace',
   'sidebar.marketingContent': 'Marketing & Content',
   'sidebar.settingsSupport': 'Settings & Support',
+  'sidebar.customers': 'Customer Workbench',
+  'sidebar.customers.core': 'Core records',
+  'sidebar.customers.operations': 'Operations & alerts',
+  'sidebar.corporateExclusive': 'Corporate management exclusives',
+  'sidebar.corporate.directory': 'Agency oversight',
+  'sidebar.crossRole': 'Cross-role utilities',
+  'sidebar.crossRole.discovery': 'Discovery & curation',
+  'sidebar.crossRole.oversight': 'Listing oversight',
   'dashboard.title': 'Dashboard',
   'dashboard.loading': 'Loading dashboard...',
   'dashboard.total_leads': 'Total leads',
@@ -388,14 +402,20 @@ const arabicTranslations: Record<string, string> = {
   'nav.customer_requests': 'طلبات العملاء',
   'nav.admin_requests': 'الطلبات الداخلية',
   'nav.agencies': 'الوكالات',
+  'nav.agency_profile': 'ملف الوكالة',
+  'nav.agent_profile': 'ملف الوكيل',
   'nav.post_listing': 'نشر إعلان',
   'nav.favorites': 'المفضلة',
   'nav.saved_searches': 'عمليات البحث المحفوظة',
   'nav.compare': 'المقارنة',
+  'nav.property_detail': 'تفاصيل العقار',
+  'nav.listing_public': 'عرض الإعلان العام',
+  'nav.unverified_listings': 'إعلانات غير موثقة',
   'nav.marketing_requests': 'طلبات التسويق',
   'nav.cms': 'استوديو المحتوى',
   'nav.moderation': 'مراجعة القوائم',
   'nav.settings': 'الإعدادات',
+  'nav.workspace_settings': 'إعدادات مساحة العمل',
   'nav.system_title': 'نظام إدارة العقارات',
   'nav.logout': 'تسجيل الخروج',
   'nav.welcome': 'مرحباً',
@@ -420,6 +440,14 @@ const arabicTranslations: Record<string, string> = {
   'sidebar.marketplace': 'العقارات والسوق',
   'sidebar.marketingContent': 'التسويق والمحتوى',
   'sidebar.settingsSupport': 'الإعدادات والدعم',
+  'sidebar.customers': 'لوحة العميل الموحدة',
+  'sidebar.customers.core': 'السجلات الأساسية',
+  'sidebar.customers.operations': 'العمليات والتنبيهات',
+  'sidebar.corporateExclusive': 'صلاحيات الإدارة العليا',
+  'sidebar.corporate.directory': 'إشراف الوكالات',
+  'sidebar.crossRole': 'خدمات مشتركة',
+  'sidebar.crossRole.discovery': 'الاكتشاف والتنظيم',
+  'sidebar.crossRole.oversight': 'مراقبة الإعلانات',
   'dashboard.title': 'لوحة التحكم',
   'dashboard.loading': 'جار تحميل لوحة التحكم...',
   'dashboard.total_leads': 'إجمالي العملاء المحتملين',
@@ -775,9 +803,11 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
 
     document.documentElement.lang = language;
     document.documentElement.dir = dir;
+    document.documentElement.classList.add('bg-background', 'text-foreground');
     document.body.setAttribute('dir', dir);
-    document.body.classList.toggle('rtl', dir === 'rtl');
-    document.body.classList.toggle('ltr', dir === 'ltr');
+    document.body.classList.add('min-h-screen', 'bg-background', 'text-foreground', 'antialiased');
+    document.body.classList.remove('font-sans', 'font-arabic');
+    document.body.classList.add(dir === 'rtl' ? 'font-arabic' : 'font-sans');
   }, [dir, language]);
 
   const t = useCallback(
