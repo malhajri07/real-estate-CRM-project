@@ -5,3 +5,5 @@
 - Prefer composable helpers from `@/lib/design-system` (e.g., `surfaceCard`, `sectionShell`) when building new sections to keep spacing and elevation consistent.
 - Add new global primitives through Tailwind plugins (`addBase`, `addComponents`, `addUtilities`) instead of editing `index.css`.
 - Keep interactive surfaces responsive by pairing color changes with transition utilities such as `transition-colors`, `duration-200`, and `ease-in-out`.
+- Reuse the shared overlay (`ui-overlay`), stack (`ui-stack`), and meter (`ui-meter`) component classes exported from the Tailwind plugin when composing popovers, stacked bars, and progress meters so every interactive layer inherits the same motion curve and rounded geometry.
+- Clamp numeric inputs before computing widths or flex-basis values and feed them through CSS custom properties (`--meter-fill`, `--stack-segment`) to avoid inline `style` declarations.

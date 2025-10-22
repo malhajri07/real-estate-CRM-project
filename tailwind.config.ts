@@ -186,6 +186,32 @@ const config: Config = {
         ".ui-data-list__item": {
           "@apply flex items-center justify-between gap-4 py-3": {},
         },
+        ".ui-overlay": {
+          "@apply pointer-events-none fixed inset-0 z-overlay": {},
+        },
+        ".ui-overlay__content": {
+          "@apply pointer-events-auto": {},
+        },
+        ".ui-meter": {
+          "@apply relative overflow-hidden rounded-full bg-muted": {},
+        },
+        ".ui-meter__fill": {
+          width: "var(--meter-fill, 0%)",
+          transitionProperty: "width",
+          transitionDuration: "400ms",
+          transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+        },
+        ".ui-stack": {
+          "@apply flex overflow-hidden rounded-2xl bg-muted": {},
+        },
+        ".ui-stack__segment": {
+          flexBasis: "var(--stack-segment, 0%)",
+          flexGrow: "0",
+          flexShrink: "0",
+          transitionProperty: "flex-basis",
+          transitionDuration: "500ms",
+          transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+        },
       });
 
       addUtilities({
