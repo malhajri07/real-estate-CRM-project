@@ -7,9 +7,9 @@ import {
   type ReactNode,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
-import type { LatLngTuple } from "leaflet";
-import { LatLngBounds } from "leaflet";
+import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from "react-leaflet";
+import type { LatLngTuple, DivIcon } from "leaflet";
+import { LatLngBounds, divIcon } from "leaflet";
 import { useLocation } from "wouter";
 import {
   Heart,
@@ -21,6 +21,8 @@ import {
   RefreshCcw,
   Map as MapIcon,
   LayoutGrid,
+  ChevronsUpDown,
+  Check,
 } from "lucide-react";
 
 import Header from "@/components/layout/header";
@@ -28,13 +30,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -44,6 +39,19 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -115,6 +123,97 @@ interface DistrictOption extends Option {
   cityId: string | null;
 }
 
+interface RegionPayload {
+  id: number;
+  nameAr?: string | null;
+  nameEn?: string | null;
+}
+
+interface CityPayload {
+  id: number;
+  regionId: number | null;
+  nameAr?: string | null;
+  nameEn?: string | null;
+}
+
+interface DistrictPayload {
+  id: number;
+  regionId: number | null;
+  cityId: number | null;
+  nameAr?: string | null;
+  nameEn?: string | null;
+}
+
+interface SearchableComboboxProps {
+  value: string;
+  onChange: (value: string) => void;
+  options: Option[];
+  placeholder: string;
+  searchPlaceholder: string;
+  emptyText?: string;
+  disabled?: boolean;
+}
+
+function SearchableCombobox({
+  value,
+  onChange,
+  options,
+  placeholder,
+  searchPlaceholder,
+  emptyText = "لم يتم العثور على نتائج",
+  disabled,
+}: SearchableComboboxProps) {
+  const [open, setOpen] = useState(false);
+  const selected = options.find((option) => option.id === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          disabled={disabled}
+          className={cn(
+            "h-11 w-full justify-between rounded-2xl border border-border/60 bg-background/90 text-right font-normal",
+            disabled && "opacity-70"
+          )}
+        >
+          <span className={cn("truncate", !selected && "text-muted-foreground")}>{
+            selected ? selected.label : placeholder
+          }</span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="end">
+        <Command>
+          <CommandInput placeholder={searchPlaceholder} className="text-right" />
+          <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">{emptyText}</CommandEmpty>
+          <CommandList>
+            <CommandGroup>
+              {options.map((option) => (
+                <CommandItem
+                  key={option.id}
+                  value={option.label}
+                  onSelect={() => {
+                    onChange(option.id);
+                    setOpen(false);
+                  }}
+                  className="flex items-center justify-between gap-2"
+                >
+                  <span className="truncate">{option.label}</span>
+                  {value === option.id && <Check className="h-4 w-4 text-brand-600" />}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 interface FilterState {
   search: string;
   region: string;
@@ -174,15 +273,9 @@ interface LeafletTileLayerProps {
   children?: ReactNode;
 }
 
-interface LeafletCircleMarkerProps {
-  center: LatLngTuple;
-  radius: number;
-  pathOptions?: {
-    color?: string;
-    weight?: number;
-    fillColor?: string;
-    fillOpacity?: number;
-  };
+interface LeafletMarkerProps {
+  position: LatLngTuple;
+  icon?: DivIcon;
   eventHandlers?: {
     click?: () => void;
     mouseover?: () => void;
@@ -193,7 +286,7 @@ interface LeafletCircleMarkerProps {
 
 const LeafletMapContainer = MapContainer as unknown as ComponentType<LeafletMapContainerProps>;
 const LeafletTileLayer = TileLayer as unknown as ComponentType<LeafletTileLayerProps>;
-const LeafletCircleMarker = CircleMarker as unknown as ComponentType<LeafletCircleMarkerProps>;
+const LeafletMarker = Marker as unknown as ComponentType<LeafletMarkerProps>;
 
 const asNumber = (value: unknown): number | null => {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -216,6 +309,27 @@ const formatCurrency = (value: number | null) => {
     currency: "SAR",
     minimumFractionDigits: 0,
   }).format(value);
+};
+
+const currencyCompactFormatter = new Intl.NumberFormat("ar-SA", {
+  style: "currency",
+  currency: "SAR",
+  minimumFractionDigits: 0,
+  notation: "compact",
+});
+
+const formatCurrencyCompact = (value: number | null) => {
+  if (typeof value !== "number" || Number.isNaN(value)) return "سعر غير متاح";
+  return currencyCompactFormatter.format(value);
+};
+
+const escapeHtml = (value: string | null | undefined) => {
+  if (!value) return "";
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 };
 
 const parseFilterNumber = (value: string) => {
@@ -243,6 +357,9 @@ interface FilterContentProps {
   onFavoritesToggle: (value: boolean) => void;
   onReset: () => void;
   disableDistrictSelect?: boolean;
+  isRegionLoading?: boolean;
+  isCityLoading?: boolean;
+  isDistrictLoading?: boolean;
 }
 
 function FilterContent({
@@ -262,10 +379,44 @@ function FilterContent({
   onFavoritesToggle,
   onReset,
   disableDistrictSelect,
+  isRegionLoading,
+  isCityLoading,
+  isDistrictLoading,
 }: FilterContentProps) {
   const handleNumericChange = (key: keyof FilterState) => (event: ChangeEvent<HTMLInputElement>) => {
     onNumericChange(key, event.target.value.replace(/[^\d]/g, ""));
   };
+
+  const regionChoices = useMemo<Option[]>(
+    () => [{ id: "all", label: "جميع المناطق" }, ...regionOptions],
+    [regionOptions]
+  );
+
+  const cityChoices = useMemo<Option[]>(
+    () => [{ id: "all", label: "جميع المدن" }, ...cityOptions],
+    [cityOptions]
+  );
+
+  const districtChoices = useMemo<Option[]>(
+    () => [{ id: "all", label: "جميع الأحياء" }, ...districtOptions],
+    [districtOptions]
+  );
+
+  const propertyTypeChoices = useMemo<Option[]>(
+    () => [
+      { id: "all", label: "جميع الأنواع" },
+      ...propertyTypeOptions.map((option) => ({ id: option, label: option })),
+    ],
+    [propertyTypeOptions]
+  );
+
+  const transactionTypeChoices = useMemo<Option[]>(
+    () => [
+      { id: "all", label: "جميع الخيارات" },
+      ...transactionTypeOptions.map((option) => ({ id: option, label: option })),
+    ],
+    [transactionTypeOptions]
+  );
 
   return (
     <div className="space-y-6">
@@ -283,57 +434,39 @@ function FilterContent({
       <div className="grid grid-cols-1 gap-4">
         <div className="space-y-2">
           <Label>المنطقة</Label>
-          <Select value={filters.region} onValueChange={onRegionChange}>
-            <SelectTrigger className="h-11 rounded-2xl border border-border/60 bg-background/90">
-              <SelectValue placeholder="اختر المنطقة" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع المناطق</SelectItem>
-              {regionOptions.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SearchableCombobox
+            value={filters.region}
+            onChange={onRegionChange}
+            options={regionChoices}
+            placeholder="اختر المنطقة"
+            searchPlaceholder="ابحث عن المنطقة..."
+            emptyText={isRegionLoading ? "جار تحميل المناطق..." : "لم يتم العثور على منطقة"}
+          />
         </div>
 
         <div className="space-y-2">
           <Label>المدينة</Label>
-          <Select value={filters.city} onValueChange={onCityChange}>
-            <SelectTrigger className="h-11 rounded-2xl border border-border/60 bg-background/90">
-              <SelectValue placeholder="اختر المدينة" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع المدن</SelectItem>
-              {cityOptions.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SearchableCombobox
+            value={filters.city}
+            onChange={onCityChange}
+            options={cityChoices}
+            placeholder="اختر المدينة"
+            searchPlaceholder="ابحث عن المدينة..."
+            emptyText={isCityLoading ? "جار تحميل المدن..." : "لم يتم العثور على مدينة"}
+          />
         </div>
 
         <div className="space-y-2">
           <Label>الحي</Label>
-          <Select
+          <SearchableCombobox
             value={filters.district}
-            onValueChange={onDistrictChange}
+            onChange={onDistrictChange}
+            options={districtChoices}
+            placeholder="اختر الحي"
+            searchPlaceholder="ابحث عن الحي..."
+            emptyText={isDistrictLoading ? "جار تحميل الأحياء..." : "لم يتم العثور على حي"}
             disabled={disableDistrictSelect}
-          >
-            <SelectTrigger className="h-11 rounded-2xl border border-border/60 bg-background/90 disabled:cursor-not-allowed">
-              <SelectValue placeholder="اختر الحي" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع الأحياء</SelectItem>
-              {districtOptions.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
         </div>
       </div>
 
@@ -402,36 +535,26 @@ function FilterContent({
 
       <div className="space-y-2">
         <Label>نوع العقار</Label>
-        <Select value={filters.propertyType} onValueChange={onPropertyTypeChange}>
-          <SelectTrigger className="h-11 rounded-2xl border border-border/60 bg-background/90">
-            <SelectValue placeholder="حدد النوع" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">جميع الأنواع</SelectItem>
-            {propertyTypeOptions.map((option) => (
-              <SelectItem key={option} value={option}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <SearchableCombobox
+          value={filters.propertyType}
+          onChange={onPropertyTypeChange}
+          options={propertyTypeChoices}
+          placeholder="حدد النوع"
+          searchPlaceholder="ابحث عن نوع العقار..."
+          emptyText="لا توجد أنواع مطابقة"
+        />
       </div>
 
       <div className="space-y-2">
         <Label>نوع التعامل</Label>
-        <Select value={filters.transactionType} onValueChange={onTransactionTypeChange}>
-          <SelectTrigger className="h-11 rounded-2xl border border-border/60 bg-background/90">
-            <SelectValue placeholder="حدد نوع التعامل" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">جميع الخيارات</SelectItem>
-            {transactionTypeOptions.map((option) => (
-              <SelectItem key={option} value={option}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <SearchableCombobox
+          value={filters.transactionType}
+          onChange={onTransactionTypeChange}
+          options={transactionTypeChoices}
+          placeholder="حدد نوع التعامل"
+          searchPlaceholder="ابحث عن نوع التعامل..."
+          emptyText="لا توجد نتائج مطابقة"
+        />
       </div>
 
       <div className="flex items-center justify-between gap-4 rounded-2xl border border-border/60 bg-muted/20 px-4 py-3">
@@ -483,16 +606,54 @@ function MapAutoFocus({ points, fallbackCenter }: AutoFocusProps) {
   return null;
 }
 
+interface HighlightFocusProps {
+  point: LatLngTuple | null;
+}
+
+function MapHighlightFocus({ point }: HighlightFocusProps) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map || !point) return;
+    const currentZoom = map.getZoom();
+    map.flyTo(point, currentZoom < 14 ? 14 : currentZoom, { duration: 0.6 });
+  }, [map, point]);
+
+  return null;
+}
+
+const createPropertyMarkerIcon = (property: PropertySummary, isHighlighted: boolean): DivIcon => {
+  const background = isHighlighted ? "rgba(37, 99, 235, 0.95)" : "rgba(15, 23, 42, 0.9)";
+  const border = isHighlighted ? "rgba(191, 219, 254, 0.8)" : "rgba(148, 163, 184, 0.45)";
+  const price = escapeHtml(formatCurrencyCompact(property.price));
+  const location = escapeHtml(property.city ?? property.region ?? "");
+  const type = escapeHtml(property.propertyType ?? "");
+
+  return divIcon({
+    className: "property-map-marker",
+    iconAnchor: [56, 58],
+    popupAnchor: [0, -48],
+    html: `
+      <div style="position:relative;display:flex;flex-direction:column;gap:6px;min-width:132px;padding:12px 16px;border-radius:20px;background:${background};color:#fff;box-shadow:0 18px 35px rgba(15,23,42,0.25);border:1px solid ${border};">
+        <span style="font-size:14px;font-weight:700;letter-spacing:0.2px;">${price}</span>
+        ${location ? `<span style="font-size:12px;font-weight:500;opacity:0.85;">${location}</span>` : ""}
+        ${type ? `<span style='font-size:11px;font-weight:500;opacity:0.75;'>${type}</span>` : ""}
+        <span style="position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:16px solid ${background};filter:drop-shadow(0 6px 6px rgba(15,23,42,0.25));"></span>
+      </div>
+    `,
+  });
+};
+
 interface PropertiesMapProps {
   properties: PropertySummary[];
   highlightedId: string | null;
   onSelect: (property: PropertySummary) => void;
+  onNavigate: (propertyId: string) => void;
   isClient: boolean;
-  mapFocus: boolean;
 }
 
-function PropertiesMap({ properties, highlightedId, onSelect, isClient, mapFocus }: PropertiesMapProps) {
-  const points = useMemo(
+function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClient }: PropertiesMapProps) {
+  const markers = useMemo(
     () =>
       properties
         .filter((property) => typeof property.latitude === "number" && typeof property.longitude === "number")
@@ -504,54 +665,133 @@ function PropertiesMap({ properties, highlightedId, onSelect, isClient, mapFocus
     [properties]
   );
 
-  const fallbackCenter = points.length ? points[0].position : DEFAULT_CENTER;
-  const heightClass = mapFocus ? "h-[520px] lg:h-[680px]" : "h-[360px] lg:h-[420px]";
+  const activeProperty = useMemo(
+    () =>
+      highlightedId
+        ? markers.find((marker) => marker.id === highlightedId)?.property ?? null
+        : markers.length
+          ? markers[0].property
+          : null,
+    [highlightedId, markers]
+  );
+
+  const activePoint = useMemo(() => {
+    if (!activeProperty || typeof activeProperty.latitude !== "number" || typeof activeProperty.longitude !== "number") {
+      return null;
+    }
+    return [activeProperty.latitude, activeProperty.longitude] as LatLngTuple;
+  }, [activeProperty]);
+
+  const fallbackCenter = markers.length ? markers[0].position : DEFAULT_CENTER;
+  const heightClass = "h-[640px] lg:h-[720px]";
 
   return (
-    <div className={cn("overflow-hidden rounded-3xl border border-border/60 bg-muted/20", heightClass)}>
+    <div className={cn("relative overflow-hidden rounded-3xl border border-border/60 bg-slate-100/70", heightClass)}>
       {isClient ? (
-        <LeafletMapContainer
-          center={fallbackCenter}
-          zoom={6}
-          zoomControl={false}
-          className="h-full w-full"
-          scrollWheelZoom
-          preferCanvas
-        >
-          <LeafletTileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution="&copy; OpenStreetMap contributors"
-          />
-          <MapAutoFocus points={points.map((point) => point.position)} fallbackCenter={fallbackCenter} />
-          {points.map(({ id, position, property }) => {
-            const isHighlighted = highlightedId === id;
-            return (
-              <LeafletCircleMarker
-                key={id}
-                center={position}
-                radius={isHighlighted ? 11 : 8}
-                pathOptions={{
-                  color: isHighlighted ? "#1d4ed8" : "#0369a1",
-                  weight: isHighlighted ? 3 : 1.5,
-                  fillColor: isHighlighted ? "#3b82f6" : "#38bdf8",
-                  fillOpacity: 0.8,
-                }}
-                eventHandlers={{
-                  click: () => onSelect(property),
-                  mouseover: () => onSelect(property),
-                }}
-              >
-                <Popup>
-                  <div className="space-y-1 text-sm">
-                    <p className="font-semibold text-slate-900">{property.title}</p>
-                    <p className="text-muted-foreground">{property.city || property.region}</p>
-                    <p className="font-medium text-brand-600">{formatCurrency(property.price)}</p>
+        <div className="relative h-full w-full">
+          <LeafletMapContainer
+            center={fallbackCenter}
+            zoom={6}
+            zoomControl={false}
+            className="absolute inset-0"
+            style={{ height: "100%", width: "100%" }}
+            scrollWheelZoom
+            preferCanvas
+          >
+            <LeafletTileLayer
+              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+              attribution="&copy; OpenStreetMap contributors &copy; CARTO"
+            />
+            <ZoomControl position="topright" />
+            <MapAutoFocus points={markers.map((marker) => marker.position)} fallbackCenter={fallbackCenter} />
+            <MapHighlightFocus point={activePoint} />
+            {markers.map(({ id, position, property }) => {
+              const isHighlighted = highlightedId === id;
+              return (
+                <LeafletMarker
+                  key={id}
+                  position={position}
+                  icon={createPropertyMarkerIcon(property, isHighlighted)}
+                  eventHandlers={{
+                    click: () => onSelect(property),
+                    mouseover: () => onSelect(property),
+                  }}
+                >
+                  <Popup>
+                    <div className="space-y-1 text-sm">
+                      <p className="font-semibold text-slate-900">{property.title}</p>
+                      <p className="text-muted-foreground">{property.city || property.region}</p>
+                      <p className="font-medium text-brand-600">{formatCurrency(property.price)}</p>
+                    </div>
+                  </Popup>
+                </LeafletMarker>
+              );
+            })}
+          </LeafletMapContainer>
+
+          {activeProperty && (
+            <div className="pointer-events-none absolute inset-x-3 bottom-4 z-[401] sm:inset-x-6 md:inset-x-auto md:right-6 md:max-w-sm">
+              <div className="pointer-events-auto space-y-3 rounded-3xl border border-border/60 bg-white/95 p-4 shadow-2xl backdrop-blur">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {activeProperty.transactionType || "عرض"}
+                  </p>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {activeProperty.title || "عقار بدون عنوان"}
+                  </h3>
+                  <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4 text-brand-600" />
+                    <span>
+                      {activeProperty.city
+                        ? `${activeProperty.city}${activeProperty.region ? `، ${activeProperty.region}` : ""}`
+                        : activeProperty.region}
+                    </span>
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between rounded-2xl bg-brand-50/80 px-4 py-2">
+                  <span className="text-sm font-medium text-brand-700">السعر</span>
+                  <span className="text-lg font-semibold text-brand-600">
+                    {formatCurrency(activeProperty.price)}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                  <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
+                    <Bed className="h-4 w-4 text-brand-600" />
+                    <span className="font-semibold text-foreground">
+                      {activeProperty.bedrooms ?? "—"}
+                    </span>
+                    <span>غرف</span>
                   </div>
-                </Popup>
-              </LeafletCircleMarker>
-            );
-          })}
-        </LeafletMapContainer>
+                  <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
+                    <Bath className="h-4 w-4 text-brand-600" />
+                    <span className="font-semibold text-foreground">
+                      {activeProperty.bathrooms ?? "—"}
+                    </span>
+                    <span>دورات مياه</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
+                    <Ruler className="h-4 w-4 text-brand-600" />
+                    <span className="font-semibold text-foreground">
+                      {activeProperty.areaSqm ?? "—"}
+                    </span>
+                    <span>م²</span>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  size="sm"
+                  className="w-full rounded-2xl"
+                  onClick={() => onNavigate(activeProperty.id)}
+                >
+                  عرض التفاصيل كاملة
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
           جار تجهيز الخريطة...
@@ -703,40 +943,57 @@ export default function SearchProperties() {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [highlightedPropertyId, setHighlightedPropertyId] = useState<string | null>(null);
-  const [mapFocus, setMapFocus] = useState(true);
   const [isClient, setIsClient] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"map" | "table">("map");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     ensureLeafletStyles();
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+  const regionsQuery = useQuery<RegionPayload[]>({
+    queryKey: ["locations", "regions"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/locations/regions");
+      return (await response.json()) as RegionPayload[];
+    },
+    staleTime: 60 * 60 * 1000,
+  });
 
-    const applyMatches = (matches: boolean) => {
-      setIsDesktop(matches);
-      setIsSidebarOpen(matches);
-    };
+  const citiesQuery = useQuery<CityPayload[]>({
+    queryKey: ["locations", "cities", filters.region],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (filters.region !== "all") {
+        params.set("regionId", filters.region);
+      }
+      const query = params.toString();
+      const response = await apiRequest(
+        "GET",
+        `/api/locations/cities${query ? `?${query}` : ""}`
+      );
+      return (await response.json()) as CityPayload[];
+    },
+    staleTime: 30 * 60 * 1000,
+  });
 
-    applyMatches(mediaQuery.matches);
-
-    const handleChange = (event: MediaQueryListEvent) => {
-      applyMatches(event.matches);
-    };
-
-    if (typeof mediaQuery.addEventListener === "function") {
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
-    }
-
-    mediaQuery.addListener(handleChange);
-    return () => mediaQuery.removeListener(handleChange);
-  }, []);
+  const districtsQuery = useQuery<DistrictPayload[]>({
+    queryKey: ["locations", "districts", filters.city],
+    queryFn: async () => {
+      const cityId = Number(filters.city);
+      if (!Number.isFinite(cityId)) {
+        return [];
+      }
+      const response = await apiRequest(
+        "GET",
+        `/api/locations/districts?cityId=${cityId}`
+      );
+      return (await response.json()) as DistrictPayload[];
+    },
+    enabled: filters.city !== "all",
+    staleTime: 15 * 60 * 1000,
+  });
 
   const listingsQuery = useQuery<ListingsResponse>({
     queryKey: ["public-property-search"],
@@ -783,51 +1040,54 @@ export default function SearchProperties() {
   }, [listingsQuery.data]);
 
   const regionOptions = useMemo<Option[]>(() => {
-    const options = new Map<string, Option>();
-    properties.forEach((property) => {
-      if (property.regionId !== null && property.region) {
-        const id = String(property.regionId);
-        if (!options.has(id)) {
-          options.set(id, { id, label: property.region });
-        }
-      }
-    });
-    return Array.from(options.values()).sort((a, b) => a.label.localeCompare(b.label, "ar"));
-  }, [properties]);
+    if (!regionsQuery.data) return [];
+    return regionsQuery.data
+      .map((region) => ({
+        id: String(region.id),
+        label: (region.nameAr ?? region.nameEn ?? `منطقة ${region.id}`).toString().trim(),
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, "ar"));
+  }, [regionsQuery.data]);
 
   const cityOptions = useMemo<CityOption[]>(() => {
-    const options = new Map<string, CityOption>();
-    properties.forEach((property) => {
-      if (property.cityId !== null && property.city) {
-        const id = String(property.cityId);
-        if (!options.has(id)) {
-          options.set(id, {
-            id,
-            label: property.city,
-            regionId: property.regionId !== null ? String(property.regionId) : null,
-          });
-        }
-      }
-    });
-    return Array.from(options.values()).sort((a, b) => a.label.localeCompare(b.label, "ar"));
-  }, [properties]);
+    const source = citiesQuery.data ?? [];
+    return source
+      .map((city) => ({
+        id: String(city.id),
+        label: (city.nameAr ?? city.nameEn ?? `مدينة ${city.id}`).toString().trim(),
+        regionId: city.regionId !== null ? String(city.regionId) : null,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, "ar"));
+  }, [citiesQuery.data]);
 
   const districtOptions = useMemo<DistrictOption[]>(() => {
-    const options = new Map<string, DistrictOption>();
-    properties.forEach((property) => {
-      if (property.districtId && property.district) {
-        const id = property.districtId;
-        if (!options.has(id)) {
-          options.set(id, {
-            id,
-            label: property.district,
-            cityId: property.cityId !== null ? String(property.cityId) : null,
-          });
-        }
-      }
-    });
-    return Array.from(options.values()).sort((a, b) => a.label.localeCompare(b.label, "ar"));
-  }, [properties]);
+    const source = districtsQuery.data ?? [];
+    return source
+      .map((district) => ({
+        id: String(district.id),
+        label: (district.nameAr ?? district.nameEn ?? `حي ${district.id}`).toString().trim(),
+        cityId: district.cityId !== null ? String(district.cityId) : null,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, "ar"));
+  }, [districtsQuery.data]);
+
+  useEffect(() => {
+    if (!citiesQuery.data) return;
+    if (filters.city === "all") return;
+    const hasSelectedCity = citiesQuery.data.some((city) => String(city.id) === filters.city);
+    if (!hasSelectedCity) {
+      setFilters((prev) => ({ ...prev, city: "all", district: "all" }));
+    }
+  }, [citiesQuery.data, filters.city]);
+
+  useEffect(() => {
+    if (filters.district === "all") return;
+    if (!districtsQuery.data) return;
+    const hasSelectedDistrict = districtsQuery.data.some((district) => String(district.id) === filters.district);
+    if (!hasSelectedDistrict) {
+      setFilters((prev) => ({ ...prev, district: "all" }));
+    }
+  }, [districtsQuery.data, filters.district]);
 
   const filteredCityOptions = useMemo(() => {
     if (filters.region === "all") return cityOptions;
@@ -934,6 +1194,16 @@ export default function SearchProperties() {
     }
   }, [filteredProperties, highlightedPropertyId]);
 
+  useEffect(() => {
+    if (highlightedPropertyId) return;
+    const firstWithCoordinates = filteredProperties.find(
+      (property) => typeof property.latitude === "number" && typeof property.longitude === "number"
+    );
+    if (firstWithCoordinates) {
+      setHighlightedPropertyId(firstWithCoordinates.id);
+    }
+  }, [filteredProperties, highlightedPropertyId]);
+
   const handleFavoritesToggle = (propertyId: string) => {
     setFavoriteIds((prev) =>
       prev.includes(propertyId) ? prev.filter((id) => id !== propertyId) : [...prev, propertyId]
@@ -945,11 +1215,7 @@ export default function SearchProperties() {
   };
 
   const handleFilterToggle = () => {
-    if (isDesktop) {
-      setIsSidebarOpen((previous) => !previous);
-    } else {
-      setIsSheetOpen(true);
-    }
+    setIsFilterOpen(true);
   };
 
   const handleReset = () => {
@@ -970,29 +1236,29 @@ export default function SearchProperties() {
                 onClick={handleFilterToggle}
               >
                 <SlidersHorizontal className="h-4 w-4" />
-                {isDesktop ? (isSidebarOpen ? "إخفاء التصفية" : "عرض التصفية") : "عرض عوامل التصفية"}
+                فتح عوامل التصفية
               </Button>
 
-              <div className="hidden items-center gap-2 rounded-full border border-border/60 bg-white/90 p-1 shadow-sm lg:flex">
+              <div className="flex items-center gap-2 rounded-full border border-border/60 bg-white/90 p-1 shadow-sm">
                 <Button
                   type="button"
-                  variant={mapFocus ? "default" : "ghost"}
+                  variant={viewMode === "map" ? "default" : "ghost"}
                   size="sm"
                   className="rounded-full px-4"
-                  onClick={() => setMapFocus(true)}
+                  onClick={() => setViewMode("map")}
                 >
                   <MapIcon className="h-4 w-4" />
-                  تركيز على الخريطة
+                  عرض الخريطة
                 </Button>
                 <Button
                   type="button"
-                  variant={!mapFocus ? "default" : "ghost"}
+                  variant={viewMode === "table" ? "default" : "ghost"}
                   size="sm"
                   className="rounded-full px-4"
-                  onClick={() => setMapFocus(false)}
+                  onClick={() => setViewMode("table")}
                 >
                   <LayoutGrid className="h-4 w-4" />
-                  توزيع متوازن
+                  عرض القائمة
                 </Button>
               </div>
             </div>
@@ -1014,64 +1280,8 @@ export default function SearchProperties() {
             </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)] lg:items-start">
-            {isDesktop && isSidebarOpen && (
-              <aside className="lg:col-span-1 lg:max-w-sm lg:pr-2">
-                <Card className="sticky top-28 rounded-3xl border border-border/60 bg-white/95 shadow-xl">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-xl">تصفية النتائج</CardTitle>
-                    <CardDescription>حدد المعايير المناسبة لاحتياجاتك.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6 pt-0">
-                    <FilterContent
-                      filters={filters}
-                      regionOptions={regionOptions}
-                      cityOptions={filteredCityOptions}
-                      districtOptions={filteredDistrictOptions}
-                      propertyTypeOptions={propertyTypeOptions}
-                      transactionTypeOptions={transactionTypeOptions}
-                      onSearchChange={(value) => setFilters((prev) => ({ ...prev, search: value }))}
-                      onRegionChange={(value) =>
-                        setFilters((prev) => ({ ...prev, region: value, city: "all", district: "all" }))
-                      }
-                      onCityChange={(value) =>
-                        setFilters((prev) => ({ ...prev, city: value, district: "all" }))
-                      }
-                      onDistrictChange={(value) => setFilters((prev) => ({ ...prev, district: value }))}
-                      onPropertyTypeChange={(value) => setFilters((prev) => ({ ...prev, propertyType: value }))}
-                      onTransactionTypeChange={(value) => setFilters((prev) => ({ ...prev, transactionType: value }))}
-                      onNumericChange={(key, value) => setFilters((prev) => ({ ...prev, [key]: value }))}
-                      onFavoritesToggle={(value) => setFilters((prev) => ({ ...prev, favoritesOnly: value }))}
-                      onReset={handleReset}
-                      disableDistrictSelect={filters.city === "all"}
-                    />
-                  </CardContent>
-                </Card>
-              </aside>
-            )}
-
-            <section className={cn("space-y-6", isDesktop && isSidebarOpen ? "lg:col-start-2" : "lg:col-span-full")}> 
-              <Card className="rounded-3xl border border-border/60 bg-white/95 shadow-xl">
-                <CardHeader className="flex flex-col gap-2 pb-4 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <CardTitle className="text-xl">خريطة العقارات</CardTitle>
-                    <CardDescription>استكشف العقارات المتاحة على الخريطة التفاعلية.</CardDescription>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {filteredProperties.filter((property) => property.latitude && property.longitude).length} عقار على الخريطة
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <PropertiesMap
-                    properties={filteredProperties}
-                    highlightedId={highlightedPropertyId}
-                    onSelect={(property) => setHighlightedPropertyId(property.id)}
-                    isClient={isClient}
-                    mapFocus={mapFocus}
-                  />
-                </CardContent>
-              </Card>
-
+          <section className="space-y-6">
+            {viewMode === "table" ? (
               <Card className="rounded-3xl border border-border/60 bg-white/95 shadow-xl">
                 <CardHeader className="flex flex-col gap-2 pb-4 md:flex-row md:items-center md:justify-between">
                   <div>
@@ -1105,12 +1315,33 @@ export default function SearchProperties() {
                   )}
                 </CardContent>
               </Card>
-            </section>
-          </div>
+            ) : (
+              <Card className="overflow-hidden rounded-3xl border border-border/60 bg-white/95 shadow-2xl">
+                <CardHeader className="flex flex-col gap-2 pb-4 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <CardTitle className="text-xl">خريطة العقارات</CardTitle>
+                    <CardDescription>استكشف العقارات على خريطة تفاعلية بتجربة مماثلة لخريطة عقار.</CardDescription>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {filteredProperties.filter((property) => property.latitude && property.longitude).length} عقار على الخريطة
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <PropertiesMap
+                    properties={filteredProperties}
+                    highlightedId={highlightedPropertyId}
+                    onSelect={(property) => setHighlightedPropertyId(property.id)}
+                    onNavigate={handleNavigate}
+                    isClient={isClient}
+                  />
+                </CardContent>
+              </Card>
+            )}
+          </section>
         </div>
       </main>
 
-      <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+      <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
         <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
           <SheetHeader className="pb-6">
             <SheetTitle>تصفية البحث</SheetTitle>
@@ -1136,11 +1367,14 @@ export default function SearchProperties() {
               onFavoritesToggle={(value) => setFilters((prev) => ({ ...prev, favoritesOnly: value }))}
               onReset={() => {
                 handleReset();
-                setIsSheetOpen(false);
+                setIsFilterOpen(false);
               }}
               disableDistrictSelect={filters.city === "all"}
+              isRegionLoading={regionsQuery.isLoading}
+              isCityLoading={citiesQuery.isLoading}
+              isDistrictLoading={filters.city !== "all" && districtsQuery.isLoading}
             />
-            <Button type="button" className="w-full rounded-2xl" onClick={() => setIsSheetOpen(false)}>
+            <Button type="button" className="w-full rounded-2xl" onClick={() => setIsFilterOpen(false)}>
               تم
             </Button>
           </div>
