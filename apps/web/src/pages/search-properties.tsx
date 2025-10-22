@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import { useQuery } from "@tanstack/react-query";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import type { LatLngTuple } from "leaflet";
@@ -9,7 +16,7 @@ import {
   MapPin,
   Bed,
   Bath,
-  RulerSquare,
+  Ruler,
   SlidersHorizontal,
   RefreshCcw,
   Map as MapIcon,
@@ -150,6 +157,43 @@ const ensureLeafletStyles = () => {
   link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
   document.head.appendChild(link);
 };
+
+interface LeafletMapContainerProps {
+  center: LatLngTuple;
+  zoom?: number;
+  zoomControl?: boolean;
+  className?: string;
+  scrollWheelZoom?: boolean;
+  preferCanvas?: boolean;
+  children?: ReactNode;
+}
+
+interface LeafletTileLayerProps {
+  url: string;
+  attribution?: string;
+  children?: ReactNode;
+}
+
+interface LeafletCircleMarkerProps {
+  center: LatLngTuple;
+  radius: number;
+  pathOptions?: {
+    color?: string;
+    weight?: number;
+    fillColor?: string;
+    fillOpacity?: number;
+  };
+  eventHandlers?: {
+    click?: () => void;
+    mouseover?: () => void;
+  };
+  children?: ReactNode;
+  key?: string;
+}
+
+const LeafletMapContainer = MapContainer as unknown as ComponentType<LeafletMapContainerProps>;
+const LeafletTileLayer = TileLayer as unknown as ComponentType<LeafletTileLayerProps>;
+const LeafletCircleMarker = CircleMarker as unknown as ComponentType<LeafletCircleMarkerProps>;
 
 const asNumber = (value: unknown): number | null => {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -466,7 +510,7 @@ function PropertiesMap({ properties, highlightedId, onSelect, isClient, mapFocus
   return (
     <div className={cn("overflow-hidden rounded-3xl border border-border/60 bg-muted/20", heightClass)}>
       {isClient ? (
-        <MapContainer
+        <LeafletMapContainer
           center={fallbackCenter}
           zoom={6}
           zoomControl={false}
@@ -474,12 +518,15 @@ function PropertiesMap({ properties, highlightedId, onSelect, isClient, mapFocus
           scrollWheelZoom
           preferCanvas
         >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap contributors" />
+          <LeafletTileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution="&copy; OpenStreetMap contributors"
+          />
           <MapAutoFocus points={points.map((point) => point.position)} fallbackCenter={fallbackCenter} />
           {points.map(({ id, position, property }) => {
             const isHighlighted = highlightedId === id;
             return (
-              <CircleMarker
+              <LeafletCircleMarker
                 key={id}
                 center={position}
                 radius={isHighlighted ? 11 : 8}
@@ -501,10 +548,10 @@ function PropertiesMap({ properties, highlightedId, onSelect, isClient, mapFocus
                     <p className="font-medium text-brand-600">{formatCurrency(property.price)}</p>
                   </div>
                 </Popup>
-              </CircleMarker>
+              </LeafletCircleMarker>
             );
           })}
-        </MapContainer>
+        </LeafletMapContainer>
       ) : (
         <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
           جار تجهيز الخريطة...
@@ -616,7 +663,7 @@ function PropertiesList({
                   <span className="text-xs">دورات مياه</span>
                 </div>
                 <div className="flex items-center gap-2 rounded-2xl border border-border/50 bg-muted/10 px-3 py-2">
-                  <RulerSquare className="h-4 w-4 text-brand-600" />
+                  <Ruler className="h-4 w-4 text-brand-600" />
                   <span className="font-medium text-foreground">{property.areaSqm ?? "—"}</span>
                   <span className="text-xs">م²</span>
                 </div>
