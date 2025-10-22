@@ -6,6 +6,7 @@ import {
 } from "@shared/types";
 import {
   Badge,
+  type BadgeProps,
 } from "@/components/ui/badge";
 import {
   Card,
@@ -72,13 +73,13 @@ export default function Dashboard() {
 
   const recentLeads = leads?.slice(0, 10) ?? [];
 
-  const statusBadges = useMemo(
+  const statusBadges = useMemo<Record<string, { label: string; variant: NonNullable<BadgeProps["variant"]> }>>(
     () => ({
-      new: { label: t("status.new"), variant: "info" as const },
-      qualified: { label: t("status.qualified"), variant: "success" as const },
-      showing: { label: t("status.showing"), variant: "secondary" as const },
-      negotiation: { label: t("status.negotiation"), variant: "warning" as const },
-      closed: { label: t("status.closed"), variant: "success" as const },
+      new: { label: t("status.new"), variant: "info" },
+      qualified: { label: t("status.qualified"), variant: "success" },
+      showing: { label: t("status.showing"), variant: "secondary" },
+      negotiation: { label: t("status.negotiation"), variant: "warning" },
+      closed: { label: t("status.closed"), variant: "success" },
     }),
     [t]
   );
