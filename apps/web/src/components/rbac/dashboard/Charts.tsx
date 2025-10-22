@@ -117,7 +117,13 @@ export const LoginsChart: React.FC<ChartProps> = ({
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{label}</p>
           {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
+            <p
+              key={index}
+              className={cn(
+                "text-sm",
+                entry.color ? `text-[${entry.color}]` : "text-foreground"
+              )}
+            >
               {entry.name}: {entry.value.toLocaleString('ar-SA')}
             </p>
           ))}
@@ -272,7 +278,13 @@ export const RPMChart: React.FC<ChartProps> = ({
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{label}</p>
           {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
+            <p
+              key={index}
+              className={cn(
+                "text-sm",
+                entry.color ? `text-[${entry.color}]` : "text-foreground"
+              )}
+            >
               {entry.name}: {entry.value.toLocaleString('ar-SA')}
             </p>
           ))}
@@ -430,7 +442,13 @@ export const TopEndpointsChart: React.FC<ChartProps> = ({
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{label}</p>
           {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
+            <p
+              key={index}
+              className={cn(
+                "text-sm",
+                entry.color ? `text-[${entry.color}]` : "text-foreground"
+              )}
+            >
               {entry.name}: {entry.value.toLocaleString('ar-SA')}
             </p>
           ))}

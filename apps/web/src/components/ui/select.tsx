@@ -72,21 +72,20 @@ const SelectContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
 >(({ className, children, position = "popper", ...props }, ref) => (
   <SelectPrimitive.Portal>
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, pointerEvents: 'none' }}>
+    <div className="ui-overlay">
       <SelectPrimitive.Content
         ref={ref}
         className={cn(
-          "relative max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-xl",
+          "ui-overlay__content relative max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-xl",
           className
         )}
         position="popper"
         side="bottom"
         align="start"
         sideOffset={4}
-        style={{ pointerEvents: 'auto' }}
         {...props}
       >
-        <SelectPrimitive.Viewport className="p-1 max-h-96 overflow-y-auto">
+        <SelectPrimitive.Viewport className="max-h-96 overflow-y-auto p-1">
           {children}
         </SelectPrimitive.Viewport>
       </SelectPrimitive.Content>

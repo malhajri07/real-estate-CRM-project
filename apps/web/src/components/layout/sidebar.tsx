@@ -50,7 +50,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
 
   return (
     <div
-      className="flex h-full flex-col overflow-y-auto bg-sidebar/95 bg-subtle-grid bg-[length:36px_36px] pb-8 pt-6 text-sidebar-foreground"
+      className="flex h-full flex-col overflow-y-auto bg-sidebar/95 bg-subtle-grid bg-[length:36px_36px] pb-8 pt-6 text-sidebar-foreground transition-colors duration-300"
       dir={dir}
     >
       <div className="px-6">

@@ -693,8 +693,7 @@ function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClie
             center={fallbackCenter}
             zoom={6}
             zoomControl={false}
-            className="absolute inset-0"
-            style={{ height: "100%", width: "100%" }}
+            className="absolute inset-0 h-full w-full"
             scrollWheelZoom
             preferCanvas
           >

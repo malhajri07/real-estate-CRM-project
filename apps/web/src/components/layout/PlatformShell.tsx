@@ -54,7 +54,7 @@ export default function PlatformShell({ children, onLogout, title, searchPlaceho
 
       <aside
         className={cn(
-          "fixed inset-y-0 z-50 w-72 max-w-[18rem] transform border-border/50 bg-sidebar/95 shadow-floating backdrop-blur-xl transition-transform duration-300 ease-in-out dark:bg-sidebar/80",
+          "fixed inset-y-0 z-50 w-72 max-w-[18rem] transform border-border/50 bg-sidebar/95 shadow-floating backdrop-blur-xl transition-transform duration-300 ease-in-out",
           isRTL ? "right-0 border-l" : "left-0 border-r",
           sidebarOpen ? "translate-x-0" : isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}

@@ -23,6 +23,7 @@ import {
   RefreshCw,
   AlertCircle
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface AnalyticsData {
   overview: {
@@ -71,6 +72,16 @@ const roleLabels: Record<string, string> = {
   'SELLER': 'بائع',
   'BUYER': 'مشتري',
 };
+
+const clampPercentage = (value: number) => Math.min(100, Math.max(0, value));
+
+const stackSegmentStyle = (percentage: number): React.CSSProperties => ({
+  "--stack-segment": `${clampPercentage(percentage)}%`,
+});
+
+const meterFillStyle = (percentage: number): React.CSSProperties => ({
+  "--meter-fill": `${clampPercentage(percentage)}%`,
+});
 
 export default function AnalyticsDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
@@ -183,14 +194,17 @@ export default function AnalyticsDashboard() {
 
         {/* Stacked Bar */}
         <div className="relative">
-          <div className="h-8 bg-gray-100 rounded-lg overflow-hidden flex">
+          <div className="ui-stack h-8 rounded-xl bg-gray-100">
             {Object.entries(data.userStats.byRole).map(([role, count]) => {
-              const percentage = (count / totalUsers) * 100;
+              const percentage = totalUsers ? (count / totalUsers) * 100 : 0;
               return (
                 <div
                   key={role}
-                  className={`${roleColors[role as keyof typeof roleColors] || 'bg-gray-400'} transition-all duration-500 ease-out`}
-                  style={{ width: `${percentage}%` }}
+                  className={cn(
+                    "ui-stack__segment",
+                    roleColors[role as keyof typeof roleColors] || "bg-gray-400"
+                  )}
+                  style={stackSegmentStyle(percentage)}
                   title={`${roleLabels[role as keyof typeof roleLabels] || role}: ${formatNumber(count)} (${percentage.toFixed(1)}%)`}
                 />
               );
@@ -262,6 +276,10 @@ export default function AnalyticsDashboard() {
       </div>
     );
   }
+
+  const totalProperties = analytics.overview.totalProperties || 0;
+  const monthlyRevenueMax =
+    Math.max(...analytics.revenueStats.monthly.map((month) => month.revenue || 0)) || 1;
 
   return (
     <div className="space-y-6">
@@ -471,24 +489,27 @@ export default function AnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {Object.entries(analytics.propertyStats.byType).map(([type, count]) => (
-                    <div key={type} className="flex items-center justify-between">
-                      <span className="text-sm">{type}</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-500 h-2 rounded-full" 
-                            style={{ 
-                              width: `${(count / analytics.overview.totalProperties) * 100}%` 
-                            }}
-                          ></div>
+                  {Object.entries(analytics.propertyStats.byType).map(([type, count]) => {
+                    const percentage = totalProperties
+                      ? (count / totalProperties) * 100
+                      : 0;
+                    return (
+                      <div key={type} className="flex items-center justify-between">
+                        <span className="text-sm">{type}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="ui-meter h-2 w-20 bg-gray-200">
+                            <div
+                              className="ui-meter__fill h-full rounded-full bg-green-500"
+                              style={meterFillStyle(percentage)}
+                            />
+                          </div>
+                          <span className="text-sm font-medium w-12 text-left">
+                            {formatNumber(count)}
+                          </span>
                         </div>
-                        <span className="text-sm font-medium w-12 text-left">
-                          {formatNumber(count)}
-                        </span>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -499,24 +520,27 @@ export default function AnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {Object.entries(analytics.propertyStats.byCity).map(([city, count]) => (
-                    <div key={city} className="flex items-center justify-between">
-                      <span className="text-sm">{city}</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-purple-500 h-2 rounded-full" 
-                            style={{ 
-                              width: `${(count / analytics.overview.totalProperties) * 100}%` 
-                            }}
-                          ></div>
+                  {Object.entries(analytics.propertyStats.byCity).map(([city, count]) => {
+                    const percentage = totalProperties
+                      ? (count / totalProperties) * 100
+                      : 0;
+                    return (
+                      <div key={city} className="flex items-center justify-between">
+                        <span className="text-sm">{city}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="ui-meter h-2 w-20 bg-gray-200">
+                            <div
+                              className="ui-meter__fill h-full rounded-full bg-purple-500"
+                              style={meterFillStyle(percentage)}
+                            />
+                          </div>
+                          <span className="text-sm font-medium w-12 text-left">
+                            {formatNumber(count)}
+                          </span>
                         </div>
-                        <span className="text-sm font-medium w-12 text-left">
-                          {formatNumber(count)}
-                        </span>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -608,17 +632,15 @@ export default function AnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {analytics.revenueStats.monthly.map((month, index) => (
+                  {analytics.revenueStats.monthly.map((month) => (
                     <div key={month.month} className="flex items-center justify-between">
                       <span className="text-sm">{month.month}</span>
                       <div className="flex items-center gap-2">
-                        <div className="w-32 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-green-500 h-2 rounded-full" 
-                            style={{ 
-                              width: `${(month.revenue / Math.max(...analytics.revenueStats.monthly.map(m => m.revenue))) * 100}%` 
-                            }}
-                          ></div>
+                        <div className="ui-meter h-2 w-32 bg-gray-200">
+                          <div
+                            className="ui-meter__fill h-full rounded-full bg-green-500"
+                            style={meterFillStyle((month.revenue / monthlyRevenueMax) * 100)}
+                          />
                         </div>
                         <span className="text-sm font-medium w-20 text-left">
                           {formatCurrency(month.revenue)}
@@ -640,11 +662,11 @@ export default function AnalyticsDashboard() {
                     <div key={source} className="flex items-center justify-between">
                       <span className="text-sm">{source}</span>
                       <div className="flex items-center gap-2">
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-500 h-2 rounded-full" 
-                            style={{ width: `${percentage}%` }}
-                          ></div>
+                        <div className="ui-meter h-2 w-20 bg-gray-200">
+                          <div
+                            className="ui-meter__fill h-full rounded-full bg-blue-500"
+                            style={meterFillStyle(percentage)}
+                          />
                         </div>
                         <span className="text-sm font-medium w-8 text-left">
                           {percentage}%
