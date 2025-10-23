@@ -13,19 +13,20 @@ type PlatformShellProps = PropsWithChildren<{
 }>;
 
 export default function PlatformShell({ children, onLogout, title, searchPlaceholder, headerExtraContent }: PlatformShellProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(() => {
-    if (typeof window === "undefined") {
-      return false;
-    }
-    return window.matchMedia("(min-width: 1024px)").matches;
-  });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { dir, t } = useLanguage();
   const isRTL = dir === "rtl";
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
     const handleChange = (event: MediaQueryListEvent | MediaQueryList) => {
-      setSidebarOpen(event.matches);
+      if (event.matches) {
+        setSidebarOpen(false);
+      }
     };
 
     handleChange(mediaQuery);
@@ -41,7 +42,10 @@ export default function PlatformShell({ children, onLogout, title, searchPlaceho
 
   return (
     <div
-      className="relative flex min-h-screen bg-background text-foreground transition-colors"
+      className={cn(
+        "relative flex min-h-screen bg-background text-foreground transition-colors",
+        isRTL ? "flex-row-reverse" : "flex-row"
+      )}
       dir={dir}
     >
       {sidebarOpen && (
@@ -54,26 +58,15 @@ export default function PlatformShell({ children, onLogout, title, searchPlaceho
 
       <aside
         className={cn(
-          "fixed inset-y-0 z-50 w-72 max-w-[18rem] transform border-border/50 bg-sidebar/95 shadow-floating backdrop-blur-xl transition-transform duration-300 ease-in-out",
+          "fixed inset-y-0 z-50 flex w-72 max-w-[18rem] transform flex-col border-border/50 bg-sidebar/95 shadow-floating backdrop-blur-xl transition-transform duration-300 ease-in-out lg:hidden",
           isRTL ? "right-0 border-l" : "left-0 border-r",
-          sidebarOpen ? "translate-x-0" : isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"
+          sidebarOpen ? "translate-x-0" : isRTL ? "translate-x-full" : "-translate-x-full"
         )}
       >
         <Sidebar onLogout={onLogout} />
       </aside>
 
-      <div
-        className={cn(
-          "flex min-h-screen w-full flex-col transition-[padding] duration-300 ease-in-out",
-          isRTL
-            ? sidebarOpen
-              ? "lg:pr-72"
-              : "lg:pr-0"
-            : sidebarOpen
-              ? "lg:pl-72"
-              : "lg:pl-0"
-        )}
-      >
+      <div className="flex min-h-screen w-full flex-col lg:flex-1">
         <Header
           searchPlaceholder={searchPlaceholder || t("nav.search")}
           title={title}
@@ -85,6 +78,15 @@ export default function PlatformShell({ children, onLogout, title, searchPlaceho
           <div className={pageContainer}>{children}</div>
         </main>
       </div>
+
+      <aside
+        className={cn(
+          "sticky top-0 hidden h-screen w-72 shrink-0 border-border/50 bg-sidebar/95 shadow-floating lg:flex lg:flex-col",
+          isRTL ? "border-l" : "border-r"
+        )}
+      >
+        <Sidebar onLogout={onLogout} />
+      </aside>
     </div>
   );
 }
