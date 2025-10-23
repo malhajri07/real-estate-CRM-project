@@ -21,7 +21,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'NODE_ENV=production'
+      - 'NODE_ENV=production,ALLOW_PRODUCTION=true'
       - '--set-cloudsql-instances'
       - '$PROJECT_ID:us-central1:real-estate-crm-db'
 
