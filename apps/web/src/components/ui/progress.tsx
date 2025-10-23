@@ -9,7 +9,8 @@ const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>
 >(({ className, value = 0, ...props }, ref) => {
-  const clampedValue = Math.max(0, Math.min(100, value));
+  const numericValue = value ?? 0;
+  const clampedValue = Math.max(0, Math.min(100, numericValue));
   const fillStyle = {
     "--meter-fill": `${clampedValue}%`,
   } as React.CSSProperties;

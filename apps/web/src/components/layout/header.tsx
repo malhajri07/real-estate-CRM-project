@@ -72,7 +72,7 @@ export default function Header({
             size="icon"
             onClick={onToggleSidebar}
             aria-label={isSidebarOpen ? t("header.toggleSidebarClose") : t("header.toggleSidebarOpen")}
-            className="inline-flex rounded-full border border-border/60 bg-card/70 text-muted-foreground shadow-outline transition hover:bg-card/90 focus-visible:ring-primary/40"
+            className="inline-flex rounded-full border border-border/60 bg-card/70 text-muted-foreground shadow-outline transition hover:bg-card/90 focus-visible:ring-primary/40 lg:hidden"
           >
             <Menu className="h-4 w-4" />
           </Button>
