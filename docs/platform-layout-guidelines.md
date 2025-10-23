@@ -5,14 +5,14 @@ To keep the Home/Platform experience stable across all pages, follow these conve
 ## Structural requirements
 
 - Always render platform pages inside `PlatformShell` so that the shared `<Header />` and `<Sidebar />` stay mounted across navigation.
-- Keep the DOM order as `[main content wrapper]` followed by `[desktop sidebar]`. The shell applies `flex-row-reverse` automatically in RTL locales, so do not swap the order manually.
+- The shell now uses the shadcn/ui `SidebarProvider` + `SidebarInset` primitives. Keep the markup order as `[ShellSidebar][SidebarInset]` and let the shell decide whether the sidebar sits on the right (RTL) or left (LTR). Do not manually reorder or duplicate the sidebar wrapper.
 - Set `dir="rtl"` on any intermediate wrapper only if you need to force RTL rendering for isolated subtrees. Never override it with `dir="ltr"` unless the view is intentionally LTR.
 
 ## Tailwind layout classes
 
 - Use container utilities that respect the existing shell spacing, e.g. wrap screen content with `pageContainer` (already provided by the shell) instead of adding new `px-*` paddings on the outermost element.
-- Avoid classes that pin layout to the left, such as `left-0`, `ml-*`, or `flex-row`, when building sidebar-aware components. Prefer logical direction utilities (`right-0`, `mr-*`) or rely on `flex-row-reverse` that the shell already applies.
-- Give side panels and navigation elements explicit widths (`w-72`, `shrink-0`) and scrolling behavior (`overflow-y-auto`) so that content changes do not trigger layout reflow.
+- Avoid classes that pin layout to the left, such as `left-0`, `ml-*`, or `flex-row`, when building sidebar-aware components. Prefer logical direction utilities (`right-0`, `mr-*`) or rely on the logical properties that the shell already applies through the shadcn sidebar.
+- Give side panels and navigation elements explicit widths (`--sidebar-width` or Tailwind width utilities) and scrolling behavior (`overflow-y-auto`) so that content changes do not trigger layout reflow.
 
 ## Interaction patterns
 
