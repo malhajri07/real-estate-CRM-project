@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Development
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: real-estate-crm-db-dev
+    environment:
+      POSTGRES_DB: real_estate_crm_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./data/schema/db/policies:/docker-entrypoint-initdb.d
+    networks:
+      - real-estate-dev-network
+    restart: unless-stopped
+
+  # Redis for Development
+  redis-dev:
+    image: redis:7-alpine
+    container_name: real-estate-crm-redis-dev
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - real-estate-dev-network
+    restart: unless-stopped
+
+  # Development Application (with hot reload)
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: real-estate-crm-app-dev
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-dev:5432/real_estate_crm_dev?schema=public
+      - REDIS_URL=redis://redis-dev:6379
+      - JWT_SECRET=dev-jwt-secret-key
+      - SESSION_SECRET=dev-session-secret-key
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres-dev
+      - redis-dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+    networks:
+      - real-estate-dev-network
+    restart: unless-stopped
+    command: npm run dev
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+
+networks:
+  real-estate-dev-network:
+    driver: bridge

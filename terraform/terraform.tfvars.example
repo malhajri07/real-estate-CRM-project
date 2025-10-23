@@ -1,0 +1,15 @@
+# Terraform variables example file
+# Copy this file to terraform.tfvars and fill in your values
+
+project_id     = "your-gcp-project-id"
+region         = "us-central1"
+environment    = "prod"
+
+# Database password (use a strong password)
+db_password    = "your-secure-database-password"
+
+# JWT secret (use a strong secret)
+jwt_secret     = "your-super-secure-jwt-secret-key"
+
+# Session secret (use a strong secret)
+session_secret = "your-super-secure-session-secret-key"
