@@ -10,6 +10,7 @@ import {
   type PlatformSidebarSubgroupConfig
 } from "@/config/platform-sidebar";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface SidebarProps {
   onLogout?: () => void;
@@ -44,7 +45,8 @@ const renderItems = (
   items: PlatformSidebarChildConfig[],
   location: string,
   dir: "rtl" | "ltr",
-  t: (key: string) => string
+  t: (key: string) => string,
+  onNavigate?: () => void
 ) =>
   items.map((item) => {
     const ItemIcon = item.icon;
@@ -55,6 +57,9 @@ const renderItems = (
       <li key={item.id}>
         <Link
           href={item.path}
+          onClick={() => {
+            onNavigate?.();
+          }}
           className={cn(
             "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
             dir === "rtl" ? "text-right" : "text-left",
@@ -79,6 +84,7 @@ const renderItems = (
 export default function Sidebar({ onLogout }: SidebarProps) {
   const [location] = useLocation();
   const { t, dir } = useLanguage();
+  const { isMobile, setOpenMobile } = useSidebar();
 
   const [expandedGroups, setExpandedGroups] = useState<string[]>(() => {
     const activeGroupId = findActiveGroupId(location);
@@ -95,6 +101,12 @@ export default function Sidebar({ onLogout }: SidebarProps) {
 
   const toggleGroup = (groupId: string) => {
     setExpandedGroups((prev) => (prev.includes(groupId) ? prev.filter((id) => id !== groupId) : [...prev, groupId]));
+  };
+
+  const handleNavigate = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
   };
 
   return (
@@ -174,11 +186,11 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                                   {subgroupLabel}
                                 </div>
                               )}
-                              <ul className="space-y-1">{renderItems(subgroup.children, location, dir, t)}</ul>
+                              <ul className="space-y-1">{renderItems(subgroup.children, location, dir, t, handleNavigate)}</ul>
                             </div>
                           );
                         })
-                      : <ul className="space-y-1">{renderItems(group.children ?? [], location, dir, t)}</ul>}
+                      : <ul className="space-y-1">{renderItems(group.children ?? [], location, dir, t, handleNavigate)}</ul>}
                   </div>
                 </div>
               </li>
@@ -189,7 +201,12 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         {onLogout && (
           <div className="rounded-2xl border border-border/40 bg-card/80 p-4 shadow-outline backdrop-blur">
             <button
-              onClick={onLogout}
+              onClick={() => {
+                if (isMobile) {
+                  setOpenMobile(false);
+                }
+                onLogout?.();
+              }}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-destructive/10 px-4 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
               data-testid="button-logout"
             >
