@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+type CSSVars = React.CSSProperties & { [key: `--${string}`]: string | number };
+
 interface AnalyticsData {
   overview: {
     totalUsers: number;
@@ -75,11 +77,11 @@ const roleLabels: Record<string, string> = {
 
 const clampPercentage = (value: number) => Math.min(100, Math.max(0, value));
 
-const stackSegmentStyle = (percentage: number): React.CSSProperties => ({
+const stackSegmentStyle = (percentage: number): CSSVars => ({
   "--stack-segment": `${clampPercentage(percentage)}%`,
 });
 
-const meterFillStyle = (percentage: number): React.CSSProperties => ({
+const meterFillStyle = (percentage: number): CSSVars => ({
   "--meter-fill": `${clampPercentage(percentage)}%`,
 });
 
