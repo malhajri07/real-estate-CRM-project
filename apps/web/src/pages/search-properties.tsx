@@ -1,15 +1,11 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ChangeEvent,
-  type ComponentType,
-  type ReactNode,
 } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MapContainer, TileLayer, Marker, Popup, ZoomControl, useMap } from "react-leaflet";
-import type { LatLngTuple, DivIcon } from "leaflet";
-import { LatLngBounds, divIcon } from "leaflet";
 import { useLocation } from "wouter";
 import {
   Heart,
@@ -55,8 +51,78 @@ import {
 import { cn } from "@/lib/utils";
 import { apiRequest } from "@/lib/queryClient";
 
-const DEFAULT_CENTER: LatLngTuple = [24.7136, 46.6753];
-const LEAFLET_CSS_ID = "leaflet-css";
+type Coordinates = [number, number];
+
+const DEFAULT_CENTER: Coordinates = [24.7136, 46.6753];
+const GOOGLE_MAPS_SCRIPT_ID = "google-maps-script";
+
+type GoogleWindow = Window & { google?: any };
+
+const loadGoogleMapsApi = (() => {
+  let loader: Promise<any> | null = null;
+
+  return (apiKey: string) => {
+    if (typeof window === "undefined") {
+      return Promise.reject(new Error("يعمل جوجل مابس على المتصفح فقط"));
+    }
+
+    const googleWindow = window as GoogleWindow;
+
+    if (googleWindow.google?.maps) {
+      return Promise.resolve(googleWindow.google);
+    }
+
+    if (loader) {
+      return loader;
+    }
+
+    loader = new Promise((resolve, reject) => {
+      const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID) as HTMLScriptElement | null;
+
+      if (existingScript) {
+        existingScript.addEventListener(
+          "load",
+          () => resolve((window as GoogleWindow).google),
+          { once: true }
+        );
+        existingScript.addEventListener(
+          "error",
+          () => {
+            loader = null;
+            reject(new Error("تعذر تحميل خريطة جوجل"));
+          },
+          { once: true }
+        );
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.id = GOOGLE_MAPS_SCRIPT_ID;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}`;
+      script.async = true;
+      script.defer = true;
+      script.addEventListener(
+        "load",
+        () => resolve((window as GoogleWindow).google),
+        { once: true }
+      );
+      script.addEventListener(
+        "error",
+        () => {
+          loader = null;
+          reject(new Error("تعذر تحميل خريطة جوجل"));
+        },
+        { once: true }
+      );
+
+      document.head.appendChild(script);
+    });
+
+    return loader;
+  };
+})();
+
+const toLatLngLiteral = (point: Coordinates) => ({ lat: point[0], lng: point[1] });
 
 interface ApiListing {
   id: string;
@@ -246,47 +312,36 @@ const DEFAULT_FILTERS: FilterState = {
   favoritesOnly: false,
 };
 
-const ensureLeafletStyles = () => {
-  if (typeof window === "undefined") return;
-  if (document.getElementById(LEAFLET_CSS_ID)) return;
+const DEFAULT_ZOOM = 6;
+const SINGLE_MARKER_ZOOM = 12;
+const HIGHLIGHT_ZOOM = 14;
 
-  const link = document.createElement("link");
-  link.id = LEAFLET_CSS_ID;
-  link.rel = "stylesheet";
-  link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-  document.head.appendChild(link);
+const createMarkerIcon = (googleMaps: any, isHighlighted: boolean) => ({
+  path: googleMaps.maps.SymbolPath.CIRCLE,
+  scale: isHighlighted ? 11 : 9,
+  fillColor: isHighlighted ? "#2563eb" : "#0f172a",
+  fillOpacity: 0.95,
+  strokeColor: "#ffffff",
+  strokeWeight: 2,
+});
+
+const createInfoWindowContent = (property: PropertySummary) => {
+  const title = escapeHtml(property.title);
+  const location = escapeHtml(
+    property.city ? `${property.city}${property.region ? `، ${property.region}` : ""}` : property.region
+  );
+  const price = escapeHtml(formatCurrency(property.price));
+  const type = escapeHtml(property.propertyType);
+
+  return `
+    <div style="display:flex;flex-direction:column;gap:4px;min-width:160px;font-family:inherit;">
+      <span style="font-weight:600;font-size:14px;color:#0f172a;">${title}</span>
+      ${location ? `<span style=\"font-size:12px;color:#64748b;\">${location}</span>` : ""}
+      ${type ? `<span style=\"font-size:11px;color:#0f172a;\">${type}</span>` : ""}
+      <span style="font-weight:600;font-size:14px;color:#2563eb;">${price}</span>
+    </div>
+  `;
 };
-
-interface LeafletMapContainerProps {
-  center: LatLngTuple;
-  zoom?: number;
-  zoomControl?: boolean;
-  className?: string;
-  scrollWheelZoom?: boolean;
-  preferCanvas?: boolean;
-  children?: ReactNode;
-}
-
-interface LeafletTileLayerProps {
-  url: string;
-  attribution?: string;
-  children?: ReactNode;
-}
-
-interface LeafletMarkerProps {
-  position: LatLngTuple;
-  icon?: DivIcon;
-  eventHandlers?: {
-    click?: () => void;
-    mouseover?: () => void;
-  };
-  children?: ReactNode;
-  key?: string;
-}
-
-const LeafletMapContainer = MapContainer as unknown as ComponentType<LeafletMapContainerProps>;
-const LeafletTileLayer = TileLayer as unknown as ComponentType<LeafletTileLayerProps>;
-const LeafletMarker = Marker as unknown as ComponentType<LeafletMarkerProps>;
 
 const asNumber = (value: unknown): number | null => {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -309,18 +364,6 @@ const formatCurrency = (value: number | null) => {
     currency: "SAR",
     minimumFractionDigits: 0,
   }).format(value);
-};
-
-const currencyCompactFormatter = new Intl.NumberFormat("ar-SA", {
-  style: "currency",
-  currency: "SAR",
-  minimumFractionDigits: 0,
-  notation: "compact",
-});
-
-const formatCurrencyCompact = (value: number | null) => {
-  if (typeof value !== "number" || Number.isNaN(value)) return "سعر غير متاح";
-  return currencyCompactFormatter.format(value);
 };
 
 const escapeHtml = (value: string | null | undefined) => {
@@ -579,73 +622,6 @@ function FilterContent({
   );
 }
 
-interface AutoFocusProps {
-  points: LatLngTuple[];
-  fallbackCenter: LatLngTuple;
-}
-
-function MapAutoFocus({ points, fallbackCenter }: AutoFocusProps) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!map) return;
-    if (!points.length) {
-      map.setView(fallbackCenter, 6);
-      return;
-    }
-
-    if (points.length === 1) {
-      map.setView(points[0], 12);
-      return;
-    }
-
-    const bounds = new LatLngBounds(points);
-    map.fitBounds(bounds, { padding: [48, 48] });
-  }, [map, points, fallbackCenter]);
-
-  return null;
-}
-
-interface HighlightFocusProps {
-  point: LatLngTuple | null;
-}
-
-function MapHighlightFocus({ point }: HighlightFocusProps) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!map || !point) return;
-    const currentZoom = map.getZoom();
-    map.flyTo(point, currentZoom < 14 ? 14 : currentZoom, { duration: 0.6 });
-  }, [map, point]);
-
-  return null;
-}
-
-const createPropertyMarkerIcon = (property: PropertySummary, isHighlighted: boolean): DivIcon => {
-  const markerSurfaceClass = isHighlighted
-    ? "border-blue-100/70 bg-blue-600/95"
-    : "border-slate-500/40 bg-slate-900/90";
-  const markerArrowClass = isHighlighted ? "bg-blue-600/95" : "bg-slate-900/90";
-  const price = escapeHtml(formatCurrencyCompact(property.price));
-  const location = escapeHtml(property.city ?? property.region ?? "");
-  const type = escapeHtml(property.propertyType ?? "");
-
-  return divIcon({
-    className: "property-map-marker",
-    iconAnchor: [56, 58],
-    popupAnchor: [0, -48],
-    html: `
-      <div class="relative flex min-w-[132px] flex-col gap-1.5 rounded-3xl border px-4 py-3 text-white shadow-[0_18px_35px_rgba(15,23,42,0.25)] ring-1 ring-white/10 ${markerSurfaceClass}">
-        <span class="text-sm font-semibold tracking-[0.02em]">${price}</span>
-        ${location ? `<span class="text-[11px] font-medium text-white/85">${location}</span>` : ""}
-        ${type ? `<span class="text-[10px] font-medium uppercase tracking-wide text-white/70">${type}</span>` : ""}
-        <span class="absolute left-1/2 -bottom-4 h-5 w-5 -translate-x-1/2 rotate-45 rounded-sm shadow-[0_6px_6px_rgba(15,23,42,0.25)] ${markerArrowClass}"></span>
-      </div>
-    `,
-  });
-};
-
 interface PropertiesMapProps {
   properties: PropertySummary[];
   highlightedId: string | null;
@@ -655,13 +631,14 @@ interface PropertiesMapProps {
 }
 
 function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClient }: PropertiesMapProps) {
+  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
   const markers = useMemo(
     () =>
       properties
         .filter((property) => typeof property.latitude === "number" && typeof property.longitude === "number")
         .map((property) => ({
           id: property.id,
-          position: [property.latitude as number, property.longitude as number] as LatLngTuple,
+          position: [property.latitude as number, property.longitude as number] as Coordinates,
           property,
         })),
     [properties]
@@ -677,122 +654,260 @@ function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClie
     [highlightedId, markers]
   );
 
-  const activePoint = useMemo(() => {
-    if (!activeProperty || typeof activeProperty.latitude !== "number" || typeof activeProperty.longitude !== "number") {
-      return null;
-    }
-    return [activeProperty.latitude, activeProperty.longitude] as LatLngTuple;
-  }, [activeProperty]);
+  const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<any>(null);
+  const googleMapsRef = useRef<any>(null);
+  const markersRef = useRef(new Map<string, any>());
+  const infoWindowRef = useRef<any>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const fallbackCenter = markers.length ? markers[0].position : DEFAULT_CENTER;
+  useEffect(() => {
+    if (!isClient) return;
+
+    if (!googleMapsApiKey) {
+      setLoadError("يرجى ضبط مفتاح Google Maps في المتغير VITE_GOOGLE_MAPS_API_KEY");
+      setIsLoaded(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    setIsLoading(true);
+    setLoadError(null);
+
+    loadGoogleMapsApi(googleMapsApiKey)
+      .then((googleMaps) => {
+        if (cancelled) return;
+        googleMapsRef.current = googleMaps;
+        setIsLoaded(true);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error(error);
+        setIsLoaded(false);
+        setLoadError("تعذر تحميل خريطة جوجل. يرجى المحاولة لاحقًا.");
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [googleMapsApiKey, isClient]);
+
+  useEffect(() => {
+    if (!isClient || !isLoaded) return;
+    if (!mapContainerRef.current) return;
+    if (mapRef.current) return;
+
+    const googleMaps = googleMapsRef.current;
+    if (!googleMaps?.maps) return;
+
+    mapRef.current = new googleMaps.maps.Map(mapContainerRef.current, {
+      center: toLatLngLiteral(DEFAULT_CENTER),
+      zoom: DEFAULT_ZOOM,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: true,
+      controlSize: 28,
+    });
+  }, [isClient, isLoaded]);
+
+  useEffect(() => {
+    const googleMaps = googleMapsRef.current;
+    const map = mapRef.current;
+    if (!googleMaps?.maps || !map || !isLoaded) return;
+
+    markersRef.current.forEach((marker) => {
+      if (googleMaps.maps.event?.clearInstanceListeners) {
+        googleMaps.maps.event.clearInstanceListeners(marker);
+      }
+      marker.setMap(null);
+    });
+    markersRef.current.clear();
+
+    markers.forEach(({ id, position, property }) => {
+      const marker = new googleMaps.maps.Marker({
+        position: toLatLngLiteral(position),
+        map,
+        title: property.title,
+        icon: createMarkerIcon(googleMaps, highlightedId === id),
+      });
+
+      marker.addListener("click", () => onSelect(property));
+      marker.addListener("mouseover", () => onSelect(property));
+
+      markersRef.current.set(id, marker);
+    });
+
+    return () => {
+      markersRef.current.forEach((marker) => {
+        if (googleMaps.maps.event?.clearInstanceListeners) {
+          googleMaps.maps.event.clearInstanceListeners(marker);
+        }
+        marker.setMap(null);
+      });
+      markersRef.current.clear();
+    };
+  }, [markers, isLoaded, onSelect]);
+
+  useEffect(() => {
+    const googleMaps = googleMapsRef.current;
+    if (!googleMaps?.maps || !isLoaded) return;
+
+    markersRef.current.forEach((marker, id) => {
+      marker.setIcon(createMarkerIcon(googleMaps, highlightedId === id));
+      marker.setZIndex(highlightedId === id ? 50 : undefined);
+    });
+  }, [highlightedId, isLoaded]);
+
+  useEffect(() => {
+    const googleMaps = googleMapsRef.current;
+    const map = mapRef.current;
+    if (!googleMaps?.maps || !map || !isLoaded) return;
+
+    if (!markers.length) {
+      map.setZoom(DEFAULT_ZOOM);
+      map.setCenter(toLatLngLiteral(DEFAULT_CENTER));
+      return;
+    }
+
+    if (markers.length === 1) {
+      map.setZoom(SINGLE_MARKER_ZOOM);
+      map.panTo(toLatLngLiteral(markers[0].position));
+      return;
+    }
+
+    const bounds = new googleMaps.maps.LatLngBounds();
+    markers.forEach(({ position }) => bounds.extend(toLatLngLiteral(position)));
+    map.fitBounds(bounds, 48);
+  }, [markers, isLoaded]);
+
+  useEffect(() => {
+    const googleMaps = googleMapsRef.current;
+    const map = mapRef.current;
+    if (!googleMaps?.maps || !map || !isLoaded || !highlightedId) return;
+
+    const markerInfo = markers.find((marker) => marker.id === highlightedId);
+    if (!markerInfo) return;
+
+    const target = toLatLngLiteral(markerInfo.position);
+    map.panTo(target);
+
+    const currentZoom = typeof map.getZoom === "function" ? map.getZoom() : DEFAULT_ZOOM;
+    if (typeof currentZoom === "number" && currentZoom < HIGHLIGHT_ZOOM) {
+      map.setZoom(HIGHLIGHT_ZOOM);
+    }
+  }, [highlightedId, markers, isLoaded]);
+
+  useEffect(() => {
+    const googleMaps = googleMapsRef.current;
+    const map = mapRef.current;
+    if (!googleMaps?.maps || !map || !isLoaded) return;
+
+    if (!infoWindowRef.current) {
+      infoWindowRef.current = new googleMaps.maps.InfoWindow();
+    }
+
+    const marker = highlightedId ? markersRef.current.get(highlightedId) : null;
+    if (marker) {
+      const property = markers.find((item) => item.id === highlightedId)?.property;
+      if (property) {
+        infoWindowRef.current.setContent(createInfoWindowContent(property));
+        infoWindowRef.current.open({ map, anchor: marker, shouldFocus: false });
+      }
+    } else {
+      infoWindowRef.current.close();
+    }
+  }, [highlightedId, markers, isLoaded]);
+
   const heightClass = "h-[640px] lg:h-[720px]";
 
   return (
     <div className={cn("relative overflow-hidden rounded-3xl border border-border/60 bg-slate-100/70", heightClass)}>
       {isClient ? (
-        <div className="relative h-full w-full">
-          <LeafletMapContainer
-            center={fallbackCenter}
-            zoom={6}
-            zoomControl={false}
-            className="absolute inset-0 h-full w-full"
-            scrollWheelZoom
-            preferCanvas
-          >
-            <LeafletTileLayer
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-              attribution="&copy; OpenStreetMap contributors &copy; CARTO"
-            />
-            <ZoomControl position="topright" />
-            <MapAutoFocus points={markers.map((marker) => marker.position)} fallbackCenter={fallbackCenter} />
-            <MapHighlightFocus point={activePoint} />
-            {markers.map(({ id, position, property }) => {
-              const isHighlighted = highlightedId === id;
-              return (
-                <LeafletMarker
-                  key={id}
-                  position={position}
-                  icon={createPropertyMarkerIcon(property, isHighlighted)}
-                  eventHandlers={{
-                    click: () => onSelect(property),
-                    mouseover: () => onSelect(property),
-                  }}
-                >
-                  <Popup>
-                    <div className="space-y-1 text-sm">
-                      <p className="font-semibold text-slate-900">{property.title}</p>
-                      <p className="text-muted-foreground">{property.city || property.region}</p>
-                      <p className="font-medium text-brand-600">{formatCurrency(property.price)}</p>
-                    </div>
-                  </Popup>
-                </LeafletMarker>
-              );
-            })}
-          </LeafletMapContainer>
-
-          {activeProperty && (
-            <div className="pointer-events-none absolute inset-x-3 bottom-4 z-[401] sm:inset-x-6 md:inset-x-auto md:right-6 md:max-w-sm">
-              <div className="pointer-events-auto space-y-3 rounded-3xl border border-border/60 bg-white/95 p-4 shadow-2xl backdrop-blur">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {activeProperty.transactionType || "عرض"}
-                  </p>
-                  <h3 className="text-lg font-semibold text-foreground">
-                    {activeProperty.title || "عقار بدون عنوان"}
-                  </h3>
-                  <p className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4 text-brand-600" />
-                    <span>
-                      {activeProperty.city
-                        ? `${activeProperty.city}${activeProperty.region ? `، ${activeProperty.region}` : ""}`
-                        : activeProperty.region}
-                    </span>
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between rounded-2xl bg-brand-50/80 px-4 py-2">
-                  <span className="text-sm font-medium text-brand-700">السعر</span>
-                  <span className="text-lg font-semibold text-brand-600">
-                    {formatCurrency(activeProperty.price)}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                  <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
-                    <Bed className="h-4 w-4 text-brand-600" />
-                    <span className="font-semibold text-foreground">
-                      {activeProperty.bedrooms ?? "—"}
-                    </span>
-                    <span>غرف</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
-                    <Bath className="h-4 w-4 text-brand-600" />
-                    <span className="font-semibold text-foreground">
-                      {activeProperty.bathrooms ?? "—"}
-                    </span>
-                    <span>دورات مياه</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
-                    <Ruler className="h-4 w-4 text-brand-600" />
-                    <span className="font-semibold text-foreground">
-                      {activeProperty.areaSqm ?? "—"}
-                    </span>
-                    <span>م²</span>
-                  </div>
-                </div>
-
-                <Button
-                  type="button"
-                  size="sm"
-                  className="w-full rounded-2xl"
-                  onClick={() => onNavigate(activeProperty.id)}
-                >
-                  عرض التفاصيل كاملة
-                </Button>
+        loadError ? (
+          <div className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-destructive">
+            {loadError}
+          </div>
+        ) : (
+          <div className="relative h-full w-full">
+            <div ref={mapContainerRef} className="absolute inset-0 h-full w-full" />
+            {(!isLoaded || isLoading) && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-muted-foreground">
+                جار تحميل خريطة جوجل...
               </div>
-            </div>
-          )}
-        </div>
+            )}
+
+            {isLoaded && activeProperty && (
+              <div className="pointer-events-none absolute inset-x-3 bottom-4 z-[401] sm:inset-x-6 md:inset-x-auto md:right-6 md:max-w-sm">
+                <div className="pointer-events-auto space-y-3 rounded-3xl border border-border/60 bg-white/95 p-4 shadow-2xl backdrop-blur">
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground">
+                      {activeProperty.transactionType || "عرض"}
+                    </p>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {activeProperty.title || "عقار بدون عنوان"}
+                    </h3>
+                    <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4 text-brand-600" />
+                      <span>
+                        {activeProperty.city
+                          ? `${activeProperty.city}${activeProperty.region ? `، ${activeProperty.region}` : ""}`
+                          : activeProperty.region}
+                      </span>
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-2xl bg-brand-50/80 px-4 py-2">
+                    <span className="text-sm font-medium text-brand-700">السعر</span>
+                    <span className="text-lg font-semibold text-brand-600">
+                      {formatCurrency(activeProperty.price)}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                    <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
+                      <Bed className="h-4 w-4 text-brand-600" />
+                      <span className="font-semibold text-foreground">
+                        {activeProperty.bedrooms ?? "—"}
+                      </span>
+                      <span>غرف</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
+                      <Bath className="h-4 w-4 text-brand-600" />
+                      <span className="font-semibold text-foreground">
+                        {activeProperty.bathrooms ?? "—"}
+                      </span>
+                      <span>دورات مياه</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1 rounded-2xl border border-border/40 bg-muted/30 px-2 py-2">
+                      <Ruler className="h-4 w-4 text-brand-600" />
+                      <span className="font-semibold text-foreground">
+                        {activeProperty.areaSqm ?? "—"}
+                      </span>
+                      <span>م²</span>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="w-full rounded-2xl"
+                    onClick={() => onNavigate(activeProperty.id)}
+                  >
+                    عرض التفاصيل كاملة
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        )
       ) : (
         <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
           جار تجهيز الخريطة...
@@ -949,7 +1064,6 @@ export default function SearchProperties() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
-    ensureLeafletStyles();
     setIsClient(true);
   }, []);
 
