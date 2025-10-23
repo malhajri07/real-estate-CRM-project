@@ -1,3 +1,5 @@
+// Install `@playwright/test` locally before running these visual tests:
+//   npm install --save-dev @playwright/test
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({

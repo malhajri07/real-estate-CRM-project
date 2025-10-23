@@ -35,16 +35,15 @@ RUN mkdir -p uploads && chown -R nextjs:nodejs uploads
 RUN chown -R nextjs:nodejs /app
 USER nextjs
 
-# Expose port
-EXPOSE 3000
+# Expose port expected by Cloud Run
+EXPOSE 8080
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT=3000
 
-# Health check
+# Health check uses the Cloud Run port
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
+  CMD curl -f http://localhost:${PORT:-3000}/health || exit 1
 
 # Start the application
 CMD ["node", "dist/index.js"]
