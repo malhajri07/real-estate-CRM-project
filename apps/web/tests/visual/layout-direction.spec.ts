@@ -1,3 +1,5 @@
+// These visual tests rely on Playwright, so make sure to install it locally:
+//   npm install --save-dev @playwright/test
 import { expect, test } from '@playwright/test';
 
 const LANGUAGE_STORAGE_KEY = 'crm-language';
