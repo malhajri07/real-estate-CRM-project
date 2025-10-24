@@ -86,9 +86,7 @@ export default function AdminRequestsPage() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
-      <div className="flex-1 flex flex-col pr-72">
-        <div className="p-6">
+    <div className="space-y-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-semibold">إدارة الطلبات العقارية</h1>
             <div className="flex items-center gap-2">
@@ -155,8 +153,6 @@ export default function AdminRequestsPage() {
               </tbody>
             </table>
           </div>
-        </div>
-      </div>
     </div>
   );
 }

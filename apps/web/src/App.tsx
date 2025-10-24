@@ -656,18 +656,14 @@ function Router() {
   // Only render the animated loading overlay for non-admin users; admins should see the RBAC dashboard immediately.
   if (isNavigationLoading && !isAdmin) {
     return (
-      <div className="flex h-screen bg-background layout-container">
-        <div className="flex-1 flex flex-col pr-72 relative main-content">
-          {/* Loading Overlay */}
-          <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-40 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-              <p className="text-lg font-medium text-gray-700">جار التحميل...</p>
-            </div>
+      <PlatformShell onLogout={handleLogout}>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
+            <p className="text-lg font-medium text-gray-700">جار التحميل...</p>
           </div>
         </div>
-        <Sidebar onLogout={handleLogout} />
-      </div>
+      </PlatformShell>
     );
   }
 

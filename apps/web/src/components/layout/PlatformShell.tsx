@@ -1,18 +1,8 @@
-import { PropsWithChildren, type CSSProperties, type ReactNode } from "react";
+import { PropsWithChildren, type ReactNode } from "react";
 import Header from "@/components/layout/header";
 import PlatformSidebar from "@/components/layout/sidebar";
-import {
-  Sidebar as ShellSidebar,
-  SidebarContent,
-  SidebarInset,
-  SidebarProvider,
-  useSidebar,
-} from "@/components/ui/sidebar";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-import { pageContainer } from "@/lib/design-system";
-
-type SidebarCSSVars = CSSProperties & { [key: `--${string}`]: string | number };
 
 type PlatformShellProps = PropsWithChildren<{
   onLogout?: () => void;
@@ -29,70 +19,39 @@ export default function PlatformShell({
   headerExtraContent,
 }: PlatformShellProps) {
   const { dir, t } = useLanguage();
-  const sidebarVars: SidebarCSSVars = {
-    "--sidebar-width": "18rem",
-  };
 
   return (
-    <SidebarProvider
-      dir={dir}
-      className="min-h-screen bg-background text-foreground"
-      style={sidebarVars}
-    >
-      <ShellContent
-        dir={dir}
-        onLogout={onLogout}
-        title={title}
-        searchPlaceholder={searchPlaceholder || t("nav.search")}
-        headerExtraContent={headerExtraContent}
-      >
-        {children}
-      </ShellContent>
-    </SidebarProvider>
-  );
-}
-
-type ShellContentProps = PlatformShellProps & { dir: "rtl" | "ltr" };
-
-function ShellContent({
-  children,
-  onLogout,
-  title,
-  searchPlaceholder,
-  headerExtraContent,
-  dir,
-}: ShellContentProps) {
-  const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
-  const sidebarIsOpen = isMobile ? openMobile : open;
-
-  return (
-    <div className="flex min-h-screen w-full" dir={dir}>
-      <ShellSidebar
-        side={dir === "rtl" ? "right" : "left"}
-        collapsible="offcanvas"
-        dir={dir}
+    <div className="flex h-screen bg-gray-50" dir={dir}>
+      {/* Sidebar - Fixed position, stable layout */}
+      <aside
         className={cn(
-          "bg-sidebar/95 text-sidebar-foreground shadow-floating",
-          dir === "rtl" ? "border-l border-border/60" : "border-r border-border/60"
+          "w-72 bg-white border-r border-gray-200 shadow-lg flex-shrink-0",
+          "lg:relative lg:translate-x-0 lg:block",
+          dir === "rtl" ? "border-l border-r-0" : "border-r",
+          "fixed lg:static inset-y-0 z-50"
         )}
       >
-        <SidebarContent className="px-0">
-          <PlatformSidebar onLogout={onLogout} />
-        </SidebarContent>
-      </ShellSidebar>
+        <PlatformSidebar onLogout={onLogout} />
+      </aside>
 
-      <SidebarInset className="flex min-h-screen flex-1 flex-col bg-background" dir={dir}>
+      {/* Main content area */}
+      <div className="flex flex-col flex-1 min-w-0">
+        {/* Header */}
         <Header
-          searchPlaceholder={searchPlaceholder}
+          searchPlaceholder={searchPlaceholder || t("nav.search")}
           title={title}
           extraContent={headerExtraContent}
-          onToggleSidebar={toggleSidebar}
-          isSidebarOpen={sidebarIsOpen}
+          onToggleSidebar={() => {}}
+          isSidebarOpen={true}
         />
-        <main className="flex-1 overflow-y-auto pt-6">
-          <div className={pageContainer}>{children}</div>
+        
+        {/* Main content */}
+        <main className="flex-1 overflow-y-auto bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {children}
+          </div>
         </main>
-      </SidebarInset>
+      </div>
     </div>
   );
 }

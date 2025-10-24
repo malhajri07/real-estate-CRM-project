@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ChevronDown, ChevronRight, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,8 +9,6 @@ import {
   type PlatformSidebarGroupConfig,
   type PlatformSidebarSubgroupConfig
 } from "@/config/platform-sidebar";
-import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
-import { useSidebar } from "@/components/ui/sidebar";
 
 interface SidebarProps {
   onLogout?: () => void;
@@ -45,8 +43,7 @@ const renderItems = (
   items: PlatformSidebarChildConfig[],
   location: string,
   dir: "rtl" | "ltr",
-  t: (key: string) => string,
-  onNavigate?: () => void
+  t: (key: string) => string
 ) =>
   items.map((item) => {
     const ItemIcon = item.icon;
@@ -57,20 +54,17 @@ const renderItems = (
       <li key={item.id}>
         <Link
           href={item.path}
-          onClick={() => {
-            onNavigate?.();
-          }}
           className={cn(
-            "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500",
             dir === "rtl" ? "text-right" : "text-left",
-            isActive ? "bg-primary text-primary-foreground shadow-floating" : "text-muted-foreground hover:bg-sidebar-muted/80 hover:text-foreground"
+            isActive ? "bg-blue-100 text-blue-700 shadow-sm" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
           )}
           aria-current={isActive ? "page" : undefined}
         >
           <span
             className={cn(
-              "flex h-7 w-7 items-center justify-center rounded-lg border border-border/40 bg-card/80 text-muted-foreground",
-              isActive && "border-transparent bg-primary/90 text-primary-foreground"
+              "flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600",
+              isActive && "border-blue-300 bg-blue-100 text-blue-700"
             )}
           >
             <ItemIcon size={16} />
@@ -84,7 +78,6 @@ const renderItems = (
 export default function Sidebar({ onLogout }: SidebarProps) {
   const [location] = useLocation();
   const { t, dir } = useLanguage();
-  const { isMobile, setOpenMobile } = useSidebar();
 
   const [expandedGroups, setExpandedGroups] = useState<string[]>(() => {
     const activeGroupId = findActiveGroupId(location);
@@ -92,43 +85,13 @@ export default function Sidebar({ onLogout }: SidebarProps) {
     return platformSidebarConfig.length ? [platformSidebarConfig[0].id] : [];
   });
 
-  useEffect(() => {
-    const activeGroupId = findActiveGroupId(location);
-    if (activeGroupId) {
-      setExpandedGroups((prev) => (prev.includes(activeGroupId) ? prev : [...prev, activeGroupId]));
-    }
-  }, [location]);
-
   const toggleGroup = (groupId: string) => {
     setExpandedGroups((prev) => (prev.includes(groupId) ? prev.filter((id) => id !== groupId) : [...prev, groupId]));
   };
 
-  const handleNavigate = () => {
-    if (isMobile) {
-      setOpenMobile(false);
-    }
-  };
-
   return (
-    <div
-      className="flex h-full flex-col overflow-y-auto bg-sidebar/95 bg-subtle-grid bg-[length:36px_36px] pb-8 pt-6 text-sidebar-foreground transition-colors duration-300"
-      dir={dir}
-    >
-      <div className="px-6">
-        <div className="flex items-center justify-center rounded-2xl border border-border/40 bg-card/80 py-6 shadow-outline backdrop-blur">
-          <img
-            src={agarkomLogo}
-            alt={t("sidebar.brandAlt")}
-            width={164}
-            height={92}
-            loading="lazy"
-            decoding="async"
-            className="h-20 w-auto object-contain"
-          />
-        </div>
-      </div>
-
-      <nav className="mt-6 flex-1 space-y-6 px-4" aria-label={t("nav.system_title")}>
+    <div className="flex h-full flex-col overflow-y-auto bg-white" dir={dir}>
+      <nav className="flex-1 space-y-6 px-4 py-6" aria-label={t("nav.system_title")}>
         <ul className="space-y-4">
           {platformSidebarConfig.map((group) => {
             const GroupIcon = group.icon;
@@ -144,53 +107,48 @@ export default function Sidebar({ onLogout }: SidebarProps) {
                   onClick={() => toggleGroup(group.id)}
                   aria-expanded={isExpanded}
                   className={cn(
-                    "group flex w-full items-center justify-between rounded-2xl border border-transparent bg-transparent px-4 py-3 text-sm font-semibold transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-                    isActiveGroup ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-sidebar-muted/70"
+                    "group flex w-full items-center justify-between rounded-lg border border-transparent bg-transparent px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500",
+                    isActiveGroup ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50"
                   )}
                 >
                   <span className="flex items-center gap-3" dir={dir}>
                     <span
                       className={cn(
-                        "flex h-9 w-9 items-center justify-center rounded-xl border border-border/40 bg-card/80 text-muted-foreground shadow-outline",
-                        isActiveGroup && "border-primary/40 text-primary"
+                        "flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600 shadow-sm",
+                        isActiveGroup && "border-blue-300 text-blue-600 bg-blue-50"
                       )}
                     >
                       <GroupIcon size={18} />
                     </span>
                     <span className="text-sm font-semibold tracking-tight">{groupLabel}</span>
                   </span>
-                  <span className="text-muted-foreground transition-transform duration-200 group-hover:text-foreground">
+                  <span className="text-gray-400 group-hover:text-gray-600">
                     {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                   </span>
                 </button>
 
                 <div
                   className={cn(
-                    "mt-2 space-y-1 overflow-hidden rounded-2xl border border-border/40 bg-card/75 backdrop-blur transition-all duration-300",
+                    "mt-2 space-y-1 overflow-hidden rounded-lg border border-gray-200 bg-gray-50",
                     isExpanded ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
                   )}
                 >
-                  <div
-                    className={cn(
-                      "space-y-3 px-2 py-3 transition-opacity duration-300",
-                      isExpanded ? "opacity-100" : "opacity-0"
-                    )}
-                  >
+                  <div className="space-y-3 px-2 py-3">
                     {hasSubgroups
                       ? group.subgroups?.map((subgroup: PlatformSidebarSubgroupConfig) => {
                           const subgroupLabel = subgroup.label ?? (subgroup.labelKey ? t(subgroup.labelKey) : subgroup.id);
                           return (
                             <div key={subgroup.id} className="space-y-2">
                               {subgroupLabel && (
-                                <div className="px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground/80">
+                                <div className="px-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
                                   {subgroupLabel}
                                 </div>
                               )}
-                              <ul className="space-y-1">{renderItems(subgroup.children, location, dir, t, handleNavigate)}</ul>
+                              <ul className="space-y-1">{renderItems(subgroup.children, location, dir, t)}</ul>
                             </div>
                           );
                         })
-                      : <ul className="space-y-1">{renderItems(group.children ?? [], location, dir, t, handleNavigate)}</ul>}
+                      : <ul className="space-y-1">{renderItems(group.children ?? [], location, dir, t)}</ul>}
                   </div>
                 </div>
               </li>
@@ -199,15 +157,10 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         </ul>
 
         {onLogout && (
-          <div className="rounded-2xl border border-border/40 bg-card/80 p-4 shadow-outline backdrop-blur">
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm">
             <button
-              onClick={() => {
-                if (isMobile) {
-                  setOpenMobile(false);
-                }
-                onLogout?.();
-              }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-destructive/10 px-4 py-2.5 text-sm font-semibold text-destructive transition hover:bg-destructive/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
+              onClick={onLogout}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
               data-testid="button-logout"
             >
               <LogOut className="h-4 w-4" />
