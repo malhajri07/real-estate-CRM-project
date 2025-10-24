@@ -119,17 +119,19 @@ gcloud run deploy $SERVICE_NAME \
     --region $REGION \
     --platform managed \
     --allow-unauthenticated \
-    --port 3000 \
+    --port 8080 \
     --memory 2Gi \
     --cpu 2 \
     --max-instances 10 \
     --min-instances 1 \
     --add-cloudsql-instances $DB_CONNECTION_NAME \
     --set-env-vars NODE_ENV=production \
-    --set-env-vars PORT=3000 \
+    --set-env-vars PORT=8080 \
     --set-env-vars DATABASE_URL="postgresql://postgres:$DB_PASSWORD@/real_estate_crm?host=/cloudsql/$DB_CONNECTION_NAME" \
     --set-env-vars GCS_BUCKET_NAME=$STORAGE_BUCKET \
-    --set-env-vars GCS_PROJECT_ID=$PROJECT_ID
+    --set-env-vars GCS_PROJECT_ID=$PROJECT_ID \
+    --set-env-vars NO_PROXY="127.0.0.1,localhost,169.254.0.0/16,*.google.internal,*.googleapis.com,*.appspot.com,*.run.app,*.cloudfunctions.net,*.gateway.dev,*.googleusercontent.com,*.pkg.dev,*.gcr.io" \
+    --set-env-vars no_proxy="127.0.0.1,localhost,169.254.0.0/16,*.google.internal,*.googleapis.com,*.appspot.com,*.run.app,*.cloudfunctions.net,*.gateway.dev,*.googleusercontent.com,*.pkg.dev,*.gcr.io"
 
 # Get the final service URL
 FINAL_SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --region $REGION --format 'value(status.url)')

@@ -23,7 +23,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--port'
-      - '3000'
+      - '8080'
       - '--memory'
       - '2Gi'
       - '--cpu'
@@ -33,7 +33,7 @@ steps:
       - '--min-instances'
       - '1'
       - '--set-env-vars'
-      - 'NODE_ENV=production,DATABASE_URL=${_DATABASE_URL},JWT_SECRET=${_JWT_SECRET},SESSION_SECRET=${_SESSION_SECRET}'
+      - 'NODE_ENV=production,DATABASE_URL=${_DATABASE_URL},JWT_SECRET=${_JWT_SECRET},SESSION_SECRET=${_SESSION_SECRET},NO_PROXY=127.0.0.1,localhost,169.254.0.0/16,*.google.internal,*.googleapis.com,*.appspot.com,*.run.app,*.cloudfunctions.net,*.gateway.dev,*.googleusercontent.com,*.pkg.dev,*.gcr.io,no_proxy=127.0.0.1,localhost,169.254.0.0/16,*.google.internal,*.googleapis.com,*.appspot.com,*.run.app,*.cloudfunctions.net,*.gateway.dev,*.googleusercontent.com,*.pkg.dev,*.gcr.io'
 
 # Substitution variables
 substitutions:

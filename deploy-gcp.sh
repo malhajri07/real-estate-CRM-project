@@ -64,13 +64,15 @@ gcloud run deploy $SERVICE_NAME \
     --region $REGION \
     --platform managed \
     --allow-unauthenticated \
-    --port 3000 \
+    --port 8080 \
     --memory 2Gi \
     --cpu 2 \
     --max-instances 10 \
     --min-instances 1 \
     --set-env-vars NODE_ENV=production \
-    --set-env-vars PORT=3000
+    --set-env-vars PORT=8080 \
+    --set-env-vars NO_PROXY="127.0.0.1,localhost,169.254.0.0/16,*.google.internal,*.googleapis.com,*.appspot.com,*.run.app,*.cloudfunctions.net,*.gateway.dev,*.googleusercontent.com,*.pkg.dev,*.gcr.io" \
+    --set-env-vars no_proxy="127.0.0.1,localhost,169.254.0.0/16,*.google.internal,*.googleapis.com,*.appspot.com,*.run.app,*.cloudfunctions.net,*.gateway.dev,*.googleusercontent.com,*.pkg.dev,*.gcr.io"
 
 # Get the service URL
 SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --region $REGION --format 'value(status.url)')
