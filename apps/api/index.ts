@@ -22,7 +22,7 @@ import "./types/express-session";
 import path from "path";
 import { createServer as createNetServer } from "node:net";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { log } from "./logger";
 import {
   SESSION_SECRET as getSessionSecret,
   JWT_SECRET as getJwtSecret,
@@ -176,8 +176,8 @@ async function findAvailablePort(preferredPort: number): Promise<number> {
  * Dependencies:
  * - registerRoutes() from ./routes.ts - Registers all API routes
  * - setupVite() from ./vite.ts - Development hot reloading
- * - serveStatic() from ./vite.ts - Production static file serving
- * - log() from ./vite.ts - Logging functionality
+ * - serveStatic() from ./serve-static.ts - Production static file serving
+ * - log() from ./logger.ts - Logging functionality
  */
 (async () => {
   const nodeEnv = process.env.NODE_ENV ?? 'development';
@@ -226,9 +226,11 @@ async function findAvailablePort(preferredPort: number): Promise<number> {
    */
   if (app.get("env") === "development") {
     // In development, serve the app and API from a single Express port (3000)
+    const { setupVite } = await import("./vite");
     await setupVite(app, server);
   } else {
     // In production, serve the built frontend from dist/public
+    const { serveStatic } = await import("./serve-static");
     serveStatic(app);
   }
 

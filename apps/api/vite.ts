@@ -1,8 +1,8 @@
 // @ts-nocheck
-import express, { type Express } from "express";
+import type { Express } from "express";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import rawViteConfig from "../../vite.config";
@@ -10,17 +10,6 @@ import rawViteConfig from "../../vite.config";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const viteLogger = createLogger();
-
-export function log(message: string, source = "express") {
-  const formattedTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-
-  console.log(`${formattedTime} [${source}] ${message}`);
-}
 
 export async function setupVite(app: Express, server: Server) {
   const viteConfig =
@@ -56,7 +45,7 @@ export async function setupVite(app: Express, server: Server) {
     const url = req.originalUrl;
 
     // Skip API routes - let them be handled by the API middleware
-    if (url.startsWith('/api/')) {
+    if (url.startsWith("/api/")) {
       return next();
     }
 
@@ -74,33 +63,16 @@ export async function setupVite(app: Express, server: Server) {
       // This will override any existing SERVER_PORT from Vite plugins
       const portScript = `
         <script>
-          window.SERVER_PORT = '${process.env.PORT || '3000'}';
+          window.SERVER_PORT = '${process.env.PORT || "3000"}';
         </script>
       `;
-      template = template.replace('</head>', `${portScript}</head>`);
-      
+      template = template.replace("</head>", `${portScript}</head>`);
+
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
       next(e);
     }
-  });
-}
-
-export function serveStatic(app: Express) {
-  const distPath = path.resolve(process.cwd(), "dist/public");
-
-  if (!fs.existsSync(distPath)) {
-    throw new Error(
-      `Missing build output at ${distPath}. Run npm run build before starting in production.`,
-    );
-  }
-
-  app.use(express.static(distPath));
-
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
