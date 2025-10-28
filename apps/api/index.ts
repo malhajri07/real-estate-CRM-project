@@ -10,7 +10,7 @@
  * - Vite integration for development hot reloading
  * - Static file serving for production builds
  * 
- * The server runs on port 3000 in development and serves both the API
+ * The server runs on port 3001 in development and serves both the API
  * and the frontend application through a single port.
  */
 
@@ -18,6 +18,7 @@ import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session"; // Enable per-user session storage so multiple logins can coexist
 import connectPgSimple from "connect-pg-simple";
+import { BACKEND_PORT } from "./config/env";
 import "./types/express-session";
 import path from "path";
 import { createServer as createNetServer } from "node:net";
@@ -35,6 +36,20 @@ const app = express();
 // Configure Express middleware
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: false })); // Parse URL-encoded request bodies
+
+// CORS configuration for development
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // Wire up cookie-based sessions so several users can stay logged in at the same time
 const PgSessionStore = connectPgSimple(session);
@@ -243,7 +258,7 @@ async function findAvailablePort(preferredPort: number): Promise<number> {
    * 
    * This serves both the API and the frontend application.
    */
-  const preferredPort = parseInt(process.env.PORT || '3000', 10);
+  const preferredPort = BACKEND_PORT();
   const port = await findAvailablePort(preferredPort);
   if (port !== preferredPort) {
     log(`[startup] Port ${preferredPort} in use, switching to ${port}`);

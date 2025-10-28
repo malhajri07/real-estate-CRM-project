@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { Faker, ar, ar_SA, en } from "@faker-js/faker";
+import { Faker, ar, en } from "@faker-js/faker";
 import { performance } from "node:perf_hooks";
 import seedCore from "./core";
 import seedCMS from "./cms";
@@ -11,7 +11,7 @@ import { SeedCredential, SeedResult, SeedContext } from "./types";
 
 const prisma = new PrismaClient();
 
-const faker = new Faker({ locale: [ar_SA, ar, en] });
+const faker = new Faker({ locale: [ar, en] });
 
 const isResetEnabled = String(process.env.RESET ?? "false").toLowerCase() === "true";
 

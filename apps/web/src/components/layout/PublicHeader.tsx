@@ -39,7 +39,7 @@ export default function PublicHeader() {
 
   const navLinks = useMemo(
     () => [
-      { href: "/search-properties", label: t("nav.search") },
+      { href: "/map", label: t("nav.search") },
             { href: "/home/platform/saved-searches", label: "عمليات البحث" },
       { href: "/contact", label: "اتصل بنا" }
     ],

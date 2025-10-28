@@ -64,6 +64,10 @@ import authRoutes from "./routes/auth";               // Authentication routes (
 import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
 import analyticsRoutes from "./src/routes/analytics"; // Analytics data
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
+import testAdminRoutes from "./test-admin";            // Test admin functionality
+import testDashboardRoutes from "./test-dashboard";  // Test dashboard functionality
+import testDbRoutes from "./test-db";                // Test database connection
+import simpleAnalyticsRoutes from "./simple-analytics"; // Simple analytics for testing
 import cmsLandingRoutes from "./routes/cms-landing";
 import { LandingService } from "./services/landingService";
 import { JWT_SECRET as getJwtSecret } from "./config/env";
@@ -148,6 +152,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Pages affected: RBAC dashboard, user management, organization management
    */
   app.use("/api/rbac-admin", rbacAdminRoutes);
+
+  /**
+   * Admin Routes - /admin/*
+   * 
+   * Direct admin routes for frontend pages
+   */
+  app.get("/admin/users/all-users", async (req, res) => {
+    try {
+      // Import prisma directly instead of using fetch
+      const { prisma } = await import('./prismaClient');
+      
+      const users = await prisma.users.findMany({
+        include: {
+          organization: true,
+          agent_profiles: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      res.json({
+        success: true,
+        users: users.map(user => {
+          // Parse roles from JSON string to array
+          let parsedRoles = [];
+          try {
+            parsedRoles = JSON.parse(user.roles);
+          } catch (e) {
+            parsedRoles = [user.roles];
+          }
+          
+          return {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username,
+            phone: user.phone,
+            roles: parsedRoles,
+            isActive: user.isActive,
+            organizationId: user.organizationId,
+            organization: user.organization,
+            agent_profiles: user.agent_profiles,
+            approvalStatus: null, // Add default approval status
+            lastLoginAt: null, // Add default last login
+            licenseNumber: null, // Add default license number
+            memberships: [], // Add default memberships
+            primaryMembership: null, // Add default primary membership
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+          };
+        })
+      });
+    } catch (error) {
+      console.error('Admin users fetch error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch users',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  app.use("/api/test-admin", testAdminRoutes);
+  app.use("/api/test-dashboard", testDashboardRoutes);
+  app.use("/api/test-db", testDbRoutes);
+  app.use("/api/simple-analytics", simpleAnalyticsRoutes);
 
   /**
    * Property Listings Routes - /api/listings/*
@@ -498,7 +570,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
       const tenantId = auth.organizationId ?? "default-tenant";
-      const lead = await storage.createLead(validatedData, auth.id, tenantId);
+      const lead = await storage.createLead(validatedData);
       res.status(201).json(lead);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -527,10 +599,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/leads/:id", requireAnyPerm(['requests:manage:all','requests:manage:corporate','requests:pool:pickup']), async (req, res) => {
     try {
-      const deleted = await storage.deleteLead(req.params.id);
-      if (!deleted) {
-        return res.status(404).json({ message: "Lead not found" });
-      }
+      await storage.deleteLead(req.params.id);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete lead" });
@@ -609,7 +678,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Authentication required" });
       }
       const tenantId = auth.organizationId ?? "default-tenant";
-      const property = await storage.createProperty(validatedData, auth.id, tenantId);
+      const property = await storage.createProperty(validatedData);
       res.status(201).json(property);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -638,10 +707,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/properties/:id", async (req, res) => {
     try {
-      const deleted = await storage.deleteProperty(req.params.id);
-      if (!deleted) {
-        return res.status(404).json({ message: "Property not found" });
-      }
+      await storage.deleteProperty(req.params.id);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete property" });
@@ -672,7 +738,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertDealSchema.parse(req.body);
       const auth = decodeAuth(req);
       const tenantId = auth.organizationId ?? "default-tenant";
-      const deal = await storage.createDeal(validatedData, tenantId);
+      const deal = await storage.createDeal(validatedData);
       res.status(201).json(deal);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -723,7 +789,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertActivitySchema.parse(req.body);
       const auth = decodeAuth(req);
       const tenantId = auth.organizationId ?? "default-tenant";
-      const activity = await storage.createActivity(validatedData, tenantId);
+      const activity = await storage.createActivity(validatedData);
       res.status(201).json(activity);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -741,25 +807,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const properties = await storage.getAllProperties();
       const deals = await storage.getAllDeals();
 
-      const activeDeals = deals.filter(deal => !['closed', 'lost'].includes(deal.stage));
-      const closedDeals = deals.filter(deal => deal.stage === 'closed');
+      const activeDeals = deals.filter((deal: any) => !['closed', 'lost'].includes(deal.stage));
+      const closedDeals = deals.filter((deal: any) => deal.stage === 'closed');
 
-      const monthlyRevenue = closedDeals.reduce((sum, deal) => {
+      const monthlyRevenue = closedDeals.reduce((sum: number, deal: any) => {
         const commission = deal.commission ? parseFloat(deal.commission) : 0;
         return sum + commission;
       }, 0);
 
       const metrics = {
         totalLeads: leads.length,
-        activeProperties: properties.filter(p => p.status === 'active').length,
+        activeProperties: properties.filter((p: any) => p.status === 'active').length,
         dealsInPipeline: activeDeals.length,
         monthlyRevenue: monthlyRevenue,
         pipelineByStage: {
-          lead: deals.filter(d => d.stage === 'lead').length,
-          qualified: deals.filter(d => d.stage === 'qualified').length,
-          showing: deals.filter(d => d.stage === 'showing').length,
-          negotiation: deals.filter(d => d.stage === 'negotiation').length,
-          closed: deals.filter(d => d.stage === 'closed').length,
+          lead: deals.filter((d: any) => d.stage === 'lead').length,
+          qualified: deals.filter((d: any) => d.stage === 'qualified').length,
+          showing: deals.filter((d: any) => d.stage === 'showing').length,
+          negotiation: deals.filter((d: any) => d.stage === 'negotiation').length,
+          closed: deals.filter((d: any) => d.stage === 'closed').length,
         }
       };
 
@@ -794,7 +860,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const messageData = insertMessageSchema.parse(req.body);
       const auth = decodeAuth(req);
       const tenantId = auth.organizationId ?? "default-tenant";
-      const message = await storage.createMessage(messageData, tenantId);
+      const message = await storage.createMessage(messageData);
       res.json(message);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -808,7 +874,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Notifications API
   app.get("/api/notifications", async (req, res) => {
     try {
-      const notifications = await storage.getNotifications();
+      const auth = decodeAuth(req);
+      if (!auth.id) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+      const notifications = await storage.getNotifications(auth.id);
       res.json(notifications);
     } catch (error) {
       console.error("Error fetching notifications:", error);
@@ -856,11 +926,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/saudi-regions/seed", async (req, res) => {
     try {
-      const regions = await storage.seedSaudiRegions();
+      await storage.seedSaudiRegions(req.body);
       res.json({
-        message: "Saudi regions seeded successfully",
-        count: regions.length,
-        regions
+        message: "Saudi regions seeded successfully"
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to seed Saudi regions" });
@@ -879,7 +947,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/saudi-cities/region/:regionCode", async (req, res) => {
     try {
-      const cities = await storage.getCitiesByRegion(req.params.regionCode);
+      const cities = await storage.getCitiesByRegion(parseInt(req.params.regionCode));
       res.json(cities);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch cities for region" });
@@ -888,11 +956,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/saudi-cities/seed", async (req, res) => {
     try {
-      const cities = await storage.seedSaudiCities();
+      await storage.seedSaudiCities(req.body);
       res.json({
-        message: "Saudi cities seeded successfully",
-        count: cities.length,
-        cities
+        message: "Saudi cities seeded successfully"
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to seed Saudi cities" });

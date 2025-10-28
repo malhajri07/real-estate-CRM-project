@@ -9,6 +9,7 @@ import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
+import { BACKEND_PORT } from "./config/env";
 import "./types/express-session";
 import path from "path";
 import { createServer as createNetServer } from "node:net";
@@ -163,7 +164,7 @@ app.use((req, res) => {
     });
   };
 
-  const preferredPort = parseInt(process.env.PORT || '8080', 10);
+  const preferredPort = BACKEND_PORT();
   const port = await findAvailablePort(preferredPort);
   if (port !== preferredPort) {
     log(`[startup] Port ${preferredPort} in use, switching to ${port}`);

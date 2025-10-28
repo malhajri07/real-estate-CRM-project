@@ -120,23 +120,22 @@ const getAnalyticsData = async () => {
       prisma.properties.count(),
       prisma.properties.count({ where: { status: 'ACTIVE' as any } }),
       prisma.leads.count(),
-      prisma.deals.aggregate({
-        where: { stage: 'WON' as any, wonAt: { not: null } },
-        _avg: { agreedPrice: true },
-        _sum: { agreedPrice: true },
+      // Use claims table instead of deals table
+      prisma.claims.aggregate({
+        where: { status: 'ACTIVE' as any },
         _count: { _all: true },
       }),
-      prisma.deals.count(),
-      prisma.deals.count({
+      prisma.claims.count(),
+      prisma.claims.count({
         where: {
-          stage: 'WON' as any,
-          wonAt: { gte: startOfCurrentMonth, lt: startOfNextMonth },
+          status: 'ACTIVE' as any,
+          createdAt: { gte: startOfCurrentMonth, lt: startOfNextMonth },
         },
       }),
-      prisma.deals.count({
+      prisma.claims.count({
         where: {
-          stage: 'WON' as any,
-          wonAt: { gte: startOfPreviousMonth, lt: startOfCurrentMonth },
+          status: 'ACTIVE' as any,
+          createdAt: { gte: startOfPreviousMonth, lt: startOfCurrentMonth },
         },
       }),
       prisma.users.count({

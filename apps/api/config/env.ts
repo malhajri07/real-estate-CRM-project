@@ -69,3 +69,22 @@ export const SESSION_SECRET = () =>
   });
 
 export const DATABASE_URL = () => requireEnv('DATABASE_URL');
+
+/**
+ * Port configuration for development and production environments
+ */
+export const BACKEND_PORT = () => {
+  const port = process.env.PORT || (isProduction ? '8080' : '3001');
+  return parseInt(port, 10);
+};
+
+export const FRONTEND_PORT = () => {
+  const port = process.env.VITE_PORT || '3000';
+  return parseInt(port, 10);
+};
+
+export const API_PROXY_TARGET = () => {
+  const host = process.env.API_HOST || '127.0.0.1';
+  const port = BACKEND_PORT();
+  return `http://${host}:${port}`;
+};

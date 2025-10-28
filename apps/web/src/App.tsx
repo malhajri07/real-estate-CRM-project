@@ -48,7 +48,7 @@ import { adminSidebarConfig } from "@/config/admin-sidebar";
 // Lazy-loaded page imports - loaded on demand for better performance
 const CMSAdmin = lazy(() => import("@/pages/cms-admin"));
 const Dashboard = lazy(() => import("@/pages/dashboard"));
-const SearchProperties = lazy(() => import("@/pages/search-properties"));
+const MapPage = lazy(() => import("@/pages/map"));
 const Leads = lazy(() => import("@/pages/leads"));
 const Customers = lazy(() => import("@/pages/customers"));
 const Properties = lazy(() => import("@/pages/properties"));
@@ -139,7 +139,7 @@ function Router() {
   const SuspendedPlatformPage = withSuspense(LazyPlatformPage);
   const SuspendedUnverifiedListingPage = withSuspense(LazyUnverifiedListingPage);
   const SuspendedMarketingRequestSubmissionPage = withSuspense(LazyMarketingRequestSubmissionPage);
-  const SuspendedSearchPropertiesPage = withSuspense(SearchProperties);
+  const SuspendedSearchPropertiesPage = withSuspense(MapPage);
   const SuspendedRealEstateRequestsPage = withSuspense(RealEstateRequestsPage);
 
   const PLATFORM_CORE_ROLES: readonly UserRole[] = [
@@ -304,7 +304,7 @@ function Router() {
   };
 
   // Provide standalone rendering for the public property search page
-  if (location.startsWith('/search-properties')) {
+  if (location.startsWith('/map')) {
     return <SuspendedSearchPropertiesPage />;
   }
 
@@ -628,7 +628,7 @@ function Router() {
         <Route path="/signup/corporate" component={SignupCorporate} />
         <Route path="/signup/success" component={SignupSuccess} />
         <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
-        <Route path="/search-properties" component={SuspendedSearchPropertiesPage} />
+        <Route path="/map" component={SuspendedSearchPropertiesPage} />
         <Route path="/real-estate-requests" component={SuspendedRealEstateRequestsPage} />
         {ADMIN_DASHBOARD_ROUTES.map((path) => (
           <Route

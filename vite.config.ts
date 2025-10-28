@@ -10,7 +10,7 @@
  * - Development plugins for enhanced debugging
  * 
  * Key Features:
- * - API Proxy: Forwards /api requests to backend server (port 3000)
+ * - API Proxy: Forwards /api requests to backend server (dynamic port from env config)
  * - Path Aliases: Clean import paths for better code organization
  * - Hot Module Replacement (HMR): Fast development with instant updates
  * - TypeScript Support: Full TypeScript compilation and type checking
@@ -30,6 +30,7 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from 'url';
+import { FRONTEND_PORT, API_PROXY_TARGET } from "./apps/api/config/env";
 // import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal"; // Removed - Replit-specific
 
 // Get current directory for path resolution
@@ -220,7 +221,7 @@ export default defineConfig(async () => {
   
   // Development server configuration
   server: {
-    port: 5173,
+    port: FRONTEND_PORT(),
     strictPort: true,
     // File system security settings
     fs: {
@@ -231,17 +232,17 @@ export default defineConfig(async () => {
     /**
      * API Proxy Configuration
      * 
-     * Forwards all /api requests from the frontend dev server (port 3000) to the backend server (port 3000).
+     * Forwards all /api requests from the frontend dev server to the backend server.
      * This allows the frontend to make API calls using relative paths (/api/*) which are
      * automatically proxied to the backend server.
      * 
-     * Target: http://127.0.0.1:3000 (backend server)
+     * Target: Dynamic backend server URL from API_PROXY_TARGET()
      * Routes affected: All /api/* requests
      * Pages affected: All pages making API calls
      */
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:3000',  // Backend server URL
+        target: API_PROXY_TARGET(),  // Backend server URL (dynamic from env config)
         changeOrigin: true,                // Change origin header
         secure: false,                     // Allow HTTP (for development)
       },

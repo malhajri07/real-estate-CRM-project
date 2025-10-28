@@ -111,20 +111,6 @@ export default function Header({
 
         {showActions && (
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative rounded-full border border-border/60 bg-card/70 text-muted-foreground shadow-outline transition hover:bg-card/90 focus-visible:ring-primary/40"
-              aria-label={t("header.notifications")}
-            >
-              <Bell className="h-4 w-4" />
-              {notificationCount > 0 && (
-                <span className="absolute -top-1 -left-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1 text-[0.625rem] font-medium text-primary-foreground shadow-floating">
-                  {notificationCount > 9 ? "9+" : notificationCount}
-                </span>
-              )}
-            </Button>
-
             <div className="flex items-center gap-3 rounded-full border border-border/60 bg-card/70 px-3 py-1.5 shadow-outline">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <User className="h-4 w-4" />

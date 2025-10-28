@@ -45,7 +45,7 @@ const DEFAULT_LANDING_CONTENT: LandingPageContent = {
   footerLinks: [],
   navigation: [
     { id: 1, text: "الرئيسية", url: "#home", order: 1 },
-    { id: 2, text: "ابحث عن عقار", url: "/search-properties", order: 2 },
+    { id: 2, text: "ابحث عن عقار", url: "/map", order: 2 },
     { id: 3, text: "المميزات", url: "#features", order: 3 },
     { id: 4, text: "الحلول", url: "#solutions", order: 4 },
     { id: 5, text: "الأسعار", url: "#pricing", order: 5 },
@@ -282,7 +282,7 @@ export default function Landing() {
 
 const defaultNavigation = [
   { href: '#home', label: 'الرئيسية' },
-  { href: '/search-properties', label: 'ابحث عن عقار' },
+  { href: '/map', label: 'ابحث عن عقار' },
   { href: '#request', label: 'اطلب عقارك' },
   { href: '/unverified-listings', label: 'اعرض عقارك' },
   { href: '/marketing-request', label: 'سوق الوسطاء' },

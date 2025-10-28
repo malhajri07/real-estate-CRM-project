@@ -45,7 +45,7 @@ router.get("/cities", async (req, res) => {
       }
       cities = await storage.getAllSaudiCities(regionId);
     } else if (typeof req.query.regionCode === "string") {
-      cities = await storage.getCitiesByRegion(req.query.regionCode);
+      cities = await storage.getCitiesByRegion(parseInt(req.query.regionCode));
     } else {
       cities = await storage.getAllSaudiCities();
     }

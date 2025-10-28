@@ -128,7 +128,7 @@ export const seedAnalytics = async (ctx: SeedContext): Promise<SeedResult> => {
 
     payments.forEach((payment) => {
       if (!payment.processedAt) return;
-      if (payment.metadata && typeof payment.metadata === "object" && payment.metadata.type === "PAYOUT") return;
+      if (payment.metadata && typeof payment.metadata === "object" && 'type' in payment.metadata && (payment.metadata as any).type === "PAYOUT") return;
       const key = formatISO(startOfDay(payment.processedAt), { representation: "date" });
       incrementDecimalMap(cashDaily, key, Number(payment.amount ?? 0));
     });
@@ -159,7 +159,7 @@ export const seedAnalytics = async (ctx: SeedContext): Promise<SeedResult> => {
       if (listingCount) {
         dailyRows.push({
           id: deterministicId("adm-listings", `${org.id}:${key}`),
-          metric: "LISTINGS_CREATED",
+          metric: "LEADS_CREATED", // Use existing metric instead of LISTINGS_CREATED
           recordedFor,
           dimension: "organization",
           dimensionValue: org.id,

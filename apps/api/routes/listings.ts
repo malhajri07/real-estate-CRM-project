@@ -303,8 +303,7 @@ router.patch("/:id/status", async (req, res) => {
 // Delete listing
 router.delete("/:id", async (req, res) => {
   try {
-    const ok = await storage.deleteProperty(req.params.id);
-    if (!ok) return res.status(404).json({ message: "Listing not found" });
+    await storage.deleteProperty(req.params.id);
     res.status(204).send();
   } catch (err) {
     console.error("Error deleting listing:", err);

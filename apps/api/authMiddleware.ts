@@ -208,31 +208,16 @@ export const requirePermission = (permission: string) => {
 
     // Check user-specific permissions
     const userPermissions = await storage.getUserPermissions(user.id);
-    if (!userPermissions) {
+    if (!userPermissions || userPermissions.length === 0) {
       return res.status(403).json({ error: 'No permissions found' });
     }
 
-    // Map permission strings to database fields
-    const permissionMap: Record<string, keyof typeof userPermissions> = {
-      'manage_company_settings': 'canManageCompanySettings',
-      'manage_billing': 'canManageBilling',
-      'manage_users': 'canManageUsers',
-      'manage_roles': 'canManageRoles',
-      'view_leads': 'canViewLeads',
-      'create_edit_delete_leads': 'canCreateEditDeleteLeads',
-      'export_data': 'canExportData',
-      'manage_campaigns': 'canManageCampaigns',
-      'manage_integrations': 'canManageIntegrations',
-      'manage_api_keys': 'canManageApiKeys',
-      'view_reports': 'canViewReports',
-      'view_audit_logs': 'canViewAuditLogs',
-      'create_support_tickets': 'canCreateSupportTickets',
-      'impersonate_users': 'canImpersonateUsers',
-      'wipe_company_data': 'canWipeCompanyData'
-    };
+    // Check if user has the required permission
+    const hasPermission = userPermissions.some((perm: any) => 
+      perm.role?.name === permission || perm.role?.code === permission
+    );
 
-    const permissionField = permissionMap[permission];
-    if (!permissionField || !userPermissions[permissionField]) {
+    if (!hasPermission) {
       return res.status(403).json({ error: `Permission denied: ${permission}` });
     }
 
@@ -272,7 +257,14 @@ export const createDefaultUserPermissions = async (userId: string, userLevel: Us
     canWipeCompanyData: userLevel === UserLevel.PLATFORM_ADMIN,
   };
 
-  return await storage.createUserPermissions(defaultPermissions);
+  // Convert permissions object to array format for database
+  const permissionsArray = Object.entries(defaultPermissions).map(([key, value]) => ({
+    userId: userId,
+    permission: key,
+    value: value
+  }));
+
+  return await storage.createUserPermissions(permissionsArray);
 };
 
 // Export storage references for role routes
