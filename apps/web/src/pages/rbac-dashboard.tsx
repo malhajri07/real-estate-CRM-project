@@ -367,10 +367,15 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
   );
 }
 
-const formatNumber = (value?: number) => (value ?? 0).toLocaleString("ar-SA");
+const formatNumber = (value?: number) => (value ?? 0).toLocaleString("en-US");
 
-const formatCurrency = (value?: number, currency = "SAR") =>
-  new Intl.NumberFormat("ar-SA", { style: "currency", currency }).format(value ?? 0);
+const formatCurrency = (value?: number, currency = "SAR") => {
+  const formatted = new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value ?? 0);
+  return `${formatted} ريال`;
+};
 
 const ticketStatusLabel = (status: string) => {
   switch (status) {

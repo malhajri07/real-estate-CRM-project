@@ -10,13 +10,13 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import AddLeadModal from "@/components/modals/add-lead-modal";
+import AddLeadDrawer from "@/components/modals/add-lead-drawer";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Lead } from "@shared/types";
 
 export default function Customers() {
-  const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
+  const [addLeadDrawerOpen, setAddLeadDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -303,7 +303,11 @@ export default function Customers() {
                   <SlidersHorizontal size={16} className="ml-2" />
                   الفلاتر
                 </Button>
-                <Button onClick={() => setAddLeadModalOpen(true)}>
+                <Button 
+                  onClick={() => setAddLeadDrawerOpen(true)}
+                  style={{ backgroundColor: 'rgb(128 193 165)', color: 'white' }}
+                  className="hover:opacity-90"
+                >
                   <Plus className="ml-2" size={16} />
                   إضافة عميل محتمل
                 </Button>
@@ -315,7 +319,13 @@ export default function Customers() {
               <div className="rounded-2xl p-5 space-y-4 border border-slate-200/60 shadow-sm ui-stable backdrop-blur-xl bg-white/90 ring-1 ring-emerald-200/40">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium text-slate-800">فلاتر البحث</h3>
-                  <Button variant="ghost" size="sm" onClick={resetFilters} className="text-slate-600 hover:text-slate-800">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={resetFilters} 
+                    style={{ backgroundColor: 'rgb(128 193 165)', color: 'white' }}
+                    className="hover:opacity-90"
+                  >
                     إعادة تعيين
                   </Button>
                 </div>
@@ -430,12 +440,6 @@ export default function Customers() {
                 <div className="text-slate-500 mb-4">
                   {searchQuery || showFilters ? "لا توجد عملاء يطابقون الفلاتر المحددة." : "لا توجد عملاء محتملين. أضف أول عميل للبدء."}
                 </div>
-                {!searchQuery && !showFilters && (
-                  <Button onClick={() => setAddLeadModalOpen(true)}>
-                    <Plus className="ml-2" size={16} />
-                    إضافة أول عميل محتمل
-                  </Button>
-                )}
               </div>
             ) : (
               <>
@@ -581,9 +585,9 @@ export default function Customers() {
         </Card>
       </main>
 
-      <AddLeadModal 
-        open={addLeadModalOpen} 
-        onOpenChange={setAddLeadModalOpen}
+      <AddLeadDrawer 
+        open={addLeadDrawerOpen} 
+        onOpenChange={setAddLeadDrawerOpen}
       />
 
       {/* Delete Confirmation Dialog */}

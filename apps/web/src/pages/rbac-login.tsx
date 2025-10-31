@@ -12,6 +12,7 @@ export default function RBACLoginPage() {
   const { login, logout, isLoading, user } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [, setLocation] = useLocation();
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -27,9 +28,13 @@ export default function RBACLoginPage() {
   const handleLogin = async (username: string, password: string) => {
     try {
       setError(null);
+      setIsRedirecting(true);
       // The AuthProvider's login function will handle navigation after successful login
       await login(username, password);
+      // Don't reset isRedirecting here - let it stay true to show loading during redirect
+      // The AuthProvider will redirect, and the useEffect below will catch it
     } catch (err) {
+      setIsRedirecting(false);
       setError(err instanceof Error ? err.message : 'حدث خطأ أثناء تسجيل الدخول');
     }
   };
@@ -40,14 +45,40 @@ export default function RBACLoginPage() {
     setLocation('/');
   };
 
+  // Redirect effect: If user is logged in (from login or session), redirect immediately
   useEffect(() => {
-    if (isAuthenticating || !user) {
-      return;
+    if (user && !isAuthenticating) {
+      const isAdmin = user.roles?.includes(UserRole.WEBSITE_ADMIN);
+      const targetPath = isAdmin ? '/admin/overview/main-dashboard' : '/home/platform';
+      // Use window.location for a hard redirect to ensure it works even if routing changes
+      window.location.href = targetPath;
     }
+  }, [user, isAuthenticating]);
 
-    const isAdmin = user.roles?.includes(UserRole.WEBSITE_ADMIN);
-    setLocation(isAdmin ? '/admin/overview/main-dashboard' : '/home/platform');
-  }, [isAuthenticating, user, setLocation]);
+  // If user is logged in, show loading screen while redirect happens
+  // This prevents showing the "user logged in" card or any intermediate UI
+  if (user && !isAuthenticating) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-emerald-600" />
+          <p className="text-sm text-slate-500">جاري التوجيه...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading screen while redirecting after login attempt
+  if (isRedirecting) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="mx-auto h-8 w-8 animate-spin text-emerald-600" />
+          <p className="text-sm text-slate-500">جاري التحقق من حالة الدخول...</p>
+        </div>
+      </div>
+    );
+  }
 
   let primaryCard: React.ReactNode;
 
@@ -57,35 +88,6 @@ export default function RBACLoginPage() {
         <CardContent className="py-12 text-center space-y-4">
           <Loader2 className="mx-auto h-8 w-8 animate-spin text-emerald-600" />
           <p className="text-sm text-slate-500">جاري التحقق من حالة الدخول...</p>
-        </CardContent>
-      </Card>
-    );
-  } else if (user) {
-    primaryCard = (
-      <Card className="rounded-[32px] border border-white/80 bg-white/85 backdrop-blur-xl shadow-[0_40px_120px_rgba(15,23,42,0.08)]">
-        <CardHeader className="text-right space-y-2 border-b border-slate-100 bg-white/60">
-          <CardTitle className="text-2xl font-semibold text-slate-900">
-            مرحباً، {user.name}
-          </CardTitle>
-          <CardDescription className="text-sm text-slate-500 leading-6">
-            يمكنك المتابعة إلى لوحة التحكم أو تسجيل الخروج من هنا.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 p-6">
-          <Button
-            onClick={handleGoToDashboard}
-            className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold shadow-[0_20px_45px_rgba(16,185,129,0.25)] hover:bg-emerald-700"
-          >
-            الانتقال إلى لوحة التحكم
-          </Button>
-          <Button
-            onClick={handleLogout}
-            variant="outline"
-            className="w-full h-12 rounded-2xl border-red-200 text-red-600 hover:bg-red-50"
-          >
-            <LogOut className="ml-2 h-4 w-4" />
-            تسجيل الخروج
-          </Button>
         </CardContent>
       </Card>
     );

@@ -31,8 +31,8 @@ import {
   Plus,
   Users,
 } from "lucide-react";
-import AddLeadModal from "@/components/modals/add-lead-modal";
-import AddPropertyModal from "@/components/modals/add-property-modal";
+import AddLeadDrawer from "@/components/modals/add-lead-drawer";
+import AddPropertyDrawer from "@/components/modals/add-property-drawer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
@@ -51,8 +51,8 @@ type MetricResponse = {
 };
 
 export default function Dashboard() {
-  const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
-  const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false);
+  const [addLeadDrawerOpen, setAddLeadDrawerOpen] = useState(false);
+  const [addPropertyDrawerOpen, setAddPropertyDrawerOpen] = useState(false);
   const { dir, language, t } = useLanguage();
   const locale = language === "ar" ? "ar-SA" : "en-US";
 
@@ -157,13 +157,13 @@ export default function Dashboard() {
         id: "add-lead",
         label: t("dashboard.quick_actions.add_lead"),
         icon: Plus,
-        onClick: () => setAddLeadModalOpen(true),
+        onClick: () => setAddLeadDrawerOpen(true),
       },
       {
         id: "add-property",
         label: t("dashboard.quick_actions.add_property"),
         icon: Home,
-        onClick: () => setAddPropertyModalOpen(true),
+        onClick: () => setAddPropertyDrawerOpen(true),
       },
       {
         id: "schedule-showing",
@@ -183,8 +183,8 @@ export default function Dashboard() {
     return (
       <>
         <DashboardSkeleton />
-        <AddLeadModal open={addLeadModalOpen} onOpenChange={setAddLeadModalOpen} />
-        <AddPropertyModal open={addPropertyModalOpen} onOpenChange={setAddPropertyModalOpen} />
+        <AddLeadDrawer open={addLeadDrawerOpen} onOpenChange={setAddLeadDrawerOpen} />
+        <AddPropertyDrawer open={addPropertyDrawerOpen} onOpenChange={setAddPropertyDrawerOpen} />
       </>
     );
   }
@@ -258,7 +258,7 @@ export default function Dashboard() {
                 <EmptyState
                   title={t("dashboard.no_recent_leads")}
                   description={t("dashboard.no_recent_leads_description")}
-                  action={<Button onClick={() => setAddLeadModalOpen(true)}>{t("leads.add_lead")}</Button>}
+                  action={<Button onClick={() => setAddLeadDrawerOpen(true)}>{t("leads.add_lead")}</Button>}
                 />
               ) : (
                 <ul className="space-y-3" aria-live="polite">
@@ -320,12 +320,16 @@ export default function Dashboard() {
                 <Button
                   key={action.id}
                   variant="secondary"
-                  className="w-full justify-between rounded-2xl px-4"
+                  className={cn(
+                    "w-full justify-between rounded-2xl px-4",
+                    action.onClick && "hover:opacity-90"
+                  )}
+                  style={action.onClick ? { backgroundColor: 'rgb(128 193 165)', color: 'white' } : undefined}
                   onClick={action.onClick}
                   disabled={!action.onClick}
                 >
-                  <span className="text-sm font-semibold text-foreground">{action.label}</span>
-                  <action.icon className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-semibold">{action.label}</span>
+                  <action.icon className="h-4 w-4" />
                 </Button>
               ))}
             </CardContent>
@@ -385,8 +389,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <AddLeadModal open={addLeadModalOpen} onOpenChange={setAddLeadModalOpen} />
-      <AddPropertyModal open={addPropertyModalOpen} onOpenChange={setAddPropertyModalOpen} />
+      <AddLeadDrawer open={addLeadDrawerOpen} onOpenChange={setAddLeadDrawerOpen} />
+      <AddPropertyDrawer open={addPropertyDrawerOpen} onOpenChange={setAddPropertyDrawerOpen} />
     </div>
   );
 }
