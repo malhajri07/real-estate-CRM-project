@@ -47,7 +47,7 @@ import { insertMessageSchema } from "@shared/types";
 
 // Route module imports - Each handles specific functionality
 import listingsRoutes from "./routes/listings";       // Property listings
-import unverifiedListingsRoutes from "./routes/unverified-listings"; // Public unverified submissions
+import unverifiedListingsRoutes from "./routes/unverified-listings"; // Public unverified submissions (saves to property_listings table)
 import marketingRequestRoutes from "./routes/marketing-requests"; // Marketing request marketplace
 import locationsRoutes from "./routes/locations";     // Geographic data
 import favoritesRoutes from "./routes/favorites";     // User favorites
@@ -64,6 +64,8 @@ import authRoutes from "./routes/auth";               // Authentication routes (
 import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
 import analyticsRoutes from "./src/routes/analytics"; // Analytics data
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
+import propertyCategoriesRoutes from "./routes/property-categories"; // Property categories dimension table
+import propertyTypesRoutes from "./routes/property-types"; // Property types (related to categories)
 import testAdminRoutes from "./test-admin";            // Test admin functionality
 import testDashboardRoutes from "./test-dashboard";  // Test dashboard functionality
 import testDbRoutes from "./test-db";                // Test database connection
@@ -131,7 +133,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/pool", buyerPoolRoutes);
 
   app.use("/api/cms", cmsLandingRoutes);
-  app.use("/api/unverified-listings", unverifiedListingsRoutes);
+  app.use("/api/unverified-listings", unverifiedListingsRoutes); // Saves to property_listings table
+  app.use("/api/property-categories", propertyCategoriesRoutes); // Property categories dimension table
+  app.use("/api/property-types", propertyTypesRoutes); // Property types (filtered by category)
   app.use("/api/marketing-requests", marketingRequestRoutes);
 
   /**

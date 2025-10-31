@@ -1475,3 +1475,102 @@ model LandingVersion {
   @@unique([entityType, entityId, version])
   @@index([entityType, entityId])
 }
+
+model property_listings {
+  id                BigInt    @id @default(autoincrement())
+  property_id       String    @unique @db.VarChar(20)
+  title             String    @db.VarChar(150)
+  description       String?   @db.Text
+  property_type     String    @db.VarChar(50)
+  listing_type      String    @db.VarChar(30)
+  country           String?   @default("Saudi Arabia") @db.VarChar(100)
+  region            String?   @db.VarChar(100)
+  city              String?   @db.VarChar(100)
+  district          String?   @db.VarChar(100)
+  street_address    String?   @db.VarChar(255)
+  latitude          Decimal?  @db.Decimal(9, 6)
+  longitude         Decimal?  @db.Decimal(9, 6)
+  bedrooms          Int?
+  bathrooms         Int?
+  living_rooms      Int?
+  kitchens          Int?
+  floor_number      Int?
+  total_floors      Int?
+  area_sq_m         Decimal?  @db.Decimal(10, 2)
+  building_year     Int?
+  has_parking       Boolean   @default(false)
+  has_elevator      Boolean   @default(false)
+  has_maids_room    Boolean   @default(false)
+  has_driver_room   Boolean   @default(false)
+  furnished         Boolean   @default(false)
+  balcony           Boolean   @default(false)
+  swimming_pool     Boolean   @default(false)
+  central_ac        Boolean   @default(false)
+  price             Decimal   @db.Decimal(15, 2)
+  currency          String?   @default("SAR") @db.VarChar(10)
+  payment_frequency String?   @db.VarChar(30)
+  main_image_url    String?   @db.Text
+  image_gallery     String[]
+  video_clip_url    String?   @db.Text
+  contact_name      String?   @db.VarChar(100)
+  mobile_number     String    @db.VarChar(20)
+  is_verified       Boolean   @default(false)
+  is_active         Boolean   @default(true)
+  status            String?   @default("Pending") @db.VarChar(30)
+  views_count       Int       @default(0)
+  favorites_count   Int       @default(0)
+  listed_date       DateTime  @default(now())
+  updated_at        DateTime  @default(now()) @updatedAt
+
+  @@index([property_id])
+  @@index([city])
+  @@index([region])
+  @@index([property_type])
+  @@index([listing_type])
+  @@index([status])
+  @@index([is_active])
+  @@index([price])
+  @@index([listed_date])
+  @@map("property_listings")
+}
+
+model property_category {
+  id          Int      @id @default(autoincrement())
+  code        String   @unique @db.VarChar(20)
+  name_ar     String   @db.VarChar(100)
+  name_en     String?  @db.VarChar(100)
+  description String?  @db.Text
+  icon        String?  @db.VarChar(100)
+  display_order Int     @default(0)
+  is_active   Boolean  @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @default(now()) @updatedAt
+  
+  property_types property_type[]
+
+  @@index([code])
+  @@index([is_active])
+  @@map("property_category")
+}
+
+model property_type {
+  id          Int      @id @default(autoincrement())
+  category_id Int
+  code        String   @db.VarChar(50)
+  name_ar     String   @db.VarChar(100)
+  name_en     String?  @db.VarChar(100)
+  description String?  @db.Text
+  icon        String?  @db.VarChar(100)
+  display_order Int     @default(0)
+  is_active   Boolean  @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @default(now()) @updatedAt
+  
+  category property_category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@unique([category_id, code])
+  @@index([category_id])
+  @@index([is_active])
+  @@index([code])
+  @@map("property_type")
+}
