@@ -1,4 +1,4 @@
-import { PropsWithChildren, type ReactNode } from "react";
+import { PropsWithChildren, type ReactNode, useState } from "react";
 import Header from "@/components/layout/header";
 import PlatformSidebar from "@/components/layout/sidebar";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,35 +19,60 @@ export default function PlatformShell({
   headerExtraContent,
 }: PlatformShellProps) {
   const { dir, t } = useLanguage();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   return (
-    <div className="flex h-screen bg-gray-50" dir={dir}>
-      {/* Sidebar - Fixed position, stable layout */}
+    <div className="flex h-screen bg-gray-50 overflow-hidden" dir={dir}>
+      {/* Sidebar Overlay - Only on mobile when sidebar is open */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={toggleSidebar}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar - Hidden by default on mobile, visible on desktop */}
       <aside
         className={cn(
           "w-72 bg-white border-r border-gray-200 shadow-lg flex-shrink-0",
-          "lg:relative lg:translate-x-0 lg:block",
-          dir === "rtl" ? "border-l border-r-0" : "border-r",
-          "fixed lg:static inset-y-0 z-50"
+          "fixed lg:static inset-y-0 z-50",
+          "transform transition-transform duration-300 ease-in-out",
+          // Mobile: slide in/out based on state
+          // Desktop: always visible (static positioning, no transform)
+          dir === "rtl"
+            ? isSidebarOpen 
+              ? "translate-x-0 lg:translate-x-0" 
+              : "translate-x-full lg:translate-x-0"
+            : isSidebarOpen 
+              ? "translate-x-0 lg:translate-x-0" 
+              : "-translate-x-full lg:translate-x-0",
+          dir === "rtl" 
+            ? "border-l border-r-0 right-0 lg:right-auto" 
+            : "border-r left-0 lg:left-auto"
         )}
       >
         <PlatformSidebar onLogout={onLogout} />
       </aside>
 
-      {/* Main content area */}
-      <div className="flex flex-col flex-1 min-w-0">
+      {/* Main content area - Full width on mobile, with proper spacing on desktop */}
+      <div className="flex flex-col flex-1 min-w-0 w-full lg:w-auto">
         {/* Header */}
         <Header
           searchPlaceholder={searchPlaceholder || t("nav.search")}
           title={title}
           extraContent={headerExtraContent}
-          onToggleSidebar={() => {}}
-          isSidebarOpen={true}
+          onToggleSidebar={toggleSidebar}
+          isSidebarOpen={isSidebarOpen}
         />
         
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <main className="flex-1 overflow-y-auto bg-gray-50 w-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
             {children}
           </div>
         </main>

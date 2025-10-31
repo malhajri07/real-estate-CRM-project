@@ -5,7 +5,7 @@
  * the essential functionality needed for the admin dashboard to work.
  */
 
-import { prisma } from './prismaClient';
+import { prisma, basePrisma } from './prismaClient';
 
 /**
  * PrismaStorageSimple Class - Simplified storage implementation
@@ -453,17 +453,203 @@ class PrismaStorageSimple {
     return { id, ...data };
   }
 
-  // Real estate request methods (stub implementations)
+  // Real estate request methods
   async createRealEstateRequest(data: any): Promise<any> {
-    return { id: 'stub', ...data };
+    try {
+      // Use basePrisma directly to access properties_seeker model
+      const created = await basePrisma.properties_seeker.create({
+        data: {
+          first_name: data.firstName,
+          last_name: data.lastName,
+          mobile_number: data.mobileNumber,
+          email: data.email,
+          nationality: data.nationality,
+          age: data.age,
+          monthly_income: data.monthlyIncome,
+          gender: data.gender,
+          type_of_property: data.typeOfProperty,
+          type_of_contract: data.typeOfContract,
+          number_of_rooms: data.numberOfRooms,
+          number_of_bathrooms: data.numberOfBathrooms,
+          number_of_living_rooms: data.numberOfLivingRooms,
+          house_direction: data.houseDirection || null,
+          budget_size: data.budgetSize,
+          has_maid_room: data.hasMaidRoom ?? false,
+          has_driver_room: data.hasDriverRoom ?? false,
+          kitchen_installed: data.kitchenInstalled ?? false,
+          has_elevator: data.hasElevator ?? false,
+          parking_available: data.parkingAvailable ?? false,
+          city: data.city || null,
+          district: data.district || null,
+          region: data.region || null,
+          Sqm: data.sqm ? BigInt(Math.floor(data.sqm)) : null,
+          other_comments: data.notes || null,
+        },
+      });
+      
+      // Map back to camelCase for API response
+      return {
+        id: created.seeker_id || String(created.seeker_num),
+        seekerId: created.seeker_id || `S-${String(created.seeker_num).padStart(11, '0')}`,
+        seekerNum: String(created.seeker_num),
+        firstName: created.first_name,
+        lastName: created.last_name,
+        mobileNumber: created.mobile_number,
+        email: created.email,
+        nationality: created.nationality,
+        age: created.age,
+        monthlyIncome: Number(created.monthly_income),
+        gender: created.gender,
+        typeOfProperty: created.type_of_property,
+        typeOfContract: created.type_of_contract,
+        numberOfRooms: created.number_of_rooms,
+        numberOfBathrooms: created.number_of_bathrooms,
+        numberOfLivingRooms: created.number_of_living_rooms,
+        houseDirection: created.house_direction,
+        budgetSize: Number(created.budget_size),
+        hasMaidRoom: created.has_maid_room,
+        hasDriverRoom: created.has_driver_room,
+        kitchenInstalled: created.kitchen_installed,
+        hasElevator: created.has_elevator,
+        parkingAvailable: created.parking_available,
+        city: created.city,
+        district: created.district,
+        region: created.region,
+        sqm: created.Sqm ? Number(created.Sqm) : null,
+        notes: created.other_comments,
+        createdAt: created.created_at,
+        updatedAt: created.updated_at,
+      };
+    } catch (error) {
+      console.error('Error creating real estate request:', error);
+      throw error;
+    }
   }
 
   async getAllRealEstateRequests(): Promise<any[]> {
-    return [];
+    try {
+      const requests = await basePrisma.properties_seeker.findMany({
+        orderBy: {
+          created_at: 'desc',
+        },
+      });
+      
+      // Map to camelCase for API response
+      return requests.map((req) => ({
+        id: req.seeker_id || String(req.seeker_num),
+        seekerId: req.seeker_id || `S-${String(req.seeker_num).padStart(11, '0')}`,
+        seekerNum: String(req.seeker_num),
+        firstName: req.first_name,
+        lastName: req.last_name,
+        mobileNumber: req.mobile_number,
+        email: req.email,
+        nationality: req.nationality,
+        age: req.age,
+        monthlyIncome: Number(req.monthly_income),
+        gender: req.gender,
+        typeOfProperty: req.type_of_property,
+        typeOfContract: req.type_of_contract,
+        numberOfRooms: req.number_of_rooms,
+        numberOfBathrooms: req.number_of_bathrooms,
+        numberOfLivingRooms: req.number_of_living_rooms,
+        houseDirection: req.house_direction,
+        budgetSize: Number(req.budget_size),
+        hasMaidRoom: req.has_maid_room,
+        hasDriverRoom: req.has_driver_room,
+        kitchenInstalled: req.kitchen_installed,
+        hasElevator: req.has_elevator,
+        parkingAvailable: req.parking_available,
+        city: req.city,
+        district: req.district,
+        region: req.region,
+        sqm: req.Sqm ? Number(req.Sqm) : null,
+        notes: req.other_comments,
+        createdAt: req.created_at,
+        updatedAt: req.updated_at,
+      }));
+    } catch (error) {
+      console.error('Error fetching real estate requests:', error);
+      return [];
+    }
   }
 
   async updateRealEstateRequest(id: string, data: any): Promise<any> {
-    return { id, ...data };
+    try {
+      // Try to find by seeker_id first, then by seeker_num
+      const where = id.startsWith('S-') 
+        ? { seeker_id: id }
+        : { seeker_num: BigInt(id) };
+      
+      const updateData: any = {};
+      if (data.firstName !== undefined) updateData.first_name = data.firstName;
+      if (data.lastName !== undefined) updateData.last_name = data.lastName;
+      if (data.mobileNumber !== undefined) updateData.mobile_number = data.mobileNumber;
+      if (data.email !== undefined) updateData.email = data.email;
+      if (data.nationality !== undefined) updateData.nationality = data.nationality;
+      if (data.age !== undefined) updateData.age = data.age;
+      if (data.monthlyIncome !== undefined) updateData.monthly_income = data.monthlyIncome;
+      if (data.gender !== undefined) updateData.gender = data.gender;
+      if (data.typeOfProperty !== undefined) updateData.type_of_property = data.typeOfProperty;
+      if (data.typeOfContract !== undefined) updateData.type_of_contract = data.typeOfContract;
+      if (data.numberOfRooms !== undefined) updateData.number_of_rooms = data.numberOfRooms;
+      if (data.numberOfBathrooms !== undefined) updateData.number_of_bathrooms = data.numberOfBathrooms;
+      if (data.numberOfLivingRooms !== undefined) updateData.number_of_living_rooms = data.numberOfLivingRooms;
+      if (data.houseDirection !== undefined) updateData.house_direction = data.houseDirection || null;
+      if (data.budgetSize !== undefined) updateData.budget_size = data.budgetSize;
+      if (data.hasMaidRoom !== undefined) updateData.has_maid_room = data.hasMaidRoom;
+      if (data.hasDriverRoom !== undefined) updateData.has_driver_room = data.hasDriverRoom;
+      if (data.kitchenInstalled !== undefined) updateData.kitchen_installed = data.kitchenInstalled;
+      if (data.hasElevator !== undefined) updateData.has_elevator = data.hasElevator;
+      if (data.parkingAvailable !== undefined) updateData.parking_available = data.parkingAvailable;
+      if (data.city !== undefined) updateData.city = data.city || null;
+      if (data.district !== undefined) updateData.district = data.district || null;
+      if (data.region !== undefined) updateData.region = data.region || null;
+      if (data.sqm !== undefined) updateData.Sqm = data.sqm ? BigInt(Math.floor(data.sqm)) : null;
+      if (data.notes !== undefined) updateData.other_comments = data.notes || null;
+      updateData.updated_at = new Date();
+      
+      const updated = await basePrisma.properties_seeker.update({
+        where,
+        data: updateData,
+      });
+      
+      // Map back to camelCase
+      return {
+        id: updated.seeker_id || String(updated.seeker_num),
+        seekerId: updated.seeker_id || `S-${String(updated.seeker_num).padStart(11, '0')}`,
+        seekerNum: String(updated.seeker_num),
+        firstName: updated.first_name,
+        lastName: updated.last_name,
+        mobileNumber: updated.mobile_number,
+        email: updated.email,
+        nationality: updated.nationality,
+        age: updated.age,
+        monthlyIncome: Number(updated.monthly_income),
+        gender: updated.gender,
+        typeOfProperty: updated.type_of_property,
+        typeOfContract: updated.type_of_contract,
+        numberOfRooms: updated.number_of_rooms,
+        numberOfBathrooms: updated.number_of_bathrooms,
+        numberOfLivingRooms: updated.number_of_living_rooms,
+        houseDirection: updated.house_direction,
+        budgetSize: Number(updated.budget_size),
+        hasMaidRoom: updated.has_maid_room,
+        hasDriverRoom: updated.has_driver_room,
+        kitchenInstalled: updated.kitchen_installed,
+        hasElevator: updated.has_elevator,
+        parkingAvailable: updated.parking_available,
+        city: updated.city,
+        district: updated.district,
+        region: updated.region,
+        sqm: updated.Sqm ? Number(updated.Sqm) : null,
+        notes: updated.other_comments,
+        createdAt: updated.created_at,
+        updatedAt: updated.updated_at,
+      };
+    } catch (error) {
+      console.error('Error updating real estate request:', error);
+      throw error;
+    }
   }
 }
 

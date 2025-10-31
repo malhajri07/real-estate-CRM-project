@@ -68,6 +68,8 @@ interface ErrorBoundaryState {
   error?: Error;
 }
 
+// Wraps the interactive map in a React error boundary so a failure inside the
+// Google Maps integration shows a friendly fallback instead of crashing the page.
 class PropertiesMapErrorBoundary extends Component<
   { children: ReactNode },
   ErrorBoundaryState
@@ -110,6 +112,8 @@ class PropertiesMapErrorBoundary extends Component<
 }
 
 
+// Converts our tuple based coordinate representation into the shape expected by
+// the Google Maps SDK helpers.
 const toLatLngLiteral = (point: Coordinates) => ({ lat: point[0], lng: point[1] });
 
 interface ApiListing {
@@ -224,6 +228,8 @@ interface SearchableComboboxProps {
   disabled?: boolean;
 }
 
+// Shared searchable dropdown used across filters. It wraps the cmdk based
+// command palette components inside a popover to deliver an accessible combobox.
 function SearchableCombobox({
   value,
   onChange,
@@ -300,6 +306,7 @@ interface FilterState {
   favoritesOnly: boolean;
 }
 
+// Central location for the "show everything" filter values so reset buttons can reuse it.
 const DEFAULT_FILTERS: FilterState = {
   search: "",
   region: "all",
@@ -316,9 +323,11 @@ const DEFAULT_FILTERS: FilterState = {
   favoritesOnly: false,
 };
 
+// Base zoom presets that drive how the map behaves when the selection changes.
 const DEFAULT_ZOOM = 6;
 const SINGLE_MARKER_ZOOM = 12;
 const HIGHLIGHT_ZOOM = 14;
+// Vector artwork that gives the Google marker clusters a branded appearance.
 const clusterStyles = [
   {
     url: "data:image/svg+xml;charset=UTF-8,".concat(
@@ -367,6 +376,7 @@ const clusterStyles = [
   },
 ];
 
+// Formats marker labels using English numerals so large values stay readable at small sizes.
 const formatMarkerPrice = (value: number | null): string => {
   if (typeof value !== "number" || Number.isNaN(value)) {
     return "—";
@@ -375,9 +385,11 @@ const formatMarkerPrice = (value: number | null): string => {
   return value.toLocaleString("en-US");
 };
 
+// Simple escape to make sure we do not end up with invalid SVG when interpolating numbers.
 const escapeSvgText = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+// Builds a dynamic SVG marker with a small pointer. Highlighted markers use a brighter palette.
 const createMarkerIcon = (
   googleMaps: typeof google | undefined,
   formattedValue: string,
@@ -416,6 +428,7 @@ const createMarkerIcon = (
   };
 };
 
+// Accepts GeoJSON-ish coordinates and produces a `LatLngLiteral` the Google SDK understands.
 const toBoundaryLatLngLiteral = (point: unknown): google.maps.LatLngLiteral | null => {
   if (Array.isArray(point) && point.length >= 2) {
     const [lng, lat] = point;
@@ -439,6 +452,7 @@ const toBoundaryLatLngLiteral = (point: unknown): google.maps.LatLngLiteral | nu
   return null;
 };
 
+// Flattens GeoJSON polygon/multi-polygon rings into paths we can feed straight into the Polygon component.
 const buildRingsFromCoordinates = (coords: unknown): google.maps.LatLngLiteral[][] => {
   if (!Array.isArray(coords) || coords.length === 0) return [];
 
@@ -458,6 +472,7 @@ const buildRingsFromCoordinates = (coords: unknown): google.maps.LatLngLiteral[]
   return [];
 };
 
+// Normalizes the variety of boundary payload shapes we can receive into a consistent array of paths.
 const normalizeBoundaryToPolygon = (boundary: unknown): google.maps.LatLngLiteral[][] => {
   if (!boundary) return [];
 
@@ -487,6 +502,7 @@ const normalizeBoundaryToPolygon = (boundary: unknown): google.maps.LatLngLitera
 
 // createInfoWindowContent function removed - no InfoWindow cards needed
 
+// Attempts to sanitize and parse numeric values coming from different API fields or text boxes.
 const asNumber = (value: unknown): number | null => {
   if (typeof value === "number" && Number.isFinite(value)) return value;
   if (typeof value === "string") {
@@ -501,6 +517,7 @@ const asNumber = (value: unknown): number | null => {
 const sqmFromSquareFeet = (squareFeet: number | null | undefined) =>
   squareFeet && squareFeet > 0 ? Math.round(squareFeet * 0.092903) : null;
 
+// Formats currency values using SAR as the implicit currency.
 const formatCurrency = (value: number | null) => {
   if (typeof value !== "number" || Number.isNaN(value)) return "—";
   const formatted = new Intl.NumberFormat("en-US", {
@@ -511,6 +528,7 @@ const formatCurrency = (value: number | null) => {
 
 // escapeHtml function removed - no InfoWindow cards needed
 
+// Applies loose parsing rules to numbers typed into the filter inputs.
 const parseFilterNumber = (value: string) => {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
@@ -562,10 +580,13 @@ function FilterContent({
   isCityLoading,
   isDistrictLoading,
 }: FilterContentProps) {
+  // Normalizes numeric inputs so we only store digits inside filter state. This
+  // keeps validation simple while users type.
   const handleNumericChange = (key: keyof FilterState) => (event: ChangeEvent<HTMLInputElement>) => {
     onNumericChange(key, event.target.value.replace(/[^\d]/g, ""));
   };
 
+  // Prepend the "all" option to every drop-down so the UI can clear a filter.
   const regionChoices = useMemo<Option[]>(
     () => [{ id: "all", label: "جميع المناطق" }, ...regionOptions],
     [regionOptions]
@@ -581,6 +602,7 @@ function FilterContent({
     [districtOptions]
   );
 
+  // Convert string based filter values into the shared Option shape used by the combobox.
   const propertyTypeChoices = useMemo<Option[]>(
     () => [
       { id: "all", label: "جميع الأنواع" },
@@ -768,9 +790,13 @@ interface PropertiesMapProps {
 }
 
 
+// Renders the Google Map instance with clustered price markers and optional
+// district polygons. All DOM access is gated behind `isClient` so SSR stays safe.
 function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClient, districtPolygon }: PropertiesMapProps) {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
+  // Transform the current property collection into Google Maps marker metadata
+  // while defensively skipping incomplete records.
   const markers = useMemo(() => {
     try {
       return properties
@@ -797,6 +823,7 @@ function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClie
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
 
+  // Opinionated map defaults that remove noisy controls while keeping the map interactive.
   const mapOptions = useMemo<google.maps.MapOptions>(
     () => ({
       mapTypeControl: false,
@@ -810,6 +837,7 @@ function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClie
     []
   );
 
+  // Custom cluster look and feel so nearby listings group together with branded styling.
   const clustererOptions = useMemo(
     () => ({
       styles: clusterStyles,
@@ -822,6 +850,8 @@ function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClie
     []
   );
 
+  // Keeps the viewport focused on the active markers (and polygon if present). It
+  // builds a LatLng bounds object and adjusts zoom/center depending on content.
   const fitMapToMarkers = useCallback(() => {
     if (typeof window === "undefined") return;
     const googleWindow = window as GoogleWindow;
@@ -861,6 +891,7 @@ function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClie
     map.fitBounds(bounds, padding);
   }, [markers, districtPolygon]);
 
+  // Cache the Google Map instance once it loads so we can imperatively adjust it later.
   const handleMapLoad = useCallback(
     (map: google.maps.Map) => {
       mapRef.current = map;
@@ -870,16 +901,20 @@ function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClie
     [fitMapToMarkers]
   );
 
+  // Clean up when the component unmounts so we do not hold on to stale references.
   const handleMapUnmount = useCallback(() => {
     mapRef.current = null;
     setIsMapReady(false);
   }, []);
 
+  // Whenever the markers or SSR hydration state changes, refit the map so the
+  // viewport stays aligned with the latest data.
   useEffect(() => {
     if (!isClient || !isMapReady) return;
     fitMapToMarkers();
   }, [fitMapToMarkers, isClient, isMapReady]);
 
+  // Fly to the highlighted property so hovering the table keeps the map in sync.
   useEffect(() => {
     if (!isClient || !isMapReady || !highlightedId) return;
     const map = mapRef.current;
@@ -1002,6 +1037,8 @@ function PropertiesList({
   onToggleFavorite,
   onNavigate,
 }: PropertiesListProps) {
+  // Display a data-table view of the filtered properties. Hovering rows wires
+  // back into the map and favourite state to keep the experiences connected.
   if (!properties.length) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-border/60 bg-muted/10 px-6 py-16 text-center text-muted-foreground">
@@ -1159,6 +1196,8 @@ function PropertiesList({
 export default function MapPage() {
   const [, navigate] = useLocation();
 
+  // Centralized state for the entire map page including filters, favorites,
+  // layout mode, and pagination.
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [highlightedPropertyId, setHighlightedPropertyId] = useState<string | null>(null);
@@ -1173,6 +1212,7 @@ export default function MapPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
 
+  // Defer anything that relies on the `window` object until we know we are on the client.
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -1182,6 +1222,7 @@ export default function MapPage() {
     setCurrentPage(1);
   }, [filters]);
 
+  // Fetch the region/city hierarchy so the form drives the filter drop-downs.
   const regionsQuery = useQuery<RegionPayload[]>({
     queryKey: ["locations", "regions"],
     queryFn: async () => {
@@ -1208,6 +1249,8 @@ export default function MapPage() {
     staleTime: 30 * 60 * 1000,
   });
 
+  // Load paginated listing data from the backend. We keep pagination state on
+  // the client, and enrich the raw payload later before rendering.
   const listingsQuery = useQuery<ListingsResponse>({
     queryKey: ["public-property-search", currentPage, pageSize],
     queryFn: async () => {
@@ -1218,7 +1261,7 @@ export default function MapPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Update pagination state when query data changes
+  // Sync pagination totals whenever the listings query returns new data.
   useEffect(() => {
     if (listingsQuery.data) {
       setTotalItems(listingsQuery.data.total || 0);
@@ -1226,6 +1269,8 @@ export default function MapPage() {
     }
   }, [listingsQuery.data]);
 
+  // Flatten and sanitize the raw API payload into the `PropertySummary` shape
+  // consumed by both the map and table views.
   const properties = useMemo<PropertySummary[]>(() => {
     if (!listingsQuery.data?.items) return [];
 
@@ -1260,6 +1305,7 @@ export default function MapPage() {
     });
   }, [listingsQuery.data]);
 
+  // Convert fetched regions into combobox-compatible options sorted alphabetically.
   const regionOptions = useMemo<Option[]>(() => {
     if (!regionsQuery.data) return [];
     return regionsQuery.data
@@ -1270,6 +1316,7 @@ export default function MapPage() {
       .sort((a, b) => a.label.localeCompare(b.label, "ar"));
   }, [regionsQuery.data]);
 
+  // Cities are filtered server-side by region, but we still normalize and sort them here.
   const cityOptions = useMemo<CityOption[]>(() => {
     const source = citiesQuery.data ?? [];
     return source
@@ -1281,6 +1328,7 @@ export default function MapPage() {
       .sort((a, b) => a.label.localeCompare(b.label, "ar"));
   }, [citiesQuery.data]);
 
+  // Build unique property/transaction type pickers so filters stay relevant to the current dataset.
   const propertyTypeOptions = useMemo(() => {
     const set = new Set<string>();
     properties.forEach((property) => {
@@ -1297,6 +1345,8 @@ export default function MapPage() {
     return Array.from(set).sort((a, b) => a.localeCompare(b, "ar"));
   }, [properties]);
 
+  // Applies all client-side filters on top of the paginated payload. Most of the
+  // filters are simple equality checks, so we short-circuit early to keep it fast.
   const filteredProperties = useMemo(() => {
     const normalizedQuery = filters.search.trim().toLowerCase();
     const minPriceValue = parseFilterNumber(filters.minPrice);
@@ -1370,11 +1420,13 @@ export default function MapPage() {
     });
   }, [properties, filters, favoriteIds]);
 
+  // Resolve the full property object for the active highlight so both views stay in sync.
   const highlightedProperty = useMemo(
     () => filteredProperties.find((property) => property.id === highlightedPropertyId) ?? null,
     [filteredProperties, highlightedPropertyId]
   );
 
+  // Decide which city id to use when asking the API for district polygons. Preference goes to the filter.
   const boundaryCityId = useMemo(() => {
     if (filters.city !== "all") {
       const parsed = Number(filters.city);
@@ -1386,6 +1438,7 @@ export default function MapPage() {
     return null;
   }, [filters.city, highlightedProperty?.cityId]);
 
+  // Surface the top cities present in the filtered list as quick-action chips.
   const topCityFilters = useMemo<CityQuickFilterOption[]>(() => {
     if (!filteredProperties.length) return [];
 
@@ -1438,6 +1491,7 @@ export default function MapPage() {
       .slice(0, 10);
   }, [filteredProperties, cityOptions]);
 
+  // Fetch districts (with polygon boundaries) that belong to the currently relevant city.
   const districtsQuery = useQuery<DistrictPayload[]>({
     queryKey: ["locations", "districts", boundaryCityId],
     queryFn: async () => {
@@ -1454,6 +1508,7 @@ export default function MapPage() {
     staleTime: 15 * 60 * 1000,
   });
 
+  // Convert the district payload into combobox options so the UI can enable/disable selections.
   const districtOptions = useMemo<DistrictOption[]>(() => {
     const source = districtsQuery.data ?? [];
     return source
@@ -1465,6 +1520,7 @@ export default function MapPage() {
       .sort((a, b) => a.label.localeCompare(b.label, "ar"));
   }, [districtsQuery.data]);
 
+  // If the selected city disappears because of an upstream filter change, reset it to "all".
   useEffect(() => {
     if (!citiesQuery.data) return;
     if (filters.city === "all") return;
@@ -1474,6 +1530,7 @@ export default function MapPage() {
     }
   }, [citiesQuery.data, filters.city]);
 
+  // Keep the district selection in sync with the available options for the chosen city.
   useEffect(() => {
     if (filters.district === "all") return;
     if (!districtsQuery.data) return;
@@ -1483,18 +1540,22 @@ export default function MapPage() {
     }
   }, [districtsQuery.data, filters.district]);
 
+  // Chain region filter into the city options so the dropdown only shows valid choices.
   const filteredCityOptions = useMemo(() => {
     if (filters.region === "all") return cityOptions;
     return cityOptions.filter((city) => city.regionId === filters.region);
   }, [cityOptions, filters.region]);
 
+  // Limit district options to the active city to avoid mismatched selections.
   const filteredDistrictOptions = useMemo(() => {
     if (filters.city === "all") return districtOptions;
     return districtOptions.filter((district) => district.cityId === filters.city);
   }, [districtOptions, filters.city]);
 
+  // Prefer an explicit district filter, otherwise default to the highlighted property's district.
   const selectedDistrictId = filters.district !== "all" ? filters.district : highlightedProperty?.districtId ?? null;
 
+  // Translate the stored GeoJSON boundary into Google Maps polygon paths so we can draw the district outline.
   const districtPolygon = useMemo<DistrictPolygonShape | null>(() => {
     if (!selectedDistrictId || !districtsQuery.data) return null;
     const district = districtsQuery.data.find((candidate) => String(candidate.id) === selectedDistrictId);
@@ -1509,25 +1570,27 @@ export default function MapPage() {
     };
   }, [districtsQuery.data, selectedDistrictId, filters.district]);
 
+  // Convenience subset so the favourites drawer can display only saved items.
   const favoriteProperties = useMemo(
     () => properties.filter((property) => favoriteIds.includes(property.id)),
     [properties, favoriteIds]
   );
 
+  // Automatically close the favourites drawer if the user removes everything.
   useEffect(() => {
     if (!favoriteIds.length) {
       setIsFavoritesDrawerOpen(false);
     }
   }, [favoriteIds]);
 
-
-
+  // Remove the highlight if the active property falls out of the filtered results.
   useEffect(() => {
     if (highlightedPropertyId && !filteredProperties.some((property) => property.id === highlightedPropertyId)) {
       setHighlightedPropertyId(null);
     }
   }, [filteredProperties, highlightedPropertyId]);
 
+  // Default to the first mappable property so the map always has a point of focus.
   useEffect(() => {
     if (highlightedPropertyId) return;
     const firstWithCoordinates = filteredProperties.find(
@@ -1538,6 +1601,7 @@ export default function MapPage() {
     }
   }, [filteredProperties, highlightedPropertyId]);
 
+  // Toggles properties in the local favourites collection and opens the drawer for new additions.
   const handleFavoritesToggle = (propertyId: string) => {
     setFavoriteIds((prev) => {
       const exists = prev.includes(propertyId);
@@ -1549,18 +1613,22 @@ export default function MapPage() {
     });
   };
 
+  // Use the SPA router to move into the detailed property page.
   const handleNavigate = (propertyId: string) => {
     navigate(`/properties/${propertyId}`);
   };
 
+  // Mobile-first filter drawer trigger.
   const handleFilterToggle = () => {
     setIsFilterOpen(true);
   };
 
+  // Reset every filter back to its defaults.
   const handleReset = () => {
     setFilters(DEFAULT_FILTERS);
   };
 
+  // Clicking one of the top-city chips either applies or clears that quick filter.
   const handleQuickCityFilter = (filter: CityQuickFilterOption) => {
     setViewMode("table");
     setCurrentPage(1);
@@ -1586,6 +1654,7 @@ export default function MapPage() {
     });
   };
 
+  // Rendering helper that turns the quick filter data into pill buttons.
   const renderQuickCityFilters = () => {
     if (listingsQuery.isLoading || !topCityFilters.length) return null;
     return (

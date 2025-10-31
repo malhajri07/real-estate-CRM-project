@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,33 @@ export default function RealEstateRequestsPage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [seekerId, setSeekerId] = useState<string | null>(null);
+
+  // Ensure back button returns to landing page
+  useEffect(() => {
+    // Always ensure landing page is in history before this page
+    // This makes the back button return to landing page
+    const currentPath = window.location.pathname;
+    if (currentPath === '/real-estate-requests') {
+      // Replace current history entry with landing page
+      window.history.replaceState({ from: 'landing' }, '', '/');
+      // Then push the real-estate-requests page
+      window.history.pushState({ from: 'real-estate-requests' }, '', '/real-estate-requests');
+    }
+
+    // Handle browser back button
+    const handlePopState = (event: PopStateEvent) => {
+      // If we're going back to landing page
+      if (event.state?.from === 'landing' || window.location.pathname === '/') {
+        // Use router to navigate (which will handle the route change)
+        setLocation('/');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [setLocation]);
 
   const fetchWithTimeout = async (
     input: RequestInfo | URL,
@@ -216,7 +243,9 @@ export default function RealEstateRequestsPage() {
       }
 
       toast({ title: "تم الإرسال", description: "تم تسجيل طلب الباحث العقاري بنجاح" });
-      setSeekerId(responseData?.seekerId ?? null);
+      // Extract seekerId from response (check multiple possible fields)
+      const extractedSeekerId = responseData?.seekerId || responseData?.id || responseData?.seeker_id || null;
+      setSeekerId(extractedSeekerId);
       setSubmitted(true);
       setForm({
         firstName: "",
@@ -271,9 +300,12 @@ export default function RealEstateRequestsPage() {
                   شكراً لثقتك بنا. سيقوم أحد الوسطاء المرخصين بالتواصل معك قريباً لمراجعة احتياجاتك وتقديم أفضل الخيارات المتاحة.
                 </p>
                 {seekerId && (
-                  <p className="text-sm text-emerald-600 mt-4">
-                    رقم الطلب الخاص بك: <span className="font-semibold">{seekerId}</span>
-                  </p>
+                  <div className="mt-6 rounded-2xl bg-emerald-50 border-2 border-emerald-200 p-4">
+                    <p className="text-base font-semibold text-emerald-800 mb-2">رقم الطلب الخاص بك:</p>
+                    <p className="text-2xl font-bold text-emerald-600 tracking-wider font-mono">
+                      {seekerId}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>

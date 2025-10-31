@@ -113,11 +113,11 @@ export default function AnalyticsDashboard() {
     : null;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'SAR',
+    const formatted = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount);
+    return `${formatted} ريال`;
   };
 
   const getGrowthIcon = (growth: number) => {

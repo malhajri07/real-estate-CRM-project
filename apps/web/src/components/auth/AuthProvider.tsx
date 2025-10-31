@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showSessionWarning, setShowSessionWarning] = useState(false); // تحديد ما إذا كان يجب عرض نافذة التحذير
   const [sessionExpired, setSessionExpired] = useState(false); // يحدد ما إذا كانت الجلسة منتهية بسبب الخمول
   const [countdownSeconds, setCountdownSeconds] = useState(0); // عدد الثواني المتبقية قبل تسجيل الخروج التلقائي
-  const INACTIVITY_TIMEOUT_MS = 2 * 60 * 1000; // 120 ثانية بدون تفاعل تؤدي إلى تسجيل الخروج تلقائياً
+  const INACTIVITY_TIMEOUT_MS = 1 * 60 * 1000; // 60 ثانية بدون تفاعل تؤدي إلى تسجيل الخروج تلقائياً
   const WARNING_LEAD_TIME_MS = 30 * 1000; // نعرض نافذة تحذير قبل 30 ثانية من انتهاء الجلسة
 
   /**
@@ -190,18 +190,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // SELLER, BUYER → Platform Dashboard (limited access for now)
         const roles = normalizedRoles;
         if (roles.includes(UserRole.WEBSITE_ADMIN)) {
-          setLocation('/admin/overview/main-dashboard');
+          // Use window.location for a hard redirect to ensure it works reliably
+          window.location.href = '/admin/overview/main-dashboard';
         } else if (roles.some(role => 
           [UserRole.CORP_OWNER, UserRole.CORP_AGENT, UserRole.INDIV_AGENT].includes(role)
         )) {
-          setLocation('/home/platform');
+          window.location.href = '/home/platform';
         } else if (roles.some(role => 
           [UserRole.SELLER, UserRole.BUYER].includes(role)
         )) {
-          setLocation('/home/platform');
+          window.location.href = '/home/platform';
         } else {
           // Fallback for users with no recognized roles
-          setLocation('/home/platform');
+          window.location.href = '/home/platform';
         }
       } else {
         throw new Error(data.message || data.error || 'Login failed');
@@ -348,7 +349,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }, INACTIVITY_TIMEOUT_MS - WARNING_LEAD_TIME_MS);
     };
 
-    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    const activityEvents = ['keydown', 'click', 'scroll', 'touchstart'];
 
     if (user) {
       resetInactivityTimer();
@@ -400,16 +401,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }}
       >
-        <DialogContent className="sm:max-w-md text-right">
+        <DialogContent className="sm:max-w-md text-right" dir="rtl">
           <DialogHeader>
-            <DialogTitle>{sessionExpired ? 'تم إنهاء الجلسة بسبب عدم النشاط' : 'انتهاء الجلسة قريباً'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-right">{sessionExpired ? 'تم إنهاء الجلسة بسبب عدم النشاط' : 'انتهاء الجلسة قريباً'}</DialogTitle>
+            <DialogDescription className="text-right">
               {sessionExpired
                 ? 'لقد تم إنهاء جلستك تلقائياً بسبب عدم النشاط. الرجاء تسجيل الدخول مرة أخرى لمتابعة العمل.'
                 : 'بسبب عدم النشاط سيتم إغلاق الجلسة قريباً. يرجى الضغط على "متابعة" للحفاظ على تسجيل الدخول.'}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-row-reverse items-center gap-2 justify-end">
+          <DialogFooter className="flex flex-row-reverse items-center gap-2 justify-start">
             {sessionExpired ? (
               <Button
                 onClick={() => {
@@ -456,7 +457,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                       warningTimer.current = null;
                     }
                     setCountdownSeconds(0);
-                    const synthetic = new Event('mousemove');
+                    // Dispatch a click event to reset the inactivity timer
+                    const synthetic = new Event('click');
                     window.dispatchEvent(synthetic);
                   }}
                 >

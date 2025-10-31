@@ -8,7 +8,7 @@ type MarketingDelegate = {
   findFirst: (...args: any[]) => Promise<any | null>;
 };
 
-const basePrisma = new PrismaClient();
+export const basePrisma = new PrismaClient();
 
 const createStubDelegate = (name: string): MarketingDelegate => {
   const warn = (method: string) => {
