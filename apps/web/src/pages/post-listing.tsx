@@ -1,5 +1,11 @@
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function PostListingPage() {
   const { t } = useLanguage();
@@ -47,27 +53,68 @@ export default function PostListingPage() {
   };
 
   return (
-    <>
-      <form onSubmit={onSubmit} className="ui-surface p-6 space-y-4">
-        <input className="border p-2 w-full" placeholder="العنوان" name="title" value={form.title} onChange={onChange} required />
-        <input className="border p-2 w-full" placeholder="العنوان التفصيلي" name="address" value={form.address} onChange={onChange} required />
-        <div className="grid grid-cols-3 gap-2">
-          <input className="border p-2" placeholder="المدينة" name="city" value={form.city} onChange={onChange} required />
-          <input className="border p-2" placeholder="المنطقة" name="state" value={form.state} onChange={onChange} required />
-          <input className="border p-2" placeholder="الرمز البريدي" name="zipCode" value={form.zipCode} onChange={onChange} required />
-        </div>
-        <input className="border p-2 w-full" placeholder="السعر" name="price" value={form.price} onChange={onChange} required />
-        <div className="grid grid-cols-2 gap-2">
-          <input className="border p-2" placeholder="النوع (مثال: شقة)" name="propertyType" value={form.propertyType} onChange={onChange} />
-          <input className="border p-2" placeholder="التصنيف (مثال: سكني)" name="propertyCategory" value={form.propertyCategory} onChange={onChange} />
-        </div>
-        <div className="grid grid-cols-2 gap-2">
-          <input className="border p-2" placeholder="Latitude" name="latitude" value={form.latitude} onChange={onChange} />
-          <input className="border p-2" placeholder="Longitude" name="longitude" value={form.longitude} onChange={onChange} />
-        </div>
-        <button className="bg-green-600 text-white px-4 py-2 rounded" disabled={submitting}>{submitting ? '...جاري الإرسال' : 'إرسال للمراجعة'}</button>
-        {message && <div className="text-sm mt-2">{message}</div>}
-      </form>
-    </>
+    <main className={PAGE_WRAPPER} dir="rtl">
+      <section className="space-y-6">
+        <Card className={CARD_STYLES.container}>
+          <CardHeader className={CARD_STYLES.header}>
+            <CardTitle className={TYPOGRAPHY.pageTitle}>إضافة إعلان جديد</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={onSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">العنوان</Label>
+                <Input id="title" name="title" value={form.title} onChange={onChange} placeholder="العنوان" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="address">العنوان التفصيلي</Label>
+                <Input id="address" name="address" value={form.address} onChange={onChange} placeholder="العنوان التفصيلي" required />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="space-y-2">
+                  <Label htmlFor="city">المدينة</Label>
+                  <Input id="city" name="city" value={form.city} onChange={onChange} placeholder="المدينة" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="state">المنطقة</Label>
+                  <Input id="state" name="state" value={form.state} onChange={onChange} placeholder="المنطقة" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="zipCode">الرمز البريدي</Label>
+                  <Input id="zipCode" name="zipCode" value={form.zipCode} onChange={onChange} placeholder="الرمز البريدي" required />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="price">السعر</Label>
+                <Input id="price" name="price" value={form.price} onChange={onChange} placeholder="السعر" required />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <Label htmlFor="propertyType">النوع (مثال: شقة)</Label>
+                  <Input id="propertyType" name="propertyType" value={form.propertyType} onChange={onChange} placeholder="النوع" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="propertyCategory">التصنيف (مثال: سكني)</Label>
+                  <Input id="propertyCategory" name="propertyCategory" value={form.propertyCategory} onChange={onChange} placeholder="التصنيف" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <Label htmlFor="latitude">Latitude</Label>
+                  <Input id="latitude" name="latitude" value={form.latitude} onChange={onChange} placeholder="Latitude" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="longitude">Longitude</Label>
+                  <Input id="longitude" name="longitude" value={form.longitude} onChange={onChange} placeholder="Longitude" />
+                </div>
+              </div>
+              <Button className={BUTTON_PRIMARY_CLASSES} disabled={submitting}>
+                {submitting ? '...جاري الإرسال' : 'إرسال للمراجعة'}
+              </Button>
+              {message && <div className={cn(TYPOGRAPHY.caption, "mt-2")}>{message}</div>}
+            </form>
+          </CardContent>
+        </Card>
+      </section>
+    </main>
   );
 }

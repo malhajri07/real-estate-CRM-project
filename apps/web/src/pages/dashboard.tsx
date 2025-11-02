@@ -35,6 +35,7 @@ import AddLeadDrawer from "@/components/modals/add-lead-drawer";
 import AddPropertyDrawer from "@/components/modals/add-property-drawer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER } from "@/config/platform-theme";
 
 type MetricResponse = {
   totalLeads: number;
@@ -190,7 +191,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-10 py-6" dir={dir}>
+    <div className={PAGE_WRAPPER} dir="rtl">
       <section aria-label={t("dashboard.quick_summary")} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((metric) => (
           <Card key={metric.id} className={cn("border border-border/60 shadow-card transition hover:-translate-y-0.5", metric.accent)}>
@@ -322,9 +323,9 @@ export default function Dashboard() {
                   variant="secondary"
                   className={cn(
                     "w-full justify-between rounded-2xl px-4",
-                    action.onClick && "hover:opacity-90"
+                    action.onClick && BUTTON_PRIMARY_CLASSES,
+                    !action.onClick && "opacity-50 cursor-not-allowed"
                   )}
-                  style={action.onClick ? { backgroundColor: 'rgb(128 193 165)', color: 'white' } : undefined}
                   onClick={action.onClick}
                   disabled={!action.onClick}
                 >

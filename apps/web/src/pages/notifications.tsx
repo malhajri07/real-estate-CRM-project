@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Lead } from "@shared/types";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 
 export default function Notifications() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -130,32 +132,35 @@ export default function Notifications() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">جار تحميل إشعارات العملاء...</div>
-      </div>
+      <main className={PAGE_WRAPPER} dir="rtl">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-slate-500">جار تحميل إشعارات العملاء...</div>
+        </div>
+      </main>
     );
   }
 
   return (
     <>
-      <main className="w-full space-y-6">
-        <Tabs defaultValue="customers" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="customers">تفاصيل العملاء</TabsTrigger>
-            <TabsTrigger value="campaign">إنشاء حملة</TabsTrigger>
-            <TabsTrigger value="history">تاريخ الحملات</TabsTrigger>
-          </TabsList>
+      <main className={PAGE_WRAPPER} dir="rtl">
+        <section className="space-y-6">
+          <Tabs defaultValue="customers" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="customers">تفاصيل العملاء</TabsTrigger>
+              <TabsTrigger value="campaign">إنشاء حملة</TabsTrigger>
+              <TabsTrigger value="history">تاريخ الحملات</TabsTrigger>
+            </TabsList>
 
-          {/* Customer Details Tab */}
-          <TabsContent value="customers">
-            <Card>
-              <CardHeader className="border-b border-slate-200">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
-                    <Users size={20} />
-                    <span>تفاصيل العملاء ({filteredLeads.length})</span>
-                  </CardTitle>
-                  <div className="flex items-center space-x-2 rtl:space-x-reverse">
+            {/* Customer Details Tab */}
+            <TabsContent value="customers">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
+                      <Users size={20} />
+                      <span>تفاصيل العملاء ({filteredLeads.length})</span>
+                    </CardTitle>
+                    <div className="flex items-center space-x-2 rtl:space-x-reverse">
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -326,15 +331,15 @@ export default function Notifications() {
                     {sendCampaignMutation.isPending ? "جار الإرسال..." : "إرسال الحملة"}
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  </CardContent>
+                </Card>
+            </TabsContent>
 
-          {/* Campaign History Tab */}
-          <TabsContent value="history">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+            {/* Campaign History Tab */}
+            <TabsContent value="history">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                   <Calendar size={20} />
                   <span>تاريخ الحملات</span>
                 </CardTitle>
@@ -350,7 +355,8 @@ export default function Notifications() {
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
+          </Tabs>
+        </section>
       </main>
 
       {selectedLeadForWhatsApp && (

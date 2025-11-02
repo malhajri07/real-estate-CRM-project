@@ -8,6 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { Download, Mail, Phone, RefreshCcw } from "lucide-react";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 
 const CONTRACT_LABELS: Record<string, string> = {
   buy: "شراء",
@@ -155,11 +157,12 @@ export default function CustomerRequestsPage() {
   }, [seekers]);
 
   return (
-    <div className="space-y-6">
-        <Card>
-          <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <main className={PAGE_WRAPPER} dir="rtl">
+      <section className="space-y-6">
+        <Card className={CARD_STYLES.container}>
+          <CardHeader className={cn(CARD_STYLES.header, "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between")}>
             <div className="space-y-2 text-right">
-              <CardTitle className="text-2xl font-bold text-slate-900">
+              <CardTitle className={cn(TYPOGRAPHY.pageTitle, "text-slate-900")}>
                 قاعدة بيانات العملاء الباحثين عن العقار
               </CardTitle>
               <p className="text-sm text-muted-foreground">
@@ -356,12 +359,13 @@ export default function CustomerRequestsPage() {
                         </TableRow>
                       );
                     })}
-                  </TableBody>
-                </Table>
-              </div>
+            </TableBody>
+          </Table>
+        </div>
             )}
           </CardContent>
         </Card>
-      </div>
+      </section>
+    </main>
   );
 }

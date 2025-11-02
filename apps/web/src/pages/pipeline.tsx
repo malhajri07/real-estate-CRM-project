@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Deal, Lead } from "@shared/types";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, LOADING_STYLES } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 
 const STAGES = [
   { id: "lead", title: "عميل محتمل", badge: "bg-slate-100 text-slate-700", accent: "text-slate-600" },
@@ -214,27 +216,25 @@ export default function Pipeline() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <div className="rounded-2xl border border-slate-200 bg-white/80 px-6 py-4 text-slate-500 shadow-sm">
-          جارٍ تحميل مسار الصفقات...
-        </div>
+      <div className={LOADING_STYLES.container} dir="rtl">
+        <div className={LOADING_STYLES.text}>جارٍ تحميل مسار الصفقات...</div>
       </div>
     );
   }
 
   return (
-    <main className="space-y-10">
+    <main className={PAGE_WRAPPER} dir="rtl">
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-1 text-right">
-            <h1 className="text-2xl font-semibold text-slate-900">لوحة مسار الصفقات</h1>
-            <p className="max-w-xl text-sm text-slate-500">
+            <h1 className={cn(TYPOGRAPHY.pageTitle, "text-gray-900")}>لوحة مسار الصفقات</h1>
+            <p className={cn(TYPOGRAPHY.body, "max-w-xl text-gray-600")}>
               تابع تقدم الفرص البيعية عبر مراحل المسار المختلفة واسحب البطاقات لتحديث حالة الصفقة فوراً.
             </p>
           </div>
           <Button
             variant="outline"
-            className="rounded-xl border-emerald-200 text-emerald-600 hover:bg-emerald-50 h-9 px-4"
+            className={BUTTON_PRIMARY_CLASSES}
             onClick={() => setShowRequestDrawer(true)}
           >
             إضافة صفقة جديدة
@@ -259,12 +259,12 @@ export default function Pipeline() {
               >
                 <div className="rounded-t-[28px] border-b border-slate-200 bg-gradient-to-br from-slate-50 to-white px-4 py-5 text-right">
                   <div className="flex items-center justify-between">
-                    <div className={`text-sm font-semibold ${stage.accent}`}>{stage.title}</div>
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${stage.badge}`}>
+                    <div className={cn(TYPOGRAPHY.label, "font-semibold", stage.accent, "text-right")}>{stage.title}</div>
+                    <span className={cn("rounded-full px-3 py-1", TYPOGRAPHY.caption, "font-medium", stage.badge)}>
                       {stageDeals.length} صفقة
                     </span>
                   </div>
-                  <div className="mt-2 text-xs text-slate-400">{formatCurrency(stageValue)}</div>
+                  <div className={cn("mt-2", TYPOGRAPHY.caption, "text-gray-500 text-right")}>{formatCurrency(stageValue)}</div>
                 </div>
 
                 <Droppable droppableId={stage.id}>
@@ -285,18 +285,18 @@ export default function Pipeline() {
                                 snapshot.isDragging ? "shadow-lg" : ""
                               }`}
                             >
-                              <div className="space-y-2">
+                              <div className="space-y-2 text-right">
                                 <div className="flex items-center justify-between">
-                                  <h4 className="text-base font-semibold text-slate-900">{getLeadName(deal.leadId)}</h4>
+                                  <h4 className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900")}>{getLeadName(deal.leadId)}</h4>
                                   {deal.dealValue && (
-                                    <span className="text-sm font-semibold text-emerald-600">
+                                    <span className={cn(TYPOGRAPHY.body, "font-semibold text-[rgb(128_193_165)]")}>
                                       {formatCurrency(deal.dealValue)}
                                     </span>
                                   )}
                                 </div>
 
                                 {deal.expectedCloseDate && (
-                                  <div className="text-xs text-slate-500">
+                                  <div className={cn(TYPOGRAPHY.caption, "text-gray-600")}>
                                     متوقع في {new Date(deal.expectedCloseDate).toLocaleDateString()}
                                   </div>
                                 )}

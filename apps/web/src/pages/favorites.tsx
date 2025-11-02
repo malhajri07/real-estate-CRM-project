@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Property } from "@shared/types";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ListingCard from "@/components/listings/ListingCard";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, LOADING_STYLES, EMPTY_STYLES } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 
 export default function FavoritesPage() {
   const { t } = useLanguage();
@@ -12,43 +14,51 @@ export default function FavoritesPage() {
 
   if (isLoading) {
     return (
-      <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100">
-        <div className="text-center py-8 text-gray-600">...جار التحميل</div>
+      <main className={PAGE_WRAPPER} dir="rtl">
+        <div className={LOADING_STYLES.container}>
+          <div className={LOADING_STYLES.text}>...جار التحميل</div>
+        </div>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100">
-        <div className="text-center py-8 text-red-600">حدث خطأ في جلب المفضلة</div>
+      <main className={PAGE_WRAPPER} dir="rtl">
+        <Card className={CARD_STYLES.container}>
+          <CardContent className="p-6">
+            <div className={cn(EMPTY_STYLES.description, "text-red-600 text-center")}>حدث خطأ في جلب المفضلة</div>
+          </CardContent>
+        </Card>
       </main>
     );
   }
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100">
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">العقارات المفضلة</h1>
-          <p className="text-gray-600">العقارات التي قمت بحفظها</p>
-        </CardContent>
-      </Card>
-
-      {items.length === 0 ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <div className="text-gray-600 text-lg">لا توجد عناصر محفوظة</div>
-            <p className="text-gray-500 mt-2">ابدأ بحفظ العقارات التي تعجبك</p>
-          </CardContent>
+    <main className={PAGE_WRAPPER} dir="rtl">
+      <section className="space-y-6">
+        <Card className={CARD_STYLES.container}>
+          <CardHeader className={CARD_STYLES.header}>
+            <CardTitle className={TYPOGRAPHY.pageTitle}>العقارات المفضلة</CardTitle>
+            <p className={cn(TYPOGRAPHY.body, "text-gray-600 mt-2")}>العقارات التي قمت بحفظها</p>
+          </CardHeader>
         </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((p) => (
-            <ListingCard key={p.id} item={p as any} />
-          ))}
-        </div>
-      )}
+
+        {items.length === 0 ? (
+          <Card className={CARD_STYLES.container}>
+            <CardContent className={cn(EMPTY_STYLES.container, "p-8")}>
+              <div className={cn(EMPTY_STYLES.title, "text-gray-600")}>لا توجد عناصر محفوظة</div>
+              <p className={cn(EMPTY_STYLES.description, "text-gray-500 mt-2")}>ابدأ بحفظ العقارات التي تعجبك</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {items.map((p) => (
+              <ListingCard key={p.id} item={p as any} />
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   );
 }

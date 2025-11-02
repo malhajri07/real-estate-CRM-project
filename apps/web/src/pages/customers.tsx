@@ -14,6 +14,8 @@ import AddLeadDrawer from "@/components/modals/add-lead-drawer";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Lead } from "@shared/types";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, INPUT_STYLES, EMPTY_STYLES, LOADING_STYLES, BADGE_STYLES } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 
 export default function Customers() {
   const [addLeadDrawerOpen, setAddLeadDrawerOpen] = useState(false);
@@ -277,19 +279,19 @@ export default function Customers() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">جار تحميل العملاء...</div>
+      <div className={LOADING_STYLES.container} dir="rtl">
+        <div className={LOADING_STYLES.text}>جار تحميل العملاء...</div>
       </div>
     );
   }
 
   return (
     <>
-      <main className="w-full space-y-6 font-sans font-normal text-slate-800 leading-relaxed">
-        <Card>
-          <CardHeader className="border-b border-slate-200">
+      <main className={PAGE_WRAPPER} dir="rtl">
+        <Card className={CARD_STYLES.container}>
+          <CardHeader className={cn(CARD_STYLES.header, "border-b border-gray-200")}>
             <div className="flex items-center justify-between mb-4">
-              <CardTitle className="text-lg font-medium">
+              <CardTitle className={TYPOGRAPHY.cardTitle}>
                 جميع العملاء المحتملين ({totalItems})
                 {totalPages > 1 && ` - صفحة ${currentPage} من ${totalPages}`}
               </CardTitle>
@@ -305,8 +307,7 @@ export default function Customers() {
                 </Button>
                 <Button 
                   onClick={() => setAddLeadDrawerOpen(true)}
-                  style={{ backgroundColor: 'rgb(128 193 165)', color: 'white' }}
-                  className="hover:opacity-90"
+                  className={BUTTON_PRIMARY_CLASSES}
                 >
                   <Plus className="ml-2" size={16} />
                   إضافة عميل محتمل
@@ -323,8 +324,7 @@ export default function Customers() {
                     variant="ghost" 
                     size="sm" 
                     onClick={resetFilters} 
-                    style={{ backgroundColor: 'rgb(128 193 165)', color: 'white' }}
-                    className="hover:opacity-90"
+                    className={BUTTON_PRIMARY_CLASSES}
                   >
                     إعادة تعيين
                   </Button>
@@ -444,58 +444,58 @@ export default function Customers() {
             ) : (
               <>
                 <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-                  <table className="min-w-[900px] w-full text-right text-xs">
-                    <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-                      <tr className="text-xs font-semibold text-slate-700 tracking-wide uppercase">
-                        <th className="px-4 py-3">العميل</th>
-                        <th className="px-4 py-3">المدينة</th>
-                        <th className="px-4 py-3">العمر</th>
-                        <th className="px-4 py-3">الحالة الاجتماعية</th>
-                        <th className="px-4 py-3">المُعالين</th>
-                        <th className="px-4 py-3">نوع الاهتمام</th>
-                        <th className="px-4 py-3">نطاق الميزانية</th>
-                        <th className="px-4 py-3">الحالة</th>
-                        <th className="px-4 py-3">تاريخ الانضمام</th>
-                        <th className="px-4 py-3">الإجراءات</th>
+                  <table className={cn(TABLE_STYLES.container, "min-w-[900px] w-full text-right")}>
+                    <thead className={cn(TABLE_STYLES.header, "bg-gray-50 border-b border-gray-200")}>
+                      <tr className={cn(TABLE_STYLES.headerCell, "text-xs font-medium text-gray-700 uppercase tracking-wider")}>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>العميل</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>المدينة</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>العمر</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الحالة الاجتماعية</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>المُعالين</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>نوع الاهتمام</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>نطاق الميزانية</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الحالة</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>تاريخ الانضمام</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الإجراءات</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className={cn(TABLE_STYLES.body, "divide-y divide-gray-200")}>
                       {currentPageLeads.map((lead) => (
-                      <tr key={lead.id} className="transition-colors hover:bg-slate-50/50">
-                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
-                          <div className="text-sm font-semibold text-slate-900">{lead.firstName} {lead.lastName}</div>
+                      <tr key={lead.id} className={cn(TABLE_STYLES.body, "transition-colors hover:bg-gray-50")}>
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4")}>
+                          <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900")}>{lead.firstName} {lead.lastName}</div>
                           <div className="mt-1 flex items-center gap-2 text-slate-500">
                             <Phone size={12} />
                             <span>{lead.phone}</span>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                           {lead.city || "غير محدد"}
                         </td>
-                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                           {lead.age || "غير محدد"}
                         </td>
-                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                           {getMaritalStatusLabel(lead.maritalStatus || "")}
                         </td>
-                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                           {lead.numberOfDependents || 0}
                         </td>
-                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                           {getInterestTypeLabel(lead.interestType || "")}
                         </td>
-                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                           {formatBudgetRange(lead.budgetRange)}
                         </td>
-                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
-                          <span className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(lead.status)}`}>
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                          <span className={cn(BADGE_STYLES.base, getStatusBadgeColor(lead.status))}>
                             {getStatusLabel(lead.status)}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                           {new Date(lead.createdAt).toLocaleDateString('en-GB')}
                         </td>
-                        <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                           <div className="flex items-center justify-end gap-1">
                             <button 
                               className="p-2 rounded-md text-emerald-600 transition-colors duration-150 hover:text-emerald-800 hover:bg-emerald-50"

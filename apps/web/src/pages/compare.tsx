@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, EMPTY_STYLES } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 
 type Listing = {
   id: string;
@@ -39,38 +41,40 @@ export default function ComparePage() {
   }, [ids]);
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100">
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">مقارنة العقارات</h1>
-          <p className="text-gray-600">قارن بين العقارات المختلفة</p>
-        </CardContent>
-      </Card>
-
-      {items.length === 0 ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <div className="text-gray-600 text-lg">لا يوجد عناصر للمقارنة</div>
-            <p className="text-gray-500 mt-2">أضف عقارات للمقارنة من صفحة البحث</p>
-          </CardContent>
+    <main className={PAGE_WRAPPER} dir="rtl">
+      <section className="space-y-6">
+        <Card className={CARD_STYLES.container}>
+          <CardHeader className={CARD_STYLES.header}>
+            <CardTitle className={TYPOGRAPHY.pageTitle}>مقارنة العقارات</CardTitle>
+            <p className={cn(TYPOGRAPHY.body, "text-gray-600 mt-2")}>قارن بين العقارات المختلفة</p>
+          </CardHeader>
         </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {items.map((p) => (
-            <Card key={p.id} className="p-5">
-              <CardContent className="p-0">
-                <div className="font-semibold mb-1 text-gray-900">{p.title}</div>
-                <div className="text-sm text-gray-600 mb-2">{p.address}، {p.city}</div>
-                <div className="text-green-700 font-bold mb-2">{p.price} ﷼</div>
-                <div className="text-sm">النوع: {p.propertyType || '-'}</div>
-                <div className="text-sm">الغرف: {p.bedrooms ?? '-'}</div>
-                <div className="text-sm">الحمامات: {typeof p.bathrooms === 'string' ? p.bathrooms : (p.bathrooms ?? '-')}</div>
-            <div className="text-sm">المساحة: {(p as any).areaSqm ?? '-'} متر²</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+
+        {items.length === 0 ? (
+          <Card className={CARD_STYLES.container}>
+            <CardContent className={cn(EMPTY_STYLES.container, "p-8")}>
+              <div className={cn(EMPTY_STYLES.title, "text-gray-600")}>لا يوجد عناصر للمقارنة</div>
+              <p className={cn(EMPTY_STYLES.description, "text-gray-500 mt-2")}>أضف عقارات للمقارنة من صفحة البحث</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {items.map((p) => (
+              <Card key={p.id} className={CARD_STYLES.container}>
+                <CardContent className="p-5 space-y-2">
+                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900")}>{p.title}</div>
+                  <div className={cn(TYPOGRAPHY.caption, "text-gray-600")}>{p.address}، {p.city}</div>
+                  <div className={cn(TYPOGRAPHY.sectionTitle, "text-green-700 font-bold")}>{p.price} ﷼</div>
+                  <div className={cn(TYPOGRAPHY.caption, "text-sm")}>النوع: {p.propertyType || '-'}</div>
+                  <div className={cn(TYPOGRAPHY.caption, "text-sm")}>الغرف: {p.bedrooms ?? '-'}</div>
+                  <div className={cn(TYPOGRAPHY.caption, "text-sm")}>الحمامات: {typeof p.bathrooms === 'string' ? p.bathrooms : (p.bathrooms ?? '-')}</div>
+                  <div className={cn(TYPOGRAPHY.caption, "text-sm")}>المساحة: {(p as any).areaSqm ?? '-'} متر²</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
     </main>
   );
 }
