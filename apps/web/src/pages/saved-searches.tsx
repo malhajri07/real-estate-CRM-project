@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, LOADING_STYLES, EMPTY_STYLES } from '@/config/platform-theme';
+import { cn } from '@/lib/utils';
 
 export default function SavedSearchesPage() {
   const qc = useQueryClient();
@@ -29,65 +31,67 @@ export default function SavedSearchesPage() {
   });
 
   return (
-    <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-green-50 to-slate-100">
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">عمليات البحث المحفوظة</h1>
-          <p className="text-gray-600">إدارة التنبيهات والبحث السريع</p>
-        </CardContent>
-      </Card>
+    <main className={PAGE_WRAPPER} dir="rtl">
+      <section className="space-y-6">
+        <Card className={CARD_STYLES.container}>
+          <CardHeader className={CARD_STYLES.header}>
+            <CardTitle className={TYPOGRAPHY.pageTitle}>عمليات البحث المحفوظة</CardTitle>
+            <p className={cn(TYPOGRAPHY.body, "text-gray-600 mt-2")}>إدارة التنبيهات والبحث السريع</p>
+          </CardHeader>
+        </Card>
 
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <div className="flex gap-4">
-            <Button onClick={() => create.mutate()} className="bg-green-600 hover:bg-green-700">
-              إضافة بحث
-            </Button>
-            <Button variant="outline" onClick={() => run.mutate()}>
-              تشغيل التنبيهات
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {isLoading ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <div className="text-gray-600">...جار التحميل</div>
+        <Card className={CARD_STYLES.container}>
+          <CardContent className="p-6">
+            <div className="flex gap-4">
+              <Button onClick={() => create.mutate()} className={BUTTON_PRIMARY_CLASSES}>
+                إضافة بحث
+              </Button>
+              <Button variant="outline" onClick={() => run.mutate()}>
+                تشغيل التنبيهات
+              </Button>
+            </div>
           </CardContent>
         </Card>
-      ) : (
-        <div className="space-y-4">
-          {data.map((s: any) => (
-            <Card key={s.id}>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="font-semibold text-lg text-gray-900">{s.alertName}</div>
-                    <div className="text-sm text-gray-600 mt-1">
-                      المدن: {(s.cities||[]).join(', ') || 'الكل'}
+
+        {isLoading ? (
+          <Card className={CARD_STYLES.container}>
+            <CardContent className={LOADING_STYLES.container}>
+              <div className={LOADING_STYLES.text}>...جار التحميل</div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {data.map((s: any) => (
+              <Card key={s.id} className={CARD_STYLES.container}>
+                <CardContent className="p-6">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className={cn(TYPOGRAPHY.cardTitle, "text-gray-900")}>{s.alertName}</div>
+                      <div className={cn(TYPOGRAPHY.caption, "text-gray-600 mt-1")}>
+                        المدن: {(s.cities||[]).join(', ') || 'الكل'}
+                      </div>
+                      <div className={cn(TYPOGRAPHY.caption, "text-gray-600")}>
+                        الأنواع: {(s.propertyTypes||[]).join(', ') || 'الكل'}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">
-                      الأنواع: {(s.propertyTypes||[]).join(', ') || 'الكل'}
-                    </div>
+                    <Button variant="outline" onClick={() => del.mutate(s.id)}>
+                      حذف
+                    </Button>
                   </div>
-                  <Button variant="outline" onClick={() => del.mutate(s.id)}>
-                    حذف
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-          {data.length === 0 && (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <div className="text-gray-600 text-lg">لا توجد عمليات بحث محفوظة</div>
-                <p className="text-gray-500 mt-2">ابدأ بإنشاء بحث محفوظ جديد</p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      )}
+                </CardContent>
+              </Card>
+            ))}
+            {data.length === 0 && (
+              <Card className={CARD_STYLES.container}>
+                <CardContent className={cn(EMPTY_STYLES.container, "p-8")}>
+                  <div className={cn(EMPTY_STYLES.title, "text-gray-600")}>لا توجد عمليات بحث محفوظة</div>
+                  <p className={cn(EMPTY_STYLES.description, "text-gray-500 mt-2")}>ابدأ بإنشاء بحث محفوظ جديد</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+      </section>
     </main>
   );
 }

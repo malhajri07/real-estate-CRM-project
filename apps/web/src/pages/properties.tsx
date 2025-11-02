@@ -15,6 +15,8 @@ import AddPropertyModal from "@/components/modals/add-property-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Property } from "@shared/types";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 
 export default function Properties() {
   const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false);
@@ -71,6 +73,18 @@ export default function Properties() {
       });
     },
   });
+
+  // Helper function to convert values to numbers
+  const toNumber = (value: string | number | null | undefined): number | null => {
+    if (value === null || value === undefined) return null;
+    if (typeof value === "number") {
+      return Number.isFinite(value) ? value : null;
+    }
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
 
   // Apply filters and sorting
   const filteredProperties = (searchQuery.trim() ? searchResults : properties)?.filter(property => {
@@ -167,17 +181,6 @@ export default function Properties() {
     setCurrentPage(1);
   };
 
-  const toNumber = (value: string | number | null | undefined): number | null => {
-    if (value === null || value === undefined) return null;
-    if (typeof value === "number") {
-      return Number.isFinite(value) ? value : null;
-    }
-    const trimmed = value.trim();
-    if (!trimmed) return null;
-    const parsed = Number(trimmed);
-    return Number.isFinite(parsed) ? parsed : null;
-  };
-
   // Get unique values for filter options
   const uniqueCities = Array.from(new Set(properties?.map(p => p.city) || [])).filter(
     (city): city is string => typeof city === "string" && city.trim() !== ""
@@ -240,19 +243,19 @@ export default function Properties() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">جار تحميل العقارات...</div>
+      <div className={LOADING_STYLES.container} dir="rtl">
+        <div className={LOADING_STYLES.text}>جار تحميل العقارات...</div>
       </div>
     );
   }
 
   return (
     <>
-      <main className="w-full space-y-6">
-        <Card>
-          <CardHeader className="border-b border-slate-200">
+      <main className={PAGE_WRAPPER} dir="rtl">
+        <Card className={CARD_STYLES.container}>
+          <CardHeader className={cn(CARD_STYLES.header, "border-b border-gray-200")}>
             <div className="flex items-center justify-between mb-4">
-              <CardTitle className="text-title-small">
+              <CardTitle className={TYPOGRAPHY.cardTitle}>
                 جميع العقارات ({allProperties?.length || 0})
                 {totalPages > 1 && ` - صفحة ${currentPage} من ${totalPages}`}
               </CardTitle>
@@ -288,7 +291,7 @@ export default function Properties() {
                   <SlidersHorizontal size={16} className="ml-2" />
                   الفلاتر
                 </Button>
-                <Button onClick={() => setAddPropertyModalOpen(true)}>
+                <Button onClick={() => setAddPropertyModalOpen(true)} className={BUTTON_PRIMARY_CLASSES}>
                   <Plus className="ml-2" size={16} />
                   إضافة عقار
                 </Button>
@@ -299,8 +302,8 @@ export default function Properties() {
             {showFilters && (
               <div className="rounded-2xl p-5 space-y-4 border border-slate-200/60 shadow-sm ui-stable backdrop-blur-xl bg-white/90 ring-1 ring-emerald-200/40">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-slate-800 text-lg">فلاتر البحث</h3>
-                  <Button variant="ghost" size="sm" onClick={resetFilters} className="text-slate-600 hover:text-slate-800">
+                  <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-gray-900 text-right")}>فلاتر البحث</h3>
+                  <Button variant="ghost" size="sm" onClick={resetFilters} className={BUTTON_PRIMARY_CLASSES}>
                     إعادة تعيين
                   </Button>
                 </div>
@@ -508,12 +511,12 @@ export default function Properties() {
           </CardHeader>
           <CardContent className="p-0">
             {!displayProperties || displayProperties.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-slate-500 mb-4">
+              <div className={cn(EMPTY_STYLES.container, "text-right")}>
+                <div className={cn(EMPTY_STYLES.description, "mb-4 text-gray-600")}>
                   {searchQuery ? "لا توجد عقارات تطابق بحثك." : "لا توجد عقارات. أضف أول عقار للبدء."}
                 </div>
                 {!searchQuery && (
-                  <Button onClick={() => setAddPropertyModalOpen(true)}>
+                  <Button onClick={() => setAddPropertyModalOpen(true)} className={BUTTON_PRIMARY_CLASSES}>
                     <Plus className="ml-2" size={16} />
                     إضافة أول عقار
                   </Button>
@@ -697,28 +700,28 @@ export default function Properties() {
                   </div>
                 ) : (
                   <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-                    <table className="min-w-[900px] w-full text-right text-xs">
-                      <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
-                        <tr className="text-xs font-semibold text-slate-700 tracking-wide uppercase">
-                          <th className="px-4 py-3">الصورة</th>
-                          <th className="px-4 py-3">العقار</th>
-                          <th className="px-4 py-3">الموقع</th>
-                          <th className="px-4 py-3">النوع</th>
-                          <th className="px-4 py-3">الحالة</th>
-                          <th className="px-4 py-3">السعر</th>
-                          <th className="px-4 py-3">المساحة</th>
-                          <th className="px-4 py-3">الغرف</th>
-                          <th className="px-4 py-3">الإجراءات</th>
+                    <table className={cn(TABLE_STYLES.container, "min-w-[900px] w-full text-right")}>
+                      <thead className={cn(TABLE_STYLES.header, "bg-gray-50 border-b border-gray-200")}>
+                        <tr className={cn(TABLE_STYLES.headerCell, "text-xs font-medium text-gray-700 uppercase tracking-wider")}>
+                          <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الصورة</th>
+                          <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>العقار</th>
+                          <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الموقع</th>
+                          <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>النوع</th>
+                          <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الحالة</th>
+                          <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>السعر</th>
+                          <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>المساحة</th>
+                          <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الغرف</th>
+                          <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الإجراءات</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100">
+                      <tbody className={cn(TABLE_STYLES.body, "divide-y divide-gray-200")}>
                         {displayProperties.map((property) => (
                           <tr
                             key={property.id}
                             className="cursor-pointer transition-colors hover:bg-slate-50/50"
                             onClick={() => setLocation(`/home/platform/properties/${property.id}`)}
                           >
-                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                            <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                               {property.photoUrls && property.photoUrls.length > 0 ? (
                                 <img 
                                   src={property.photoUrls[0]} 
@@ -726,8 +729,8 @@ export default function Properties() {
                                   className="w-16 h-12 object-cover rounded"
                                 />
                               ) : (
-                                <div className="w-16 h-12 bg-slate-100 rounded flex items-center justify-center">
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400">
+                                <div className="w-16 h-12 bg-gray-100 rounded flex items-center justify-center">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
                                     <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
                                     <circle cx="9" cy="9" r="2"/>
                                   <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
@@ -735,37 +738,37 @@ export default function Properties() {
                               </div>
                             )}
                           </td>
-                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
-                              <div className="text-sm font-semibold text-slate-900 line-clamp-1">{property.title}</div>
-                              <div className="mt-1 flex items-center gap-2 text-slate-500">
+                            <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                              <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900 line-clamp-1 text-right")}>{property.title}</div>
+                              <div className={cn("mt-1 flex items-center gap-2", TYPOGRAPHY.caption, "text-gray-500 text-right")}>
                                 <span className="flex items-center gap-1">
                                   <Square size={12} />
                                   {property.propertyType}
                                 </span>
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
-                              <div className="text-slate-900">{property.city}, {property.state}</div>
-                              <div className="mt-1 text-slate-500">{property.address}</div>
+                            <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                              <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-right")}>{property.city}, {property.state}</div>
+                              <div className={cn("mt-1", TYPOGRAPHY.caption, "text-gray-600 text-right")}>{property.address}</div>
                             </td>
-                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
-                              <div className="text-slate-900">{property.propertyType}</div>
+                            <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                              <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-right")}>{property.propertyType}</div>
                             </td>
-                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
-                              <span className={`inline-flex items-center px-3 py-1 text-xs font-medium rounded-full ${getStatusBadgeClasses(property.status)}`}>
+                            <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                              <span className={cn(BADGE_STYLES.base, getStatusBadgeClasses(property.status))}>
                                 {property.status}
                               </span>
                             </td>
-                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
-                              <div className="text-primary font-semibold text-sm">
+                            <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                              <div className={cn(TYPOGRAPHY.body, "font-semibold text-[rgb(128_193_165)] text-right")}>
                                 {formatCurrency(property.price)}
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                            <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                               {(property as any).areaSqm ? `${((property as any).areaSqm?.toLocaleString?.() ?? (property as any).areaSqm)} متر²` : '-'}
                             </td>
-                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
-                              <div className="flex items-center gap-2 text-slate-900">
+                            <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                              <div className={cn("flex items-center gap-2", TYPOGRAPHY.body, "text-gray-900 text-right")}>
                                 {property.bedrooms && (
                                   <span className="flex items-center gap-1">
                                     <Bed size={12} />
@@ -786,7 +789,7 @@ export default function Properties() {
                                 )}
                               </div>
                             </td>
-                            <td className="px-4 py-3 text-xs text-slate-800 align-middle">
+                            <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                               <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                                 <button 
                                   className="p-2 rounded-md text-slate-600 transition-colors duration-150 hover:text-slate-800 hover:bg-slate-50"

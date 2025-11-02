@@ -13,6 +13,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type { Lead } from "@shared/types";
 import type { UploadResult } from "@uppy/core";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES } from "@/config/platform-theme";
 
 export default function Leads() {
   const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
@@ -203,14 +204,14 @@ export default function Leads() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">{t("leads.loading")}</div>
+      <div className={LOADING_STYLES.container} dir="rtl">
+        <div className={LOADING_STYLES.text}>{t("leads.loading")}</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6" dir={dir}>
+    <div className={PAGE_WRAPPER} dir="rtl">
       <section className="ui-section">
         <header className="ui-section__header">
           <h2 className="text-lg font-semibold text-foreground">
@@ -228,7 +229,7 @@ export default function Leads() {
             <Button variant="outline" onClick={exportLeads}>
               {t("leads.export_csv")}
             </Button>
-            <Button onClick={() => setAddLeadModalOpen(true)}>
+            <Button onClick={() => setAddLeadModalOpen(true)} className={BUTTON_PRIMARY_CLASSES}>
               <Plus className={iconSpacing} size={16} />
               {t("leads.add_lead")}
             </Button>
@@ -244,12 +245,12 @@ export default function Leads() {
           )}
 
           {!displayLeads || displayLeads.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-slate-500 mb-4">
+            <div className={cn(EMPTY_STYLES.container, "text-right")}>
+              <div className={cn(EMPTY_STYLES.description, "mb-4 text-gray-600")}>
                 {searchQuery ? t("leads.no_results") : t("leads.no_leads")}
               </div>
               {!searchQuery && (
-                <Button onClick={() => setAddLeadModalOpen(true)}>
+                <Button onClick={() => setAddLeadModalOpen(true)} className={BUTTON_PRIMARY_CLASSES}>
                   <Plus className={iconSpacing} size={16} />
                   {t("leads.add_first_lead")}
                 </Button>
@@ -257,38 +258,38 @@ export default function Leads() {
             </div>
           ) : (
             <div className="ui-surface">
-              <Table>
-                <TableHeader>
+              <Table className={TABLE_STYLES.container}>
+                <TableHeader className={cn(TABLE_STYLES.header, "bg-gray-50")}>
                   <TableRow>
-                    <TableHead>{t("leads.table.name")}</TableHead>
-                    <TableHead>{t("leads.table.email")}</TableHead>
-                    <TableHead>{t("leads.table.phone")}</TableHead>
-                    <TableHead>{t("leads.table.status")}</TableHead>
-                    <TableHead>{t("leads.table.source")}</TableHead>
-                    <TableHead>{t("leads.table.interest")}</TableHead>
-                    <TableHead>{t("leads.table.budget")}</TableHead>
-                    <TableHead>{t("leads.table.created_at")}</TableHead>
-                    <TableHead className="w-[160px]">{t("leads.table.actions")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.name")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.email")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.phone")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.status")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.source")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.interest")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.budget")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.created_at")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right w-[160px]")}>{t("leads.table.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className={TABLE_STYLES.body}>
                   {displayLeads.map((lead) => (
-                    <TableRow key={lead.id}>
-                      <TableCell className="font-medium">
+                    <TableRow key={lead.id} className="divide-y divide-gray-200">
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-right font-medium")}>
                         {lead.firstName} {lead.lastName}
                       </TableCell>
-                      <TableCell>{lead.email}</TableCell>
-                      <TableCell>{lead.phone || '-'}</TableCell>
-                      <TableCell>
-                        <Badge className={getStatusBadgeColor(lead.status)}>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{lead.email}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{lead.phone || '-'}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>
+                        <Badge className={cn(BADGE_STYLES.base, getStatusBadgeColor(lead.status))}>
                           {t(`status.${lead.status}`) || lead.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>{lead.leadSource || '-'}</TableCell>
-                      <TableCell>{lead.interestType ? (t(`interest.${lead.interestType}`) || lead.interestType) : '-'}</TableCell>
-                      <TableCell>{lead.budgetRange || '-'}</TableCell>
-                      <TableCell>{new Date(lead.createdAt).toLocaleDateString(locale)}</TableCell>
-                      <TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{lead.leadSource || '-'}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{lead.interestType ? (t(`interest.${lead.interestType}`) || lead.interestType) : '-'}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{lead.budgetRange || '-'}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{new Date(lead.createdAt).toLocaleDateString(locale)}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>
                         <div className="flex items-center gap-2">
                           {lead.phone && (
                             <Button

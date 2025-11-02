@@ -1,29 +1,62 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, LOADING_STYLES } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
 
 type AgencyRow = { id: string; name: string; verified: boolean; agentsCount: number; listingsCount: number };
 
 export default function AgenciesPage() {
   const { t } = useLanguage();
   const { data = [], isLoading, error } = useQuery<AgencyRow[]>({ queryKey: ["/api/agencies"] });
-  if (isLoading) return <div className="text-gray-600">...جار التحميل</div>;
-  if (error) return <div className="text-red-600">تعذر تحميل الوكالات</div>;
+  
+  if (isLoading) {
+    return (
+      <main className={PAGE_WRAPPER} dir="rtl">
+        <div className={LOADING_STYLES.container}>
+          <div className={LOADING_STYLES.text}>...جار التحميل</div>
+        </div>
+      </main>
+    );
+  }
+  
+  if (error) {
+    return (
+      <main className={PAGE_WRAPPER} dir="rtl">
+        <Card className={CARD_STYLES.container}>
+          <CardContent className="p-6">
+            <div className="text-red-600 text-center">تعذر تحميل الوكالات</div>
+          </CardContent>
+        </Card>
+      </main>
+    );
+  }
 
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {data.map((a) => (
-          <a key={a.id} href={`/home/platform/agency/${a.id}`} className="ui-surface p-5 hover:shadow-lg ui-transition">
-            <div className="flex justify-between items-center">
-              <div>
-                <div className="font-semibold text-gray-900">{a.name}{a.verified && <span className="ml-2 text-green-600">✓</span>}</div>
-                <div className="text-sm text-gray-600">عدد الوسطاء: {a.agentsCount} — عدد الإعلانات: {a.listingsCount}</div>
-              </div>
-              <div className="text-primary">عرض</div>
-            </div>
-          </a>
-        ))}
-      </div>
-    </>
+    <main className={PAGE_WRAPPER} dir="rtl">
+      <section className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {data.map((a) => (
+            <Card key={a.id} className={cn(CARD_STYLES.container, "hover:shadow-lg transition cursor-pointer")}>
+              <CardContent className="p-5">
+                <a href={`/home/platform/agency/${a.id}`} className="block">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900")}>
+                        {a.name}{a.verified && <span className="ml-2 text-green-600">✓</span>}
+                      </div>
+                      <div className={cn(TYPOGRAPHY.caption, "text-gray-600")}>
+                        عدد الوسطاء: {a.agentsCount} — عدد الإعلانات: {a.listingsCount}
+                      </div>
+                    </div>
+                    <div className="text-primary">عرض</div>
+                  </div>
+                </a>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }

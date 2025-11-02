@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type { Lead, Property, Deal } from "@shared/types";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, LOADING_STYLES } from "@/config/platform-theme";
 
 // Recharts components for comprehensive charts
 import {
@@ -326,21 +327,21 @@ export default function Reports() {
 
   if (metricsLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-slate-500">جار تحميل التقارير...</div>
+      <div className={LOADING_STYLES.container} dir="rtl">
+        <div className={LOADING_STYLES.text}>جار تحميل التقارير...</div>
       </div>
     );
   }
 
   return (
     <>
-      <main className="w-full space-y-6">
+      <main className={PAGE_WRAPPER} dir="rtl">
         {/* Report Controls */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4 rtl:space-x-reverse">
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
               <Calendar size={20} className="text-slate-500" />
-              <span className="text-sm font-medium text-slate-700">فترة التقرير:</span>
+              <span className={cn(TYPOGRAPHY.label, "text-gray-700")}>فترة التقرير:</span>
               <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
@@ -355,7 +356,7 @@ export default function Reports() {
             </div>
           </div>
           
-          <Button onClick={exportReport}>
+          <Button onClick={exportReport} className={BUTTON_PRIMARY_CLASSES}>
             <Download className="ml-2" size={16} />
             تصدير التقرير
           </Button>

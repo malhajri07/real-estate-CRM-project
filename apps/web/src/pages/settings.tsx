@@ -9,6 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, User, Save, Upload, Shield, Bell, Users, CheckCircle, TrendingUp, ChevronDown } from "lucide-react";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 
 interface AccountDetails {
   companyName: string;
@@ -91,30 +93,31 @@ export default function Settings() {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="ui-surface px-6 py-5 flex flex-col gap-4">
+    <main className={PAGE_WRAPPER} dir="rtl">
+      <section className="space-y-8">
+        <div className={cn(CARD_STYLES.container, "px-6 py-5 flex flex-col gap-4")}>
         <div>
           <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 px-3 py-1 rounded-full text-xs">
             إعدادات المنصة والملف الشخصي
           </Badge>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">الإعدادات</h1>
-          <p className="text-muted-foreground mt-2">إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد</p>
+          <h1 className={cn(TYPOGRAPHY.pageTitle, "mt-3 text-slate-900")}>الإعدادات</h1>
+          <p className={cn(TYPOGRAPHY.body, "text-muted-foreground mt-2")}>إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد</p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <Button variant="outline" size="sm" className="rounded-xl" onClick={handleAccountSave}>
+          <Button variant="outline" size="sm" className={cn("rounded-xl", BUTTON_PRIMARY_CLASSES)} onClick={handleAccountSave}>
             <Save size={16} className="ml-2" /> حفظ التغييرات
           </Button>
         </div>
-      </div>
+        </div>
 
-      <div className="grid gap-6">
-        <Card className="ui-surface">
-          <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
+        <div className="grid gap-6">
+          <Card className={CARD_STYLES.container}>
+            <CardHeader className={cn(CARD_STYLES.header, "pb-5 flex items-center justify-between")}>
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Building2 size={18} /></span>
               <div className="text-right">
-                <CardTitle className="text-xl font-semibold text-slate-900">معلومات الشركة</CardTitle>
-                <CardDescription className="text-sm text-slate-500">تفاصيل النشاط التجاري وقنوات التواصل الرسمية</CardDescription>
+                <CardTitle className={cn(TYPOGRAPHY.cardTitle, "text-slate-900")}>معلومات الشركة</CardTitle>
+                <CardDescription className={cn(TYPOGRAPHY.body, "text-slate-500")}>تفاصيل النشاط التجاري وقنوات التواصل الرسمية</CardDescription>
               </div>
             </div>
             <button
@@ -529,8 +532,9 @@ export default function Settings() {
               </div>
             </div>
           </CardContent>
-        </Card>
-      </div>
-    </div>
+          </Card>
+        </div>
+      </section>
+    </main>
   );
 }
