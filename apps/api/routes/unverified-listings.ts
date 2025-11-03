@@ -54,6 +54,103 @@ const calculateBase64Size = (dataUrl: string): number => {
   return Math.ceil((base64Segment.length * 3) / 4) - paddingMatches;
 };
 
+// GET route to fetch all unverified listings (for admin dashboard)
+router.get("/", async (req, res) => {
+  try {
+    // Check if status query param exists in the URL (even if empty string)
+    if ('status' in req.query) {
+      const status = req.query.status ? (req.query.status as string).trim() : undefined;
+      const listings = await storage.getAllPropertyListings(status);
+      return res.json(listings);
+    }
+    // Otherwise, return health check message
+    res.status(200).json({ 
+      message: "Unverified listings API is running",
+      endpoint: "POST /api/unverified-listings to submit a listing",
+      endpointGet: "GET /api/unverified-listings?status=Pending to get listings"
+    });
+  } catch (error) {
+    console.error("Error fetching unverified listings:", error);
+    res.status(500).json({ 
+      message: error instanceof Error ? error.message : "Failed to fetch unverified listings" 
+    });
+  }
+});
+
+// GET route for a specific listing by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const listing = await storage.getPropertyListingById(id);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+    res.json(listing);
+  } catch (error) {
+    console.error("Error fetching listing:", error);
+    res.status(500).json({ 
+      message: error instanceof Error ? error.message : "Failed to fetch listing" 
+    });
+  }
+});
+
+// POST route to accept a listing (approve and activate)
+router.post("/:id/accept", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const listing = await storage.getPropertyListingById(id);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+    
+    // Update listing to approved and active
+    const updated = await storage.updatePropertyListing(id, {
+      is_verified: true,
+      is_active: true,
+      status: "Approved",
+    });
+    
+    res.json({ 
+      message: "Listing accepted successfully",
+      listing: updated 
+    });
+  } catch (error) {
+    console.error("Error accepting listing:", error);
+    res.status(500).json({ 
+      message: error instanceof Error ? error.message : "Failed to accept listing" 
+    });
+  }
+});
+
+// POST route to reject a listing
+router.post("/:id/reject", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { reason } = req.body;
+    const listing = await storage.getPropertyListingById(id);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
+    
+    // Update listing to rejected
+    const updated = await storage.updatePropertyListing(id, {
+      is_verified: false,
+      is_active: false,
+      status: "Rejected",
+    });
+    
+    res.json({ 
+      message: "Listing rejected successfully",
+      listing: updated 
+    });
+  } catch (error) {
+    console.error("Error rejecting listing:", error);
+    res.status(500).json({ 
+      message: error instanceof Error ? error.message : "Failed to reject listing" 
+    });
+  }
+});
+
 router.post("/", async (req, res) => {
   try {
     // Schema matching property_listings table exactly

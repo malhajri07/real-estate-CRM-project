@@ -62,6 +62,7 @@ const LazyRBACDashboard = lazy(() => import("@/pages/rbac-dashboard"));
 const LazyRBACLoginPage = lazy(() => import("@/pages/rbac-login"));
 const LazyPlatformPage = lazy(() => import("@/pages/app"));
 const LazyUnverifiedListingPage = lazy(() => import("@/pages/unverified-listing"));
+const LazyUnverifiedListingsManagementPage = lazy(() => import("@/pages/unverified-listings-management"));
 const LazyMarketingRequestSubmissionPage = lazy(() => import("@/pages/marketing-request"));
 const LazyMarketingRequestsBoardPage = lazy(() => import("@/pages/marketing-requests"));
 const FavoritesPage = lazy(() => import("@/pages/favorites"));
@@ -138,6 +139,7 @@ function Router() {
   const SuspendedRBACDashboard = withSuspense(LazyRBACDashboard);
   const SuspendedPlatformPage = withSuspense(LazyPlatformPage);
   const SuspendedUnverifiedListingPage = withSuspense(LazyUnverifiedListingPage);
+  const SuspendedUnverifiedListingsManagementPage = withSuspense(LazyUnverifiedListingsManagementPage);
   const SuspendedMarketingRequestSubmissionPage = withSuspense(LazyMarketingRequestSubmissionPage);
   const SuspendedSearchPropertiesPage = withSuspense(MapPage);
   const SuspendedRealEstateRequestsPage = withSuspense(RealEstateRequestsPage);
@@ -373,6 +375,12 @@ function Router() {
     { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: ADMIN_ONLY_ROLES },
     { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms', '/cms-admin'], allowedRoles: ADMIN_ONLY_ROLES },
     { path: '/home/platform/marketing-requests', component: LazyMarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },
+    { 
+      path: '/home/platform/unverified-listings', 
+      component: SuspendedUnverifiedListingsManagementPage, 
+      options: { title: 'إعلانات غير موثقة', searchPlaceholder: 'ابحث في الإعلانات غير الموثقة' },
+      allowedRoles: PLATFORM_CORE_ROLES 
+    },
   ];
 
   const platformDynamicRoutes: Array<{
