@@ -13,8 +13,8 @@ export { UserRole } from '@shared/rbac';
 import { JWT_SECRET as getJwtSecret } from './config/env';
 import type { AuthenticatedUser } from './authMiddleware';
 
-// JWT secret (should be in environment variables)
-const JWT_SECRET = getJwtSecret() || 'fallback-jwt-secret-key-12345';
+// JWT secret - getJwtSecret() will throw if missing (secure behavior)
+const JWT_SECRET = getJwtSecret();
 
 // JWT payload interface
 interface JWTPayload {

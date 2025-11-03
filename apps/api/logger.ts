@@ -1,10 +1,34 @@
-export function log(message: string, source = "express") {
-  const formattedTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
+import pino from 'pino';
 
-  console.log(`${formattedTime} [${source}] ${message}`);
+/**
+ * Structured logger using Pino
+ * Provides structured JSON logging with log levels
+ */
+export const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  ...(process.env.NODE_ENV === 'development' && {
+    transport: {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'SYS:standard',
+        ignore: 'pid,hostname',
+        singleLine: false,
+      },
+    },
+  }),
+  formatters: {
+    level: (label) => {
+      return { level: label };
+    },
+  },
+  timestamp: pino.stdTimeFunctions.isoTime,
+});
+
+/**
+ * Legacy log function for backward compatibility
+ * @deprecated Use logger.info(), logger.error(), etc. directly
+ */
+export function log(message: string, source = "express") {
+  logger.info({ source }, message);
 }
