@@ -42,8 +42,6 @@ export default function PublicHeader() {
       { href: "/map", label: t("nav.search") },
       { href: "/real-estate-requests", label: "اطلب عقارك" },
       { href: "/unverified-listings", label: "أدرج عقارك للبيع" },
-      { href: "/home/platform/saved-searches", label: "عمليات البحث" },
-      { href: "/contact", label: "اتصل بنا" }
     ],
     [t]
   );

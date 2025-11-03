@@ -18,6 +18,9 @@ import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session"; // Enable per-user session storage so multiple logins can coexist
 import connectPgSimple from "connect-pg-simple";
+import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { BACKEND_PORT } from "./config/env";
 import "./types/express-session";
 import path from "path";
@@ -37,19 +40,53 @@ const app = express();
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: false })); // Parse URL-encoded request bodies
 
-// CORS configuration for development
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-});
+// Security headers with helmet
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'", // Consider removing if possible
+        "https://maps.googleapis.com", // Google Maps
+      ],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false, // May need false for Google Maps
+  hsts: {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true,
+  },
+}));
+
+// CORS configuration - environment-based
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
+  .split(',')
+  .map(o => o.trim());
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+}));
 
 // Wire up cookie-based sessions so several users can stay logged in at the same time
 const PgSessionStore = connectPgSimple(session);
@@ -64,6 +101,9 @@ const sessionStore = new PgSessionStore({
   ...(sessionTable ? { tableName: sessionTable } : {}),
 });
 
+// Trust proxy when behind reverse proxy (Cloud Run, nginx, etc.)
+app.set('trust proxy', 1);
+
 app.use(
   session({
     secret: getSessionSecret(), // Fail fast if the session secret is missing
@@ -71,9 +111,11 @@ app.use(
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
-      secure: false, // We run in HTTP during development; swap to true behind HTTPS
+      secure: process.env.NODE_ENV === 'production' || process.env.FORCE_SECURE_COOKIES === 'true',
+      httpOnly: true, // Explicitly prevent XSS access
       maxAge: 24 * 60 * 60 * 1000, // Keep sessions for 24 hours
-      sameSite: "lax",
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      domain: process.env.COOKIE_DOMAIN || undefined,
     },
   }),
 );
@@ -84,6 +126,38 @@ app.use((req, _res, next) => {
     req.user = req.session.user;
   }
   next();
+});
+
+// Rate limiting for authentication endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts per 15 minutes
+  message: {
+    error: 'TOO_MANY_REQUESTS',
+    message: 'Too many login attempts, please try again after 15 minutes'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === '/health';
+  },
+});
+
+// General API rate limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per 15 minutes
+  message: {
+    error: 'TOO_MANY_REQUESTS',
+    message: 'Too many requests, please try again later'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === '/health';
+  },
 });
 
 // Serve attached assets (raw datasets/images) as static files
@@ -221,13 +295,8 @@ async function findAvailablePort(preferredPort: number): Promise<number> {
    * 
    * Routes affected: All routes (catch-all error handler)
    */
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
-  });
+  const { errorHandler } = await import('./middleware/errorHandler');
+  app.use(errorHandler);
 
   /**
    * Environment-specific Setup
@@ -270,5 +339,56 @@ async function findAvailablePort(preferredPort: number): Promise<number> {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+  });
+
+  /**
+   * Graceful shutdown handler
+   * Handles SIGTERM and SIGINT signals to close connections properly
+   */
+  const gracefulShutdown = async (signal: string) => {
+    log(`[shutdown] Received ${signal}, closing server gracefully`);
+
+    server.close(() => {
+      log('[shutdown] HTTP server closed');
+    });
+
+    // Close database connection
+    try {
+      const { prisma } = await import('./prismaClient');
+      await prisma.$disconnect();
+      log('[shutdown] Database connection closed');
+    } catch (error) {
+      log(`[shutdown] Error closing database connection: ${error}`);
+    }
+
+    // Close Redis connection if used
+    if (process.env.REDIS_URL) {
+      try {
+        const Redis = (await import('ioredis')).default;
+        const redis = new Redis(process.env.REDIS_URL);
+        await redis.quit();
+        log('[shutdown] Redis connection closed');
+      } catch (error) {
+        log(`[shutdown] Error closing Redis connection: ${error}`);
+      }
+    }
+
+    process.exit(0);
+  };
+
+  // Handle shutdown signals
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+  // Handle uncaught errors
+  process.on('uncaughtException', (error) => {
+    log(`[fatal] Uncaught exception: ${error.message}`);
+    log(`[fatal] Stack: ${error.stack}`);
+    gracefulShutdown('uncaughtException');
+  });
+
+  process.on('unhandledRejection', (reason, promise) => {
+    log(`[fatal] Unhandled rejection at: ${promise}, reason: ${reason}`);
+    gracefulShutdown('unhandledRejection');
   });
 })();

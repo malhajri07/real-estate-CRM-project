@@ -79,9 +79,9 @@ router.get("/districts", async (req, res) => {
       const districts = await storage.getDistrictsByCity(cityId);
       return res.json(
         districts.map((district) => ({
-          id: district.id,
-          regionId: district.regionId,
-          cityId: district.cityId,
+          id: typeof district.id === 'bigint' ? district.id.toString() : String(district.id),
+          regionId: typeof district.regionId === 'bigint' ? Number(district.regionId) : district.regionId,
+          cityId: typeof district.cityId === 'bigint' ? Number(district.cityId) : district.cityId,
           nameAr: district.nameAr,
           nameEn: district.nameEn,
           boundary: includeBoundary ? district.boundary : undefined,
@@ -100,9 +100,9 @@ router.get("/districts", async (req, res) => {
     const districts = await storage.getAllSaudiDistricts(regionId);
 
     const payload = districts.map((district) => ({
-      id: district.id,
-      regionId: district.regionId,
-      cityId: district.cityId,
+      id: typeof district.id === 'bigint' ? district.id.toString() : String(district.id),
+      regionId: typeof district.regionId === 'bigint' ? Number(district.regionId) : district.regionId,
+      cityId: typeof district.cityId === 'bigint' ? Number(district.cityId) : district.cityId,
       nameAr: district.nameAr,
       nameEn: district.nameEn,
       boundary: includeBoundary ? district.boundary : undefined,

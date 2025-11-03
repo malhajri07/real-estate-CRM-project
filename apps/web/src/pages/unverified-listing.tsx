@@ -7,25 +7,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Home, UploadCloud, X, ChevronsUpDown, Check, Loader2 } from "lucide-react";
+import { CheckCircle2, Home, UploadCloud, X, ChevronsUpDown, Check, Loader2, ChevronRight, ChevronLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-
-// Property types - kept as fallback, but we'll fetch from property_category API instead
-const PROPERTY_TYPES_FALLBACK = [
-  "شقة",
-  "فيلا",
-  "دوبلكس",
-  "تاون هاوس",
-  "استوديو",
-  "بيت",
-  "عمارة",
-  "مكتب",
-  "محل",
-  "مستودع",
-  "أرض",
-];
 
 const LISTING_TYPES = [
   { value: "بيع", label: "بيع" },
@@ -35,12 +20,24 @@ const LISTING_TYPES = [
 const MAX_IMAGE_COUNT = 10;
 const MAX_IMAGE_TOTAL_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB total
 
+// Step definitions
+const STEPS = [
+  { id: 1, title: "البيانات الأساسية", description: "عنوان العقار، الفئة، النوع، والسعر" },
+  { id: 2, title: "الموقع", description: "المنطقة، المدينة، والحي" },
+  { id: 3, title: "المواصفات", description: "الغرف، الحمامات، المساحة، والتفاصيل" },
+  { id: 4, title: "المرافق", description: "المميزات والخدمات المتاحة" },
+  { id: 5, title: "الصور", description: "صور العقار" },
+  { id: 6, title: "معلومات التواصل", description: "بيانات الاتصال" },
+];
+
 export default function UnverifiedListingPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [propertyId, setPropertyId] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [regionOpen, setRegionOpen] = useState(false);
@@ -64,15 +61,6 @@ export default function UnverifiedListingPage() {
     queryFn: async () => {
       const response = await fetch("/api/saudi-cities");
       if (!response.ok) throw new Error("Failed to fetch cities");
-      return response.json();
-    },
-  });
-
-  const { data: districts } = useQuery<any[]>({
-    queryKey: ["/api/districts"],
-    queryFn: async () => {
-      const response = await fetch("/api/locations/districts");
-      if (!response.ok) throw new Error("Failed to fetch districts");
       return response.json();
     },
   });
@@ -128,7 +116,27 @@ export default function UnverifiedListingPage() {
     videoClipUrl: "",
   });
 
-  // Fetch property categories from dimension table
+  // Fetch districts based on selected city (must be after form state is defined)
+  const { data: districts, isLoading: districtsLoading, error: districtsError } = useQuery<any[]>({
+    queryKey: ["/api/districts", form.city],
+    queryFn: async () => {
+      if (!form.city) return [];
+      const response = await fetch(`/api/locations/districts?cityId=${form.city}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Failed to fetch districts:", response.status, errorText);
+        throw new Error(`Failed to fetch districts: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Districts loaded for city", form.city, ":", data);
+      return data;
+    },
+    enabled: !!form.city,
+    retry: 2,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  // Fetch property categories
   const { data: propertyCategories, isLoading: categoriesLoading, error: categoriesError } = useQuery<any[]>({
     queryKey: ["/api/property-categories"],
     queryFn: async () => {
@@ -140,7 +148,6 @@ export default function UnverifiedListingPage() {
           throw new Error(`Failed to fetch property categories: ${response.status} ${errorText}`);
         }
         const data = await response.json();
-        console.log("Property categories loaded:", data);
         return data;
       } catch (error) {
         console.error("Error fetching property categories:", error);
@@ -148,7 +155,7 @@ export default function UnverifiedListingPage() {
       }
     },
     retry: 2,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
   // Fetch property types filtered by selected category
@@ -164,7 +171,6 @@ export default function UnverifiedListingPage() {
           throw new Error(`Failed to fetch property types: ${response.status} ${errorText}`);
         }
         const data = await response.json();
-        console.log("Property types loaded for category", form.propertyCategory, ":", data);
         return data;
       } catch (error) {
         console.error("Error fetching property types:", error);
@@ -173,8 +179,138 @@ export default function UnverifiedListingPage() {
     },
     enabled: !!form.propertyCategory,
     retry: 2,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
+
+  // Filter cities and districts based on selected region
+  const filteredCities = form.region
+    ? cities?.filter((city) => city.regionId === Number(form.region)) || []
+    : cities || [];
+
+  // Districts are already filtered by cityId from the API query, so we use them directly
+  const filteredDistricts = districts || [];
+
+  // Step validation functions
+  const validateStep1 = (): boolean => {
+    const requiredFields = [
+      { key: "title", label: "عنوان الإعلان" },
+      { key: "propertyCategory", label: "فئة العقار" },
+      { key: "propertyType", label: "نوع العقار" },
+      { key: "listingType", label: "نوع العرض" },
+      { key: "price", label: "السعر" },
+    ];
+
+    for (const field of requiredFields) {
+      const value = form[field.key as keyof typeof form];
+      if (!value || String(value).trim() === "") {
+        toast({
+          title: "تحقق من البيانات",
+          description: `يرجى تعبئة حقل ${field.label}`,
+          variant: "destructive",
+        });
+        return false;
+      }
+    }
+
+    const price = Number(form.price);
+    if (isNaN(price) || price <= 0) {
+      toast({
+        title: "قيمة غير صالحة",
+        description: "يرجى إدخال سعر صحيح",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const validateStep2 = (): boolean => {
+    if (!form.city || form.city.trim() === "") {
+      toast({
+        title: "تحقق من البيانات",
+        description: "يرجى تعبئة حقل المدينة",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const validateStep3 = (): boolean => {
+    // Step 3 is optional, always valid
+    return true;
+  };
+
+  const validateStep4 = (): boolean => {
+    // Step 4 is optional, always valid
+    return true;
+  };
+
+  const validateStep5 = (): boolean => {
+    // Step 5 is optional, always valid
+    return true;
+  };
+
+  const validateStep6 = (): boolean => {
+    if (!form.mobileNumber || form.mobileNumber.trim().length < 7) {
+      toast({
+        title: "تحقق من البيانات",
+        description: "رقم الجوال مطلوب ويجب أن يكون 7 أحرف على الأقل",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const validateCurrentStep = (): boolean => {
+    switch (currentStep) {
+      case 1:
+        return validateStep1();
+      case 2:
+        return validateStep2();
+      case 3:
+        return validateStep3();
+      case 4:
+        return validateStep4();
+      case 5:
+        return validateStep5();
+      case 6:
+        return validateStep6();
+      default:
+        return false;
+    }
+  };
+
+  const handleNext = () => {
+    if (validateCurrentStep()) {
+      if (!completedSteps.includes(currentStep)) {
+        setCompletedSteps([...completedSteps, currentStep]);
+      }
+      if (currentStep < STEPS.length) {
+        setCurrentStep(currentStep + 1);
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleStepClick = (stepNumber: number) => {
+    // Only allow clicking on completed steps or the next available step
+    const maxAllowedStep = completedSteps.length + 1;
+    if (stepNumber <= maxAllowedStep && stepNumber <= currentStep) {
+      setCurrentStep(stepNumber);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   // Ensure back button returns to landing page
   useEffect(() => {
@@ -196,33 +332,6 @@ export default function UnverifiedListingPage() {
     };
   }, [setLocation]);
 
-  const validateRequiredFields = () => {
-    const requiredFields: Array<{ key: keyof typeof form; label: string }> = [
-      { key: "title", label: "عنوان الإعلان" },
-      { key: "propertyCategory", label: "فئة العقار" },
-      { key: "propertyType", label: "نوع العقار" },
-      { key: "listingType", label: "نوع العرض" },
-      { key: "city", label: "المدينة" },
-      { key: "price", label: "السعر" },
-      { key: "mobileNumber", label: "رقم الجوال" },
-    ];
-
-    const missingField = requiredFields.find(({ key }) => {
-      const value = form[key];
-      return value === undefined || value === null || String(value).trim() === "";
-    });
-
-    if (missingField) {
-      toast({
-        title: "تحقق من البيانات",
-        description: `يرجى تعبئة حقل ${missingField.label}`,
-      });
-      return false;
-    }
-
-    return true;
-  };
-
   const readAsDataUrl = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -238,7 +347,6 @@ export default function UnverifiedListingPage() {
 
     const filesArray = Array.from(files);
     
-    // Check total count
     if (selectedImages.length + filesArray.length > MAX_IMAGE_COUNT) {
       toast({
         title: "عدد الصور",
@@ -248,9 +356,7 @@ export default function UnverifiedListingPage() {
       return;
     }
 
-    // Calculate total size
     let totalSize = selectedImages.reduce((sum, img) => sum + img.size, 0);
-    
     const newFiles: File[] = [];
     const newPreviews: string[] = [];
 
@@ -298,79 +404,14 @@ export default function UnverifiedListingPage() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!validateRequiredFields()) {
-      return;
-    }
-
-    // Validate required fields
-    if (!form.title.trim()) {
-      toast({
-        title: "تحقق من البيانات",
-        description: "عنوان الإعلان مطلوب",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!form.propertyCategory) {
-      toast({
-        title: "تحقق من البيانات",
-        description: "فئة العقار مطلوبة",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!form.propertyType) {
-      toast({
-        title: "تحقق من البيانات",
-        description: "نوع العقار مطلوب",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!form.listingType) {
-      toast({
-        title: "تحقق من البيانات",
-        description: "نوع العرض مطلوب",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!form.city) {
-      toast({
-        title: "تحقق من البيانات",
-        description: "المدينة مطلوبة",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!form.mobileNumber || form.mobileNumber.trim().length < 7) {
-      toast({
-        title: "تحقق من البيانات",
-        description: "رقم الجوال مطلوب ويجب أن يكون 7 أحرف على الأقل",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const price = Number(form.price);
-    if (isNaN(price) || price <= 0) {
-      toast({
-        title: "قيمة غير صالحة",
-        description: "يرجى إدخال سعر صحيح",
-        variant: "destructive",
-      });
+    if (!validateStep6()) {
+      setCurrentStep(6);
       return;
     }
 
     try {
       setLoading(true);
 
-      // Convert images to base64
       const imageDataUrls: string[] = [];
       for (const file of selectedImages) {
         try {
@@ -393,7 +434,6 @@ export default function UnverifiedListingPage() {
         return Number.isFinite(parsed) ? parsed : undefined;
       };
 
-      // Convert IDs to names for region, city, district
       const getRegionName = () => {
         if (!form.region) return undefined;
         const region = (regions || []).find((r: any) => String(r.id) === form.region);
@@ -406,15 +446,13 @@ export default function UnverifiedListingPage() {
         if (city) {
           return city.nameAr || city.nameEn || city.name || "";
         }
-        // If city ID not found in list, try to use the ID itself as fallback
-        // But better to show an error - this shouldn't happen in normal flow
-        console.warn("City ID not found in cities list:", form.city);
         return form.city;
       };
 
       const getDistrictName = () => {
         if (!form.district) return undefined;
-        const district = (filteredDistricts || []).find((d: any) => String(d.id) === form.district);
+        // Search in full districts array, not just filteredDistricts, to ensure we find the district
+        const district = (districts || []).find((d: any) => String(d.id) === form.district);
         return district ? (district.nameAr || district.nameEn || district.name) : form.district;
       };
 
@@ -447,7 +485,7 @@ export default function UnverifiedListingPage() {
         balcony: form.balcony,
         swimmingPool: form.swimmingPool,
         centralAc: form.centralAc,
-        price,
+        price: Number(form.price),
         currency: form.currency,
         paymentFrequency: optionalText(form.paymentFrequency),
         imageGallery: imageDataUrls,
@@ -456,8 +494,6 @@ export default function UnverifiedListingPage() {
         mobileNumber: form.mobileNumber.trim(),
         status: "Pending",
       };
-
-      console.log("Submitting payload:", payload);
 
       const response = await fetchWithTimeout("/api/unverified-listings", {
         method: "POST",
@@ -468,15 +504,7 @@ export default function UnverifiedListingPage() {
       const responseData = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        console.error("API Error Response:", responseData);
-        console.error("Validation errors:", responseData?.errors);
-        console.error("Error details:", responseData?.details);
-        console.error("First error:", responseData?.firstError);
-        
-        // Show detailed validation errors - completely ignore propertyCategory errors
         let errorMessage = responseData?.message || "تعذر إنشاء الإعلان";
-        
-        // Filter out any propertyCategory errors completely - they should never appear
         const relevantErrors = (responseData?.errors || []).filter((e: any) => {
           const pathStr = Array.isArray(e.path) ? e.path.join('.') : String(e.path || '').toLowerCase();
           return !pathStr.includes('propertycategory') && 
@@ -484,31 +512,10 @@ export default function UnverifiedListingPage() {
                  !pathStr.includes('property-category');
         });
         
-        // Filter error details and firstError to exclude propertyCategory mentions
-        const relevantDetails = (responseData?.details || []).filter((d: string) => {
-          const lowerD = String(d || '').toLowerCase();
-          return !lowerD.includes('propertycategory') && 
-                 !lowerD.includes('property_category') && 
-                 !lowerD.includes('property-category');
-        });
-        
-        const hasValidFirstError = responseData?.firstError && 
-          !String(responseData.firstError).toLowerCase().includes('propertycategory') &&
-          !String(responseData.firstError).toLowerCase().includes('property_category') &&
-          !String(responseData.firstError).toLowerCase().includes('property-category');
-        
-        // Show the actual validation error from the API (if valid)
-        if (hasValidFirstError) {
-          errorMessage = responseData.firstError;
-        } else if (relevantErrors.length > 0) {
+        if (relevantErrors.length > 0) {
           const firstError = relevantErrors[0];
           const fieldName = Array.isArray(firstError.path) ? firstError.path.join('.') : String(firstError.path || 'حقل');
           errorMessage = `يرجى التحقق من حقل "${fieldName}": ${firstError.message}`;
-        } else if (relevantDetails.length > 0) {
-          errorMessage = relevantDetails[0];
-        } else {
-          // If all errors were filtered out, show a generic message
-          errorMessage = "يرجى التحقق من جميع الحقول والتأكد من صحة البيانات المدخلة.";
         }
         
         throw new Error(errorMessage);
@@ -518,45 +525,6 @@ export default function UnverifiedListingPage() {
       const extractedPropertyId = responseData?.propertyId || responseData?.id || null;
       setPropertyId(extractedPropertyId);
       setSubmitted(true);
-      
-      // Reset form
-      setForm({
-        title: "",
-        description: "",
-        propertyCategory: "",
-        propertyType: "",
-        listingType: "",
-        region: "",
-        city: "",
-        district: "",
-        streetAddress: "",
-        latitude: "",
-        longitude: "",
-        bedrooms: "",
-        bathrooms: "",
-        livingRooms: "",
-        kitchens: "",
-        floorNumber: "",
-        totalFloors: "",
-        areaSqm: "",
-        buildingYear: "",
-        hasParking: false,
-        hasElevator: false,
-        hasMaidsRoom: false,
-        hasDriverRoom: false,
-        furnished: false,
-        balcony: false,
-        swimmingPool: false,
-        centralAc: false,
-        price: "",
-        currency: "SAR",
-        paymentFrequency: "",
-        contactName: "",
-        mobileNumber: "",
-        videoClipUrl: "",
-      });
-      setSelectedImages([]);
-      setImagePreviews([]);
     } catch (error: any) {
       if (error?.name === "AbortError") {
         toast({ title: "انتهت المهلة", description: "انتهى وقت الإرسال قبل وصول الرد. حاول مرة أخرى.", variant: "destructive" });
@@ -567,15 +535,6 @@ export default function UnverifiedListingPage() {
       setLoading(false);
     }
   };
-
-  // Filter cities and districts based on selected region
-  const filteredCities = form.region
-    ? cities?.filter((city) => city.regionId === Number(form.region)) || []
-    : cities || [];
-
-  const filteredDistricts = form.city
-    ? districts?.filter((district) => district.cityId === Number(form.city)) || []
-    : districts || [];
 
   if (submitted) {
     return (
@@ -613,7 +572,48 @@ export default function UnverifiedListingPage() {
               </Button>
               <Button
                 className="rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700"
-                onClick={() => setSubmitted(false)}
+                onClick={() => {
+                  setSubmitted(false);
+                  setCurrentStep(1);
+                  setCompletedSteps([]);
+                  setForm({
+                    title: "",
+                    description: "",
+                    propertyCategory: "",
+                    propertyType: "",
+                    listingType: "",
+                    region: "",
+                    city: "",
+                    district: "",
+                    streetAddress: "",
+                    latitude: "",
+                    longitude: "",
+                    bedrooms: "",
+                    bathrooms: "",
+                    livingRooms: "",
+                    kitchens: "",
+                    floorNumber: "",
+                    totalFloors: "",
+                    areaSqm: "",
+                    buildingYear: "",
+                    hasParking: false,
+                    hasElevator: false,
+                    hasMaidsRoom: false,
+                    hasDriverRoom: false,
+                    furnished: false,
+                    balcony: false,
+                    swimmingPool: false,
+                    centralAc: false,
+                    price: "",
+                    currency: "SAR",
+                    paymentFrequency: "",
+                    contactName: "",
+                    mobileNumber: "",
+                    videoClipUrl: "",
+                  });
+                  setSelectedImages([]);
+                  setImagePreviews([]);
+                }}
               >
                 إرسال إعلان جديد
               </Button>
@@ -633,649 +633,890 @@ export default function UnverifiedListingPage() {
           </span>
           <h1 className="text-4xl font-bold text-slate-900">أدرج عقارك للبيع</h1>
           <p className="text-lg text-slate-500 leading-relaxed">
-            أدخل تفاصيل عقارك وسيقوم فريقنا بمراجعته والاتصال بك قريباً لإتمام عملية النشر والتسويق.
+            أدخل تفاصيل عقارك خطوة بخطوة. أكمل كل خطوة للانتقال إلى الخطوة التالية.
           </p>
+        </div>
+
+        {/* Step Progress Indicator */}
+        <div className="rounded-[32px] border border-white/80 bg-white/90 backdrop-blur-xl p-6 shadow-[0_35px_120px_rgba(148,163,184,0.18)]">
+          <div className="flex items-center justify-between gap-4 overflow-x-auto pb-4">
+            {STEPS.map((step, index) => {
+              const isCompleted = completedSteps.includes(step.id);
+              const isCurrent = currentStep === step.id;
+              const isAccessible = step.id <= completedSteps.length + 1;
+
+              return (
+                <div
+                  key={step.id}
+                  className={cn(
+                    "flex items-center gap-2 flex-shrink-0 cursor-pointer transition-all",
+                    !isAccessible && "opacity-50 cursor-not-allowed"
+                  )}
+                  onClick={() => isAccessible && handleStepClick(step.id)}
+                >
+                  <div
+                    className={cn(
+                      "flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold transition-all border-2",
+                      isCompleted
+                        ? "bg-emerald-600 text-white border-emerald-600"
+                        : isCurrent
+                        ? "bg-emerald-100 text-emerald-600 border-emerald-300"
+                        : "bg-gray-100 text-gray-500 border-gray-300"
+                    )}
+                  >
+                    {isCompleted ? (
+                      <Check className="h-5 w-5" />
+                    ) : (
+                      <span>{step.id}</span>
+                    )}
+                  </div>
+                  <div className="hidden md:block">
+                    <div
+                      className={cn(
+                        "text-sm font-semibold",
+                        isCurrent || isCompleted ? "text-emerald-600" : "text-gray-500"
+                      )}
+                    >
+                      {step.title}
+                    </div>
+                    <div className="text-xs text-gray-400">{step.description}</div>
+                  </div>
+                  {index < STEPS.length - 1 && (
+                    <ChevronRight
+                      className={cn(
+                        "h-5 w-5 flex-shrink-0 mx-2",
+                        isCompleted ? "text-emerald-600" : "text-gray-300"
+                      )}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <form
           onSubmit={handleSubmit}
           className="relative space-y-10 rounded-[32px] border border-white/80 bg-white/90 backdrop-blur-xl px-6 py-10 shadow-[0_35px_120px_rgba(148,163,184,0.18)]"
         >
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-slate-900">بيانات العقار الأساسية</h2>
-              <span className="text-sm text-slate-400">* الحقول الإلزامية</span>
-            </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm">عنوان الإعلان *</label>
-                <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
-              </div>
-              {/* Step-by-Step Property Category and Type Selection */}
-              <div className="md:col-span-2">
-                <label className="mb-3 block text-sm font-medium">تصنيف العقار *</label>
-                
-                {/* Step Tracker */}
-                <div className="mb-4 flex items-center gap-2">
-                  {/* Step 1: Category */}
-                  <div className="flex items-center gap-2">
-                    <div className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-all",
-                      form.propertyCategory
-                        ? "bg-emerald-600 text-white"
-                        : form.propertyCategory === ""
-                          ? "bg-emerald-100 text-emerald-600 border-2 border-emerald-300"
-                          : "bg-gray-200 text-gray-500"
-                    )}>
-                      {form.propertyCategory ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <span>1</span>
-                      )}
-                    </div>
-                    <span className={cn(
-                      "text-sm font-medium",
-                      form.propertyCategory ? "text-emerald-600" : "text-gray-600"
-                    )}>
-                      فئة العقار
-                    </span>
-                  </div>
-                  
-                  {/* Connector Line */}
-                  <div className={cn(
-                    "h-0.5 flex-1 transition-colors",
-                    form.propertyCategory ? "bg-emerald-600" : "bg-gray-300"
-                  )} />
-                  
-                  {/* Step 2: Type */}
-                  <div className="flex items-center gap-2">
-                    <div className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-all",
-                      form.propertyType
-                        ? "bg-emerald-600 text-white"
-                        : form.propertyCategory && !form.propertyType
-                          ? "bg-emerald-100 text-emerald-600 border-2 border-emerald-300"
-                          : "bg-gray-200 text-gray-500"
-                    )}>
-                      {form.propertyType ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <span>2</span>
-                      )}
-                    </div>
-                    <span className={cn(
-                      "text-sm font-medium",
-                      form.propertyType ? "text-emerald-600" : "text-gray-600"
-                    )}>
-                      نوع العقار
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Dropdowns */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {/* Step 1: Category Dropdown */}
-                  <div className="space-y-2">
-                    <label className="text-xs text-gray-600">الخطوة 1: اختر الفئة</label>
-                    <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={categoryOpen}
-                          className={cn(
-                            "w-full justify-between transition-all",
-                            form.propertyCategory && "border-emerald-300 bg-emerald-50"
-                          )}
-                          disabled={categoriesLoading}
-                        >
-                          <span>
-                            {categoriesLoading 
-                              ? "جار التحميل..." 
-                              : form.propertyCategory
-                              ? (propertyCategories || []).find((c: any) => (c.code || String(c.id)) === form.propertyCategory)?.nameAr || 
-                                (propertyCategories || []).find((c: any) => (c.code || String(c.id)) === form.propertyCategory)?.nameEn ||
-                                form.propertyCategory
-                              : "اختر فئة العقار"}
-                          </span>
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0" align="start">
-                        <Command>
-                          <CommandInput placeholder="ابحث عن الفئة..." />
-                          <CommandList className="max-h-[300px]">
-                            <CommandEmpty>لم يتم العثور على الفئة.</CommandEmpty>
-                            <CommandGroup>
-                              {categoriesLoading ? (
-                                <CommandItem disabled>
-                                  <div className="flex items-center gap-2 w-full justify-center py-4">
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                    <span>جار التحميل...</span>
-                                  </div>
-                                </CommandItem>
-                              ) : categoriesError ? (
-                                <CommandItem disabled>
-                                  <div className="text-red-600 text-xs py-2">
-                                    <div>خطأ في تحميل الفئات</div>
-                                    <div className="text-xs mt-1">{categoriesError instanceof Error ? categoriesError.message : "خطأ غير معروف"}</div>
-                                    <div className="text-xs mt-1 text-gray-500">يرجى تحديث الصفحة أو المحاولة مرة أخرى</div>
-                                  </div>
-                                </CommandItem>
-                              ) : propertyCategories && Array.isArray(propertyCategories) && propertyCategories.length > 0 ? (
-                                propertyCategories.map((category: any) => (
-                                  <CommandItem
-                                    key={category.code || category.id}
-                                    value={String(category.code || category.id)}
-                                    onSelect={() => {
-                                      setForm({ ...form, propertyCategory: category.code || String(category.id), propertyType: "" });
-                                      setCategoryOpen(false);
-                                    }}
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "ml-2 h-4 w-4",
-                                        form.propertyCategory === (category.code || String(category.id)) ? "opacity-100" : "opacity-0"
-                                      )}
-                                    />
-                                    {category.nameAr || category.nameEn || category.code || category.name || "فئة"}
-                                  </CommandItem>
-                                ))
-                              ) : (
-                                <CommandItem disabled>
-                                  <div className="text-gray-500 text-xs py-2">لا توجد فئات متاحة - يرجى التحقق من الاتصال</div>
-                                </CommandItem>
-                              )}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    {form.propertyCategory && (
-                      <p className="text-xs text-emerald-600 flex items-center gap-1">
-                        <Check className="h-3 w-3" />
-                        تم اختيار الفئة
-                      </p>
-                    )}
-                  </div>
-                  
-                  {/* Step 2: Type Dropdown */}
-                  <div className="space-y-2">
-                    <label className="text-xs text-gray-600">
-                      الخطوة 2: اختر النوع
-                      {!form.propertyCategory && (
-                        <span className="text-red-500 mr-1">(اختر الفئة أولاً)</span>
-                      )}
-                    </label>
-                    <Popover open={typeOpen} onOpenChange={setTypeOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={typeOpen}
-                          className={cn(
-                            "w-full justify-between transition-all",
-                            !form.propertyCategory && "bg-gray-100 cursor-not-allowed",
-                            form.propertyType && "border-emerald-300 bg-emerald-50"
-                          )}
-                          disabled={!form.propertyCategory || typesLoading}
-                        >
-                          <span>
-                            {!form.propertyCategory
-                              ? "اختر الفئة أولاً"
-                              : typesLoading
-                              ? "جار التحميل..."
-                              : form.propertyType
-                              ? (propertyTypes || []).find((t: any) => (t.code || String(t.id)) === form.propertyType)?.nameAr ||
-                                (propertyTypes || []).find((t: any) => (t.code || String(t.id)) === form.propertyType)?.nameEn ||
-                                form.propertyType
-                              : "اختر نوع العقار"}
-                          </span>
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0" align="start">
-                        <Command>
-                          <CommandInput placeholder="ابحث عن النوع..." disabled={!form.propertyCategory} />
-                          <CommandList className="max-h-[300px]">
-                            <CommandEmpty>
-                              {!form.propertyCategory ? "يرجى اختيار الفئة أولاً" : "لم يتم العثور على النوع."}
-                            </CommandEmpty>
-                            <CommandGroup>
-                              {!form.propertyCategory ? (
-                                <CommandItem disabled>
-                                  <div className="flex items-center gap-2 text-gray-400 py-2">
-                                    <span>←</span>
-                                    <span>يرجى اختيار فئة العقار أولاً</span>
-                                  </div>
-                                </CommandItem>
-                              ) : typesLoading ? (
-                                <CommandItem disabled>
-                                  <div className="flex items-center gap-2 w-full justify-center py-4">
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                    <span>جار التحميل...</span>
-                                  </div>
-                                </CommandItem>
-                              ) : typesError ? (
-                                <CommandItem disabled>
-                                  <div className="text-red-600 text-xs py-2">
-                                    <div>خطأ في تحميل الأنواع</div>
-                                    <div className="text-xs mt-1">{typesError instanceof Error ? typesError.message : "خطأ غير معروف"}</div>
-                                  </div>
-                                </CommandItem>
-                              ) : propertyTypes && Array.isArray(propertyTypes) && propertyTypes.length > 0 ? (
-                                propertyTypes.map((type: any) => (
-                                  <CommandItem
-                                    key={type.code || type.id}
-                                    value={String(type.code || type.id)}
-                                    onSelect={() => {
-                                      setForm({ ...form, propertyType: type.code || String(type.id) });
-                                      setTypeOpen(false);
-                                    }}
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "ml-2 h-4 w-4",
-                                        form.propertyType === (type.code || String(type.id)) ? "opacity-100" : "opacity-0"
-                                      )}
-                                    />
-                                    {type.nameAr || type.nameEn || type.code || type.name || "نوع"}
-                                  </CommandItem>
-                                ))
-                              ) : (
-                                <CommandItem disabled>
-                                  <div className="text-gray-500 text-xs py-2">لا توجد أنواع متاحة لهذه الفئة</div>
-                                </CommandItem>
-                              )}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    {form.propertyType && (
-                      <p className="text-xs text-emerald-600 flex items-center gap-1">
-                        <Check className="h-3 w-3" />
-                        تم اختيار النوع
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">نوع العرض *</label>
-                <Select value={form.listingType} onValueChange={(value) => setForm({ ...form, listingType: value })}>
-                  <SelectTrigger><SelectValue placeholder="بيع أم إيجار؟" /></SelectTrigger>
-                  <SelectContent>
-                    {LISTING_TYPES.map((type) => (
-                      <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">السعر (﷼) *</label>
-                <Input type="number" min={0} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">الوصف</label>
-                <Textarea
-                  rows={4}
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="rounded-2xl"
-                />
-              </div>
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">الموقع</h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm">المنطقة</label>
-                <Popover open={regionOpen} onOpenChange={setRegionOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={regionOpen}
-                      className={cn(
-                        "w-full justify-between",
-                        !form.region && "text-muted-foreground"
-                      )}
-                    >
-                      {form.region
-                        ? (regions || []).find((region: any) => String(region.id) === form.region)?.nameAr || 
-                          (regions || []).find((region: any) => String(region.id) === form.region)?.nameEn ||
-                          "اختر المنطقة"
-                        : "اختر المنطقة"}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="ابحث عن المنطقة..." />
-                      <CommandList>
-                        <CommandEmpty>لم يتم العثور على المنطقة.</CommandEmpty>
-                        <CommandGroup>
-                          {!regions ? (
-                            <CommandItem disabled>
-                              <div className="flex items-center justify-center p-2">
-                                <Loader2 className="h-4 w-4 animate-spin ml-2" />
-                                <span>جار التحميل...</span>
-                              </div>
-                            </CommandItem>
-                          ) : (
-                            (regions || []).map((region: any) => (
-                              <CommandItem
-                                key={region.id}
-                                value={String(region.id)}
-                                onSelect={(currentValue) => {
-                                  setForm({ 
-                                    ...form, 
-                                    region: currentValue === form.region ? "" : currentValue,
-                                    city: "",
-                                    district: ""
-                                  });
-                                  setRegionOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "ml-2 h-4 w-4",
-                                    form.region === String(region.id) ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {region.nameAr || region.nameEn}
-                              </CommandItem>
-                            ))
-                          )}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">المدينة *</label>
-                <Popover open={cityOpen} onOpenChange={setCityOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={cityOpen}
-                      className={cn(
-                        "w-full justify-between",
-                        !form.city && "text-muted-foreground"
-                      )}
-                      disabled={!form.region}
-                    >
-                      {form.city
-                        ? (filteredCities || []).find((city: any) => String(city.id) === form.city)?.nameAr || 
-                          (filteredCities || []).find((city: any) => String(city.id) === form.city)?.nameEn ||
-                          "اختر المدينة"
-                        : "اختر المدينة"}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="ابحث عن المدينة..." />
-                      <CommandList>
-                        <CommandEmpty>لم يتم العثور على المدينة.</CommandEmpty>
-                        <CommandGroup>
-                          {filteredCities.length === 0 ? (
-                            <CommandItem disabled>
-                              <span>يرجى اختيار المنطقة أولاً</span>
-                            </CommandItem>
-                          ) : (
-                            filteredCities.map((city: any) => (
-                              <CommandItem
-                                key={city.id}
-                                value={String(city.id)}
-                                onSelect={(currentValue) => {
-                                  setForm({ 
-                                    ...form, 
-                                    city: currentValue === form.city ? "" : currentValue,
-                                    district: ""
-                                  });
-                                  setCityOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "ml-2 h-4 w-4",
-                                    form.city === String(city.id) ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {city.nameAr || city.nameEn}
-                              </CommandItem>
-                            ))
-                          )}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">الحي</label>
-                <Popover open={districtOpen} onOpenChange={setDistrictOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={districtOpen}
-                      className={cn(
-                        "w-full justify-between",
-                        !form.district && "text-muted-foreground"
-                      )}
-                      disabled={!form.city}
-                    >
-                      {form.district
-                        ? (filteredDistricts || []).find((district: any) => String(district.id) === form.district)?.nameAr || 
-                          (filteredDistricts || []).find((district: any) => String(district.id) === form.district)?.nameEn ||
-                          "اختر الحي"
-                        : "اختر الحي"}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0" align="start">
-                    <Command>
-                      <CommandInput placeholder="ابحث عن الحي..." />
-                      <CommandList>
-                        <CommandEmpty>لم يتم العثور على الحي.</CommandEmpty>
-                        <CommandGroup>
-                          {filteredDistricts.length === 0 ? (
-                            <CommandItem disabled>
-                              <span>يرجى اختيار المدينة أولاً</span>
-                            </CommandItem>
-                          ) : (
-                            filteredDistricts.map((district: any) => (
-                              <CommandItem
-                                key={district.id}
-                                value={String(district.id)}
-                                onSelect={(currentValue) => {
-                                  setForm({ 
-                                    ...form, 
-                                    district: currentValue === form.district ? "" : currentValue
-                                  });
-                                  setDistrictOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "ml-2 h-4 w-4",
-                                    form.district === String(district.id) ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
-                                {district.nameAr || district.nameEn}
-                              </CommandItem>
-                            ))
-                          )}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">العنوان التفصيلي</label>
-                <Input value={form.streetAddress} onChange={(e) => setForm({ ...form, streetAddress: e.target.value })} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">خط العرض</label>
-                <Input type="number" step="any" value={form.latitude} onChange={(e) => setForm({ ...form, latitude: e.target.value })} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">خط الطول</label>
-                <Input type="number" step="any" value={form.longitude} onChange={(e) => setForm({ ...form, longitude: e.target.value })} />
-              </div>
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">المواصفات</h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <div>
-                <label className="mb-1 block text-sm">عدد الغرف</label>
-                <Input type="number" min={0} value={form.bedrooms} onChange={(e) => setForm({ ...form, bedrooms: e.target.value })} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">عدد الحمامات</label>
-                <Input type="number" min={0} value={form.bathrooms} onChange={(e) => setForm({ ...form, bathrooms: e.target.value })} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">عدد صالات المعيشة</label>
-                <Input type="number" min={0} value={form.livingRooms} onChange={(e) => setForm({ ...form, livingRooms: e.target.value })} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">عدد المطابخ</label>
-                <Input type="number" min={0} value={form.kitchens} onChange={(e) => setForm({ ...form, kitchens: e.target.value })} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">رقم الطابق</label>
-                <Input type="number" value={form.floorNumber} onChange={(e) => setForm({ ...form, floorNumber: e.target.value })} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">عدد الطوابق الكلي</label>
-                <Input type="number" min={0} value={form.totalFloors} onChange={(e) => setForm({ ...form, totalFloors: e.target.value })} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">المساحة (م²)</label>
-                <Input type="number" min={0} value={form.areaSqm} onChange={(e) => setForm({ ...form, areaSqm: e.target.value })} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">سنة البناء</label>
-                <Input type="number" min={1900} max={new Date().getFullYear()} value={form.buildingYear} onChange={(e) => setForm({ ...form, buildingYear: e.target.value })} />
-              </div>
-              <div>
-                <label className="mb-1 block text-sm">تكرار الدفع</label>
-                <Input value={form.paymentFrequency} onChange={(e) => setForm({ ...form, paymentFrequency: e.target.value })} placeholder="مثال: شهري، سنوي" />
-              </div>
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">المميزات والمرافق</h2>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              <label className="flex items-center justify-end gap-2 text-slate-600">
-                <Checkbox checked={form.hasParking} onCheckedChange={(value) => setForm({ ...form, hasParking: Boolean(value) })} />
-                يوجد موقف سيارة
-              </label>
-              <label className="flex items-center justify-end gap-2 text-slate-600">
-                <Checkbox checked={form.hasElevator} onCheckedChange={(value) => setForm({ ...form, hasElevator: Boolean(value) })} />
-                يوجد مصعد
-              </label>
-              <label className="flex items-center justify-end gap-2 text-slate-600">
-                <Checkbox checked={form.hasMaidsRoom} onCheckedChange={(value) => setForm({ ...form, hasMaidsRoom: Boolean(value) })} />
-                يحتوي على غرفة خادمة
-              </label>
-              <label className="flex items-center justify-end gap-2 text-slate-600">
-                <Checkbox checked={form.hasDriverRoom} onCheckedChange={(value) => setForm({ ...form, hasDriverRoom: Boolean(value) })} />
-                يحتوي على غرفة سائق
-              </label>
-              <label className="flex items-center justify-end gap-2 text-slate-600">
-                <Checkbox checked={form.furnished} onCheckedChange={(value) => setForm({ ...form, furnished: Boolean(value) })} />
-                مفروش
-              </label>
-              <label className="flex items-center justify-end gap-2 text-slate-600">
-                <Checkbox checked={form.balcony} onCheckedChange={(value) => setForm({ ...form, balcony: Boolean(value) })} />
-                يحتوي على شرفة
-              </label>
-              <label className="flex items-center justify-end gap-2 text-slate-600">
-                <Checkbox checked={form.swimmingPool} onCheckedChange={(value) => setForm({ ...form, swimmingPool: Boolean(value) })} />
-                يحتوي على مسبح
-              </label>
-              <label className="flex items-center justify-end gap-2 text-slate-600">
-                <Checkbox checked={form.centralAc} onCheckedChange={(value) => setForm({ ...form, centralAc: Boolean(value) })} />
-                تكييف مركزي
-              </label>
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">الصور</h2>
-            <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 p-6">
-              <div className="flex items-center justify-between mb-4">
+          {/* Step 1: Basic Information */}
+          {currentStep === 1 && (
+            <section className="space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-200">
                 <div>
-                  <h4 className="font-semibold text-slate-800">صور العقار</h4>
-                  <p className="text-sm text-slate-500">
-                    يمكن رفع حتى {MAX_IMAGE_COUNT} صورة، إجمالي الحجم أقل من {MAX_IMAGE_TOTAL_SIZE_BYTES / (1024 * 1024)} ميجابايت
-                  </p>
-                  <p className="text-xs text-slate-400 mt-1">
-                    الصور المرفوعة: {selectedImages.length} / {MAX_IMAGE_COUNT}
-                  </p>
+                  <h2 className="text-2xl font-bold text-slate-900">الخطوة 1: البيانات الأساسية</h2>
+                  <p className="text-sm text-slate-500 mt-1">أدخل المعلومات الأساسية عن العقار</p>
                 </div>
-                <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50 cursor-pointer transition">
-                  <UploadCloud className="w-4 h-4" /> رفع صور
-                  <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
+                <div className="text-sm text-slate-400">* الحقول الإلزامية</div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium">
+                    عنوان الإعلان <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    value={form.title}
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    placeholder="مثال: شقة للبيع في الرياض"
+                    required
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-3 block text-sm font-medium">تصنيف العقار <span className="text-red-500">*</span></label>
+                  
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <label className="text-xs text-gray-600">الخطوة 1: اختر الفئة</label>
+                      <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={categoryOpen}
+                            className={cn(
+                              "w-full justify-between transition-all",
+                              form.propertyCategory && "border-emerald-300 bg-emerald-50"
+                            )}
+                            disabled={categoriesLoading}
+                          >
+                            <span>
+                              {categoriesLoading 
+                                ? "جار التحميل..." 
+                                : form.propertyCategory
+                                ? (propertyCategories || []).find((c: any) => (c.code || String(c.id)) === form.propertyCategory)?.nameAr || 
+                                  (propertyCategories || []).find((c: any) => (c.code || String(c.id)) === form.propertyCategory)?.nameEn ||
+                                  form.propertyCategory
+                                : "اختر فئة العقار"}
+                            </span>
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="ابحث عن الفئة..." />
+                            <CommandList className="max-h-[300px]">
+                              <CommandEmpty>لم يتم العثور على الفئة.</CommandEmpty>
+                              <CommandGroup>
+                                {categoriesLoading ? (
+                                  <CommandItem disabled>
+                                    <div className="flex items-center gap-2 w-full justify-center py-4">
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                      <span>جار التحميل...</span>
+                                    </div>
+                                  </CommandItem>
+                                ) : categoriesError ? (
+                                  <CommandItem disabled>
+                                    <div className="text-red-600 text-xs py-2">
+                                      <div>خطأ في تحميل الفئات</div>
+                                    </div>
+                                  </CommandItem>
+                                ) : propertyCategories && Array.isArray(propertyCategories) && propertyCategories.length > 0 ? (
+                                  propertyCategories.map((category: any) => {
+                                    const displayName = category.nameAr || category.nameEn || category.code || category.name || "فئة";
+                                    const searchableValue = `${category.code || category.id} ${category.nameAr || ""} ${category.nameEn || ""} ${category.code || ""} ${category.name || ""}`.trim();
+                                    return (
+                                      <CommandItem
+                                        key={category.code || category.id}
+                                        value={searchableValue}
+                                        onSelect={() => {
+                                          setForm({ ...form, propertyCategory: category.code || String(category.id), propertyType: "" });
+                                          setCategoryOpen(false);
+                                        }}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "ml-2 h-4 w-4",
+                                            form.propertyCategory === (category.code || String(category.id)) ? "opacity-100" : "opacity-0"
+                                          )}
+                                        />
+                                        {displayName}
+                                      </CommandItem>
+                                    );
+                                  })
+                                ) : (
+                                  <CommandItem disabled>
+                                    <div className="text-gray-500 text-xs py-2">لا توجد فئات متاحة</div>
+                                  </CommandItem>
+                                )}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-xs text-gray-600">
+                        الخطوة 2: اختر النوع
+                        {!form.propertyCategory && (
+                          <span className="text-red-500 mr-1">(اختر الفئة أولاً)</span>
+                        )}
+                      </label>
+                      <Popover open={typeOpen} onOpenChange={setTypeOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={typeOpen}
+                            className={cn(
+                              "w-full justify-between transition-all",
+                              !form.propertyCategory && "bg-gray-100 cursor-not-allowed",
+                              form.propertyType && "border-emerald-300 bg-emerald-50"
+                            )}
+                            disabled={!form.propertyCategory || typesLoading}
+                          >
+                            <span>
+                              {!form.propertyCategory
+                                ? "اختر الفئة أولاً"
+                                : typesLoading
+                                ? "جار التحميل..."
+                                : form.propertyType
+                                ? (propertyTypes || []).find((t: any) => (t.code || String(t.id)) === form.propertyType)?.nameAr ||
+                                  (propertyTypes || []).find((t: any) => (t.code || String(t.id)) === form.propertyType)?.nameEn ||
+                                  form.propertyType
+                                : "اختر نوع العقار"}
+                            </span>
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-full p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="ابحث عن النوع..." disabled={!form.propertyCategory} />
+                            <CommandList className="max-h-[300px]">
+                              <CommandEmpty>
+                                {!form.propertyCategory ? "يرجى اختيار الفئة أولاً" : "لم يتم العثور على النوع."}
+                              </CommandEmpty>
+                              <CommandGroup>
+                                {!form.propertyCategory ? (
+                                  <CommandItem disabled>
+                                    <div className="flex items-center gap-2 text-gray-400 py-2">
+                                      <span>←</span>
+                                      <span>يرجى اختيار فئة العقار أولاً</span>
+                                    </div>
+                                  </CommandItem>
+                                ) : typesLoading ? (
+                                  <CommandItem disabled>
+                                    <div className="flex items-center gap-2 w-full justify-center py-4">
+                                      <Loader2 className="h-4 w-4 animate-spin" />
+                                      <span>جار التحميل...</span>
+                                    </div>
+                                  </CommandItem>
+                              ) : propertyTypes && Array.isArray(propertyTypes) && propertyTypes.length > 0 ? (
+                                propertyTypes.map((type: any) => {
+                                  const displayName = type.nameAr || type.nameEn || type.code || type.name || "نوع";
+                                  const searchableValue = `${type.code || type.id} ${type.nameAr || ""} ${type.nameEn || ""} ${type.code || ""} ${type.name || ""}`.trim();
+                                  return (
+                                    <CommandItem
+                                      key={type.code || type.id}
+                                      value={searchableValue}
+                                      onSelect={() => {
+                                        setForm({ ...form, propertyType: type.code || String(type.id) });
+                                        setTypeOpen(false);
+                                      }}
+                                    >
+                                      <Check
+                                        className={cn(
+                                          "ml-2 h-4 w-4",
+                                          form.propertyType === (type.code || String(type.id)) ? "opacity-100" : "opacity-0"
+                                        )}
+                                      />
+                                      {displayName}
+                                    </CommandItem>
+                                  );
+                                })
+                                ) : (
+                                  <CommandItem disabled>
+                                    <div className="text-gray-500 text-xs py-2">لا توجد أنواع متاحة لهذه الفئة</div>
+                                  </CommandItem>
+                                )}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium">
+                    نوع العرض <span className="text-red-500">*</span>
+                  </label>
+                  <Select value={form.listingType} onValueChange={(value) => setForm({ ...form, listingType: value })}>
+                    <SelectTrigger><SelectValue placeholder="بيع أم إيجار؟" /></SelectTrigger>
+                    <SelectContent>
+                      {LISTING_TYPES.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium">
+                    السعر (﷼) <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={form.price}
+                    onChange={(e) => setForm({ ...form, price: e.target.value })}
+                    placeholder="أدخل السعر"
+                    required
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-1 block text-sm font-medium">الوصف</label>
+                  <Textarea
+                    rows={4}
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    className="rounded-2xl"
+                    placeholder="وصف تفصيلي عن العقار..."
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Step 2: Location */}
+          {currentStep === 2 && (
+            <section className="space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">الخطوة 2: الموقع</h2>
+                  <p className="text-sm text-slate-500 mt-1">حدد موقع العقار</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium">المنطقة</label>
+                  <Popover open={regionOpen} onOpenChange={setRegionOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={regionOpen}
+                        className={cn(
+                          "w-full justify-between",
+                          !form.region && "text-muted-foreground"
+                        )}
+                      >
+                        {form.region
+                          ? (regions || []).find((region: any) => String(region.id) === form.region)?.nameAr || 
+                            (regions || []).find((region: any) => String(region.id) === form.region)?.nameEn ||
+                            "اختر المنطقة"
+                          : "اختر المنطقة"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="ابحث عن المنطقة..." />
+                        <CommandList>
+                          <CommandEmpty>لم يتم العثور على المنطقة.</CommandEmpty>
+                          <CommandGroup>
+                            {!regions ? (
+                              <CommandItem disabled>
+                                <div className="flex items-center justify-center p-2">
+                                  <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                                  <span>جار التحميل...</span>
+                                </div>
+                              </CommandItem>
+                          ) : (
+                            (regions || []).map((region: any) => {
+                              const displayName = region.nameAr || region.nameEn || String(region.id);
+                              const searchableValue = `${region.id} ${region.nameAr || ""} ${region.nameEn || ""} ${region.code || ""} ${region.name || ""}`.trim();
+                              return (
+                                <CommandItem
+                                  key={region.id}
+                                  value={searchableValue}
+                                  onSelect={() => {
+                                    setForm({ 
+                                      ...form, 
+                                      region: String(region.id) === form.region ? "" : String(region.id),
+                                      city: "",
+                                      district: ""
+                                    });
+                                    setRegionOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "ml-2 h-4 w-4",
+                                      form.region === String(region.id) ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {displayName}
+                                </CommandItem>
+                              );
+                            })
+                          )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium">
+                    المدينة <span className="text-red-500">*</span>
+                  </label>
+                  <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={cityOpen}
+                        className={cn(
+                          "w-full justify-between",
+                          !form.city && "text-muted-foreground"
+                        )}
+                        disabled={!form.region}
+                      >
+                        {form.city
+                          ? (filteredCities || []).find((city: any) => String(city.id) === form.city)?.nameAr || 
+                            (filteredCities || []).find((city: any) => String(city.id) === form.city)?.nameEn ||
+                            "اختر المدينة"
+                          : "اختر المدينة"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="ابحث عن المدينة..." />
+                        <CommandList>
+                          <CommandEmpty>لم يتم العثور على المدينة.</CommandEmpty>
+                          <CommandGroup>
+                            {filteredCities.length === 0 ? (
+                              <CommandItem disabled>
+                                <span>يرجى اختيار المنطقة أولاً</span>
+                              </CommandItem>
+                            ) : (
+                              filteredCities.map((city: any) => {
+                                const displayName = city.nameAr || city.nameEn || String(city.id);
+                                const searchableValue = `${city.id} ${city.nameAr || ""} ${city.nameEn || ""} ${city.code || ""} ${city.name || ""}`.trim();
+                                return (
+                                  <CommandItem
+                                    key={city.id}
+                                    value={searchableValue}
+                                    onSelect={() => {
+                                      setForm({ 
+                                        ...form, 
+                                        city: String(city.id) === form.city ? "" : String(city.id),
+                                        district: ""
+                                      });
+                                      setCityOpen(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "ml-2 h-4 w-4",
+                                        form.city === String(city.id) ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {displayName}
+                                  </CommandItem>
+                                );
+                              })
+                            )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium">الحي</label>
+                  <Popover open={districtOpen} onOpenChange={setDistrictOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={districtOpen}
+                        className={cn(
+                          "w-full justify-between",
+                          !form.district && "text-muted-foreground"
+                        )}
+                        disabled={!form.city}
+                      >
+                        {form.district
+                          ? (filteredDistricts || []).find((district: any) => String(district.id) === form.district)?.nameAr || 
+                            (filteredDistricts || []).find((district: any) => String(district.id) === form.district)?.nameEn ||
+                            "اختر الحي"
+                          : "اختر الحي"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="ابحث عن الحي..." disabled={!form.city || districtsLoading} />
+                        <CommandList>
+                          <CommandEmpty>
+                            {!form.city 
+                              ? "يرجى اختيار المدينة أولاً" 
+                              : districtsLoading 
+                              ? "جار التحميل..." 
+                              : districtsError 
+                              ? "خطأ في تحميل الأحياء" 
+                              : "لم يتم العثور على الحي"}
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {!form.city ? (
+                              <CommandItem disabled>
+                                <span>يرجى اختيار المدينة أولاً</span>
+                              </CommandItem>
+                            ) : districtsLoading ? (
+                              <CommandItem disabled>
+                                <div className="flex items-center gap-2 w-full justify-center py-4">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <span>جار التحميل...</span>
+                                </div>
+                              </CommandItem>
+                            ) : districtsError ? (
+                              <CommandItem disabled>
+                                <div className="text-red-600 text-xs py-2">
+                                  <div>خطأ في تحميل الأحياء</div>
+                                  <div className="text-xs mt-1">{districtsError instanceof Error ? districtsError.message : "خطأ غير معروف"}</div>
+                                </div>
+                              </CommandItem>
+                            ) : filteredDistricts.length === 0 ? (
+                              <CommandItem disabled>
+                                <div className="text-gray-500 text-xs py-2">لا توجد أحياء متاحة لهذه المدينة</div>
+                              </CommandItem>
+                            ) : (
+                              filteredDistricts.map((district: any) => {
+                                const displayName = district.nameAr || district.nameEn || String(district.id);
+                                const searchableValue = `${district.id} ${district.nameAr || ""} ${district.nameEn || ""} ${district.code || ""} ${district.name || ""}`.trim();
+                                return (
+                                  <CommandItem
+                                    key={district.id}
+                                    value={searchableValue}
+                                    onSelect={() => {
+                                      setForm({ 
+                                        ...form, 
+                                        district: String(district.id) === form.district ? "" : String(district.id)
+                                      });
+                                      setDistrictOpen(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "ml-2 h-4 w-4",
+                                        form.district === String(district.id) ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {displayName}
+                                  </CommandItem>
+                                );
+                              })
+                            )}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium">العنوان التفصيلي</label>
+                  <Input
+                    value={form.streetAddress}
+                    onChange={(e) => setForm({ ...form, streetAddress: e.target.value })}
+                    placeholder="اسم الشارع والرقم"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium">خط العرض</label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={form.latitude}
+                    onChange={(e) => setForm({ ...form, latitude: e.target.value })}
+                    placeholder="24.7136"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium">خط الطول</label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={form.longitude}
+                    onChange={(e) => setForm({ ...form, longitude: e.target.value })}
+                    placeholder="46.6753"
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Step 3: Specifications */}
+          {currentStep === 3 && (
+            <section className="space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">الخطوة 3: المواصفات</h2>
+                  <p className="text-sm text-slate-500 mt-1">تفاصيل العقار والمواصفات</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div>
+                  <label className="mb-1 block text-sm font-medium">عدد الغرف</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={form.bedrooms}
+                    onChange={(e) => setForm({ ...form, bedrooms: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">عدد الحمامات</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={form.bathrooms}
+                    onChange={(e) => setForm({ ...form, bathrooms: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">عدد صالات المعيشة</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={form.livingRooms}
+                    onChange={(e) => setForm({ ...form, livingRooms: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">عدد المطابخ</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={form.kitchens}
+                    onChange={(e) => setForm({ ...form, kitchens: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">رقم الطابق</label>
+                  <Input
+                    type="number"
+                    value={form.floorNumber}
+                    onChange={(e) => setForm({ ...form, floorNumber: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">عدد الطوابق الكلي</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={form.totalFloors}
+                    onChange={(e) => setForm({ ...form, totalFloors: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">المساحة (م²)</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={form.areaSqm}
+                    onChange={(e) => setForm({ ...form, areaSqm: e.target.value })}
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">سنة البناء</label>
+                  <Input
+                    type="number"
+                    min={1900}
+                    max={new Date().getFullYear()}
+                    value={form.buildingYear}
+                    onChange={(e) => setForm({ ...form, buildingYear: e.target.value })}
+                    placeholder="2024"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">تكرار الدفع</label>
+                  <Input
+                    value={form.paymentFrequency}
+                    onChange={(e) => setForm({ ...form, paymentFrequency: e.target.value })}
+                    placeholder="مثال: شهري، سنوي"
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Step 4: Amenities */}
+          {currentStep === 4 && (
+            <section className="space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">الخطوة 4: المرافق</h2>
+                  <p className="text-sm text-slate-500 mt-1">اختر المرافق والخدمات المتاحة</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                  <Checkbox
+                    checked={form.hasParking}
+                    onCheckedChange={(value) => setForm({ ...form, hasParking: Boolean(value) })}
+                  />
+                  يوجد موقف سيارة
+                </label>
+                <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                  <Checkbox
+                    checked={form.hasElevator}
+                    onCheckedChange={(value) => setForm({ ...form, hasElevator: Boolean(value) })}
+                  />
+                  يوجد مصعد
+                </label>
+                <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                  <Checkbox
+                    checked={form.hasMaidsRoom}
+                    onCheckedChange={(value) => setForm({ ...form, hasMaidsRoom: Boolean(value) })}
+                  />
+                  يحتوي على غرفة خادمة
+                </label>
+                <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                  <Checkbox
+                    checked={form.hasDriverRoom}
+                    onCheckedChange={(value) => setForm({ ...form, hasDriverRoom: Boolean(value) })}
+                  />
+                  يحتوي على غرفة سائق
+                </label>
+                <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                  <Checkbox
+                    checked={form.furnished}
+                    onCheckedChange={(value) => setForm({ ...form, furnished: Boolean(value) })}
+                  />
+                  مفروش
+                </label>
+                <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                  <Checkbox
+                    checked={form.balcony}
+                    onCheckedChange={(value) => setForm({ ...form, balcony: Boolean(value) })}
+                  />
+                  يحتوي على شرفة
+                </label>
+                <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                  <Checkbox
+                    checked={form.swimmingPool}
+                    onCheckedChange={(value) => setForm({ ...form, swimmingPool: Boolean(value) })}
+                  />
+                  يحتوي على مسبح
+                </label>
+                <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                  <Checkbox
+                    checked={form.centralAc}
+                    onCheckedChange={(value) => setForm({ ...form, centralAc: Boolean(value) })}
+                  />
+                  تكييف مركزي
                 </label>
               </div>
-              {imagePreviews.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative group">
-                      <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-28 object-cover rounded-xl border border-slate-200" />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute top-2 left-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
-                        aria-label="إزالة الصورة"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
+            </section>
+          )}
+
+          {/* Step 5: Media */}
+          {currentStep === 5 && (
+            <section className="space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">الخطوة 5: الصور</h2>
+                  <p className="text-sm text-slate-500 mt-1">أضف صور العقار</p>
                 </div>
-              ) : (
-                <div className="text-sm text-slate-500">لم يتم اختيار صور بعد.</div>
-              )}
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-slate-900">معلومات التواصل</h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <label className="mb-1 block text-sm">اسم جهة الاتصال</label>
-                <Input value={form.contactName} onChange={(e) => setForm({ ...form, contactName: e.target.value })} />
               </div>
-              <div>
-                <label className="mb-1 block text-sm">رقم الجوال *</label>
-                <Input value={form.mobileNumber} onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })} required />
-              </div>
-            </div>
-          </section>
 
-          <div className="flex justify-end">
+              <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="font-semibold text-slate-800">صور العقار</h4>
+                    <p className="text-sm text-slate-500">
+                      يمكن رفع حتى {MAX_IMAGE_COUNT} صورة، إجمالي الحجم أقل من {MAX_IMAGE_TOTAL_SIZE_BYTES / (1024 * 1024)} ميجابايت
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      الصور المرفوعة: {selectedImages.length} / {MAX_IMAGE_COUNT}
+                    </p>
+                  </div>
+                  <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50 cursor-pointer transition">
+                    <UploadCloud className="w-4 h-4" /> رفع صور
+                    <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
+                  </label>
+                </div>
+                {imagePreviews.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-28 object-cover rounded-xl border border-slate-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-2 left-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                          aria-label="إزالة الصورة"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-slate-500 text-center py-8">لم يتم اختيار صور بعد.</div>
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* Step 6: Contact Information */}
+          {currentStep === 6 && (
+            <section className="space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">الخطوة 6: معلومات التواصل</h2>
+                  <p className="text-sm text-slate-500 mt-1">بيانات الاتصال</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium">اسم جهة الاتصال</label>
+                  <Input
+                    value={form.contactName}
+                    onChange={(e) => setForm({ ...form, contactName: e.target.value })}
+                    placeholder="اسم جهة الاتصال"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium">
+                    رقم الجوال <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    value={form.mobileNumber}
+                    onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
+                    placeholder="05xxxxxxxx"
+                    required
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Navigation Buttons */}
+          <div className="flex items-center justify-between pt-6 border-t border-gray-200">
             <Button
-              type="submit"
-              disabled={loading}
-              className="h-12 rounded-2xl bg-emerald-600 px-8 text-lg font-semibold text-white shadow-[0_20px_45px_rgba(16,185,129,0.25)] hover:bg-emerald-700 hover:shadow-[0_25px_60px_rgba(16,185,129,0.28)] disabled:opacity-60"
+              type="button"
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentStep === 1}
+              className="rounded-2xl"
             >
-              {loading ? "جاري الإرسال..." : "إرسال الإعلان"}
+              <ChevronRight className="ml-2 h-4 w-4" />
+              السابق
             </Button>
+
+            {currentStep < STEPS.length ? (
+              <Button
+                type="button"
+                onClick={handleNext}
+                className="rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                التالي
+                <ChevronLeft className="mr-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                disabled={loading}
+                className="rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    جاري الإرسال...
+                  </>
+                ) : (
+                  "إرسال الإعلان"
+                )}
+              </Button>
+            )}
           </div>
 
           {loading && (

@@ -106,6 +106,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // registerRoleBasedRoutes(app); // Temporarily disabled - requires migration to Prisma
 
   /**
+   * Rate limiting for authentication endpoints
+   * Import from index.ts or define here
+   */
+  const rateLimit = (await import('express-rate-limit')).default;
+  
+  const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // 5 attempts per 15 minutes
+    message: {
+      error: 'TOO_MANY_REQUESTS',
+      message: 'Too many login attempts, please try again after 15 minutes'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  /**
    * Authentication Routes - /api/auth/*
    * 
    * Handles user authentication and session management:
@@ -117,6 +134,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Dependencies: authRoutes from ./routes/auth.ts
    * Pages affected: Login page, RBAC login page, user profile
    */
+  // General API rate limiting
+  const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // 100 requests per 15 minutes
+    message: {
+      error: 'TOO_MANY_REQUESTS',
+      message: 'Too many requests, please try again later'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => {
+      // Skip rate limiting for health checks
+      return req.path === '/health';
+    },
+  });
+
+  // Apply general rate limiting to all API routes
+  app.use("/api/", apiLimiter);
+
+  // Apply rate limiting to authentication endpoints
+  app.use("/api/auth/login", authLimiter);
+  app.use("/api/auth/register", authLimiter);
   app.use("/api/auth", authRoutes);
 
   /**
@@ -385,6 +424,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/analytics", analyticsRoutes);
 
   /**
+   * Health Check Endpoint - /health
+   * 
+   * Provides health status for monitoring and orchestration
+   */
+  app.get("/health", async (req, res) => {
+    const checks: Record<string, any> = {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      version: process.env.npm_package_version || 'unknown',
+    };
+
+    try {
+      // Check database connection
+      const { prisma } = await import('../prismaClient');
+      await prisma.$queryRaw`SELECT 1`;
+      checks.database = { status: 'ok' };
+    } catch (error) {
+      checks.database = { status: 'error', error: (error as Error).message };
+    }
+
+    // Check Redis if configured
+    if (process.env.REDIS_URL) {
+      try {
+        const Redis = (await import('ioredis')).default;
+        const redis = new Redis(process.env.REDIS_URL);
+        await redis.ping();
+        redis.disconnect();
+        checks.redis = { status: 'ok' };
+      } catch (error) {
+        checks.redis = { status: 'error', error: (error as Error).message };
+      }
+    } else {
+      checks.redis = { status: 'not_configured' };
+    }
+
+    const healthy = checks.database?.status === 'ok';
+    res.status(healthy ? 200 : 503).json(checks);
+  });
+
+  /**
    * Sitemap Routes - /
    * 
    * Handles SEO and sitemap generation:
@@ -455,7 +535,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error("Error processing CSV:", message);
-      res.status(500).json({ error: "خطأ في معالجة ملف CSV" });
+      res.status(500).json({ error: "??? ?? ?????? ??? CSV" });
     }
   });
 
