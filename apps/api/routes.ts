@@ -438,7 +438,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       // Check database connection
-      const { prisma } = await import('../prismaClient');
+      const { prisma } = await import('./prismaClient');
       await prisma.$queryRaw`SELECT 1`;
       checks.database = { status: 'ok' };
     } catch (error) {

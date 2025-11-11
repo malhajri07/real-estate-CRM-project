@@ -22,6 +22,10 @@ import {
   LayoutGrid,
   ChevronsUpDown,
   Check,
+  Eye,
+  Share2,
+  Square,
+  Sofa,
 } from "lucide-react";
 
 import Header from "@/components/layout/header";
@@ -53,12 +57,12 @@ import {
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 import { apiRequest } from "@/lib/queryClient";
-import { GoogleMap, LoadScript, Marker, MarkerClusterer, Polygon } from "@react-google-maps/api";
+import { GoogleMap, useLoadScript, Marker, MarkerClusterer, Polygon } from "@react-google-maps/api";
+import { TABLE_STYLES, TYPOGRAPHY, BADGE_STYLES } from "@/config/platform-theme";
 
 type Coordinates = [number, number];
 
 const DEFAULT_CENTER: Coordinates = [24.7136, 46.6753];
-const GOOGLE_MAPS_SCRIPT_ID = "google-maps-script";
 
 type GoogleWindow = Window & typeof globalThis & { google?: typeof google };
 
@@ -166,6 +170,7 @@ interface PropertySummary {
   propertyType: string;
   transactionType: string;
   status: string;
+  photoUrls?: string[];
 }
 
 interface Option {
@@ -429,11 +434,38 @@ const createMarkerIcon = (
 };
 
 // Accepts GeoJSON-ish coordinates and produces a `LatLngLiteral` the Google SDK understands.
+// Handles both [lng, lat] (GeoJSON standard) and [lat, lng] formats, auto-detecting based on value ranges.
 const toBoundaryLatLngLiteral = (point: unknown): google.maps.LatLngLiteral | null => {
   if (Array.isArray(point) && point.length >= 2) {
-    const [lng, lat] = point;
-    if (typeof lat === "number" && typeof lng === "number") {
-      return { lat, lng };
+    const [first, second] = point;
+    if (typeof first === "number" && typeof second === "number") {
+      // Auto-detect coordinate order based on value ranges
+      // Latitude must be between -90 and 90, longitude can be -180 to 180
+      // For Saudi Arabia: lat ~16-32, lng ~34-55 (both positive)
+      const absFirst = Math.abs(first);
+      const absSecond = Math.abs(second);
+      
+      // If first value is outside latitude range, it must be longitude (GeoJSON format [lng, lat])
+      if (absFirst > 90) {
+        return { lat: second, lng: first };
+      }
+      // If second value is outside latitude range, first must be latitude ([lat, lng] format)
+      if (absSecond > 90) {
+        return { lat: first, lng: second };
+      }
+      // Both are in valid latitude range - check if values suggest Saudi Arabia coordinates
+      // For Saudi: if first is 34-55 range and second is 16-32 range → [lng, lat] (GeoJSON)
+      // If first is 16-32 range and second is 34-55 range → [lat, lng] (needs swap)
+      if (first >= 30 && first <= 60 && second >= 10 && second <= 35) {
+        // Likely GeoJSON format [lng, lat] for Saudi Arabia
+        return { lat: second, lng: first };
+      }
+      if (first >= 10 && first <= 35 && second >= 30 && second <= 60) {
+        // Likely [lat, lng] format - swap them
+        return { lat: first, lng: second };
+      }
+      // Default to GeoJSON format [lng, lat] as it's the standard
+      return { lat: second, lng: first };
     }
   }
 
@@ -462,7 +494,13 @@ const buildRingsFromCoordinates = (coords: unknown): google.maps.LatLngLiteral[]
     const ring = (coords as unknown[])
       .map((point) => toBoundaryLatLngLiteral(point))
       .filter((point): point is google.maps.LatLngLiteral => Boolean(point));
-    return ring.length >= 3 ? [ring] : [];
+    // Return the ring - coordinate order is handled by toBoundaryLatLngLiteral
+    if (ring.length >= 3) {
+      // Reverse ring to fix winding order if polygon appears upside-down
+      // This ensures correct polygon orientation on the map
+      return [[...ring].reverse()];
+    }
+    return [];
   }
 
   if (Array.isArray(first)) {
@@ -524,6 +562,22 @@ const formatCurrency = (value: number | null) => {
     minimumFractionDigits: 0,
   }).format(value);
   return `${formatted} ريال`;
+};
+
+// Map property status to Tailwind badge classes
+const getStatusBadgeClasses = (status: string) => {
+  switch (status) {
+    case "active":
+      return "bg-yellow-100 text-yellow-800 border border-yellow-200";
+    case "pending":
+      return "bg-blue-100 text-blue-800 border border-blue-200";
+    case "sold":
+      return "bg-green-100 text-green-800 border border-green-200";
+    case "withdrawn":
+      return "bg-red-100 text-red-800 border border-red-200";
+    default:
+      return "bg-slate-100 text-slate-700 border border-slate-200";
+  }
 };
 
 // escapeHtml function removed - no InfoWindow cards needed
@@ -795,6 +849,13 @@ interface PropertiesMapProps {
 function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClient, districtPolygon }: PropertiesMapProps) {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
+  // Load Google Maps script using the hook to prevent duplicate loads
+  const { isLoaded, loadError: scriptLoadError } = useLoadScript({
+    googleMapsApiKey: googleMapsApiKey || "",
+    language: "ar",
+    region: "SA",
+  });
+
   // Transform the current property collection into Google Maps marker metadata
   // while defensively skipping incomplete records.
   const markers = useMemo(() => {
@@ -820,7 +881,6 @@ function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClie
   }, [properties]);
 
   const mapRef = useRef<google.maps.Map | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
 
   // Opinionated map defaults that remove noisy controls while keeping the map interactive.
@@ -935,6 +995,9 @@ function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClie
   const heightClass = "h-[calc(100vh-240px)] min-h-[520px]";
   const googleInstance = typeof window === "undefined" ? undefined : (window as GoogleWindow).google;
 
+  // Ensure Google Maps API is fully loaded before rendering
+  const isGoogleMapsReady = isLoaded && googleInstance?.maps;
+
   return (
     <div className={cn("relative overflow-hidden rounded-3xl border border-border/60 bg-slate-100/70", heightClass)}>
       {!isClient ? (
@@ -945,76 +1008,66 @@ function PropertiesMap({ properties, highlightedId, onSelect, onNavigate, isClie
         <div className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-destructive">
           يرجى ضبط المتغير <code className="mx-1 rounded bg-muted px-2 py-1 text-xs">VITE_GOOGLE_MAPS_API_KEY</code> لعرض الخريطة.
         </div>
-      ) : loadError ? (
+      ) : scriptLoadError ? (
         <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center text-sm text-destructive">
-          <p>{loadError}</p>
+          <p>تعذر تحميل خريطة جوجل. يرجى المحاولة لاحقًا.</p>
           <p className="text-xs text-muted-foreground">حاول تحديث الصفحة أو التحقق من مفتاح Google Maps.</p>
         </div>
+      ) : !isGoogleMapsReady ? (
+        <div className="flex h-full w-full items-center justify-center bg-white/70 text-sm text-muted-foreground">
+          جار تحميل خريطة جوجل...
+        </div>
       ) : (
-        <LoadScript
-          id={GOOGLE_MAPS_SCRIPT_ID}
-          googleMapsApiKey={googleMapsApiKey}
-          language="ar"
-          region="SA"
-          loadingElement={
-            <div className="flex h-full w-full items-center justify-center bg-white/70 text-sm text-muted-foreground">
-              جار تحميل خريطة جوجل...
-            </div>
-          }
-          onError={() => setLoadError("تعذر تحميل خريطة جوجل. يرجى المحاولة لاحقًا.")}
-          onLoad={() => setLoadError(null)}
-        >
-          <div className="relative h-full w-full">
-            <GoogleMap
-              mapContainerClassName="absolute inset-0 h-full w-full"
-              options={mapOptions}
-              onLoad={handleMapLoad}
-              onUnmount={handleMapUnmount}
-              center={toLatLngLiteral(DEFAULT_CENTER)}
-              zoom={DEFAULT_ZOOM}
-            >
-              <MarkerClusterer options={clustererOptions}>
-                {(clusterer) => (
-                  <>
-                    {markers.map(({ id, position, property }) => (
-                      <Marker
-                        key={id}
-                        position={toLatLngLiteral(position)}
-                        icon={createMarkerIcon(
-                          googleInstance,
-                          formatMarkerPrice(property.price),
-                          highlightedId === id
-                        )}
-                        clusterer={clusterer}
-                        onClick={() => onSelect(property)}
-                        onMouseOver={() => onSelect(property)}
-                      />
-                    ))}
-                  </>
-                )}
-              </MarkerClusterer>
-              {districtPolygon?.paths?.length ? (
-                <Polygon
-                  paths={districtPolygon.paths}
-                  options={{
-                    strokeColor: districtPolygon.isFilterMatch ? "#1d4ed8" : "#0f9d58",
-                    strokeOpacity: 0.9,
-                    strokeWeight: 2,
-                    fillColor: districtPolygon.isFilterMatch ? "rgba(37,99,235,0.22)" : "rgba(16,185,129,0.18)",
-                    fillOpacity: districtPolygon.isFilterMatch ? 0.3 : 0.18,
-                    clickable: false,
-                  }}
-                />
-              ) : null}
-            </GoogleMap>
+        <div className="relative h-full w-full">
+          <GoogleMap
+            mapContainerClassName="absolute inset-0 h-full w-full"
+            options={mapOptions}
+            onLoad={handleMapLoad}
+            onUnmount={handleMapUnmount}
+            center={toLatLngLiteral(DEFAULT_CENTER)}
+            zoom={DEFAULT_ZOOM}
+          >
+            <MarkerClusterer options={clustererOptions}>
+              {(clusterer) => (
+                <>
+                  {markers.map(({ id, position, property }) => (
+                    <Marker
+                      key={id}
+                      position={toLatLngLiteral(position)}
+                      icon={createMarkerIcon(
+                        googleInstance,
+                        formatMarkerPrice(property.price),
+                        highlightedId === id
+                      )}
+                      clusterer={clusterer}
+                      onClick={() => onSelect(property)}
+                      onMouseOver={() => onSelect(property)}
+                    />
+                  ))}
+                </>
+              )}
+            </MarkerClusterer>
+            {districtPolygon?.paths?.length ? (
+              <Polygon
+                paths={districtPolygon.paths}
+                options={{
+                  strokeColor: districtPolygon.isFilterMatch ? "#1d4ed8" : "#0f9d58",
+                  strokeOpacity: 0.9,
+                  strokeWeight: 2,
+                  fillColor: districtPolygon.isFilterMatch ? "rgba(37,99,235,0.22)" : "rgba(16,185,129,0.18)",
+                  fillOpacity: districtPolygon.isFilterMatch ? 0.3 : 0.18,
+                  clickable: false,
+                }}
+              />
+            ) : null}
+          </GoogleMap>
 
-            {!isMapReady && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-muted-foreground">
-                جار تجهيز الخريطة...
-              </div>
-            )}
-          </div>
-        </LoadScript>
+          {!isMapReady && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-sm text-muted-foreground">
+              جار تجهيز الخريطة...
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
@@ -1037,8 +1090,7 @@ function PropertiesList({
   onToggleFavorite,
   onNavigate,
 }: PropertiesListProps) {
-  // Display a data-table view of the filtered properties. Hovering rows wires
-  // back into the map and favourite state to keep the experiences connected.
+  // Display a data-table view of the filtered properties matching the properties page table style.
   if (!properties.length) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-border/60 bg-muted/10 px-6 py-16 text-center text-muted-foreground">
@@ -1050,24 +1102,39 @@ function PropertiesList({
     );
   }
 
+  const shareProperty = (property: PropertySummary, platform: 'whatsapp' | 'twitter') => {
+    const propertyUrl = `${window.location.origin}/home/platform/properties/${property.id}`;
+    const shareText = `🏠 ${property.title}\n📍 ${property.address}, ${property.city}\n💰 ${formatCurrency(property.price)}\n\nاكتشف المزيد:`;
+    
+    let shareUrl = '';
+    
+    if (platform === 'whatsapp') {
+      shareUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${propertyUrl}`)}`;
+    } else if (platform === 'twitter') {
+      shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(propertyUrl)}`;
+    }
+    
+    window.open(shareUrl, '_blank');
+  };
+
   return (
-    <div className="overflow-x-auto rounded-2xl border border-emerald-100 bg-emerald-25/60 shadow-[0_25px_70px_rgba(16,185,129,0.12)]">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="border-b border-emerald-100 bg-gradient-to-r from-emerald-50/70 via-emerald-50/40 to-emerald-50/70">
-            <th className="px-4 py-3 text-right text-xs font-semibold text-emerald-900/95">العقار</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-emerald-900/95">الموقع</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-emerald-900/95">النوع</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-emerald-900/95">السعر</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-emerald-900/95">الغرف</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-emerald-900/95">دورات المياه</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-emerald-900/95">المساحة</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-emerald-900/95">الحالة</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-emerald-900/95">الإجراءات</th>
+    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm relative z-50">
+      <table className={cn(TABLE_STYLES.container, "min-w-[900px] w-full text-right")}>
+        <thead className={cn(TABLE_STYLES.header, "bg-gray-50 border-b border-gray-200")}>
+          <tr className={cn(TABLE_STYLES.headerCell, "text-xs font-medium text-gray-700 uppercase tracking-wider")}>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الصورة</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>العقار</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الموقع</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>النوع</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الحالة</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>السعر</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>المساحة</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الغرف</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الإجراءات</th>
           </tr>
         </thead>
-        <tbody>
-          {properties.map((property, index) => {
+        <tbody className={cn(TABLE_STYLES.body, "divide-y divide-gray-200")}>
+          {properties.map((property) => {
             const isFavourite = favoriteIds.includes(property.id);
             const isActive = highlightedId === property.id;
 
@@ -1075,114 +1142,136 @@ function PropertiesList({
               <tr
                 key={property.id}
                 className={cn(
-                  "border-b border-emerald-50/70 transition-all duration-200 hover:bg-emerald-50/60 hover:shadow-sm",
-                  isActive && "bg-emerald-100/60 ring-2 ring-emerald-200 shadow-md",
-                  index % 2 === 0 ? "bg-white/70" : "bg-white/95"
+                  "cursor-pointer transition-colors hover:bg-slate-50/50",
+                  isActive && "bg-slate-100"
                 )}
                 onMouseEnter={() => onHighlight(property)}
                 onMouseLeave={() => onHighlight(null)}
+                onClick={() => onNavigate(property.id)}
               >
-                {/* Property Title and ID */}
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onToggleFavorite(property.id)}
-                      className={cn(
-                        "h-6 w-6 rounded-full border border-emerald-200 bg-white/80 transition-all duration-200 hover:border-emerald-400 hover:bg-emerald-50",
-                        isFavourite && "border-emerald-500 bg-emerald-100 text-emerald-600"
-                      )}
-                    >
-                      <Heart className={cn("h-3 w-3", isFavourite ? "fill-emerald-500 text-emerald-500" : "text-emerald-400")} />
-                      <span className="sr-only">إضافة إلى المفضلة</span>
-                    </Button>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold text-brand-900 truncate">{property.title}</div>
-                      <div className="text-[10px] text-brand-500">#{property.id}</div>
-                    </div>
+                {/* Image */}
+                <td className={cn(TABLE_STYLES.cell, "p-0 w-20 align-middle")}>
+                  <div className="relative w-20 h-20 min-h-[80px]">
+                    {property.photoUrls && property.photoUrls.length > 0 ? (
+                      <img 
+                        src={property.photoUrls[0]} 
+                        alt={property.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          console.error('Image failed to load:', property.photoUrls?.[0], 'Property:', property.id, 'All photoUrls:', property.photoUrls);
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 w-full h-full bg-gray-100 flex items-center justify-center">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
+                          <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
+                          <circle cx="9" cy="9" r="2"/>
+                          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                        </svg>
+                      </div>
+                    )}
                   </div>
+                </td>
+
+                {/* Property */}
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900 text-right")}>{property.title}</div>
                 </td>
 
                 {/* Location */}
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1 text-xs">
-                    <MapPin className="h-3 w-3 text-emerald-500 flex-shrink-0" />
-                    <div className="min-w-0">
-                      <div className="font-medium text-emerald-900 truncate">
-                        {property.city ? `${property.city}${property.region ? `، ${property.region}` : ""}` : property.region}
-                      </div>
-                      {property.district && (
-                        <div className="text-[10px] text-emerald-600 truncate">{property.district}</div>
-                      )}
-                    </div>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                  <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-right")}>
+                    {property.city}
+                    {property.district && `, ${property.district}`}
                   </div>
+                  <div className={cn("mt-1", TYPOGRAPHY.caption, "text-gray-600 text-right")}>{property.address}</div>
                 </td>
 
-                {/* Property Type */}
-                <td className="px-4 py-3">
-                  <div className="flex flex-col gap-1">
-                    {property.propertyType && (
-                      <Badge variant="outline" className="text-[10px] w-fit border-emerald-200 text-emerald-800 bg-emerald-50 px-1 py-0">{property.propertyType}</Badge>
-                    )}
-                    {property.transactionType && (
-                      <Badge variant="outline" className="text-[10px] w-fit border-lime-200 text-lime-800 bg-lime-50 px-1 py-0">{property.transactionType}</Badge>
-                    )}
-                  </div>
+                {/* Type */}
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                  <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-right")}>{property.propertyType || property.transactionType || '-'}</div>
+                </td>
+
+                {/* Status */}
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                  {property.status && (
+                    <span className={cn(BADGE_STYLES.base, getStatusBadgeClasses(property.status))}>
+                      {property.status}
+                    </span>
+                  )}
                 </td>
 
                 {/* Price */}
-                <td className="px-4 py-3">
-                  <div className="text-sm font-bold" style={{ color: 'hsl(152 76% 32%)' }}>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-[rgb(128_193_165)] text-right")}>
                     {formatCurrency(property.price)}
                   </div>
                 </td>
 
-                {/* Bedrooms */}
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1 text-xs">
-                    <Bed className="h-3 w-3 text-emerald-500" />
-                    <span className="font-semibold text-emerald-900">{property.bedrooms ?? "—"}</span>
-                  </div>
-                </td>
-
-                {/* Bathrooms */}
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1 text-xs">
-                    <Bath className="h-3 w-3 text-emerald-500" />
-                    <span className="font-semibold text-emerald-900">{property.bathrooms ?? "—"}</span>
-                  </div>
-                </td>
-
                 {/* Area */}
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1 text-xs">
-                    <Ruler className="h-3 w-3 text-emerald-500" />
-                    <span className="font-semibold text-emerald-900">{property.areaSqm ? `${property.areaSqm} م²` : "—"}</span>
-                  </div>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                  {property.areaSqm ? `${property.areaSqm.toLocaleString()} متر²` : '-'}
                 </td>
 
-                {/* Status */}
-                <td className="px-4 py-3">
-                  {property.status && (
-                    <Badge variant="secondary" className="text-[10px] bg-emerald-100 text-emerald-800 border-emerald-200 px-1 py-0">
-                      {property.status}
-                    </Badge>
-                  )}
+                {/* Rooms */}
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                  <div className={cn("flex items-center gap-2", TYPOGRAPHY.body, "text-gray-900 text-right")}>
+                    {property.bedrooms && (
+                      <span className="flex items-center gap-1">
+                        <Bed size={12} />
+                        {property.bedrooms}
+                      </span>
+                    )}
+                    {property.bathrooms && (
+                      <span className="flex items-center gap-1">
+                        <Bath size={12} />
+                        {property.bathrooms}
+                      </span>
+                    )}
+                  </div>
                 </td>
 
                 {/* Actions */}
-                <td className="px-4 py-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="rounded-lg border-emerald-400 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-500 transition-all duration-200 font-medium text-xs px-2 py-1 h-6"
-                    onClick={() => onNavigate(property.id)}
-                  >
-                    عرض التفاصيل
-                  </Button>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                  <div className="flex items-center justify-end gap-1 relative z-50" onClick={(e) => e.stopPropagation()}>
+                    <button 
+                      className={cn(
+                        "p-2 rounded-md transition-colors duration-150 relative z-50",
+                        isFavourite 
+                          ? "text-red-600 hover:text-red-800 hover:bg-red-50" 
+                          : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                      )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleFavorite(property.id);
+                      }}
+                      title={isFavourite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                    >
+                      <Heart size={14} className={isFavourite ? "fill-current" : ""} />
+                    </button>
+                    <button 
+                      className="p-2 rounded-md text-slate-600 transition-colors duration-150 hover:text-slate-800 hover:bg-slate-50 relative z-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onNavigate(property.id);
+                      }}
+                      title="عرض التفاصيل"
+                    >
+                      <Eye size={14} />
+                    </button>
+                    <button 
+                      className="p-2 rounded-md text-purple-600 transition-colors duration-150 hover:text-purple-800 hover:bg-purple-50 relative z-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        shareProperty(property, 'whatsapp');
+                      }}
+                      title="مشاركة العقار"
+                    >
+                      <Share2 size={14} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             );
@@ -1249,25 +1338,17 @@ export default function MapPage() {
     staleTime: 30 * 60 * 1000,
   });
 
-  // Load paginated listing data from the backend. We keep pagination state on
-  // the client, and enrich the raw payload later before rendering.
+  // Load ALL listing data from the backend. We fetch all records and do client-side filtering/pagination.
   const listingsQuery = useQuery<ListingsResponse>({
-    queryKey: ["public-property-search", currentPage, pageSize],
+    queryKey: ["public-property-search-all"],
     queryFn: async () => {
-      const response = await apiRequest("GET", `/api/listings?page=${currentPage}&pageSize=${pageSize}`);
+      // Fetch all records from database using pageSize=all
+      const response = await apiRequest("GET", `/api/listings?page=1&pageSize=all`);
       const payload = (await response.json()) as ListingsResponse;
       return payload;
     },
     staleTime: 5 * 60 * 1000,
   });
-
-  // Sync pagination totals whenever the listings query returns new data.
-  useEffect(() => {
-    if (listingsQuery.data) {
-      setTotalItems(listingsQuery.data.total || 0);
-      setTotalPages(listingsQuery.data.totalPages || 0);
-    }
-  }, [listingsQuery.data]);
 
   // Flatten and sanitize the raw API payload into the `PropertySummary` shape
   // consumed by both the map and table views.
@@ -1301,6 +1382,34 @@ export default function MapPage() {
         propertyType: (item.type ?? "").toString().trim(),
         transactionType: (item.transactionType ?? "").toString().trim(),
         status: (item.status ?? "").toString().trim(),
+        photoUrls: (() => {
+          // Try photoUrls first
+          if (Array.isArray((item as any).photoUrls) && (item as any).photoUrls.length > 0) {
+            return (item as any).photoUrls;
+          }
+          // Try imageGallery
+          if (Array.isArray((item as any).imageGallery) && (item as any).imageGallery.length > 0) {
+            return (item as any).imageGallery;
+          }
+          // Try photos field - could be array or JSON string
+          if ((item as any).photos) {
+            try {
+              let parsed = (item as any).photos;
+              // If it's a string, try to parse it
+              if (typeof parsed === 'string') {
+                parsed = JSON.parse(parsed);
+              }
+              // If it's an array with items, return it
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                return parsed;
+              }
+            } catch (e) {
+              // Ignore parsing errors
+              console.warn('Failed to parse photos:', e);
+            }
+          }
+          return undefined;
+        })(),
       } satisfies PropertySummary;
     });
   }, [listingsQuery.data]);
@@ -1369,12 +1478,32 @@ export default function MapPage() {
         if (!matches) return false;
       }
 
-      if (filters.region !== "all" && property.regionId !== Number(filters.region)) {
-        return false;
+      if (filters.region !== "all") {
+        const regionId = Number(filters.region);
+        if (!Number.isFinite(regionId) || property.regionId !== regionId) {
+          return false;
+        }
       }
 
-      if (filters.city !== "all" && property.cityId !== Number(filters.city)) {
-        return false;
+      if (filters.city !== "all") {
+        const cityId = Number(filters.city);
+        // Check by cityId if both are available
+        if (Number.isFinite(cityId) && property.cityId !== null && property.cityId === cityId) {
+          // Match found by cityId
+        } else {
+          // Fallback: check by city name if cityId doesn't match or is missing
+          // Find the city option to get its name
+          const cityOption = cityOptions.find(opt => opt.id === filters.city);
+          if (cityOption) {
+            // Compare by city name (case-insensitive)
+            if (property.city?.toLowerCase().trim() !== cityOption.label.toLowerCase().trim()) {
+              return false;
+            }
+          } else {
+            // If city option not found, no match
+            return false;
+          }
+        }
       }
 
       if (filters.district !== "all" && property.districtId !== filters.district) {
@@ -1418,7 +1547,30 @@ export default function MapPage() {
 
       return true;
     });
-  }, [properties, filters, favoriteIds]);
+  }, [properties, filters, favoriteIds, cityOptions]);
+
+  // Calculate pagination totals based on filtered results, not API response.
+  // This ensures pagination reflects the current filters (city, region, etc.)
+  useEffect(() => {
+    const filteredCount = filteredProperties.length;
+    const calculatedTotalPages = filteredCount > 0 ? Math.max(1, Math.ceil(filteredCount / pageSize)) : 0;
+    setTotalItems(filteredCount);
+    setTotalPages(calculatedTotalPages);
+  }, [filteredProperties.length, pageSize]);
+
+  // Reset to page 1 if current page exceeds available pages after filtering
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
+  // Paginate the filtered results client-side so pagination reflects current filters
+  const paginatedFilteredProperties = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredProperties.slice(startIndex, endIndex);
+  }, [filteredProperties, currentPage, pageSize]);
 
   // Resolve the full property object for the active highlight so both views stay in sync.
   const highlightedProperty = useMemo(
@@ -1438,9 +1590,11 @@ export default function MapPage() {
     return null;
   }, [filters.city, highlightedProperty?.cityId]);
 
-  // Surface the top cities present in the filtered list as quick-action chips.
+  // Surface the top cities present in the base properties list as quick-action chips.
+  // We use the base properties array (not filteredProperties) so the city filter buttons
+  // always show all available cities, allowing users to filter by any city.
   const topCityFilters = useMemo<CityQuickFilterOption[]>(() => {
-    if (!filteredProperties.length) return [];
+    if (!properties.length) return [];
 
     const counts = new Map<string, CityQuickFilterOption>();
     const cityMatchCache = new Map<string, string | null>();
@@ -1465,7 +1619,7 @@ export default function MapPage() {
       return { mode: "search", value: cityName };
     };
 
-    filteredProperties.forEach((property) => {
+    properties.forEach((property) => {
       const cityName = property.city?.trim();
       if (!cityName) return;
 
@@ -1489,7 +1643,7 @@ export default function MapPage() {
     return Array.from(counts.values())
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
-  }, [filteredProperties, cityOptions]);
+  }, [properties, cityOptions]);
 
   // Fetch districts (with polygon boundaries) that belong to the currently relevant city.
   const districtsQuery = useQuery<DistrictPayload[]>({
@@ -1582,6 +1736,11 @@ export default function MapPage() {
       setIsFavoritesDrawerOpen(false);
     }
   }, [favoriteIds]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters.city, filters.region, filters.district, filters.propertyType, filters.transactionType, filters.search]);
 
   // Remove the highlight if the active property falls out of the filtered results.
   useEffect(() => {
@@ -1748,7 +1907,7 @@ export default function MapPage() {
 
           <section className="space-y-6">
             {viewMode === "table" ? (
-              <Card className="rounded-3xl border border-emerald-100 bg-white shadow-xl">
+              <Card className="rounded-3xl border border-border/60 bg-white shadow-xl">
                 <CardHeader className="flex flex-col gap-3 pb-4 md:flex-row md:items-center md:justify-between">
                   <div className="w-full space-y-2">
                     <div>
@@ -1764,7 +1923,7 @@ export default function MapPage() {
                   </div>
                   {!listingsQuery.isLoading && (
                     <div className="text-sm text-muted-foreground">
-                      إجمالي النتائج المتاحة: {listingsQuery.data?.total ?? filteredProperties.length}
+                      إجمالي النتائج المتاحة: {filteredProperties.length}
                     </div>
                   )}
                 </CardHeader>
@@ -1780,7 +1939,7 @@ export default function MapPage() {
                   ) : (
                     <>
                       <PropertiesList
-                        properties={filteredProperties}
+                        properties={paginatedFilteredProperties}
                         favoriteIds={favoriteIds}
                         highlightedId={highlightedPropertyId}
                         onHighlight={(property) => setHighlightedPropertyId(property?.id ?? null)}
@@ -1789,66 +1948,68 @@ export default function MapPage() {
                       />
                       
                       {/* Pagination Controls */}
-                      {totalPages > 1 && (
+                      {totalItems > 0 && (
                         <div className="flex items-center justify-between border-t border-border/60 pt-4">
                           <div className="text-sm text-muted-foreground">
                             عرض {((currentPage - 1) * pageSize) + 1} إلى {Math.min(currentPage * pageSize, totalItems)} من {totalItems} نتيجة
                           </div>
                           
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                              disabled={currentPage === 1}
-                              className="h-8 px-3 text-xs"
-                            >
-                              السابق
-                            </Button>
-                            
-                            <div className="flex items-center gap-1">
-                              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                const pageNum = i + 1;
-                                const isActive = pageNum === currentPage;
-                                
-                                return (
-                                  <Button
-                                    key={pageNum}
-                                    variant={isActive ? "default" : "ghost"}
-                                    size="sm"
-                                    onClick={() => setCurrentPage(pageNum)}
-                                    className={`h-8 w-8 p-0 text-xs ${isActive ? 'bg-brand-600 text-white' : ''}`}
-                                  >
-                                    {pageNum}
-                                  </Button>
-                                );
-                              })}
+                          {totalPages > 1 && (
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                className="h-8 px-3 text-xs"
+                              >
+                                السابق
+                              </Button>
                               
-                              {totalPages > 5 && (
-                                <>
-                                  <span className="text-xs text-muted-foreground">...</span>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setCurrentPage(totalPages)}
-                                    className="h-8 w-8 p-0 text-xs"
-                                  >
-                                    {totalPages}
-                                  </Button>
-                                </>
-                              )}
+                              <div className="flex items-center gap-1">
+                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                  const pageNum = i + 1;
+                                  const isActive = pageNum === currentPage;
+                                  
+                                  return (
+                                    <Button
+                                      key={pageNum}
+                                      variant={isActive ? "default" : "ghost"}
+                                      size="sm"
+                                      onClick={() => setCurrentPage(pageNum)}
+                                      className={`h-8 w-8 p-0 text-xs ${isActive ? 'bg-brand-600 text-white' : ''}`}
+                                    >
+                                      {pageNum}
+                                    </Button>
+                                  );
+                                })}
+                                
+                                {totalPages > 5 && (
+                                  <>
+                                    <span className="text-xs text-muted-foreground">...</span>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => setCurrentPage(totalPages)}
+                                      className="h-8 w-8 p-0 text-xs"
+                                    >
+                                      {totalPages}
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
+                              
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage === totalPages}
+                                className="h-8 px-3 text-xs"
+                              >
+                                التالي
+                              </Button>
                             </div>
-                            
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                              disabled={currentPage === totalPages}
-                              className="h-8 px-3 text-xs"
-                            >
-                              التالي
-                            </Button>
-                          </div>
+                          )}
                         </div>
                       )}
                     </>
@@ -1913,22 +2074,22 @@ export default function MapPage() {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-full max-w-sm transform border-r border-emerald-100 bg-white shadow-[0_25px_70px_rgba(16,185,129,0.18)] transition-transform duration-300 ease-in-out md:rounded-r-3xl",
+          "fixed inset-y-0 left-0 z-50 w-full max-w-sm transform border-r border-border/60 bg-white shadow-2xl transition-transform duration-300 ease-in-out md:rounded-r-3xl",
           isFavoritesDrawerOpen ? "translate-x-0" : "-translate-x-full"
         )}
         role="dialog"
         aria-label="المفضلات"
       >
-        <div className="flex items-center justify-between border-b border-emerald-100 bg-emerald-50/70 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border/60 bg-background px-5 py-4">
           <div>
-            <p className="text-xs font-semibold text-emerald-700">المفضلة</p>
-            <p className="text-sm font-semibold text-emerald-900">{favoriteIds.length} عقار محفوظ</p>
+            <p className="text-xs font-semibold text-foreground">المفضلة</p>
+            <p className="text-sm font-semibold text-foreground">{favoriteIds.length} عقار محفوظ</p>
           </div>
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="text-emerald-700 hover:bg-emerald-100"
+            className="text-foreground hover:bg-muted"
             onClick={() => setIsFavoritesDrawerOpen(false)}
           >
             إغلاق
@@ -1941,12 +2102,12 @@ export default function MapPage() {
               {favoriteProperties.map((property) => (
                 <div
                   key={property.id}
-                  className="space-y-3 rounded-2xl border border-emerald-100 bg-emerald-25/60 p-4 shadow-sm"
+                  className="space-y-3 rounded-2xl border border-border/60 bg-background p-4 shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold text-emerald-900">{property.title}</p>
-                      <p className="text-xs text-emerald-700">
+                      <p className="text-sm font-semibold text-foreground">{property.title}</p>
+                      <p className="text-xs text-muted-foreground">
                         {property.city ? `${property.city}${property.region ? `، ${property.region}` : ""}` : property.region}
                       </p>
                     </div>
@@ -1954,26 +2115,26 @@ export default function MapPage() {
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 rounded-full border border-emerald-200 text-emerald-600 hover:bg-emerald-100"
+                      className="h-7 w-7 rounded-full border border-border/60 text-foreground hover:bg-muted"
                       onClick={() => handleFavoritesToggle(property.id)}
                     >
-                      <Heart className="h-3.5 w-3.5 fill-emerald-500 text-emerald-500" />
+                      <Heart className="h-3.5 w-3.5 fill-current text-current" />
                       <span className="sr-only">إزالة من المفضلة</span>
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-emerald-800">
-                    <span className="font-semibold" style={{ color: "hsl(152 76% 32%)" }}>
+                  <div className="flex items-center justify-between text-xs text-foreground">
+                    <span className="font-semibold">
                       {formatCurrency(property.price)}
                     </span>
-                    <span className="text-emerald-600">{property.areaSqm ? `${property.areaSqm} م²` : "—"}</span>
-                    <span className="text-emerald-600">{property.bedrooms ?? "—"} غرف</span>
+                    <span className="text-muted-foreground">{property.areaSqm ? `${property.areaSqm} م²` : "—"}</span>
+                    <span className="text-muted-foreground">{property.bedrooms ?? "—"} غرف</span>
                   </div>
                   <div className="flex items-center justify-between gap-2">
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="h-8 flex-1 rounded-full border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                      className="h-8 flex-1 rounded-full border-border/60 text-foreground hover:bg-muted"
                       onClick={() => {
                         setHighlightedPropertyId(property.id);
                         setIsFavoritesDrawerOpen(false);

@@ -26,6 +26,10 @@ The API requires a number of environment variables. At a minimum you will need:
 - `ALLOW_PRODUCTION=true`
 - `NODE_ENV=production`
 
+> **Maintenance tip:** Before each production build, refresh the local browsers data by running\
+> `npx update-browserslist-db@latest` in the repository root. This keeps compiled assets aligned\
+> with the latest browser market share and removes stale `caniuse-lite` data.
+
 You can surface these values to the Cloud Run service in several ways:
 
 1. Store them in Secret Manager and attach them during deployment:

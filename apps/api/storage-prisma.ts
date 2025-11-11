@@ -85,6 +85,164 @@ class PrismaStorageSimple {
     }
   }
 
+  /**
+   * Get properties with SQL-level pagination and filtering
+   */
+  async getPropertiesPaginated(options: {
+    page?: number;
+    pageSize?: number;
+    fetchAll?: boolean;
+    q?: string;
+    city?: string;
+    propertyType?: string;
+    propertyCategory?: string;
+    listingType?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minBedrooms?: number;
+    minBathrooms?: number;
+    status?: string;
+    ids?: string[];
+    sort?: string;
+  }): Promise<{ items: any[]; total: number; page: number; pageSize: number; totalPages: number }> {
+    try {
+      const {
+        page = 1,
+        pageSize = 20,
+        fetchAll = false,
+        q,
+        city,
+        propertyType,
+        propertyCategory,
+        listingType,
+        minPrice,
+        maxPrice,
+        minBedrooms,
+        minBathrooms,
+        status,
+        ids,
+        sort = 'newest',
+      } = options;
+
+      // Build where clause for SQL-level filtering
+      const where: any = {};
+
+      if (ids && ids.length > 0) {
+        where.id = { in: ids };
+      }
+
+      if (status) {
+        where.status = status;
+      }
+
+      if (city) {
+        where.city = city;
+      }
+
+      if (propertyType) {
+        where.type = propertyType;
+      }
+
+      if (propertyCategory) {
+        where.category = propertyCategory;
+      }
+
+      if (listingType) {
+        where.listings = {
+          some: {
+            listingType: listingType,
+          },
+        };
+      }
+
+      if (minPrice !== undefined) {
+        where.price = { ...where.price, gte: minPrice };
+      }
+
+      if (maxPrice !== undefined) {
+        where.price = { ...where.price, lte: maxPrice };
+      }
+
+      if (minBedrooms !== undefined) {
+        where.bedrooms = { ...where.bedrooms, gte: minBedrooms };
+      }
+
+      if (minBathrooms !== undefined) {
+        where.bathrooms = { ...where.bathrooms, gte: minBathrooms };
+      }
+
+      // Text search - use Prisma's contains for SQL-level search
+      if (q) {
+        where.OR = [
+          { title: { contains: q, mode: 'insensitive' } },
+          { description: { contains: q, mode: 'insensitive' } },
+          { address: { contains: q, mode: 'insensitive' } },
+          { city: { contains: q, mode: 'insensitive' } },
+        ];
+      }
+
+      // Build orderBy clause
+      let orderBy: any = { createdAt: 'desc' };
+      switch (sort) {
+        case 'price_asc':
+          orderBy = { price: 'asc' };
+          break;
+        case 'price_desc':
+          orderBy = { price: 'desc' };
+          break;
+        case 'area_asc':
+          orderBy = { areaSqm: 'asc' };
+          break;
+        case 'area_desc':
+          orderBy = { areaSqm: 'desc' };
+          break;
+        case 'newest':
+        default:
+          orderBy = { createdAt: 'desc' };
+          break;
+      }
+
+      // Calculate pagination
+      const skip = (page - 1) * pageSize;
+      const take = pageSize;
+
+      // If fetchAll is true or pageSize is very large (>= 10000), fetch all records
+      const shouldFetchAll = fetchAll || pageSize >= 10000;
+
+      // Get total count and items in parallel
+      const [total, items] = await Promise.all([
+        prisma.properties.count({ where }),
+        prisma.properties.findMany({
+          where,
+          include: {
+            listings: true,
+          },
+          orderBy,
+          ...(shouldFetchAll ? {} : { skip, take }),
+        }),
+      ]);
+
+      const totalPages = shouldFetchAll ? 1 : Math.ceil(total / pageSize);
+
+      return {
+        items,
+        total,
+        page,
+        pageSize,
+        totalPages,
+      };
+    } catch (error) {
+      console.error('Error fetching paginated properties:', error);
+      return {
+        items: [],
+        total: 0,
+        page: 1,
+        pageSize: 20,
+        totalPages: 0,
+      };
+    }
+  }
+
   async getAllLeads(): Promise<any[]> {
     try {
       const leads = await prisma.leads.findMany({
@@ -659,7 +817,7 @@ class PrismaStorageSimple {
       const sequenceResult = await basePrisma.$queryRaw<Array<{ nextval: bigint }>>`
         SELECT nextval('property_id_seq') as nextval
       `;
-      const sequenceNumber = sequenceResult[0]?.nextval || 1n;
+      const sequenceNumber = sequenceResult[0]?.nextval ?? BigInt(1);
       const propertyId = `P-${String(sequenceNumber).padStart(10, '0')}`;
 
       const created = await basePrisma.property_listings.create({

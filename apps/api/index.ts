@@ -18,7 +18,7 @@ import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session"; // Enable per-user session storage so multiple logins can coexist
 import connectPgSimple from "connect-pg-simple";
-import cors from "cors";
+import cors, { type CorsOptions } from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { BACKEND_PORT } from "./config/env";
@@ -72,10 +72,10 @@ app.use(helmet({
 // CORS configuration - environment-based
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:3000')
   .split(',')
-  .map(o => o.trim());
+  .map((origin) => origin.trim());
 
-app.use(cors({
-  origin: (origin, callback) => {
+const corsOptions: CorsOptions = {
+  origin: (origin: string | undefined, callback) => {
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -86,7 +86,9 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
-}));
+};
+
+app.use(cors(corsOptions));
 
 // Wire up cookie-based sessions so several users can stay logged in at the same time
 const PgSessionStore = connectPgSimple(session);

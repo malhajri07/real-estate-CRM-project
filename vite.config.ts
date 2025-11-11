@@ -100,7 +100,8 @@ const adminManualChunkGroups: Array<{ name: string; patterns: string[] }> = [
     name: "platform-shell",
     patterns: [
       "/apps/web/src/pages/app",
-      "/apps/web/src/pages/unverfied_Listing",
+      "/apps/web/src/pages/unverified-listing",
+      "/apps/web/src/pages/unverified-listings-management",
     ],
   },
   {
@@ -125,8 +126,24 @@ const publicLandingChunkIdentifiers = [
   "/apps/web/src/pages/search-properties",
 ];
 
+const vendorChunkMatchers: Array<{ name: string; test: (id: string) => boolean }> = [
+  { name: "vendor-react-query", test: (id) => id.includes("/node_modules/@tanstack/react-query") },
+  { name: "vendor-recharts", test: (id) => id.includes("/node_modules/recharts") },
+  { name: "vendor-tremor", test: (id) => id.includes("/node_modules/@tremor") },
+  { name: "vendor-dnd", test: (id) => id.includes("/node_modules/@hello-pangea/dnd") || id.includes("/node_modules/react-beautiful-dnd") },
+  { name: "vendor-framer-motion", test: (id) => id.includes("/node_modules/framer-motion") },
+];
+
 const resolveManualChunk = (id: string): string | undefined => {
   const normalizedId = normalizePath(id);
+
+  if (normalizedId.includes("/node_modules/")) {
+    const vendorMatch = vendorChunkMatchers.find(({ test }) => test(normalizedId));
+    if (vendorMatch) {
+      return vendorMatch.name;
+    }
+  }
+
   for (const { name, patterns } of adminManualChunkGroups) {
     if (patterns.some((pattern) => normalizedId.includes(pattern))) {
       return name;

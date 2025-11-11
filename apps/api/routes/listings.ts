@@ -54,96 +54,90 @@ router.get("/", async (req, res) => {
       pageSize = "20",
     } = req.query as Record<string, string | undefined>;
 
-    // Base list, with optional text search
-    let base = [] as Awaited<ReturnType<typeof storage.getAllProperties>>;
-    if (ids && ids.trim().length > 0) {
-      base = await storage.getAllProperties();
-    } else if (q && q.trim().length > 0) {
-      // Use storage search when possible
-      try {
-        base = await storage.searchProperties(q);
-      } catch {
-        base = await storage.getAllProperties();
-      }
-    } else {
-      base = await storage.getAllProperties();
-      console.log(`Debug: Retrieved ${base.length} properties from storage`);
+    // Parse pagination parameters
+    // If pageSize is "all" or very large number, fetch all records
+    const pageSizeStr = pageSize || "20";
+    const shouldFetchAll = pageSizeStr.toLowerCase() === "all" || parseInt(pageSizeStr, 10) >= 10000;
+    const pageNum = Math.max(1, parseInt(page || "1", 10) || 1);
+    const sizeNum = shouldFetchAll ? 10000 : Math.min(1000, Math.max(1, parseInt(pageSizeStr, 10) || 20));
+
+    // Parse filter parameters
+    const filterOptions: any = {
+      page: pageNum,
+      pageSize: sizeNum,
+      fetchAll: shouldFetchAll,
+      sort: sort || 'newest',
+    };
+
+    if (q && q.trim().length > 0) {
+      filterOptions.q = q.trim();
     }
 
-    let results = base.filter((p) => {
-      if (ids) {
-        const set = new Set(ids.split(',').map(s => s.trim()));
-        if (!set.has(p.id)) return false;
-      }
-      // Only include publicly visible listings by default
-      if (status && p.status !== status) return false;
-      // Include all properties by default (no status filtering)
-      // if (!status && p.status && p.status !== "active") return false;
+    if (ids && ids.trim().length > 0) {
+      filterOptions.ids = ids.split(',').map(s => s.trim()).filter(Boolean);
+    }
 
-      if (q) {
-        const t = q.toLowerCase();
-        const hay = `${p.title} ${p.description ?? ""} ${p.address} ${p.city}`.toLowerCase();
-        if (!hay.includes(t)) return false;
-      }
-      if (city && p.city !== city) return false;
-      if (propertyType && p.propertyType !== propertyType) return false;
-      if (propertyCategory && p.propertyCategory !== propertyCategory) return false;
-      if (listingType && p.listingType !== listingType) return false;
+    if (city) filterOptions.city = city;
+    if (propertyType) filterOptions.propertyType = propertyType;
+    if (propertyCategory) filterOptions.propertyCategory = propertyCategory;
+    if (listingType) filterOptions.listingType = listingType;
+    if (status) filterOptions.status = status;
 
-      if (minPrice) {
-        const mp = Number(minPrice);
-        const price = Number(p.price || 0);
-        if (!Number.isNaN(mp) && price < mp) return false;
+    if (minPrice) {
+      const mp = Number(minPrice);
+      if (!Number.isNaN(mp)) filterOptions.minPrice = mp;
+    }
+
+    if (maxPrice) {
+      const mp = Number(maxPrice);
+      if (!Number.isNaN(mp)) filterOptions.maxPrice = mp;
+    }
+
+    if (minBedrooms) {
+      const mb = Number(minBedrooms);
+      if (!Number.isNaN(mb)) filterOptions.minBedrooms = mb;
+    }
+
+    if (minBathrooms) {
+      const mb = Number(minBathrooms);
+      if (!Number.isNaN(mb)) filterOptions.minBathrooms = mb;
+    }
+
+    // Use SQL-level pagination
+    const result = await storage.getPropertiesPaginated(filterOptions);
+
+    // Process items to ensure photoUrls/imageGallery is included
+    const items = result.items.map((item: any) => {
+      // Ensure photoUrls/imageGallery is included in response
+      let photoUrls: string[] | undefined = undefined;
+      if (item.photoUrls && Array.isArray(item.photoUrls)) {
+        photoUrls = item.photoUrls;
+      } else if (item.photos) {
+        try {
+          // Try to parse photos if it's a JSON string
+          const parsed = typeof item.photos === 'string' ? JSON.parse(item.photos) : item.photos;
+          photoUrls = Array.isArray(parsed) ? parsed : undefined;
+        } catch {
+          // If parsing fails, ignore
+        }
+      } else if (item.imageGallery && Array.isArray(item.imageGallery)) {
+        photoUrls = item.imageGallery;
       }
-      if (maxPrice) {
-        const mp = Number(maxPrice);
-        const price = Number(p.price || 0);
-        if (!Number.isNaN(mp) && price > mp) return false;
-      }
-      if (minBedrooms) {
-        const mb = Number(minBedrooms);
-        if (!Number.isNaN(mb) && (p.bedrooms || 0) < mb) return false;
-      }
-      if (minBathrooms) {
-        const mb = Number(minBathrooms);
-        const baths = typeof p.bathrooms === "number" ? p.bathrooms : Number(p.bathrooms || 0);
-        if (!Number.isNaN(mb) && baths < mb) return false;
-      }
-      return true;
+      
+      return {
+        ...item,
+        photoUrls,
+        imageGallery: photoUrls, // Also include as imageGallery for compatibility
+      };
     });
 
-    // Sorting
-    if (sort) {
-      switch (sort) {
-        case "price_asc":
-          results = results.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
-          break;
-        case "price_desc":
-          results = results.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
-          break;
-        case "area_asc":
-          results = results.sort((a, b) => (a.squareFeet || 0) - (b.squareFeet || 0));
-          break;
-        case "area_desc":
-          results = results.sort((a, b) => (b.squareFeet || 0) - (a.squareFeet || 0));
-          break;
-        case "popular":
-          results = results.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
-          break;
-        case "newest":
-        default:
-          results = results.sort((a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime());
-      }
-    }
-
-    // Pagination
-    const pageNum = Math.max(1, parseInt(page || "1", 10) || 1);
-    const sizeNum = Math.min(100, Math.max(1, parseInt(pageSize || "20", 10) || 20));
-    const total = results.length;
-    const start = (pageNum - 1) * sizeNum;
-    const items = results.slice(start, start + sizeNum);
-
-    res.json({ items, page: pageNum, pageSize: sizeNum, total, totalPages: Math.ceil(total / sizeNum) });
+    res.json({
+      items,
+      page: result.page,
+      pageSize: result.pageSize,
+      total: result.total,
+      totalPages: result.totalPages,
+    });
   } catch (err) {
     console.error("Error fetching listings:", err);
     res.status(500).json({ message: "Failed to fetch listings" });

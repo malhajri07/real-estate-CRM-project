@@ -176,8 +176,8 @@ export default function UnverifiedListingsManagement() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className={TYPOGRAPHY.h1}>إعلانات غير موثقة</h1>
-            <p className={TYPOGRAPHY.muted}>مراجعة وقبول أو رفض الإعلانات المقدمة</p>
+            <h1 className={TYPOGRAPHY.pageTitle}>إعلانات غير موثقة</h1>
+            <p className={TYPOGRAPHY.pageSubtitle}>مراجعة وقبول أو رفض الإعلانات المقدمة</p>
           </div>
           <div className="flex items-center gap-2">
             <select
@@ -194,19 +194,19 @@ export default function UnverifiedListingsManagement() {
         </div>
 
         {isLoading ? (
-          <div className={LOADING_STYLES}>
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-            <p className={TYPOGRAPHY.muted}>جار التحميل...</p>
+          <div className={cn(LOADING_STYLES.container, "flex-col gap-3")}>
+            <Loader2 className={LOADING_STYLES.spinner} />
+            <p className={TYPOGRAPHY.pageSubtitle}>جار التحميل...</p>
           </div>
         ) : !listings || listings.length === 0 ? (
-          <Card className={CARD_STYLES}>
-            <CardContent className={EMPTY_STYLES}>
-              <p className={TYPOGRAPHY.muted}>لا توجد إعلانات {statusFilter ? `بحالة ${statusFilter}` : ""}</p>
+          <Card className={CARD_STYLES.container}>
+            <CardContent className={EMPTY_STYLES.container}>
+              <p className={TYPOGRAPHY.pageSubtitle}>لا توجد إعلانات {statusFilter ? `بحالة ${statusFilter}` : ""}</p>
             </CardContent>
           </Card>
         ) : (
-          <Card className={CARD_STYLES}>
-            <CardContent className="p-0">
+          <Card className={CARD_STYLES.container}>
+            <CardContent className={cn(CARD_STYLES.content, "p-0")}>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -314,7 +314,11 @@ export default function UnverifiedListingsManagement() {
               {selectedListing.imageGallery && selectedListing.imageGallery.length > 0 && (
                 <div>
                   <h3 className="text-lg font-semibold mb-3">الصور</h3>
-                  <PhotoCarousel images={selectedListing.imageGallery} />
+                  <PhotoCarousel
+                    photos={selectedListing.imageGallery ?? []}
+                    alt={selectedListing.title ?? "صور الإعلان"}
+                    autoHeight
+                  />
                 </div>
               )}
 
