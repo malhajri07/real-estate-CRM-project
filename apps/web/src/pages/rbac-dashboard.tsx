@@ -10,6 +10,11 @@ import UserManagement from "@/pages/admin/user-management";
 import RoleManagement from "@/pages/admin/role-management";
 import OrganizationManagement from "@/pages/admin/organization-management";
 import CMSLandingPage from "@/pages/cms-landing";
+import ArticlesManagement from "@/pages/admin/articles-management";
+import MediaLibrary from "@/pages/admin/media-library";
+import SEOManagement from "@/pages/admin/seo-management";
+import TemplatesManagement from "@/pages/admin/templates-management";
+import NavigationManagement from "@/pages/admin/navigation-management";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle } from "lucide-react";
@@ -644,6 +649,16 @@ const activeRoute =
         return <OrganizationManagement />;
       case "/admin/content/landing-pages":
         return <CMSLandingPage />;
+      case "/admin/content/articles":
+        return <ArticlesManagement />;
+      case "/admin/content/media-library":
+        return <MediaLibrary />;
+      case "/admin/content/seo":
+        return <SEOManagement />;
+      case "/admin/content/templates":
+        return <TemplatesManagement />;
+      case "/admin/content/navigation":
+        return <NavigationManagement />;
     }
 
     const fallbackMeta = sidebarContentMap.get(activeRoute);

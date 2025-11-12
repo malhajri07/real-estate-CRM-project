@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
@@ -6,11 +7,42 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { UserRole } from "@shared/rbac";
+import { useQuery } from "@tanstack/react-query";
+
+interface NavigationLink {
+  id: string;
+  label: string;
+  href: string;
+  order: number;
+  visible: boolean;
+  target?: string;
+  icon?: string;
+}
+
+const fetchNavigationLinks = async (): Promise<NavigationLink[]> => {
+  const res = await fetch("/api/cms/navigation", {
+    credentials: "include",
+  });
+  if (!res.ok) {
+    // Fallback to empty array if API fails
+    return [];
+  }
+  return res.json();
+};
 
 export default function PublicHeader() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [location, setLocation] = useLocation();
+
+  // Fetch navigation links from API
+  const { data: navLinksFromAPI = [] } = useQuery({
+    queryKey: ["navigation-links"],
+    queryFn: fetchNavigationLinks,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 1,
+  });
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 16);
@@ -20,7 +52,7 @@ export default function PublicHeader() {
   }, []);
 
   const isAuth = !!user;
-  const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+  const currentPath = location;
   
   // Determine dashboard URL based on user role
   const getDashboardUrl = () => {
@@ -37,14 +69,39 @@ export default function PublicHeader() {
     return "/home/platform";
   };
 
-  const navLinks = useMemo(
-    () => [
+  // Use API navigation links if available, otherwise fallback to hardcoded
+  // Always include blog link
+  const navLinks = useMemo(() => {
+    const blogLink = { href: "/blog", label: "المدونة" };
+    
+    if (navLinksFromAPI.length > 0) {
+      const apiLinks = navLinksFromAPI
+        .filter((link) => link.visible)
+        .sort((a, b) => a.order - b.order)
+        .map((link) => ({
+          href: link.href,
+          label: link.label,
+        }));
+      
+      // Check if blog link already exists in API links
+      const hasBlogLink = apiLinks.some((link) => link.href === "/blog");
+      
+      // If blog link doesn't exist, add it
+      if (!hasBlogLink) {
+        return [...apiLinks, blogLink];
+      }
+      
+      return apiLinks;
+    }
+    
+    // Fallback to hardcoded links
+    return [
       { href: "/map", label: t("nav.search") },
+      blogLink,
       { href: "/real-estate-requests", label: "اطلب عقارك" },
       { href: "/unverified-listings", label: "أدرج عقارك للبيع" },
-    ],
-    [t]
-  );
+    ];
+  }, [navLinksFromAPI, t]);
 
   return (
     <header
@@ -76,19 +133,40 @@ export default function PublicHeader() {
         <nav className="hidden md:flex items-center gap-1 text-sm">
           {navLinks.map((link) => {
             const isActive = currentPath.startsWith(link.href);
+            // Use Link for internal routes, <a> for hash links or external URLs
+            const isHashLink = link.href.startsWith("#");
+            const isExternalLink = link.href.startsWith("http");
+            
+            if (isHashLink || isExternalLink) {
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "px-3 py-2 rounded-full transition-colors duration-200",
+                    isActive
+                      ? "text-emerald-600 bg-emerald-50"
+                      : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
+                  )}
+                >
+                  {link.label}
+                </a>
+              );
+            }
+            
             return (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "px-3 py-2 rounded-full transition-colors duration-200",
+                  "px-3 py-2 rounded-full transition-colors duration-200 cursor-pointer inline-block",
                   isActive
                     ? "text-emerald-600 bg-emerald-50"
                     : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
                 )}
               >
                 {link.label}
-              </a>
+              </Link>
             );
           })}
         </nav>

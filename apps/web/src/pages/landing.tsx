@@ -1,15 +1,17 @@
 import { useState, useEffect, type ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import PublicHeader from "@/components/layout/PublicHeader";
-import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin, Camera, FileText, DollarSign, GitBranch, CheckCircle, UserPlus, Eye, NotebookPen, Sparkles, Clock, Headset } from "lucide-react";
+import { Building, Users, TrendingUp, Shield, BarChart3, MessageSquare, Phone, Mail, MapPin, Camera, FileText, DollarSign, GitBranch, CheckCircle, CircleCheckBig, UserPlus, Eye, NotebookPen, Sparkles, Clock, Headset } from "lucide-react";
 // import PropertySearchMap from "@/components/PropertySearchMap"; // Map component removed
 import ListingCard from "@/components/listings/ListingCard";
 import { type LandingPageContent, type PricingPlan } from "@/lib/cms";
 import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
 import agarkomFooterLogo from "@assets/6_1756507125793.png";
 import { Link, useLocation } from "wouter";
+import { useSEO } from "@/hooks/useSEO";
 
 const DEFAULT_LANDING_CONTENT: LandingPageContent = {
   id: 0,
@@ -65,6 +67,7 @@ const ICON_COMPONENTS: Record<string, ComponentType<{ className?: string }>> = {
   "dollar-sign": DollarSign,
   "git-branch": GitBranch,
   "check-circle": CheckCircle,
+  "circle-check-big": CircleCheckBig,
   "user-plus": UserPlus,
   eye: Eye,
   "notebook-pen": NotebookPen,
@@ -278,6 +281,9 @@ export default function Landing() {
   const [featured, setFeatured] = useState<any[]>([]);
   const [recent, setRecent] = useState<any[]>([]);
   const [, setLocation] = useLocation(); // Use SPA-friendly navigation so landing buttons reach /login without full reloads.
+
+  // Apply SEO meta tags
+  useSEO("/", landingContent?.heroTitle, landingContent?.heroSubtitle);
 
 
 const defaultNavigation = [
@@ -626,7 +632,7 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
                       <div className="w-4 h-4 bg-green-600 rounded flex items-center justify-center">
                         <Building className="h-2 w-2 text-white" />
                       </div>
-                      <span className="text-green-600 font-bold text-[10px]">{landingContent?.heroDashboardTitle || "منصة عقاراتي - لوحة التحكم"}</span>
+                      <span className="text-green-600 font-bold text-[10px]" data-cms-field="heroDashboardTitle">{landingContent?.heroDashboardTitle || "منصة عقاراتي - لوحة التحكم"}</span>
                     </div>
                     <div className="flex space-x-reverse space-x-0.5">
                       <div className="w-1.5 h-1.5 bg-red-400 rounded-full"></div>
@@ -636,14 +642,19 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
                   </div>
 
                   {/* Top Metrics Grid */}
-                  <div className="grid grid-cols-4 gap-1 text-center">
+                  <div className="grid grid-cols-4 gap-1 text-center" data-cms-collection="hero-metrics">
                     {heroMetrics.length > 0 ? (
                       heroMetrics.map((metric) => {
                         const theme = HERO_METRIC_THEME[metric.color] ?? HERO_METRIC_THEME.blue;
                         return (
-                          <div key={metric.id} className={`bg-gradient-to-br ${theme.bg} p-1.5 rounded`}>
-                            <div className={`text-xs font-bold ${theme.text}`}>{metric.value}</div>
-                            <div className={`text-[7px] ${theme.subText}`}>{metric.label}</div>
+                          <div 
+                            key={metric.id} 
+                            className={`bg-gradient-to-br ${theme.bg} p-1.5 rounded`}
+                            data-cms-item="hero-metric"
+                            data-metric-id={metric.id}
+                          >
+                            <div className={`text-xs font-bold ${theme.text}`} data-cms-field="metric-value">{metric.value}</div>
+                            <div className={`text-[7px] ${theme.subText}`} data-cms-field="metric-label">{metric.label}</div>
                           </div>
                         );
                       })
@@ -891,18 +902,18 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
       </section>
 
       {/* Solutions Section */}
-      <section id="solutions" className="py-20 bg-gray-50">
+      <section id="solutions" className="py-20 bg-gray-50" data-cms-section="solutions">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16" data-cms-content="solutions-header">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4" data-cms-field="solutionsTitle">
               {landingContent?.solutionsTitle || "حلول شاملة لإدارة العقارات"}
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto" data-cms-field="solutionsDescription">
               {landingContent?.solutionsDescription || "أدوات متكاملة تساعدك في إدارة جميع جوانب أعمالك العقارية"}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" data-cms-collection="solutions">
             {(landingContent?.solutions && landingContent.solutions.length > 0
               ? landingContent.solutions
               : FALLBACK_SOLUTIONS
@@ -910,22 +921,45 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
               const key = solution.id ?? `solution-${index}`;
               const featureItems = Array.isArray(solution.features) ? solution.features : [];
               return (
-                <Card key={key} className="hover:shadow-xl transition-shadow duration-300">
+                <Card 
+                  key={key} 
+                  className="rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl hover:shadow-xl transition-shadow duration-300"
+                  data-cms-item="solution"
+                  data-solution-id={solution.id ?? `fallback-${index}`}
+                >
                   <CardContent className="p-8 text-center">
-                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div 
+                      className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
+                      data-cms-element="solution-icon"
+                    >
                       {renderIcon(solution.icon, "h-10 w-10 text-green-600")}
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4">{solution.title}</h3>
-                    <p className="text-gray-600 mb-6">{solution.description}</p>
+                    <h3 
+                      className="text-2xl font-bold text-gray-900 mb-4"
+                      data-cms-field="solution-title"
+                    >
+                      {solution.title}
+                    </h3>
+                    <p 
+                      className="text-gray-600 mb-6"
+                      data-cms-field="solution-description"
+                    >
+                      {solution.description}
+                    </p>
                     {featureItems.length > 0 && (
-                      <ul className="text-right space-y-3 text-gray-600">
+                      <ul className="text-right space-y-3 text-gray-600" data-cms-collection="solution-features">
                         {featureItems.map((item: any, featureIndex: number) => {
                           const text = typeof item === "string" ? item : item?.text ?? "";
-                          const iconName = typeof item === "string" ? "check-circle" : item?.icon ?? "check-circle";
+                          const iconName = typeof item === "string" ? "circle-check-big" : item?.icon ?? "circle-check-big";
                           return (
-                            <li key={`${key}-feature-${featureIndex}`} className="flex items-center gap-3">
+                            <li 
+                              key={`${key}-feature-${featureIndex}`} 
+                              className="flex items-center gap-3"
+                              data-cms-item="solution-feature"
+                              data-feature-index={featureIndex}
+                            >
                               {renderIcon(iconName, "h-5 w-5 text-green-600 flex-shrink-0")}
-                              <span>{text}</span>
+                              <span data-cms-field="feature-text">{text}</span>
                             </li>
                           );
                         })}
@@ -982,6 +1016,7 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
           </div>
         </div>
       </section>
+
 
       {/* Pricing Section */}
       <section id="pricing" className="py-20 bg-gray-50" data-cms-section="pricing">
@@ -1156,18 +1191,18 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 bg-white">
+      <section id="contact" className="py-20 bg-white" data-cms-section="contact">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16" data-cms-content="contact-header">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4" data-cms-field="contactTitle">
               {landingContent?.contactTitle || "تواصل معنا"}
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-600" data-cms-field="contactDescription">
               {landingContent?.contactDescription || "فريق عمل منصة عقاراتي جاهز دوماً للإجابة على استفساراتكم"}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" data-cms-collection="contact-info">
             {(landingContent?.contactInfo && landingContent.contactInfo.length > 0
               ? landingContent.contactInfo
               : FALLBACK_CONTACTS
@@ -1175,13 +1210,31 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
               const key = info.id ?? `contact-${index}`;
               const iconKey = info.icon || info.type || "phone";
               return (
-                <Card key={key} className="text-center">
+                <Card 
+                  key={key} 
+                  className="text-center hover:shadow-xl transition-shadow duration-300"
+                  data-cms-item="contact-info"
+                  data-contact-id={info.id ?? `fallback-${index}`}
+                >
                   <CardContent className="p-8">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <div 
+                      className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
+                      data-cms-element="contact-icon"
+                    >
                       {renderIcon(iconKey, "h-8 w-8 text-green-600")}
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{info.label}</h3>
-                    <p className="text-gray-600">{info.value}</p>
+                    <h3 
+                      className="text-xl font-semibold text-gray-900 mb-2"
+                      data-cms-field="contact-label"
+                    >
+                      {info.label}
+                    </h3>
+                    <p 
+                      className="text-gray-600"
+                      data-cms-field="contact-value"
+                    >
+                      {info.value}
+                    </p>
                   </CardContent>
                 </Card>
               );
@@ -1190,34 +1243,8 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
         </div>
       </section>
 
-      {/* Statistics Section - CMS Driven */}
-      {landingContent?.stats && landingContent.stats.length > 0 && (
-        <section className="py-20 bg-green-600">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                {landingContent.statsTitle || "أرقامنا تتحدث"}
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {landingContent.stats.map((stat) => (
-                <div key={stat.id} className="text-center">
-                  <div className="text-4xl lg:text-5xl font-bold text-white mb-2">
-                    {stat.number}{stat.suffix && <span className="text-2xl">{stat.suffix}</span>}
-                  </div>
-                  <div className="text-green-100 text-lg font-medium">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gray-900 text-white py-12" data-cms-section="footer">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div>
@@ -1232,19 +1259,22 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
                   className="h-36 w-auto object-contain"
                 />
               </div>
-              <p className="text-gray-400 mb-4">
+              <p 
+                className="text-gray-400 mb-4"
+                data-cms-field="footerDescription"
+              >
                 {landingContent?.footerDescription || "منصة عقاراتي - الحل الشامل لإدارة العقارات والوساطة العقارية"}
               </p>
             </div>
 
-            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" data-cms-collection="footer-links">
               {footerGroups.map((group, groupIndex) => (
-                <div key={`${group.category}-${groupIndex}`}>
-                  <h3 className="text-lg font-semibold mb-4">{group.category}</h3>
-                  <ul className="space-y-2 text-gray-400">
+                <div key={`${group.category}-${groupIndex}`} data-cms-item="footer-group" data-group-category={group.category}>
+                  <h3 className="text-lg font-semibold mb-4" data-cms-field="group-category">{group.category}</h3>
+                  <ul className="space-y-2 text-gray-400" data-cms-collection="group-links">
                     {group.links.map((link, linkIndex) => (
-                      <li key={`${group.category}-${linkIndex}`}>
-                        <a href={link.url || "#"} className="hover:text-green-400">
+                      <li key={`${group.category}-${linkIndex}`} data-cms-item="footer-link" data-link-index={linkIndex}>
+                        <a href={link.url || "#"} className="hover:text-green-400" data-cms-field="link-text">
                           {link.text}
                         </a>
                       </li>
@@ -1256,7 +1286,7 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
           </div>
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>{landingContent?.footerCopyright || "© 2024 منصة عقاراتي. جميع الحقوق محفوظة."}</p>
+            <p data-cms-field="footerCopyright">{landingContent?.footerCopyright || "© 2024 منصة عقاراتي. جميع الحقوق محفوظة."}</p>
           </div>
         </div>
       </footer>

@@ -1,9 +1,27 @@
 # Local Development Workflow
 
-This project runs the API and the web client as two separate processes during
-development. Use the following scripts from the repository root:
+This project can run in two modes during development:
 
-## Start Servers
+## Unified Development Server (Recommended)
+
+The unified server runs both the API and frontend on a single port (3000):
+
+```bash
+npm run dev
+# or explicitly:
+npm run dev:unified
+```
+
+This uses Vite middleware to serve the frontend while proxying API requests to the Express backend, all on port 3000.
+
+**Verification:**
+- Web client & API: `http://localhost:3000`
+- API health check: `curl http://localhost:3000/health`
+- API endpoints: `http://localhost:3000/api/*`
+
+## Separate Servers (Legacy)
+
+For development with separate processes:
 
 - **API (port 3001 by default)**  
   ```bash
@@ -20,13 +38,11 @@ development. Use the following scripts from the repository root:
   npm run dev:all
   ```
 
-Each script streams logs to the terminal; press `Ctrl+C` to stop the process.
-
-## Verification
-
+**Verification:**
 - API health check: `curl http://localhost:3001/health`
 - Web client: open `http://localhost:3000` in your browser
 
-If you restart one server, the other continues to run. When switching branches,
-stop both processes to avoid stale code or port conflicts.
+## Stopping Servers
+
+Press `Ctrl+C` to stop the process. If running separate servers, stop both processes when switching branches to avoid stale code or port conflicts.
 

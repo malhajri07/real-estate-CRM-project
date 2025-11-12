@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -40,6 +41,7 @@ async function checkAndCreateAdminUser() {
       const hashedPassword = await bcrypt.hash('admin123', 10);
       const newAdmin = await prisma.users.create({
         data: {
+          id: randomUUID(),
           username: 'admin1',
           passwordHash: hashedPassword,
           roles: JSON.stringify(['WEBSITE_ADMIN']),

@@ -188,7 +188,28 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 export async function comparePassword(password: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(password, hash);
+  try {
+    if (!password || !hash) {
+      console.error('comparePassword: Missing password or hash', { 
+        hasPassword: !!password, 
+        hasHash: !!hash,
+        passwordLength: password?.length,
+        hashLength: hash?.length 
+      });
+      return false;
+    }
+    console.log('comparePassword: Comparing password', { 
+      passwordLength: password.length, 
+      hashLength: hash.length,
+      hashPrefix: hash.substring(0, 20) 
+    });
+    const result = await bcrypt.compare(password, hash);
+    console.log('comparePassword result:', result);
+    return result;
+  } catch (error) {
+    console.error('comparePassword error:', error);
+    return false;
+  }
 }
 
 // Login function
@@ -200,52 +221,111 @@ export async function login(identifier: string, password: string): Promise<{
   message?: string;
 }> {
   try {
+    console.log('Login function called:', { identifier: identifier.substring(0, 20), passwordLength: password.length });
+    
     const normalizedIdentifier = identifier.trim();
     if (!normalizedIdentifier) {
+      console.log('Login failed: empty identifier');
       return { success: false, message: 'Invalid credentials' };
     }
 
     const lookupIdentifier = normalizedIdentifier.toLowerCase();
+    console.log('Looking up user with identifier:', lookupIdentifier);
 
     // Try to find by username first, then by email for compatibility
-    let user = await prisma.users.findUnique({
-      where: { username: lookupIdentifier }
-    });
+    let user = null;
+    
+    try {
+      user = await prisma.users.findUnique({
+        where: { username: lookupIdentifier }
+      });
+      console.log('Username query result:', user ? `Found user: ${user.username}` : 'No user found');
+    } catch (error) {
+      console.error('Error querying by username:', error);
+    }
 
     if (!user) {
-      user = await prisma.users.findUnique({
-        where: { email: lookupIdentifier }
-      });
+      try {
+        // Only query by email if the identifier looks like an email
+        if (lookupIdentifier.includes('@')) {
+          user = await prisma.users.findUnique({
+            where: { email: lookupIdentifier }
+          });
+          console.log('Email query result:', user ? `Found user: ${user.username}` : 'No user found');
+        }
+      } catch (error) {
+        console.error('Error querying by email:', error);
+      }
     }
 
-    if (!user || !user.isActive) {
+    if (!user) {
+      console.log('Login failed: user not found');
       return { success: false, message: 'Invalid credentials' };
     }
 
+    if (!user.isActive) {
+      console.log('Login failed: user is not active');
+      return { success: false, message: 'Account is not active' };
+    }
+
+    console.log('User found, checking password...');
+    console.log('Password hash exists:', !!user.passwordHash);
+    console.log('Password hash length:', user.passwordHash?.length);
+    
     const isValidPassword = await comparePassword(password, user.passwordHash);
+    console.log('Password comparison result:', isValidPassword);
+    
     if (!isValidPassword) {
+      console.log('Login failed: invalid password');
       return { success: false, message: 'Invalid credentials' };
     }
+
+    console.log('Password verified, updating last login...');
 
     // Update last login
-    await prisma.users.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date(), updatedAt: new Date() }
-    });
+    try {
+      await prisma.users.update({
+        where: { id: user.id },
+        data: { lastLoginAt: new Date(), updatedAt: new Date() }
+      });
+    } catch (updateError) {
+      console.error('Failed to update last login (non-critical):', updateError);
+      // Continue anyway - this is not critical for login
+    }
 
-    const parsedRoles = parseStoredRoles(user.roles);
-    const normalizedRoles = normalizeRoleKeys(parsedRoles);
+    // Parse roles safely
+    let parsedRoles: any[] = [];
+    let normalizedRoles: any[] = [];
+    try {
+      parsedRoles = parseStoredRoles(user.roles);
+      normalizedRoles = normalizeRoleKeys(parsedRoles);
+      console.log('Roles parsed successfully:', normalizedRoles);
+    } catch (roleError) {
+      console.error('Error parsing roles:', roleError);
+      // Default to empty roles array if parsing fails
+      normalizedRoles = [];
+    }
+
     const displayName = [user.firstName, user.lastName]
       .filter((part): part is string => Boolean(part && part.trim()))
       .join(' ')
       .trim();
-    const token = generateToken({
-      id: user.id,
-      email: user.email ?? null,
-      username: (user as any).username ?? null,
-      roles: user.roles,
-      organizationId: user.organizationId || undefined
-    });
+    
+    // Generate token safely
+    let token: string;
+    try {
+      token = generateToken({
+        id: user.id,
+        email: user.email ?? null,
+        username: (user as any).username ?? null,
+        roles: user.roles,
+        organizationId: user.organizationId || undefined
+      });
+      console.log('Token generated successfully');
+    } catch (tokenError) {
+      console.error('Error generating token:', tokenError);
+      throw new Error(`Failed to generate authentication token: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`);
+    }
 
     return {
       success: true,
@@ -262,8 +342,31 @@ export async function login(identifier: string, password: string): Promise<{
       token
     };
   } catch (error) {
+    console.error('=== LOGIN FUNCTION ERROR ===');
     console.error('Login error:', error);
-    return { success: false, message: 'Login failed' };
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      // Check for database connection errors
+      if (error.message.includes('connect') || error.message.includes('ECONNREFUSED') || error.message.includes('P1001')) {
+        return { success: false, message: 'Database connection failed. Please try again later.' };
+      }
+      // Check for Prisma errors
+      if (error.message.includes('prisma') || error.message.includes('Prisma') || error.message.includes('P')) {
+        return { success: false, message: `Database error: ${error.message}` };
+      }
+      // Check for JWT errors
+      if (error.message.includes('JWT') || error.message.includes('secret')) {
+        return { success: false, message: `Authentication configuration error: ${error.message}` };
+      }
+      return { success: false, message: error.message || 'Login failed' };
+    }
+    console.error('=== LOGIN FUNCTION ERROR END ===');
+    return { success: false, message: 'Login failed. Please try again.' };
   }
 }
 

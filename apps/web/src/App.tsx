@@ -74,6 +74,7 @@ const AgencyPage = lazy(() => import("@/pages/agency"));
 const AgentPage = lazy(() => import("@/pages/agent"));
 const PublicListingPage = lazy(() => import("@/pages/listing"));
 const SavedSearchesPage = lazy(() => import("@/pages/saved-searches"));
+const BlogPage = lazy(() => import("@/pages/blog"));
 const RealEstateRequestsPage = lazy(() => import("@/pages/real-estate-requests"));
 const CustomerRequestsPage = lazy(() => import("@/pages/customer-requests"));
 const AdminRequestsPage = lazy(() => import("@/pages/admin-requests"));
@@ -143,6 +144,7 @@ function Router() {
   const SuspendedMarketingRequestSubmissionPage = withSuspense(LazyMarketingRequestSubmissionPage);
   const SuspendedSearchPropertiesPage = withSuspense(MapPage);
   const SuspendedRealEstateRequestsPage = withSuspense(RealEstateRequestsPage);
+  const SuspendedBlogPage = withSuspense(BlogPage);
 
   const PLATFORM_CORE_ROLES: readonly UserRole[] = [
     UserRole.WEBSITE_ADMIN,
@@ -308,6 +310,11 @@ function Router() {
   // Provide standalone rendering for the public property search page
   if (location.startsWith('/map')) {
     return <SuspendedSearchPropertiesPage />;
+  }
+
+  // Provide standalone rendering for the public blog page (accessible to all users)
+  if (location.startsWith('/blog')) {
+    return <SuspendedBlogPage />;
   }
 
   type PlatformRouteOptions = {
@@ -501,6 +508,9 @@ function Router() {
           />
         ))}
         {/* Login route removed - handled by dashboard port section */}
+        {/* Public Blog Routes - Must come before landing page */}
+        <Route path="/blog/:slug" component={SuspendedBlogPage} />
+        <Route path="/blog" component={SuspendedBlogPage} />
         {/* Landing page */}
         <Route path="/home" component={Landing} />
         <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />

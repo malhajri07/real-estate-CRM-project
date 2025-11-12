@@ -1476,6 +1476,230 @@ model LandingVersion {
   @@index([entityType, entityId])
 }
 
+// CMS Article Management
+model CMSArticle {
+  id            String              @id @default(uuid())
+  slug          String              @unique
+  title         String
+  excerpt        String?             @db.Text
+  content        String              @db.Text
+  contentJson    Json?               // For rich text editor JSON format
+  featuredImageId String?
+  authorId       String
+  status         String              @default("draft") // draft, published, archived
+  publishedAt    DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  
+  // SEO fields
+  metaTitle      String?
+  metaDescription String?            @db.Text
+  metaKeywords   String?
+  ogImage        String?
+  
+  // Relationships
+  categories     CMSArticleCategoryRelation[]
+  tags           CMSArticleTagRelation[]
+  versions       CMSArticleVersion[]
+  featuredImage  MediaLibrary?      @relation("ArticleFeaturedImage", fields: [featuredImageId], references: [id], onDelete: SetNull)
+  
+  @@index([slug])
+  @@index([status])
+  @@index([authorId])
+  @@index([publishedAt])
+  @@index([createdAt])
+}
+
+model CMSArticleCategory {
+  id          String       @id @default(uuid())
+  name        String
+  slug        String       @unique
+  description String?      @db.Text
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  articles    CMSArticleCategoryRelation[]
+  
+  @@index([slug])
+}
+
+model CMSArticleCategoryRelation {
+  id         String            @id @default(uuid())
+  articleId  String
+  categoryId String
+  createdAt  DateTime          @default(now())
+  
+  article    CMSArticle        @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  category   CMSArticleCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  @@unique([articleId, categoryId])
+  @@index([articleId])
+  @@index([categoryId])
+}
+
+model CMSArticleTag {
+  id        String       @id @default(uuid())
+  name      String
+  slug      String       @unique
+  createdAt DateTime     @default(now())
+  
+  articles  CMSArticleTagRelation[]
+  
+  @@index([slug])
+}
+
+model CMSArticleTagRelation {
+  id        String       @id @default(uuid())
+  articleId String
+  tagId     String
+  createdAt DateTime     @default(now())
+  
+  article   CMSArticle   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       CMSArticleTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@unique([articleId, tagId])
+  @@index([articleId])
+  @@index([tagId])
+}
+
+model CMSArticleVersion {
+  id         BigInt   @id @default(autoincrement())
+  articleId  String
+  version    Int
+  snapshot   Json
+  createdBy  String?
+  createdAt  DateTime @default(now())
+  
+  article    CMSArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  
+  @@unique([articleId, version])
+  @@index([articleId])
+}
+
+// Media Library
+model MediaLibrary {
+  id          String      @id @default(uuid())
+  filename    String
+  originalName String
+  url         String      @db.Text
+  mimeType    String
+  size        Int         // Size in bytes
+  width       Int?
+  height      Int?
+  alt         String?
+  title       String?
+  description String?    @db.Text
+  uploadedBy  String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relationships
+  usages      MediaUsage[]
+  featuredArticles CMSArticle[] @relation("ArticleFeaturedImage")
+  
+  @@index([mimeType])
+  @@index([uploadedBy])
+  @@index([createdAt])
+}
+
+model MediaUsage {
+  id          BigInt   @id @default(autoincrement())
+  mediaId     String
+  entityType  String   // e.g., "article", "landing_section", "template"
+  entityId    String
+  createdAt   DateTime @default(now())
+  
+  media       MediaLibrary @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  
+  @@index([mediaId])
+  @@index([entityType, entityId])
+}
+
+// SEO Settings
+model SEOSettings {
+  id              String   @id @default(uuid())
+  pagePath        String   @unique // e.g., "/", "/blog", "/blog/:slug"
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  metaKeywords    String?
+  ogTitle         String?
+  ogDescription   String?  @db.Text
+  ogImage         String?
+  ogType          String?  @default("website")
+  twitterCard     String?  @default("summary_large_image")
+  twitterTitle    String?
+  twitterDescription String? @db.Text
+  twitterImage    String?
+  robotsMeta      String?  @default("index, follow")
+  canonicalUrl    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([pagePath])
+}
+
+// Content Templates
+model ContentTemplate {
+  id          String              @id @default(uuid())
+  name        String
+  slug        String              @unique
+  type        String              // e.g., "email", "landing_section", "article"
+  content     String              @db.Text
+  contentJson Json?               // For structured content
+  variables   Json?               // Template variables/placeholders
+  description String?             @db.Text
+  category    String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  createdBy   String?
+  
+  versions    ContentTemplateVersion[]
+  
+  @@index([slug])
+  @@index([type])
+  @@index([category])
+}
+
+model ContentTemplateVersion {
+  id         BigInt   @id @default(autoincrement())
+  templateId String
+  version    Int
+  snapshot   Json
+  createdBy  String?
+  createdAt  DateTime @default(now())
+  
+  template   ContentTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  
+  @@unique([templateId, version])
+  @@index([templateId])
+}
+
+// Navigation Links
+model NavigationLink {
+  id        String   @id @default(uuid())
+  label     String
+  href      String
+  order     Int      @default(0)
+  visible   Boolean  @default(true)
+  target    String?  @default("_self") // _self, _blank
+  icon      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([order])
+  @@index([visible])
+}
+
+// Session table for express-session with connect-pg-simple
+model session {
+  sid    String   @id @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire])
+  @@map("session")
+}
+
 model property_listings {
   id                BigInt    @id @default(autoincrement())
   property_id       String    @unique @db.VarChar(20)

@@ -133,6 +133,7 @@ const FEATURE_ICON_OPTIONS = [
   { value: "dollar-sign", label: "السعر" },
   { value: "git-branch", label: "التكامل" },
   { value: "check-circle", label: "التحقق" },
+  { value: "circle-check-big", label: "التحقق الكبير" },
   { value: "user-plus", label: "إضافة مستخدم" },
   { value: "eye", label: "الرؤية" },
   { value: "notebook-pen", label: "الملاحظات" },

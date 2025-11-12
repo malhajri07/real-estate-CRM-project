@@ -155,6 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Important: include cookies for session
         body: JSON.stringify(payload),
       });
 
@@ -166,11 +167,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {
         data = { message: raw };
       }
-      console.log('Login response:', { status: response.status, data });
+      console.log('Login response:', { 
+        status: response.status, 
+        statusText: response.statusText,
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries()),
+        data 
+      });
 
       // Check if request was successful
       if (!response.ok) {
-        throw new Error(data.message || data.error || 'Login failed');
+        const errorMessage = data.message || data.error || `Login failed (${response.status} ${response.statusText})`;
+        console.error('Login failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          data,
+          errorMessage
+        });
+        throw new Error(errorMessage);
       }
 
       // Process successful authentication

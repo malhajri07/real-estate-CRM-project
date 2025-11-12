@@ -15,6 +15,17 @@
 
 ## Content & UI Management
 - **CMS Overview**: Landing page sections and cards support draft/publish workflows, drag-and-drop ordering, role-based permissions (Admin, CMS Admin, Editor, Viewer), media validation, caching rules, and detailed audit/version tables (`LandingSection`, `LandingCard`, `LandingAuditLog`, `LandingVersion`). API endpoints cover section/card CRUD, reordering, publishing, archiving, and public delivery of published content.
+- **Landing Page CMS**: All landing page sections are fully CMS-controlled via `/admin/content/landing-pages`. Available sections include:
+  - **Hero**: Welcome text, title, subtitle, CTA buttons, dashboard preview with metrics
+  - **Features**: Feature cards with icons, titles, and descriptions
+  - **Solutions**: Solution cards with icons, titles, descriptions, and feature lists
+  - **Stats**: Statistics display with numbers, labels, and suffixes
+  - **Pricing**: Pricing plan cards with features, prices, and CTA buttons
+  - **Contact**: Contact information cards with icons, labels, and values
+  - **Footer**: Footer description, copyright text, and link groups
+  - **CTA**: Call-to-action sections
+- **CMS Data Attributes**: All sections include `data-cms-section`, `data-cms-field`, `data-cms-collection`, and `data-cms-item` attributes for CMS integration and content management.
+- **CMS Landing Page Guide**: See `docs/CMS_LANDING_PAGE_GUIDE.md` for detailed instructions on managing landing page content, including section editing, card management, draft/publish workflow, and troubleshooting.
 - **Admin Sitemap Highlights**: Catalogs 66 admin routes across Overview, User/Role/Organization management, Revenue, Complaints, Integrations, Content, Features, Analytics, Billing, Security, Notifications, and System Settings. Each entry notes status (live/mocked/stub), UI elements, required/proposed endpoints, touched entities, and RBAC role access for implementation planning.
 
 ## Project Restructuring

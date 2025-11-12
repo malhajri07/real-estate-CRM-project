@@ -71,6 +71,11 @@ import testDashboardRoutes from "./test-dashboard";  // Test dashboard functiona
 import testDbRoutes from "./test-db";                // Test database connection
 import simpleAnalyticsRoutes from "./simple-analytics"; // Simple analytics for testing
 import cmsLandingRoutes from "./routes/cms-landing";
+import cmsArticlesRoutes from "./routes/cms-articles";
+import cmsMediaRoutes from "./routes/cms-media";
+import cmsSEORoutes from "./routes/cms-seo";
+import cmsTemplatesRoutes from "./routes/cms-templates";
+import cmsNavigationRoutes from "./routes/cms-navigation";
 import { LandingService } from "./services/landingService";
 import { JWT_SECRET as getJwtSecret } from "./config/env";
 
@@ -113,13 +118,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5, // 5 attempts per 15 minutes
+    max: 100, // Increased to 100 attempts per 15 minutes for debugging
     message: {
       error: 'TOO_MANY_REQUESTS',
       message: 'Too many login attempts, please try again after 15 minutes'
     },
     standardHeaders: true,
     legacyHeaders: false,
+    skip: (req) => {
+      // Skip rate limiting for localhost in development
+      const isLocalhost = req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1' || !req.ip;
+      return process.env.NODE_ENV === 'development' && isLocalhost;
+    }
   });
 
   /**
@@ -137,7 +147,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // General API rate limiting
   const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // 100 requests per 15 minutes
+    max: 1000, // Increased limit for development/admin usage
     message: {
       error: 'TOO_MANY_REQUESTS',
       message: 'Too many requests, please try again later'
@@ -145,8 +155,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     standardHeaders: true,
     legacyHeaders: false,
     skip: (req) => {
-      // Skip rate limiting for health checks
-      return req.path === '/health';
+      // Skip rate limiting for health checks and CMS admin routes
+      if (req.path === '/health') return true;
+      if (req.path.startsWith('/api/cms/')) return true; // CMS routes need more requests
+      if (req.path.startsWith('/api/rbac-admin/')) return true; // Admin dashboard needs more requests
+      return false;
     },
   });
 
@@ -171,7 +184,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
    */
   app.use("/api/pool", buyerPoolRoutes);
 
+  // CMS Routes
   app.use("/api/cms", cmsLandingRoutes);
+  app.use("/api/cms", cmsArticlesRoutes);
+  app.use("/api/cms", cmsMediaRoutes);
+  app.use("/api/cms", cmsSEORoutes);
+  app.use("/api/cms", cmsTemplatesRoutes);
+  app.use("/api/cms", cmsNavigationRoutes);
+  
   app.use("/api/unverified-listings", unverifiedListingsRoutes); // Saves to property_listings table
   app.use("/api/property-categories", propertyCategoriesRoutes); // Property categories dimension table
   app.use("/api/property-types", propertyTypesRoutes); // Property types (filtered by category)

@@ -41,7 +41,7 @@ const loginSchema = z.object({
   identifier: z.string().min(1, 'Email or username is required').optional(),
   email: z.string().email().optional(),
   username: z.string().min(1).optional(),
-  password: z.string().min(6)
+  password: z.string().min(1, 'Password is required')
 }).refine((data) => Boolean(data.identifier || data.email || data.username), {
   message: 'Email or username is required',
   path: ['identifier']
@@ -63,37 +63,155 @@ const impersonateSchema = z.object({
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
+  // Wrap everything in a try-catch to ensure errors are caught
   try {
-    const { identifier, email, username, password } = loginSchema.parse(req.body);
+    console.log('=== LOGIN REQUEST START ===');
+    console.log('Login request received:', {
+      body: { ...req.body, password: req.body.password ? '***' : undefined },
+      sessionId: req.sessionID,
+      ip: req.ip,
+      headers: {
+        'content-type': req.headers['content-type'],
+        'user-agent': req.headers['user-agent']
+      }
+    });
+    
+    // Validate request body
+    let validatedData;
+    try {
+      validatedData = loginSchema.parse(req.body);
+      console.log('Validation passed:', { 
+        hasIdentifier: !!validatedData.identifier,
+        hasEmail: !!validatedData.email,
+        hasUsername: !!validatedData.username,
+        hasPassword: !!validatedData.password
+      });
+    } catch (validationError) {
+      console.error('Validation error:', validationError);
+      if (validationError instanceof z.ZodError) {
+        return res.status(400).json({ 
+          success: false,
+          message: 'Invalid input',
+          errors: validationError.errors 
+        });
+      }
+      throw validationError;
+    }
+    
+    const { identifier, email, username, password } = validatedData;
 
     const loginIdentifier = (identifier ?? email ?? username ?? '').trim();
+    console.log('Login identifier:', loginIdentifier);
 
-    const result = await login(loginIdentifier, password);
+    if (!loginIdentifier || !password) {
+      console.log('Missing credentials');
+      return res.status(400).json({ 
+        success: false,
+        message: 'Username/email and password are required' 
+      });
+    }
+
+    // Call login function with error handling
+    let result;
+    try {
+      result = await login(loginIdentifier, password);
+      console.log('Login result:', { 
+        success: result.success, 
+        hasUser: !!result.user, 
+        hasToken: !!result.token,
+        message: result.message 
+      });
+    } catch (loginError) {
+      console.error('Error in login function:', loginError);
+      return res.status(500).json({ 
+        success: false,
+        message: loginError instanceof Error ? loginError.message : 'Login function failed' 
+      });
+    }
     
     if (!result.success) {
-      return res.status(401).json({ message: result.message });
+      console.log('Login failed:', result.message);
+      return res.status(401).json({ 
+        success: false,
+        message: result.message || 'Invalid credentials' 
+      });
     }
 
+    // Ensure we have a user and token
+    if (!result.user || !result.token) {
+      console.error('Login succeeded but missing user or token:', { 
+        hasUser: !!result.user, 
+        hasToken: !!result.token 
+      });
+      return res.status(500).json({ 
+        success: false,
+        message: 'Login succeeded but authentication data is missing' 
+      });
+    }
+
+    // Save session data (non-blocking - don't fail login if session save fails)
     if (req.session) {
-      req.session.user = result.user;
-      req.session.authToken = result.token;
+      try {
+        req.session.user = result.user;
+        req.session.authToken = result.token;
+        // Try to save session, but don't wait for it
+        req.session.save((err) => {
+          if (err) {
+            console.error('Session save error (non-critical):', err);
+          } else {
+            console.log('Session saved successfully');
+          }
+        });
+      } catch (sessionError) {
+        console.error('Failed to set session (non-critical):', sessionError);
+        // Continue anyway - session might not be critical for login
+      }
     }
 
-    res.json({
-      success: true,
-      user: result.user,
-      token: result.token
-    });
+    console.log('Login successful, sending response');
+    console.log('=== LOGIN REQUEST END ===');
+    
+    // Ensure response is sent properly
+    try {
+      res.json({
+        success: true,
+        user: result.user,
+        token: result.token
+      });
+    } catch (responseError) {
+      console.error('Error sending response:', responseError);
+      // Response might already be sent, but log the error
+    }
   } catch (error) {
+    console.error('=== LOGIN ERROR ===');
+    console.error('Login route error:', error);
+    
+    // Make sure we haven't already sent a response
+    if (res.headersSent) {
+      console.error('Response already sent, cannot send error response');
+      return;
+    }
+    
     if (error instanceof z.ZodError) {
+      console.error('Validation error:', error.errors);
       return res.status(400).json({ 
+        success: false,
         message: 'Invalid input',
         errors: error.errors 
       });
     }
     
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Login failed' });
+    const errorMessage = error instanceof Error ? error.message : 'Login failed';
+    console.error('Error details:', {
+      message: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
+    console.error('=== LOGIN ERROR END ===');
+    res.status(500).json({ 
+      success: false,
+      message: errorMessage 
+    });
   }
 });
 

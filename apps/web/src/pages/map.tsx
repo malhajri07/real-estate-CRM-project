@@ -1438,13 +1438,31 @@ export default function MapPage() {
   }, [citiesQuery.data]);
 
   // Build unique property/transaction type pickers so filters stay relevant to the current dataset.
+  // If a city is selected, only show property types available in that city (hierarchical filtering)
   const propertyTypeOptions = useMemo(() => {
     const set = new Set<string>();
+    const cityId = filters.city !== "all" ? Number(filters.city) : null;
+    const cityOption = filters.city !== "all" ? cityOptions.find(opt => opt.id === filters.city) : null;
+    
     properties.forEach((property) => {
+      // If city filter is active, only include properties from that city
+      if (filters.city !== "all") {
+        // Check by cityId first
+        if (cityId !== null && Number.isFinite(cityId) && property.cityId !== null && property.cityId === cityId) {
+          // Match by cityId
+        } else if (cityOption && property.city?.toLowerCase().trim() === cityOption.label.toLowerCase().trim()) {
+          // Match by city name
+        } else {
+          // Property doesn't match selected city, skip it
+          return;
+        }
+      }
+      
+      // Add property type if property matches city filter
       if (property.propertyType) set.add(property.propertyType);
     });
     return Array.from(set).sort((a, b) => a.localeCompare(b, "ar"));
-  }, [properties]);
+  }, [properties, filters.city, cityOptions]);
 
   const transactionTypeOptions = useMemo(() => {
     const set = new Set<string>();
@@ -1798,6 +1816,7 @@ export default function MapPage() {
           ...prev,
           city: nextCity,
           district: "all",
+          propertyType: "all",
           search: nextCity === "all" ? prev.search : "",
         };
       }
@@ -1809,6 +1828,7 @@ export default function MapPage() {
         search: isActiveSearch ? "" : filter.value,
         city: "all",
         district: "all",
+        propertyType: "all",
       };
     });
   };
@@ -1817,7 +1837,7 @@ export default function MapPage() {
   const renderQuickCityFilters = () => {
     if (listingsQuery.isLoading || !topCityFilters.length) return null;
     return (
-      <div className="flex flex-wrap gap-2 pt-1">
+      <div className="flex flex-wrap gap-1.5 pt-1">
         {topCityFilters.map((city) => {
           const isActive =
             city.mode === "city" ? filters.city === city.value : filters.search.trim() === city.value;
@@ -1825,13 +1845,85 @@ export default function MapPage() {
             <Button
               key={city.key}
               type="button"
-              variant={isActive ? "default" : "outline"}
+              variant="outline"
               size="sm"
-              className="h-7 rounded-full border border-border/60 bg-white/90 px-3 text-xs"
+              className={cn(
+                "h-6 rounded-full border px-2 text-[11px] transition-colors",
+                isActive
+                  ? "bg-green-600 border-green-600 text-white hover:bg-green-700 hover:border-green-700"
+                  : "border-border/60 bg-white/90 text-foreground hover:bg-gray-50"
+              )}
               onClick={() => handleQuickCityFilter(city)}
             >
-              <span className="font-semibold text-foreground">{city.label}</span>
-              <span className="text-muted-foreground">({city.count})</span>
+              <span className={cn("font-bold", isActive ? "text-white" : "text-foreground")}>{city.label}</span>
+              <span className={cn("text-[10px]", isActive ? "text-white/90" : "text-muted-foreground")}>({city.count})</span>
+            </Button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // Count properties for each type (used in property type filters)
+  // If a city is selected, only count properties in that city (hierarchical filtering)
+  const propertyTypeCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    const cityId = filters.city !== "all" ? Number(filters.city) : null;
+    const cityOption = filters.city !== "all" ? cityOptions.find(opt => opt.id === filters.city) : null;
+    
+    properties.forEach((property) => {
+      // If city filter is active, only count properties from that city
+      if (filters.city !== "all") {
+        // Check by cityId first
+        if (cityId !== null && Number.isFinite(cityId) && property.cityId !== null && property.cityId === cityId) {
+          // Match by cityId
+        } else if (cityOption && property.city?.toLowerCase().trim() === cityOption.label.toLowerCase().trim()) {
+          // Match by city name
+        } else {
+          // Property doesn't match selected city, skip it
+          return;
+        }
+      }
+      
+      // Count property type if property matches city filter
+      if (property.propertyType) {
+        counts.set(property.propertyType, (counts.get(property.propertyType) || 0) + 1);
+      }
+    });
+    return counts;
+  }, [properties, filters.city, cityOptions]);
+
+  // Rendering helper for property type filters
+  const renderQuickPropertyTypeFilters = () => {
+    if (listingsQuery.isLoading || !propertyTypeOptions.length) return null;
+
+    return (
+      <div className="flex flex-wrap gap-1.5 pt-2">
+        {propertyTypeOptions.map((type) => {
+          const isActive = filters.propertyType === type;
+          const count = propertyTypeCounts.get(type) || 0;
+          return (
+            <Button
+              key={type}
+              type="button"
+              variant="outline"
+              size="sm"
+              className={cn(
+                "h-6 rounded-full border px-2 text-[11px] transition-colors",
+                isActive
+                  ? "bg-green-600 border-green-600 text-white hover:bg-green-700 hover:border-green-700"
+                  : "border-border/60 bg-white/90 text-foreground hover:bg-gray-50"
+              )}
+              onClick={() => {
+                setFilters((prev) => ({
+                  ...prev,
+                  propertyType: isActive ? "all" : type,
+                }));
+                setCurrentPage(1);
+              }}
+            >
+              <span className={cn("font-normal", isActive ? "text-white" : "text-foreground")}>{type}</span>
+              <span className={cn("text-[10px]", isActive ? "text-white/90" : "text-muted-foreground")}>({count})</span>
             </Button>
           );
         })}
@@ -1912,14 +2004,9 @@ export default function MapPage() {
                   <div className="w-full space-y-2">
                     <div>
                       <CardTitle className="text-xl">قائمة العقارات</CardTitle>
-                      <CardDescription>
-                        {listingsQuery.isLoading 
-                          ? "جار تحميل العقارات..." 
-                          : `تم العثور على ${totalItems} عقار مطابق للبحث. (صفحة ${currentPage} من ${totalPages})`
-                        }
-                      </CardDescription>
                     </div>
                     {renderQuickCityFilters()}
+                    {renderQuickPropertyTypeFilters()}
                   </div>
                   {!listingsQuery.isLoading && (
                     <div className="text-sm text-muted-foreground">
@@ -2022,7 +2109,6 @@ export default function MapPage() {
                   <div className="space-y-1">
                     <CardTitle className="text-xl">خريطة العقارات</CardTitle>
                     <CardDescription>استكشف العقارات على خريطة تفاعلية بتجربة مماثلة لخريطة عقار.</CardDescription>
-                    {renderQuickCityFilters()}
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {listingsQuery.isLoading 
@@ -2184,9 +2270,9 @@ export default function MapPage() {
               transactionTypeOptions={transactionTypeOptions}
               onSearchChange={(value) => setFilters((prev) => ({ ...prev, search: value }))}
               onRegionChange={(value) => {
-                setFilters((prev) => ({ ...prev, region: value, city: "all", district: "all" }));
+                setFilters((prev) => ({ ...prev, region: value, city: "all", district: "all", propertyType: "all" }));
               }}
-              onCityChange={(value) => setFilters((prev) => ({ ...prev, city: value, district: "all" }))}
+              onCityChange={(value) => setFilters((prev) => ({ ...prev, city: value, district: "all", propertyType: "all" }))}
               onDistrictChange={(value) => setFilters((prev) => ({ ...prev, district: value }))}
               onPropertyTypeChange={(value) => setFilters((prev) => ({ ...prev, propertyType: value }))}
               onTransactionTypeChange={(value) => setFilters((prev) => ({ ...prev, transactionType: value }))}
