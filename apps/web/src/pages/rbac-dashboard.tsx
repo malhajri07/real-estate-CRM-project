@@ -20,6 +20,18 @@ import { Badge } from "@/components/ui/badge";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 const LABELS: Record<string, string> = {
   "admin.sidebar.overview": "نظرة عامة",
@@ -197,108 +209,190 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
   const metrics = data?.metrics;
   const currency = metrics?.gmv.currency ?? "SAR";
 
+  // Prepare chart data for trends
+  const chartData = useMemo(() => {
+    if (!metrics) return [];
+    return [
+      { period: 'اليوم', leads: metrics.leads.today, listings: metrics.listings.today, deals: metrics.dealsWon.today },
+      { period: '٧ أيام', leads: metrics.leads.last7Days, listings: metrics.listings.last7Days, deals: metrics.dealsWon.last7Days },
+      { period: '٣٠ يوم', leads: metrics.leads.last30Days, listings: metrics.listings.last30Days, deals: metrics.dealsWon.last30Days },
+    ];
+  }, [metrics]);
+
+  const revenueChartData = useMemo(() => {
+    if (!metrics) return [];
+    return [
+      { period: 'اليوم', gmv: metrics.gmv.today, invoices: metrics.invoiceTotal.today, cash: metrics.cashCollected.today },
+      { period: '٧ أيام', gmv: metrics.gmv.last7Days, invoices: metrics.invoiceTotal.last7Days, cash: metrics.cashCollected.last7Days },
+      { period: '٣٠ يوم', gmv: metrics.gmv.last30Days, invoices: metrics.invoiceTotal.last30Days, cash: metrics.cashCollected.last30Days },
+    ];
+  }, [metrics]);
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <MetricTripleCard
-          title="العملاء المحتملون"
-          metric={
-            metrics
-              ? {
-                  today: metrics.leads.today,
-                  last7Days: metrics.leads.last7Days,
-                  last30Days: metrics.leads.last30Days
-                }
-              : undefined
-          }
-          loading={isLoading}
-        />
-        <MetricTripleCard
-          title="الإعلانات المنشورة"
-          metric={
-            metrics
-              ? {
-                  today: metrics.listings.today,
-                  last7Days: metrics.listings.last7Days,
-                  last30Days: metrics.listings.last30Days
-                }
-              : undefined
-          }
-          loading={isLoading}
-        />
-        <MetricTripleCard
-          title="المواعيد المجدولة"
-          metric={
-            metrics
-              ? {
-                  today: metrics.appointments.today,
-                  last7Days: metrics.appointments.last7Days,
-                  last30Days: metrics.appointments.last30Days
-                }
-              : undefined
-          }
-          loading={isLoading}
-        />
+      {/* Key Metrics Cards */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card className="border border-slate-200 shadow-sm transition hover:shadow-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base font-semibold text-slate-900">العملاء المحتملون</CardTitle>
+            <p className="text-xs text-slate-500">أداء اليوم وآخر ٧ / ٣٠ يوم</p>
+          </CardHeader>
+          <CardContent>
+            {isLoading && !metrics ? (
+              <LoadingRows rows={1} />
+            ) : (
+              <dl className="grid grid-cols-3 gap-4 text-center text-sm">
+                <div className="space-y-1">
+                  <dt className="text-slate-500">اليوم</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.leads.today)}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-slate-500">٧ أيام</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.leads.last7Days)}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-slate-500">٣٠ يوم</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.leads.last30Days)}</dd>
+                </div>
+              </dl>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border border-slate-200 shadow-sm transition hover:shadow-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base font-semibold text-slate-900">الإعلانات المنشورة</CardTitle>
+            <p className="text-xs text-slate-500">أداء اليوم وآخر ٧ / ٣٠ يوم</p>
+          </CardHeader>
+          <CardContent>
+            {isLoading && !metrics ? (
+              <LoadingRows rows={1} />
+            ) : (
+              <dl className="grid grid-cols-3 gap-4 text-center text-sm">
+                <div className="space-y-1">
+                  <dt className="text-slate-500">اليوم</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.listings.today)}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-slate-500">٧ أيام</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.listings.last7Days)}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-slate-500">٣٠ يوم</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.listings.last30Days)}</dd>
+                </div>
+              </dl>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border border-slate-200 shadow-sm transition hover:shadow-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base font-semibold text-slate-900">الصفقات الرابحة</CardTitle>
+            <p className="text-xs text-slate-500">أداء اليوم وآخر ٧ / ٣٠ يوم</p>
+          </CardHeader>
+          <CardContent>
+            {isLoading && !metrics ? (
+              <LoadingRows rows={1} />
+            ) : (
+              <dl className="grid grid-cols-3 gap-4 text-center text-sm">
+                <div className="space-y-1">
+                  <dt className="text-slate-500">اليوم</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.dealsWon.today)}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-slate-500">٧ أيام</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.dealsWon.last7Days)}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-slate-500">٣٠ يوم</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.dealsWon.last30Days)}</dd>
+                </div>
+              </dl>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border border-slate-200 shadow-sm transition hover:shadow-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base font-semibold text-slate-900">إجمالي قيمة المبيعات</CardTitle>
+            <p className="text-xs text-slate-500">أداء اليوم وآخر ٧ / ٣٠ يوم</p>
+          </CardHeader>
+          <CardContent>
+            {isLoading && !metrics ? (
+              <LoadingRows rows={1} />
+            ) : (
+              <dl className="grid grid-cols-3 gap-4 text-center text-sm">
+                <div className="space-y-1">
+                  <dt className="text-slate-500">اليوم</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatCurrency(metrics?.gmv.today, currency)}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-slate-500">٧ أيام</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatCurrency(metrics?.gmv.last7Days, currency)}</dd>
+                </div>
+                <div className="space-y-1">
+                  <dt className="text-slate-500">٣٠ يوم</dt>
+                  <dd className="text-lg font-semibold text-slate-900">{formatCurrency(metrics?.gmv.last30Days, currency)}</dd>
+                </div>
+              </dl>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-4">
-        <MetricTripleCard
-          title="الصفقات الرابحة"
-          metric={
-            metrics
-              ? {
-                  today: metrics.dealsWon.today,
-                  last7Days: metrics.dealsWon.last7Days,
-                  last30Days: metrics.dealsWon.last30Days
-                }
-              : undefined
-          }
-          loading={isLoading}
-        />
-        <MetricTripleCard
-          title="إجمالي قيمة المبيعات (GMV)"
-          metric={
-            metrics
-              ? {
-                  today: metrics.gmv.today,
-                  last7Days: metrics.gmv.last7Days,
-                  last30Days: metrics.gmv.last30Days
-                }
-              : undefined
-          }
-          currency={currency}
-          loading={isLoading}
-        />
-        <MetricTripleCard
-          title="الفواتير الصادرة"
-          metric={
-            metrics
-              ? {
-                  today: metrics.invoiceTotal.today,
-                  last7Days: metrics.invoiceTotal.last7Days,
-                  last30Days: metrics.invoiceTotal.last30Days
-                }
-              : undefined
-          }
-          currency={metrics?.invoiceTotal.currency ?? currency}
-          loading={isLoading}
-        />
-        <MetricTripleCard
-          title="التحصيلات النقدية"
-          metric={
-            metrics
-              ? {
-                  today: metrics.cashCollected.today,
-                  last7Days: metrics.cashCollected.last7Days,
-                  last30Days: metrics.cashCollected.last30Days
-                }
-              : undefined
-          }
-          currency={metrics?.cashCollected.currency ?? currency}
-          loading={isLoading}
-        />
-      </div>
+      {/* Charts Section - NEW! */}
+      {!isLoading && metrics && (
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <Card className="border border-slate-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-base font-semibold text-slate-900">نشاط المبيعات</CardTitle>
+              <p className="text-sm text-slate-500">العملاء المحتملون، الإعلانات، والصفقات</p>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="period" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="leads" fill="#3b82f6" name="العملاء المحتملون" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="listings" fill="#10b981" name="الإعلانات" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="deals" fill="#8b5cf6" name="الصفقات" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
 
+          <Card className="border border-slate-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-base font-semibold text-slate-900">الإيرادات المالية</CardTitle>
+              <p className="text-sm text-slate-500">قيمة المبيعات، الفواتير، والتحصيلات</p>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={revenueChartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="period" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="gmv" stroke="#10b981" strokeWidth={2} name="قيمة المبيعات" dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="invoices" stroke="#3b82f6" strokeWidth={2} name="الفواتير" dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="cash" stroke="#f59e0b" strokeWidth={2} name="التحصيلات" dot={{ r: 4 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Bottom Section */}
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card className="border border-slate-200 shadow-sm xl:col-span-2">
           <CardHeader>
@@ -538,53 +632,53 @@ export default function RBACDashboard() {
   const [location, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
-useEffect(() => {
-  const legacyRedirects: Record<string, string> = {
-    "/rbac-dashboard": "/admin/overview/main-dashboard",
-    "/admin": "/admin/overview/main-dashboard",
-    "/admin/user-management": "/admin/users/all-users",
-    "/admin/role-management": "/admin/roles/roles-list",
-    "/admin/organization-management": "/admin/organizations/organizations-list"
-  };
+  useEffect(() => {
+    const legacyRedirects: Record<string, string> = {
+      "/rbac-dashboard": "/admin/overview/main-dashboard",
+      "/admin": "/admin/overview/main-dashboard",
+      "/admin/user-management": "/admin/users/all-users",
+      "/admin/role-management": "/admin/roles/roles-list",
+      "/admin/organization-management": "/admin/organizations/organizations-list"
+    };
 
-  const prefixRemaps: Array<[string, string]> = [
-    ["/overview/", "/admin/overview/"],
-    ["/admin/user-management/", "/admin/users/"],
-    ["/admin/role-management/", "/admin/roles/"],
-    ["/admin/organization-management/", "/admin/organizations/"],
-    ["/revenue/", "/admin/revenue/"],
-    ["/complaints/", "/admin/complaints/"],
-    ["/integrations/", "/admin/integrations/"],
-    ["/content/", "/admin/content/"],
-    ["/features/", "/admin/features/"],
-    ["/analytics/", "/admin/analytics/"],
-    ["/billing/", "/admin/billing/"],
-    ["/security/", "/admin/security/"],
-    ["/notifications/", "/admin/notifications/"],
-    ["/system/", "/admin/system/"]
-  ];
+    const prefixRemaps: Array<[string, string]> = [
+      ["/overview/", "/admin/overview/"],
+      ["/admin/user-management/", "/admin/users/"],
+      ["/admin/role-management/", "/admin/roles/"],
+      ["/admin/organization-management/", "/admin/organizations/"],
+      ["/revenue/", "/admin/revenue/"],
+      ["/complaints/", "/admin/complaints/"],
+      ["/integrations/", "/admin/integrations/"],
+      ["/content/", "/admin/content/"],
+      ["/features/", "/admin/features/"],
+      ["/analytics/", "/admin/analytics/"],
+      ["/billing/", "/admin/billing/"],
+      ["/security/", "/admin/security/"],
+      ["/notifications/", "/admin/notifications/"],
+      ["/system/", "/admin/system/"]
+    ];
 
-  const directTarget = legacyRedirects[location];
-  if (directTarget && location !== directTarget) {
-    setLocation(directTarget, { replace: true });
-    return;
-  }
-
-  for (const [legacyPrefix, newPrefix] of prefixRemaps) {
-    if (location.startsWith(legacyPrefix)) {
-      const remapped = location.replace(legacyPrefix, newPrefix);
-      if (remapped !== location) {
-        setLocation(remapped, { replace: true });
-      }
+    const directTarget = legacyRedirects[location];
+    if (directTarget && location !== directTarget) {
+      setLocation(directTarget, { replace: true });
       return;
     }
-  }
-}, [location, setLocation]);
 
-const activeRoute =
-  location === "/admin" || location === "/rbac-dashboard"
-    ? "/admin/overview/main-dashboard"
-    : location;
+    for (const [legacyPrefix, newPrefix] of prefixRemaps) {
+      if (location.startsWith(legacyPrefix)) {
+        const remapped = location.replace(legacyPrefix, newPrefix);
+        if (remapped !== location) {
+          setLocation(remapped, { replace: true });
+        }
+        return;
+      }
+    }
+  }, [location, setLocation]);
+
+  const activeRoute =
+    location === "/admin" || location === "/rbac-dashboard"
+      ? "/admin/overview/main-dashboard"
+      : location;
 
   const dashboard = useQuery({
     queryKey: ["rbac-admin", "dashboard"],

@@ -286,41 +286,41 @@ export default function Landing() {
   useSEO("/", landingContent?.heroTitle, landingContent?.heroSubtitle);
 
 
-const defaultNavigation = [
-  { href: '#home', label: 'الرئيسية' },
-  { href: '/map', label: 'ابحث عن عقار' },
-  { href: '#request', label: 'اطلب عقارك' },
-  { href: '/unverified-listings', label: 'اعرض عقارك' },
-  { href: '/marketing-request', label: 'سوق الوسطاء' },
-];
+  const defaultNavigation = [
+    { href: '#home', label: 'الرئيسية' },
+    { href: '/map', label: 'ابحث عن عقار' },
+    { href: '#request', label: 'اطلب عقارك' },
+    { href: '/unverified-listings', label: 'اعرض عقارك' },
+    { href: '/marketing-request', label: 'سوق الوسطاء' },
+  ];
 
-const navigationLinks = (landingContent.navigation && landingContent.navigation.length > 0
-  ? [...landingContent.navigation]
-      .sort((a, b) => a.order - b.order)
-      .map((item) => ({ href: item.url || '#', label: item.text || String(item.id) }))
-  : []
-).reduce((acc: { href: string; label: string }[], item) => {
-  if (!acc.some((link) => link.href === item.href && link.label === item.label)) {
-    acc.push({ href: item.href, label: item.label });
+  const navigationLinks = (landingContent.navigation && landingContent.navigation.length > 0
+    ? [...landingContent.navigation]
+      .sort((a: any, b: any) => a.order - b.order)
+      .map((item: any) => ({ href: item.url || '#', label: item.text || String(item.id) }))
+    : []
+  ).reduce((acc: { href: string; label: string }[], item) => {
+    if (!acc.some((link) => link.href === item.href && link.label === item.label)) {
+      acc.push({ href: item.href, label: item.label });
+    }
+    return acc;
+  }, []);
+
+  const combinedNavigation = [
+    ...navigationLinks.filter((link) =>
+      defaultNavigation.some((allowed) => allowed.href === link.href)
+    ),
+  ];
+
+  for (const link of defaultNavigation) {
+    if (!combinedNavigation.some((existing) => existing.href === link.href)) {
+      combinedNavigation.push(link);
+    }
   }
-  return acc;
-}, []);
 
-const combinedNavigation = [
-  ...navigationLinks.filter((link) =>
-    defaultNavigation.some((allowed) => allowed.href === link.href)
-  ),
-];
-
-for (const link of defaultNavigation) {
-  if (!combinedNavigation.some((existing) => existing.href === link.href)) {
-    combinedNavigation.push(link);
-  }
-}
-
-const footerGroups: FooterLinkGroup[] =
-  landingContent?.footerLinks && landingContent.footerLinks.length > 0
-    ? [...landingContent.footerLinks]
+  const footerGroups: FooterLinkGroup[] =
+    landingContent?.footerLinks && landingContent.footerLinks.length > 0
+      ? [...landingContent.footerLinks]
         .sort((a, b) => {
           const categoryCompare = (a.category || "").localeCompare(b.category || "");
           if (categoryCompare !== 0) return categoryCompare;
@@ -336,24 +336,24 @@ const footerGroups: FooterLinkGroup[] =
           }
           return groups;
         }, [])
-    : FALLBACK_FOOTER_GROUPS;
+      : FALLBACK_FOOTER_GROUPS;
 
-const displayedPricingPlans = pricingPlans.length > 0 ? pricingPlans : FALLBACK_PRICING_PLANS;
+  const displayedPricingPlans = pricingPlans.length > 0 ? pricingPlans : FALLBACK_PRICING_PLANS;
 
-const heroMetrics = (landingContent.heroDashboardMetrics?.length
-  ? [...landingContent.heroDashboardMetrics]
-  : DEFAULT_LANDING_CONTENT.heroDashboardMetrics
-).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const heroMetrics = (landingContent.heroDashboardMetrics?.length
+    ? [...landingContent.heroDashboardMetrics]
+    : DEFAULT_LANDING_CONTENT.heroDashboardMetrics
+  ).sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
 
-const featuresList = landingContent.features?.length ? landingContent.features : FALLBACK_FEATURES;
-const solutionsList = landingContent.solutions?.length ? landingContent.solutions : FALLBACK_SOLUTIONS;
-const statsList = landingContent.stats?.length ? landingContent.stats : [
-  { id: 1, number: "+12K", label: "معاملة ناجحة", suffix: "" },
-  { id: 2, number: "98%", label: "رضا العملاء", suffix: "" },
-  { id: 3, number: "24/7", label: "دعم متواصل", suffix: "" },
-  { id: 4, number: "+150", label: "شركة تعتمد علينا", suffix: "" }
-];
-const contactDetails = landingContent.contactInfo?.length ? landingContent.contactInfo : FALLBACK_CONTACTS;
+  const featuresList = landingContent.features?.length ? landingContent.features : FALLBACK_FEATURES;
+  const solutionsList = landingContent.solutions?.length ? landingContent.solutions : FALLBACK_SOLUTIONS;
+  const statsList = landingContent.stats?.length ? landingContent.stats : [
+    { id: 1, number: "+12K", label: "معاملة ناجحة", suffix: "" },
+    { id: 2, number: "98%", label: "رضا العملاء", suffix: "" },
+    { id: 3, number: "24/7", label: "دعم متواصل", suffix: "" },
+    { id: 4, number: "+150", label: "شركة تعتمد علينا", suffix: "" }
+  ];
+  const contactDetails = landingContent.contactInfo?.length ? landingContent.contactInfo : FALLBACK_CONTACTS;
 
   useEffect(() => {
     const loadCMSContent = async (noCache = false) => {
@@ -393,52 +393,52 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
             heroDashboardMetrics:
               Array.isArray(hero?.cards) && hero.cards.length > 0
                 ? hero.cards.map((card: any, index: number) => ({
-                    id: index,
-                    value: card.content?.value ?? card.content?.title ?? "",
-                    label: card.content?.label ?? card.content?.body ?? "",
-                    color: card.content?.color ?? "blue",
-                    order: card.orderIndex ?? index,
-                  }))
+                  id: index,
+                  value: card.content?.value ?? card.content?.title ?? "",
+                  label: card.content?.label ?? card.content?.body ?? "",
+                  color: card.content?.color ?? "blue",
+                  order: card.orderIndex ?? index,
+                }))
                 : current.heroDashboardMetrics,
             featuresTitle: features?.content?.title ?? features?.title ?? current.featuresTitle,
             featuresDescription: features?.content?.subtitle ?? features?.subtitle ?? current.featuresDescription,
             features:
               Array.isArray(features?.cards) && features.cards.length > 0
                 ? features.cards.map((card: any, index: number) => ({
-                    id: index,
-                    title: card.content?.title ?? card.title ?? "",
-                    description: card.content?.body ?? card.body ?? "",
-                    icon: card.content?.icon ?? "Sparkles",
-                  }))
+                  id: index,
+                  title: card.content?.title ?? card.title ?? "",
+                  description: card.content?.body ?? card.body ?? "",
+                  icon: card.content?.icon ?? "Sparkles",
+                }))
                 : current.features,
             solutionsTitle: solutions?.content?.title ?? solutions?.title ?? current.solutionsTitle,
             solutionsDescription: solutions?.content?.subtitle ?? solutions?.subtitle ?? current.solutionsDescription,
             solutions:
               Array.isArray(solutions?.cards) && solutions.cards.length > 0
                 ? solutions.cards.map((card: any, index: number) => ({
-                    id: index,
-                    title: card.content?.title ?? card.title ?? "",
-                    description: card.content?.body ?? card.body ?? "",
-                    icon: card.content?.icon ?? "Target",
-                    features: Array.isArray(card.content?.features)
-                      ? card.content.features.map((feature: any, idx: number) => ({
-                          id: idx,
-                          text: feature?.text ?? feature ?? "",
-                          icon: feature?.icon ?? "Check",
-                        }))
-                      : [],
-                    order: card.orderIndex ?? index,
-                  }))
+                  id: index,
+                  title: card.content?.title ?? card.title ?? "",
+                  description: card.content?.body ?? card.body ?? "",
+                  icon: card.content?.icon ?? "Target",
+                  features: Array.isArray(card.content?.features)
+                    ? card.content.features.map((feature: any, idx: number) => ({
+                      id: idx,
+                      text: feature?.text ?? feature ?? "",
+                      icon: feature?.icon ?? "Check",
+                    }))
+                    : [],
+                  order: card.orderIndex ?? index,
+                }))
                 : current.solutions,
             statsTitle: stats?.content?.title ?? stats?.title ?? current.statsTitle,
             stats:
               Array.isArray(stats?.cards) && stats.cards.length > 0
                 ? stats.cards.map((card: any, index: number) => ({
-                    id: index,
-                    number: card.content?.value ?? "",
-                    label: card.content?.label ?? "",
-                    suffix: card.content?.suffix ?? "",
-                  }))
+                  id: index,
+                  number: card.content?.value ?? "",
+                  label: card.content?.label ?? "",
+                  suffix: card.content?.suffix ?? "",
+                }))
                 : current.stats,
             pricingTitle: pricing?.content?.title ?? pricing?.title ?? current.pricingTitle,
             pricingSubtitle: pricing?.content?.subtitle ?? pricing?.subtitle ?? current.pricingSubtitle,
@@ -448,37 +448,37 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
             contactInfo:
               Array.isArray(contact?.cards) && contact.cards.length > 0
                 ? contact.cards.map((card: any, index: number) => ({
-                    id: index,
-                    type: card.content?.type ?? "info",
-                    label: card.content?.title ?? card.title ?? "",
-                    value: card.content?.body ?? card.body ?? "",
-                    icon: card.content?.icon ?? "Mail",
-                  }))
+                  id: index,
+                  type: card.content?.type ?? "info",
+                  label: card.content?.title ?? card.title ?? "",
+                  value: card.content?.body ?? card.body ?? "",
+                  icon: card.content?.icon ?? "Mail",
+                }))
                 : current.contactInfo,
             footerDescription: footer?.content?.body ?? current.footerDescription,
             footerCopyright: footer?.content?.copyright ?? current.footerCopyright,
             footerLinks:
               Array.isArray(footer?.cards) && footer.cards.length > 0
                 ? footer.cards.flatMap((card: any, cardIndex: number) => {
-                    const category = card.content?.category ?? card.title ?? `group-${cardIndex}`;
-                    const links = Array.isArray(card.content?.links) ? card.content.links : [];
-                    return links.map((link: any, linkIndex: number) => ({
-                      id: `${card.id ?? cardIndex}-${linkIndex}`,
-                      text: link?.text ?? "",
-                      url: link?.href ?? link?.url ?? "#",
-                      category,
-                      order: link?.order ?? linkIndex,
-                    }));
-                  })
+                  const category = card.content?.category ?? card.title ?? `group-${cardIndex}`;
+                  const links = Array.isArray(card.content?.links) ? card.content.links : [];
+                  return links.map((link: any, linkIndex: number) => ({
+                    id: `${card.id ?? cardIndex}-${linkIndex}`,
+                    text: link?.text ?? "",
+                    url: link?.href ?? link?.url ?? "#",
+                    category,
+                    order: link?.order ?? linkIndex,
+                  }));
+                })
                 : current.footerLinks,
             navigation:
               Array.isArray(navigation?.cards) && navigation.cards.length > 0
                 ? navigation.cards.map((card: any, index: number) => ({
-                    id: index,
-                    text: card.content?.label ?? card.content?.title ?? card.title ?? "",
-                    url: card.content?.href ?? card.content?.link ?? "#",
-                    order: card.orderIndex ?? index,
-                  }))
+                  id: index,
+                  text: card.content?.label ?? card.content?.title ?? card.title ?? "",
+                  url: card.content?.href ?? card.content?.link ?? "#",
+                  order: card.orderIndex ?? index,
+                }))
                 : current.navigation,
           }));
 
@@ -493,10 +493,10 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
                 description: card.content?.body ?? "",
                 features: Array.isArray(card.content?.features)
                   ? card.content.features.map((feature: any, idx: number) => ({
-                      id: idx,
-                      text: feature?.text ?? feature ?? "",
-                      included: feature?.included ?? true,
-                    }))
+                    id: idx,
+                    text: feature?.text ?? feature ?? "",
+                    included: feature?.included ?? true,
+                  }))
                   : [],
                 buttonText: card.content?.cta?.label ?? "ابدأ الآن",
                 order: card.orderIndex ?? index,
@@ -584,7 +584,7 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
         </div>
       )}
       {/* Header */}
-            <PublicHeader />
+      <PublicHeader />
 
       {/* Hero Section */}
       <section id="home" className="pt-28 pb-20 bg-gradient-to-br from-primary/10 to-white" data-cms-section="hero">
@@ -647,8 +647,8 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
                       heroMetrics.map((metric) => {
                         const theme = HERO_METRIC_THEME[metric.color] ?? HERO_METRIC_THEME.blue;
                         return (
-                          <div 
-                            key={metric.id} 
+                          <div
+                            key={metric.id}
                             className={`bg-gradient-to-br ${theme.bg} p-1.5 rounded`}
                             data-cms-item="hero-metric"
                             data-metric-id={metric.id}
@@ -868,7 +868,7 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
             {(landingContent?.features && landingContent.features.length > 0
               ? landingContent.features
               : FALLBACK_FEATURES
-            ).map((feature, index) => {
+            ).map((feature: any, index: number) => {
               const key = feature.id ?? `feature-${index}`;
               const title = feature.title ?? "";
               const description = feature.description ?? "";
@@ -917,30 +917,30 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
             {(landingContent?.solutions && landingContent.solutions.length > 0
               ? landingContent.solutions
               : FALLBACK_SOLUTIONS
-            ).map((solution, index) => {
+            ).map((solution: any, index: number) => {
               const key = solution.id ?? `solution-${index}`;
               const featureItems = Array.isArray(solution.features) ? solution.features : [];
               return (
-                <Card 
-                  key={key} 
+                <Card
+                  key={key}
                   className="rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl hover:shadow-xl transition-shadow duration-300"
                   data-cms-item="solution"
                   data-solution-id={solution.id ?? `fallback-${index}`}
                 >
                   <CardContent className="p-8 text-center">
-                    <div 
+                    <div
                       className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
                       data-cms-element="solution-icon"
                     >
                       {renderIcon(solution.icon, "h-10 w-10 text-green-600")}
                     </div>
-                    <h3 
+                    <h3
                       className="text-2xl font-bold text-gray-900 mb-4"
                       data-cms-field="solution-title"
                     >
                       {solution.title}
                     </h3>
-                    <p 
+                    <p
                       className="text-gray-600 mb-6"
                       data-cms-field="solution-description"
                     >
@@ -952,8 +952,8 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
                           const text = typeof item === "string" ? item : item?.text ?? "";
                           const iconName = typeof item === "string" ? "circle-check-big" : item?.icon ?? "circle-check-big";
                           return (
-                            <li 
-                              key={`${key}-feature-${featureIndex}`} 
+                            <li
+                              key={`${key}-feature-${featureIndex}`}
                               className="flex items-center gap-3"
                               data-cms-item="solution-feature"
                               data-feature-index={featureIndex}
@@ -984,7 +984,7 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" data-cms-collection="stats">
             {landingContent?.stats && landingContent.stats.length > 0 ? (
-              landingContent.stats.map((stat) => (
+              landingContent.stats.map((stat: any) => (
                 <div key={stat.id} className="text-center" data-cms-item="stat" data-stat-id={stat.id}>
                   <div className="text-4xl lg:text-5xl font-bold text-white mb-2" data-cms-field="stat-number">
                     {stat.number}{stat.suffix || ''}
@@ -1031,7 +1031,7 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20" data-cms-collection="pricing-plans">
-            {displayedPricingPlans.map((plan) => (
+            {displayedPricingPlans.map((plan: any) => (
               <Card
                 key={plan.id}
                 className={`relative hover:shadow-xl transition-shadow duration-300 h-full ${plan.isPopular ? 'border-2 border-green-500' : ''}`}
@@ -1054,7 +1054,7 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
 
                   <div className="flex-1">
                     <ul className="space-y-4 text-right" data-cms-collection="plan-features">
-                      {plan.features.map((feature) => (
+                      {plan.features.map((feature: any) => (
                         <li
                           key={feature.id}
                           className="flex items-center gap-4 border-b border-gray-100 pb-3"
@@ -1206,30 +1206,30 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
             {(landingContent?.contactInfo && landingContent.contactInfo.length > 0
               ? landingContent.contactInfo
               : FALLBACK_CONTACTS
-            ).map((info, index) => {
+            ).map((info: any, index: number) => {
               const key = info.id ?? `contact-${index}`;
               const iconKey = info.icon || info.type || "phone";
               return (
-                <Card 
-                  key={key} 
+                <Card
+                  key={key}
                   className="text-center hover:shadow-xl transition-shadow duration-300"
                   data-cms-item="contact-info"
                   data-contact-id={info.id ?? `fallback-${index}`}
                 >
                   <CardContent className="p-8">
-                    <div 
+                    <div
                       className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
                       data-cms-element="contact-icon"
                     >
                       {renderIcon(iconKey, "h-8 w-8 text-green-600")}
                     </div>
-                    <h3 
+                    <h3
                       className="text-xl font-semibold text-gray-900 mb-2"
                       data-cms-field="contact-label"
                     >
                       {info.label}
                     </h3>
-                    <p 
+                    <p
                       className="text-gray-600"
                       data-cms-field="contact-value"
                     >
@@ -1259,7 +1259,7 @@ const contactDetails = landingContent.contactInfo?.length ? landingContent.conta
                   className="h-36 w-auto object-contain"
                 />
               </div>
-              <p 
+              <p
                 className="text-gray-400 mb-4"
                 data-cms-field="footerDescription"
               >
