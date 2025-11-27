@@ -66,10 +66,11 @@ import analyticsRoutes from "./src/routes/analytics"; // Analytics data
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
 import propertyCategoriesRoutes from "./routes/property-categories"; // Property categories dimension table
 import propertyTypesRoutes from "./routes/property-types"; // Property types (related to categories)
-import testAdminRoutes from "./test-admin";            // Test admin functionality
-import testDashboardRoutes from "./test-dashboard";  // Test dashboard functionality
-import testDbRoutes from "./test-db";                // Test database connection
-import simpleAnalyticsRoutes from "./simple-analytics"; // Simple analytics for testing
+// Test routes removed - use proper testing framework instead
+// import testAdminRoutes from "./test-admin";
+// import testDashboardRoutes from "./test-dashboard";
+// import testDbRoutes from "./test-db";
+// import simpleAnalyticsRoutes from "./simple-analytics";
 import cmsLandingRoutes from "./routes/cms-landing";
 import cmsArticlesRoutes from "./routes/cms-articles";
 import cmsMediaRoutes from "./routes/cms-media";
@@ -279,10 +280,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-  app.use("/api/test-admin", testAdminRoutes);
-  app.use("/api/test-dashboard", testDashboardRoutes);
-  app.use("/api/test-db", testDbRoutes);
-  app.use("/api/simple-analytics", simpleAnalyticsRoutes);
+  // Test routes removed - these should be replaced with proper unit/integration tests
+  // Only enable in development if needed for manual testing
+  if (process.env.NODE_ENV === 'development' && process.env.ENABLE_TEST_ROUTES === 'true') {
+    const testAdminRoutes = await import("./test-admin");
+    const testDashboardRoutes = await import("./test-dashboard");
+    const testDbRoutes = await import("./test-db");
+    const simpleAnalyticsRoutes = await import("./simple-analytics");
+    app.use("/api/test-admin", testAdminRoutes.default);
+    app.use("/api/test-dashboard", testDashboardRoutes.default);
+    app.use("/api/test-db", testDbRoutes.default);
+    app.use("/api/simple-analytics", simpleAnalyticsRoutes.default);
+  }
 
   /**
    * Property Listings Routes - /api/listings/*
@@ -1071,10 +1080,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const previewToken = process.env.LANDING_PREVIEW_TOKEN;
 
-  app.get("/api/landing", async (_req, res) => {
+  app.get("/api/landing", async (req, res) => {
     try {
       const data = await LandingService.getPublicLanding();
-      res.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=120");
+      // Reduced cache time and allow no-cache header to bypass cache
+      const noCache = req.headers['cache-control']?.includes('no-cache') || req.query.t;
+      if (noCache) {
+        res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        res.setHeader("Pragma", "no-cache");
+        res.setHeader("Expires", "0");
+      } else {
+        res.setHeader("Cache-Control", "public, max-age=10, stale-while-revalidate=30");
+      }
       res.json({ data });
     } catch (error) {
       console.error("Failed to fetch landing data:", error);

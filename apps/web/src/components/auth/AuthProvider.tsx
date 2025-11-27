@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { UserRole, ROLE_PERMISSIONS, normalizeRoleKeys } from '@shared/rbac';
+import { logger } from '@/lib/logger';
 export { UserRole } from '@shared/rbac';
 
 /**
@@ -128,7 +129,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (identifier: string, password: string) => {
     try {
       // Log login attempt (password is masked for security)
-      console.log('Attempting login with:', { identifier, password: password ? '***' : 'undefined' });
+      logger.debug('Attempting login', {
+        context: 'AuthProvider',
+        data: { identifier, password: password ? '***' : 'undefined' }
+      });
 
       // Normalize identifier client-side (trim + lowercase for matching)
       const rawIdentifier = (identifier || '').trim();
@@ -167,22 +171,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {
         data = { message: raw };
       }
-      console.log('Login response:', { 
-        status: response.status, 
-        statusText: response.statusText,
-        ok: response.ok,
-        headers: Object.fromEntries(response.headers.entries()),
-        data 
+      logger.debug('Login response received', {
+        context: 'AuthProvider',
+        data: { 
+          status: response.status, 
+          statusText: response.statusText,
+          ok: response.ok,
+          headers: Object.fromEntries(response.headers.entries()),
+          data 
+        }
       });
 
       // Check if request was successful
       if (!response.ok) {
         const errorMessage = data.message || data.error || `Login failed (${response.status} ${response.statusText})`;
-        console.error('Login failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          data,
-          errorMessage
+        logger.error('Login failed', {
+          context: 'AuthProvider',
+          data: {
+            status: response.status,
+            statusText: response.statusText,
+            data,
+            errorMessage
+          }
         });
         throw new Error(errorMessage);
       }
@@ -196,7 +206,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('auth_token', data.token);              // Persist token in localStorage
         localStorage.setItem('user_data', JSON.stringify(normalizedUser)); // Persist user data in localStorage
         setSessionExpired(false);
-        console.log('Login successful, user set:', data.user);
+        logger.info('Login successful', {
+          context: 'AuthProvider',
+          data: { userId: data.user?.id, roles: data.user?.roles }
+        });
 
         // Redirect users based on role after the auth state is stored. 
         // WEBSITE_ADMIN → Admin Dashboard
@@ -222,7 +235,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error(data.message || data.error || 'Login failed');
       }
     } catch (error) {
-      console.error('Login error:', error);
+      logger.error('Login error', {
+        context: 'AuthProvider',
+        data: { error: error instanceof Error ? error.message : String(error) }
+      });
       throw error;  // Re-throw error for component handling
     }
   };
@@ -306,7 +322,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (error) {
-        console.error('Auth check error:', error);
+        logger.error('Auth check error', {
+          context: 'AuthProvider',
+          data: { error: error instanceof Error ? error.message : String(error) }
+        });
         // Clear storage on any error
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user_data');

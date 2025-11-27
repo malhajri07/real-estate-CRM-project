@@ -31,6 +31,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 import { UserRole } from "@shared/rbac";
 import { Button } from "@/components/ui/button";
+import { logger } from "@/lib/logger";
 
 // Core page imports - loaded immediately for critical public routes
 import Landing from "@/pages/landing";
@@ -282,23 +283,21 @@ function Router() {
     return <SuspendedUnverifiedListingPage />;
   }
 
-  // Debug authentication state
-  console.log('Auth Debug:', {
-    isAuthenticated,
-    isLoading,
-    user: user ? 'authenticated' : 'not authenticated'
-  });
-  
   // Detect which server port is being used
   const isDashboardPort = (window as any).SERVER_PORT === '3000' || window.location.port === '3000';
   
-  // Debug logging
-  console.log('Routing Debug:', {
-    SERVER_PORT: (window as any).SERVER_PORT,
-    locationPort: window.location.port,
-    isDashboardPort,
-    isAuthenticated,
-    location
+  // Debug logging (development only)
+  logger.debug('Routing state', {
+    context: 'Router',
+    data: {
+      SERVER_PORT: (window as any).SERVER_PORT,
+      locationPort: window.location.port,
+      isDashboardPort,
+      isAuthenticated,
+      location,
+      isLoading,
+      user: user ? 'authenticated' : 'not authenticated'
+    }
   });
 
   // Logout handler for platform routes
@@ -447,7 +446,10 @@ function Router() {
 // Port-based routing logic:
   // - Port 3000 (Express server): primary host serving both API and frontend
   // - Any other port (e.g. standalone Vite dev server): keep public experience and redirect
-  console.log('Port routing check:', { isDashboardPort, isAuthenticated });
+  logger.debug('Port routing check', {
+    context: 'Router',
+    data: { isDashboardPort, isAuthenticated }
+  });
 
   const dashboardRedirectPaths = Array.from(
     new Set<string>([
@@ -479,14 +481,102 @@ function Router() {
     );
   };
 
-  const LegacyUnverifiedListingRedirect = createRedirectComponent(
-    '/unverified-listings',
-    'جارٍ تحويلك إلى صفحة عرض العقار...'
+  // Helper function to render public routes (used in multiple places)
+  // Routes ordered from most specific to least specific for optimal matching
+  const renderPublicRoutes = () => (
+    <>
+      {/* Specific routes first */}
+      <Route path="/blog/:slug" component={SuspendedBlogPage} />
+      <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
+      <Route path="/signup/success" component={SignupSuccess} />
+      <Route path="/signup/corporate" component={SignupCorporate} />
+      <Route path="/signup/individual" component={SignupIndividual} />
+      {/* Less specific routes */}
+      <Route path="/blog" component={SuspendedBlogPage} />
+      <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
+      <Route path="/marketing-request" component={SuspendedMarketingRequestSubmissionPage} />
+      <Route path="/real-estate-requests" component={SuspendedRealEstateRequestsPage} />
+      <Route path="/map" component={SuspendedSearchPropertiesPage} />
+      <Route path="/signup" component={SignupSelection} />
+      <Route path="/home" component={Landing} />
+    </>
   );
+
+  // Helper function to render platform routes
+  const renderPlatformRoutes = (includeAliases: boolean = true) => (
+    <>
+      {platformShellRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
+        const routes = [
+          <Route
+            key={path}
+            path={path}
+            component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
+          />
+        ];
+        if (includeAliases && aliases) {
+          routes.push(
+            ...aliases.map((alias) => (
+              <Route
+                key={`${path}-alias-${alias}`}
+                path={alias}
+                component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
+              />
+            ))
+          );
+        }
+        return routes;
+      })}
+      {platformAdditionalRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
+        const routes = [
+          <Route
+            key={path}
+            path={path}
+            component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
+          />
+        ];
+        if (includeAliases && aliases) {
+          routes.push(
+            ...aliases.map((alias) => (
+              <Route
+                key={`${path}-alias-${alias}`}
+                path={alias}
+                component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
+              />
+            ))
+          );
+        }
+        return routes;
+      })}
+      {platformDynamicRoutes.flatMap(({ path, component, options, aliases, allowedRoles }) => {
+        const routes = [
+          <Route
+            key={path}
+            path={path}
+            component={renderPlatformShellRoute(component, options, allowedRoles)}
+          />
+        ];
+        if (includeAliases && aliases) {
+          routes.push(
+            ...aliases.map((alias) => (
+              <Route
+                key={`${path}-alias-${alias}`}
+                path={alias}
+                component={renderPlatformShellRoute(component, options, allowedRoles)}
+              />
+            ))
+          );
+        }
+        return routes;
+      })}
+    </>
+  );
+
   
   // Standalone Vite dev server (non-dashboard ports) should redirect back to Express
   if (!isDashboardPort) {
-    console.log('Non-dashboard port detected: redirecting secured routes to 3000');
+    logger.debug('Non-dashboard port detected: redirecting secured routes to 3000', {
+      context: 'Router'
+    });
     // When running the standalone Vite server, keep public routes here and redirect
     // any authenticated routes back to the Express instance on port 3000
     return (
@@ -507,96 +597,18 @@ function Router() {
             }}
           />
         ))}
-        {/* Login route removed - handled by dashboard port section */}
-        {/* Public Blog Routes - Must come before landing page */}
-        <Route path="/blog/:slug" component={SuspendedBlogPage} />
-        <Route path="/blog" component={SuspendedBlogPage} />
-        {/* Landing page */}
-        <Route path="/home" component={Landing} />
-        <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
-        <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
-        <Route path="/marketing-request" component={SuspendedMarketingRequestSubmissionPage} />
-
         {/* RBAC-aware login accessible from landing */}
         <Route path="/home/login" component={SuspendedRBACLoginPage} />
         <Route path="/home/platform" component={SuspendedPlatformPage} />
 
+        {/* Public Routes */}
+        {renderPublicRoutes()}
+
         {/* Platform Dashboard Routes - All dashboard functionality under /home/platform/ */}
-        {platformShellRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
-          const routes = [
-            <Route
-              key={path}
-              path={path}
-              component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
-            />
-          ];
-          if (aliases) {
-            routes.push(
-              ...aliases.map((alias) => (
-                <Route
-                  key={`${path}-alias-${alias}`}
-                  path={alias}
-                  component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
-                />
-              ))
-            );
-          }
-          return routes;
-        })}
-
-        {platformAdditionalRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
-          const routes = [
-            <Route
-              key={path}
-              path={path}
-              component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
-            />
-          ];
-          if (aliases) {
-            routes.push(
-              ...aliases.map((alias) => (
-                <Route
-                  key={`${path}-alias-${alias}`}
-                  path={alias}
-                  component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
-                />
-              ))
-            );
-          }
-          return routes;
-        })}
-
-        {platformDynamicRoutes.flatMap(({ path, component, options, aliases, allowedRoles }) => {
-          const routes = [
-            <Route
-              key={path}
-              path={path}
-              component={renderPlatformShellRoute(component, options, allowedRoles)}
-            />
-          ];
-          if (aliases) {
-            routes.push(
-              ...aliases.map((alias) => (
-                <Route
-                  key={`${path}-alias-${alias}`}
-                  path={alias}
-                  component={renderPlatformShellRoute(component, options, allowedRoles)}
-                />
-              ))
-            );
-          }
-          return routes;
-        })}
+        {renderPlatformRoutes(true)}
         
         {/* Admin Route with RBAC Dashboard - No sidebar/header */}
         <Route path="/home/admin" component={renderAdminDashboardRoute} />
-        
-        <Route path="/signup" component={SignupSelection} />
-        <Route path="/signup/individual" component={SignupIndividual} />
-        <Route path="/signup/corporate" component={SignupCorporate} />
-        <Route path="/signup/success" component={SignupSuccess} />
-        <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
-        <Route path="/real-estate-requests" component={SuspendedRealEstateRequestsPage} />
         {/* Default route for non-dashboard port - redirect to home */}
         <Route component={() => {
           window.location.href = '/home';
@@ -618,36 +630,8 @@ function Router() {
           window.location.href = '/rbac-login';
           return null;
         }} />
-        {/* Test route to verify routing works */}
-        <Route path="/test-login">
-          {() => {
-            console.log('✅ TEST ROUTE MATCHED - /test-login');
-            return (
-              <div className="min-h-screen flex items-center justify-center bg-red-100">
-                <div className="text-center">
-                  <h1 className="text-2xl font-bold text-red-800">TEST ROUTE WORKING!</h1>
-                  <p className="text-red-600">If you see this, routing is working correctly.</p>
-                  <button 
-                    onClick={() => window.location.href = '/rbac-login'}
-                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-                  >
-                    Go to RBAC Login
-                  </button>
-                </div>
-              </div>
-            );
-          }}
-        </Route>
-        <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
-        <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
-        <Route path="/marketing-request" component={SuspendedMarketingRequestSubmissionPage} />
-        <Route path="/signup" component={SignupSelection} />
-        <Route path="/signup/individual" component={SignupIndividual} />
-        <Route path="/signup/corporate" component={SignupCorporate} />
-        <Route path="/signup/success" component={SignupSuccess} />
-        <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
-        <Route path="/map" component={SuspendedSearchPropertiesPage} />
-        <Route path="/real-estate-requests" component={SuspendedRealEstateRequestsPage} />
+        {/* Public Routes */}
+        {renderPublicRoutes()}
         {ADMIN_DASHBOARD_ROUTES.map((path) => (
           <Route
             key={`guest-admin-${path}`}
@@ -702,7 +686,9 @@ function Router() {
    * Note: These routes are only shown on port 3000 (dashboard port) for authenticated users
    */
   if (isDashboardPort && isAuthenticated) {
-    console.log('Port 3000: Showing authenticated routes (dashboard)');
+    logger.debug('Port 3000: Showing authenticated routes (dashboard)', {
+      context: 'Router'
+    });
 
     // Separate admin users from platform users
     const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN);
@@ -739,76 +725,10 @@ function Router() {
           {isPlatformUser && (
             <>
               <Route path="/home/platform" component={SuspendedPlatformPage} />
-              <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
               <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
 
-              {platformShellRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
-                const routes = [
-                  <Route
-                    key={path}
-                    path={path}
-                    component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
-                  />,
-                ];
-
-                if (aliases) {
-                  routes.push(
-                    ...aliases.map((alias) => (
-                      <Route
-                        key={alias}
-                        path={alias}
-                        component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
-                      />
-                    )),
-                  );
-                }
-
-                return routes;
-              })}
-
-              {platformAdditionalRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
-                const routes = [
-                  <Route
-                    key={path}
-                    path={path}
-                    component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
-                  />
-                ];
-                if (aliases) {
-                  routes.push(
-                    ...aliases.map((alias) => (
-                      <Route
-                        key={`${path}-alias-${alias}`}
-                        path={alias}
-                        component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
-                      />
-                    ))
-                  );
-                }
-                return routes;
-              })}
-
-              {platformDynamicRoutes.flatMap(({ path, component, options, aliases, allowedRoles }) => {
-                const routes = [
-                  <Route
-                    key={path}
-                    path={path}
-                    component={renderPlatformShellRoute(component, options, allowedRoles)}
-                  />
-                ];
-                if (aliases) {
-                  routes.push(
-                    ...aliases.map((alias) => (
-                      <Route
-                        key={`${path}-alias-${alias}`}
-                        path={alias}
-                        component={renderPlatformShellRoute(component, options, allowedRoles)}
-                      />
-                    ))
-                  );
-                }
-                return routes;
-              })}
+              {/* Platform Routes */}
+              {renderPlatformRoutes(true)}
 
               {/* Redirect platform users from admin routes to platform dashboard */}
               {ADMIN_DASHBOARD_ROUTES.map((path) => (
@@ -821,7 +741,6 @@ function Router() {
           {isSellerBuyer && (
             <>
               <Route path="/home/platform" component={SuspendedPlatformPage} />
-              <Route path="/unverfied-listing" component={LegacyUnverifiedListingRedirect} />
               <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
 
               {/* Redirect seller/buyer users from admin routes to platform dashboard */}
@@ -849,7 +768,10 @@ function Router() {
   }
 
   // Fallback case: This should not happen with the new logic
-  console.log('Fallback case: Unexpected routing state');
+  logger.warn('Fallback case: Unexpected routing state', {
+    context: 'Router',
+    data: { isDashboardPort, isAuthenticated, location }
+  });
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       <div className="text-center">
