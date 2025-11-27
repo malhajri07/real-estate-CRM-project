@@ -1,3 +1,22 @@
+/**
+ * index.ts - Seed Index
+ * 
+ * Location: apps/api/ → Lib/ → seeds/ → index.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Main seed index file. Orchestrates:
+ * - Database seeding process
+ * - Seed execution order
+ * - Seed result reporting
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/core.ts - Core seed data
+ * - apps/api/lib/seeds/domain.ts - Domain seed data
+ * - apps/api/lib/seeds/cms.ts - CMS seed data
+ * - apps/api/lib/seeds/analytics.ts - Analytics seed data
+ * - apps/api/lib/seeds/revenue.ts - Revenue seed data
+ */
+
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { Faker, ar, en } from "@faker-js/faker";

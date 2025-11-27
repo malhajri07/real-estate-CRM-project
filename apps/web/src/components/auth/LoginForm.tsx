@@ -1,7 +1,10 @@
 /**
  * LoginForm.tsx - Authentication Login Form Component
  * 
- * This component provides a user-friendly login form with:
+ * Location: apps/web/src/ → Components/ → Auth Components → LoginForm.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Authentication login form component. Provides:
  * - Email and password input fields
  * - Password visibility toggle
  * - Form validation and error handling
@@ -11,6 +14,10 @@
  * 
  * The form integrates with the AuthProvider context through the onLogin callback
  * and handles all authentication UI states including loading, errors, and success.
+ * 
+ * Related Files:
+ * - apps/web/src/pages/rbac-login.tsx - Login page that uses this component
+ * - apps/web/src/components/auth/AuthProvider.tsx - Auth context
  * 
  * Dependencies:
  * - AuthProvider context for authentication state

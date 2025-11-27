@@ -1,3 +1,19 @@
+/**
+ * core.ts - Core Seed Data
+ * 
+ * Location: apps/api/ → Lib/ → seeds/ → core.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Core seed data generation. Provides:
+ * - User and role seeding
+ * - Permission seeding
+ * - Core entity data
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/index.ts - Seed orchestrator
+ * - apps/api/seed-rbac.ts - RBAC seed script
+ */
+
 import bcrypt from "bcryptjs";
 import { differenceInDays, subDays } from "date-fns";
 import { SeedContext, SeedResult, SeedCredential } from "./types";

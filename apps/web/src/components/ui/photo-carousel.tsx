@@ -1,3 +1,19 @@
+/**
+ * photo-carousel.tsx - Photo Carousel Component
+ * 
+ * Location: apps/web/src/ → Components/ → UI Components → photo-carousel.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Photo carousel component for displaying image galleries. Provides:
+ * - Image navigation
+ * - Auto-height support
+ * - Indicators
+ * 
+ * Related Files:
+ * - apps/web/src/components/listings/ListingCard.tsx - Uses this component
+ * - apps/web/src/pages/property-detail.tsx - Property detail page uses this
+ */
+
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";

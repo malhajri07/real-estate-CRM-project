@@ -1,4 +1,19 @@
 /**
+ * types.ts - Map Page Type Definitions
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → types.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Type definitions for the Map page. Defines:
+ * - Map-related interfaces and types
+ * - Property types
+ * - Filter types
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/index.tsx - Map page uses these types
+ */
+
+/**
  * Type definitions for the Map page
  */
 

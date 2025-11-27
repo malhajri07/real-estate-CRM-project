@@ -1,4 +1,18 @@
 /**
+ * formatters.ts - Map Page Formatting Utilities
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → utils/ → formatters.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Formatting utilities for the map page. Provides:
+ * - Coordinate format conversion
+ * - Data formatting functions
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/index.tsx - Map page uses these utilities
+ */
+
+/**
  * Formatting utilities for the Map page
  */
 

@@ -1,3 +1,18 @@
+/**
+ * design-system.ts - Design System Utilities
+ * 
+ * Location: apps/web/src/ → Lib/ → design-system.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Design system utility classes and constants. Provides:
+ * - Reusable Tailwind CSS class combinations
+ * - Consistent styling patterns
+ * - Component styling utilities
+ * 
+ * Related Files:
+ * - apps/web/src/config/platform-theme.ts - Platform theme configuration
+ */
+
 export const pageContainer = "mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-8";
 export const surfaceCard = "rounded-3xl border border-border/60 bg-card/80 shadow-elevated backdrop-blur-xl transition-all duration-300";
 export const interactiveCard = "transition-transform duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-floating";

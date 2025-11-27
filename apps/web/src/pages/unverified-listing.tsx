@@ -1,3 +1,21 @@
+/**
+ * unverified-listing.tsx - Public Unverified Listing Submission Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → unverified-listing.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Public unverified listing submission page. Provides:
+ * - Unverified listing submission form
+ * - Property information input
+ * - Image upload
+ * 
+ * Route: /unverified-listings
+ * 
+ * Related Files:
+ * - apps/web/src/pages/unverified-listings-management.tsx - Management interface
+ * - apps/api/routes/unverified-listings.ts - Unverified listings API routes
+ */
+
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

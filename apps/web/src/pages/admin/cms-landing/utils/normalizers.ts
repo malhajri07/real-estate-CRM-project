@@ -1,4 +1,19 @@
 /**
+ * normalizers.ts - CMS Landing Page Data Normalizers
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → cms-landing/ → utils/ → normalizers.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Normalization utilities for CMS landing page. Converts:
+ * - Section/card data structures to form state
+ * - API responses to form-compatible format
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/cms-landing/index.tsx - CMS landing editor
+ * - apps/api/services/landingService.ts - Landing page service
+ */
+
+/**
  * Normalization utilities for CMS Landing Page
  * 
  * Converts section/card data structures to form state

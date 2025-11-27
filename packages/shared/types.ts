@@ -1,8 +1,19 @@
 /**
- * packages/shared/types.ts - Shared TypeScript Types
+ * types.ts - Shared TypeScript Types
  * 
- * This file provides shared TypeScript types for the real estate CRM platform.
- * It replaces the Drizzle-based schema types with Prisma-compatible types.
+ * Location: packages/shared/ → types.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Shared TypeScript types for the real estate CRM platform. Provides:
+ * - User and authentication types
+ * - Property and listing types
+ * - Lead and deal management types
+ * - Prisma-compatible types (replaces Drizzle-based schema types)
+ * 
+ * Related Files:
+ * - Used throughout both frontend and backend applications
+ * - apps/api/prismaClient.ts - Prisma client uses these types
+ * - apps/web/src/lib/queryClient.ts - API client uses these types
  * 
  * Key Features:
  * - User and authentication types

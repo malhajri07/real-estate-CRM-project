@@ -1,3 +1,19 @@
+/**
+ * platform-sidebar.ts - Platform Sidebar Configuration
+ * 
+ * Location: apps/web/src/ → Config/ → platform-sidebar.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Platform sidebar navigation configuration. Defines:
+ * - Sidebar menu items
+ * - Navigation structure
+ * - Icon mappings
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/sidebar.tsx - Sidebar component
+ * - apps/web/src/config/admin-sidebar.ts - Admin sidebar configuration
+ */
+
 import {
   BarChart3,
   Bell,

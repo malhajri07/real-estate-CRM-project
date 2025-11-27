@@ -1,3 +1,21 @@
+/**
+ * agencies.tsx - Agencies Listing Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → agencies.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Agencies listing page. Displays:
+ * - List of all agencies
+ * - Agency verification status
+ * - Agent and listing counts
+ * 
+ * Route: /home/platform/agencies or /agencies
+ * 
+ * Related Files:
+ * - apps/web/src/pages/agency.tsx - Agency detail page
+ * - apps/api/routes/agencies.ts - Agencies API routes
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, LOADING_STYLES } from "@/config/platform-theme";

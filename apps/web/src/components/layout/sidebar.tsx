@@ -1,3 +1,19 @@
+/**
+ * sidebar.tsx - Platform Sidebar Component
+ * 
+ * Location: apps/web/src/ → Components/ → Layout Components → sidebar.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Platform sidebar navigation component. Provides:
+ * - Navigation menu
+ * - Collapsible sections
+ * - Active route highlighting
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/PlatformShell.tsx - Uses this sidebar
+ * - apps/web/src/config/platform-sidebar.ts - Sidebar configuration
+ */
+
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { ChevronDown, ChevronRight, LogOut } from "lucide-react";

@@ -1,11 +1,18 @@
 /**
- * Unified Page Structure Configuration
+ * platform-page-structure.ts - Platform Page Structure Configuration
  * 
- * Defines consistent HTML structure for all platform pages:
+ * Location: apps/web/src/ → Config/ → platform-page-structure.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Unified page structure configuration. Defines:
+ * - Consistent HTML structure for all platform pages
  * - Standard main container
  * - Consistent section organization
  * - Unified card patterns
  * - RTL support
+ * 
+ * Related Files:
+ * - apps/web/src/config/platform-theme.ts - Platform theme configuration
  * 
  * Structure pattern:
  * <main className={PAGE_WRAPPER} dir="rtl">

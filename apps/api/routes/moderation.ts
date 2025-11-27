@@ -1,3 +1,23 @@
+/**
+ * routes/moderation.ts - Content Moderation API Routes
+ * 
+ * Location: apps/api/ → Routes/ → moderation.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for content moderation. Handles:
+ * - Moderation queue retrieval
+ * - Property approval/rejection
+ * - Moderation status management
+ * 
+ * API Endpoints:
+ * - GET /api/moderation/queue - Get moderation queue
+ * - POST /api/moderation/approve - Approve content
+ * - POST /api/moderation/reject - Reject content
+ * 
+ * Related Files:
+ * - apps/web/src/pages/moderation.tsx - Moderation queue page
+ */
+
 import express from "express";
 import { storage } from "../storage-prisma";
 

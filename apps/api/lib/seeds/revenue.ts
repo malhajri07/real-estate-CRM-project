@@ -1,3 +1,18 @@
+/**
+ * revenue.ts - Revenue Seed Data
+ * 
+ * Location: apps/api/ → Lib/ → seeds/ → revenue.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Revenue seed data generation. Provides:
+ * - Invoice seeding
+ * - Payment seeding
+ * - Revenue entity data
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/index.ts - Seed orchestrator
+ */
+
 import { createHash } from "crypto";
 import { addDays, endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { Prisma } from "@prisma/client";

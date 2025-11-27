@@ -1,3 +1,23 @@
+/**
+ * properties.tsx - Property Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → properties.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Property management page for authenticated users. Provides:
+ * - Property listing and search
+ * - Property CRUD operations
+ * - Property filtering and sorting
+ * - Property detail views
+ * 
+ * Route: /home/platform/properties or /properties
+ * 
+ * Related Files:
+ * - apps/web/src/components/modals/add-property-modal.tsx - Add property modal
+ * - apps/web/src/pages/property-detail.tsx - Property detail page
+ * - apps/api/routes/listings.ts - Property API routes
+ */
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Trash2, Edit, Eye, Plus, Bed, Bath, Square, Filter, SlidersHorizontal, Share2, LayoutGrid, List, Sofa } from "lucide-react";

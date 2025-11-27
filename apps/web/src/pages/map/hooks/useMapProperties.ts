@@ -1,4 +1,20 @@
 /**
+ * useMapProperties.ts - Map Properties Hook
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → hooks/ → useMapProperties.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Custom hook for map property data. Handles:
+ * - Fetching property data
+ * - Property data transformation
+ * - Property filtering
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/index.tsx - Map page
+ * - apps/web/src/pages/map/hooks/useMapFilters.ts - Filters hook
+ */
+
+/**
  * useMapProperties Hook
  * 
  * Handles fetching and transforming property data

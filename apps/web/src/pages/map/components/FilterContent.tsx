@@ -1,4 +1,20 @@
 /**
+ * FilterContent.tsx - Filter Content Component
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → components/ → FilterContent.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Filter sidebar/form component. Renders:
+ * - Search and filter controls
+ * - Filter sidebar
+ * - Filter state management
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/index.tsx - Map page
+ * - apps/web/src/pages/map/hooks/useMapFilters.ts - Filters hook
+ */
+
+/**
  * FilterContent Component
  * 
  * Renders the filter sidebar/form with all search and filter controls.

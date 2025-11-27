@@ -1,3 +1,17 @@
+/**
+ * serve-static.ts - Static File Serving
+ * 
+ * Location: apps/api/ → Core Application Files → serve-static.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Static file serving for production builds. Provides:
+ * - Static asset serving
+ * - Build output verification
+ * 
+ * Related Files:
+ * - apps/api/index.prod.ts - Production entry point uses this
+ */
+
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";

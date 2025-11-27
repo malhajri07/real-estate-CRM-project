@@ -1,4 +1,20 @@
 /**
+ * useMapFilters.ts - Map Filters Hook
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → hooks/ → useMapFilters.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Custom hook for map filter management. Handles:
+ * - Filter state management
+ * - Filtering logic
+ * - Filter application
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/index.tsx - Map page
+ * - apps/web/src/pages/map/hooks/useMapProperties.ts - Properties hook
+ */
+
+/**
  * useMapFilters Hook
  * 
  * Handles filter state management and filtering logic

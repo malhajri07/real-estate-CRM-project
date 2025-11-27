@@ -1,3 +1,20 @@
+/**
+ * routes/reports.ts - Reports API Routes
+ * 
+ * Location: apps/api/ → Routes/ → reports.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for reporting functionality. Handles:
+ * - Property listing reports
+ * - User reporting of inappropriate content
+ * 
+ * API Endpoints:
+ * - POST /api/reports - Submit a report
+ * 
+ * Related Files:
+ * - apps/web/src/pages/reports.tsx - Reports page
+ */
+
 // @ts-nocheck
 import express from "express";
 import { z } from "zod";

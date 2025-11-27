@@ -1,3 +1,18 @@
+/**
+ * AdminCard.tsx - Admin Card Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → data-display/ → AdminCard.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin card component for displaying metrics and data. Provides:
+ * - Metric card display
+ * - Trend indicators
+ * - Icon support
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/enhanced-dashboard.tsx - Uses this component
+ */
+
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 

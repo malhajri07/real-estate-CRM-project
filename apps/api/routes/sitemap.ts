@@ -1,3 +1,21 @@
+/**
+ * routes/sitemap.ts - Sitemap API Routes
+ * 
+ * Location: apps/api/ → Routes/ → sitemap.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for sitemap generation. Handles:
+ * - XML sitemap generation
+ * - Robots.txt generation
+ * 
+ * API Endpoints:
+ * - GET /sitemap.xml - Generate XML sitemap
+ * - GET /robots.txt - Generate robots.txt
+ * 
+ * Related Files:
+ * - apps/web/src/pages/ - Page components included in sitemap
+ */
+
 import express from 'express';
 import { storage } from '../storage-prisma';
 

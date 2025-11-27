@@ -1,3 +1,19 @@
+/**
+ * navigationService.ts - Navigation Service
+ * 
+ * Location: apps/api/ → Services/ → navigationService.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Service for managing site navigation menus. Provides business logic for:
+ * - Navigation link creation, update, and deletion
+ * - Link ordering and visibility
+ * - Navigation menu structure management
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-navigation.ts - Navigation API routes
+ * - apps/web/src/pages/admin/navigation-management.tsx - Navigation management UI
+ */
+
 // @ts-nocheck
 import { prisma } from "../prismaClient";
 import { z } from "zod";

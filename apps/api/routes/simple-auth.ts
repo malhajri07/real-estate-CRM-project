@@ -1,11 +1,21 @@
-// @ts-nocheck
 /**
- * apps/api/routes/simple-auth.ts - Simple Authentication Routes
+ * routes/simple-auth.ts - Simple Authentication Routes
+ * 
+ * Location: apps/api/ → Routes/ → simple-auth.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
  * 
  * This file provides basic authentication endpoints that work with the current
  * database setup. It's a simplified version of the auth system to get the
  * website working.
+ * 
+ * Note: This is a simplified auth implementation. For production, use routes/auth.ts
+ * 
+ * Related Files:
+ * - apps/api/routes/auth.ts - Full authentication routes
+ * - apps/api/auth.ts - Authentication utilities
  */
+
+// @ts-nocheck
 
 import { Router } from "express";
 import { prisma } from "../prismaClient";

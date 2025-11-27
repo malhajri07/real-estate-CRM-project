@@ -1,3 +1,18 @@
+/**
+ * AdminDatePicker.tsx - Admin Date Picker Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → forms/ → AdminDatePicker.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin date picker component. Provides:
+ * - Date selection interface
+ * - RTL support
+ * - Date formatting
+ * 
+ * Related Files:
+ * - Used in admin forms for date selection
+ */
+
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';

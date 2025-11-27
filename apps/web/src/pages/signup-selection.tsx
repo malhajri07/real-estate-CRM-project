@@ -1,3 +1,20 @@
+/**
+ * signup-selection.tsx - Signup Type Selection Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → signup-selection.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Signup type selection page. Allows users to choose between:
+ * - Individual agent signup
+ * - Corporate signup
+ * 
+ * Route: /signup
+ * 
+ * Related Files:
+ * - apps/web/src/pages/signup-individual.tsx - Individual signup page
+ * - apps/web/src/pages/signup-corporate.tsx - Corporate signup page
+ */
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocation } from "wouter";

@@ -1,3 +1,17 @@
+/**
+ * add-sample-images.ts - Sample Images Script
+ * 
+ * Location: apps/api/ → Scripts/ → add-sample-images.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Sample images script. Provides:
+ * - Sample image URL seeding
+ * - Property image assignment
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/domain.ts - Domain seed data
+ */
+
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();

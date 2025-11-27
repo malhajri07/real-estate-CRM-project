@@ -1,3 +1,18 @@
+/**
+ * test-admin.ts - Admin Test Routes
+ * 
+ * Location: apps/api/ → Testing & Utilities → test-admin.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin test routes for development/testing. Provides:
+ * - Admin functionality testing
+ * - Test endpoints
+ * 
+ * Related Files:
+ * - apps/api/test-dashboard.ts - Dashboard test routes
+ * - apps/api/test-db.ts - Database test routes
+ */
+
 import { Router } from 'express';
 import { prisma } from './prismaClient';
 

@@ -1,3 +1,18 @@
+/**
+ * action-bar.tsx - Action Bar Component
+ * 
+ * Location: apps/web/src/ → Components/ → UI Components → action-bar.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Reusable action bar component. Provides:
+ * - Action buttons container
+ * - Title and subtitle support
+ * - Consistent action bar styling
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/unified-page-layout.tsx - Uses this component
+ */
+
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { COMPONENT_STYLES } from '@/config/theme';

@@ -1,3 +1,19 @@
+/**
+ * LandingStudio.tsx - Landing Page Studio Component
+ * 
+ * Location: apps/web/src/ → Components/ → CMS Components → LandingStudio.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Landing page studio component for CMS. Provides:
+ * - Landing page section editing
+ * - Visual editor interface
+ * - Section management
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/cms-landing/ - CMS landing editor pages
+ * - apps/api/routes/cms-landing.ts - CMS landing API routes
+ */
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';

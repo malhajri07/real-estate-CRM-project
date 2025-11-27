@@ -1,3 +1,19 @@
+/**
+ * PlatformShell.tsx - Platform Shell Layout Component
+ * 
+ * Location: apps/web/src/ → Components/ → Layout Components → PlatformShell.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Platform shell layout wrapper for authenticated pages. Provides:
+ * - Header and sidebar layout
+ * - Navigation structure
+ * - Responsive layout management
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/header.tsx - Header component
+ * - apps/web/src/components/layout/sidebar.tsx - Sidebar component
+ */
+
 import { PropsWithChildren, type ReactNode, useState } from "react";
 import Header from "@/components/layout/header";
 import PlatformSidebar from "@/components/layout/sidebar";

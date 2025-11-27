@@ -1,3 +1,20 @@
+/**
+ * compare.tsx - Property Comparison Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → compare.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Property comparison page. Provides:
+ * - Side-by-side property comparison
+ * - Property feature comparison
+ * 
+ * Route: /home/platform/compare or /compare
+ * 
+ * Related Files:
+ * - apps/web/src/pages/properties.tsx - Properties listing
+ * - apps/web/src/pages/favorites.tsx - Favorites page
+ */
+
 import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

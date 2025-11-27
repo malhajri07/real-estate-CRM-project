@@ -1,4 +1,20 @@
 /**
+ * useCMSLandingSections.ts - CMS Landing Sections Hook
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → cms-landing/ → hooks/ → useCMSLandingSections.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Custom hook for CMS landing page sections. Handles:
+ * - Fetching landing page sections
+ * - Section management operations
+ * - Section state management
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/cms-landing/index.tsx - CMS landing editor
+ * - apps/api/routes/cms-landing.ts - CMS landing API routes
+ */
+
+/**
  * useCMSLandingSections Hook
  * 
  * Handles fetching and managing CMS landing page sections

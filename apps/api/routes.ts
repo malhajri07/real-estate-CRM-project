@@ -1,6 +1,9 @@
 /**
  * routes.ts - Main Route Registration and Configuration
  * 
+ * Location: apps/api/ → Core Application Files → routes.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
  * This file is the central hub for all API route registration. It:
  * - Imports all route modules from the ./routes/ directory
  * - Registers them with the Express application
@@ -25,6 +28,10 @@
  * - /api/analytics/* - Analytics and KPI data
  * - /api/csv/* - CSV upload and processing
  * - / - Sitemap and SEO routes
+ * 
+ * Related Files:
+ * - apps/api/routes/ - Individual route handler modules (26 files)
+ * - apps/api/index.ts - Server entry point that calls this
  */
 
 import type { Express } from "express";

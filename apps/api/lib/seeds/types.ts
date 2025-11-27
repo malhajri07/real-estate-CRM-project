@@ -1,3 +1,18 @@
+/**
+ * types.ts - Seed Types
+ * 
+ * Location: apps/api/ → Lib/ → seeds/ → types.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Type definitions for seed utilities. Defines:
+ * - Seed context types
+ * - Seed result types
+ * - Seed credential types
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/index.ts - Uses these types
+ */
+
 import type { PrismaClient } from "@prisma/client";
 import type { Faker } from "@faker-js/faker";
 

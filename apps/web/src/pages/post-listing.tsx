@@ -1,3 +1,21 @@
+/**
+ * post-listing.tsx - Post New Listing Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → post-listing.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Page for creating new property listings. Provides:
+ * - Property listing form
+ * - Property details input
+ * - Image upload
+ * 
+ * Route: /home/platform/post-listing or /post-listing
+ * 
+ * Related Files:
+ * - apps/web/src/components/modals/add-property-modal.tsx - Add property modal
+ * - apps/api/routes/listings.ts - Listing API routes
+ */
+
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES } from "@/config/platform-theme";

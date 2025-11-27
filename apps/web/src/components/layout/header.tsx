@@ -1,3 +1,19 @@
+/**
+ * header.tsx - Platform Header Component
+ * 
+ * Location: apps/web/src/ → Components/ → Layout Components → header.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Platform header component for authenticated pages. Provides:
+ * - Navigation and search
+ * - User menu and notifications
+ * - Responsive mobile menu
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/PlatformShell.tsx - Uses this header
+ * - apps/web/src/components/layout/sidebar.tsx - Sidebar component
+ */
+
 import { useState, type ReactNode } from "react";
 import type { ChangeEvent } from "react";
 import { motion } from "framer-motion";

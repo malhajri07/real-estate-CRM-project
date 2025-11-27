@@ -1,3 +1,17 @@
+/**
+ * import-saudi-customers.ts - Saudi Customers Import Script
+ * 
+ * Location: apps/api/ → Database Seeds & Population → import-saudi-customers.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Saudi customers import script. Provides:
+ * - CSV customer data import
+ * - Customer and lead creation from CSV
+ * 
+ * Related Files:
+ * - apps/api/import-users-from-csv.ts - User CSV import
+ */
+
 import { readFileSync } from "fs";
 import { parse } from "csv-parse/sync";
 import { randomUUID } from "crypto";

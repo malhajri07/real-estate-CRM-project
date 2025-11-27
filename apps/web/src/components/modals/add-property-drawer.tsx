@@ -1,3 +1,19 @@
+/**
+ * add-property-drawer.tsx - Add Property Drawer Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → modals/ → add-property-drawer.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Drawer component for adding new properties. Provides:
+ * - Property creation form in drawer format
+ * - Form validation
+ * - Property submission
+ * 
+ * Related Files:
+ * - apps/web/src/components/modals/add-property-modal.tsx - Modal variant
+ * - apps/web/src/pages/properties.tsx - Properties page uses this
+ */
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

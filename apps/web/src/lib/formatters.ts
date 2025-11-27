@@ -1,3 +1,18 @@
+/**
+ * formatters.ts - Formatting Utilities
+ * 
+ * Location: apps/web/src/ → Lib/ → formatters.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Formatting utilities for dates, numbers, and other data. Provides:
+ * - Date formatting functions
+ * - Number formatting
+ * - Currency formatting
+ * 
+ * Related Files:
+ * - Used throughout the application for data formatting
+ */
+
 const DEFAULT_LOCALE = "ar-SA";
 
 const DEFAULT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {

@@ -1,3 +1,22 @@
+/**
+ * landing.tsx - Landing Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → landing.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Public landing page component. Displays:
+ * - Marketing content and hero section
+ * - Feature highlights
+ * - Pricing plans
+ * - Call-to-action sections
+ * 
+ * Route: / (root) or /home
+ * 
+ * Related Files:
+ * - apps/web/src/lib/cms.ts - CMS content utilities
+ * - apps/web/src/components/layout/PublicHeader.tsx - Public header
+ */
+
 import { useState, useEffect, type ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

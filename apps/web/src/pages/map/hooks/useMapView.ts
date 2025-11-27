@@ -1,4 +1,20 @@
 /**
+ * useMapView.ts - Map View Hook
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → hooks/ → useMapView.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Custom hook for map view state management. Handles:
+ * - Map/table mode switching
+ * - Pagination
+ * - Favorites management
+ * - Highlights
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/index.tsx - Map page uses this hook
+ */
+
+/**
  * useMapView Hook
  * 
  * Handles view state management (map/table mode, pagination, favorites, highlights)

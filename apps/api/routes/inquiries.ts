@@ -1,3 +1,23 @@
+/**
+ * routes/inquiries.ts - Inquiries API Routes
+ * 
+ * Location: apps/api/ → Routes/ → inquiries.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for property inquiries. Handles:
+ * - Creating property inquiries
+ * - Retrieving user inquiries
+ * - Updating inquiry status
+ * 
+ * API Endpoints:
+ * - GET /api/inquiries - Get user inquiries
+ * - POST /api/inquiries - Create inquiry
+ * - PUT /api/inquiries/:id - Update inquiry
+ * 
+ * Related Files:
+ * - apps/web/src/pages/property-detail.tsx - Property detail page with inquiry form
+ */
+
 import express from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";

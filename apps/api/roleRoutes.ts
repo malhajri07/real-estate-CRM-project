@@ -1,3 +1,19 @@
+/**
+ * roleRoutes.ts - Role-Based Routes Registration
+ * 
+ * Location: apps/api/ → Authentication & Authorization → roleRoutes.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Role-based route registration utility. Provides:
+ * - Route registration with RBAC
+ * - Permission-based route access
+ * - Tenant isolation
+ * 
+ * Related Files:
+ * - apps/api/rbac.ts - RBAC system
+ * - apps/api/authMiddleware.ts - Auth middleware
+ */
+
 import type { Express } from "express";
 import { storage } from "./storage-prisma";
 import { 

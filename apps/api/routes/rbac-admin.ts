@@ -1,3 +1,31 @@
+/**
+ * routes/rbac-admin.ts - RBAC Admin API Routes
+ * 
+ * Location: apps/api/ → Routes/ → rbac-admin.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for RBAC (Role-Based Access Control) administration. Handles:
+ * - User management (CRUD operations)
+ * - Organization management
+ * - Role and permission management
+ * - System statistics and activities
+ * 
+ * API Endpoints:
+ * - GET /api/rbac-admin/stats - System statistics
+ * - GET /api/rbac-admin/activities - Recent activities
+ * - GET /api/rbac-admin/users - User management
+ * - POST /api/rbac-admin/users - Create user
+ * - PUT /api/rbac-admin/users/:id - Update user
+ * - DELETE /api/rbac-admin/users/:id - Delete user
+ * - GET /api/rbac-admin/organizations - Organizations
+ * - GET /api/rbac-admin/roles - Roles and permissions
+ * 
+ * Related Files:
+ * - apps/api/rbac.ts - RBAC system
+ * - apps/web/src/pages/admin/user-management.tsx - User management UI
+ * - apps/web/src/pages/admin/role-management.tsx - Role management UI
+ */
+
 import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from '../prismaClient';
 import { UserRole, normalizeRoleKeys } from '@shared/rbac';

@@ -1,3 +1,19 @@
+/**
+ * ListingCard.tsx - Listing Card Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → listings/ → ListingCard.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Reusable listing card component. Displays:
+ * - Property listing information
+ * - Property images
+ * - Quick actions (favorites, view)
+ * 
+ * Related Files:
+ * - apps/web/src/pages/favorites.tsx - Uses this component
+ * - apps/web/src/pages/properties.tsx - Uses this component
+ */
+
 import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';

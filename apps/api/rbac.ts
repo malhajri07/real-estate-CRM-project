@@ -1,3 +1,21 @@
+/**
+ * rbac.ts - Role-Based Access Control
+ * 
+ * Location: apps/api/ → Authentication & Authorization → rbac.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Role-Based Access Control (RBAC) system. Provides:
+ * - Role and permission checking
+ * - Role-based route protection
+ * - Permission validation
+ * - User role management
+ * 
+ * Related Files:
+ * - apps/api/rbac-policy.ts - RBAC policy definitions
+ * - apps/api/routes/rbac-admin.ts - RBAC admin routes
+ * - packages/shared/rbac.ts - Shared RBAC types
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import {
   UserRole,

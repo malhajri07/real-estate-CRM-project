@@ -1,4 +1,22 @@
 /**
+ * platform-theme.ts - Platform Theme Configuration
+ * 
+ * Location: apps/web/src/ → Config/ → platform-theme.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Unified platform theme configuration. Defines:
+ * - Consistent styling for all platform pages
+ * - Button colors and styles
+ * - Font sizes and typography
+ * - Spacing and layout
+ * - RTL support
+ * 
+ * Related Files:
+ * - apps/web/src/config/theme.ts - General theme configuration
+ * - apps/web/src/config/platform-page-structure.ts - Page structure configuration
+ */
+
+/**
  * Unified Platform Theme Configuration
  * 
  * Defines consistent styling for all platform pages:

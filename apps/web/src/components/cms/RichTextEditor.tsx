@@ -1,3 +1,19 @@
+/**
+ * RichTextEditor.tsx - Rich Text Editor Component
+ * 
+ * Location: apps/web/src/ → Components/ → CMS Components → RichTextEditor.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Rich text editor component using React Quill. Provides:
+ * - WYSIWYG text editing
+ * - Rich text formatting
+ * - HTML content editing
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/articles-management.tsx - Uses this editor
+ * - apps/web/src/pages/admin/cms-landing/ - CMS landing editor uses this
+ */
+
 import { useEffect, useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";

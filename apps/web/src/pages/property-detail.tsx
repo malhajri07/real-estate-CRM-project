@@ -1,3 +1,21 @@
+/**
+ * property-detail.tsx - Property Detail Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → property-detail.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Property detail page. Displays:
+ * - Property information and details
+ * - Property images
+ * - Property actions (edit, delete, share)
+ * 
+ * Route: /home/platform/properties/:id
+ * 
+ * Related Files:
+ * - apps/web/src/pages/properties.tsx - Properties listing page
+ * - apps/api/routes/listings.ts - Property API routes
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { ArrowRight, Bed, Bath, Square, MapPin, Calendar, Edit, Trash2, Share2 } from "lucide-react";

@@ -1,3 +1,19 @@
+/**
+ * AdminSidebar.tsx - Admin Sidebar Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → rbac/ → AdminSidebar.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin sidebar navigation component. Provides:
+ * - Admin navigation menu
+ * - Sidebar item types and structure
+ * - Navigation helpers
+ * 
+ * Related Files:
+ * - apps/web/src/components/rbac/AdminHeader.tsx - Admin header
+ * - apps/web/src/config/admin-sidebar.ts - Admin sidebar configuration
+ */
+
 import type { LucideIcon } from 'lucide-react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 

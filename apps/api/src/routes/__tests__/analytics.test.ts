@@ -1,3 +1,18 @@
+/**
+ * analytics.test.ts - Analytics API Tests
+ * 
+ * Location: apps/api/ → Source/ → routes/ → __tests__/ → analytics.test.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Test suite for analytics API endpoints. Tests:
+ * - Analytics data retrieval
+ * - Authentication requirements
+ * - Analytics calculations
+ * 
+ * Related Files:
+ * - apps/api/src/routes/analytics.ts - Analytics routes
+ */
+
 // @ts-nocheck
 import assert from 'node:assert/strict';
 import express from 'express';

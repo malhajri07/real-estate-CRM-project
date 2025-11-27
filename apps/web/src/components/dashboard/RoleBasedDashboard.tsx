@@ -1,3 +1,19 @@
+/**
+ * RoleBasedDashboard.tsx - Role-Based Dashboard Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → dashboard/ → RoleBasedDashboard.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Role-based dashboard component. Provides:
+ * - Dashboard content based on user role
+ * - Role-specific metrics and widgets
+ * - Customizable dashboard layout
+ * 
+ * Related Files:
+ * - apps/web/src/pages/dashboard.tsx - Dashboard page
+ * - apps/web/src/hooks/useDashboardData.ts - Dashboard data hook
+ */
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

@@ -1,3 +1,18 @@
+/**
+ * AdminStatusBadge.tsx - Admin Status Badge Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → AdminStatusBadge.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin status badge component. Displays:
+ * - User approval status
+ * - Active/inactive status
+ * - Status badges with colors
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/user-management.tsx - Uses this badge
+ */
+
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { AdminUserApprovalStatus } from "@/lib/rbacAdmin";

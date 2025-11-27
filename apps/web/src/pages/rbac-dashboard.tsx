@@ -1,3 +1,22 @@
+/**
+ * rbac-dashboard.tsx - RBAC Dashboard
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → rbac-dashboard.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Main RBAC admin dashboard. Provides:
+ * - Admin navigation and layout
+ * - Dashboard overview
+ * - Access to admin management pages
+ * 
+ * Route: /admin/overview/main-dashboard or /rbac-dashboard
+ * 
+ * Related Files:
+ * - apps/web/src/components/rbac/AdminHeader.tsx - Admin header
+ * - apps/web/src/components/rbac/AdminSidebar.tsx - Admin sidebar
+ * - apps/web/src/config/admin-sidebar.ts - Admin sidebar configuration
+ */
+
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/components/auth/AuthProvider";

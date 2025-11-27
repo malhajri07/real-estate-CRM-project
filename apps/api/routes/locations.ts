@@ -1,3 +1,23 @@
+/**
+ * routes/locations.ts - Locations API Routes
+ * 
+ * Location: apps/api/ → Routes/ → locations.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for geographic and location data. Handles:
+ * - Saudi regions retrieval
+ * - Cities by region
+ * - Location boundaries
+ * 
+ * API Endpoints:
+ * - GET /api/locations/regions - Get all regions
+ * - GET /api/locations/cities - Get cities by region
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/ - Map page using location data
+ * - apps/api/routes/saudi-regions.ts - Saudi regions routes
+ */
+
 import express from "express";
 import { storage } from "../storage-prisma";
 

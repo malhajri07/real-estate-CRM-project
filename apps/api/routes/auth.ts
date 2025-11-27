@@ -1,6 +1,9 @@
 /**
  * routes/auth.ts - Authentication API Routes
  * 
+ * Location: apps/api/ → Routes/ → auth.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
  * This file defines all authentication-related API endpoints for the real estate CRM platform.
  * It handles:
  * - User login and authentication
@@ -12,20 +15,18 @@
  * The routes integrate with the RBAC (Role-Based Access Control) system and provide
  * secure authentication for all user types in the platform.
  * 
- * Dependencies:
- * - Express.js router for route handling
- * - Zod for request validation
- * - Authentication functions from ../auth.ts
- * - RBAC middleware from ../rbac.ts
- * 
  * API Endpoints:
  * - POST /api/auth/login - User authentication
  * - POST /api/auth/register - User registration
  * - GET /api/auth/me - Get current user info
  * - POST /api/auth/impersonate - Admin user impersonation
  * 
- * Routes affected: All authentication flows
- * Pages affected: Login page, RBAC login page, user registration, admin panel
+ * Related Files:
+ * - apps/api/auth.ts - Authentication utilities
+ * - apps/api/authMiddleware.ts - Auth middleware
+ * - apps/api/rbac.ts - RBAC system
+ * - apps/web/src/pages/rbac-login.tsx - Login page
+ * - apps/web/src/components/auth/ - Auth components
  */
 
 import * as express from 'express';

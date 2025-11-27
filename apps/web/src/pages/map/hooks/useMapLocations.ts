@@ -1,4 +1,20 @@
 /**
+ * useMapLocations.ts - Map Locations Hook
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → hooks/ → useMapLocations.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Custom hook for map location data. Handles:
+ * - Fetching location data (regions, cities, districts)
+ * - Location data transformation
+ * - Location options for filters
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/index.tsx - Map page
+ * - apps/api/routes/locations.ts - Locations API routes
+ */
+
+/**
  * useMapLocations Hook
  * 
  * Handles fetching and transforming location data (regions, cities, districts)

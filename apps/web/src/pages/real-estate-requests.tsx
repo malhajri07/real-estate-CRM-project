@@ -1,3 +1,19 @@
+/**
+ * real-estate-requests.tsx - Real Estate Request Form Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → real-estate-requests.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Public real estate service request form. Provides:
+ * - Real estate request form
+ * - Request submission
+ * 
+ * Route: /real-estate-requests
+ * 
+ * Related Files:
+ * - apps/api/routes/requests.ts - Requests API routes
+ */
+
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

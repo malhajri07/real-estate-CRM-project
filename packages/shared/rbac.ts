@@ -1,4 +1,22 @@
 /**
+ * rbac.ts - Shared RBAC Utilities
+ * 
+ * Location: packages/shared/ → rbac.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Shared RBAC utilities. Provides:
+ * - Single source of truth for role constants
+ * - Display metadata
+ * - Permission mappings
+ * - Helpers used by both API and web client
+ * 
+ * Related Files:
+ * - apps/api/rbac.ts - Backend RBAC system
+ * - apps/api/rbac-policy.ts - RBAC policy definitions
+ * - apps/web/src/lib/rbacAdmin.ts - Frontend RBAC utilities
+ */
+
+/**
  * packages/shared/rbac.ts - Shared RBAC utilities
  *
  * Provides a single source of truth for role constants, display metadata,

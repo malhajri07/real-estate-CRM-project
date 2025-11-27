@@ -1,3 +1,19 @@
+/**
+ * populateDatabase.ts - Database Population Script
+ * 
+ * Location: apps/api/ → Database Seeds & Population → populateDatabase.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Database population script. Provides:
+ * - Large-scale data population
+ * - Property and listing generation
+ * - Test data creation
+ * 
+ * Related Files:
+ * - apps/api/seedData.ts - General seed script
+ * - apps/api/routes/populate.ts - Population API routes
+ */
+
 import { storage } from "./storage-prisma";
 import { type Lead, type Deal, type Activity, type Message } from "@shared/types";
 

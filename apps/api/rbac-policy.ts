@@ -1,4 +1,20 @@
-// apps/api/rbac-policy.ts
+/**
+ * rbac-policy.ts - RBAC Policy Definitions
+ * 
+ * Location: apps/api/ → Authentication & Authorization → rbac-policy.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Central RBAC policy definitions aligned with the role matrix. Provides:
+ * - Role and permission definitions
+ * - Permission checking functions
+ * - Visibility scope management
+ * 
+ * Related Files:
+ * - apps/api/rbac.ts - RBAC system
+ * - apps/api/routes/rbac-admin.ts - RBAC admin routes
+ * - packages/shared/rbac.ts - Shared RBAC types
+ */
+
 // Central RBAC policy aligned with the new role matrix
 
 export type AppRole =

@@ -1,6 +1,9 @@
 /**
  * App.tsx - Main Application Component
  * 
+ * Location: apps/web/src/ → Entry Points → App.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
  * This is the root component of the real estate CRM application. It handles:
  * - Application routing and navigation
  * - Authentication state management
@@ -19,6 +22,12 @@
  * - JWT-based authentication with persistent sessions
  * - Lazy loading for better performance
  * - Responsive design with Tailwind CSS
+ * 
+ * Related Files:
+ * - apps/web/src/main.tsx - Application entry point
+ * - apps/web/src/pages/ - Page components (50+ files)
+ * - apps/web/src/components/auth/AuthProvider.tsx - Authentication context
+ * - apps/web/src/components/layout/ - Layout components
  */
 
 import { Switch, Route, useLocation } from "wouter";

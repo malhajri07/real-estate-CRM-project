@@ -1,3 +1,26 @@
+/**
+ * routes/search.ts - Search API Routes
+ * 
+ * Location: apps/api/ → Routes/ → search.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for search functionality. Handles:
+ * - Property search
+ * - Agency search
+ * - Agent search
+ * - Saved searches management
+ * 
+ * API Endpoints:
+ * - GET /api/search/properties - Search properties
+ * - GET /api/search/agencies - Search agencies
+ * - GET /api/search/agents - Search agents
+ * - GET /api/search/saved - Get saved searches
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/ - Map search page
+ * - apps/web/src/pages/saved-searches.tsx - Saved searches page
+ */
+
 // @ts-nocheck
 import express from "express";
 import { z } from "zod";

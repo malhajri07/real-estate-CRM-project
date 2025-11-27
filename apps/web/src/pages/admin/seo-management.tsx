@@ -1,3 +1,21 @@
+/**
+ * seo-management.tsx - SEO Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → seo-management.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * SEO settings management page. Provides:
+ * - SEO metadata management
+ * - Open Graph settings
+ * - Page-specific SEO configuration
+ * 
+ * Route: /admin/content/seo-settings
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-seo.ts - SEO API routes
+ * - apps/api/services/seoService.ts - SEO service
+ */
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {

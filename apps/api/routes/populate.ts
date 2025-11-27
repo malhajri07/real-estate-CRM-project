@@ -1,3 +1,24 @@
+/**
+ * routes/populate.ts - Database Population Routes
+ * 
+ * Location: apps/api/ → Routes/ → populate.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for populating the database with sample data. Handles:
+ * - Database population with test data
+ * - Admin user creation and population
+ * 
+ * API Endpoints:
+ * - POST /api/populate/populate - Populate database
+ * 
+ * Note: These routes are typically used for development and testing purposes.
+ * 
+ * Related Files:
+ * - apps/api/populateDatabase.ts - Database population logic
+ * - apps/api/populateAdmin1Data.ts - Admin data population
+ * - apps/api/createAdmin1AndPopulate.ts - Admin creation and population
+ */
+
 import { Router } from "express";
 import { populateDatabase } from "../populateDatabase";
 import { populateAdmin1Data } from "../populateAdmin1Data";

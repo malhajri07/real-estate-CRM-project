@@ -1,3 +1,19 @@
+/**
+ * PublicHeader.tsx - Public Header Component
+ * 
+ * Location: apps/web/src/ → Components/ → Layout Components → PublicHeader.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Public header component for unauthenticated pages. Provides:
+ * - Public navigation
+ * - Login/signup links
+ * - Language switcher
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/PublicLayout.tsx - Uses this header
+ * - apps/web/src/pages/landing.tsx - Landing page uses this
+ */
+
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";

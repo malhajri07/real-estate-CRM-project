@@ -1,3 +1,19 @@
+/**
+ * templateService.ts - Template Service
+ * 
+ * Location: apps/api/ → Services/ → templateService.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Service for managing content templates. Provides business logic for:
+ * - Template creation, update, and deletion
+ * - Template type management
+ * - Template content and structure
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-templates.ts - Template API routes
+ * - apps/web/src/pages/admin/templates-management.tsx - Template management UI
+ */
+
 // @ts-nocheck
 import { prisma } from "../prismaClient";
 import { z } from "zod";

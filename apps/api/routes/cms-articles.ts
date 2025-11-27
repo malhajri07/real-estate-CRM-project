@@ -1,3 +1,27 @@
+/**
+ * routes/cms-articles.ts - CMS Articles API Routes
+ * 
+ * Location: apps/api/ → Routes/ → cms-articles.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for CMS article management. Handles:
+ * - Article CRUD operations
+ * - Article publishing and status management
+ * - Article categorization and tagging
+ * - SEO metadata management
+ * 
+ * API Endpoints:
+ * - GET /api/cms/articles - Get articles
+ * - GET /api/cms/articles/:id - Get article by ID
+ * - POST /api/cms/articles - Create article
+ * - PUT /api/cms/articles/:id - Update article
+ * - DELETE /api/cms/articles/:id - Delete article
+ * 
+ * Related Files:
+ * - apps/api/services/articleService.ts - Article service
+ * - apps/web/src/pages/admin/articles-management.tsx - Article management UI
+ */
+
 import express from "express";
 import { z } from "zod";
 import { ArticleService } from "../services/articleService";

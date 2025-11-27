@@ -1,3 +1,21 @@
+/**
+ * signup-individual.tsx - Individual Agent Signup Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → signup-individual.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Individual agent signup page. Provides:
+ * - Individual agent registration form
+ * - KYC document upload
+ * - Account creation
+ * 
+ * Route: /signup/individual
+ * 
+ * Related Files:
+ * - apps/web/src/pages/signup-selection.tsx - Signup type selection
+ * - apps/web/src/pages/signup-success.tsx - Signup success page
+ */
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

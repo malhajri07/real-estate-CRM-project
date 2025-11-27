@@ -1,3 +1,22 @@
+/**
+ * dashboard.tsx - Platform Dashboard
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → dashboard.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Main platform dashboard for authenticated users. Displays:
+ * - Activity feed
+ * - Lead management
+ * - Quick actions
+ * - Recent updates
+ * 
+ * Route: /home/platform
+ * 
+ * Related Files:
+ * - apps/web/src/components/dashboard/RoleBasedDashboard.tsx - Role-based dashboard
+ * - apps/web/src/hooks/useDashboardData.ts - Dashboard data hook
+ */
+
 import { ReactNode, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {

@@ -1,3 +1,19 @@
+/**
+ * PublicLayout.tsx - Public Layout Component
+ * 
+ * Location: apps/web/src/ → Components/ → Layout Components → PublicLayout.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Public layout wrapper for unauthenticated pages. Provides:
+ * - Public header
+ * - Page title and subtitle
+ * - Consistent public page styling
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/PublicHeader.tsx - Public header component
+ * - apps/web/src/pages/landing.tsx - Uses this layout
+ */
+
 import { ReactNode, useEffect } from 'react';
 import PublicHeader from './PublicHeader';
 import { useLanguage } from '@/contexts/LanguageContext';

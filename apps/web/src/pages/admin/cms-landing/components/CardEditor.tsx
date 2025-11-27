@@ -1,4 +1,20 @@
 /**
+ * CardEditor.tsx - Card Editor Component
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → cms-landing/ → components/ → CardEditor.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Form component for editing landing page cards. Provides:
+ * - Card editing interface
+ * - Card content management
+ * - Card CRUD operations
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/cms-landing/index.tsx - CMS landing editor
+ * - apps/web/src/pages/admin/cms-landing/components/SectionEditor.tsx - Section editor
+ */
+
+/**
  * CardEditor Component
  * 
  * Form component for editing landing page cards

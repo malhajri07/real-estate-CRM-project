@@ -1,3 +1,18 @@
+/**
+ * AdminLoading.tsx - Admin Loading Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → feedback/ → AdminLoading.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin loading component. Provides:
+ * - Loading spinner
+ * - Loading text
+ * - Full screen or inline loading
+ * 
+ * Related Files:
+ * - Used throughout admin pages for loading states
+ */
+
 import { cn } from '@/lib/utils';
 
 interface AdminLoadingProps {

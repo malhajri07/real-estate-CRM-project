@@ -1,3 +1,19 @@
+/**
+ * seoService.ts - SEO Service
+ * 
+ * Location: apps/api/ → Services/ → seoService.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Service for managing SEO settings and metadata. Provides business logic for:
+ * - SEO metadata management (title, description, keywords)
+ * - Open Graph and social media metadata
+ * - Page-specific SEO settings
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-seo.ts - SEO API routes
+ * - apps/web/src/pages/admin/seo-management.tsx - SEO management UI
+ */
+
 // @ts-nocheck
 import { prisma } from "../prismaClient";
 import { z } from "zod";

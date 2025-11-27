@@ -1,3 +1,24 @@
+/**
+ * routes/marketing-requests.ts - Marketing Request API Routes
+ * 
+ * Location: apps/api/ → Routes/ → marketing-requests.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for marketing request management. Handles:
+ * - Marketing request creation
+ * - Request retrieval and filtering
+ * - Request status management
+ * - Agent assignment and workflow
+ * 
+ * API Endpoints:
+ * - GET /api/marketing-requests - Get marketing requests
+ * - POST /api/marketing-requests - Create marketing request
+ * 
+ * Related Files:
+ * - apps/web/src/pages/marketing-request.tsx - Marketing request form
+ * - apps/web/src/pages/marketing-requests.tsx - Marketing requests board
+ */
+
 import express from "express";
 import { z } from "zod";
 import { Prisma } from "@prisma/client";

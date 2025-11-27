@@ -1,3 +1,20 @@
+/**
+ * AuthProvider.tsx - Authentication Context Provider
+ * 
+ * Location: apps/web/src/ → Components/ → Auth Components → AuthProvider.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Authentication context provider for the React application. Provides:
+ * - User authentication state management
+ * - Login/logout functionality
+ * - User session management
+ * - Role-based access control integration
+ * 
+ * Related Files:
+ * - apps/web/src/pages/rbac-login.tsx - Login page
+ * - apps/api/routes/auth.ts - Authentication API routes
+ */
+
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';

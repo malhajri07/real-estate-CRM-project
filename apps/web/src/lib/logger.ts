@@ -1,4 +1,20 @@
 /**
+ * logger.ts - Frontend Logger Utility
+ * 
+ * Location: apps/web/src/ → Lib/ → logger.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Frontend logger utility. Provides:
+ * - Structured logging for the frontend application
+ * - Log levels (debug, info, warn, error)
+ * - Development console logging
+ * - Production log suppression
+ * 
+ * Related Files:
+ * - apps/api/logger.ts - Backend logger
+ */
+
+/**
  * Frontend Logger Utility
  * 
  * Provides structured logging for the frontend application.

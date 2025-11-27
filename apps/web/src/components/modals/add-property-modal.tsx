@@ -1,3 +1,19 @@
+/**
+ * add-property-modal.tsx - Add Property Modal Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → modals/ → add-property-modal.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Modal component for adding new properties. Provides:
+ * - Property creation form
+ * - Property information input
+ * - Form validation
+ * 
+ * Related Files:
+ * - apps/web/src/pages/properties.tsx - Properties page that uses this modal
+ * - apps/web/src/components/modals/add-property-drawer.tsx - Property drawer variant
+ */
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

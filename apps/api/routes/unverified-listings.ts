@@ -1,3 +1,23 @@
+/**
+ * routes/unverified-listings.ts - Unverified Listings API Routes
+ * 
+ * Location: apps/api/ → Routes/ → unverified-listings.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for unverified property listings. Handles:
+ * - Public submission of unverified listings
+ * - Retrieval of unverified listings
+ * - Listing verification workflow
+ * 
+ * API Endpoints:
+ * - GET /api/unverified-listings - Get unverified listings
+ * - POST /api/unverified-listings - Submit unverified listing
+ * 
+ * Related Files:
+ * - apps/web/src/pages/unverified-listing.tsx - Public listing submission
+ * - apps/web/src/pages/unverified-listings-management.tsx - Management interface
+ */
+
 import express from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";

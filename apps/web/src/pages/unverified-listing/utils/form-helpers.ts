@@ -1,4 +1,18 @@
 /**
+ * form-helpers.ts - Unverified Listing Form Helpers
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → unverified-listing/ → utils/ → form-helpers.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Form helper utilities for unverified listing page. Provides:
+ * - Fetch with timeout
+ * - Form helper functions
+ * 
+ * Related Files:
+ * - apps/web/src/pages/unverified-listing.tsx - Unverified listing page
+ */
+
+/**
  * Form helper utilities for Unverified Listing Page
  */
 

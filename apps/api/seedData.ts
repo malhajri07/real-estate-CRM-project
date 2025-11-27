@@ -1,3 +1,19 @@
+/**
+ * seedData.ts - General Seed Data Script
+ * 
+ * Location: apps/api/ → Database Seeds & Population → seedData.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * General seed data script. Provides:
+ * - Dummy data seeding
+ * - Database population
+ * - Test data generation
+ * 
+ * Related Files:
+ * - apps/api/populateDatabase.ts - Database population script
+ * - apps/api/lib/seeds/index.ts - Seed orchestrator
+ */
+
 // @ts-nocheck
 import { storage } from "./storage-prisma";
 import { populateDatabase } from "./populateDatabase";

@@ -1,3 +1,23 @@
+/**
+ * routes/cms-seo.ts - CMS SEO API Routes
+ * 
+ * Location: apps/api/ → Routes/ → cms-seo.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for SEO settings management. Handles:
+ * - SEO metadata management
+ * - Open Graph settings
+ * - Page-specific SEO configuration
+ * 
+ * API Endpoints:
+ * - GET /api/cms/seo - Get SEO settings
+ * - PUT /api/cms/seo - Update SEO settings
+ * 
+ * Related Files:
+ * - apps/api/services/seoService.ts - SEO service
+ * - apps/web/src/pages/admin/seo-management.tsx - SEO management UI
+ */
+
 import express from "express";
 import { z } from "zod";
 import { SEOService } from "../services/seoService";

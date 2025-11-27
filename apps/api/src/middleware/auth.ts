@@ -1,3 +1,19 @@
+/**
+ * auth.ts - Authentication Middleware
+ * 
+ * Location: apps/api/ → Source/ → middleware/ → auth.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Authentication middleware using Prisma. Provides:
+ * - JWT token authentication
+ * - User authentication
+ * - Request authentication
+ * 
+ * Related Files:
+ * - apps/api/authMiddleware.ts - Main auth middleware
+ * - apps/api/auth.ts - Auth utilities
+ */
+
 // @ts-nocheck
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';

@@ -1,3 +1,19 @@
+/**
+ * cms.ts - CMS Seed Data
+ * 
+ * Location: apps/api/ → Lib/ → seeds/ → cms.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * CMS seed data generation. Provides:
+ * - CMS content blocks seeding
+ * - Landing page content seeding
+ * - CMS entity data
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/index.ts - Seed orchestrator
+ * - apps/api/seed-cms.ts - CMS seed script
+ */
+
 import { SeedContext, SeedResult } from "./types";
 
 const CONTENT_BLOCKS = [

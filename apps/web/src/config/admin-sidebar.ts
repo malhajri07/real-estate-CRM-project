@@ -1,3 +1,20 @@
+/**
+ * admin-sidebar.ts - Admin Sidebar Configuration
+ * 
+ * Location: apps/web/src/ → Config/ → admin-sidebar.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin sidebar navigation configuration. Defines:
+ * - Admin menu items and structure
+ * - Navigation sections
+ * - Icon mappings
+ * - Role-based menu visibility
+ * 
+ * Related Files:
+ * - apps/web/src/components/rbac/AdminSidebar.tsx - Admin sidebar component
+ * - apps/web/src/config/platform-sidebar.ts - Platform sidebar configuration
+ */
+
 import {
   AlertCircle,
   BarChart3,

@@ -1,12 +1,19 @@
 /**
  * Charts.tsx - Chart Components for RBAC Dashboard
  * 
- * This component provides standalone chart components for analytics:
+ * Location: apps/web/src/ → Components/ → Feature Components → rbac/ → dashboard/ → Charts.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Chart components for RBAC dashboard analytics. Provides:
  * - Logins over last 30 days (daily line chart)
  * - Requests per minute over last 24h (RPM area chart)
  * - Top 10 endpoints by volume + error rate (horizontal bar chart)
  * - RTL-aware chart layouts
  * - Loading states and error handling
+ * 
+ * Related Files:
+ * - apps/web/src/pages/rbac-dashboard.tsx - RBAC dashboard page
+ * - apps/api/src/routes/analytics.ts - Analytics API routes
  * 
  * Key Features:
  * - Standalone chart components

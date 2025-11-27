@@ -1,3 +1,19 @@
+/**
+ * seed-cms.ts - CMS Seed Script
+ * 
+ * Location: apps/api/ → Database Seeds & Population → seed-cms.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * CMS seed script. Provides:
+ * - CMS content seeding
+ * - Landing page sections seeding
+ * - CMS initialization
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/cms.ts - CMS seed utilities
+ * - apps/api/lib/seeds/index.ts - Seed orchestrator
+ */
+
 import { prisma } from "./prismaClient";
 
 type CreateSectionInput = {

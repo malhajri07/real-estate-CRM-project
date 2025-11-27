@@ -1,4 +1,20 @@
 /**
+ * PropertiesList.tsx - Properties List Component
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → components/ → PropertiesList.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Properties list component. Displays:
+ * - Data-table view of filtered properties
+ * - Property information and actions
+ * - Matches properties page table style
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/index.tsx - Map page
+ * - apps/web/src/pages/properties.tsx - Properties page
+ */
+
+/**
  * PropertiesList Component
  * 
  * Display a data-table view of the filtered properties matching the properties page table style.

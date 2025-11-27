@@ -1,3 +1,17 @@
+/**
+ * simple-analytics.ts - Simple Analytics Routes
+ * 
+ * Location: apps/api/ → Analytics & Reporting → simple-analytics.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Simple analytics routes for testing. Provides:
+ * - Basic analytics endpoints
+ * - Test analytics functionality
+ * 
+ * Related Files:
+ * - apps/api/src/routes/analytics.ts - Full analytics routes
+ */
+
 import { Router } from 'express';
 import { prisma } from './prismaClient';
 import { authenticate } from './src/middleware/auth';

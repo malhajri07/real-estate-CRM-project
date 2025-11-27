@@ -1,3 +1,18 @@
+/**
+ * AdminSearch.tsx - Admin Search Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → utilities/ → AdminSearch.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin search component. Provides:
+ * - Search input interface
+ * - Search debouncing
+ * - Search clearing
+ * 
+ * Related Files:
+ * - Used in admin pages for search functionality
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';

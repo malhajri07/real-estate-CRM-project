@@ -1,3 +1,18 @@
+/**
+ * domain.ts - Domain Seed Data
+ * 
+ * Location: apps/api/ → Lib/ → seeds/ → domain.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Domain seed data generation. Provides:
+ * - Property and listing seeding
+ * - Location data seeding
+ * - Domain entity data
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/index.ts - Seed orchestrator
+ */
+
 import type { Prisma } from "@prisma/client";
 import { SeedContext, SeedResult } from "./types";
 

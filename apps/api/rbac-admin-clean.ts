@@ -1,3 +1,18 @@
+/**
+ * rbac-admin-clean.ts - RBAC Admin Cleanup Script
+ * 
+ * Location: apps/api/ → Authentication & Authorization → rbac-admin-clean.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * RBAC admin cleanup script. Provides:
+ * - RBAC admin user cleanup
+ * - Admin user management utilities
+ * 
+ * Related Files:
+ * - apps/api/rbac.ts - RBAC system
+ * - apps/api/routes/rbac-admin.ts - RBAC admin routes
+ */
+
 import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from './prismaClient';
 import { UserRole, normalizeRoleKeys } from '@shared/rbac';

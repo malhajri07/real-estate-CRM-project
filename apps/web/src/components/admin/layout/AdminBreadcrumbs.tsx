@@ -1,3 +1,18 @@
+/**
+ * AdminBreadcrumbs.tsx - Admin Breadcrumbs Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → layout/ → AdminBreadcrumbs.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin breadcrumbs component. Provides:
+ * - Navigation breadcrumbs
+ * - RTL support
+ * - Breadcrumb navigation
+ * 
+ * Related Files:
+ * - Used in admin pages for navigation
+ */
+
 import { ChevronLeft, ChevronRight, Home } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { cn } from '@/lib/utils';

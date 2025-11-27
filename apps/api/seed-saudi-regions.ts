@@ -1,3 +1,17 @@
+/**
+ * seed-saudi-regions.ts - Saudi Regions Seed Script
+ * 
+ * Location: apps/api/ → Database Seeds & Population → seed-saudi-regions.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Saudi regions seed script. Provides:
+ * - Saudi Arabia administrative regions seeding
+ * - Region data initialization
+ * 
+ * Related Files:
+ * - apps/api/routes/locations.ts - Locations API routes
+ */
+
 // @ts-nocheck
 import { storage } from "./storage-prisma";
 // Note: saudiRegions data moved to inline definition

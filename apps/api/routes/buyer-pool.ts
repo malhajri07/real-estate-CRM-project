@@ -1,3 +1,25 @@
+/**
+ * routes/buyer-pool.ts - Buyer Pool API Routes
+ * 
+ * Location: apps/api/ → Routes/ → buyer-pool.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for buyer pool and claims workflow. Handles:
+ * - Buyer request search and retrieval
+ * - Claiming buyer requests (agent feature)
+ * - Releasing claims
+ * - Contact information masking based on RBAC
+ * 
+ * API Endpoints:
+ * - GET /api/pool/buyers - Search buyer requests
+ * - POST /api/pool/buyers/:id/claim - Claim a buyer request
+ * - POST /api/pool/buyers/:id/release - Release a claim
+ * 
+ * Related Files:
+ * - apps/web/src/components/buyer-pool/BuyerPoolSearch.tsx - Buyer pool search component
+ * - apps/api/rbac.ts - RBAC system for permissions
+ */
+
 // @ts-nocheck
 import express from 'express';
 import { z } from 'zod';

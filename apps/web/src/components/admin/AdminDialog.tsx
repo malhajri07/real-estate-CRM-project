@@ -1,3 +1,18 @@
+/**
+ * AdminDialog.tsx - Admin Dialog Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → AdminDialog.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin dialog component. Provides:
+ * - Standardized admin dialog interface
+ * - Loading states
+ * - Action buttons
+ * 
+ * Related Files:
+ * - apps/web/src/components/admin/ - Other admin components
+ */
+
 import { type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";

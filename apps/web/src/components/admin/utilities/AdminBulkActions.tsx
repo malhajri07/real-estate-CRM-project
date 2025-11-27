@@ -1,3 +1,18 @@
+/**
+ * AdminBulkActions.tsx - Admin Bulk Actions Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → utilities/ → AdminBulkActions.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin bulk actions component. Provides:
+ * - Bulk action buttons
+ * - Selection management
+ * - Action execution
+ * 
+ * Related Files:
+ * - Used in admin tables for bulk operations
+ */
+
 import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';

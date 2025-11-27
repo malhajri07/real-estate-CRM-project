@@ -1,8 +1,22 @@
 /**
- * CMS Landing Page Component
+ * cms-landing/index.tsx - CMS Landing Page Editor
  * 
- * Main component for managing landing page content via CMS
- * Uses extracted components, hooks, and utilities for better maintainability
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → cms-landing/ → index.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Main component for managing landing page content via CMS. Provides:
+ * - Landing page section management
+ * - Drag-and-drop section ordering
+ * - Section and card editing
+ * - Draft and published state management
+ * 
+ * Route: /admin/content/landing-pages
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/cms-landing/components/ - CMS landing components
+ * - apps/web/src/pages/admin/cms-landing/hooks/ - CMS landing hooks
+ * - apps/web/src/pages/admin/cms-landing/utils/ - CMS landing utilities
+ * - apps/api/routes/cms-landing.ts - CMS landing API routes
  */
 
 import React, { useEffect, useMemo, useState, useCallback } from "react";

@@ -1,3 +1,21 @@
+/**
+ * customers.tsx - Customer Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → customers.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Customer management page for authenticated users. Provides:
+ * - Customer listing and search
+ * - Customer CRUD operations
+ * - Customer filtering and sorting
+ * 
+ * Route: /home/platform/customers or /customers
+ * 
+ * Related Files:
+ * - apps/web/src/components/modals/add-lead-drawer.tsx - Add customer modal
+ * - apps/api/routes/ - Customer API routes
+ */
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Trash2, Edit, Plus, Phone, Mail, Filter, SlidersHorizontal, Search, AlertTriangle } from "lucide-react";

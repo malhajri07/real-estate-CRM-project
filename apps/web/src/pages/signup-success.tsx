@@ -1,3 +1,20 @@
+/**
+ * signup-success.tsx - Signup Success Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → signup-success.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Signup success confirmation page. Displays:
+ * - Success message
+ * - Next steps information
+ * 
+ * Route: /signup/success
+ * 
+ * Related Files:
+ * - apps/web/src/pages/signup-individual.tsx - Individual signup
+ * - apps/web/src/pages/signup-corporate.tsx - Corporate signup
+ */
+
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";

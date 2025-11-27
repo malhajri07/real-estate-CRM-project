@@ -1,16 +1,23 @@
-// @ts-nocheck
 /**
- * routes/analytics.ts - Analytics and KPI API Routes
+ * analytics.ts - Analytics and KPI API Routes
  * 
- * This file defines all analytics-related API endpoints for the real estate CRM platform.
- * It handles:
+ * Location: apps/api/ → Source/ → routes/ → analytics.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Analytics and KPI API routes. Handles:
  * - KPI data retrieval and calculation
  * - Analytics dashboard data
  * - Performance metrics and reporting
  * - Real-time analytics updates
  * 
- * The routes use Prisma-based storage for database operations and provide
- * comprehensive analytics functionality for the RBAC dashboard.
+ * API Endpoints:
+ * - GET /api/analytics/overview - Overview analytics
+ * - GET /api/analytics/comprehensive - Comprehensive analytics
+ * - GET /api/analytics/kpis - KPI data
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/enhanced-dashboard.tsx - Uses analytics data
+ * - apps/web/src/hooks/useDashboardData.ts - Dashboard data hook
  * 
  * Dependencies:
  * - Express.js Router for route handling

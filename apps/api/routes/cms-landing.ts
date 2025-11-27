@@ -1,3 +1,26 @@
+/**
+ * routes/cms-landing.ts - CMS Landing Page API Routes
+ * 
+ * Location: apps/api/ → Routes/ → cms-landing.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for CMS landing page management. Handles:
+ * - Landing page section CRUD operations
+ * - Card management within sections
+ * - Section ordering and visibility
+ * - Draft and published state management
+ * 
+ * API Endpoints:
+ * - GET /api/cms/landing/sections - Get landing sections
+ * - POST /api/cms/landing/sections - Create section
+ * - PUT /api/cms/landing/sections/:id - Update section
+ * - DELETE /api/cms/landing/sections/:id - Delete section
+ * 
+ * Related Files:
+ * - apps/api/services/landingService.ts - Landing page service
+ * - apps/web/src/pages/admin/cms-landing/ - CMS landing editor
+ */
+
 import express from "express";
 import { z } from "zod";
 import { LandingService } from "../services/landingService";

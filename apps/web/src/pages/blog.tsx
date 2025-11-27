@@ -1,3 +1,21 @@
+/**
+ * blog.tsx - Blog Listing Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → blog.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Public blog listing page. Displays:
+ * - Blog articles listing
+ * - Article search and filtering
+ * - Article sharing
+ * 
+ * Route: /blog
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-articles.ts - Articles API routes
+ * - apps/web/src/pages/admin/articles-management.tsx - Article management
+ */
+
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";

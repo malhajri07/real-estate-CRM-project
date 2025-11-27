@@ -1,3 +1,18 @@
+/**
+ * populateAdmin1Data.ts - Admin Data Population Script
+ * 
+ * Location: apps/api/ → Database Seeds & Population → populateAdmin1Data.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin data population script. Provides:
+ * - Admin user data population
+ * - Admin-related entity seeding
+ * 
+ * Related Files:
+ * - apps/api/createAdmin1AndPopulate.ts - Admin creation and population
+ * - apps/api/ensure-primary-admin.ts - Primary admin creation
+ */
+
 // @ts-nocheck
 import { storage } from "./storage-prisma";
 import { type Lead, type Deal, type Activity, type Message, type User } from "@shared/types";

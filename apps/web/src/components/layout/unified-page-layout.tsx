@@ -1,3 +1,19 @@
+/**
+ * unified-page-layout.tsx - Unified Page Layout Component
+ * 
+ * Location: apps/web/src/ → Components/ → Layout Components → unified-page-layout.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Unified page layout component for consistent page structure. Provides:
+ * - Standardized page layout
+ * - Page header, loading, empty states
+ * - Filter and action bars
+ * 
+ * Related Files:
+ * - apps/web/src/components/ui/page-header.tsx - Page header component
+ * - apps/web/src/components/ui/loading-state.tsx - Loading state component
+ */
+
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { COMPONENT_STYLES } from '@/config/theme';

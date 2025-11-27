@@ -1,4 +1,20 @@
 /**
+ * theme.ts - Theme Configuration
+ * 
+ * Location: apps/web/src/ → Config/ → theme.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Unified theme configuration for platform pages. Defines:
+ * - Consistent styling patterns
+ * - Color palette
+ * - Spacing and typography
+ * - Component styling
+ * 
+ * Related Files:
+ * - apps/web/src/config/platform-theme.ts - Platform-specific theme
+ */
+
+/**
  * Unified Theme Configuration for Platform Pages
  * 
  * This file defines consistent styling patterns, colors, spacing, and components

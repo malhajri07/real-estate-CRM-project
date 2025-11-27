@@ -1,3 +1,19 @@
+/**
+ * AdminTable.tsx - Admin Table Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → data-display/ → AdminTable.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin table component for data display. Provides:
+ * - Sortable table
+ * - Pagination
+ * - Row selection
+ * - Actions
+ * 
+ * Related Files:
+ * - Used throughout admin pages for data tables
+ */
+
 import { ReactNode, useState, useMemo } from 'react';
 import {
     Table,

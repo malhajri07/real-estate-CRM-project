@@ -1,3 +1,18 @@
+/**
+ * test-db.ts - Database Test Routes
+ * 
+ * Location: apps/api/ → Testing & Utilities → test-db.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Database test routes for development/testing. Provides:
+ * - Database connection testing
+ * - Test endpoints
+ * 
+ * Related Files:
+ * - apps/api/test-admin.ts - Admin test routes
+ * - apps/api/test-dashboard.ts - Dashboard test routes
+ */
+
 import { Router } from 'express';
 import { prisma } from './prismaClient';
 

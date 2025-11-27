@@ -1,3 +1,18 @@
+/**
+ * loading-state.tsx - Loading State Component
+ * 
+ * Location: apps/web/src/ → Components/ → UI Components → loading-state.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Reusable loading state component. Provides:
+ * - Loading spinner
+ * - Loading message
+ * - Consistent loading UI
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/unified-page-layout.tsx - Uses this component
+ */
+
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';

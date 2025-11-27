@@ -1,3 +1,21 @@
+/**
+ * agency.tsx - Agency Detail Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → agency.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Agency detail page. Displays:
+ * - Agency information
+ * - Agency agents list
+ * - Agency listings
+ * 
+ * Route: /home/platform/agency/:id or /agency/:id
+ * 
+ * Related Files:
+ * - apps/web/src/pages/agencies.tsx - Agencies listing page
+ * - apps/api/routes/agencies.ts - Agencies API routes
+ */
+
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";

@@ -1,3 +1,23 @@
+/**
+ * routes/cms-navigation.ts - CMS Navigation API Routes
+ * 
+ * Location: apps/api/ → Routes/ → cms-navigation.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for navigation menu management. Handles:
+ * - Navigation link CRUD operations
+ * - Link ordering and visibility
+ * - Navigation menu structure
+ * 
+ * API Endpoints:
+ * - GET /api/cms/navigation - Get navigation
+ * - PUT /api/cms/navigation - Update navigation
+ * 
+ * Related Files:
+ * - apps/api/services/navigationService.ts - Navigation service
+ * - apps/web/src/pages/admin/navigation-management.tsx - Navigation management UI
+ */
+
 import express from "express";
 import { z } from "zod";
 import { NavigationService } from "../services/navigationService";

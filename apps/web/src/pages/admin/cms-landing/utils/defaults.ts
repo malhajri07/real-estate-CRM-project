@@ -1,4 +1,18 @@
 /**
+ * defaults.ts - CMS Landing Page Default Values
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → cms-landing/ → utils/ → defaults.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Default values for CMS landing page editor. Provides:
+ * - Default card draft content
+ * - Default section values
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/cms-landing/index.tsx - CMS landing editor
+ */
+
+/**
  * Default values for CMS Landing Page
  */
 

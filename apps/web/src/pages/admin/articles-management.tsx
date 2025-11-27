@@ -1,3 +1,22 @@
+/**
+ * articles-management.tsx - Articles Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → articles-management.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * CMS articles management page. Provides:
+ * - Article listing and search
+ * - Article CRUD operations
+ * - Article publishing and status management
+ * - SEO metadata management
+ * 
+ * Route: /admin/content/articles
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-articles.ts - Articles API routes
+ * - apps/api/services/articleService.ts - Article service
+ */
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -170,7 +189,7 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
           return (
             <Card key={version.id}>
               <CardContent className="p-4">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between" dir="rtl">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant="outline">الإصدار {version.version}</Badge>
@@ -202,7 +221,7 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
                     }}
                     disabled={restoreMutation.isPending}
                   >
-                    <RotateCcw className="h-4 w-4 ml-2" />
+                    <RotateCcw className="h-4 w-4 ml-2 rtl:ml-0 rtl:mr-2" />
                     استعادة
                   </Button>
                 </div>
@@ -661,7 +680,7 @@ function ArticleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
           <DialogTitle>
             {article ? "تعديل المقال" : "إنشاء مقال جديد"}
@@ -672,14 +691,14 @@ function ArticleDialog({
               : "املأ المعلومات لإنشاء مقال جديد"}
           </DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="edit" className="w-full">
+        <Tabs defaultValue="edit" className="w-full" dir="rtl">
           <TabsList>
             <TabsTrigger value="edit">تحرير</TabsTrigger>
             <TabsTrigger value="preview">معاينة</TabsTrigger>
             {article && <TabsTrigger value="versions">سجل الإصدارات</TabsTrigger>}
           </TabsList>
           <TabsContent value="edit">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" dir="rtl">
           <div>
             <Label htmlFor="title">العنوان</Label>
             <Input
@@ -729,7 +748,7 @@ function ArticleDialog({
                     type="button"
                     variant="destructive"
                     size="sm"
-                    className="absolute top-1 left-1"
+                    className="absolute top-1 left-1 rtl:left-auto rtl:right-1"
                     onClick={() => {
                       setFeaturedImageId(undefined);
                       setFeaturedImageUrl(undefined);
@@ -744,7 +763,7 @@ function ArticleDialog({
                 variant="outline"
                 onClick={() => setIsMediaSelectorOpen(true)}
               >
-                <ImageIcon className="ml-2 h-4 w-4" />
+                <ImageIcon className="ml-2 rtl:ml-0 rtl:mr-2 h-4 w-4" />
                 {featuredImageUrl ? "تغيير الصورة" : "اختر صورة"}
               </Button>
             </div>
@@ -797,7 +816,7 @@ function ArticleDialog({
               ))}
             </div>
           </div>
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-start gap-2">
             <Button
               type="button"
               variant="outline"
@@ -811,7 +830,7 @@ function ArticleDialog({
           </div>
         </form>
           </TabsContent>
-          <TabsContent value="preview">
+          <TabsContent value="preview" dir="rtl">
             <div className="space-y-4">
               {featuredImageUrl && (
                 <div className="w-full h-64 overflow-hidden rounded-lg">
@@ -855,7 +874,7 @@ function ArticleDialog({
             </div>
           </TabsContent>
           {article && (
-            <TabsContent value="versions">
+            <TabsContent value="versions" dir="rtl">
               <ArticleVersionHistory articleId={article.id} onRestore={() => {
                 onOpenChange(false);
                 queryClient.invalidateQueries({ queryKey: ["articles"] });

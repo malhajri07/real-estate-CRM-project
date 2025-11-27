@@ -1,4 +1,19 @@
 /**
+ * ErrorBoundary.tsx - Map Error Boundary Component
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → components/ → ErrorBoundary.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Error boundary component for map page. Provides:
+ * - Error catching for Google Maps integration
+ * - Friendly error fallback UI
+ * - Error logging
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/index.tsx - Map page uses this boundary
+ */
+
+/**
  * Error Boundary Component for Map Page
  * 
  * Wraps the interactive map in a React error boundary so a failure inside the

@@ -1,3 +1,19 @@
+/**
+ * useSEO.ts - SEO Hook
+ * 
+ * Location: apps/web/src/ → Hooks/ → useSEO.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Custom React hook for managing SEO metadata. Provides:
+ * - Dynamic SEO metadata management
+ * - Page-specific SEO settings
+ * - Open Graph and social media metadata
+ * 
+ * Related Files:
+ * - apps/web/src/pages/blog.tsx - Uses this hook
+ * - apps/api/routes/cms-seo.ts - SEO API routes
+ */
+
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";

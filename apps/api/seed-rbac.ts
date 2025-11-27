@@ -1,3 +1,19 @@
+/**
+ * seed-rbac.ts - RBAC Seed Script
+ * 
+ * Location: apps/api/ → Database Seeds & Population → seed-rbac.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * RBAC seed script. Provides:
+ * - Role and permission seeding
+ * - User seeding with roles
+ * - RBAC initialization
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/core.ts - Core seed utilities
+ * - apps/api/rbac.ts - RBAC system
+ */
+
 // @ts-nocheck
 import { OrganizationStatus, AgentStatus, PropertyStatus, ListingType, ListingStatus, BuyerRequestStatus, SellerSubmissionStatus, LeadStatus, ClaimStatus, ContactChannel } from '@prisma/client';
 import { hashPassword } from './auth';

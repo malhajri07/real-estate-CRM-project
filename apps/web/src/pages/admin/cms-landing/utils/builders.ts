@@ -1,4 +1,19 @@
 /**
+ * builders.ts - CMS Landing Page Payload Builders
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → cms-landing/ → utils/ → builders.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Payload building utilities for CMS landing page. Converts:
+ * - Form state to API payload structures
+ * - Section and card data to API format
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/cms-landing/index.tsx - CMS landing editor
+ * - apps/api/routes/cms-landing.ts - CMS landing API routes
+ */
+
+/**
  * Payload building utilities for CMS Landing Page
  * 
  * Converts form state to API payload structures

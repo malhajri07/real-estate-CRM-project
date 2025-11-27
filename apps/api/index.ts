@@ -1,6 +1,9 @@
 /**
  * apps/api/index.ts - Main Server Entry Point
  * 
+ * Location: apps/api/ → Core Application Files → index.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
  * This is the main entry point for the Express.js backend server. It handles:
  * - Environment variable configuration
  * - Express application setup and middleware configuration
@@ -12,6 +15,11 @@
  * 
  * The server runs on port 3001 in development and serves both the API
  * and the frontend application through a single port.
+ * 
+ * Related Files:
+ * - apps/api/index.prod.ts - Production entry point
+ * - apps/api/routes.ts - Main route registration
+ * - apps/api/routes/ - Individual route handlers
  */
 
 import 'dotenv/config';
@@ -49,10 +57,19 @@ app.use(helmet({
         "'self'",
         "'unsafe-inline'", // Consider removing if possible
         "https://maps.googleapis.com", // Google Maps
+        "https://*.googleapis.com", // Google Maps subdomains
       ],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'"],
+      connectSrc: [
+        "'self'",
+        "https://maps.googleapis.com", // Google Maps API
+        "https://*.googleapis.com", // Google Maps subdomains (for RPC calls)
+        "https://*.gstatic.com", // Google static resources
+        "https://maps.gstatic.com", // Google Maps static resources
+        "https://*.google.com", // Additional Google domains
+        "https://*.googleapis.com", // Explicit wildcard for all Google APIs
+      ],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
@@ -61,7 +78,7 @@ app.use(helmet({
       formAction: ["'self'"],
     },
   },
-  crossOriginEmbedderPolicy: false, // May need false for Google Maps
+  crossOriginEmbedderPolicy: false, // Required for Google Maps
   hsts: {
     maxAge: 31536000, // 1 year
     includeSubDomains: true,

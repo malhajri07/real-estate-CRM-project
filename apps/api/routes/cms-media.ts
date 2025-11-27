@@ -1,3 +1,26 @@
+/**
+ * routes/cms-media.ts - CMS Media API Routes
+ * 
+ * Location: apps/api/ → Routes/ → cms-media.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for media file management. Handles:
+ * - Media file upload
+ * - Media library retrieval
+ * - Media file deletion
+ * - Media metadata management
+ * 
+ * API Endpoints:
+ * - GET /api/cms/media - Get media files
+ * - POST /api/cms/media/upload - Upload media file
+ * - DELETE /api/cms/media/:id - Delete media file
+ * 
+ * Related Files:
+ * - apps/api/services/mediaService.ts - Media service
+ * - apps/web/src/pages/admin/media-library.tsx - Media library UI
+ * - apps/web/src/components/cms/MediaSelector.tsx - Media selector component
+ */
+
 import express from "express";
 import multer from "multer";
 import { z } from "zod";

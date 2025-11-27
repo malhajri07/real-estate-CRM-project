@@ -1,3 +1,22 @@
+/**
+ * articleService.ts - Article Service
+ * 
+ * Location: apps/api/ → Services/ → articleService.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Service for managing CMS articles. Provides business logic for:
+ * - Article creation, update, and deletion
+ * - Article publishing and status management
+ * - Article categorization and tagging
+ * - SEO metadata management
+ * - Featured image handling
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-articles.ts - Article API routes
+ * - apps/web/src/pages/admin/articles-management.tsx - Article management UI
+ * - data/schema/prisma/schema.prisma - Article database schema
+ */
+
 // @ts-nocheck
 import { prisma } from "../prismaClient";
 import { z } from "zod";

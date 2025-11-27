@@ -1,3 +1,19 @@
+/**
+ * spatial-queries.ts - Spatial Query Utilities
+ * 
+ * Location: apps/api/ → Database & Prisma → spatial-queries.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Spatial query utilities for geographical operations. Provides:
+ * - Distance calculations
+ * - Polygon intersections
+ * - Location-based searches
+ * 
+ * Related Files:
+ * - apps/api/routes/listings.ts - Listings routes use spatial queries
+ * - apps/api/routes/locations.ts - Locations routes use spatial queries
+ */
+
 // @ts-nocheck
 import { prisma } from './prismaClient';
 

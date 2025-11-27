@@ -1,3 +1,18 @@
+/**
+ * test-dashboard.ts - Dashboard Test Routes
+ * 
+ * Location: apps/api/ → Testing & Utilities → test-dashboard.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Dashboard test routes for development/testing. Provides:
+ * - Dashboard functionality testing
+ * - Test endpoints
+ * 
+ * Related Files:
+ * - apps/api/test-admin.ts - Admin test routes
+ * - apps/api/test-db.ts - Database test routes
+ */
+
 import { Router } from 'express';
 import { prisma } from './prismaClient';
 

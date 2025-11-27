@@ -1,3 +1,22 @@
+/**
+ * reports.tsx - Reports and Analytics Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → reports.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Reports and analytics dashboard. Provides:
+ * - Sales reports
+ * - Performance metrics
+ * - Data visualization (charts, graphs)
+ * - Export functionality
+ * 
+ * Route: /home/platform/reports or /reports
+ * 
+ * Related Files:
+ * - apps/api/routes/reports.ts - Reports API routes
+ * - apps/web/src/components/ui/chart.tsx - Chart components
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Download, TrendingUp, Users, Building, Calendar, BarChart3, PieChart, LineChart, Activity, DollarSign, Target, Zap } from "lucide-react";

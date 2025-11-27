@@ -1,10 +1,22 @@
+/**
+ * contentSyncService.ts - Content Synchronization Service
+ * 
+ * Location: apps/api/ → Services/ → contentSyncService.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Service for synchronizing content between draft and published states.
+ * Handles:
+ * - Draft → published state synchronization
+ * - Cache invalidation
+ * - Content versioning
+ * 
+ * Related Files:
+ * - apps/api/services/landingService.ts - Uses this for landing page sync
+ * - apps/api/services/articleService.ts - Uses this for article sync
+ */
+
 // @ts-nocheck
 import { prisma } from "../prismaClient";
-
-/**
- * Content Sync Service
- * Handles synchronization of draft → published state and cache invalidation
- */
 export const ContentSyncService = {
   /**
    * Sync draft content to published state
