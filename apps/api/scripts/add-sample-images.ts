@@ -25,13 +25,6 @@ const photoSets: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1594736797933-d0f06b755b8f",
     "https://images.unsplash.com/photo-1574362848149-11496d93a7c7"
   ],
-  شقة: [
-    "https://images.unsplash.com/photo-1497366216548-37526070297c",
-    "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
-    "https://images.unsplash.com/photo-1555636222-cae831e670b3",
-    "https://images.unsplash.com/photo-1565182999561-18d7dc61c393",
-    "https://images.unsplash.com/photo-1554995207-c18c203602cb"
-  ],
   منزل: [
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
     "https://images.unsplash.com/photo-1449824913935-59a10b8d2000",

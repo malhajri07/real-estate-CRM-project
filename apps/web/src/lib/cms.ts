@@ -146,47 +146,36 @@ export const cmsService = {
       });
       return response.data.data;
     } catch (error) {
-      console.error('خطأ في جلب محتوى صفحة الهبوط من CMS:', error);
-      // إرجاع محتوى افتراضي في حالة الخطأ
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('خطأ في جلب محتوى صفحة الهبوط من CMS:', errorMessage);
+      // إرجاع محتوى فارغ - لا يوجد محتوى ثابت
       return {
         id: 0,
-        loadingText: 'جار تحميل المحتوى...',
-        heroWelcomeText: 'مرحباً بك في',
-        heroTitle: 'منصة عقاراتي للوساطة العقارية',
-        heroSubtitle: 'منصة شاملة لإدارة العقارات والوساطة العقارية مع أدوات تسويق متقدمة',
-        heroButton: 'ابدأ رحلتك المجانية',
-        heroLoginButton: 'تسجيل الدخول',
-        heroDashboardTitle: 'منصة عقاراتي - لوحة التحكم',
-        heroDashboardMetrics: [
-          { id: 1, value: '1.2M ﷼', label: 'إيرادات', color: 'blue', order: 1 },
-          { id: 2, value: '3,847', label: 'عملاء', color: 'green', order: 2 },
-          { id: 3, value: '89', label: 'عقارات', color: 'orange', order: 3 },
-          { id: 4, value: '45', label: 'صفقات', color: 'purple', order: 4 }
-        ],
-        featuresTitle: 'لماذا تختار منصة عقاراتي؟',
-        featuresDescription: 'عندما يجتمع التحديث بالاحترافية، تكون منصة عقاراتي هي الخيار الأمثل لإدارة عقاراتك بكفاءة',
+        loadingText: '',
+        heroWelcomeText: '',
+        heroTitle: '',
+        heroSubtitle: '',
+        heroButton: '',
+        heroLoginButton: '',
+        heroDashboardTitle: '',
+        heroDashboardMetrics: [],
+        featuresTitle: '',
+        featuresDescription: '',
         features: [],
-        solutionsTitle: 'حلول شاملة لإدارة العقارات',
-        solutionsDescription: 'أدوات متكاملة تساعدك في إدارة جميع جوانب أعمالك العقارية',
+        solutionsTitle: '',
+        solutionsDescription: '',
         solutions: [],
-        pricingTitle: 'خطط الأسعار',
-        pricingSubtitle: 'اختر الخطة المناسبة لك',
-        statsTitle: 'أرقامنا تتحدث',
+        pricingTitle: '',
+        pricingSubtitle: '',
+        statsTitle: '',
         stats: [],
-        contactTitle: 'تواصل معنا',
-        contactDescription: 'نحن هنا لمساعدتك في رحلتك العقارية',
+        contactTitle: '',
+        contactDescription: '',
         contactInfo: [],
-        footerDescription: 'منصة عقاراتي - الحل الشامل لإدارة العقارات والوساطة العقارية',
-        footerCopyright: '© 2024 منصة عقاراتي. جميع الحقوق محفوظة.',
+        footerDescription: '',
+        footerCopyright: '',
         footerLinks: [],
-        navigation: [
-          { id: 1, text: 'الرئيسية', url: '#home', order: 1 },
-          { id: 2, text: 'ابحث عن عقار', url: '/map', order: 2 },
-          { id: 3, text: 'المميزات', url: '#features', order: 3 },
-          { id: 4, text: 'الحلول', url: '#solutions', order: 4 },
-          { id: 5, text: 'الأسعار', url: '#pricing', order: 5 },
-          { id: 6, text: 'اتصل بنا', url: '#contact', order: 6 }
-        ]
+        navigation: []
       };
     }
   },
@@ -197,42 +186,10 @@ export const cmsService = {
       const response = await cmsApi.get('/pricing-plans');
       return response.data.data;
     } catch (error) {
-      console.error('خطأ في جلب خطط التسعير من CMS:', error);
-      // إرجاع خطط افتراضية في حالة الخطأ
-      return [
-        {
-          id: 1,
-          name: 'الباقة الأساسية',
-          price: 99,
-          period: 'monthly',
-          isPopular: false,
-          description: 'مثالية للوسطاء الجدد',
-          features: [
-            { id: 1, text: 'إدارة 100 عميل محتمل', included: true },
-            { id: 2, text: 'إدراج 20 عقار', included: true },
-            { id: 3, text: 'التقارير الأساسية', included: true },
-            { id: 4, text: 'دعم فني 24/7', included: false }
-          ],
-          buttonText: 'ابدأ الآن',
-          order: 1
-        },
-        {
-          id: 2,
-          name: 'الباقة المتقدمة',
-          price: 199,
-          period: 'monthly',
-          isPopular: true,
-          description: 'الأكثر شعبية للشركات المتنامية',
-          features: [
-            { id: 5, text: 'إدارة غير محدودة للعملاء', included: true },
-            { id: 6, text: 'إدراج غير محدود للعقارات', included: true },
-            { id: 7, text: 'التقارير المتقدمة', included: true },
-            { id: 8, text: 'دعم فني 24/7', included: true }
-          ],
-          buttonText: 'ابدأ الآن',
-          order: 2
-        }
-      ];
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error('خطأ في جلب خطط التسعير من CMS:', errorMessage);
+      // إرجاع قائمة فارغة - لا يوجد محتوى ثابت
+      return [];
     }
   },
 

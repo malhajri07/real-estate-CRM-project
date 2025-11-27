@@ -235,8 +235,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
             icon: ShieldCheck,
             matchPaths: [
               "/unverified-listings",
-              "/unverfied-listing",
-              "/home/platform/unverfied-listing"
+              "/home/platform/unverified-listings"
             ]
           }
         ]

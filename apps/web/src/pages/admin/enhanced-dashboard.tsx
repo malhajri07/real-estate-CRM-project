@@ -29,6 +29,7 @@ import {
     AdminLoading,
     AdminDateRangePicker,
 } from '@/components/admin';
+import type { DateRange } from '@/components/admin/forms/AdminDatePicker';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -70,10 +71,7 @@ const mockRecentActivity = [
 ];
 
 export default function EnhancedAdminDashboard() {
-    const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
-        from: undefined,
-        to: undefined,
-    });
+    const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
     // Mock query - replace with actual API call
     const { data: metrics, isLoading } = useQuery({
@@ -116,7 +114,7 @@ export default function EnhancedAdminDashboard() {
                 </div>
                 <AdminDateRangePicker
                     value={dateRange}
-                    onChange={setDateRange}
+                    onChange={(range) => setDateRange(range)}
                     placeholder="اختر نطاق التاريخ"
                     className="w-80"
                 />

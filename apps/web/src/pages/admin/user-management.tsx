@@ -162,7 +162,6 @@ export default function UserManagement() {
       email: formState.email,
       username: formState.username,
       phone: formState.phone,
-      role: formState.role,
     };
 
     if (dialogMode === "create") {
@@ -170,6 +169,7 @@ export default function UserManagement() {
         {
           ...basePayload,
           password: formState.password,
+          roles: [formState.role],
         },
         {
           onSuccess: () => {
@@ -321,7 +321,7 @@ export default function UserManagement() {
             </Badge>
           )}
           {user.approvalStatus && (
-            <AdminStatusBadge status={user.approvalStatus} />
+            <AdminStatusBadge approvalStatus={user.approvalStatus} isActive={user.isActive ?? false} />
           )}
         </div>
       ),
@@ -520,7 +520,7 @@ export default function UserManagement() {
             : "تعديل بيانات المستخدم"
         }
         onConfirm={handleSubmit}
-        confirmText={dialogMode === "create" ? "إنشاء" : "حفظ"}
+        confirmLabel={dialogMode === "create" ? "إنشاء" : "حفظ"}
         confirmDisabled={disableSubmit || isSubmitting}
         confirmLoading={isSubmitting}
       >
@@ -621,7 +621,7 @@ export default function UserManagement() {
         title="تأكيد الحذف"
         description={`هل أنت متأكد من حذف المستخدم "${deleteTarget?.name ?? deleteTarget?.username}"؟ هذا الإجراء لا يمكن التراجع عنه.`}
         onConfirm={handleDeleteUser}
-        confirmText="حذف"
+        confirmLabel="حذف"
         confirmVariant="destructive"
         confirmLoading={deleteUserMutation.isPending}
       />
