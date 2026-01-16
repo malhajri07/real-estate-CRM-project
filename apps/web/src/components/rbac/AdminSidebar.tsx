@@ -51,7 +51,7 @@ export function AdminSidebar({
   onSelectSubPage,
 }: AdminSidebarProps) {
   return (
-    <div className="w-full md:w-64 h-full bg-white shadow-sm md:border-l border-t md:border-t-0 border-gray-200 flex-shrink-0 overflow-y-auto min-h-0 self-stretch flex flex-col" dir={dir}>
+    <div className="w-full md:w-64 bg-white shadow-sm md:border-l border-t md:border-t-0 border-gray-200 flex-shrink-0 overflow-y-auto self-stretch flex flex-col sticky top-20 h-[calc(100vh-5rem)]" dir={dir}>
       <div className="p-6">
         <nav className="space-y-1.5 pb-6">
           {items.map((item) => {
@@ -66,11 +66,10 @@ export function AdminSidebar({
                   data-admin-key={`Admin-${item.id}`}
                   aria-label={item.label}
                   aria-expanded={isExpanded}
-                  className={`cursor-pointer select-none w-full flex items-center px-5 py-3 rounded-lg text-right transition-colors outline-none focus-visible:ring-2 ring-slate-300 ${
-                    isActive
+                  className={`cursor-pointer select-none w-full flex items-center px-5 py-3 rounded-lg text-right transition-colors outline-none focus-visible:ring-2 ring-slate-300 ${isActive
                       ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
+                    }`}
                   onClick={() => {
                     const willExpand = !isExpanded;
                     onToggleItem(item.id);
@@ -111,11 +110,10 @@ export function AdminSidebar({
                         id={`Admin-${item.id}-${subPage.id}`}
                         data-admin-key={`Admin-${item.id}-${subPage.id}`}
                         aria-label={`${item.label} - ${subPage.label}`}
-                        className={`cursor-pointer select-none w-full flex items-center px-5 py-2 rounded-md text-right transition-colors text-sm outline-none focus-visible:ring-2 ring-slate-300 ${
-                          activeRoute === subPage.route
+                        className={`cursor-pointer select-none w-full flex items-center px-5 py-2 rounded-md text-right transition-colors text-sm outline-none focus-visible:ring-2 ring-slate-300 ${activeRoute === subPage.route
                             ? 'bg-blue-100 text-blue-800 border-r-2 border-blue-600'
                             : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                        }`}
+                          }`}
                         onClick={() => onSelectSubPage(subPage.route)}
                         onKeyDown={(event) => {
                           if (event.key === 'Enter' || event.key === ' ') {

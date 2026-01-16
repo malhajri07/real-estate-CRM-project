@@ -68,6 +68,7 @@ export function buildSectionPayload(section: LandingSection, form: SectionFormSt
         ...baseDraft,
         body: form.body ?? "",
         copyright: form.copyright ?? "",
+        logoUrl: form.logoUrl ?? "",
       };
       break;
     case "cta":
@@ -78,6 +79,16 @@ export function buildSectionPayload(section: LandingSection, form: SectionFormSt
           label: form.primaryCtaLabel ?? "",
           href: form.primaryCtaHref ?? "",
         },
+      };
+      break;
+    case "header":
+      draftJson = {
+        ...baseDraft,
+        logo: {
+          url: form.logoUrl ?? "",
+          alt: form.siteName ?? "",
+        },
+        siteName: form.siteName ?? "",
       };
       break;
     default:

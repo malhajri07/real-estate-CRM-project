@@ -75,42 +75,6 @@ export const adminSidebarConfig: AdminSidebarItemConfig[] = [
             ]
           }
         ]
-      },
-      {
-        id: "overview-general-statistics",
-        labelKey: "admin.sidebar.overview.general_statistics",
-        route: "/admin/overview/general-statistics",
-        contentSections: [
-          {
-            title: "Charts & Analytics",
-            items: [
-              "User Growth Chart",
-              "Revenue Trends",
-              "Organization Growth",
-              "System Performance Metrics",
-              "Geographic Distribution",
-              "Usage Statistics"
-            ]
-          }
-        ]
-      },
-      {
-        id: "overview-recent-activity",
-        labelKey: "admin.sidebar.overview.recent_activity",
-        route: "/admin/overview/recent-activity",
-        contentSections: [
-          {
-            title: "Activity Feed",
-            items: [
-              "User Registration Events",
-              "Property Listings",
-              "Organization Changes",
-              "System Alerts",
-              "Login Activities",
-              "Error Logs"
-            ]
-          }
-        ]
       }
     ]
   },

@@ -145,6 +145,7 @@ export interface LandingPageContent {
   // Footer
   footerDescription: string;
   footerCopyright: string;
+  footerLogoUrl?: string;
   footerLinks: FooterLink[];
 
   // Navigation

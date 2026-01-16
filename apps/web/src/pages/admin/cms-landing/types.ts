@@ -75,6 +75,8 @@ export type SectionFormState = {
   secondaryCtaHref?: string;
   dashboardTitle?: string;
   copyright?: string;
+  logoUrl?: string;
+  siteName?: string;
 };
 
 export type CardFormState = {

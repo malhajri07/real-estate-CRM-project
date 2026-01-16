@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Menu, Type, Sparkles } from "lucide-react";
+import { Plus, Menu, Type, Sparkles, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
 
@@ -53,7 +53,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
 
   // Use extracted hook for section data
   const { sections, loading, updateSection, updateSectionsOrder, setSections } = useCMSLandingSections(viewMode);
-  
+
   // Helper to update sections with a function
   const updateSections = useCallback((updater: (prev: LandingSection[]) => LandingSection[]) => {
     updateSectionsOrder(updater(sections));
@@ -116,7 +116,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
       const updatedSection = await response.json();
       updateSectionState(updatedSection);
       toast.success("تم حفظ القسم");
-      
+
       // If section is published, notify landing page to refresh
       if (updatedSection.status === "published") {
         window.dispatchEvent(new Event('cms:landing-updated'));
@@ -151,7 +151,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
       const updated = await response.json();
       updateSectionState(updated);
       toast.success("تم نشر القسم بنجاح");
-      
+
       // Notify landing page to refresh
       window.dispatchEvent(new Event('cms:landing-updated'));
       localStorage.setItem('cmsLandingUpdatedAt', Date.now().toString());
@@ -200,7 +200,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
       }));
 
       toast.success("تم حفظ البطاقة");
-      
+
       // If card is published, notify landing page to refresh
       if (updatedCard.status === "published") {
         window.dispatchEvent(new Event('cms:landing-updated'));
@@ -327,7 +327,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
       const cards = Array.from(selectedSection.cards ?? []);
       const [moved] = cards.splice(source.index, 1);
       cards.splice(destination.index, 0, moved);
-      
+
       updateSections((prev) =>
         prev.map((section) => {
           if (section.id !== selectedSection.id) return section;
@@ -384,6 +384,16 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                 قم بتحديث كل النصوص والأيقونات والعناصر المرئية لصفحة الهبوط بكل سهولة.
               </p>
             </div>
+            <div className="mr-auto">
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => window.open("/", "_blank")}
+              >
+                <LinkIcon className="h-4 w-4" />
+                عرض الموقع
+              </Button>
+            </div>
           </div>
           <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "draft" | "published")}>
             <TabsList>
@@ -419,11 +429,10 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                               {...dragProvided.draggableProps}
                               {...dragProvided.dragHandleProps}
                               onClick={() => setSelectedSectionId(section.id)}
-                              className={`w-full p-3 border rounded-lg text-right transition ${
-                                selectedSectionId === section.id
-                                  ? "border-primary/60 bg-primary/10 text-primary"
-                                  : "border-muted bg-white text-foreground"
-                              } ${snapshot.isDragging ? "shadow-lg" : ""}`}
+                              className={`w-full p-3 border rounded-lg text-right transition ${selectedSectionId === section.id
+                                ? "border-primary/60 bg-primary/10 text-primary"
+                                : "border-muted bg-white text-foreground"
+                                } ${snapshot.isDragging ? "shadow-lg" : ""}`}
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex flex-col items-start gap-1">

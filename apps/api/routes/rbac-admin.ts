@@ -35,6 +35,10 @@ import { JWT_SECRET as getJwtSecret } from '../config/env';
 const router = Router();
 const JWT_SECRET = getJwtSecret();
 
+// Import bcrypt for password hashing
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+
 // Middleware to verify admin access
 const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -42,7 +46,7 @@ const requireAdmin = async (req: Request, res: Response, next: NextFunction) => 
     const session = req.session as any;
     const sessionToken = session?.authToken;
     const sessionUser = session?.user;
-    
+
     if (!headerToken && !sessionToken && !sessionUser) {
       return res.status(401).json({ success: false, message: 'No token provided' });
     }
@@ -66,8 +70,8 @@ const requireAdmin = async (req: Request, res: Response, next: NextFunction) => 
       if (!ensureAdmin(userRoles)) {
         return res.status(403).json({ success: false, message: 'Admin access required' });
       }
-      req.user = { 
-        ...user, 
+      req.user = {
+        ...user,
         roles: userRoles,
         name: user.firstName + ' ' + user.lastName,
         userLevel: 1,
@@ -88,13 +92,13 @@ const requireAdmin = async (req: Request, res: Response, next: NextFunction) => 
         if (!ensureAdmin(userRoles)) {
           return res.status(403).json({ success: false, message: 'Admin access required' });
         }
-        req.user = { 
-        ...user, 
-        roles: userRoles,
-        name: user.firstName + ' ' + user.lastName,
-        userLevel: 1,
-        tenantId: user.organizationId || user.id
-      };
+        req.user = {
+          ...user,
+          roles: userRoles,
+          name: user.firstName + ' ' + user.lastName,
+          userLevel: 1,
+          tenantId: user.organizationId || user.id
+        };
         return next();
       } catch (error) {
         console.error('Admin auth error:', error);
@@ -196,7 +200,7 @@ router.get('/users', async (req, res) => {
         } catch (e) {
           parsedRoles = [user.roles];
         }
-        
+
         return {
           id: user.id,
           username: user.username,
@@ -255,7 +259,7 @@ router.get('/users/all-users', async (req, res) => {
         } catch (e) {
           parsedRoles = [user.roles];
         }
-        
+
         return {
           id: user.id,
           username: user.username,
@@ -284,6 +288,464 @@ router.get('/users/all-users', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch users',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/rbac-admin/roles - Get all roles with permissions
+ */
+router.get('/roles', async (req, res) => {
+  try {
+    const roles = await prisma.system_roles.findMany({
+      include: {
+        role_permissions: {
+          include: {
+            permission: true
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'asc' // System roles usually created first
+      }
+    });
+
+    res.json({
+      success: true,
+      roles: roles.map(role => ({
+        name: role.key, // Frontend uses 'name' as the ID/Key
+        displayName: role.name,
+        description: role.description,
+        scope: role.scope,
+        isSystem: role.isSystem,
+        isDefault: role.isDefault,
+        permissions: role.role_permissions.map(rp => rp.permission.key),
+        permissionDetails: role.role_permissions.map(rp => rp.permission).map(p => ({
+          key: p.key,
+          label: p.label,
+          description: p.description,
+          domain: p.domain
+        }))
+      }))
+    });
+  } catch (error) {
+    console.error('Roles fetch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch roles',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/rbac-admin/organizations - List all organizations
+ */
+router.get('/organizations', async (req, res) => {
+  try {
+    const orgs = await prisma.organizations.findMany({
+      include: {
+        _count: {
+          select: { users: true }
+        }
+      },
+      orderBy: { updatedAt: 'desc' }
+    });
+
+    res.json({
+      success: true,
+      organizations: orgs.map(org => ({
+        id: org.id,
+        name: org.tradeName || org.legalName,
+        description: (org.metadata as any)?.description || '',
+        type: org.industry || 'Unknown',
+        status: org.status.toLowerCase(),
+        userCount: org._count.users,
+        contactInfo: {
+          email: org.email || '',
+          phone: org.phone || '',
+          address: org.address || '',
+          website: org.website || ''
+        },
+        // Placeholder for subscription as schema doesn't show direct relation clearly yet
+        subscription: {
+          plan: 'Standard Plan',
+          status: 'active',
+          expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        createdAt: org.createdAt,
+        lastActive: org.updatedAt // Using updatedAt as proxy for lastActive
+      }))
+    });
+  } catch (error) {
+    console.error('Organizations fetch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch organizations',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * POST /api/rbac-admin/organizations - Create new organization
+ */
+router.post('/organizations', async (req, res) => {
+  try {
+    const { name, type, description, email, phone, address } = req.body;
+
+    // Basic validation
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Organization name is required' });
+    }
+
+    const newOrg = await prisma.organizations.create({
+      data: {
+        id: crypto.randomUUID(),
+        legalName: name,
+        tradeName: name,
+        licenseNo: `ORG-${Date.now()}`, // Auto-generate license for now
+        industry: type,
+        email,
+        phone,
+        address,
+        status: 'PENDING_VERIFICATION', // Default status
+        metadata: { description },
+        updatedAt: new Date()
+      }
+    });
+
+    res.json({
+      success: true,
+      organization: newOrg
+    });
+  } catch (error) {
+    console.error('Create organization error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create organization',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * PUT /api/rbac-admin/organizations/:id - Update organization
+ */
+router.put('/organizations/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, type, description, email, phone, address, status } = req.body;
+
+    const updatedOrg = await prisma.organizations.update({
+      where: { id },
+      data: {
+        legalName: name,
+        tradeName: name,
+        industry: type,
+        email,
+        phone,
+        address,
+        status: status ? status.toUpperCase() : undefined,
+        metadata: { description }, // This overwrites other metadata, careful in prod
+        updatedAt: new Date()
+      }
+    });
+
+    res.json({
+      success: true,
+      organization: updatedOrg
+    });
+  } catch (error) {
+    console.error('Update organization error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update organization',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * DELETE /api/rbac-admin/organizations/:id - Delete organization
+ */
+router.delete('/organizations/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.organizations.delete({
+      where: { id }
+    });
+    res.json({ success: true, message: 'Organization deleted successfully' });
+  } catch (error) {
+    console.error('Delete organization error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete organization',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * POST /api/rbac-admin/users - Create new user
+ */
+router.post('/users', async (req, res) => {
+  try {
+    const { firstName, lastName, email, username, phone, password, roles, isActive, organizationId } = req.body;
+
+    // Validation
+    if (!username || !password || !firstName || !lastName) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    // Check uniqueness
+    const existingUser = await prisma.users.findFirst({
+      where: {
+        OR: [{ username }, { email }, { phone }]
+      }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'User with this username, email, or phone already exists' });
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Format roles as JSON string
+    const rolesJson = JSON.stringify(Array.isArray(roles) ? roles : [roles]);
+
+    const newUser = await prisma.users.create({
+      data: {
+        id: crypto.randomUUID(),
+        firstName,
+        lastName,
+        username,
+        email,
+        phone,
+        passwordHash,
+        roles: rolesJson,
+        isActive: isActive ?? true,
+        organizationId,
+        approvalStatus: 'APPROVED', // direct admin creation
+        updatedAt: new Date()
+      }
+    });
+
+    res.json({ success: true, user: newUser });
+  } catch (error) {
+    console.error('Create user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create user',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * PUT /api/rbac-admin/users/:id - Update user
+ */
+router.put('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { firstName, lastName, email, username, phone, roles, isActive, organizationId } = req.body;
+
+    // Check if user exists
+    const user = await prisma.users.findUnique({ where: { id } });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const data: any = {
+      firstName,
+      lastName,
+      email,
+      username,
+      phone,
+      isActive,
+      organizationId,
+      updatedAt: new Date()
+    };
+
+    if (roles) {
+      data.roles = JSON.stringify(Array.isArray(roles) ? roles : [roles]);
+    }
+
+    const updatedUser = await prisma.users.update({
+      where: { id },
+      data
+    });
+
+    res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update user',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * DELETE /api/rbac-admin/users/:id - Delete user
+ */
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.users.delete({ where: { id } });
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete user',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * POST /api/rbac-admin/roles - Create new role
+ */
+router.post('/roles', async (req, res) => {
+  try {
+    const { name, displayName, description, permissions } = req.body; // name is key
+
+    if (!name || !displayName) {
+      return res.status(400).json({ success: false, message: 'Role key (name) and display name are required' });
+    }
+
+    // Check if role key exists
+    const existing = await prisma.system_roles.findUnique({ where: { key: name } });
+    if (existing) {
+      return res.status(400).json({ success: false, message: 'Role with this key already exists' });
+    }
+
+    // Create role
+    const newRole = await prisma.system_roles.create({
+      data: {
+        key: name,
+        name: displayName,
+        description,
+        scope: 'PLATFORM', // Default to platform for admin created roles
+        isSystem: false,
+        isDefault: false
+      }
+    });
+
+    // Assign permissions if provided
+    if (permissions && Array.isArray(permissions) && permissions.length > 0) {
+      // Find permission IDs for the keys
+      const perms = await prisma.permissions.findMany({
+        where: { key: { in: permissions } }
+      });
+
+      if (perms.length > 0) {
+        await prisma.role_permissions.createMany({
+          data: perms.map(p => ({
+            roleId: newRole.id,
+            permissionId: p.id
+          }))
+        });
+      }
+    }
+
+    res.json({ success: true, role: newRole });
+  } catch (error) {
+    console.error('Create role error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create role',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * PUT /api/rbac-admin/roles/:id - Update role
+ */
+router.put('/roles/:name', async (req, res) => { // Frontend might pass name/key as ID or real ID. Let's assume key based on GET response mapping name=key
+  try {
+    // Wait, GET /roles returns { name: role.key, ... }. So frontend uses key as ID.
+    // So route param is likely the key.
+    const { name: key } = req.params;
+    const { displayName, description, permissions } = req.body;
+
+    const role = await prisma.system_roles.findUnique({ where: { key } });
+    if (!role) {
+      return res.status(404).json({ success: false, message: 'Role not found' });
+    }
+
+    // Update basic info
+    const updatedRole = await prisma.system_roles.update({
+      where: { key },
+      data: {
+        name: displayName,
+        description,
+        updatedAt: new Date()
+      }
+    });
+
+    // Update permissions if provided
+    if (permissions && Array.isArray(permissions)) {
+      // Delete existing
+      await prisma.role_permissions.deleteMany({
+        where: { roleId: role.id }
+      });
+
+      // Add new
+      const perms = await prisma.permissions.findMany({
+        where: { key: { in: permissions } }
+      });
+
+      if (perms.length > 0) {
+        await prisma.role_permissions.createMany({
+          data: perms.map(p => ({
+            roleId: role.id,
+            permissionId: p.id
+          }))
+        });
+      }
+    }
+
+    res.json({ success: true, role: updatedRole });
+  } catch (error) {
+    console.error('Update role error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update role',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * DELETE /api/rbac-admin/roles/:id - Delete role
+ */
+router.delete('/roles/:name', async (req, res) => {
+  try {
+    const { name: key } = req.params;
+
+    // Validate not deleting system role
+    const role = await prisma.system_roles.findUnique({ where: { key } });
+    if (!role) {
+      return res.status(404).json({ success: false, message: 'Role not found' });
+    }
+
+    if (role.isSystem) {
+      return res.status(403).json({ success: false, message: 'Cannot delete system roles' });
+    }
+
+    await prisma.system_roles.delete({ where: { key } });
+    res.json({ success: true, message: 'Role deleted successfully' });
+  } catch (error) {
+    console.error('Delete role error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete role',
       error: error instanceof Error ? error.message : 'Unknown error'
     });
   }

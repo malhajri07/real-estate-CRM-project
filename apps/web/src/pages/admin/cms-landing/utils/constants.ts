@@ -26,6 +26,7 @@ export const SECTION_LABELS: Record<string, string> = {
   contact: "التواصل",
   footer: "تذييل الصفحة",
   cta: "نداء الإجراء",
+  header: "إعدادات الرأس والشعار",
 };
 
 export const FEATURE_ICON_OPTIONS = [
