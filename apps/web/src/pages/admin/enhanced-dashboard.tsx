@@ -1,11 +1,20 @@
 /**
- * Enhanced Admin Dashboard
+ * enhanced-dashboard.tsx - Enhanced Admin Dashboard
  * 
- * This is the new main dashboard for the admin panel featuring:
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → enhanced-dashboard.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Enhanced admin dashboard featuring:
  * - Interactive charts
  * - Real-time metrics
  * - Customizable layout
  * - Better data visualization
+ * 
+ * Route: /admin/overview/main-dashboard
+ * 
+ * Related Files:
+ * - apps/web/src/components/admin/AnalyticsDashboard.tsx - Analytics dashboard component
+ * - apps/api/src/routes/analytics.ts - Analytics API routes
  */
 
 import { useState } from 'react';

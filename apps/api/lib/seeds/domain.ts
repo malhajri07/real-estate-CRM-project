@@ -1,3 +1,18 @@
+/**
+ * domain.ts - Domain Seed Data
+ * 
+ * Location: apps/api/ → Lib/ → seeds/ → domain.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Domain seed data generation. Provides:
+ * - Property and listing seeding
+ * - Location data seeding
+ * - Domain entity data
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/index.ts - Seed orchestrator
+ */
+
 import type { Prisma } from "@prisma/client";
 import { SeedContext, SeedResult } from "./types";
 
@@ -399,7 +414,7 @@ export const seedDomain = async (ctx: SeedContext): Promise<SeedResult> => {
       const status = picker(["NEW", "IN_PROGRESS", "WON", "LOST"]);
       leadInserts.push({
         id: faker.string.uuid(),
-        agent: { connect: { id: agent?.id ?? corpAdmin.id } },
+        users: { connect: { id: agent?.id ?? corpAdmin.id } },
         organization: org.id ? { connect: { id: org.id } } : undefined,
         customer: { connect: { id: customerId } },
         status,

@@ -1,3 +1,20 @@
+/**
+ * admin-sidebar.ts - Admin Sidebar Configuration
+ * 
+ * Location: apps/web/src/ → Config/ → admin-sidebar.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin sidebar navigation configuration. Defines:
+ * - Admin menu items and structure
+ * - Navigation sections
+ * - Icon mappings
+ * - Role-based menu visibility
+ * 
+ * Related Files:
+ * - apps/web/src/components/rbac/AdminSidebar.tsx - Admin sidebar component
+ * - apps/web/src/config/platform-sidebar.ts - Platform sidebar configuration
+ */
+
 import {
   AlertCircle,
   BarChart3,
@@ -55,42 +72,6 @@ export const adminSidebarConfig: AdminSidebarItemConfig[] = [
               "System Health Status",
               "Recent Activity Feed",
               "Quick Actions Panel"
-            ]
-          }
-        ]
-      },
-      {
-        id: "overview-general-statistics",
-        labelKey: "admin.sidebar.overview.general_statistics",
-        route: "/admin/overview/general-statistics",
-        contentSections: [
-          {
-            title: "Charts & Analytics",
-            items: [
-              "User Growth Chart",
-              "Revenue Trends",
-              "Organization Growth",
-              "System Performance Metrics",
-              "Geographic Distribution",
-              "Usage Statistics"
-            ]
-          }
-        ]
-      },
-      {
-        id: "overview-recent-activity",
-        labelKey: "admin.sidebar.overview.recent_activity",
-        route: "/admin/overview/recent-activity",
-        contentSections: [
-          {
-            title: "Activity Feed",
-            items: [
-              "User Registration Events",
-              "Property Listings",
-              "Organization Changes",
-              "System Alerts",
-              "Login Activities",
-              "Error Logs"
             ]
           }
         ]

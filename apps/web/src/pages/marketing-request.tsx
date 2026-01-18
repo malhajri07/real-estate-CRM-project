@@ -1,3 +1,20 @@
+/**
+ * marketing-request.tsx - Marketing Request Form Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → marketing-request.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Public marketing request submission form. Provides:
+ * - Marketing request form
+ * - Request submission
+ * 
+ * Route: /marketing-request
+ * 
+ * Related Files:
+ * - apps/web/src/pages/marketing-requests.tsx - Marketing requests board
+ * - apps/api/routes/marketing-requests.ts - Marketing requests API routes
+ */
+
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";

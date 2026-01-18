@@ -1,3 +1,18 @@
+/**
+ * AdminFormField.tsx - Admin Form Field Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → forms/ → AdminFormField.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin form field component. Provides:
+ * - Standardized form field interface
+ * - Multiple input types
+ * - Label and error display
+ * 
+ * Related Files:
+ * - Used in admin forms for form fields
+ */
+
 import { ReactNode } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';

@@ -1,4 +1,19 @@
 /**
+ * env.ts - Environment Configuration
+ * 
+ * Location: apps/api/ → Configuration → config/ → env.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Centralized helpers for accessing environment variables. Provides:
+ * - Environment variable access with validation
+ * - Required secret checking
+ * - Fail-fast error handling
+ * 
+ * Related Files:
+ * - Used throughout the application for environment configuration
+ */
+
+/**
  * apps/api/config/env.ts
  *
  * Centralised helpers for accessing environment variables that must be set.

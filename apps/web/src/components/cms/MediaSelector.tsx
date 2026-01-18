@@ -1,3 +1,19 @@
+/**
+ * MediaSelector.tsx - Media Selector Component
+ * 
+ * Location: apps/web/src/ → Components/ → CMS Components → MediaSelector.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Media selector component for CMS. Provides:
+ * - Media library browsing
+ * - Media selection interface
+ * - Image preview
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/media-library.tsx - Media library page
+ * - apps/api/routes/cms-media.ts - Media API routes
+ */
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {

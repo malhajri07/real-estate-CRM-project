@@ -1,3 +1,21 @@
+/**
+ * mediaService.ts - Media Management Service
+ * 
+ * Location: apps/api/ → Services/ → mediaService.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Service for managing media files (images, documents, etc.). Provides business logic for:
+ * - Media file upload and storage
+ * - Media metadata management
+ * - File deletion and cleanup
+ * - Media library operations
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-media.ts - Media API routes
+ * - apps/web/src/pages/admin/media-library.tsx - Media library UI
+ * - apps/web/src/components/cms/MediaSelector.tsx - Media selector component
+ */
+
 // @ts-nocheck
 import { prisma } from "../prismaClient";
 import { z } from "zod";

@@ -1,3 +1,23 @@
+/**
+ * media-library.tsx - Media Library Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → media-library.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Media library management page. Provides:
+ * - Media file listing
+ * - Media upload functionality
+ * - Media file deletion
+ * - Media metadata management
+ * 
+ * Route: /admin/content/media-library
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-media.ts - Media API routes
+ * - apps/api/services/mediaService.ts - Media service
+ * - apps/web/src/components/cms/MediaSelector.tsx - Media selector component
+ */
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {

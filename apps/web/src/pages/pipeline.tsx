@@ -1,3 +1,21 @@
+/**
+ * pipeline.tsx - Sales Pipeline Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → pipeline.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Sales pipeline management page with drag-and-drop functionality. Provides:
+ * - Deal management by stage
+ * - Drag-and-drop deal movement
+ * - Pipeline visualization
+ * - Deal CRUD operations
+ * 
+ * Route: /home/platform/pipeline or /pipeline
+ * 
+ * Related Files:
+ * - apps/web/src/components/ui/ - UI components for pipeline
+ */
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";

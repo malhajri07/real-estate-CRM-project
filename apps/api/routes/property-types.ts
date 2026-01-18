@@ -1,3 +1,20 @@
+/**
+ * routes/property-types.ts - Property Types API Routes
+ * 
+ * Location: apps/api/ → Routes/ → property-types.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for property type management. Handles:
+ * - Retrieving property types
+ * - Filtering by category
+ * 
+ * API Endpoints:
+ * - GET /api/property-types - Get all property types
+ * 
+ * Related Files:
+ * - apps/api/routes/property-categories.ts - Property categories routes
+ */
+
 import express from "express";
 import { storage } from "../storage-prisma";
 

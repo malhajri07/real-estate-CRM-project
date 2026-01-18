@@ -1,3 +1,20 @@
+/**
+ * notifications.tsx - Notifications Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → notifications.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Notifications management page. Provides:
+ * - Notification listing
+ * - Notification filtering
+ * - Notification actions
+ * 
+ * Route: /home/platform/notifications or /notifications
+ * 
+ * Related Files:
+ * - apps/api/routes/notifications.ts - Notifications API routes
+ */
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Bell, Send, Users, MessageCircle, Mail, Calendar, Filter, Plus } from "lucide-react";

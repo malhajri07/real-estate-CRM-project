@@ -1,3 +1,19 @@
+/**
+ * add-lead-modal.tsx - Add Lead Modal Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → modals/ → add-lead-modal.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Modal component for adding new leads. Provides:
+ * - Lead creation form
+ * - Lead information input
+ * - Form validation
+ * 
+ * Related Files:
+ * - apps/web/src/pages/leads.tsx - Leads page that uses this modal
+ * - apps/web/src/components/modals/add-lead-drawer.tsx - Lead drawer variant
+ */
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

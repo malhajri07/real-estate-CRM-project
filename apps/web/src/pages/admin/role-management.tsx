@@ -1,3 +1,21 @@
+/**
+ * role-management.tsx - Role Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → role-management.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * RBAC role management page. Provides:
+ * - Role listing and management
+ * - Permission assignment
+ * - Role creation and editing
+ * 
+ * Route: /admin/roles/roles-list
+ * 
+ * Related Files:
+ * - apps/api/routes/rbac-admin.ts - RBAC admin API routes
+ * - apps/api/rbac.ts - RBAC system
+ */
+
 import { useMemo, useState } from "react";
 import { Edit, Eye, Plus, Settings, Shield, Trash2, Unlock, Users } from "lucide-react";
 import {
@@ -200,7 +218,7 @@ export default function RoleManagement() {
           <p className="text-gray-600">إدارة الأدوار والصلاحيات في النظام</p>
         </div>
         <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleOpenCreateDialog}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4" />
           إنشاء دور جديد
         </Button>
       </div>

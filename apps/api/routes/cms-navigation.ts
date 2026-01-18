@@ -1,3 +1,23 @@
+/**
+ * routes/cms-navigation.ts - CMS Navigation API Routes
+ * 
+ * Location: apps/api/ → Routes/ → cms-navigation.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for navigation menu management. Handles:
+ * - Navigation link CRUD operations
+ * - Link ordering and visibility
+ * - Navigation menu structure
+ * 
+ * API Endpoints:
+ * - GET /api/cms/navigation - Get navigation
+ * - PUT /api/cms/navigation - Update navigation
+ * 
+ * Related Files:
+ * - apps/api/services/navigationService.ts - Navigation service
+ * - apps/web/src/pages/admin/navigation-management.tsx - Navigation management UI
+ */
+
 import express from "express";
 import { z } from "zod";
 import { NavigationService } from "../services/navigationService";
@@ -9,8 +29,8 @@ function getAuth(req: any) {
   const roles: string[] = Array.isArray(user?.roles)
     ? user.roles
     : typeof user?.roles === "string"
-    ? [user.roles]
-    : [];
+      ? [user.roles]
+      : [];
   return {
     id: user?.id ?? "anonymous",
     roles,
@@ -42,6 +62,29 @@ router.get("/navigation", async (req, res) => {
           ? error.message
           : "Failed to load navigation links",
     });
+  }
+});
+
+// Public: Get header configuration (logo, etc)
+router.get("/public/header-config", async (req, res) => {
+  try {
+    // Import LandingService dynamically if needed or just use import
+    const { LandingService } = await import("../services/landingService");
+    const sections = await LandingService.getPublicLanding();
+    const headerSection = sections.find((s) => s.slug === "header");
+
+    // Normalize response
+    const content = (headerSection?.content || {}) as any;
+    const config = {
+      siteName: content.siteName || "Aqarkom",
+      logoUrl: content.logo?.url || "",
+      logoAlt: content.logo?.alt || "Logo",
+    };
+
+    res.json(config);
+  } catch (error) {
+    console.error("Failed to get header config:", error);
+    res.status(500).json({ message: "Failed to load header config" });
   }
 });
 

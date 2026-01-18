@@ -1,3 +1,21 @@
+/**
+ * unverified-listings-management.tsx - Unverified Listings Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → unverified-listings-management.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Unverified listings management page for authenticated users. Provides:
+ * - Unverified listing listing
+ * - Listing approval/rejection
+ * - Listing detail view
+ * 
+ * Route: /home/platform/unverified-listings
+ * 
+ * Related Files:
+ * - apps/web/src/pages/unverified-listing.tsx - Public listing submission
+ * - apps/api/routes/unverified-listings.ts - Unverified listings API routes
+ */
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { CheckCircle2, XCircle, Eye, Phone, Mail, MapPin, Bed, Bath, Square, Loader2 } from "lucide-react";

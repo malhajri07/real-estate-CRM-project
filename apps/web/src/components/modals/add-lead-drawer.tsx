@@ -1,3 +1,19 @@
+/**
+ * add-lead-drawer.tsx - Add Lead Drawer Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → modals/ → add-lead-drawer.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Drawer component for adding new leads. Provides:
+ * - Lead creation form in drawer format
+ * - Form validation
+ * - Lead submission
+ * 
+ * Related Files:
+ * - apps/web/src/components/modals/add-lead-modal.tsx - Modal variant
+ * - apps/web/src/pages/leads.tsx - Leads page uses this
+ */
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

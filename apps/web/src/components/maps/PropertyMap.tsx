@@ -1,3 +1,19 @@
+/**
+ * PropertyMap.tsx - Property Map Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → maps/ → PropertyMap.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Interactive property map component using Leaflet. Provides:
+ * - Property markers on map
+ * - Map interaction and navigation
+ * - Property detail popups
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/ - Map page components
+ * - apps/web/src/pages/map/index.tsx - Map page
+ */
+
 // @ts-nocheck
 import { useEffect, useMemo, useRef } from "react";
 import L from "leaflet";

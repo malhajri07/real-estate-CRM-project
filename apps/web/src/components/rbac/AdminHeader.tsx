@@ -1,3 +1,19 @@
+/**
+ * AdminHeader.tsx - Admin Header Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → rbac/ → AdminHeader.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin header component for RBAC admin pages. Provides:
+ * - Admin navigation
+ * - User information display
+ * - Logout functionality
+ * 
+ * Related Files:
+ * - apps/web/src/components/rbac/AdminSidebar.tsx - Admin sidebar
+ * - apps/web/src/pages/rbac-dashboard.tsx - RBAC dashboard
+ */
+
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -55,9 +71,9 @@ export function AdminHeader({
     <div className="bg-white shadow-md fixed inset-x-0 top-0 z-50 h-20">
       <div className="w-full px-6 sm:px-8 lg:px-12 h-full">
         <div className="flex items-center justify-between h-full">
-          <div className="flex items-center gap-4 flex-row-reverse">
+          <div className="flex items-center gap-4">
             <Icon className="w-8 h-8 text-blue-600" />
-            <div className="text-right">
+            <div>
               <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
               {subtitle && <p className="text-gray-600">{subtitle}</p>}
             </div>

@@ -1,3 +1,18 @@
+/**
+ * CSVUploader.tsx - CSV Upload Component
+ * 
+ * Location: apps/web/src/ → Components/ → Utility Components → CSVUploader.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * CSV file upload component using Uppy. Provides:
+ * - CSV file upload interface
+ * - AWS S3 integration
+ * - Upload progress tracking
+ * 
+ * Related Files:
+ * - apps/web/src/pages/leads.tsx - Uses this for CSV lead import
+ */
+
 import { useState } from "react";
 import type { ReactNode } from "react";
 import Uppy from "@uppy/core";

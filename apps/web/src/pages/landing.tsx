@@ -1,3 +1,22 @@
+/**
+ * landing.tsx - Landing Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → landing.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Public landing page component. Displays:
+ * - Marketing content and hero section
+ * - Feature highlights
+ * - Pricing plans
+ * - Call-to-action sections
+ * 
+ * Route: / (root) or /home
+ * 
+ * Related Files:
+ * - apps/web/src/lib/cms.ts - CMS content utilities
+ * - apps/web/src/components/layout/PublicHeader.tsx - Public header
+ */
+
 import { useState, useEffect, type ComponentType } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -248,6 +267,7 @@ export default function Landing() {
                 : current.contactInfo,
             footerDescription: footer?.content?.body ?? current.footerDescription,
             footerCopyright: footer?.content?.copyright ?? current.footerCopyright,
+            footerLogoUrl: footer?.content?.logoUrl ?? null,
             footerLinks:
               Array.isArray(footer?.cards) && footer.cards.length > 0
                 ? footer.cards.flatMap((card: any, cardIndex: number) => {
@@ -523,56 +543,56 @@ export default function Landing() {
               {landingContent?.solutions && landingContent.solutions.length > 0 && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" data-cms-collection="solutions">
                   {landingContent.solutions.map((solution: any, index: number) => {
-              const key = solution.id ?? `solution-${index}`;
-              const featureItems = Array.isArray(solution.features) ? solution.features : [];
-              return (
-                <Card
-                  key={key}
-                  className="rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl hover:shadow-xl transition-shadow duration-300"
-                  data-cms-item="solution"
-                  data-solution-id={solution.id ?? `fallback-${index}`}
-                >
-                  <CardContent className="p-8 text-center">
-                    <div
-                      className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
-                      data-cms-element="solution-icon"
-                    >
-                      {renderIcon(solution.icon, "h-10 w-10 text-green-600")}
-                    </div>
-                    <h3
-                      className="text-2xl font-bold text-gray-900 mb-4"
-                      data-cms-field="solution-title"
-                    >
-                      {solution.title}
-                    </h3>
-                    <p
-                      className="text-gray-600 mb-6"
-                      data-cms-field="solution-description"
-                    >
-                      {solution.description}
-                    </p>
-                    {featureItems.length > 0 && (
-                      <ul className="text-right space-y-3 text-gray-600" data-cms-collection="solution-features">
-                        {featureItems.map((item: any, featureIndex: number) => {
-                          const text = typeof item === "string" ? item : item?.text ?? "";
-                          const iconName = typeof item === "string" ? "circle-check-big" : item?.icon ?? "circle-check-big";
-                          return (
-                            <li
-                              key={`${key}-feature-${featureIndex}`}
-                              className="flex items-center gap-3"
-                              data-cms-item="solution-feature"
-                              data-feature-index={featureIndex}
-                            >
-                              {renderIcon(iconName, "h-5 w-5 text-green-600 flex-shrink-0")}
-                              <span data-cms-field="feature-text">{text}</span>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
-                  </CardContent>
-                </Card>
-              );
+                    const key = solution.id ?? `solution-${index}`;
+                    const featureItems = Array.isArray(solution.features) ? solution.features : [];
+                    return (
+                      <Card
+                        key={key}
+                        className="rounded-3xl border border-border/60 bg-card/80 shadow-outline backdrop-blur-xl hover:shadow-xl transition-shadow duration-300"
+                        data-cms-item="solution"
+                        data-solution-id={solution.id ?? `fallback-${index}`}
+                      >
+                        <CardContent className="p-8 text-center">
+                          <div
+                            className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
+                            data-cms-element="solution-icon"
+                          >
+                            {renderIcon(solution.icon, "h-10 w-10 text-green-600")}
+                          </div>
+                          <h3
+                            className="text-2xl font-bold text-gray-900 mb-4"
+                            data-cms-field="solution-title"
+                          >
+                            {solution.title}
+                          </h3>
+                          <p
+                            className="text-gray-600 mb-6"
+                            data-cms-field="solution-description"
+                          >
+                            {solution.description}
+                          </p>
+                          {featureItems.length > 0 && (
+                            <ul className="text-right space-y-3 text-gray-600" data-cms-collection="solution-features">
+                              {featureItems.map((item: any, featureIndex: number) => {
+                                const text = typeof item === "string" ? item : item?.text ?? "";
+                                const iconName = typeof item === "string" ? "circle-check-big" : item?.icon ?? "circle-check-big";
+                                return (
+                                  <li
+                                    key={`${key}-feature-${featureIndex}`}
+                                    className="flex items-center gap-3"
+                                    data-cms-item="solution-feature"
+                                    data-feature-index={featureIndex}
+                                  >
+                                    {renderIcon(iconName, "h-5 w-5 text-green-600 flex-shrink-0")}
+                                    <span data-cms-field="feature-text">{text}</span>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
                   })}
                 </div>
               )}
@@ -633,62 +653,62 @@ export default function Landing() {
               {displayedPricingPlans.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20" data-cms-collection="pricing-plans">
                   {displayedPricingPlans.map((plan: any) => (
-              <Card
-                key={plan.id}
-                className={`relative hover:shadow-xl transition-shadow duration-300 h-full ${plan.isPopular ? 'border-2 border-green-500' : ''}`}
-                data-cms-item="pricing-plan"
-                data-plan-id={plan.id}
-              >
-                {plan.isPopular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">الأكثر شعبية</span>
-                  </div>
-                )}
-                <CardContent className="p-8 flex flex-col h-full">
-                  <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4" data-cms-field="plan-name">{plan.name}</h3>
-                    <div className="text-4xl.font-bold.text-green-600 mb-2" data-cms-field="plan-price">
-                      {plan.price === 0 ? 'مجاناً' : `${plan.price} ﷼`}
-                    </div>
-                    <p className="text-gray-600" data-cms-field="plan-description">{plan.description}</p>
-                  </div>
-
-                  <div className="flex-1">
-                    <ul className="space-y-4 text-right" data-cms-collection="plan-features">
-                      {plan.features.map((feature: any) => (
-                        <li
-                          key={feature.id}
-                          className="flex items-center gap-4 border-b border-gray-100 pb-3"
-                          data-cms-item="plan-feature"
-                          data-feature-id={feature.id}
-                        >
-                          {feature.included ? (
-                            <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
-                          ) : (
-                            <div className="h-5 w-5 flex-shrink-0" />
-                          )}
-                          <span
-                            className={`${feature.included ? 'text-gray-700' : 'text-gray-400 line-through'}`}
-                            data-cms-field="feature-text"
-                          >
-                            {feature.text}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="mt-8">
-                    <Button
-                      onClick={handleSignUp}
-                      className={`w-full py-3 text-lg font-semibold ${plan.isPopular ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-900'}`}
-                      data-cms-field="plan-button"
+                    <Card
+                      key={plan.id}
+                      className={`relative hover:shadow-xl transition-shadow duration-300 h-full ${plan.isPopular ? 'border-2 border-green-500' : ''}`}
+                      data-cms-item="pricing-plan"
+                      data-plan-id={plan.id}
                     >
-                      {plan.buttonText}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                      {plan.isPopular && (
+                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                          <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">الأكثر شعبية</span>
+                        </div>
+                      )}
+                      <CardContent className="p-8 flex flex-col h-full">
+                        <div className="text-center mb-8">
+                          <h3 className="text-2xl font-bold text-gray-900 mb-4" data-cms-field="plan-name">{plan.name}</h3>
+                          <div className="text-4xl.font-bold.text-green-600 mb-2" data-cms-field="plan-price">
+                            {plan.price === 0 ? 'مجاناً' : `${plan.price} ﷼`}
+                          </div>
+                          <p className="text-gray-600" data-cms-field="plan-description">{plan.description}</p>
+                        </div>
+
+                        <div className="flex-1">
+                          <ul className="space-y-4 text-right" data-cms-collection="plan-features">
+                            {plan.features.map((feature: any) => (
+                              <li
+                                key={feature.id}
+                                className="flex items-center gap-4 border-b border-gray-100 pb-3"
+                                data-cms-item="plan-feature"
+                                data-feature-id={feature.id}
+                              >
+                                {feature.included ? (
+                                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                                ) : (
+                                  <div className="h-5 w-5 flex-shrink-0" />
+                                )}
+                                <span
+                                  className={`${feature.included ? 'text-gray-700' : 'text-gray-400 line-through'}`}
+                                  data-cms-field="feature-text"
+                                >
+                                  {feature.text}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="mt-8">
+                          <Button
+                            onClick={handleSignUp}
+                            className={`w-full py-3 text-lg font-semibold ${plan.isPopular ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-900'}`}
+                            data-cms-field="plan-button"
+                          >
+                            {plan.buttonText}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               )}
@@ -766,7 +786,7 @@ export default function Landing() {
             <div>
               <div className="flex items-center mb-4">
                 <img
-                  src={agarkomFooterLogo}
+                  src={landingContent?.footerLogoUrl || agarkomFooterLogo}
                   alt="عقاركم"
                   width={256}
                   height={144}

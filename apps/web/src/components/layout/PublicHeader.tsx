@@ -1,3 +1,19 @@
+/**
+ * PublicHeader.tsx - Public Header Component
+ * 
+ * Location: apps/web/src/ → Components/ → Layout Components → PublicHeader.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Public header component for unauthenticated pages. Provides:
+ * - Public navigation
+ * - Login/signup links
+ * - Language switcher
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/PublicLayout.tsx - Uses this header
+ * - apps/web/src/pages/landing.tsx - Landing page uses this
+ */
+
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -44,6 +60,18 @@ export default function PublicHeader() {
     retry: 1,
   });
 
+  // Fetch header config
+  const { data: headerConfig } = useQuery({
+    queryKey: ["header-config"],
+    queryFn: async () => {
+      const res = await fetch("/api/cms/public/header-config");
+      return res.ok ? res.json() : null;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const logoSrc = headerConfig?.logoUrl || agarkomLogo;
+
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 16);
     handleScroll();
@@ -53,19 +81,19 @@ export default function PublicHeader() {
 
   const isAuth = !!user;
   const currentPath = location;
-  
+
   // Determine dashboard URL based on user role
   const getDashboardUrl = () => {
     if (!user?.roles) return "/home/platform";
-    
+
     if (user.roles.includes(UserRole.WEBSITE_ADMIN)) {
       return "/admin/overview/main-dashboard";
-    } else if (user.roles.some(role => 
+    } else if (user.roles.some(role =>
       [UserRole.CORP_OWNER, UserRole.CORP_AGENT, UserRole.INDIV_AGENT, UserRole.SELLER, UserRole.BUYER].includes(role)
     )) {
       return "/home/platform";
     }
-    
+
     return "/home/platform";
   };
 
@@ -73,7 +101,7 @@ export default function PublicHeader() {
   // Always include blog link
   const navLinks = useMemo(() => {
     const blogLink = { href: "/blog", label: "المدونة" };
-    
+
     if (navLinksFromAPI.length > 0) {
       const apiLinks = navLinksFromAPI
         .filter((link) => link.visible)
@@ -82,18 +110,18 @@ export default function PublicHeader() {
           href: link.href,
           label: link.label,
         }));
-      
+
       // Check if blog link already exists in API links
       const hasBlogLink = apiLinks.some((link) => link.href === "/blog");
-      
+
       // If blog link doesn't exist, add it
       if (!hasBlogLink) {
         return [...apiLinks, blogLink];
       }
-      
+
       return apiLinks;
     }
-    
+
     // Fallback to hardcoded links
     return [
       { href: "/map", label: t("nav.search") },
@@ -119,8 +147,8 @@ export default function PublicHeader() {
             className="flex items-center gap-3 rounded-full bg-white/80 px-3 py-1.5 shadow-sm ring-1 ring-white/60 transition hover:shadow hover:ring-white"
           >
             <img
-              src={agarkomLogo}
-              alt="عقاركم"
+              src={logoSrc}
+              alt={headerConfig?.siteName || "عقاركم"}
               width={72}
               height={40}
               loading="eager"
@@ -136,7 +164,7 @@ export default function PublicHeader() {
             // Use Link for internal routes, <a> for hash links or external URLs
             const isHashLink = link.href.startsWith("#");
             const isExternalLink = link.href.startsWith("http");
-            
+
             if (isHashLink || isExternalLink) {
               return (
                 <a
@@ -153,7 +181,7 @@ export default function PublicHeader() {
                 </a>
               );
             }
-            
+
             return (
               <Link
                 key={link.href}

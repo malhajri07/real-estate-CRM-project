@@ -1,3 +1,21 @@
+/**
+ * auth.ts - Authentication Utilities
+ * 
+ * Location: apps/api/ → Authentication & Authorization → auth.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Authentication utilities for user authentication. Provides:
+ * - User login and registration
+ * - JWT token generation and validation
+ * - Password hashing and verification
+ * - User session management
+ * 
+ * Related Files:
+ * - apps/api/routes/auth.ts - Authentication API routes
+ * - apps/api/authMiddleware.ts - Auth middleware
+ * - apps/api/rbac.ts - RBAC system
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import './types/express-session';
 import jwt from 'jsonwebtoken';

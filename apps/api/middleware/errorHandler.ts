@@ -1,6 +1,19 @@
 /**
- * Centralized error handling middleware
- * Provides consistent error responses across all routes
+ * errorHandler.ts - Centralized Error Handling Middleware
+ * 
+ * Location: apps/api/ → Middleware/ → errorHandler.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Centralized error handling middleware that provides consistent error responses
+ * across all routes. Handles:
+ * - Application errors (AppError)
+ * - Validation errors (ZodError)
+ * - Unexpected errors
+ * - Error logging
+ * 
+ * Related Files:
+ * - apps/api/errors/AppError.ts - Custom error class
+ * - apps/api/routes.ts - Routes that use this middleware
  */
 
 import { Request, Response, NextFunction } from 'express';

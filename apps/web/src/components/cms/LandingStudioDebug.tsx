@@ -1,3 +1,18 @@
+/**
+ * LandingStudioDebug.tsx - Landing Studio Debug Component
+ * 
+ * Location: apps/web/src/ → Components/ → CMS Components → LandingStudioDebug.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Debug component for CMS landing studio. Provides:
+ * - Landing page data debugging
+ * - Data inspection tools
+ * - Development utilities
+ * 
+ * Related Files:
+ * - apps/web/src/components/cms/LandingStudio.tsx - Landing studio component
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

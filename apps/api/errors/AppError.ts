@@ -1,4 +1,19 @@
 /**
+ * AppError.ts - Custom Application Error Class
+ * 
+ * Location: apps/api/ → Errors/ → AppError.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Custom error class for application errors. Provides:
+ * - Structured error handling
+ * - Status codes and error codes
+ * - Error details and context
+ * 
+ * Related Files:
+ * - apps/api/middleware/errorHandler.ts - Error handler middleware
+ */
+
+/**
  * Custom error classes for application errors
  * Provides structured error handling with status codes and error codes
  */

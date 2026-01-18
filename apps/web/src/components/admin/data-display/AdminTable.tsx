@@ -1,3 +1,19 @@
+/**
+ * AdminTable.tsx - Admin Table Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → data-display/ → AdminTable.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin table component for data display. Provides:
+ * - Sortable table
+ * - Pagination
+ * - Row selection
+ * - Actions
+ * 
+ * Related Files:
+ * - Used throughout admin pages for data tables
+ */
+
 import { ReactNode, useState, useMemo } from 'react';
 import {
     Table,
@@ -179,38 +195,38 @@ export function AdminTable<T extends Record<string, any>>({
                 </div>
             )}
 
-            <div className="rounded-md border">
+            <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
                 <Table>
-                    <TableHeader>
-                        <TableRow>
+                    <TableHeader className="bg-slate-50/80">
+                        <TableRow className="border-b border-slate-200 hover:bg-transparent">
                             {selectable && (
-                                <TableHead className="w-12">
+                                <TableHead className="w-12 text-center">
                                     <Checkbox
                                         checked={allSelected}
                                         onCheckedChange={handleSelectAll}
                                         aria-label="Select all"
-                                        className={someSelected && !allSelected ? 'data-[state=checked]:bg-primary/50' : ''}
+                                        className={someSelected && !allSelected ? 'data-[state=checked]:bg-primary/50 border-slate-300' : 'border-slate-300'}
                                     />
                                 </TableHead>
                             )}
                             {columns.map((column) => (
-                                <TableHead key={column.key} className={column.className}>
+                                <TableHead key={column.key} className={cn("text-right h-12 text-xs font-semibold text-slate-600 uppercase tracking-wider", column.className)}>
                                     {column.sortable ? (
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="h-8 -mr-3"
+                                            className="h-8 -mr-3 text-xs font-semibold hover:bg-slate-200/50 text-slate-600"
                                             onClick={() => handleSort(column.key)}
                                         >
                                             {column.label}
                                             {sortColumn === column.key ? (
                                                 sortDirection === 'asc' ? (
-                                                    <ArrowUp className="mr-2 h-4 w-4" />
+                                                    <ArrowUp className="mr-2 h-3 w-3" />
                                                 ) : (
-                                                    <ArrowDown className="mr-2 h-4 w-4" />
+                                                    <ArrowDown className="mr-2 h-3 w-3" />
                                                 )
                                             ) : (
-                                                <ArrowUpDown className="mr-2 h-4 w-4 opacity-50" />
+                                                <ArrowUpDown className="mr-2 h-3 w-3 opacity-30" />
                                             )}
                                         </Button>
                                     ) : (
@@ -238,18 +254,25 @@ export function AdminTable<T extends Record<string, any>>({
                                 const isSelected = selectedIds.has(id);
 
                                 return (
-                                    <TableRow key={id} className={isSelected ? 'bg-muted/50' : ''}>
+                                    <TableRow
+                                        key={id}
+                                        className={cn(
+                                            "transition-colors hover:bg-slate-50/80 border-b border-slate-100 last:border-0",
+                                            isSelected ? 'bg-emerald-50/60 hover:bg-emerald-50/80' : ''
+                                        )}
+                                    >
                                         {selectable && (
-                                            <TableCell>
+                                            <TableCell className="text-center">
                                                 <Checkbox
                                                     checked={isSelected}
                                                     onCheckedChange={(checked) => handleSelectRow(id, checked as boolean)}
                                                     aria-label={`Select row ${id}`}
+                                                    className="border-slate-300"
                                                 />
                                             </TableCell>
                                         )}
                                         {columns.map((column) => (
-                                            <TableCell key={column.key} className={column.className}>
+                                            <TableCell key={column.key} className={cn("py-4 text-sm text-slate-700", column.className)}>
                                                 {column.render ? column.render(item) : item[column.key]}
                                             </TableCell>
                                         ))}

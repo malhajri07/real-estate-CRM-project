@@ -1,3 +1,21 @@
+/**
+ * signup-corporate.tsx - Corporate Signup Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → signup-corporate.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Corporate signup page. Provides:
+ * - Corporate account registration form
+ * - Company information input
+ * - Account creation
+ * 
+ * Route: /signup/corporate
+ * 
+ * Related Files:
+ * - apps/web/src/pages/signup-selection.tsx - Signup type selection
+ * - apps/web/src/pages/signup-success.tsx - Signup success page
+ */
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

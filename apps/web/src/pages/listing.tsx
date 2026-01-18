@@ -1,3 +1,21 @@
+/**
+ * listing.tsx - Public Listing Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → listing.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Public listing detail page. Displays:
+ * - Public property listing information
+ * - Property images
+ * - Listing details
+ * 
+ * Route: /home/platform/listing/:id or /listing/:id
+ * 
+ * Related Files:
+ * - apps/web/src/components/listings/ListingCard.tsx - Listing card component
+ * - apps/api/routes/listings.ts - Listing API routes
+ */
+
 import { useParams } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';

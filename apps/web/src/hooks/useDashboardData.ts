@@ -1,3 +1,19 @@
+/**
+ * useDashboardData.ts - Dashboard Data Hook
+ * 
+ * Location: apps/web/src/ → Hooks/ → useDashboardData.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Custom React hook for fetching dashboard data. Provides:
+ * - Dashboard metrics and KPIs
+ * - Activity feed data
+ * - Performance metrics
+ * 
+ * Related Files:
+ * - apps/web/src/pages/dashboard.tsx - Uses this hook
+ * - apps/api/src/routes/analytics.ts - Analytics API routes
+ */
+
 import { useQuery } from "@tanstack/react-query";
 
 type LoginsSeriesPoint = {

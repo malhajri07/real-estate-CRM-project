@@ -1,4 +1,19 @@
 /**
+ * constants.ts - Map Page Constants
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → utils/ → constants.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Constants for the map page. Defines:
+ * - Default map center coordinates
+ * - Zoom levels
+ * - Map configuration constants
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/index.tsx - Map page uses these constants
+ */
+
+/**
  * Constants for the Map page
  */
 

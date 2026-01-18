@@ -1,3 +1,20 @@
+/**
+ * moderation.tsx - Content Moderation Queue Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → moderation.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Content moderation queue page for admins. Provides:
+ * - Moderation queue listing
+ * - Content approval/rejection
+ * - Moderation status management
+ * 
+ * Route: /home/platform/moderation or /moderation
+ * 
+ * Related Files:
+ * - apps/api/routes/moderation.ts - Moderation API routes
+ */
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Property } from "@shared/types";
 import { useLanguage } from "@/contexts/LanguageContext";

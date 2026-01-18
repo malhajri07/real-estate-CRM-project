@@ -1,3 +1,23 @@
+/**
+ * leads.tsx - Lead Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → leads.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Lead management page for authenticated users. Provides:
+ * - Lead listing and search
+ * - Lead CRUD operations
+ * - CSV import functionality
+ * - WhatsApp integration
+ * 
+ * Route: /home/platform/leads or /leads
+ * 
+ * Related Files:
+ * - apps/web/src/components/modals/add-lead-modal.tsx - Add lead modal
+ * - apps/web/src/components/modals/send-whatsapp-modal.tsx - WhatsApp modal
+ * - apps/web/src/components/CSVUploader.tsx - CSV upload component
+ */
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Trash2, Edit, Eye, Plus, MessageCircle, Upload } from "lucide-react";

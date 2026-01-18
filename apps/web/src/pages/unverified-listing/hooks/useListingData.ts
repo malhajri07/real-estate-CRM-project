@@ -1,4 +1,20 @@
 /**
+ * useListingData.ts - Listing Data Hook
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → unverified-listing/ → hooks/ → useListingData.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Custom hook for listing form data. Handles:
+ * - Fetching location data
+ * - Property data for listing form
+ * - Form data management
+ * 
+ * Related Files:
+ * - apps/web/src/pages/unverified-listing.tsx - Unverified listing page
+ * - apps/api/routes/unverified-listings.ts - Unverified listings API routes
+ */
+
+/**
  * useListingData Hook
  * 
  * Handles fetching location and property data for listing form

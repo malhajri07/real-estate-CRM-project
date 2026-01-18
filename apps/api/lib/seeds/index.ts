@@ -1,3 +1,22 @@
+/**
+ * index.ts - Seed Index
+ * 
+ * Location: apps/api/ → Lib/ → seeds/ → index.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Main seed index file. Orchestrates:
+ * - Database seeding process
+ * - Seed execution order
+ * - Seed result reporting
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/core.ts - Core seed data
+ * - apps/api/lib/seeds/domain.ts - Domain seed data
+ * - apps/api/lib/seeds/cms.ts - CMS seed data
+ * - apps/api/lib/seeds/analytics.ts - Analytics seed data
+ * - apps/api/lib/seeds/revenue.ts - Revenue seed data
+ */
+
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { Faker, ar, en } from "@faker-js/faker";
@@ -7,6 +26,7 @@ import seedCMS from "./cms";
 import seedDomain from "./domain";
 import seedRevenue from "./revenue";
 import seedAnalytics from "./analytics";
+import seedSupport from "./support";
 import { SeedCredential, SeedResult, SeedContext } from "./types";
 
 const prisma = new PrismaClient();
@@ -53,6 +73,7 @@ const run = async () => {
     results.push(await seedDomain(context));
     results.push(await seedRevenue(context));
     results.push(await seedAnalytics(context));
+    results.push(await seedSupport(context));
 
     const summaries = aggregateSummaries(results);
     const credentials = collectCredentials(results);

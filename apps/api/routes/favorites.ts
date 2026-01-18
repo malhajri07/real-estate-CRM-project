@@ -1,3 +1,24 @@
+/**
+ * routes/favorites.ts - Favorites API Routes
+ * 
+ * Location: apps/api/ → Routes/ → favorites.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for managing user favorites. Handles:
+ * - Retrieving user's favorite properties
+ * - Adding properties to favorites
+ * - Removing properties from favorites
+ * 
+ * API Endpoints:
+ * - GET /api/favorites - Get user favorites
+ * - POST /api/favorites - Add to favorites
+ * - DELETE /api/favorites/:id - Remove from favorites
+ * 
+ * Related Files:
+ * - apps/web/src/pages/favorites.tsx - Favorites page
+ * - apps/web/src/components/listings/ListingCard.tsx - Uses favorites
+ */
+
 import express from "express";
 import { storage } from "../storage-prisma";
 

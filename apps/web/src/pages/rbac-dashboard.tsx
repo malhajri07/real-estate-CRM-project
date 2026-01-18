@@ -1,3 +1,22 @@
+/**
+ * rbac-dashboard.tsx - RBAC Dashboard
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → rbac-dashboard.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Main RBAC admin dashboard. Provides:
+ * - Admin navigation and layout
+ * - Dashboard overview
+ * - Access to admin management pages
+ * 
+ * Route: /admin/overview/main-dashboard or /rbac-dashboard
+ * 
+ * Related Files:
+ * - apps/web/src/components/rbac/AdminHeader.tsx - Admin header
+ * - apps/web/src/components/rbac/AdminSidebar.tsx - Admin sidebar
+ * - apps/web/src/config/admin-sidebar.ts - Admin sidebar configuration
+ */
+
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -15,9 +34,11 @@ import MediaLibrary from "@/pages/admin/media-library";
 import SEOManagement from "@/pages/admin/seo-management";
 import TemplatesManagement from "@/pages/admin/templates-management";
 import NavigationManagement from "@/pages/admin/navigation-management";
+import RevenueManagement from "@/pages/admin/revenue-management";
+import ComplaintsManagement from "@/pages/admin/complaints-management";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Users } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import {
@@ -402,7 +423,15 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
           <CardContent className="space-y-3">
             {isLoading && <LoadingRows rows={4} />}
             {!isLoading && (!data?.topAgents || data.topAgents.length === 0) ? (
-              <p className="text-sm text-slate-500">لا توجد بيانات كافية عن أداء الوكلاء.</p>
+              <div className="flex flex-col items-center justify-center py-10 text-center space-y-3">
+                <div className="rounded-full bg-slate-100 p-3">
+                  <Users className="h-6 w-6 text-slate-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-900">لا يوجد وكلاء نشطين</p>
+                  <p className="text-xs text-slate-500 mt-1">لم يتم تسجيل أي نشاط للوكلاء في الفترة المحددة</p>
+                </div>
+              </div>
             ) : (
               data?.topAgents.map((agent) => (
                 <div
@@ -433,7 +462,15 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
           <CardContent className="space-y-3">
             {isLoading && <LoadingRows rows={5} />}
             {!isLoading && (!data?.recentTickets || data.recentTickets.length === 0) ? (
-              <p className="text-sm text-slate-500">لا توجد تذاكر حالياً.</p>
+              <div className="flex flex-col items-center justify-center py-10 text-center space-y-3">
+                <div className="rounded-full bg-slate-100 p-3">
+                  <div className="h-6 w-6 text-slate-400">🎫</div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-900">لا توجد تذاكر نشطة</p>
+                  <p className="text-xs text-slate-500 mt-1">جميع التذاكر تمت معالجتها أو لا توجد تذاكر جديدة</p>
+                </div>
+              </div>
             ) : (
               data?.recentTickets.map((ticket) => (
                 <div
@@ -753,6 +790,21 @@ export default function RBACDashboard() {
         return <TemplatesManagement />;
       case "/admin/content/navigation":
         return <NavigationManagement />;
+      case "/admin/revenue":
+      case "/admin/revenue/overview":
+      case "/admin/revenue/active-subscriptions":
+      case "/admin/revenue/payment-methods":
+      case "/admin/revenue/reports":
+      case "/admin/revenue/subscription-plans":
+      case "/admin/revenue/subscription-plans":
+        return <RevenueManagement />;
+      case "/admin/complaints":
+      case "/admin/complaints/all":
+      case "/admin/complaints/open":
+      case "/admin/complaints/resolved":
+      case "/admin/complaints/categories":
+      case "/admin/complaints/response-templates":
+        return <ComplaintsManagement />;
     }
 
     const fallbackMeta = sidebarContentMap.get(activeRoute);
@@ -769,7 +821,7 @@ export default function RBACDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50" dir={dir}>
+    <div className="min-h-screen bg-slate-50" dir={dir} style={{ direction: dir === 'rtl' ? 'rtl' : 'ltr' }}>
       <AdminHeader
         title="لوحة إدارة النظام"
         subtitle="إدارة المستخدمين والمنظمات والمحتوى"
@@ -782,7 +834,7 @@ export default function RBACDashboard() {
         loading={dashboard.isFetching}
         userName={user?.firstName ? `${user.firstName} ${user.lastName ?? ""}`.trim() : user?.username}
       />
-      <div className="flex pt-20">
+      <div className="flex pt-20" dir={dir}>
         <AdminSidebar
           dir={dir}
           items={sidebarItems}

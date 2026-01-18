@@ -1,3 +1,19 @@
+/**
+ * routes/property-categories.ts - Property Categories API Routes
+ * 
+ * Location: apps/api/ → Routes/ → property-categories.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for property category management. Handles:
+ * - Retrieving property categories
+ * 
+ * API Endpoints:
+ * - GET /api/property-categories - Get all property categories
+ * 
+ * Related Files:
+ * - apps/api/routes/property-types.ts - Property types routes
+ */
+
 import express from "express";
 import { storage } from "../storage-prisma";
 

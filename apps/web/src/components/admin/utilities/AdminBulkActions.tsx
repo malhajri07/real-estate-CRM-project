@@ -1,3 +1,18 @@
+/**
+ * AdminBulkActions.tsx - Admin Bulk Actions Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → utilities/ → AdminBulkActions.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin bulk actions component. Provides:
+ * - Bulk action buttons
+ * - Selection management
+ * - Action execution
+ * 
+ * Related Files:
+ * - Used in admin tables for bulk operations
+ */
+
 import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -29,12 +44,12 @@ export function AdminBulkActions({
     return (
         <div
             className={cn(
-                'bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between',
+                'bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex items-center justify-between',
                 className
             )}
         >
             <div className="flex items-center gap-4">
-                <div className="text-sm text-blue-900">
+                <div className="text-sm text-emerald-900">
                     تم تحديد <span className="font-bold">{selectedCount}</span>{' '}
                     {selectedCount === 1 ? 'عنصر' : 'عناصر'}
                 </div>
@@ -43,7 +58,7 @@ export function AdminBulkActions({
                         variant="ghost"
                         size="sm"
                         onClick={onClear}
-                        className="h-7 text-blue-700 hover:text-blue-900 hover:bg-blue-100"
+                        className="h-7 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100"
                     >
                         <X className="h-4 w-4 ml-1" />
                         إلغاء التحديد

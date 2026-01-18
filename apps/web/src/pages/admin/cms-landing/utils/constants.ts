@@ -1,4 +1,18 @@
 /**
+ * constants.ts - CMS Landing Page Constants
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → cms-landing/ → utils/ → constants.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Constants for CMS landing page editor. Defines:
+ * - Section labels
+ * - Configuration constants
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/cms-landing/index.tsx - CMS landing editor
+ */
+
+/**
  * Constants for CMS Landing Page
  */
 
@@ -12,6 +26,7 @@ export const SECTION_LABELS: Record<string, string> = {
   contact: "التواصل",
   footer: "تذييل الصفحة",
   cta: "نداء الإجراء",
+  header: "إعدادات الرأس والشعار",
 };
 
 export const FEATURE_ICON_OPTIONS = [

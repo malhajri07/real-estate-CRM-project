@@ -1,3 +1,19 @@
+/**
+ * kyc-submitted.tsx - KYC Submission Confirmation Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → kyc-submitted.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * KYC submission confirmation page. Displays:
+ * - KYC submission confirmation
+ * - Review status information
+ * 
+ * Route: /signup/kyc-submitted
+ * 
+ * Related Files:
+ * - apps/web/src/pages/signup-individual.tsx - Individual signup with KYC
+ */
+
 import { Button } from "@/components/ui/button";
 import { Clock, ArrowRight, Mail, Phone } from "lucide-react";
 import { useLocation } from "wouter";

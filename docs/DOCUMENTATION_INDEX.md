@@ -2,7 +2,7 @@
 
 Complete index of all documentation files in the project.
 
-**Last Updated**: December 2024
+**Last Updated**: January 2025
 
 ---
 
@@ -17,7 +17,8 @@ Complete index of all documentation files in the project.
 ## 🏗️ Architecture (`architecture/`)
 
 - **[ARCHITECTURE_ANALYSIS.md](./architecture/ARCHITECTURE_ANALYSIS.md)** - Architecture analysis and refactoring plan
-- **[SITE_TREE_MAP.md](./architecture/SITE_TREE_MAP.md)** - Complete site tree map
+- **[SITE_TREE_MAP.md](./architecture/SITE_TREE_MAP.md)** - Complete site tree map (routes and navigation)
+- **[FILE_STRUCTURE_TREE_MAP.md](./architecture/FILE_STRUCTURE_TREE_MAP.md)** - Complete file structure tree map
 - **[ROUTE_VERIFICATION.md](./architecture/ROUTE_VERIFICATION.md)** - Route verification plan
 - **[CLEANUP_SUMMARY.md](./architecture/CLEANUP_SUMMARY.md)** - Application cleanup summary
 - **[README.md](./architecture/README.md)** - Architecture docs overview
@@ -94,7 +95,8 @@ Complete index of all documentation files in the project.
 
 ### For Architects
 - Read [ARCHITECTURE_ANALYSIS.md](./architecture/ARCHITECTURE_ANALYSIS.md)
-- Review [SITE_TREE_MAP.md](./architecture/SITE_TREE_MAP.md)
+- Review [SITE_TREE_MAP.md](./architecture/SITE_TREE_MAP.md) for routes
+- Review [FILE_STRUCTURE_TREE_MAP.md](./architecture/FILE_STRUCTURE_TREE_MAP.md) for file structure
 - Check [REFACTORING_FINAL_REPORT.md](./refactoring/REFACTORING_FINAL_REPORT.md)
 
 ### For DevOps

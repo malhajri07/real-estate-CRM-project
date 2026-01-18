@@ -1,4 +1,19 @@
 /**
+ * validation.ts - Unverified Listing Validation Utilities
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → unverified-listing/ → utils/ → validation.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Validation utilities for unverified listing page. Provides:
+ * - Form validation functions
+ * - Step-by-step validation
+ * - Validation error handling
+ * 
+ * Related Files:
+ * - apps/web/src/pages/unverified-listing.tsx - Unverified listing page
+ */
+
+/**
  * Validation utilities for Unverified Listing Page
  */
 

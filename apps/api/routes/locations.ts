@@ -1,3 +1,23 @@
+/**
+ * routes/locations.ts - Locations API Routes
+ * 
+ * Location: apps/api/ → Routes/ → locations.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for geographic and location data. Handles:
+ * - Saudi regions retrieval
+ * - Cities by region
+ * - Location boundaries
+ * 
+ * API Endpoints:
+ * - GET /api/locations/regions - Get all regions
+ * - GET /api/locations/cities - Get cities by region
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/ - Map page using location data
+ * - apps/api/routes/saudi-regions.ts - Saudi regions routes
+ */
+
 import express from "express";
 import { storage } from "../storage-prisma";
 
@@ -112,6 +132,58 @@ router.get("/districts", async (req, res) => {
   } catch (err) {
     console.error("Error fetching districts:", err);
     res.status(500).json({ message: "Failed to fetch districts" });
+  }
+});
+
+
+// Saudi Regions API
+router.get("/saudi-regions", async (req, res) => {
+  try {
+    const regions = await storage.getAllSaudiRegions();
+    res.json(regions);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch Saudi regions" });
+  }
+});
+
+router.post("/saudi-regions/seed", async (req, res) => {
+  try {
+    await storage.seedSaudiRegions(req.body);
+    res.json({
+      message: "Saudi regions seeded successfully"
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to seed Saudi regions" });
+  }
+});
+
+// Saudi Cities API
+router.get("/saudi-cities", async (req, res) => {
+  try {
+    const cities = await storage.getAllSaudiCities();
+    res.json(cities);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch Saudi cities" });
+  }
+});
+
+router.get("/saudi-cities/region/:regionCode", async (req, res) => {
+  try {
+    const cities = await storage.getCitiesByRegion(parseInt(req.params.regionCode));
+    res.json(cities);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch cities for region" });
+  }
+});
+
+router.post("/saudi-cities/seed", async (req, res) => {
+  try {
+    await storage.seedSaudiCities(req.body);
+    res.json({
+      message: "Saudi cities seeded successfully"
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to seed Saudi cities" });
   }
 });
 

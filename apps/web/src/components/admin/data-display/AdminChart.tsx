@@ -1,3 +1,18 @@
+/**
+ * AdminChart.tsx - Admin Chart Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → data-display/ → AdminChart.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin chart component for data visualization. Provides:
+ * - Multiple chart types (line, bar, area, pie)
+ * - Chart configuration
+ * - Data visualization
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/enhanced-dashboard.tsx - Uses this component
+ */
+
 import {
     LineChart,
     Line,

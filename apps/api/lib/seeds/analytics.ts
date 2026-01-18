@@ -1,3 +1,18 @@
+/**
+ * analytics.ts - Analytics Seed Data
+ * 
+ * Location: apps/api/ → Lib/ → seeds/ → analytics.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Analytics seed data generation. Provides:
+ * - Analytics event seeding
+ * - User activity seeding
+ * - Analytics entity data
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/index.ts - Seed orchestrator
+ */
+
 import { Prisma } from "@prisma/client";
 import {
   addDays,

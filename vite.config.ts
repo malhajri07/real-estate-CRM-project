@@ -1,29 +1,19 @@
 /**
  * vite.config.ts - Vite Build Configuration
  * 
- * This file configures the Vite build tool for the frontend React application.
- * It provides:
+ * Location: Root/ → vite.config.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Vite build configuration for the frontend React application. Provides:
  * - React plugin integration for JSX/TSX support
  * - Path aliases for clean imports (@/, @shared/, @assets/)
  * - Development server configuration with API proxy
  * - Build output configuration for production
  * - Development plugins for enhanced debugging
  * 
- * Key Features:
- * - API Proxy: Forwards /api requests to backend server (dynamic port from env config)
- * - Path Aliases: Clean import paths for better code organization
- * - Hot Module Replacement (HMR): Fast development with instant updates
- * - TypeScript Support: Full TypeScript compilation and type checking
- * - Asset Handling: Proper handling of images, fonts, and other assets
- * 
- * Dependencies:
- * - Vite core build tool
- * - React plugin for JSX/TSX support
- * - Path utilities for file system operations
- * - Replit plugins for development environment
- * 
- * Routes affected: All frontend routes (development server)
- * Pages affected: All frontend pages
+ * Related Files:
+ * - apps/api/vite.ts - Vite integration for backend
+ * - apps/web/src/main.tsx - Application entry point
  */
 
 import { defineConfig, type Plugin } from "vite";

@@ -1,3 +1,18 @@
+/**
+ * mailer.ts - Email Utility
+ * 
+ * Location: apps/api/ → Utils/ → mailer.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Email utility for sending emails via SMTP. Provides:
+ * - Email sending functionality
+ * - SMTP configuration
+ * - Email template support
+ * 
+ * Related Files:
+ * - Environment variables: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM
+ */
+
 // @ts-nocheck
 import nodemailer from 'nodemailer';
 

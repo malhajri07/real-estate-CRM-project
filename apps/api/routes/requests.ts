@@ -1,3 +1,23 @@
+/**
+ * routes/requests.ts - General Request API Routes
+ * 
+ * Location: apps/api/ → Routes/ → requests.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for general real estate service requests. Handles:
+ * - Request creation and submission
+ * - Request retrieval and management
+ * - Request status updates
+ * 
+ * API Endpoints:
+ * - GET /api/requests - Get all requests
+ * - POST /api/requests - Create request
+ * - PUT /api/requests/:id - Update request
+ * 
+ * Related Files:
+ * - apps/web/src/pages/real-estate-requests.tsx - Request submission page
+ */
+
 import express from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";

@@ -1,3 +1,20 @@
+/**
+ * saved-searches.tsx - Saved Searches Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → saved-searches.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Saved searches management page. Provides:
+ * - Saved search listing
+ * - Saved search management
+ * - Search execution
+ * 
+ * Route: /home/platform/saved-searches or /saved-searches
+ * 
+ * Related Files:
+ * - apps/api/routes/search.ts - Search API routes
+ */
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

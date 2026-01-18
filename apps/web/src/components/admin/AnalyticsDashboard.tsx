@@ -1,3 +1,19 @@
+/**
+ * AnalyticsDashboard.tsx - Analytics Dashboard Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → AnalyticsDashboard.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Analytics dashboard component. Provides:
+ * - Analytics metrics display
+ * - Data visualization
+ * - KPI tracking
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/enhanced-dashboard.tsx - Enhanced dashboard page
+ * - apps/api/src/routes/analytics.ts - Analytics API routes
+ */
+
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

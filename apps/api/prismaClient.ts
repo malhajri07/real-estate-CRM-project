@@ -1,3 +1,19 @@
+/**
+ * prismaClient.ts - Prisma Client Singleton
+ * 
+ * Location: apps/api/ → Database & Prisma → prismaClient.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Prisma client singleton for database operations. Provides:
+ * - Database connection management
+ * - Type-safe database queries
+ * - Marketing delegate stubs for unsupported models
+ * 
+ * Related Files:
+ * - data/schema/prisma/schema.prisma - Prisma schema definition
+ * - apps/api/storage-prisma.ts - Prisma storage adapter
+ */
+
 import { PrismaClient } from '@prisma/client';
 
 type MarketingDelegate = {

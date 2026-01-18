@@ -1,4 +1,20 @@
 /**
+ * SectionEditor.tsx - Section Editor Component
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → cms-landing/ → components/ → SectionEditor.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Form component for editing landing page sections. Provides:
+ * - Section editing interface
+ * - Section content management
+ * - Section CRUD operations
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/cms-landing/index.tsx - CMS landing editor
+ * - apps/web/src/pages/admin/cms-landing/components/CardEditor.tsx - Card editor
+ */
+
+/**
  * SectionEditor Component
  * 
  * Form component for editing landing page sections
@@ -209,6 +225,15 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                   placeholder="© 2024 منصة عقاراتي. جميع الحقوق محفوظة."
                 />
               </div>
+              <div>
+                <Label>رابط شعار التذييل (URL)</Label>
+                <Input
+                  value={formState.logoUrl ?? ""}
+                  onChange={(event) => setField("logoUrl", event.target.value)}
+                  placeholder="/assets/footer-logo.png"
+                  dir="ltr"
+                />
+              </div>
             </>
           )}
 
@@ -247,6 +272,30 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
               </div>
             </>
           )}
+
+          {section.slug === "header" && (
+            <>
+              <div>
+                <Label>اسم الموقع (مهم لـ SEO)</Label>
+                <Input
+                  value={formState.siteName ?? ""}
+                  onChange={(event) => setField("siteName", event.target.value)}
+                  placeholder="عقاركم"
+                />
+              </div>
+              <div>
+                <Label>رابط الشعار (URL)</Label>
+                <Input
+                  value={formState.logoUrl ?? ""}
+                  onChange={(event) => setField("logoUrl", event.target.value)}
+                  placeholder="/assets/logo.png"
+                  dir="ltr"
+                />
+                <p className="text-xs text-muted-foreground mt-1">يمكنك استخدام رابط خارجي أو مسار صورة في المشروع</p>
+              </div>
+            </>
+          )}
+
         </div>
       </CardContent>
     </Card>

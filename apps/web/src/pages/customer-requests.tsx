@@ -1,3 +1,20 @@
+/**
+ * customer-requests.tsx - Customer Requests Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → customer-requests.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Customer requests management page. Provides:
+ * - Customer request listing
+ * - Request filtering and search
+ * - Request status management
+ * 
+ * Route: /home/platform/customer-requests or /customer-requests
+ * 
+ * Related Files:
+ * - apps/web/src/pages/customers.tsx - Customer management page
+ */
+
 import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";

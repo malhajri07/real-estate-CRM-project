@@ -1,3 +1,22 @@
+/**
+ * marketing-requests.tsx - Marketing Requests Board Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → marketing-requests.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Marketing requests board for authenticated users. Provides:
+ * - Marketing request listing
+ * - Request filtering and search
+ * - Request status management
+ * - Proposal management
+ * 
+ * Route: /home/platform/marketing-requests or /marketing-requests
+ * 
+ * Related Files:
+ * - apps/web/src/pages/marketing-request.tsx - Marketing request form
+ * - apps/api/routes/marketing-requests.ts - Marketing requests API routes
+ */
+
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";

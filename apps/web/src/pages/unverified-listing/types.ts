@@ -1,4 +1,19 @@
 /**
+ * types.ts - Unverified Listing Type Definitions
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → unverified-listing/ → types.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Type definitions for Unverified Listing Page. Defines:
+ * - Listing form data types
+ * - Form step types
+ * - Validation types
+ * 
+ * Related Files:
+ * - apps/web/src/pages/unverified-listing.tsx - Unverified listing page uses these types
+ */
+
+/**
  * Type definitions for Unverified Listing Page
  */
 

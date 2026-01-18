@@ -1,3 +1,23 @@
+/**
+ * routes/cms-seo.ts - CMS SEO API Routes
+ * 
+ * Location: apps/api/ → Routes/ → cms-seo.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for SEO settings management. Handles:
+ * - SEO metadata management
+ * - Open Graph settings
+ * - Page-specific SEO configuration
+ * 
+ * API Endpoints:
+ * - GET /api/cms/seo - Get SEO settings
+ * - PUT /api/cms/seo - Update SEO settings
+ * 
+ * Related Files:
+ * - apps/api/services/seoService.ts - SEO service
+ * - apps/web/src/pages/admin/seo-management.tsx - SEO management UI
+ */
+
 import express from "express";
 import { z } from "zod";
 import { SEOService } from "../services/seoService";
@@ -9,8 +29,8 @@ function getAuth(req: any) {
   const roles: string[] = Array.isArray(user?.roles)
     ? user.roles
     : typeof user?.roles === "string"
-    ? [user.roles]
-    : [];
+      ? [user.roles]
+      : [];
   return {
     id: user?.id ?? "anonymous",
     roles,
@@ -146,8 +166,8 @@ router.get("/sitemap.xml", async (req, res) => {
   }
 });
 
-// Public: Get robots.txt (no auth required)
-router.get("/robots.txt", async (req, res) => {
+// Public: Get robots.txt (no auth required) - Moved to sitemap.ts, keeping here for reference/backup or specific CMS access if needed w/ /seo prefix
+router.get("/seo/robots.txt", async (req, res) => {
   try {
     const robotsTxt = await SEOService.getRobotsTxt();
     res.setHeader("Content-Type", "text/plain");
@@ -160,7 +180,7 @@ router.get("/robots.txt", async (req, res) => {
 
 // Admin: Update robots.txt
 router.put(
-  "/robots.txt",
+  "/seo/robots.txt",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
   async (req, res) => {
     try {
@@ -182,7 +202,7 @@ router.put(
 
 // Admin: Get robots.txt content
 router.get(
-  "/robots.txt/content",
+  "/seo/robots.txt/content",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
   async (req, res) => {
     try {

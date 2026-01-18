@@ -1,3 +1,20 @@
+/**
+ * favorites.tsx - Favorites Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → favorites.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * User favorites page. Displays:
+ * - User's favorite properties
+ * - Favorite management
+ * 
+ * Route: /home/platform/favorites or /favorites
+ * 
+ * Related Files:
+ * - apps/web/src/components/listings/ListingCard.tsx - Listing card component
+ * - apps/api/routes/favorites.ts - Favorites API routes
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import type { Property } from "@shared/types";
 import { useLanguage } from "@/contexts/LanguageContext";

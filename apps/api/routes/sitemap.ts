@@ -1,5 +1,24 @@
+/**
+ * routes/sitemap.ts - Sitemap API Routes
+ * 
+ * Location: apps/api/ → Routes/ → sitemap.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * API routes for sitemap generation. Handles:
+ * - XML sitemap generation
+ * - Robots.txt generation
+ * 
+ * API Endpoints:
+ * - GET /sitemap.xml - Generate XML sitemap
+ * - GET /robots.txt - Generate robots.txt
+ * 
+ * Related Files:
+ * - apps/web/src/pages/ - Page components included in sitemap
+ */
+
 import express from 'express';
 import { storage } from '../storage-prisma';
+import { SEOService } from '../services/seoService';
 
 const router = express.Router();
 
@@ -24,6 +43,17 @@ router.get('/sitemap.xml', async (_req, res) => {
     res.send(xml);
   } catch (e) {
     res.status(500).send('');
+  }
+});
+
+router.get('/robots.txt', async (_req, res) => {
+  try {
+    const robotsTxt = await SEOService.getRobotsTxt();
+    res.setHeader('Content-Type', 'text/plain');
+    res.send(robotsTxt);
+  } catch (error) {
+    console.error('Failed to get robots.txt:', error);
+    res.status(500).send('User-agent: *\nDisallow: /');
   }
 });
 

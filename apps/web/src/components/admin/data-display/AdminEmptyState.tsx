@@ -1,3 +1,18 @@
+/**
+ * AdminEmptyState.tsx - Admin Empty State Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → data-display/ → AdminEmptyState.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin empty state component. Displays:
+ * - Empty state messages
+ * - Action buttons
+ * - Icons
+ * 
+ * Related Files:
+ * - Used throughout admin pages for empty states
+ */
+
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 

@@ -1,3 +1,21 @@
+/**
+ * navigation-management.tsx - Navigation Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → navigation-management.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Navigation menu management page. Provides:
+ * - Navigation link CRUD operations
+ * - Link ordering and visibility
+ * - Navigation menu structure management
+ * 
+ * Route: /admin/content/navigation
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-navigation.ts - Navigation API routes
+ * - apps/api/services/navigationService.ts - Navigation service
+ */
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -195,7 +213,7 @@ export default function NavigationManagement() {
           <div className="flex items-center justify-between">
             <CardTitle>إدارة روابط التنقل</CardTitle>
             <Button onClick={handleCreate}>
-              <Plus className="ml-2 h-4 w-4" />
+              <Plus className="h-4 w-4" />
               إضافة رابط جديد
             </Button>
           </div>

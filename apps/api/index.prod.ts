@@ -1,8 +1,15 @@
 /**
- * apps/api/index.prod.ts - Production Server Entry Point
+ * index.prod.ts - Production Server Entry Point
+ * 
+ * Location: apps/api/ → Core Application Files → index.prod.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
  * 
  * This is the production entry point for the Express.js backend server.
  * It excludes development-specific imports like vite to avoid dependency issues.
+ * 
+ * Related Files:
+ * - apps/api/index.ts - Development server entry point
+ * - apps/api/routes.ts - Main route registration
  */
 
 import 'dotenv/config';

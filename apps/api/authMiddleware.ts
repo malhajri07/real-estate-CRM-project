@@ -1,6 +1,9 @@
 /**
  * authMiddleware.ts - Authentication and Authorization Middleware
  * 
+ * Location: apps/api/ → Authentication & Authorization → authMiddleware.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
  * This file provides comprehensive authentication and authorization middleware for the Express.js server.
  * It includes:
  * - User authentication verification
@@ -11,6 +14,11 @@
  * 
  * The middleware integrates with the storage layer to fetch user data and permissions,
  * and provides type-safe interfaces for authenticated requests throughout the application.
+ * 
+ * Related Files:
+ * - apps/api/auth.ts - Authentication utilities
+ * - apps/api/rbac.ts - RBAC system
+ * - apps/api/routes/auth.ts - Authentication routes
  * 
  * Dependencies:
  * - Express.js Request, Response, NextFunction types

@@ -1,3 +1,18 @@
+/**
+ * metrics-card.tsx - Metrics Card Component
+ * 
+ * Location: apps/web/src/ → Components/ → UI Components → metrics-card.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Metrics card component for displaying KPIs. Provides:
+ * - Metric value display
+ * - Change indicators
+ * - Icon support
+ * 
+ * Related Files:
+ * - apps/web/src/pages/dashboard.tsx - Dashboard uses this component
+ */
+
 import { Card, CardContent } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 

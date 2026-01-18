@@ -1,3 +1,22 @@
+/**
+ * reports.tsx - Reports and Analytics Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → reports.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Reports and analytics dashboard. Provides:
+ * - Sales reports
+ * - Performance metrics
+ * - Data visualization (charts, graphs)
+ * - Export functionality
+ * 
+ * Route: /home/platform/reports or /reports
+ * 
+ * Related Files:
+ * - apps/api/routes/reports.ts - Reports API routes
+ * - apps/web/src/components/ui/chart.tsx - Chart components
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Download, TrendingUp, Users, Building, Calendar, BarChart3, PieChart, LineChart, Activity, DollarSign, Target, Zap } from "lucide-react";
@@ -46,7 +65,7 @@ export default function Reports() {
   });
 
   const { data: properties } = useQuery<Property[]>({
-    queryKey: ["/api/properties"],
+    queryKey: ["/api/listings"],
   });
 
   const { data: deals } = useQuery<Deal[]>({
@@ -58,7 +77,7 @@ export default function Reports() {
     const days = parseInt(selectedPeriod);
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
-    
+
     return data.filter(item => new Date(item[dateField]) >= cutoffDate);
   };
 
@@ -156,24 +175,24 @@ export default function Reports() {
   const getTimeSeriesData = () => {
     const days = parseInt(selectedPeriod);
     const data = [];
-    
+
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
-      
-      const dayLeads = filteredLeads.filter(lead => 
+
+      const dayLeads = filteredLeads.filter(lead =>
         new Date(lead.createdAt).toISOString().split('T')[0] === dateStr
       ).length;
-      
-      const dayProperties = filteredProperties.filter(property => 
+
+      const dayProperties = filteredProperties.filter(property =>
         new Date(property.createdAt).toISOString().split('T')[0] === dateStr
       ).length;
-      
-      const dayDeals = filteredDeals.filter(deal => 
+
+      const dayDeals = filteredDeals.filter(deal =>
         new Date(deal.createdAt).toISOString().split('T')[0] === dateStr
       ).length;
-      
+
       data.push({
         date: date.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }),
         leads: dayLeads,
@@ -182,17 +201,56 @@ export default function Reports() {
         revenue: dayDeals * 50000 // Mock revenue calculation
       });
     }
-    
+
     return data;
   };
 
   const getRevenueData = () => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    return months.map(month => ({
+    if (!filteredDeals) return [];
+
+    // Group by Month (using deal createdAt)
+    const monthlyData = new Map<string, { revenue: number, commission: number, deals: number }>();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    filteredDeals.forEach(deal => {
+      if (deal.stage === 'closed') {
+        const date = new Date(deal.createdAt);
+        const monthKey = months[date.getMonth()];
+        const current = monthlyData.get(monthKey) || { revenue: 0, commission: 0, deals: 0 };
+
+        const value = toNumber(deal.dealValue) || 0;
+        const comm = toNumber(deal.commission) || 0;
+
+        monthlyData.set(monthKey, {
+          revenue: current.revenue + value,
+          commission: current.commission + comm,
+          deals: current.deals + 1
+        });
+      }
+    });
+
+    // If no data, return empty or last 6 months 0
+    if (monthlyData.size === 0) {
+      // Return last 6 months empty
+      const last6 = [];
+      const today = new Date();
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        last6.push({
+          month: months[d.getMonth()],
+          revenue: 0,
+          commission: 0,
+          deals: 0
+        });
+      }
+      return last6;
+    }
+
+    return Array.from(monthlyData.entries()).map(([month, data]) => ({
       month,
-      revenue: Math.floor(Math.random() * 500000) + 100000,
-      commission: Math.floor(Math.random() * 50000) + 10000,
-      deals: Math.floor(Math.random() * 20) + 5
+      revenue: data.revenue,
+      commission: data.commission,
+      deals: data.deals
     }));
   };
 
@@ -200,7 +258,7 @@ export default function Reports() {
     const breakdown = getPropertyTypeBreakdown();
     // Using website's color scheme: primary green, secondary blue, success, warning, error
     const colors = ['hsl(145 35% 58%)', 'hsl(205 70% 27%)', 'hsl(142 76% 36%)', 'hsl(35 91% 65%)', 'hsl(0 84% 60%)', 'hsl(145 20% 90%)'];
-    
+
     return breakdown.map((item, index) => ({
       name: item.type,
       value: item.count,
@@ -212,7 +270,7 @@ export default function Reports() {
     const breakdown = getLeadSourceBreakdown();
     // Using website's color scheme: primary green, secondary blue, success, warning, error
     const colors = ['hsl(145 35% 58%)', 'hsl(205 70% 27%)', 'hsl(142 76% 36%)', 'hsl(35 91% 65%)', 'hsl(0 84% 60%)', 'hsl(145 20% 90%)'];
-    
+
     return breakdown.map((item, index) => ({
       name: item.source,
       value: item.count,
@@ -221,33 +279,51 @@ export default function Reports() {
   };
 
   const getDealStageData = () => {
-    const stages = ['مبدئي', 'مفاوضات', 'عقد', 'مكتمل', 'ملغي'];
-    return stages.map(stage => ({
-      stage,
-      count: Math.floor(Math.random() * 15) + 1,
-      value: Math.floor(Math.random() * 2000000) + 500000
+    if (!filteredDeals) return [];
+    const stages: Record<string, { count: number, value: number }> = {};
+
+    filteredDeals.forEach(deal => {
+      const stage = deal.stage;
+      if (!stages[stage]) stages[stage] = { count: 0, value: 0 };
+      stages[stage].count++;
+      stages[stage].value += (toNumber(deal.dealValue) || 0);
+    });
+
+    return Object.keys(stages).map(stage => ({
+      stage: stage,
+      count: stages[stage].count,
+      value: stages[stage].value
     }));
   };
 
   const getAgentPerformanceData = () => {
-    const agents = ['أحمد محمد', 'فاطمة علي', 'محمد أحمد', 'نورا سعد', 'خالد عبدالله'];
-    return agents.map(agent => ({
+    if (!filteredDeals) return [];
+    const agents: Record<string, { deals: number, revenue: number, won: number }> = {};
+
+    filteredDeals.forEach(deal => {
+      // Assuming deal has agent relation or agentId. If API returns filtered object, we might need a name.
+      // Since we don't have joined agent name easily on Deal type usually unless included,
+      // we'll try to use deal.agent?.firstName if available, or just ID.
+      // For now, let's use a safe fallback.
+      const agentName = (deal as any).agent?.firstName ? `${(deal as any).agent.firstName} ${(deal as any).agent.lastName || ''}` : `Agent ${(deal as any).agentId || 'Unknown'}`;
+
+      if (!agents[agentName]) agents[agentName] = { deals: 0, revenue: 0, won: 0 };
+      agents[agentName].deals++;
+      agents[agentName].revenue += (toNumber(deal.dealValue) || 0);
+      if (deal.stage === 'closed' || deal.stage === 'won') agents[agentName].won++;
+    });
+
+    return Object.keys(agents).map(agent => ({
       agent,
-      deals: Math.floor(Math.random() * 20) + 5,
-      revenue: Math.floor(Math.random() * 800000) + 200000,
-      conversion: Math.floor(Math.random() * 30) + 10
+      deals: agents[agent].deals,
+      revenue: agents[agent].revenue,
+      conversion: agents[agent].deals > 0 ? (agents[agent].won / agents[agent].deals) * 100 : 0
     }));
   };
 
   const getMarketTrendsData = () => {
-    const quarters = ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024'];
-    return quarters.map(quarter => ({
-      quarter,
-      residential: Math.floor(Math.random() * 100) + 50,
-      commercial: Math.floor(Math.random() * 50) + 20,
-      industrial: Math.floor(Math.random() * 30) + 10,
-      land: Math.floor(Math.random() * 40) + 15
-    }));
+    // Placeholder as we lack external market data
+    return [];
   };
 
   // Custom tooltip component with RTL support and proper formatting
@@ -355,7 +431,7 @@ export default function Reports() {
               </Select>
             </div>
           </div>
-          
+
           <Button onClick={exportReport} className={BUTTON_PRIMARY_CLASSES}>
             <Download className="ml-2" size={16} />
             تصدير التقرير
@@ -372,7 +448,7 @@ export default function Reports() {
             icon={Users}
             iconColor="bg-blue-100 text-blue-600"
           />
-          
+
           <MetricsCard
             title="العقارات المدرجة"
             value={formatNumber(filteredProperties.length)}
@@ -381,7 +457,7 @@ export default function Reports() {
             icon={Building}
             iconColor="bg-green-100 text-green-600"
           />
-          
+
           <MetricsCard
             title="معدل التحويل"
             value={formatPercentage(calculateConversionRate())}
@@ -390,7 +466,7 @@ export default function Reports() {
             icon={TrendingUp}
             iconColor="bg-purple-100 text-purple-600"
           />
-          
+
           <MetricsCard
             title="إجمالي العمولة"
             value={formatCurrency(calculateTotalCommission())}

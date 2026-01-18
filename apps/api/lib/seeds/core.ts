@@ -1,3 +1,19 @@
+/**
+ * core.ts - Core Seed Data
+ * 
+ * Location: apps/api/ → Lib/ → seeds/ → core.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Core seed data generation. Provides:
+ * - User and role seeding
+ * - Permission seeding
+ * - Core entity data
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/index.ts - Seed orchestrator
+ * - apps/api/seed-rbac.ts - RBAC seed script
+ */
+
 import bcrypt from "bcryptjs";
 import { differenceInDays, subDays } from "date-fns";
 import { SeedContext, SeedResult, SeedCredential } from "./types";
@@ -352,7 +368,7 @@ const buildUserSeeds = (ctx: SeedContext, organizationsMap: Map<string, { id: st
       email: `${corpUsername}@${orgMeta.domain}`,
       firstName: corpAdminFirst,
       lastName: corpAdminLast,
-      phone: ctx.faker.phone.number("+9665########"),
+      phone: ctx.faker.helpers.replaceSymbols("+9665########"),
       organizationLicense: orgMeta.slug,
       roles: ["CORP_ADMIN"],
       department: "Management",
@@ -369,7 +385,7 @@ const buildUserSeeds = (ctx: SeedContext, organizationsMap: Map<string, { id: st
         email: `${username}@${orgMeta.domain}`,
         firstName: first,
         lastName: last,
-        phone: ctx.faker.phone.number("+9665########"),
+        phone: ctx.faker.helpers.replaceSymbols("+9665########"),
         organizationLicense: orgMeta.slug,
         roles: ["AGENT"],
         department: "Brokerage",
@@ -386,7 +402,7 @@ const buildUserSeeds = (ctx: SeedContext, organizationsMap: Map<string, { id: st
       email: `${supportUsername}@${orgMeta.domain}`,
       firstName: supportFirst,
       lastName: supportLastParts.join(" ") || ctx.faker.person.lastName(),
-      phone: ctx.faker.phone.number("+9665########"),
+      phone: ctx.faker.helpers.replaceSymbols("+9665########"),
       organizationLicense: orgMeta.slug,
       roles: ["SUPPORT"],
       department: "Customer Success",
@@ -402,7 +418,7 @@ const buildUserSeeds = (ctx: SeedContext, organizationsMap: Map<string, { id: st
       email: `${viewerUsername}@${orgMeta.domain}`,
       firstName: viewerFirst,
       lastName: viewerLast,
-      phone: ctx.faker.phone.number("+9665########"),
+      phone: ctx.faker.helpers.replaceSymbols("+9665########"),
       organizationLicense: orgMeta.slug,
       roles: ["VIEWER"],
       department: "Insights",
@@ -522,7 +538,7 @@ export const seedCore = async (ctx: SeedContext): Promise<SeedResult> => {
         timezone: organization.timezone,
         billingEmail: organization.billingEmail,
         billingPhone: organization.billingPhone,
-        metadata: organization.metadata ?? {}
+        metadata: (organization.metadata ?? {}) as any
       },
       create: {
         legalName: organization.legalName,
@@ -539,7 +555,9 @@ export const seedCore = async (ctx: SeedContext): Promise<SeedResult> => {
         timezone: organization.timezone,
         billingEmail: organization.billingEmail,
         billingPhone: organization.billingPhone,
-        metadata: organization.metadata ?? {}
+        metadata: (organization.metadata ?? {}) as any,
+        id: ctx.faker.string.uuid(),
+        updatedAt: new Date()
       }
     });
     organizationRecords.set(organization.slug, {
@@ -590,11 +608,12 @@ export const seedCore = async (ctx: SeedContext): Promise<SeedResult> => {
         approvalStatus: seed.approvalStatus ?? "APPROVED",
         jobTitle: seed.jobTitle,
         department: seed.department,
-        metadata,
+        metadata: (metadata as any),
         lastLoginAt,
         lastSeenAt
       },
       create: {
+        id: ctx.faker.string.uuid(),
         username: seed.username,
         email: seed.email,
         firstName: seed.firstName,
@@ -607,7 +626,7 @@ export const seedCore = async (ctx: SeedContext): Promise<SeedResult> => {
         approvalStatus: seed.approvalStatus ?? "APPROVED",
         jobTitle: seed.jobTitle,
         department: seed.department,
-        metadata,
+        metadata: (metadata as any),
         createdAt: now,
         updatedAt: now,
         lastLoginAt,

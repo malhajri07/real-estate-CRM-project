@@ -1,4 +1,21 @@
 /**
+ * storage-prisma.ts - Prisma-based Database Storage Implementation
+ * 
+ * Location: apps/api/ → Database & Prisma → storage-prisma.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Prisma-based database storage adapter. Provides:
+ * - Database operations abstraction
+ * - CRUD operations for all entities
+ * - Query helpers and utilities
+ * 
+ * Related Files:
+ * - apps/api/prismaClient.ts - Prisma client
+ * - apps/api/storage-prisma-simple.ts - Simplified storage variant
+ * - Used by all route handlers for database operations
+ */
+
+/**
  * storage-prisma-simple.ts - Simplified Prisma-based Database Storage Implementation
  * 
  * This file provides a simplified Prisma-based implementation that only includes

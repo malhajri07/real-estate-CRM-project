@@ -1,3 +1,20 @@
+/**
+ * organization-management.tsx - Organization Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → organization-management.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Organization management page. Provides:
+ * - Organization listing and search
+ * - Organization CRUD operations
+ * - Organization settings management
+ * 
+ * Route: /admin/organizations/organizations-list
+ * 
+ * Related Files:
+ * - apps/api/routes/rbac-admin.ts - Organization API routes
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

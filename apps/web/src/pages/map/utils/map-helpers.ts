@@ -1,4 +1,19 @@
 /**
+ * map-helpers.ts - Google Maps Helper Utilities
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → utils/ → map-helpers.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Google Maps helper utilities. Provides:
+ * - Map utility functions
+ * - Coordinate helpers
+ * - Map calculation utilities
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/components/PropertiesMap.tsx - Uses these helpers
+ */
+
+/**
  * Google Maps helper utilities
  */
 

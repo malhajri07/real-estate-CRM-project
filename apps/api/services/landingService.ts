@@ -1,3 +1,21 @@
+/**
+ * landingService.ts - Landing Page Service
+ * 
+ * Location: apps/api/ → Services/ → landingService.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Service for managing CMS landing page sections and cards. Provides business logic for:
+ * - Landing page section creation, update, and deletion
+ * - Card management within sections
+ * - Section ordering and visibility
+ * - Draft and published state management
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-landing.ts - Landing page API routes
+ * - apps/web/src/pages/admin/cms-landing/ - CMS landing page editor
+ * - apps/web/src/components/cms/LandingStudio.tsx - Landing studio component
+ */
+
 // @ts-nocheck
 import { LandingSection, LandingCard } from "@prisma/client";
 import { prisma } from "../prismaClient";

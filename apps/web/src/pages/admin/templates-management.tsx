@@ -1,3 +1,21 @@
+/**
+ * templates-management.tsx - Templates Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → templates-management.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Content template management page. Provides:
+ * - Template listing and search
+ * - Template CRUD operations
+ * - Template type management
+ * 
+ * Route: /admin/content/content-templates
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-templates.ts - Template API routes
+ * - apps/api/services/templateService.ts - Template service
+ */
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {

@@ -1,4 +1,20 @@
 /**
+ * cms-utils.ts - CMS Utility Functions
+ * 
+ * Location: apps/web/src/ → Lib/ → cms-utils.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * CMS utility functions. Provides:
+ * - CMS content validation
+ * - Content transformation utilities
+ * - CMS helper functions
+ * 
+ * Related Files:
+ * - apps/web/src/lib/cms.ts - CMS API client
+ * - apps/api/services/landingService.ts - Landing page service
+ */
+
+/**
  * CMS Utility Functions
  * 
  * Helper functions for CMS content management, validation, and transformation.

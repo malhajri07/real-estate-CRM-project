@@ -1,4 +1,19 @@
 /**
+ * image-handler.ts - Unverified Listing Image Handler
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → unverified-listing/ → utils/ → image-handler.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Image handling utilities for unverified listing page. Provides:
+ * - Image file reading
+ * - Image validation
+ * - Image processing
+ * 
+ * Related Files:
+ * - apps/web/src/pages/unverified-listing.tsx - Unverified listing page
+ */
+
+/**
  * Image handling utilities for Unverified Listing Page
  */
 

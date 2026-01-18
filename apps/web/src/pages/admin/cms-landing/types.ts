@@ -1,4 +1,19 @@
 /**
+ * types.ts - CMS Landing Page Type Definitions
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → cms-landing/ → types.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Type definitions for CMS Landing Page management. Defines:
+ * - Landing section types
+ * - Landing card types
+ * - Form state types
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/cms-landing/index.tsx - CMS landing editor uses these types
+ */
+
+/**
  * Type definitions for CMS Landing Page management
  */
 
@@ -60,6 +75,8 @@ export type SectionFormState = {
   secondaryCtaHref?: string;
   dashboardTitle?: string;
   copyright?: string;
+  logoUrl?: string;
+  siteName?: string;
 };
 
 export type CardFormState = {

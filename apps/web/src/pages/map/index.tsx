@@ -1,4 +1,24 @@
 /**
+ * map/index.tsx - Property Map Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → index.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Main page component for property map exploration. Provides:
+ * - Interactive property map
+ * - Property listing with filters
+ * - Map and list view toggle
+ * - Property search and filtering
+ * 
+ * Route: /map
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/components/ - Map page components
+ * - apps/web/src/pages/map/hooks/ - Map page hooks
+ * - apps/web/src/pages/map/utils/ - Map page utilities
+ */
+
+/**
  * MapPage Component
  * 
  * Main page component for property map exploration.

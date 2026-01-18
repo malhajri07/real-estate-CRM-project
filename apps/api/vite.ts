@@ -1,3 +1,19 @@
+/**
+ * vite.ts - Vite Integration
+ * 
+ * Location: apps/api/ → Core Application Files → vite.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Vite development server integration. Provides:
+ * - Vite dev server setup
+ * - Hot module replacement (HMR)
+ * - Development asset serving
+ * 
+ * Related Files:
+ * - apps/api/index.ts - Development entry point uses this
+ * - vite.config.ts - Vite configuration
+ */
+
 // @ts-nocheck
 import type { Express } from "express";
 import fs from "fs";

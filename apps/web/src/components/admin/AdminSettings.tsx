@@ -1,3 +1,17 @@
+/**
+ * AdminSettings.tsx - Admin Settings Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → AdminSettings.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin settings component. Provides:
+ * - Admin configuration interface
+ * - Settings management
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/ - Admin pages
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

@@ -1,3 +1,18 @@
+/**
+ * filter-bar.tsx - Filter Bar Component
+ * 
+ * Location: apps/web/src/ → Components/ → UI Components → filter-bar.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Reusable filter bar component. Provides:
+ * - Filter toggle functionality
+ * - Filter content display
+ * - Consistent filter UI
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/unified-page-layout.tsx - Uses this component
+ */
+
 import React from 'react';
 import { Filter, X } from 'lucide-react';
 import { cn } from '@/lib/utils';

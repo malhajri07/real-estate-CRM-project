@@ -1,6 +1,9 @@
 /**
  * routes/listings.ts - Property Listings API Routes
  * 
+ * Location: apps/api/ → Routes/ → listings.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
  * This file defines all property listing-related API endpoints for the real estate CRM platform.
  * It handles:
  * - Property listing retrieval and search
@@ -10,6 +13,19 @@
  * 
  * The routes use Prisma-based storage for database operations and provide
  * comprehensive property management functionality.
+ * 
+ * API Endpoints:
+ * - GET /api/listings - List all listings
+ * - GET /api/listings/featured - Get featured listings
+ * - GET /api/listings/:id - Get listing by ID
+ * - POST /api/listings - Create new listing
+ * - PUT /api/listings/:id - Update listing
+ * - DELETE /api/listings/:id - Delete listing
+ * 
+ * Related Files:
+ * - apps/web/src/pages/properties.tsx - Property listing page
+ * - apps/web/src/pages/listing.tsx - Property detail page
+ * - apps/web/src/pages/post-listing.tsx - Create listing page
  * 
  * Dependencies:
  * - Express.js router for route handling
@@ -123,7 +139,7 @@ router.get("/", async (req, res) => {
       } else if (item.imageGallery && Array.isArray(item.imageGallery)) {
         photoUrls = item.imageGallery;
       }
-      
+
       return {
         ...item,
         photoUrls,
@@ -149,12 +165,9 @@ router.get("/map", async (req, res) => {
   try {
     const { city, propertyType, propertyCategory, listingType } = req.query as Record<string, string | undefined>;
     const properties = await storage.getAllProperties();
-    
-    // Debug: log first property to see structure
-    if (properties.length > 0) {
-      console.log("First property structure:", JSON.stringify(properties[0], null, 2));
-    }
-    
+
+
+
     const mapProperties = properties
       .filter((p) => p.latitude && p.longitude)
       .filter((p) => (city ? p.city === city : true))
@@ -177,8 +190,8 @@ router.get("/map", async (req, res) => {
         areaSqm: (p as any).areaSqm ?? null,
         status: p.status,
       }));
-    
-    console.log(`Map endpoint: ${properties.length} total, ${mapProperties.length} with coords`);
+
+
     res.json(mapProperties);
   } catch (err) {
     console.error("Error fetching listings for map:", err);

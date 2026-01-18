@@ -1,3 +1,18 @@
+/**
+ * BuyerPoolSearch.tsx - Buyer Pool Search Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → buyer-pool/ → BuyerPoolSearch.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Buyer pool search component for agents. Provides:
+ * - Buyer request search and filtering
+ * - Request claiming functionality
+ * - Request detail view
+ * 
+ * Related Files:
+ * - apps/api/routes/buyer-pool.ts - Buyer pool API routes
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

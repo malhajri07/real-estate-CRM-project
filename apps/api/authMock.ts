@@ -1,3 +1,19 @@
+/**
+ * authMock.ts - Mock Authentication Setup
+ * 
+ * Location: apps/api/ → Testing & Utilities → authMock.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Mock authentication setup for development. Provides:
+ * - Mock user session middleware
+ * - Development authentication bypass
+ * - Test authentication utilities
+ * 
+ * Related Files:
+ * - apps/api/auth.ts - Real authentication utilities
+ * - apps/api/authMiddleware.ts - Auth middleware
+ */
+
 import type { Express, RequestHandler } from "express";
 import { storage } from "./storage-prisma";
 import { seedDummyData } from "./seedData";

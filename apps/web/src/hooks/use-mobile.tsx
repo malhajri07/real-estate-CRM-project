@@ -1,3 +1,17 @@
+/**
+ * use-mobile.tsx - Mobile Detection Hook
+ * 
+ * Location: apps/web/src/ → Hooks/ → use-mobile.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Custom React hook for detecting mobile viewport. Provides:
+ * - Mobile breakpoint detection
+ * - Responsive layout utilities
+ * 
+ * Related Files:
+ * - Used throughout the application for responsive behavior
+ */
+
 import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768

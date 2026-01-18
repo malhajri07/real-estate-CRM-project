@@ -1,3 +1,19 @@
+/**
+ * cms.ts - CMS Utilities
+ * 
+ * Location: apps/web/src/ → Lib/ → cms.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * CMS content utilities and API client. Provides:
+ * - CMS API client configuration
+ * - Landing page content types and utilities
+ * - CMS content fetching functions
+ * 
+ * Related Files:
+ * - apps/web/src/lib/cms-utils.ts - CMS helper utilities
+ * - apps/api/routes/cms-landing.ts - CMS landing API routes
+ */
+
 import axios from 'axios';
 
 const CMS_URL = '/api/cms'; // Use our custom CMS API instead of Strapi
@@ -129,6 +145,7 @@ export interface LandingPageContent {
   // Footer
   footerDescription: string;
   footerCopyright: string;
+  footerLogoUrl?: string;
   footerLinks: FooterLink[];
 
   // Navigation

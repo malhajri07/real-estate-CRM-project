@@ -1,3 +1,22 @@
+/**
+ * rbac-login.tsx - Login Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Public Pages → rbac-login.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * RBAC login page for user authentication. Provides:
+ * - User login form
+ * - Authentication handling
+ * - Role-based redirects
+ * 
+ * Route: /rbac-login or /login
+ * 
+ * Related Files:
+ * - apps/web/src/components/auth/LoginForm.tsx - Login form component
+ * - apps/web/src/components/auth/AuthProvider.tsx - Auth context
+ * - apps/api/routes/auth.ts - Authentication API routes
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { UserRole } from '@shared/rbac';

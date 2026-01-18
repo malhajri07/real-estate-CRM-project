@@ -1,3 +1,18 @@
+/**
+ * page-header.tsx - Page Header Component
+ * 
+ * Location: apps/web/src/ → Components/ → UI Components → page-header.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Reusable page header component. Provides:
+ * - Page title and subtitle
+ * - Consistent header styling
+ * - Action buttons support
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/unified-page-layout.tsx - Uses this component
+ */
+
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { COMPONENT_STYLES } from '@/config/theme';

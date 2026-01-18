@@ -1,3 +1,22 @@
+/**
+ * user-management.tsx - User Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → user-management.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin user management page. Provides:
+ * - User listing and search
+ * - User CRUD operations
+ * - Role assignment
+ * - User status management
+ * 
+ * Route: /admin/users/all-users
+ * 
+ * Related Files:
+ * - apps/api/routes/rbac-admin.ts - User management API routes
+ * - apps/web/src/components/admin/UserManagement.tsx - User management component
+ */
+
 import { useMemo, useState } from "react";
 import { Building2, Edit, Eye, Shield, Trash2, UserPlus, Users, CheckCircle, XCircle } from "lucide-react";
 import { ROLE_DISPLAY_TRANSLATIONS, USER_ROLES, type UserRole } from "@shared/rbac";
@@ -391,7 +410,7 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

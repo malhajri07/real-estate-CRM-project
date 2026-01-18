@@ -1,3 +1,18 @@
+/**
+ * AdminCard.tsx - Admin Card Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → data-display/ → AdminCard.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin card component for displaying metrics and data. Provides:
+ * - Metric card display
+ * - Trend indicators
+ * - Icon support
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/enhanced-dashboard.tsx - Uses this component
+ */
+
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -38,16 +53,16 @@ export function AdminCard({
         >
             <div className="p-6">
                 {(title || icon) && (
-                    <div className="flex items-center justify-between mb-2">
-                        {title && (
-                            <h3 className="text-sm font-medium text-muted-foreground">
-                                {title}
-                            </h3>
-                        )}
+                    <div className="flex items-center justify-between mb-2 gap-4">
                         {icon && (
-                            <div className="h-8 w-8 text-muted-foreground">
+                            <div className="h-8 w-8 text-muted-foreground shrink-0">
                                 {icon}
                             </div>
+                        )}
+                        {title && (
+                            <h3 className="text-sm font-medium text-muted-foreground flex-1">
+                                {title}
+                            </h3>
                         )}
                     </div>
                 )}
@@ -109,8 +124,11 @@ export function AdminMetricCard({
 
     return (
         <AdminCard onClick={onClick}>
-            <div className="flex items-center justify-between">
-                <div className="flex-1">
+            <div className="flex items-center justify-between gap-4">
+                <div className={cn('h-12 w-12 rounded-lg flex items-center justify-center shrink-0', colorClasses[color])}>
+                    {icon}
+                </div>
+                <div className="flex-1 text-left">
                     <p className="text-sm font-medium text-muted-foreground">{title}</p>
                     <p className="text-2xl font-bold mt-2">{value}</p>
                     {trend && (
@@ -130,9 +148,6 @@ export function AdminMetricCard({
                             )}
                         </div>
                     )}
-                </div>
-                <div className={cn('h-12 w-12 rounded-lg flex items-center justify-center', colorClasses[color])}>
-                    {icon}
                 </div>
             </div>
         </AdminCard>

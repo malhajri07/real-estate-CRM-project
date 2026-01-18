@@ -1,3 +1,19 @@
+/**
+ * admin-requests.tsx - Admin Requests Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → admin-requests.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin requests management page. Provides:
+ * - Admin request listing
+ * - Request management
+ * 
+ * Route: /home/platform/admin-requests or /admin/requests
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/ - Admin management pages
+ */
+
 import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

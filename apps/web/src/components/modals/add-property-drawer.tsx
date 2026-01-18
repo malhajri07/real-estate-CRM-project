@@ -1,3 +1,19 @@
+/**
+ * add-property-drawer.tsx - Add Property Drawer Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → modals/ → add-property-drawer.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Drawer component for adding new properties. Provides:
+ * - Property creation form in drawer format
+ * - Form validation
+ * - Property submission
+ * 
+ * Related Files:
+ * - apps/web/src/components/modals/add-property-modal.tsx - Modal variant
+ * - apps/web/src/pages/properties.tsx - Properties page uses this
+ */
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -73,7 +89,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
   // Image handling functions
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    
+
     // Check total file size (10MB limit)
     const totalSize = [...selectedImages, ...files].reduce((acc, file) => acc + file.size, 0);
     if (totalSize > 10 * 1024 * 1024) {
@@ -106,10 +122,10 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
   const removeImage = (index: number) => {
     const newImages = selectedImages.filter((_, i) => i !== index);
     const newPreviews = imagePreviews.filter((_, i) => i !== index);
-    
+
     // Revoke the URL to free memory
     URL.revokeObjectURL(imagePreviews[index]);
-    
+
     setSelectedImages(newImages);
     setImagePreviews(newPreviews);
   };
@@ -117,7 +133,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
   const createPropertyMutation = useMutation({
     mutationFn: async (data: InsertProperty) => {
       const formData = new FormData();
-      
+
       // Append property data
       Object.entries(data).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
@@ -130,19 +146,19 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
         formData.append(`images`, image);
       });
 
-      const response = await fetch('/api/properties', {
+      const response = await fetch('/api/listings', {
         method: 'POST',
         body: formData,
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to create property');
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
       toast({ title: "نجح", description: "تم إنشاء العقار بنجاح" });
       onOpenChange(false);
@@ -151,10 +167,10 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
       setImagePreviews([]);
     },
     onError: () => {
-      toast({ 
-        title: "خطأ", 
+      toast({
+        title: "خطأ",
         description: "فشل في إنشاء العقار",
-        variant: "destructive" 
+        variant: "destructive"
       });
     },
   });
@@ -169,8 +185,8 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
   };
 
   return (
-    <Drawer 
-      open={open} 
+    <Drawer
+      open={open}
       onOpenChange={onOpenChange}
       title="إضافة عقار جديد"
       description="املأ المعلومات التالية لإضافة عقار جديد إلى النظام"
@@ -225,10 +241,10 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                       <FormItem>
                         <FormLabel>السعر (ريال) *</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="أدخل السعر" 
-                            {...field} 
+                          <Input
+                            type="number"
+                            placeholder="أدخل السعر"
+                            {...field}
                             onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
                           />
                         </FormControl>
@@ -243,11 +259,11 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                       <FormItem>
                         <FormLabel>المساحة (م²) *</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="أدخل المساحة" 
+                          <Input
+                            type="number"
+                            placeholder="أدخل المساحة"
                             {...field}
-                            value={typeof field.value === 'number' ? field.value : Number(field.value) || 0} 
+                            value={typeof field.value === 'number' ? field.value : Number(field.value) || 0}
                             onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
                           />
                         </FormControl>
@@ -265,10 +281,10 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                       <FormItem>
                         <FormLabel>عدد الغرف</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="0" 
-                            {...field} 
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            {...field}
                             onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
                           />
                         </FormControl>
@@ -283,10 +299,10 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                       <FormItem>
                         <FormLabel>عدد الحمامات</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="0" 
-                            {...field} 
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            {...field}
                             onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
                           />
                         </FormControl>
@@ -574,11 +590,11 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                       <FormItem>
                         <FormLabel>خط العرض</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
+                          <Input
+                            type="number"
                             step="any"
-                            placeholder="24.7136" 
-                            {...field} 
+                            placeholder="24.7136"
+                            {...field}
                             onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : 0)}
                           />
                         </FormControl>
@@ -593,11 +609,11 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                       <FormItem>
                         <FormLabel>خط الطول</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
+                          <Input
+                            type="number"
                             step="any"
-                            placeholder="46.6753" 
-                            {...field} 
+                            placeholder="46.6753"
+                            {...field}
                             onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : 0)}
                           />
                         </FormControl>
@@ -699,15 +715,15 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
             {/* Action Buttons - Sticky at bottom */}
             <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 -mx-6 -mb-6 mt-6">
               <div className="flex justify-end space-x-3 space-x-reverse">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => onOpenChange(false)}
                 >
                   إلغاء
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={createPropertyMutation.isPending}
                   style={{ backgroundColor: 'rgb(128 193 165)', color: 'white' }}
                   className="hover:opacity-90 disabled:opacity-50"

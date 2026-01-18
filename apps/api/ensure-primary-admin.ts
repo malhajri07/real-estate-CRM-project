@@ -1,3 +1,19 @@
+/**
+ * ensure-primary-admin.ts - Primary Admin Creation Script
+ * 
+ * Location: apps/api/ → Database Seeds & Population → ensure-primary-admin.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Primary admin creation script. Ensures:
+ * - Primary admin user exists
+ * - Admin credentials are set
+ * - Admin user is properly configured
+ * 
+ * Related Files:
+ * - apps/api/createAdmin1AndPopulate.ts - Admin creation and population
+ * - apps/api/auth.ts - Authentication utilities
+ */
+
 import { randomUUID } from 'crypto';
 import { hashPassword } from './auth';
 import { prisma } from './prismaClient';

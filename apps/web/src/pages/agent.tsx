@@ -1,3 +1,21 @@
+/**
+ * agent.tsx - Agent Profile Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → agent.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Agent profile page. Displays:
+ * - Agent information
+ * - Agent listings
+ * - Agent statistics
+ * 
+ * Route: /home/platform/agent/:id or /agent/:id
+ * 
+ * Related Files:
+ * - apps/web/src/pages/agencies.tsx - Agencies listing
+ * - apps/web/src/pages/agency.tsx - Agency detail
+ */
+
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";

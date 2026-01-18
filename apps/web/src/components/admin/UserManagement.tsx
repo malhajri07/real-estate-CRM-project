@@ -1,3 +1,19 @@
+/**
+ * UserManagement.tsx - User Management Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → UserManagement.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * User management component for admin pages. Provides:
+ * - User listing and search
+ * - User CRUD operations
+ * - Role assignment
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/user-management.tsx - User management page
+ * - apps/api/routes/rbac-admin.ts - User management API routes
+ */
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

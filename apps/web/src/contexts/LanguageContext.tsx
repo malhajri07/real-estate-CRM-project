@@ -1,3 +1,19 @@
+/**
+ * LanguageContext.tsx - Language Context Provider
+ * 
+ * Location: apps/web/src/ → Contexts/ → LanguageContext.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Language and internationalization context provider. Provides:
+ * - Language switching (Arabic/English)
+ * - RTL/LTR text direction
+ * - Translation function
+ * - Language persistence
+ * 
+ * Related Files:
+ * - apps/web/src/App.tsx - Uses this context
+ */
+
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
 
 interface LanguageContextType {

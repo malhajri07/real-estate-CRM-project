@@ -1,3 +1,18 @@
+/**
+ * AdminExport.tsx - Admin Export Component
+ * 
+ * Location: apps/web/src/ → Components/ → Admin Components → utilities/ → AdminExport.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin export component. Provides:
+ * - Data export functionality
+ * - Multiple export formats (CSV, Excel, PDF)
+ * - Export options
+ * 
+ * Related Files:
+ * - Used in admin pages for data export
+ */
+
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,

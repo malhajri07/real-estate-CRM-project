@@ -1,3 +1,19 @@
+/**
+ * seed-rbac.ts - RBAC Seed Script
+ * 
+ * Location: apps/api/ → Database Seeds & Population → seed-rbac.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * RBAC seed script. Provides:
+ * - Role and permission seeding
+ * - User seeding with roles
+ * - RBAC initialization
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/core.ts - Core seed utilities
+ * - apps/api/rbac.ts - RBAC system
+ */
+
 // @ts-nocheck
 import { OrganizationStatus, AgentStatus, PropertyStatus, ListingType, ListingStatus, BuyerRequestStatus, SellerSubmissionStatus, LeadStatus, ClaimStatus, ContactChannel } from '@prisma/client';
 import { hashPassword } from './auth';
@@ -324,7 +340,7 @@ async function main() {
     const type = PROPERTY_TYPES[Math.floor(Math.random() * PROPERTY_TYPES.length)];
     const category = PROPERTY_CATEGORIES[Math.floor(Math.random() * PROPERTY_CATEGORIES.length)];
     const agent = agents[Math.floor(Math.random() * agents.length)];
-    
+
     const property = await prisma.properties.create({
       data: {
         agentId: agent.id,
@@ -352,7 +368,7 @@ async function main() {
         ])
       }
     });
-    
+
     properties.push(property);
   }
 
@@ -379,12 +395,12 @@ async function main() {
 
   // Create buyer requests
   const buyers = [users[10], users[11]]; // Buyer users
-  
+
   for (let i = 0; i < 30; i++) {
     const city = SAUDI_CITIES[Math.floor(Math.random() * SAUDI_CITIES.length)];
     const type = PROPERTY_TYPES[Math.floor(Math.random() * PROPERTY_TYPES.length)];
     const buyer = buyers[Math.floor(Math.random() * buyers.length)];
-    
+
     await prisma.buyerRequest.create({
       data: {
         createdByUserId: buyer.id,
@@ -420,12 +436,12 @@ async function main() {
 
   // Create seller submissions
   const sellers = [users[8], users[9]]; // Seller users
-  
+
   for (let i = 0; i < 15; i++) {
     const city = SAUDI_CITIES[Math.floor(Math.random() * SAUDI_CITIES.length)];
     const type = PROPERTY_TYPES[Math.floor(Math.random() * PROPERTY_TYPES.length)];
     const seller = sellers[Math.floor(Math.random() * sellers.length)];
-    
+
     await prisma.sellerSubmission.create({
       data: {
         createdByUserId: seller.id,
@@ -461,7 +477,7 @@ async function main() {
   for (let i = 0; i < 5; i++) {
     const buyerRequest = buyerRequests[i];
     const agent = agents[Math.floor(Math.random() * agents.length)];
-    
+
     // Create claim
     const claim = await prisma.claim.create({
       data: {
@@ -507,7 +523,7 @@ async function main() {
     const user = users[Math.floor(Math.random() * users.length)];
     const actions = ['CREATE', 'UPDATE', 'DELETE', 'CLAIM', 'RELEASE'];
     const entities = ['PROPERTY', 'BUYER_REQUEST', 'CLAIM', 'LEAD'];
-    
+
     await prisma.audit_logs.create({
       data: {
         userId: user.id,
@@ -523,6 +539,137 @@ async function main() {
   }
 
   console.log('✅ Created audit logs');
+
+  // --- NEW: Support Tickets ---
+  const TICKET_CATEGORIES = ['BILLING', 'TECHNICAL', 'FEATURE_REQUEST', 'account_access', 'other'];
+  const TICKET_PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
+  const TICKET_STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
+
+  for (let i = 0; i < 25; i++) {
+    const user = users[Math.floor(Math.random() * users.length)];
+    const category = TICKET_CATEGORIES[Math.floor(Math.random() * TICKET_CATEGORIES.length)];
+    const priority = TICKET_PRIORITIES[Math.floor(Math.random() * TICKET_PRIORITIES.length)];
+    const ticketStatus = TICKET_STATUSES[Math.floor(Math.random() * TICKET_STATUSES.length)];
+
+    await prisma.support_tickets.create({
+      data: {
+        userId: user.id,
+        organizationId: user.organizationId,
+        subject: `مشكلة في ${category} - ${i + 1}`,
+        message: 'أواجه مشكلة في الوصول إلى بعض الميزات، أرجو المساعدة في أقرب وقت.',
+        category: category,
+        priority: priority as any,
+        status: ticketStatus as any,
+        createdAt: new Date(Date.now() - Math.floor(Math.random() * 30 * 24 * 60 * 60 * 1000)) // Random date in last 30 days
+      }
+    });
+  }
+  console.log('✅ Created support tickets');
+
+  // --- NEW: Billing Seeding ---
+
+  // 1. Create Plans
+  const plans = await Promise.all([
+    prisma.pricing_plans.create({
+      data: {
+        nameEn: 'Basic Plan',
+        nameAr: 'الباقة الأساسية',
+        descriptionEn: 'Good for starters',
+        descriptionAr: 'جيدة للمبتدئين',
+        price: 99.00,
+        currency: 'SAR',
+        interval: 'MONTHLY',
+        features: JSON.stringify(['5 Listings', 'Basic Support']),
+        isActive: true
+      }
+    }),
+    prisma.pricing_plans.create({
+      data: {
+        nameEn: 'Professional Plan',
+        nameAr: 'الباقة الاحترافية',
+        descriptionEn: 'For growing agencies',
+        descriptionAr: 'للشركات الناشئة',
+        price: 299.00,
+        currency: 'SAR',
+        interval: 'MONTHLY',
+        features: JSON.stringify(['50 Listings', 'Priority Support', 'Analytics']),
+        isActive: true
+      }
+    }),
+    prisma.pricing_plans.create({
+      data: {
+        nameEn: 'Enterprise Plan',
+        nameAr: 'باقة الشركات',
+        descriptionEn: 'For large organizations',
+        descriptionAr: 'للمؤسسات الكبيرة',
+        price: 999.00,
+        currency: 'SAR',
+        interval: 'YEARLY',
+        features: JSON.stringify(['Unlimited Listings', 'Dedicated Manager', 'API Access']),
+        isActive: true
+      }
+    })
+  ]);
+  console.log('✅ Created pricing plans');
+
+  // 2. Create Billing Accounts for Organizations
+  const billingAccounts = [];
+  for (const org of organizations) {
+    const owner = users.find(u => u.organizationId === org.id); // primitive find
+    if (!owner) continue;
+
+    const account = await prisma.billing_accounts.create({
+      data: {
+        userId: owner.id,
+        organizationId: org.id,
+        firstNameAr: 'حساب',
+        lastNameAr: org.tradeName,
+        email: org.email || 'billing@example.com',
+        status: 'ACTIVE'
+      }
+    });
+    billingAccounts.push(account);
+  }
+  console.log('✅ Created billing accounts');
+
+  // 3. Create Subscriptions & Invoices (Historical Data)
+  for (const acc of billingAccounts) {
+    // randomly assign a plan
+    const plan = plans[Math.floor(Math.random() * plans.length)];
+
+    const sub = await prisma.billing_subscriptions.create({
+      data: {
+        accountId: acc.id,
+        planId: plan.id,
+        status: 'ACTIVE',
+        startDate: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000), // started 6 months ago
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      }
+    });
+
+    // Generate 6 months of invoices
+    for (let m = 0; m < 6; m++) {
+      const invoiceDate = new Date();
+      invoiceDate.setMonth(invoiceDate.getMonth() - m);
+
+      await prisma.billing_invoices.create({
+        data: {
+          accountId: acc.id,
+          subscriptionId: sub.id,
+          number: `INV-${acc.id.substring(0, 4)}-${Math.floor(Math.random() * 10000)}`,
+          status: 'PAID',
+          issueDate: invoiceDate,
+          dueDate: invoiceDate,
+          amountDue: plan.price,
+          amountPaid: plan.price,
+          currency: 'SAR',
+          createdAt: invoiceDate
+        }
+      });
+    }
+  }
+  console.log('✅ Created subscriptions and historical invoices');
 
   console.log('🎉 RBAC seed completed successfully!');
   console.log('\n📊 Summary:');

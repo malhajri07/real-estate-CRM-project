@@ -1,3 +1,21 @@
+/**
+ * seo-management.tsx - SEO Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → seo-management.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * SEO settings management page. Provides:
+ * - SEO metadata management
+ * - Open Graph settings
+ * - Page-specific SEO configuration
+ * 
+ * Route: /admin/content/seo-settings
+ * 
+ * Related Files:
+ * - apps/api/routes/cms-seo.ts - SEO API routes
+ * - apps/api/services/seoService.ts - SEO service
+ */
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -161,7 +179,7 @@ export default function SEOManagement() {
               <div className="flex items-center justify-between">
                 <CardTitle>إعدادات SEO</CardTitle>
                 <Button onClick={() => sitemapMutation.mutate()}>
-                  <FileText className="ml-2 h-4 w-4" />
+                  <FileText className="h-4 w-4" />
                   إنشاء Sitemap
                 </Button>
               </div>
@@ -298,7 +316,7 @@ export default function SEOManagement() {
                         />
                       </div>
                       <Button type="submit" disabled={updateMutation.isPending}>
-                        <Save className="ml-2 h-4 w-4" />
+                        <Save className="h-4 w-4" />
                         {updateMutation.isPending ? "جاري الحفظ..." : "حفظ"}
                       </Button>
                     </form>
@@ -340,7 +358,7 @@ Disallow: /admin/"
                       onClick={() => robotsTxtMutation.mutate(robotsTxt)}
                       disabled={robotsTxtMutation.isPending}
                     >
-                      <Save className="ml-2 h-4 w-4" />
+                      <Save className="h-4 w-4" />
                       {robotsTxtMutation.isPending ? "جاري الحفظ..." : "حفظ"}
                     </Button>
                     <Button
@@ -355,7 +373,7 @@ Disallow: /admin/"
                         URL.revokeObjectURL(url);
                       }}
                     >
-                      <FileText className="ml-2 h-4 w-4" />
+                      <FileText className="h-4 w-4" />
                       تنزيل
                     </Button>
                   </div>

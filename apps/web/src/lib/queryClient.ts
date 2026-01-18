@@ -1,3 +1,20 @@
+/**
+ * queryClient.ts - React Query Client
+ * 
+ * Location: apps/web/src/ → Lib/ → queryClient.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * React Query client configuration and API request utilities. Provides:
+ * - Query client setup
+ * - API request helper functions
+ * - Request/response interceptors
+ * - Error handling
+ * 
+ * Related Files:
+ * - apps/web/src/App.tsx - Uses QueryClientProvider
+ * - Used throughout the application for API calls
+ */
+
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {

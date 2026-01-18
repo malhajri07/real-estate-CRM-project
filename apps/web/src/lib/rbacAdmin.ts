@@ -1,3 +1,20 @@
+/**
+ * rbacAdmin.ts - RBAC Admin Utilities
+ * 
+ * Location: apps/web/src/ → Lib/ → rbacAdmin.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * RBAC admin utility functions and hooks. Provides:
+ * - User management utilities
+ * - Role management functions
+ * - Admin API helpers
+ * 
+ * Related Files:
+ * - apps/web/src/pages/admin/user-management.tsx - User management page
+ * - apps/web/src/pages/admin/role-management.tsx - Role management page
+ * - apps/api/routes/rbac-admin.ts - RBAC admin API routes
+ */
+
 import { useMutation, useQuery, useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { apiRequest } from "./queryClient";

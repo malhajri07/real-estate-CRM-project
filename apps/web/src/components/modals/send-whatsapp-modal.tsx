@@ -1,3 +1,18 @@
+/**
+ * send-whatsapp-modal.tsx - Send WhatsApp Modal Component
+ * 
+ * Location: apps/web/src/ → Components/ → Feature Components → modals/ → send-whatsapp-modal.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Modal component for sending WhatsApp messages. Provides:
+ * - WhatsApp message form
+ * - Message sending functionality
+ * - Contact integration
+ * 
+ * Related Files:
+ * - apps/web/src/pages/leads.tsx - Leads page uses this
+ */
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";

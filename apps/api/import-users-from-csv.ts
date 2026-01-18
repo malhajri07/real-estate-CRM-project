@@ -1,3 +1,17 @@
+/**
+ * import-users-from-csv.ts - Users CSV Import Script
+ * 
+ * Location: apps/api/ → Database Seeds & Population → import-users-from-csv.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Users CSV import script. Provides:
+ * - CSV user data import
+ * - User and organization creation from CSV
+ * 
+ * Related Files:
+ * - apps/api/import-saudi-customers.ts - Customer CSV import
+ */
+
 import { readFileSync } from 'fs';
 import { parse } from 'csv-parse/sync';
 import { OrganizationStatus } from '@prisma/client';

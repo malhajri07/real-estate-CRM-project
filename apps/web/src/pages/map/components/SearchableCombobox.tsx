@@ -1,4 +1,19 @@
 /**
+ * SearchableCombobox.tsx - Searchable Combobox Component
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → components/ → SearchableCombobox.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Shared searchable dropdown component. Provides:
+ * - Searchable dropdown interface
+ * - Command palette integration
+ * - Accessible combobox functionality
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/components/FilterContent.tsx - Uses this component
+ */
+
+/**
  * SearchableCombobox Component
  * 
  * Shared searchable dropdown used across filters. It wraps the cmdk based

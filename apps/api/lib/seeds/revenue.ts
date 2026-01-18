@@ -1,3 +1,18 @@
+/**
+ * revenue.ts - Revenue Seed Data
+ * 
+ * Location: apps/api/ → Lib/ → seeds/ → revenue.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Revenue seed data generation. Provides:
+ * - Invoice seeding
+ * - Payment seeding
+ * - Revenue entity data
+ * 
+ * Related Files:
+ * - apps/api/lib/seeds/index.ts - Seed orchestrator
+ */
+
 import { createHash } from "crypto";
 import { addDays, endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { Prisma } from "@prisma/client";
@@ -139,6 +154,7 @@ export const seedRevenue = async (ctx: SeedContext): Promise<SeedResult> => {
   await ensureReset(ctx);
   const { prisma, logger, faker } = ctx;
 
+
   const organizations = await prisma.organizations.findMany({
     select: {
       id: true,
@@ -147,6 +163,29 @@ export const seedRevenue = async (ctx: SeedContext): Promise<SeedResult> => {
       billingPhone: true
     }
   });
+
+  // Seed Pricing Plans
+  const plans = [
+    { id: "platform-starter", name: "Starter", price: 199, period: "monthly" },
+    { id: "platform-pro", name: "Professional", price: 499, period: "monthly" },
+    { id: "platform-enterprise", name: "Enterprise", price: 999, period: "monthly" }
+  ];
+
+  for (const plan of plans) {
+    await prisma.pricing_plans.upsert({
+      where: { id: plan.id },
+      update: {},
+      create: {
+        id: plan.id,
+        name: plan.name,
+        price: plan.price,
+        period: plan.period,
+        description: `${plan.name} Plan`,
+        currency: "SAR"
+      }
+    });
+  }
+
 
   const summaryCounters: Record<string, number> = {
     billing_accounts: await prisma.billing_accounts.count(),
@@ -248,7 +287,7 @@ export const seedRevenue = async (ctx: SeedContext): Promise<SeedResult> => {
           ? faker.helpers.arrayElement(sellerAccounts).id
           : platformAccount.id;
 
-        const invoiceId = deterministicId("invoice", `${org.id}:${monthIndex}:${invoiceIndex}:${accountPick}`);
+        const invoiceId = deterministicId("invoice", `${org.id}:${monthIndex}:${invoiceIndex}`);
         const status = pickInvoiceStatus();
         const issueDate = faker.date.between({ from: periodStart, to: periodEnd });
         const dueDate = addDays(issueDate, faker.number.int({ min: 7, max: 21 }));
@@ -336,7 +375,7 @@ export const seedRevenue = async (ctx: SeedContext): Promise<SeedResult> => {
               status: paymentStatus as Prisma.PaymentStatus,
               amount: type === "REFUND" ? share.neg() : share,
               currency: "SAR",
-              transactionReference: faker.finance.transactionReference(),
+              transactionReference: faker.string.alphanumeric(12).toUpperCase(),
               gateway: faker.helpers.arrayElement(["Mada", "STC-Pay", "Stripe", "Tap"]),
               processedAt,
               metadata: {
@@ -368,7 +407,7 @@ export const seedRevenue = async (ctx: SeedContext): Promise<SeedResult> => {
           amount: new Prisma.Decimal(faker.number.int({ min: 20_000, max: 90_000 })),
           currency: "SAR",
           status: "COMPLETED",
-          reference: faker.finance.transactionReference(),
+          reference: faker.string.alphanumeric(12).toUpperCase(),
           beneficiary: `${org.tradeName} Corporate`,
           processedAt: faker.date.between({ from: periodStart, to: periodEnd }),
           periodStart,

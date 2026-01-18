@@ -1,9 +1,3 @@
-/**
- * CardEditor Component
- * 
- * Form component for editing landing page cards
- */
-
 import React from "react";
 import { Type, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +15,8 @@ import {
 } from "@/components/ui/select";
 import type { LandingCard, LandingSection, CardFormState } from "../types";
 import { SECTION_LABELS, FEATURE_ICON_OPTIONS, CONTACT_ICON_OPTIONS, HERO_METRIC_COLORS } from "../utils/constants";
+import { ListInput } from "./inputs/ListInput";
+import { LinkListInput } from "./inputs/LinkListInput";
 
 interface CardEditorProps {
   card: LandingCard;
@@ -63,7 +59,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
               aria-label="Toggle visibility"
             />
             <Button size="sm" variant="outline" onClick={onSave} disabled={saving}>
-              <Save className="h-4 w-4 ml-1" />
+              <Save className="h-4 w-4" />
               {saving ? "جار الحفظ..." : "حفظ"}
             </Button>
             <Button size="sm" variant="destructive" onClick={onDelete}>
@@ -135,12 +131,11 @@ export const CardEditor: React.FC<CardEditorProps> = ({
 
         {section.slug === "solutions" && (
           <div>
-            <Label>قائمة المزايا (كل سطر يمثل ميزة)</Label>
-            <Textarea
+            <ListInput
+              label="قائمة المزايا"
               value={formState.featuresText ?? ""}
-              onChange={(event) => setField("featuresText", event.target.value)}
-              rows={4}
-              placeholder={"ميزة 1\nميزة 2\nميزة 3"}
+              onChange={(val) => setField("featuresText", val)}
+              placeholder="ميزة جديدة..."
             />
           </div>
         )}
@@ -198,12 +193,11 @@ export const CardEditor: React.FC<CardEditorProps> = ({
               </div>
             </div>
             <div>
-              <Label>المزايا (سطر لكل ميزة)</Label>
-              <Textarea
+              <ListInput
+                label="المزايا"
                 value={formState.featuresText ?? ""}
-                onChange={(event) => setField("featuresText", event.target.value)}
-                rows={5}
-                placeholder={"ميزة 1\nميزة 2\nميزة 3"}
+                onChange={(val) => setField("featuresText", val)}
+                placeholder="ميزة في الخطة..."
               />
             </div>
           </>
@@ -278,12 +272,10 @@ export const CardEditor: React.FC<CardEditorProps> = ({
               />
             </div>
             <div>
-              <Label>الروابط (اكتب النص والرابط مفصولين بـ | في كل سطر)</Label>
-              <Textarea
+              <LinkListInput
+                label="الروابط"
                 value={formState.featuresText ?? ""}
-                onChange={(event) => setField("featuresText", event.target.value)}
-                rows={4}
-                placeholder={"الرئيسية|#home\nالمميزات|#features"}
+                onChange={(val) => setField("featuresText", val)}
               />
             </div>
           </>

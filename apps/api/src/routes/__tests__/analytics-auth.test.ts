@@ -1,3 +1,19 @@
+/**
+ * analytics-auth.test.ts - Analytics Authentication Tests
+ * 
+ * Location: apps/api/ → Source/ → routes/ → __tests__/ → analytics-auth.test.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Test suite for analytics API authentication. Tests:
+ * - Authentication requirements
+ * - JWT token validation
+ * - Access control
+ * 
+ * Related Files:
+ * - apps/api/src/routes/analytics.ts - Analytics routes
+ * - apps/api/src/middleware/auth.ts - Auth middleware
+ */
+
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import express from 'express';

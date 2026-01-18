@@ -1,3 +1,20 @@
+/**
+ * settings.tsx - Workspace Settings Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → settings.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Workspace settings page for authenticated users. Provides:
+ * - Profile settings
+ * - Account configuration
+ * - Preferences management
+ * 
+ * Route: /home/platform/settings or /settings
+ * 
+ * Related Files:
+ * - apps/web/src/components/auth/AuthProvider.tsx - User data
+ */
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

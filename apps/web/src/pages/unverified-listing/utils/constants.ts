@@ -1,4 +1,19 @@
 /**
+ * constants.ts - Unverified Listing Constants
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → unverified-listing/ → utils/ → constants.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Constants for the unverified listing page. Defines:
+ * - Listing types
+ * - Form step definitions
+ * - Configuration constants
+ * 
+ * Related Files:
+ * - apps/web/src/pages/unverified-listing.tsx - Unverified listing page
+ */
+
+/**
  * Constants for Unverified Listing Page
  */
 

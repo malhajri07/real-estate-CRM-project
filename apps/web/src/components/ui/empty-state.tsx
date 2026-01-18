@@ -1,3 +1,18 @@
+/**
+ * empty-state.tsx - Empty State Component
+ * 
+ * Location: apps/web/src/ → Components/ → UI Components → empty-state.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Reusable empty state component. Provides:
+ * - Empty state message
+ * - Icon support
+ * - Action button support
+ * 
+ * Related Files:
+ * - apps/web/src/components/layout/unified-page-layout.tsx - Uses this component
+ */
+
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';

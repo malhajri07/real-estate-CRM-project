@@ -1,3 +1,19 @@
+/**
+ * createAdmin1AndPopulate.ts - Admin Creation and Population Script
+ * 
+ * Location: apps/api/ → Database Seeds & Population → createAdmin1AndPopulate.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Admin creation and population script. Provides:
+ * - Primary admin user creation
+ * - Admin data population
+ * - Initial admin setup
+ * 
+ * Related Files:
+ * - apps/api/populateAdmin1Data.ts - Admin data population
+ * - apps/api/ensure-primary-admin.ts - Primary admin creation
+ */
+
 // @ts-nocheck
 import { storage } from "./storage-prisma";
 import { type Lead, type Deal, type Activity, type Message, type User } from "@shared/types";

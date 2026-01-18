@@ -1,4 +1,20 @@
 /**
+ * PropertiesMap.tsx - Properties Map Component
+ * 
+ * Location: apps/web/src/ → Pages/ → Feature Pages → map/ → components/ → PropertiesMap.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Properties map component using Google Maps. Renders:
+ * - Google Map instance with clustered price markers
+ * - Optional district polygons
+ * - SSR-safe DOM access
+ * 
+ * Related Files:
+ * - apps/web/src/pages/map/index.tsx - Map page
+ * - apps/web/src/pages/map/hooks/useMapProperties.ts - Properties hook
+ */
+
+/**
  * PropertiesMap Component
  * 
  * Renders the Google Map instance with clustered price markers and optional
@@ -24,12 +40,34 @@ export function PropertiesMap({
 }: PropertiesMapProps) {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
+  // Debug logging
+  useEffect(() => {
+    if (isClient) {
+      console.log("[PropertiesMap] Client-side render", {
+        hasApiKey: !!googleMapsApiKey,
+        apiKeyLength: googleMapsApiKey?.length || 0,
+        isClient,
+      });
+    }
+  }, [isClient, googleMapsApiKey]);
+
   // Load Google Maps script using the hook to prevent duplicate loads
   const { isLoaded, loadError: scriptLoadError } = useLoadScript({
     googleMapsApiKey: googleMapsApiKey || "",
     language: "ar",
     region: "SA",
   });
+
+  // Log script loading errors
+  useEffect(() => {
+    if (scriptLoadError) {
+      logger.error("Google Maps script load error", {
+        context: "PropertiesMap",
+        data: { error: scriptLoadError },
+      });
+      console.error("[PropertiesMap] Script load error:", scriptLoadError);
+    }
+  }, [scriptLoadError]);
 
   // Transform the current property collection into Google Maps marker metadata
   // while defensively skipping incomplete records
@@ -175,6 +213,20 @@ export function PropertiesMap({
   // Ensure Google Maps API is fully loaded before rendering
   const isGoogleMapsReady = isLoaded && googleInstance?.maps;
 
+  // Debug logging for map readiness
+  useEffect(() => {
+    if (isClient) {
+      console.log("[PropertiesMap] Map readiness check", {
+        isClient,
+        isLoaded,
+        hasGoogleInstance: !!googleInstance,
+        hasMaps: !!googleInstance?.maps,
+        isGoogleMapsReady,
+        scriptLoadError: scriptLoadError?.message || null,
+      });
+    }
+  }, [isClient, isLoaded, googleInstance, isGoogleMapsReady, scriptLoadError]);
+
   return (
     <div className={cn("relative overflow-hidden rounded-3xl border border-border/60 bg-slate-100/70", heightClass)}>
       {!isClient ? (
@@ -182,20 +234,29 @@ export function PropertiesMap({
           جار تجهيز الخريطة...
         </div>
       ) : !googleMapsApiKey ? (
-        <div className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-destructive">
-          يرجى ضبط المتغير <code className="mx-1 rounded bg-muted px-2 py-1 text-xs">VITE_GOOGLE_MAPS_API_KEY</code> لعرض الخريطة.
+        <div className="flex h-full w-full min-h-[520px] items-center justify-center px-6 text-center text-sm text-destructive">
+          <div>
+            <p className="mb-2">يرجى ضبط المتغير <code className="mx-1 rounded bg-muted px-2 py-1 text-xs">VITE_GOOGLE_MAPS_API_KEY</code> لعرض الخريطة.</p>
+            <p className="text-xs text-muted-foreground">تأكد من إعادة تشغيل خادم التطوير بعد إضافة المتغير.</p>
+          </div>
         </div>
       ) : scriptLoadError ? (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center text-sm text-destructive">
-          <p>تعذر تحميل خريطة جوجل. يرجى المحاولة لاحقًا.</p>
+        <div className="flex h-full w-full min-h-[520px] flex-col items-center justify-center gap-4 px-6 text-center text-sm text-destructive">
+          <p className="font-semibold">تعذر تحميل خريطة جوجل</p>
           <p className="text-xs text-muted-foreground">حاول تحديث الصفحة أو التحقق من مفتاح Google Maps.</p>
+          {scriptLoadError.message && (
+            <p className="text-xs text-muted-foreground mt-2">الخطأ: {scriptLoadError.message}</p>
+          )}
         </div>
       ) : !isGoogleMapsReady ? (
-        <div className="flex h-full w-full items-center justify-center bg-white/70 text-sm text-muted-foreground">
-          جار تحميل خريطة جوجل...
+        <div className="flex h-full w-full min-h-[520px] items-center justify-center bg-white/70 text-sm text-muted-foreground">
+          <div className="text-center">
+            <p>جار تحميل خريطة جوجل...</p>
+            <p className="text-xs mt-2">قد يستغرق هذا بضع ثوانٍ</p>
+          </div>
         </div>
       ) : (
-        <div className="relative h-full w-full">
+        <div className="relative h-full w-full" style={{ minHeight: '520px' }}>
           <GoogleMap
             mapContainerClassName="absolute inset-0 h-full w-full"
             options={mapOptions}

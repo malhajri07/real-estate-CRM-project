@@ -8,7 +8,7 @@ datasource db {
 }
 
 model accounts {
-  id            String    @id
+  id            String    @id @default(uuid())
   firstNameAr   String?
   lastNameAr    String?
   roleType      String?
@@ -21,11 +21,11 @@ model accounts {
   expiryDate    DateTime?
   status        String?
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime
+  updatedAt     DateTime  @updatedAt
 }
 
 model agent_profiles {
-  id                String         @id
+  id                String         @id @default(uuid())
   userId            String         @unique
   organizationId    String?
   licenseNo         String         @unique
@@ -38,7 +38,7 @@ model agent_profiles {
   bio               String?
   avatar            String?
   createdAt         DateTime       @default(now())
-  updatedAt         DateTime
+  updatedAt         DateTime       @updatedAt
   organizations     organizations? @relation(fields: [organizationId], references: [id])
   users             users          @relation(fields: [userId], references: [id])
 
@@ -49,7 +49,7 @@ model agent_profiles {
 }
 
 model audit_logs {
-  id         String   @id
+  id         String   @id @default(uuid())
   userId     String
   action     String
   entity     String
@@ -68,7 +68,7 @@ model audit_logs {
 }
 
 model buyer_requests {
-  id                 String             @id
+  id                 String             @id @default(uuid())
   createdByUserId    String
   city               String
   type               String
@@ -83,7 +83,7 @@ model buyer_requests {
   multiAgentAllowed  Boolean            @default(false)
   notes              String?
   createdAt          DateTime           @default(now())
-  updatedAt          DateTime
+  updatedAt          DateTime           @updatedAt
   users              users              @relation(fields: [createdByUserId], references: [id])
   claims             claims[]
   leads              leads[]
@@ -103,7 +103,7 @@ model cities {
   centerLatitude  Decimal?
   centerLongitude Decimal?
   createdAt       DateTime    @default(now())
-  updatedAt       DateTime
+  updatedAt       DateTime    @updatedAt
   regions         regions     @relation(fields: [regionId], references: [id])
   districts       districts[]
 
@@ -113,7 +113,7 @@ model cities {
 }
 
 model claims {
-  id             String         @id
+  id             String         @id @default(uuid())
   agentId        String
   buyerRequestId String
   claimedAt      DateTime       @default(now())
@@ -132,7 +132,7 @@ model claims {
 }
 
 model contact_logs {
-  id          String         @id
+  id          String         @id @default(uuid())
   leadId      String
   agentId     String
   note        String
@@ -155,7 +155,7 @@ model districts {
   nameEn    String
   boundary  Json?
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
   cities    cities   @relation(fields: [cityId], references: [id])
   regions   regions  @relation(fields: [regionId], references: [id])
 
@@ -166,7 +166,7 @@ model districts {
 }
 
 model file_assets {
-  id             String         @id
+  id             String         @id @default(uuid())
   ownerUserId    String?
   organizationId String?
   entity         String
@@ -186,22 +186,22 @@ model file_assets {
 }
 
 model landing_page_contact_info {
-  id                   String               @id
+  id                   String               @id @default(uuid())
   type                 String
   label                String
   value                String
   icon                 String
   order                Int                  @default(0)
   createdAt            DateTime             @default(now())
-  updatedAt            DateTime
+  updatedAt            DateTime             @updatedAt
   landingPageContentId String
   landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
 }
 
 model landing_page_content {
-  id                        String                      @id
+  id                        String                      @id @default(uuid())
   createdAt                 DateTime                    @default(now())
-  updatedAt                 DateTime
+  updatedAt                 DateTime                    @updatedAt
   loadingText               String                      @default("جار تحميل المحتوى...")
   heroWelcomeText           String                      @default("مرحباً بك في")
   heroTitle                 String                      @default("منصة عقاراتي للوساطة العقارية")
@@ -230,90 +230,90 @@ model landing_page_content {
 }
 
 model landing_page_features {
-  id                   String               @id
+  id                   String               @id @default(uuid())
   title                String
   description          String
   icon                 String
   order                Int                  @default(0)
   createdAt            DateTime             @default(now())
-  updatedAt            DateTime
+  updatedAt            DateTime             @updatedAt
   landingPageContentId String
   landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
 }
 
 model landing_page_footer_links {
-  id                   String               @id
+  id                   String               @id @default(uuid())
   text                 String
   url                  String
   category             String
   order                Int                  @default(0)
   createdAt            DateTime             @default(now())
-  updatedAt            DateTime
+  updatedAt            DateTime             @updatedAt
   landingPageContentId String
   landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
 }
 
 model landing_page_hero_metrics {
-  id                   String               @id
+  id                   String               @id @default(uuid())
   value                String
   label                String
   color                String
   order                Int                  @default(0)
   createdAt            DateTime             @default(now())
-  updatedAt            DateTime
+  updatedAt            DateTime             @updatedAt
   landingPageContentId String
   landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
 }
 
 model landing_page_navigation {
-  id                   String               @id
+  id                   String               @id @default(uuid())
   text                 String
   url                  String
   order                Int                  @default(0)
   createdAt            DateTime             @default(now())
-  updatedAt            DateTime
+  updatedAt            DateTime             @updatedAt
   landingPageContentId String
   landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
 }
 
 model landing_page_solution_features {
-  id                     String                 @id
+  id                     String                 @id @default(uuid())
   text                   String
   icon                   String
   order                  Int                    @default(0)
   createdAt              DateTime               @default(now())
-  updatedAt              DateTime
+  updatedAt              DateTime               @updatedAt
   solutionId             String
   landing_page_solutions landing_page_solutions @relation(fields: [solutionId], references: [id], onDelete: Cascade)
 }
 
 model landing_page_solutions {
-  id                             String                           @id
+  id                             String                           @id @default(uuid())
   title                          String
   description                    String
   icon                           String
   order                          Int                              @default(0)
   createdAt                      DateTime                         @default(now())
-  updatedAt                      DateTime
+  updatedAt                      DateTime                         @updatedAt
   landingPageContentId           String
   landing_page_solution_features landing_page_solution_features[]
   landing_page_content           landing_page_content             @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
 }
 
 model landing_page_stats {
-  id                   String               @id
+  id                   String               @id @default(uuid())
   number               String
   label                String
   suffix               String?
   order                Int                  @default(0)
   createdAt            DateTime             @default(now())
-  updatedAt            DateTime
+  updatedAt            DateTime             @updatedAt
   landingPageContentId String
   landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
 }
 
 model leads {
-  id                 String              @id
+  id                 String              @id @default(uuid())
   agentId            String
   organizationId     String?
   customerId         String?
@@ -326,7 +326,7 @@ model leads {
   assignedAt         DateTime?
   lastContactAt      DateTime?
   createdAt          DateTime            @default(now())
-  updatedAt          DateTime
+  updatedAt          DateTime           @updatedAt
   contact_logs       contact_logs[]
   users              users               @relation(fields: [agentId], references: [id])
   organization       organizations?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
@@ -343,7 +343,7 @@ model leads {
 }
 
 model listings {
-  id               String          @id
+  id               String          @id @default(uuid())
   propertyId       String
   agentId          String
   organizationId   String?
@@ -356,7 +356,7 @@ model listings {
   price            Decimal?
   description      String?
   createdAt        DateTime        @default(now())
-  updatedAt        DateTime
+  updatedAt        DateTime       @updatedAt
   users            users           @relation(fields: [agentId], references: [id])
   organizations    organizations?  @relation(fields: [organizationId], references: [id])
   properties       properties      @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "listings_propertyid_fkey")
@@ -376,7 +376,7 @@ model listings {
 }
 
 model organizations {
-  id                   String                     @id
+  id                   String                     @id @default(uuid())
   legalName            String
   tradeName            String
   licenseNo            String                     @unique
@@ -396,7 +396,7 @@ model organizations {
   metadata             Json?
   primaryContactId     String?
   createdAt            DateTime                   @default(now())
-  updatedAt            DateTime
+  updatedAt            DateTime                   @updatedAt
   agent_profiles       agent_profiles[]
   file_assets          file_assets[]
   listings             listings[]
@@ -422,18 +422,18 @@ model organizations {
 }
 
 model pricing_plan_features {
-  id            String        @id
+  id            String        @id @default(uuid())
   text          String
   included      Boolean       @default(true)
   order         Int           @default(0)
   createdAt     DateTime      @default(now())
-  updatedAt     DateTime
+  updatedAt     DateTime  @updatedAt
   pricingPlanId String
   pricing_plans pricing_plans @relation(fields: [pricingPlanId], references: [id], onDelete: Cascade)
 }
 
 model pricing_plans {
-  id                    String                  @id
+  id                    String                  @id @default(uuid())
   name                  String
   price                 Float
   period                String                  @default("monthly")
@@ -446,13 +446,13 @@ model pricing_plans {
   order                 Int                     @default(0)
   metadata              Json?
   createdAt             DateTime                @default(now())
-  updatedAt             DateTime
+  updatedAt             DateTime              @updatedAt
   pricing_plan_features pricing_plan_features[]
   subscriptions         billing_subscriptions[]
 }
 
 model properties {
-  id             String           @id
+  id             String           @id @default(uuid())
   agentId        String?
   organizationId String?
   title          String?
@@ -567,7 +567,7 @@ model regions {
   centerLongitude Decimal?
   boundary        Json?
   createdAt       DateTime    @default(now())
-  updatedAt       DateTime
+  updatedAt       DateTime      @updatedAt
   cities          cities[]
   districts       districts[]
 
@@ -576,7 +576,7 @@ model regions {
 }
 
 model seller_submissions {
-  id                  String                 @id
+  id                  String                 @id @default(uuid())
   createdByUserId     String
   city                String
   type                String
@@ -588,7 +588,7 @@ model seller_submissions {
   fullContactJson     String
   notes               String?
   createdAt           DateTime               @default(now())
-  updatedAt           DateTime
+  updatedAt           DateTime             @updatedAt
   leads               leads[]
   users               users                  @relation(fields: [createdByUserId], references: [id])
 
@@ -748,7 +748,7 @@ model support_tickets {
 }
 
 model users {
-  id                       String                     @id
+  id                       String                     @id @default(uuid())
   username                 String                     @unique
   email                    String?                    @unique
   phone                    String?                    @unique

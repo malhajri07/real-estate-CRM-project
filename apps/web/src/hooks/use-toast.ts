@@ -1,3 +1,19 @@
+/**
+ * use-toast.ts - Toast Notification Hook
+ * 
+ * Location: apps/web/src/ → Hooks/ → use-toast.ts
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Custom React hook for toast notifications. Provides:
+ * - Toast notification management
+ * - Toast queue handling
+ * - Toast display and dismissal
+ * 
+ * Related Files:
+ * - apps/web/src/components/ui/toast.tsx - Toast component
+ * - apps/web/src/components/ui/toaster.tsx - Toast container
+ */
+
 import * as React from "react"
 
 import type {

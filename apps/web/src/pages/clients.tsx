@@ -1,3 +1,20 @@
+/**
+ * clients.tsx - Client Management Page
+ * 
+ * Location: apps/web/src/ → Pages/ → Platform Pages → clients.tsx
+ * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * 
+ * Client management page for authenticated users. Provides:
+ * - Client listing and search
+ * - Client information management
+ * - Activity tracking
+ * 
+ * Route: /home/platform/clients or /clients
+ * 
+ * Related Files:
+ * - apps/web/src/pages/customers.tsx - Customer management page
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Phone, Mail, Calendar, MessageCircle, Plus, Users as UsersIcon, ListChecks, CheckCircle2, UserPlus } from "lucide-react";
