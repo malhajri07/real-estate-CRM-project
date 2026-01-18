@@ -132,7 +132,7 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === 'production' || process.env.FORCE_SECURE_COOKIES === 'true',
       httpOnly: true, // Explicitly prevent XSS access
-      maxAge: 24 * 60 * 60 * 1000, // Keep sessions for 24 hours
+      maxAge: 5 * 60 * 1000, // 5 minutes (was 24 hours)
       sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       domain: process.env.COOKIE_DOMAIN || undefined,
     },

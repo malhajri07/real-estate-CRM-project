@@ -206,12 +206,51 @@ export default function Reports() {
   };
 
   const getRevenueData = () => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    return months.map(month => ({
+    if (!filteredDeals) return [];
+
+    // Group by Month (using deal createdAt)
+    const monthlyData = new Map<string, { revenue: number, commission: number, deals: number }>();
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    filteredDeals.forEach(deal => {
+      if (deal.stage === 'closed') {
+        const date = new Date(deal.createdAt);
+        const monthKey = months[date.getMonth()];
+        const current = monthlyData.get(monthKey) || { revenue: 0, commission: 0, deals: 0 };
+
+        const value = toNumber(deal.dealValue) || 0;
+        const comm = toNumber(deal.commission) || 0;
+
+        monthlyData.set(monthKey, {
+          revenue: current.revenue + value,
+          commission: current.commission + comm,
+          deals: current.deals + 1
+        });
+      }
+    });
+
+    // If no data, return empty or last 6 months 0
+    if (monthlyData.size === 0) {
+      // Return last 6 months empty
+      const last6 = [];
+      const today = new Date();
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        last6.push({
+          month: months[d.getMonth()],
+          revenue: 0,
+          commission: 0,
+          deals: 0
+        });
+      }
+      return last6;
+    }
+
+    return Array.from(monthlyData.entries()).map(([month, data]) => ({
       month,
-      revenue: Math.floor(Math.random() * 500000) + 100000,
-      commission: Math.floor(Math.random() * 50000) + 10000,
-      deals: Math.floor(Math.random() * 20) + 5
+      revenue: data.revenue,
+      commission: data.commission,
+      deals: data.deals
     }));
   };
 
@@ -240,33 +279,51 @@ export default function Reports() {
   };
 
   const getDealStageData = () => {
-    const stages = ['مبدئي', 'مفاوضات', 'عقد', 'مكتمل', 'ملغي'];
-    return stages.map(stage => ({
-      stage,
-      count: Math.floor(Math.random() * 15) + 1,
-      value: Math.floor(Math.random() * 2000000) + 500000
+    if (!filteredDeals) return [];
+    const stages: Record<string, { count: number, value: number }> = {};
+
+    filteredDeals.forEach(deal => {
+      const stage = deal.stage;
+      if (!stages[stage]) stages[stage] = { count: 0, value: 0 };
+      stages[stage].count++;
+      stages[stage].value += (toNumber(deal.dealValue) || 0);
+    });
+
+    return Object.keys(stages).map(stage => ({
+      stage: stage,
+      count: stages[stage].count,
+      value: stages[stage].value
     }));
   };
 
   const getAgentPerformanceData = () => {
-    const agents = ['أحمد محمد', 'فاطمة علي', 'محمد أحمد', 'نورا سعد', 'خالد عبدالله'];
-    return agents.map(agent => ({
+    if (!filteredDeals) return [];
+    const agents: Record<string, { deals: number, revenue: number, won: number }> = {};
+
+    filteredDeals.forEach(deal => {
+      // Assuming deal has agent relation or agentId. If API returns filtered object, we might need a name.
+      // Since we don't have joined agent name easily on Deal type usually unless included,
+      // we'll try to use deal.agent?.firstName if available, or just ID.
+      // For now, let's use a safe fallback.
+      const agentName = (deal as any).agent?.firstName ? `${(deal as any).agent.firstName} ${(deal as any).agent.lastName || ''}` : `Agent ${(deal as any).agentId || 'Unknown'}`;
+
+      if (!agents[agentName]) agents[agentName] = { deals: 0, revenue: 0, won: 0 };
+      agents[agentName].deals++;
+      agents[agentName].revenue += (toNumber(deal.dealValue) || 0);
+      if (deal.stage === 'closed' || deal.stage === 'won') agents[agentName].won++;
+    });
+
+    return Object.keys(agents).map(agent => ({
       agent,
-      deals: Math.floor(Math.random() * 20) + 5,
-      revenue: Math.floor(Math.random() * 800000) + 200000,
-      conversion: Math.floor(Math.random() * 30) + 10
+      deals: agents[agent].deals,
+      revenue: agents[agent].revenue,
+      conversion: agents[agent].deals > 0 ? (agents[agent].won / agents[agent].deals) * 100 : 0
     }));
   };
 
   const getMarketTrendsData = () => {
-    const quarters = ['Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024'];
-    return quarters.map(quarter => ({
-      quarter,
-      residential: Math.floor(Math.random() * 100) + 50,
-      commercial: Math.floor(Math.random() * 50) + 20,
-      industrial: Math.floor(Math.random() * 30) + 10,
-      land: Math.floor(Math.random() * 40) + 15
-    }));
+    // Placeholder as we lack external market data
+    return [];
   };
 
   // Custom tooltip component with RTL support and proper formatting

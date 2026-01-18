@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showSessionWarning, setShowSessionWarning] = useState(false); // تحديد ما إذا كان يجب عرض نافذة التحذير
   const [sessionExpired, setSessionExpired] = useState(false); // يحدد ما إذا كانت الجلسة منتهية بسبب الخمول
   const [countdownSeconds, setCountdownSeconds] = useState(0); // عدد الثواني المتبقية قبل تسجيل الخروج التلقائي
-  const INACTIVITY_TIMEOUT_MS = 1 * 60 * 1000; // 60 ثانية بدون تفاعل تؤدي إلى تسجيل الخروج تلقائياً
+  const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes inactivity timeout
   const WARNING_LEAD_TIME_MS = 30 * 1000; // نعرض نافذة تحذير قبل 30 ثانية من انتهاء الجلسة
 
   /**
@@ -127,7 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    */
   const hasPermission = (permission: string): boolean => {
     if (!user) return false;  // No user logged in, no permissions
-    return user.roles.some(role => 
+    return user.roles.some(role =>
       ROLE_PERMISSIONS[role]?.includes(permission)  // Check if any role grants this permission
     );
   };
@@ -190,12 +190,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       logger.debug('Login response received', {
         context: 'AuthProvider',
-        data: { 
-          status: response.status, 
+        data: {
+          status: response.status,
           statusText: response.statusText,
           ok: response.ok,
           headers: Object.fromEntries(response.headers.entries()),
-          data 
+          data
         }
       });
 
@@ -236,11 +236,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (roles.includes(UserRole.WEBSITE_ADMIN)) {
           // Use window.location for a hard redirect to ensure it works reliably
           window.location.href = '/admin/overview/main-dashboard';
-        } else if (roles.some(role => 
+        } else if (roles.some(role =>
           [UserRole.CORP_OWNER, UserRole.CORP_AGENT, UserRole.INDIV_AGENT].includes(role)
         )) {
           window.location.href = '/home/platform';
-        } else if (roles.some(role => 
+        } else if (roles.some(role =>
           [UserRole.SELLER, UserRole.BUYER].includes(role)
         )) {
           window.location.href = '/home/platform';
@@ -548,11 +548,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
  */
 export function useAuth() {
   const context = useContext(AuthContext);
-  
+
   // Ensure the hook is used within an AuthProvider
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  
+
   return context;
 }

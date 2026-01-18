@@ -37,27 +37,36 @@ import {
 
 // --- Mock Data ---
 
+import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { arSA } from "date-fns/locale";
+
+// --- Types ---
+
 type ComplaintStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
 type ComplaintPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
-interface Complaint {
+interface SupportTicket {
     id: string;
     subject: string;
-    customer: string;
+    description: string | null;
     priority: ComplaintPriority;
     status: ComplaintStatus;
-    category: string;
-    assignee: string | null;
+    channel: string;
     createdAt: string;
+    updatedAt: string;
+    createdBy: { firstName: string | null; lastName: string | null; } | null;
+    assignedTo: { firstName: string | null; lastName: string | null; } | null;
+    customer: any;
 }
 
-const COMPLAINTS_DATA: Complaint[] = [
-    { id: "TKT-2024-001", subject: "مشكلة في تسجيل الدخول", customer: "محمد الأحمد", priority: "HIGH", status: "OPEN", category: "فني", assignee: null, createdAt: "2024-03-20" },
-    { id: "TKT-2024-002", subject: "استفسار عن الفاتورة", customer: "شركة النور", priority: "MEDIUM", status: "IN_PROGRESS", category: "مالي", assignee: "سارة العلي", createdAt: "2024-03-19" },
-    { id: "TKT-2024-003", subject: "تأخر في تفعيل الاشتراك", customer: "خالد سعيد", priority: "URGENT", status: "OPEN", category: "اشتراكات", assignee: null, createdAt: "2024-03-20" },
-    { id: "TKT-2024-004", subject: "طلب ميزة جديدة", customer: "مكتب الرياض", priority: "LOW", status: "RESOLVED", category: "عام", assignee: "أحمد حسن", createdAt: "2024-03-15" },
-    { id: "TKT-2024-005", subject: "خطأ في رفع الصور", customer: "ندى محمد", priority: "MEDIUM", status: "CLOSED", category: "فني", assignee: "سارة العلي", createdAt: "2024-03-10" },
-];
+const fetchTickets = async (): Promise<SupportTicket[]> => {
+    const res = await fetch("/api/support");
+    if (!res.ok) throw new Error("Failed to fetch tickets");
+    const data = await res.json();
+    if (!Array.isArray(data)) return [];
+    return data;
+};
 
 const CATEGORIES = [
     { id: 1, name: "الدعم الفني", count: 12, active: true },
@@ -96,8 +105,77 @@ const getPriorityColor = (priority: ComplaintPriority) => {
 
 // --- Sub-components ---
 
+function ComplaintsSummaryCards() {
+    const { data: tickets, isLoading } = useQuery({
+        queryKey: ["support-tickets"],
+        queryFn: fetchTickets,
+    });
+
+    if (isLoading || !tickets) return <div className="mb-4 h-24 bg-slate-50 animate-pulse rounded-lg" />;
+
+    const total = tickets.length;
+    const pending = tickets.filter(t => t.status === "OPEN" || t.status === "IN_PROGRESS").length;
+    const resolved = tickets.filter(t => t.status === "RESOLVED" || t.status === "CLOSED").length;
+
+    return (
+        <div className="grid grid-cols-4 gap-4 mb-4">
+            <Card className="bg-blue-50 border-blue-100">
+                <CardContent className="p-4 flex items-center gap-4">
+                    <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                        <Inbox className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <p className="text-xs text-blue-600 font-medium">إجمالي التذاكر</p>
+                        <p className="text-2xl font-bold text-blue-900">{total}</p>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card className="bg-orange-50 border-orange-100">
+                <CardContent className="p-4 flex items-center gap-4">
+                    <div className="h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
+                        <AlertCircle className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <p className="text-xs text-orange-600 font-medium">قيد الانتظار</p>
+                        <p className="text-2xl font-bold text-orange-900">{pending}</p>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card className="bg-green-50 border-green-100">
+                <CardContent className="p-4 flex items-center gap-4">
+                    <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                        <CheckCircle2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <p className="text-xs text-green-600 font-medium">تم الحل</p>
+                        <p className="text-2xl font-bold text-green-900">{resolved}</p>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card className="bg-slate-50 border-slate-200">
+                <CardContent className="p-4 flex items-center gap-4">
+                    <div className="h-10 w-10 bg-slate-200 rounded-full flex items-center justify-center text-slate-600">
+                        <Clock className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <p className="text-xs text-slate-600 font-medium">متوسط وقت الرد</p>
+                        <p className="text-2xl font-bold text-slate-900">-</p>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
 function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | "ALL_OPEN" }) {
-    const filteredData = COMPLAINTS_DATA.filter((item) => {
+    const { data: tickets, isLoading } = useQuery({
+        queryKey: ["support-tickets"],
+        queryFn: fetchTickets,
+    });
+
+    if (isLoading) return <div className="p-8 text-center text-muted-foreground">جار تحميل التذاكر...</div>;
+
+    const filteredData = (tickets || []).filter((item) => {
         if (!filterStatus) return true;
         if (filterStatus === "ALL_OPEN") return ["OPEN", "IN_PROGRESS"].includes(item.status);
         return item.status === filterStatus;
@@ -143,11 +221,11 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                         ) : (
                             filteredData.map((ticket) => (
                                 <TableRow key={ticket.id}>
-                                    <TableCell className="font-medium">{ticket.id}</TableCell>
+                                    <TableCell className="font-medium">{ticket.id.substring(0, 8)}...</TableCell>
                                     <TableCell>
                                         <div className="flex flex-col">
                                             <span className="font-medium">{ticket.subject}</span>
-                                            <span className="text-xs text-muted-foreground">{ticket.category}</span>
+                                            <span className="text-xs text-muted-foreground">{ticket.channel}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell>
@@ -155,7 +233,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                                             <div className="h-6 w-6 rounded-full bg-slate-100 flex items-center justify-center">
                                                 <User className="h-3 w-3 text-slate-500" />
                                             </div>
-                                            {ticket.customer}
+                                            {ticket.customer?.firstName || "عميل غير مسجل"}
                                         </div>
                                     </TableCell>
                                     <TableCell>
@@ -167,13 +245,17 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                                     </TableCell>
                                     <TableCell>{getStatusBadge(ticket.status)}</TableCell>
                                     <TableCell>
-                                        {ticket.assignee ? (
-                                            <Badge variant="secondary" className="font-normal">{ticket.assignee}</Badge>
+                                        {ticket.assignedTo ? (
+                                            <Badge variant="secondary" className="font-normal">
+                                                {ticket.assignedTo.firstName} {ticket.assignedTo.lastName}
+                                            </Badge>
                                         ) : (
                                             <span className="text-xs text-muted-foreground italic">غير مسند</span>
                                         )}
                                     </TableCell>
-                                    <TableCell className="text-left text-muted-foreground text-sm">{ticket.createdAt}</TableCell>
+                                    <TableCell className="text-left text-muted-foreground text-sm">
+                                        {format(new Date(ticket.createdAt), "dd MMM yyyy", { locale: arSA })}
+                                    </TableCell>
                                     <TableCell>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -307,52 +389,7 @@ export default function ComplaintsManagement() {
                 </TabsList>
 
                 <TabsContent value="all" className="space-y-4">
-                    <div className="grid grid-cols-4 gap-4 mb-4">
-                        <Card className="bg-blue-50 border-blue-100">
-                            <CardContent className="p-4 flex items-center gap-4">
-                                <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                                    <Inbox className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-blue-600 font-medium">إجمالي التذاكر</p>
-                                    <p className="text-2xl font-bold text-blue-900">24</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card className="bg-orange-50 border-orange-100">
-                            <CardContent className="p-4 flex items-center gap-4">
-                                <div className="h-10 w-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
-                                    <AlertCircle className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-orange-600 font-medium">قيد الانتظار</p>
-                                    <p className="text-2xl font-bold text-orange-900">8</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card className="bg-green-50 border-green-100">
-                            <CardContent className="p-4 flex items-center gap-4">
-                                <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                                    <CheckCircle2 className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-green-600 font-medium">تم الحل</p>
-                                    <p className="text-2xl font-bold text-green-900">14</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        <Card className="bg-slate-50 border-slate-200">
-                            <CardContent className="p-4 flex items-center gap-4">
-                                <div className="h-10 w-10 bg-slate-200 rounded-full flex items-center justify-center text-slate-600">
-                                    <Clock className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-slate-600 font-medium">متوسط وقت الرد</p>
-                                    <p className="text-2xl font-bold text-slate-900">2.5 س</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                    <ComplaintsSummaryCards />
                     <ComplaintsListTab />
                 </TabsContent>
 

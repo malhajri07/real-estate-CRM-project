@@ -43,29 +43,7 @@ import {
 
 // --- Mock Data ---
 
-const REVENUE_DATA = [
-    { name: 'يناير', revenue: 4000, subscriptions: 240 },
-    { name: 'فبراير', revenue: 3000, subscriptions: 139 },
-    { name: 'مارس', revenue: 2000, subscriptions: 980 },
-    { name: 'أبريل', revenue: 2780, subscriptions: 390 },
-    { name: 'مايو', revenue: 1890, subscriptions: 480 },
-    { name: 'يونيو', revenue: 2390, subscriptions: 380 },
-    { name: 'يوليو', revenue: 3490, subscriptions: 430 },
-];
-
-const SUBSCRIPTION_STATUS_DATA = [
-    { name: 'نشط', value: 400, color: '#10b981' },
-    { name: 'منتهي', value: 100, color: '#ef4444' },
-    { name: 'معلق', value: 50, color: '#f59e0b' },
-];
-
-const RECENT_TRANSACTIONS = [
-    { id: 'TRX-9821', user: 'أحمد محمد', plan: 'الذهبية', amount: '299 SAR', status: 'completed', date: '2025-01-15' },
-    { id: 'TRX-9822', user: 'شركة العقار الحديث', plan: 'الشركات', amount: '1500 SAR', status: 'completed', date: '2025-01-14' },
-    { id: 'TRX-9823', user: 'خالد العمري', plan: 'الفضية', amount: '149 SAR', status: 'pending', date: '2025-01-14' },
-    { id: 'TRX-9824', user: 'مكتب الرياض', plan: 'الشركات', amount: '1500 SAR', status: 'failed', date: '2025-01-13' },
-    { id: 'TRX-9825', user: 'سارة العتيبي', plan: 'الذهبية', amount: '299 SAR', status: 'completed', date: '2025-01-12' },
-];
+// --- Mock Data Removed (Connected to API) ---
 
 const PLANS = [
     { id: 1, name: "الباقة الأساسية", price: "99", period: "شهر", features: ["5 إعلانات", "دعم فني محدود", "إحصائيات أساسية"], active: true },
@@ -76,7 +54,46 @@ const PLANS = [
 
 // --- Sub-components ---
 
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { Loader2 } from "lucide-react";
+
+// --- Types ---
+interface AnalyticsData {
+    totalRevenue: number;
+    activeSubscriptions: number;
+    revenueChartData: { name: string; revenue: number }[];
+    subscriptionDistribution: { name: string; value: number }[];
+    recentTransactions: {
+        id: string;
+        user: string;
+        plan: string;
+        amount: string;
+        status: string;
+        date: string;
+    }[];
+}
+
 function OverviewTab() {
+    const { data, isLoading } = useQuery<AnalyticsData>({
+        queryKey: ['/api/billing/analytics'],
+    });
+
+    if (isLoading) {
+        return <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
+    }
+
+    const {
+        totalRevenue = 0,
+        activeSubscriptions = 0,
+        revenueChartData = [],
+        subscriptionDistribution = [],
+        recentTransactions = []
+    } = data || {};
+
+    // Helper colors for pie chart
+    const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#3b82f6'];
+
     return (
         <div className="space-y-6">
             {/* KPI Cards */}
@@ -87,8 +104,8 @@ function OverviewTab() {
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">45,231.89 SAR</div>
-                        <p className="text-xs text-muted-foreground">+20.1% من الشهر الماضي</p>
+                        <div className="text-2xl font-bold">{totalRevenue.toLocaleString()} SAR</div>
+                        <p className="text-xs text-muted-foreground">الإيرادات المحصلة</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -97,8 +114,8 @@ function OverviewTab() {
                         <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+2350</div>
-                        <p className="text-xs text-muted-foreground">+180 مستخدم جديد</p>
+                        <div className="text-2xl font-bold">{activeSubscriptions}</div>
+                        <p className="text-xs text-muted-foreground">مشترك حالي</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -107,8 +124,8 @@ function OverviewTab() {
                         <Activity className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+12.23%</div>
-                        <p className="text-xs text-muted-foreground">+2.4% زيادة</p>
+                        <div className="text-2xl font-bold">--%</div>
+                        <p className="text-xs text-muted-foreground">سيتم تفعيله قريباً</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -117,8 +134,8 @@ function OverviewTab() {
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">573.00 SAR</div>
-                        <p className="text-xs text-muted-foreground">+201 SAR زيادة سنوية</p>
+                        <div className="text-2xl font-bold">-- SAR</div>
+                        <p className="text-xs text-muted-foreground">سيتم تفعيله قريباً</p>
                     </CardContent>
                 </Card>
             </div>
@@ -128,12 +145,12 @@ function OverviewTab() {
                 <Card className="col-span-1">
                     <CardHeader>
                         <CardTitle>نمو الإيرادات</CardTitle>
-                        <CardDescription>الإيرادات الشهرية للعام الحالي</CardDescription>
+                        <CardDescription>الإيرادات الشهرية (آخر 6 أشهر)</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[300px]">
+                        <div className="h-[300px]" dir="ltr">
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={REVENUE_DATA}>
+                                <LineChart data={revenueChartData}>
                                     <CartesianGrid strokeDasharray="3 3" />
                                     <XAxis dataKey="name" />
                                     <YAxis />
@@ -151,11 +168,11 @@ function OverviewTab() {
                         <CardDescription>حالة الاشتراكات الحالية</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[300px]">
+                        <div className="h-[300px]" dir="ltr">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
-                                        data={SUBSCRIPTION_STATUS_DATA}
+                                        data={subscriptionDistribution}
                                         cx="50%"
                                         cy="50%"
                                         innerRadius={60}
@@ -165,8 +182,8 @@ function OverviewTab() {
                                         dataKey="value"
                                         label
                                     >
-                                        {SUBSCRIPTION_STATUS_DATA.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        {subscriptionDistribution.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
                                     <Tooltip />
@@ -187,31 +204,39 @@ function OverviewTab() {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[100px]">رقم العملية</TableHead>
-                                <TableHead>المستخدم</TableHead>
-                                <TableHead>الخطة</TableHead>
-                                <TableHead>التاريخ</TableHead>
-                                <TableHead>المبلغ</TableHead>
+                                <TableHead className="w-[100px] text-right">رقم العملية</TableHead>
+                                <TableHead className="text-right">المستخدم</TableHead>
+                                <TableHead className="text-right">الخطة</TableHead>
+                                <TableHead className="text-right">التاريخ</TableHead>
+                                <TableHead className="text-right">المبلغ</TableHead>
                                 <TableHead className="text-right">الحالة</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {RECENT_TRANSACTIONS.map((trx) => (
-                                <TableRow key={trx.id}>
-                                    <TableCell className="font-medium">{trx.id}</TableCell>
-                                    <TableCell>{trx.user}</TableCell>
-                                    <TableCell>{trx.plan}</TableCell>
-                                    <TableCell>{trx.date}</TableCell>
-                                    <TableCell>{trx.amount}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Badge
-                                            variant={trx.status === 'completed' ? 'default' : trx.status === 'pending' ? 'secondary' : 'destructive'}
-                                        >
-                                            {trx.status === 'completed' ? 'مكتمل' : trx.status === 'pending' ? 'معلق' : 'فشل'}
-                                        </Badge>
+                            {recentTransactions.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                                        لا توجد عمليات حديثة
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            ) : (
+                                recentTransactions.map((trx) => (
+                                    <TableRow key={trx.id}>
+                                        <TableCell className="font-medium">{trx.id}</TableCell>
+                                        <TableCell>{trx.user}</TableCell>
+                                        <TableCell>{trx.plan}</TableCell>
+                                        <TableCell>{trx.date}</TableCell>
+                                        <TableCell>{trx.amount}</TableCell>
+                                        <TableCell>
+                                            <Badge
+                                                variant={trx.status === 'PAID' || trx.status === 'completed' ? 'default' : trx.status === 'PENDING' || trx.status === 'pending' ? 'secondary' : 'destructive'}
+                                            >
+                                                {trx.status === 'PAID' ? 'مكتمل' : trx.status === 'PENDING' ? 'معلق' : trx.status}
+                                            </Badge>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>
@@ -220,28 +245,66 @@ function OverviewTab() {
     );
 }
 
+const PlanFeature = ({ feature }: { feature: string }) => (
+    <li className="flex items-center gap-2">
+        <CheckCircle2 className="h-4 w-4 text-green-500" />
+        {feature}
+    </li>
+);
+
 function ActiveSubscriptionsTab() {
+    const { data: subscriptions, isLoading } = useQuery<any[]>({
+        queryKey: ['/api/billing/subscriptions'],
+    });
+
+    if (isLoading) {
+        return <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
+    }
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold tracking-tight">الاشتراكات النشطة</h2>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                        <Filter className="h-4 w-4" />
-                        تصفية
-                    </Button>
-                    <Button variant="outline" size="sm">
-                        <Download className="h-4 w-4" />
-                        تصدير
-                    </Button>
-                </div>
             </div>
 
             <Card>
-                <CardContent className="pt-6">
-                    <div className="text-center py-10 text-muted-foreground">
-                        قائمة المشتركين وتفاصيل خططهم ستظهر هنا.
-                    </div>
+                <CardHeader>
+                    <CardTitle>قائمة المشتركين</CardTitle>
+                    <CardDescription>إدارة اشتراكات العملاء الحالية</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {!subscriptions || subscriptions.length === 0 ? (
+                        <div className="text-center py-10 text-muted-foreground">
+                            لا توجد اشتراكات نشطة حالياً.
+                        </div>
+                    ) : (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="text-right">رقم الاشتراك</TableHead>
+                                    <TableHead className="text-right">الخطة</TableHead>
+                                    <TableHead className="text-right">تاريخ البدء</TableHead>
+                                    <TableHead className="text-right">تاريخ الانتهاء</TableHead>
+                                    <TableHead className="text-right">الحالة</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {subscriptions.map((sub) => (
+                                    <TableRow key={sub.id}>
+                                        <TableCell className="font-medium">{sub.id.substring(0, 8)}...</TableCell>
+                                        <TableCell>{sub.plan?.nameAr || sub.plan?.nameEn || 'غير محدد'}</TableCell>
+                                        <TableCell>{new Date(sub.startDate).toLocaleDateString()}</TableCell>
+                                        <TableCell>{new Date(sub.endDate).toLocaleDateString()}</TableCell>
+                                        <TableCell>
+                                            <Badge variant={sub.status === 'ACTIVE' ? 'default' : 'secondary'}>
+                                                {sub.status === 'ACTIVE' ? 'نشط' : sub.status}
+                                            </Badge>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    )}
                 </CardContent>
             </Card>
         </div>
@@ -259,7 +322,7 @@ function PaymentMethodsTab() {
                             <CardTitle>Stripe</CardTitle>
                             <CardDescription>بوابة الدفع العالمية</CardDescription>
                         </div>
-                        <Badge className="bg-green-500">متصل</Badge>
+                        <Badge className="bg-green-500">متصل (محاكاة)</Badge>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
@@ -286,50 +349,40 @@ function PaymentMethodsTab() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div className="space-y-1">
-                            <CardTitle>mada (مدى)</CardTitle>
-                            <CardDescription>المدفوعات المحلية</CardDescription>
-                        </div>
-                        <Badge className="bg-green-500">متصل</Badge>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">العمليات اليومية:</span>
-                                <span className="font-medium">3,200.00 SAR</span>
-                            </div>
-                            <Button variant="outline" className="w-full">إدارة الإعدادات</Button>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
         </div>
     );
 }
 
 function PlansTab() {
+    const { data: plans, isLoading } = useQuery<any[]>({
+        queryKey: ['/api/billing/plans'],
+    });
+
+    if (isLoading) {
+        return <div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
+    }
+
     return (
         <div className="space-y-6">
             <h2 className="text-2xl font-bold tracking-tight">خطط الاشتراك</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {PLANS.map(plan => (
+                {(plans || []).map(plan => (
                     <Card key={plan.id} className="flex flex-col">
                         <CardHeader>
-                            <CardTitle>{plan.name}</CardTitle>
+                            <CardTitle>{plan.nameAr || plan.nameEn}</CardTitle>
                             <div className="text-2xl font-bold mt-2">
-                                {plan.price} <span className="text-sm font-normal text-muted-foreground">/ {plan.period}</span>
+                                {plan.price} <span className="text-sm font-normal text-muted-foreground"> {plan.currency} / {plan.billingPeriod}</span>
                             </div>
                         </CardHeader>
                         <CardContent className="flex-1">
                             <ul className="space-y-2 text-sm">
-                                {plan.features.map((feature, idx) => (
-                                    <li key={idx} className="flex items-center gap-2">
-                                        <CheckCircle2 className="h-4 w-4 text-green-500" />
-                                        {feature}
-                                    </li>
+                                {(plan.pricing_plan_features || []).map((feature: any) => (
+                                    <PlanFeature key={feature.id} feature={feature.nameAr || feature.nameEn} />
                                 ))}
+                                {(!plan.pricing_plan_features || plan.pricing_plan_features.length === 0) && (
+                                    <li className="text-muted-foreground italic">لا توجد ميزات مدرجة</li>
+                                )}
                             </ul>
                         </CardContent>
                         <div className="p-6 pt-0 mt-auto">
@@ -337,13 +390,6 @@ function PlansTab() {
                         </div>
                     </Card>
                 ))}
-                <Card className="flex flex-col justify-center items-center p-6 border-dashed">
-                    <div className="rounded-full bg-slate-100 p-4 mb-4">
-                        <DollarSign className="h-6 w-6 text-slate-400" />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2">إضافة خطة جديدة</h3>
-                    <Button>إنشاء خطة</Button>
-                </Card>
             </div>
         </div>
     )
@@ -362,7 +408,7 @@ export default function RevenueManagement() {
     };
 
     return (
-        <div className="space-y-6 p-6">
+        <div className="space-y-6 p-6" dir="rtl">
             <div className="flex flex-col gap-2">
                 <h1 className="text-3xl font-bold tracking-tight">إدارة الإيرادات</h1>
                 <p className="text-muted-foreground">

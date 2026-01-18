@@ -414,7 +414,7 @@ export const seedDomain = async (ctx: SeedContext): Promise<SeedResult> => {
       const status = picker(["NEW", "IN_PROGRESS", "WON", "LOST"]);
       leadInserts.push({
         id: faker.string.uuid(),
-        agent: { connect: { id: agent?.id ?? corpAdmin.id } },
+        users: { connect: { id: agent?.id ?? corpAdmin.id } },
         organization: org.id ? { connect: { id: org.id } } : undefined,
         customer: { connect: { id: customerId } },
         status,

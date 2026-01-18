@@ -82,6 +82,10 @@ import notificationsRoutes from "./routes/notifications";
 import campaignsRoutes from "./routes/campaigns";
 import landingRoutes from "./routes/landing";
 import csvRoutes from "./routes/csv";
+import billingRoutes from "./routes/billing";
+import supportRoutes from "./routes/support";
+import appointmentsRoutes from "./routes/appointments";
+import auditLogsRoutes from "./routes/audit-logs";
 import { JWT_SECRET as getJwtSecret } from "./config/env";
 
 /**
@@ -410,6 +414,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * CSV Routes - /api/csv/*
    */
   app.use("/api/csv", csvRoutes);
+
+  /**
+   * Billing Routes - /api/billing/*
+   */
+  app.use("/api/billing", billingRoutes);
+
+  /**
+   * Support Tickets Routes - /api/support/*
+   */
+  app.use("/api/support", supportRoutes);
+
+  /**
+   * Appointments Routes - /api/appointments/*
+   */
+  app.use("/api/appointments", appointmentsRoutes);
+
+  /**
+   * Audit Logs Routes - /api/audit-logs/*
+   */
+  app.use("/api/audit-logs", auditLogsRoutes);
 
   /**
    * Public Landing Page Routes - /api/landing/*
