@@ -18,6 +18,7 @@
 
 import express from 'express';
 import { storage } from '../storage-prisma';
+import { SEOService } from '../services/seoService';
 
 const router = express.Router();
 
@@ -42,6 +43,17 @@ router.get('/sitemap.xml', async (_req, res) => {
     res.send(xml);
   } catch (e) {
     res.status(500).send('');
+  }
+});
+
+router.get('/robots.txt', async (_req, res) => {
+  try {
+    const robotsTxt = await SEOService.getRobotsTxt();
+    res.setHeader('Content-Type', 'text/plain');
+    res.send(robotsTxt);
+  } catch (error) {
+    console.error('Failed to get robots.txt:', error);
+    res.status(500).send('User-agent: *\nDisallow: /');
   }
 });
 

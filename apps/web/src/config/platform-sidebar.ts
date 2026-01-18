@@ -26,6 +26,8 @@ import {
   Home,
   Inbox,
   LayoutDashboard,
+  Calendar,
+  CheckSquare,
   Megaphone,
   Settings,
   Share2,
@@ -36,6 +38,8 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
+import { UserRole } from "@shared/rbac";
+
 export type PlatformSidebarChildConfig = {
   id: string;
   labelKey?: string;
@@ -44,6 +48,7 @@ export type PlatformSidebarChildConfig = {
   icon: LucideIcon;
   matchPaths?: string[];
   matchPrefixes?: string[];
+  allowedRoles?: UserRole[];
 };
 
 export type PlatformSidebarSubgroupConfig = {
@@ -62,6 +67,29 @@ export type PlatformSidebarGroupConfig = {
   subgroups?: PlatformSidebarSubgroupConfig[];
 };
 
+const PLATFORM_CORE_ROLES = [
+  UserRole.WEBSITE_ADMIN,
+  UserRole.CORP_OWNER,
+  UserRole.CORP_AGENT,
+  UserRole.INDIV_AGENT,
+  UserRole.AGENT,
+];
+
+const CORPORATE_MANAGEMENT_ROLES = [
+  UserRole.WEBSITE_ADMIN,
+  UserRole.CORP_OWNER,
+];
+
+const EXTENDED_PLATFORM_ROLES = [
+  UserRole.WEBSITE_ADMIN,
+  UserRole.CORP_OWNER,
+  UserRole.CORP_AGENT,
+  UserRole.INDIV_AGENT,
+  UserRole.AGENT,
+  UserRole.SELLER,
+  UserRole.BUYER,
+];
+
 export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
   {
     id: "customers",
@@ -77,7 +105,8 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
             labelKey: "nav.customers",
             path: "/home/platform/customers",
             icon: Users,
-            matchPaths: ["/customers"]
+            matchPaths: ["/customers"],
+            allowedRoles: PLATFORM_CORE_ROLES,
           },
           {
             id: "customers-properties",
@@ -85,28 +114,32 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
             path: "/home/platform/properties",
             icon: Building,
             matchPaths: ["/properties"],
-            matchPrefixes: ["/home/platform/properties/", "/properties/"]
+            matchPrefixes: ["/home/platform/properties/", "/properties/"],
+            allowedRoles: PLATFORM_CORE_ROLES,
           },
           {
             id: "customers-leads",
             labelKey: "nav.leads",
             path: "/home/platform/leads",
             icon: Users,
-            matchPaths: ["/leads"]
+            matchPaths: ["/leads"],
+            allowedRoles: PLATFORM_CORE_ROLES,
           },
           {
             id: "customers-pipeline",
             labelKey: "nav.pipeline",
             path: "/home/platform/pipeline",
             icon: ClipboardList,
-            matchPaths: ["/pipeline"]
+            matchPaths: ["/pipeline"],
+            allowedRoles: PLATFORM_CORE_ROLES,
           },
           {
             id: "customers-clients",
             labelKey: "nav.clients",
             path: "/home/platform/clients",
             icon: UserCircle2,
-            matchPaths: ["/clients"]
+            matchPaths: ["/clients"],
+            allowedRoles: PLATFORM_CORE_ROLES,
           }
         ]
       },
@@ -119,28 +152,48 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
             labelKey: "nav.reports",
             path: "/home/platform/reports",
             icon: BarChart3,
-            matchPaths: ["/reports"]
+            matchPaths: ["/reports"],
+            allowedRoles: PLATFORM_CORE_ROLES,
           },
           {
             id: "customers-notifications",
             labelKey: "nav.notifications",
             path: "/home/platform/notifications",
             icon: Bell,
-            matchPaths: ["/notifications"]
+            matchPaths: ["/notifications"],
+            allowedRoles: PLATFORM_CORE_ROLES,
           },
           {
             id: "customers-settings",
             labelKey: "nav.workspace_settings",
             path: "/home/platform/settings",
             icon: Settings,
-            matchPaths: ["/settings"]
+            matchPaths: ["/settings"],
+            allowedRoles: PLATFORM_CORE_ROLES,
           },
           {
             id: "customers-marketing-requests",
             labelKey: "nav.marketing_requests",
             path: "/home/platform/marketing-requests",
             icon: Megaphone,
-            matchPaths: ["/marketing-requests"]
+            matchPaths: ["/marketing-requests"],
+            allowedRoles: PLATFORM_CORE_ROLES,
+          },
+          {
+            id: "customers-activities",
+            labelKey: "nav.activities",
+            path: "/home/platform/activities",
+            icon: CheckSquare,
+            matchPaths: ["/activities"],
+            allowedRoles: EXTENDED_PLATFORM_ROLES,
+          },
+          {
+            id: "customers-calendar",
+            labelKey: "nav.calendar",
+            path: "/home/platform/calendar",
+            icon: Calendar,
+            matchPaths: ["/calendar"],
+            allowedRoles: EXTENDED_PLATFORM_ROLES,
           }
         ]
       }
@@ -160,21 +213,24 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
             labelKey: "nav.agencies",
             path: "/home/platform/agencies",
             icon: Building2,
-            matchPaths: ["/agencies"]
+            matchPaths: ["/agencies"],
+            allowedRoles: CORPORATE_MANAGEMENT_ROLES,
           },
           {
             id: "corporate-agency-profile",
             labelKey: "nav.agency_profile",
             path: "/home/platform/agencies",
             icon: Home,
-            matchPrefixes: ["/home/platform/agency/", "/agency/"]
+            matchPrefixes: ["/home/platform/agency/", "/agency/"],
+            allowedRoles: CORPORATE_MANAGEMENT_ROLES,
           },
           {
             id: "corporate-customer-requests",
             labelKey: "nav.customer_requests",
             path: "/home/platform/customer-requests",
             icon: Inbox,
-            matchPaths: ["/customer-requests"]
+            matchPaths: ["/customer-requests"],
+            allowedRoles: CORPORATE_MANAGEMENT_ROLES,
           }
         ]
       }
@@ -194,28 +250,32 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
             labelKey: "nav.favorites",
             path: "/home/platform/favorites",
             icon: Heart,
-            matchPaths: ["/favorites"]
+            matchPaths: ["/favorites"],
+            allowedRoles: EXTENDED_PLATFORM_ROLES,
           },
           {
             id: "cross-role-saved-searches",
             labelKey: "nav.saved_searches",
             path: "/home/platform/saved-searches",
             icon: Bookmark,
-            matchPaths: ["/saved-searches"]
+            matchPaths: ["/saved-searches"],
+            allowedRoles: EXTENDED_PLATFORM_ROLES,
           },
           {
             id: "cross-role-compare",
             labelKey: "nav.compare",
             path: "/home/platform/compare",
             icon: Shuffle,
-            matchPaths: ["/compare"]
+            matchPaths: ["/compare"],
+            allowedRoles: EXTENDED_PLATFORM_ROLES,
           },
           {
             id: "cross-role-post-listing",
             labelKey: "nav.post_listing",
             path: "/home/platform/post-listing",
             icon: Megaphone,
-            matchPaths: ["/post-listing"]
+            matchPaths: ["/post-listing"],
+            allowedRoles: EXTENDED_PLATFORM_ROLES,
           }
         ]
       },
@@ -228,21 +288,24 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
             labelKey: "nav.agent_profile",
             path: "/home/platform/agencies",
             icon: UserCircle2,
-            matchPrefixes: ["/home/platform/agent/", "/agent/"]
+            matchPrefixes: ["/home/platform/agent/", "/agent/"],
+            allowedRoles: PLATFORM_CORE_ROLES,
           },
           {
             id: "cross-role-property-detail",
             labelKey: "nav.property_detail",
             path: "/home/platform/properties",
             icon: Building,
-            matchPrefixes: ["/home/platform/properties/", "/properties/"]
+            matchPrefixes: ["/home/platform/properties/", "/properties/"],
+            allowedRoles: PLATFORM_CORE_ROLES,
           },
           {
             id: "cross-role-public-listing",
             labelKey: "nav.listing_public",
             path: "/home/platform/properties",
             icon: Globe2,
-            matchPrefixes: ["/home/platform/listing/", "/listing/"]
+            matchPrefixes: ["/home/platform/listing/", "/listing/"],
+            allowedRoles: EXTENDED_PLATFORM_ROLES,
           },
           {
             id: "cross-role-unverified-listings",
@@ -252,7 +315,8 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
             matchPaths: [
               "/unverified-listings",
               "/home/platform/unverified-listings"
-            ]
+            ],
+            allowedRoles: PLATFORM_CORE_ROLES,
           }
         ]
       }

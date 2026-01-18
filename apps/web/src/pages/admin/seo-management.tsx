@@ -179,7 +179,7 @@ export default function SEOManagement() {
               <div className="flex items-center justify-between">
                 <CardTitle>إعدادات SEO</CardTitle>
                 <Button onClick={() => sitemapMutation.mutate()}>
-                  <FileText className="ml-2 h-4 w-4" />
+                  <FileText className="h-4 w-4" />
                   إنشاء Sitemap
                 </Button>
               </div>
@@ -316,7 +316,7 @@ export default function SEOManagement() {
                         />
                       </div>
                       <Button type="submit" disabled={updateMutation.isPending}>
-                        <Save className="ml-2 h-4 w-4" />
+                        <Save className="h-4 w-4" />
                         {updateMutation.isPending ? "جاري الحفظ..." : "حفظ"}
                       </Button>
                     </form>
@@ -358,7 +358,7 @@ Disallow: /admin/"
                       onClick={() => robotsTxtMutation.mutate(robotsTxt)}
                       disabled={robotsTxtMutation.isPending}
                     >
-                      <Save className="ml-2 h-4 w-4" />
+                      <Save className="h-4 w-4" />
                       {robotsTxtMutation.isPending ? "جاري الحفظ..." : "حفظ"}
                     </Button>
                     <Button
@@ -373,7 +373,7 @@ Disallow: /admin/"
                         URL.revokeObjectURL(url);
                       }}
                     >
-                      <FileText className="ml-2 h-4 w-4" />
+                      <FileText className="h-4 w-4" />
                       تنزيل
                     </Button>
                   </div>

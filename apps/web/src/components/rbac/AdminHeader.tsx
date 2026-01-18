@@ -71,9 +71,9 @@ export function AdminHeader({
     <div className="bg-white shadow-md fixed inset-x-0 top-0 z-50 h-20">
       <div className="w-full px-6 sm:px-8 lg:px-12 h-full">
         <div className="flex items-center justify-between h-full">
-          <div className="flex items-center gap-4 flex-row-reverse">
+          <div className="flex items-center gap-4">
             <Icon className="w-8 h-8 text-blue-600" />
-            <div className="text-right">
+            <div>
               <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
               {subtitle && <p className="text-gray-600">{subtitle}</p>}
             </div>

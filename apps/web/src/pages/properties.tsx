@@ -45,7 +45,7 @@ export default function Properties() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
   const [, setLocation] = useLocation();
-  
+
   // Filter states
   const [statusFilter, setStatusFilter] = useState("all");
   const [propertyTypeFilter, setPropertyTypeFilter] = useState("all");
@@ -55,41 +55,47 @@ export default function Properties() {
   const [minBedrooms, setMinBedrooms] = useState("any");
   const [imageAvailabilityFilter, setImageAvailabilityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   const PROPERTIES_PER_PAGE = 12;
 
-  const { data: properties, isLoading } = useQuery<Property[]>({
-    queryKey: ["/api/properties"],
+  const { data: propertiesData, isLoading } = useQuery<{ items: Property[] } | Property[]>({
+    queryKey: ["/api/listings?pageSize=all"],
   });
 
+  const properties = Array.isArray(propertiesData)
+    ? propertiesData
+    : (propertiesData?.items || []);
+
   const { data: searchResults } = useQuery<Property[]>({
-    queryKey: ["/api/properties/search", searchQuery],
+    queryKey: ["/api/listings", searchQuery],
     queryFn: async () => {
       if (!searchQuery.trim()) return [];
-      const response = await fetch(`/api/properties/search?q=${encodeURIComponent(searchQuery)}`);
+      // Listing API uses /api/listings?q=... for search
+      const response = await fetch(`/api/listings?q=${encodeURIComponent(searchQuery)}`);
       if (!response.ok) throw new Error('Search failed');
-      return response.json();
+      const data = await response.json();
+      return data.items || data; // Handle both paginated and raw array responses
     },
     enabled: !!searchQuery.trim(),
   });
 
   const deletePropertyMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api/properties/${id}`);
+      await apiRequest("DELETE", `/api/listings/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
       toast({ title: "نجح", description: "تم حذف العقار بنجاح" });
     },
     onError: () => {
-      toast({ 
-        title: "خطأ", 
+      toast({
+        title: "خطأ",
         description: "فشل في حذف العقار",
-        variant: "destructive" 
+        variant: "destructive"
       });
     },
   });
@@ -110,13 +116,13 @@ export default function Properties() {
   const filteredProperties = (searchQuery.trim() ? searchResults : properties)?.filter(property => {
     // Status filter
     if (statusFilter !== "all" && property.status !== statusFilter) return false;
-    
+
     // Property type filter
     if (propertyTypeFilter !== "all" && property.propertyType !== propertyTypeFilter) return false;
-    
+
     // City filter
     if (cityFilter !== "all" && property.city !== cityFilter) return false;
-    
+
     // Price range filter
     const price = toNumber(property.price);
     const min = toNumber(minPrice);
@@ -127,14 +133,14 @@ export default function Properties() {
     if (max !== null) {
       if (price === null || price > max) return false;
     }
-    
+
     // Bedrooms filter
     if (minBedrooms && minBedrooms !== "any" && (!property.bedrooms || property.bedrooms < parseInt(minBedrooms))) return false;
-    
+
     // Image availability filter
     if (imageAvailabilityFilter === "with-images" && (!property.photoUrls || property.photoUrls.length === 0)) return false;
     if (imageAvailabilityFilter === "without-images" && property.photoUrls && property.photoUrls.length > 0) return false;
-    
+
     return true;
   }) || [];
 
@@ -244,17 +250,17 @@ export default function Properties() {
   const shareProperty = (property: Property, platform: 'whatsapp' | 'twitter') => {
     const propertyUrl = `${window.location.origin}/home/platform/properties/${property.id}`;
     const shareText = `🏠 ${property.title}\n📍 ${property.address}, ${property.city}\n💰 ${formatCurrency(property.price)}\n\nاكتشف المزيد:`;
-    
+
     let shareUrl = '';
-    
+
     if (platform === 'whatsapp') {
       shareUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText}\n${propertyUrl}`)}`;
     } else if (platform === 'twitter') {
       shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(propertyUrl)}`;
     }
-    
+
     window.open(shareUrl, '_blank');
-    
+
     toast({
       title: "تم المشاركة",
       description: `تم فتح نافذة المشاركة على ${platform === 'whatsapp' ? 'واتساب' : 'تويتر'}`
@@ -301,7 +307,7 @@ export default function Properties() {
                     <List size={16} />
                   </Button>
                 </div>
-                
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -327,7 +333,7 @@ export default function Properties() {
                     إعادة تعيين
                   </Button>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 transform-none">
                   {/* Status Filter */}
                   <div className="space-y-2">
@@ -478,7 +484,7 @@ export default function Properties() {
                       className="bg-white border-slate-300 shadow-sm hover:border-primary/50 transition-colors"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label className="text-slate-700 font-medium">السعر الأعلى</Label>
                     <Input
@@ -547,14 +553,14 @@ export default function Properties() {
                 {viewMode === 'cards' ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {displayProperties.map((property) => (
-                      <Card 
-                        key={property.id} 
+                      <Card
+                        key={property.id}
                         className="ui-surface overflow-hidden ui-transition hover:scale-[1.02] cursor-pointer"
                         onClick={() => setLocation(`/home/platform/properties/${property.id}`)}
                       >
                         {property.photoUrls && property.photoUrls.length > 0 ? (
-                          <PhotoCarousel 
-                            photos={property.photoUrls} 
+                          <PhotoCarousel
+                            photos={property.photoUrls}
                             alt={property.title}
                             className="aspect-video"
                             showIndicators={property.photoUrls.length > 1}
@@ -563,19 +569,19 @@ export default function Properties() {
                           <div className="aspect-video bg-muted flex items-center justify-center border-b">
                             <div className="text-center text-muted-foreground">
                               <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-muted-foreground/10 flex items-center justify-center">
-                                <svg 
-                                  width="24" 
-                                  height="24" 
-                                  viewBox="0 0 24 24" 
-                                  fill="none" 
-                                  stroke="currentColor" 
-                                  strokeWidth="2" 
-                                  strokeLinecap="round" 
+                                <svg
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
                                   strokeLinejoin="round"
                                 >
-                                  <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
-                                  <circle cx="9" cy="9" r="2"/>
-                                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                                  <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                                  <circle cx="9" cy="9" r="2" />
+                                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
                                 </svg>
                               </div>
                               <p className="text-sm font-medium">لا توجد صور</p>
@@ -592,12 +598,12 @@ export default function Properties() {
                               {property.status}
                             </span>
                           </div>
-                          
+
                           <p className="text-muted-foreground text-sm mb-4">
                             {property.address}, {property.city}, {property.state}
                           </p>
-                          
-                          
+
+
                           <div className="flex items-center space-x-4 rtl:space-x-reverse text-sm text-muted-foreground mb-4">
                             {property.bedrooms && (
                               <div className="flex items-center space-x-1">
@@ -624,15 +630,15 @@ export default function Properties() {
                               </div>
                             )}
                           </div>
-                          
+
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1 text-primary font-semibold text-lg">
                               <span>{formatCurrency(property.price)}</span>
                             </div>
-                            
+
                             <div className="flex items-center space-x-1">
-                              <Button 
-                                variant="ghost" 
+                              <Button
+                                variant="ghost"
                                 size="sm"
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -642,11 +648,11 @@ export default function Properties() {
                               >
                                 <Eye size={16} />
                               </Button>
-                              
+
                               {/* Share Dropdown */}
                               <div className="relative group">
-                                <Button 
-                                  variant="ghost" 
+                                <Button
+                                  variant="ghost"
                                   size="sm"
                                   onClick={(e) => e.stopPropagation()}
                                   title="مشاركة العقار"
@@ -654,7 +660,7 @@ export default function Properties() {
                                 >
                                   <Share2 size={16} />
                                 </Button>
-                                
+
                                 {/* Share Dropdown Menu */}
                                 <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-[120px]">
                                   <div className="p-2 space-y-1">
@@ -666,7 +672,7 @@ export default function Properties() {
                                       className="w-full text-right px-3 py-2 text-sm hover:bg-gray-100 rounded-md flex items-center gap-2 text-gray-700"
                                     >
                                       <svg className="w-4 h-4 fill-current text-green-500" viewBox="0 0 24 24">
-                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.382"/>
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.382" />
                                       </svg>
                                       واتساب
                                     </button>
@@ -678,24 +684,24 @@ export default function Properties() {
                                       className="w-full text-right px-3 py-2 text-sm hover:bg-gray-100 rounded-md flex items-center gap-2 text-gray-700"
                                     >
                                       <svg className="w-4 h-4 fill-current text-blue-400" viewBox="0 0 24 24">
-                                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                                       </svg>
                                       تويتر
                                     </button>
                                   </div>
                                 </div>
                               </div>
-                              
-                              <Button 
-                                variant="ghost" 
+
+                              <Button
+                                variant="ghost"
                                 size="sm"
                                 onClick={(e) => e.stopPropagation()}
                                 title="تعديل العقار"
                               >
                                 <Edit size={16} />
                               </Button>
-                              <Button 
-                                variant="ghost" 
+                              <Button
+                                variant="ghost"
                                 size="sm"
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -708,7 +714,7 @@ export default function Properties() {
                               </Button>
                             </div>
                           </div>
-                          
+
                           {property.description && (
                             <p className="text-sm text-slate-600 mt-2 line-clamp-2">
                               {property.description}
@@ -743,21 +749,21 @@ export default function Properties() {
                           >
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                               {property.photoUrls && property.photoUrls.length > 0 ? (
-                                <img 
-                                  src={property.photoUrls[0]} 
+                                <img
+                                  src={property.photoUrls[0]}
                                   alt={property.title}
                                   className="w-16 h-12 object-cover rounded"
                                 />
                               ) : (
                                 <div className="w-16 h-12 bg-gray-100 rounded flex items-center justify-center">
                                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
-                                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
-                                    <circle cx="9" cy="9" r="2"/>
-                                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
-                                </svg>
-                              </div>
-                            )}
-                          </td>
+                                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                                    <circle cx="9" cy="9" r="2" />
+                                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                                  </svg>
+                                </div>
+                              )}
+                            </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                               <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900 line-clamp-1 text-right")}>{property.title}</div>
                               <div className={cn("mt-1 flex items-center gap-2", TYPOGRAPHY.caption, "text-gray-500 text-right")}>
@@ -811,7 +817,7 @@ export default function Properties() {
                             </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
                               <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                                <button 
+                                <button
                                   className="p-2 rounded-md text-slate-600 transition-colors duration-150 hover:text-slate-800 hover:bg-slate-50"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -821,7 +827,7 @@ export default function Properties() {
                                 >
                                   <Eye size={14} />
                                 </button>
-                                <button 
+                                <button
                                   className="p-2 rounded-md text-purple-600 transition-colors duration-150 hover:text-purple-800 hover:bg-purple-50"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -831,14 +837,14 @@ export default function Properties() {
                                 >
                                   <Share2 size={14} />
                                 </button>
-                                <button 
+                                <button
                                   className="p-2 rounded-md text-blue-600 transition-colors duration-150 hover:text-blue-800 hover:bg-blue-50"
                                   onClick={(e) => e.stopPropagation()}
                                   title="تعديل العقار"
                                 >
                                   <Edit size={14} />
                                 </button>
-                                <button 
+                                <button
                                   className="p-2 rounded-md text-red-600 transition-colors duration-150 hover:text-red-800 hover:bg-red-50 disabled:opacity-50"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -857,7 +863,7 @@ export default function Properties() {
                     </table>
                   </div>
                 )}
-                
+
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50/30">
@@ -873,7 +879,7 @@ export default function Properties() {
                       >
                         السابق
                       </Button>
-                      
+
                       {/* Page Numbers */}
                       <div className="flex items-center gap-1">
                         {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -887,7 +893,7 @@ export default function Properties() {
                           } else {
                             pageNum = currentPage - 2 + i;
                           }
-                          
+
                           return (
                             <Button
                               key={pageNum}
@@ -901,7 +907,7 @@ export default function Properties() {
                           );
                         })}
                       </div>
-                      
+
                       <Button
                         variant="outline"
                         size="sm"

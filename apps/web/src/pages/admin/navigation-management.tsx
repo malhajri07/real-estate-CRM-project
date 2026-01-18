@@ -213,7 +213,7 @@ export default function NavigationManagement() {
           <div className="flex items-center justify-between">
             <CardTitle>إدارة روابط التنقل</CardTitle>
             <Button onClick={handleCreate}>
-              <Plus className="ml-2 h-4 w-4" />
+              <Plus className="h-4 w-4" />
               إضافة رابط جديد
             </Button>
           </div>

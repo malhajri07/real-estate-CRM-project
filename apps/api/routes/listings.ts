@@ -139,7 +139,7 @@ router.get("/", async (req, res) => {
       } else if (item.imageGallery && Array.isArray(item.imageGallery)) {
         photoUrls = item.imageGallery;
       }
-      
+
       return {
         ...item,
         photoUrls,
@@ -165,12 +165,9 @@ router.get("/map", async (req, res) => {
   try {
     const { city, propertyType, propertyCategory, listingType } = req.query as Record<string, string | undefined>;
     const properties = await storage.getAllProperties();
-    
-    // Debug: log first property to see structure
-    if (properties.length > 0) {
-      console.log("First property structure:", JSON.stringify(properties[0], null, 2));
-    }
-    
+
+
+
     const mapProperties = properties
       .filter((p) => p.latitude && p.longitude)
       .filter((p) => (city ? p.city === city : true))
@@ -193,8 +190,8 @@ router.get("/map", async (req, res) => {
         areaSqm: (p as any).areaSqm ?? null,
         status: p.status,
       }));
-    
-    console.log(`Map endpoint: ${properties.length} total, ${mapProperties.length} with coords`);
+
+
     res.json(mapProperties);
   } catch (err) {
     console.error("Error fetching listings for map:", err);

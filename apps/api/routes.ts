@@ -35,8 +35,6 @@
  */
 
 import type { Express } from "express";
-import jwt from 'jsonwebtoken';
-import { hasPermission, getVisibilityScope } from './rbac-policy';
 import { createServer, type Server } from "http";
 /**
  * Uses Prisma-based storage for all database operations
@@ -48,9 +46,6 @@ import { createServer, type Server } from "http";
  * Pages affected: All pages that interact with data
  */
 import { storage } from "./storage-prisma";
-import { z } from "zod";
-import { insertMessageSchema } from "@shared/types";
-// import { registerRoleBasedRoutes } from "./roleRoutes"; // Temporarily disabled - requires migration to Prisma
 
 // Route module imports - Each handles specific functionality
 import listingsRoutes from "./routes/listings";       // Property listings
@@ -63,7 +58,6 @@ import searchRoutes from "./routes/search";           // Search functionality
 import moderationRoutes from "./routes/moderation";   // Content moderation
 import reportsRoutes from "./routes/reports";         // Analytics reports
 import agenciesRoutes from "./routes/agencies";       // Agency management
-// import mediaRoutes from "./routes/media";             // Media uploads - Temporarily disabled (Replit-specific)
 import requestsRoutes from "./routes/requests";       // General requests
 import populateRoutes from "./routes/populate";       // Data population
 import sitemapRoutes from "./routes/sitemap";         // SEO sitemap
@@ -73,18 +67,21 @@ import analyticsRoutes from "./src/routes/analytics"; // Analytics data
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
 import propertyCategoriesRoutes from "./routes/property-categories"; // Property categories dimension table
 import propertyTypesRoutes from "./routes/property-types"; // Property types (related to categories)
-// Test routes removed - use proper testing framework instead
-// import testAdminRoutes from "./test-admin";
-// import testDashboardRoutes from "./test-dashboard";
-// import testDbRoutes from "./test-db";
-// import simpleAnalyticsRoutes from "./simple-analytics";
 import cmsLandingRoutes from "./routes/cms-landing";
 import cmsArticlesRoutes from "./routes/cms-articles";
 import cmsMediaRoutes from "./routes/cms-media";
 import cmsSEORoutes from "./routes/cms-seo";
 import cmsTemplatesRoutes from "./routes/cms-templates";
 import cmsNavigationRoutes from "./routes/cms-navigation";
-import { LandingService } from "./services/landingService";
+import leadsRoutes from "./routes/leads";
+import adminUsersRoutes from "./routes/admin-users";
+import dealsRoutes from "./routes/deals";
+import activitiesRoutes from "./routes/activities";
+import messagesRoutes from "./routes/messages";
+import notificationsRoutes from "./routes/notifications";
+import campaignsRoutes from "./routes/campaigns";
+import landingRoutes from "./routes/landing";
+import csvRoutes from "./routes/csv";
 import { JWT_SECRET as getJwtSecret } from "./config/env";
 
 /**
@@ -105,25 +102,17 @@ import { JWT_SECRET as getJwtSecret } from "./config/env";
  * 5. Catch-all routes (sitemap, etc.)
  */
 export async function registerRoutes(app: Express): Promise<Server> {
-  /**
-   * RBAC System Routes
-   * 
-   * Registers role-based access control routes for:
-   * - User role management
-   * - Permission checking
-   * - Organization management
-   * 
-   * Dependencies: registerRoleBasedRoutes() from ./roleRoutes.ts
-   * Pages affected: RBAC dashboard, user management, admin settings
+  /*
+   * RBAC System Routes removed (legacy). 
+   * RBAC logic is now handled via rbacAdminRoutes and explicit middleware checks.
    */
-  // registerRoleBasedRoutes(app); // Temporarily disabled - requires migration to Prisma
 
   /**
    * Rate limiting for authentication endpoints
    * Import from index.ts or define here
    */
   const rateLimit = (await import('express-rate-limit')).default;
-  
+
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // Increased to 100 attempts per 15 minutes for debugging
@@ -199,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/cms", cmsSEORoutes);
   app.use("/api/cms", cmsTemplatesRoutes);
   app.use("/api/cms", cmsNavigationRoutes);
-  
+
   app.use("/api/unverified-listings", unverifiedListingsRoutes); // Saves to property_listings table
   app.use("/api/property-categories", propertyCategoriesRoutes); // Property categories dimension table
   app.use("/api/property-types", propertyTypesRoutes); // Property types (filtered by category)
@@ -229,76 +218,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * 
    * Direct admin routes for frontend pages
    */
-  app.get("/admin/users/all-users", async (req, res) => {
-    try {
-      // Import prisma directly instead of using fetch
-      const { prisma } = await import('./prismaClient');
-      
-      const users = await prisma.users.findMany({
-        include: {
-          organization: true,
-          agent_profiles: true,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
-
-      res.json({
-        success: true,
-        users: users.map(user => {
-          // Parse roles from JSON string to array
-          let parsedRoles = [];
-          try {
-            parsedRoles = JSON.parse(user.roles);
-          } catch (e) {
-            parsedRoles = [user.roles];
-          }
-          
-          return {
-            id: user.id,
-            username: user.username,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username,
-            phone: user.phone,
-            roles: parsedRoles,
-            isActive: user.isActive,
-            organizationId: user.organizationId,
-            organization: user.organization,
-            agent_profiles: user.agent_profiles,
-            approvalStatus: null, // Add default approval status
-            lastLoginAt: null, // Add default last login
-            licenseNumber: null, // Add default license number
-            memberships: [], // Add default memberships
-            primaryMembership: null, // Add default primary membership
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt
-          };
-        })
-      });
-    } catch (error) {
-      console.error('Admin users fetch error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch users',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-  // Test routes removed - these should be replaced with proper unit/integration tests
-  // Only enable in development if needed for manual testing
-  if (process.env.NODE_ENV === 'development' && process.env.ENABLE_TEST_ROUTES === 'true') {
-    const testAdminRoutes = await import("./test-admin");
-    const testDashboardRoutes = await import("./test-dashboard");
-    const testDbRoutes = await import("./test-db");
-    const simpleAnalyticsRoutes = await import("./simple-analytics");
-    app.use("/api/test-admin", testAdminRoutes.default);
-    app.use("/api/test-dashboard", testDashboardRoutes.default);
-    app.use("/api/test-db", testDbRoutes.default);
-    app.use("/api/simple-analytics", simpleAnalyticsRoutes.default);
-  }
+  app.use("/admin/users", adminUsersRoutes);
+  app.use("/admin/users", adminUsersRoutes);
 
   /**
    * Property Listings Routes - /api/listings/*
@@ -434,6 +355,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
    */
   app.use("/api/requests", requestsRoutes);
 
+
   /**
    * Data Population Routes - /api/*
    * 
@@ -458,6 +380,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Pages affected: Analytics dashboard, RBAC dashboard, KPI displays
    */
   app.use("/api/analytics", analyticsRoutes);
+
+  /**
+   * Deals Routes - /api/deals/*
+   */
+  app.use("/api/deals", dealsRoutes);
+
+  /**
+   * Activities Routes - /api/activities/*
+   */
+  app.use("/api/activities", activitiesRoutes);
+
+  /**
+   * Messages Routes - /api/messages/*
+   */
+  app.use("/api/messages", messagesRoutes);
+
+  /**
+   * Notifications Routes - /api/notifications/*
+   */
+  app.use("/api/notifications", notificationsRoutes);
+
+  /**
+   * Campaigns Routes - /api/campaigns/*
+   */
+  app.use("/api/campaigns", campaignsRoutes);
+
+  /**
+   * CSV Routes - /api/csv/*
+   */
+  app.use("/api/csv", csvRoutes);
+
+  /**
+   * Public Landing Page Routes - /api/landing/*
+   */
+  app.use("/api/landing", landingRoutes);
+
+  // Preview route for landing page
+  app.use("/preview/landing", landingRoutes);
 
   /**
    * Health Check Endpoint - /health
@@ -511,626 +471,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Pages affected: SEO, search engine indexing
    */
   app.use("/", sitemapRoutes);
-
-  /**
-   * Inline Routes - Additional functionality not in separate modules
-   */
-
-  /**
-   * User Data Route - GET /api/auth/user
-   * 
-   * Gets detailed user information for authenticated users.
-   * 
-   * Dependencies: storage.getUser() from ./storage.ts
-   * Pages affected: User profile, account settings, user management
-   */
-  app.get('/api/auth/user', async (req: any, res) => {
-    try {
-      const user = await storage.getUser(req.user.id);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
-  /**
-   * CSV Upload URL Route - POST /api/csv/upload-url
-   * 
-   * Generates a secure upload URL for CSV file uploads.
-   * Used for bulk lead import functionality.
-   * 
-   * Dependencies: Local file system storage (Replit object storage removed)
-   * Pages affected: CSV uploader component, bulk import functionality
-   * Status: Simplified to use local file system instead of Replit object storage
-   */
-  app.post("/api/csv/upload-url", async (req, res) => {
-    try {
-      // Return a simple upload endpoint for local file system
-      res.json({ 
-        uploadURL: "/api/csv/upload",
-        message: "Use multipart/form-data to upload CSV files directly"
-      });
-    } catch (error) {
-      console.error("Error getting CSV upload URL:", error);
-      res.status(500).json({ error: "Failed to get upload URL" });
-    }
-  });
-
-  app.post("/api/csv/process-leads", async (req, res) => {
-    try {
-      const { csvUrl } = req.body;
-
-      if (!csvUrl) {
-        return res.status(400).json({ error: "CSV URL is required" });
-      }
-
-      // TODO: Implement local file system CSV processing
-      // For now, return an error indicating this needs to be implemented
-      return res.status(501).json({ error: "CSV processing not implemented - requires local file system implementation" });
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error("Error processing CSV:", message);
-      res.status(500).json({ error: "??? ?? ?????? ??? CSV" });
-    }
-  });
-
-  const insertLeadSchema = z.object({
-    firstName: z.string().min(1),
-    lastName: z.string().min(1),
-    email: z.union([z.string().email(), z.literal("")]).optional().transform((value) => (value ? value : undefined)),
-    phone: z.string().min(1).optional(),
-    status: z.string().optional(),
-    leadSource: z.string().optional(),
-    interestType: z.string().optional(),
-    city: z.string().optional(),
-    budgetRange: z.union([z.string(), z.number()]).optional(),
-    notes: z.string().optional(),
-  }).passthrough();
-
-  const insertPropertySchema = z.object({
-    title: z.string().min(1),
-    description: z.string().optional(),
-    address: z.string().optional(),
-    city: z.string().optional(),
-    price: z.union([z.number(), z.string()]).optional(),
-    status: z.string().optional(),
-    propertyType: z.string().optional(),
-    propertyCategory: z.string().optional(),
-    bedrooms: z.number().optional(),
-    bathrooms: z.number().optional(),
-    squareFeet: z.number().optional(),
-    latitude: z.number().optional(),
-    longitude: z.number().optional(),
-  }).passthrough();
-
-  const insertDealSchema = z.object({
-    title: z.string().min(1),
-    stage: z.string().optional(),
-    value: z.union([z.number(), z.string()]).optional(),
-    leadId: z.string().optional(),
-    agentId: z.string().optional(),
-    notes: z.string().optional(),
-  }).passthrough();
-
-  const insertActivitySchema = z.object({
-    leadId: z.string().min(1),
-    type: z.string().min(1),
-    notes: z.string().optional(),
-    scheduledAt: z.union([z.string(), z.date()]).optional(),
-  }).passthrough();
-
-  // Lead routes
-  // Helper: decode roles/org from Authorization header (simple-auth JWT)
-  function decodeAuth(req: any): { id?: string; roles: string[]; organizationId?: string } {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      if (!token) return { roles: [] };
-        const decoded: any = jwt.verify(token, getJwtSecret());
-      let roles: string[] = [];
-      try { roles = JSON.parse(decoded.roles || '[]'); } catch { if (decoded.roles) roles = [decoded.roles]; }
-      return { id: decoded.userId, roles, organizationId: decoded.organizationId };
-    } catch { return { roles: [] }; }
-  }
-
-  const requireAnyPerm = (perms: string[]) => (req: any, res: any, next: any) => {
-    const auth = decodeAuth(req);
-    if (perms.some(p => hasPermission(auth.roles, p as any))) return next();
-    return res.status(403).json({ message: 'Forbidden' });
-  };
-
-  app.get("/api/leads", async (req, res) => {
-    try {
-      const auth = decodeAuth(req);
-      const leads = await storage.getAllLeads();
-      const scope = getVisibilityScope(auth.roles);
-      let filtered = leads;
-      if (scope === 'corporate') {
-        filtered = leads.filter((l: any) => l.agent?.organizationId && l.agent.organizationId === auth.organizationId);
-      } else if (scope === 'self') {
-        filtered = leads.filter((l: any) => l.agentId === auth.id);
-      }
-      res.json(filtered);
-    } catch (error) {
-      console.error("Error fetching leads:", error);
-      res.status(500).json({ message: "Failed to fetch leads" });
-    }
-  });
-
-  app.get("/api/leads/search", async (req, res) => {
-    try {
-      const query = req.query.q as string;
-      if (!query) {
-        return res.status(400).json({ message: "Search query is required" });
-      }
-      const leads = await storage.searchLeads(query);
-      res.json(leads);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to search leads" });
-    }
-  });
-
-  app.get("/api/leads/:id", async (req, res) => {
-    try {
-      const lead = await storage.getLead(req.params.id);
-      if (!lead) {
-        return res.status(404).json({ message: "Lead not found" });
-      }
-      res.json(lead);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch lead" });
-    }
-  });
-
-  app.post("/api/leads", requireAnyPerm(['requests:manage:all','requests:manage:corporate','requests:pool:pickup']), async (req, res) => {
-    try {
-      const validatedData = insertLeadSchema.parse(req.body);
-      const auth = decodeAuth(req);
-      if (!auth.id) {
-        return res.status(401).json({ message: "Authentication required" });
-      }
-      const tenantId = auth.organizationId ?? "default-tenant";
-      const lead = await storage.createLead(validatedData);
-      res.status(201).json(lead);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
-      }
-      const message = error instanceof Error ? error.message : "Failed to create lead";
-      res.status(500).json({ message });
-    }
-  });
-
-  app.put("/api/leads/:id", requireAnyPerm(['requests:manage:all','requests:manage:corporate','requests:pool:pickup']), async (req, res) => {
-    try {
-      const validatedData = insertLeadSchema.partial().parse(req.body);
-      const lead = await storage.updateLead(req.params.id, validatedData);
-      if (!lead) {
-        return res.status(404).json({ message: "Lead not found" });
-      }
-      res.json(lead);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Failed to update lead" });
-    }
-  });
-
-  app.delete("/api/leads/:id", requireAnyPerm(['requests:manage:all','requests:manage:corporate','requests:pool:pickup']), async (req, res) => {
-    try {
-      await storage.deleteLead(req.params.id);
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ message: "Failed to delete lead" });
-    }
-  });
-
-  // Property routes
-  app.get("/api/properties", async (req, res) => {
-    try {
-      const properties = await storage.getAllProperties();
-      res.json(properties);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch properties" });
-    }
-  });
-
-  // Public properties for map (no authentication required)
-  app.get("/api/properties/map", async (req, res) => {
-    try {
-      const properties = await storage.getAllProperties();
-      // Filter to only include active properties with coordinates and essential info
-      const mapProperties = properties
-        .filter(p => p.status === 'active' && p.latitude && p.longitude)
-        .map(p => ({
-          id: p.id,
-          title: p.title,
-          address: p.address,
-          city: p.city,
-          price: p.price,
-          propertyCategory: p.propertyCategory,
-          propertyType: p.propertyType,
-          latitude: p.latitude,
-          longitude: p.longitude,
-          bedrooms: p.bedrooms,
-          bathrooms: p.bathrooms,
-          squareFeet: p.squareFeet,
-          status: p.status
-        }));
-      res.json(mapProperties);
-    } catch (error) {
-      console.error("Error fetching properties for map:", error);
-      res.status(500).json({ message: "Failed to fetch properties for map" });
-    }
-  });
-
-  app.get("/api/properties/search", async (req, res) => {
-    try {
-      const query = req.query.q as string;
-      if (!query) {
-        return res.status(400).json({ message: "Search query is required" });
-      }
-      const properties = await storage.searchProperties(query);
-      res.json(properties);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to search properties" });
-    }
-  });
-
-  app.get("/api/properties/:id", async (req, res) => {
-    try {
-      const property = await storage.getProperty(req.params.id);
-      if (!property) {
-        return res.status(404).json({ message: "Property not found" });
-      }
-      res.json(property);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch property" });
-    }
-  });
-
-  app.post("/api/properties", async (req, res) => {
-    try {
-      const validatedData = insertPropertySchema.parse(req.body);
-      const auth = decodeAuth(req);
-      if (!auth.id) {
-        return res.status(401).json({ message: "Authentication required" });
-      }
-      const tenantId = auth.organizationId ?? "default-tenant";
-      const property = await storage.createProperty(validatedData);
-      res.status(201).json(property);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
-      }
-      const message = error instanceof Error ? error.message : "Failed to create property";
-      res.status(500).json({ message });
-    }
-  });
-
-  app.put("/api/properties/:id", async (req, res) => {
-    try {
-      const validatedData = insertPropertySchema.partial().parse(req.body);
-      const property = await storage.updateProperty(req.params.id, validatedData);
-      if (!property) {
-        return res.status(404).json({ message: "Property not found" });
-      }
-      res.json(property);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Failed to update property" });
-    }
-  });
-
-  app.delete("/api/properties/:id", async (req, res) => {
-    try {
-      await storage.deleteProperty(req.params.id);
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).json({ message: "Failed to delete property" });
-    }
-  });
-
-  // Deal routes
-  app.get("/api/deals", async (req, res) => {
-    try {
-      const deals = await storage.getAllDeals();
-      res.json(deals);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch deals" });
-    }
-  });
-
-  app.get("/api/deals/stage/:stage", async (req, res) => {
-    try {
-      const deals = await storage.getDealsByStage(req.params.stage);
-      res.json(deals);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch deals by stage" });
-    }
-  });
-
-  app.post("/api/deals", async (req, res) => {
-    try {
-      const validatedData = insertDealSchema.parse(req.body);
-      const auth = decodeAuth(req);
-      const tenantId = auth.organizationId ?? "default-tenant";
-      const deal = await storage.createDeal(validatedData);
-      res.status(201).json(deal);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
-      }
-      const message = error instanceof Error ? error.message : "Failed to create deal";
-      res.status(500).json({ message });
-    }
-  });
-
-  app.put("/api/deals/:id", async (req, res) => {
-    try {
-      const validatedData = insertDealSchema.partial().parse(req.body);
-      const deal = await storage.updateDeal(req.params.id, validatedData);
-      if (!deal) {
-        return res.status(404).json({ message: "Deal not found" });
-      }
-      res.json(deal);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Failed to update deal" });
-    }
-  });
-
-  // Activity routes
-  app.get("/api/activities/lead/:leadId", async (req, res) => {
-    try {
-      const activities = await storage.getActivitiesByLead(req.params.leadId);
-      res.json(activities);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch activities" });
-    }
-  });
-
-  app.get("/api/activities/today", async (req, res) => {
-    try {
-      const activities = await storage.getTodaysActivities();
-      res.json(activities);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch today's activities" });
-    }
-  });
-
-  app.post("/api/activities", async (req, res) => {
-    try {
-      const validatedData = insertActivitySchema.parse(req.body);
-      const auth = decodeAuth(req);
-      const tenantId = auth.organizationId ?? "default-tenant";
-      const activity = await storage.createActivity(validatedData);
-      res.status(201).json(activity);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
-      }
-      const message = error instanceof Error ? error.message : "Failed to create activity";
-      res.status(500).json({ message });
-    }
-  });
-
-  // Dashboard metrics
-  app.get("/api/dashboard/metrics", async (req, res) => {
-    try {
-      const leads = await storage.getAllLeads();
-      const properties = await storage.getAllProperties();
-      const deals = await storage.getAllDeals();
-
-      const activeDeals = deals.filter((deal: any) => !['closed', 'lost'].includes(deal.stage));
-      const closedDeals = deals.filter((deal: any) => deal.stage === 'closed');
-
-      const monthlyRevenue = closedDeals.reduce((sum: number, deal: any) => {
-        const commission = deal.commission ? parseFloat(deal.commission) : 0;
-        return sum + commission;
-      }, 0);
-
-      const metrics = {
-        totalLeads: leads.length,
-        activeProperties: properties.filter((p: any) => p.status === 'active').length,
-        dealsInPipeline: activeDeals.length,
-        monthlyRevenue: monthlyRevenue,
-        pipelineByStage: {
-          lead: deals.filter((d: any) => d.stage === 'lead').length,
-          qualified: deals.filter((d: any) => d.stage === 'qualified').length,
-          showing: deals.filter((d: any) => d.stage === 'showing').length,
-          negotiation: deals.filter((d: any) => d.stage === 'negotiation').length,
-          closed: deals.filter((d: any) => d.stage === 'closed').length,
-        }
-      };
-
-      res.json(metrics);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch dashboard metrics" });
-    }
-  });
-
-  // Message routes
-  app.get("/api/messages", async (req, res) => {
-    try {
-      const messages = await storage.getAllMessages();
-      res.json(messages);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch messages" });
-    }
-  });
-
-  app.get("/api/messages/lead/:leadId", async (req, res) => {
-    try {
-      const { leadId } = req.params;
-      const messages = await storage.getMessagesByLead(leadId);
-      res.json(messages);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch messages for lead" });
-    }
-  });
-
-  app.post("/api/messages", async (req, res) => {
-    try {
-      const messageData = insertMessageSchema.parse(req.body);
-      const auth = decodeAuth(req);
-      const tenantId = auth.organizationId ?? "default-tenant";
-      const message = await storage.createMessage(messageData);
-      res.json(message);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: error.errors });
-      }
-      const message = error instanceof Error ? error.message : "Failed to create message";
-      res.status(500).json({ error: message });
-    }
-  });
-
-  // Notifications API
-  app.get("/api/notifications", async (req, res) => {
-    try {
-      const auth = decodeAuth(req);
-      if (!auth.id) {
-        return res.status(401).json({ error: "Authentication required" });
-      }
-      const notifications = await storage.getNotifications(auth.id);
-      res.json(notifications);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      res.status(500).json({ error: "Failed to fetch notifications" });
-    }
-  });
-
-  // Campaigns API
-  app.post("/api/campaigns", async (req, res) => {
-    try {
-      const { title, message, type, leadIds } = req.body;
-
-      if (!title || !message || !type || !leadIds || !Array.isArray(leadIds)) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-
-      const campaign = {
-        id: Date.now().toString(),
-        title,
-        message,
-        type,
-        leadIds,
-        status: "sent",
-        sentAt: new Date().toISOString(),
-        recipientCount: leadIds.length
-      };
-
-      // For now, just return success - storage methods will be added
-      res.status(201).json(campaign);
-    } catch (error) {
-      console.error("Error creating campaign:", error);
-      res.status(500).json({ error: "Failed to create campaign" });
-    }
-  });
-
-  // Saudi Regions API
-  app.get("/api/saudi-regions", async (req, res) => {
-    try {
-      const regions = await storage.getAllSaudiRegions();
-      res.json(regions);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch Saudi regions" });
-    }
-  });
-
-  app.post("/api/saudi-regions/seed", async (req, res) => {
-    try {
-      await storage.seedSaudiRegions(req.body);
-      res.json({
-        message: "Saudi regions seeded successfully"
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to seed Saudi regions" });
-    }
-  });
-
-  // Saudi Cities API
-  app.get("/api/saudi-cities", async (req, res) => {
-    try {
-      const cities = await storage.getAllSaudiCities();
-      res.json(cities);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch Saudi cities" });
-    }
-  });
-
-  app.get("/api/saudi-cities/region/:regionCode", async (req, res) => {
-    try {
-      const cities = await storage.getCitiesByRegion(parseInt(req.params.regionCode));
-      res.json(cities);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch cities for region" });
-    }
-  });
-
-  app.post("/api/saudi-cities/seed", async (req, res) => {
-    try {
-      await storage.seedSaudiCities(req.body);
-      res.json({
-        message: "Saudi cities seeded successfully"
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to seed Saudi cities" });
-    }
-  });
-
-  const previewToken = process.env.LANDING_PREVIEW_TOKEN;
-
-  app.get("/api/landing", async (req, res) => {
-    try {
-      const data = await LandingService.getPublicLanding();
-      // Reduced cache time and allow no-cache header to bypass cache
-      const noCache = req.headers['cache-control']?.includes('no-cache') || req.query.t;
-      if (noCache) {
-        res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        res.setHeader("Pragma", "no-cache");
-        res.setHeader("Expires", "0");
-      } else {
-        res.setHeader("Cache-Control", "public, max-age=10, stale-while-revalidate=30");
-      }
-      res.json({ data });
-    } catch (error) {
-      console.error("Failed to fetch landing data:", error);
-      res.status(500).json({ message: "Failed to load landing data" });
-    }
-  });
-
-  app.get("/preview/landing", async (req, res) => {
-    if (previewToken) {
-      const token = req.query.token;
-      if (!token || token !== previewToken) {
-        return res.status(401).json({ message: "Invalid preview token" });
-      }
-    } else {
-      const auth = decodeAuth(req);
-      const roleSet = new Set(auth.roles.map((r) => r.toUpperCase()));
-      if (!roleSet.has("WEBSITE_ADMIN") && !roleSet.has("CMS_ADMIN") && !roleSet.has("EDITOR")) {
-        return res.status(403).json({ message: "Preview unavailable" });
-      }
-    }
-
-    try {
-      const data = await LandingService.listSections({
-        status: "draft",
-        includeArchived: false,
-      });
-      res.json({ data });
-    } catch (error) {
-      console.error("Failed to load preview landing data:", error);
-      res.status(500).json({ message: "Failed to load preview landing data" });
-    }
-  });
 
   const httpServer = createServer(app);
   return httpServer;

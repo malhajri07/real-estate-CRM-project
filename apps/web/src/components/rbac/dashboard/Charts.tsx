@@ -38,28 +38,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  LineChart, 
-  Line, 
-  AreaChart, 
-  Area, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell
 } from 'recharts';
-import { 
-  TrendingUp, 
-  Activity, 
-  BarChart3, 
-  RefreshCw, 
+import {
+  TrendingUp,
+  Activity,
+  BarChart3,
+  RefreshCw,
   AlertCircle,
   Calendar,
   Clock,
@@ -187,26 +187,26 @@ export const LoginsChart: React.FC<ChartProps> = ({
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 tick={{ fontSize: 12 }}
                 tickFormatter={(value) => new Date(value).toLocaleDateString('ar-SA', { month: 'short', day: 'numeric' })}
               />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="logins" 
-                stroke="#3b82f6" 
+              <Line
+                type="monotone"
+                dataKey="logins"
+                stroke="#3b82f6"
                 strokeWidth={2}
                 name="إجمالي تسجيلات الدخول"
                 dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="uniqueUsers" 
-                stroke="#10b981" 
+              <Line
+                type="monotone"
+                dataKey="uniqueUsers"
+                stroke="#10b981"
                 strokeWidth={2}
                 name="المستخدمون الفريدون"
                 dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
@@ -349,17 +349,17 @@ export const RPMChart: React.FC<ChartProps> = ({
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="requestsGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="errorsGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis 
-                dataKey="hour" 
+              <XAxis
+                dataKey="hour"
                 tick={{ fontSize: 12 }}
               />
               <YAxis tick={{ fontSize: 12 }} />
@@ -417,7 +417,7 @@ export const TopEndpointsChart: React.FC<ChartProps> = ({
   const fallbackData = [
     { endpoint: '/api/auth/login', volume: 1250, errorRate: 0.2 },
     { endpoint: '/api/users', volume: 980, errorRate: 0.1 },
-    { endpoint: '/api/properties', volume: 850, errorRate: 0.3 },
+    { endpoint: '/api/listings', volume: 850, errorRate: 0.3 },
     { endpoint: '/api/leads', volume: 720, errorRate: 0.1 },
     { endpoint: '/api/reports', volume: 650, errorRate: 0.4 },
     { endpoint: '/api/analytics', volume: 580, errorRate: 0.2 },
@@ -510,30 +510,30 @@ export const TopEndpointsChart: React.FC<ChartProps> = ({
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart 
-              data={endpointsData} 
+            <BarChart
+              data={endpointsData}
               layout="horizontal"
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis type="number" tick={{ fontSize: 12 }} />
-              <YAxis 
-                type="category" 
-                dataKey="endpoint" 
+              <YAxis
+                type="category"
+                dataKey="endpoint"
                 tick={{ fontSize: 10 }}
                 width={200}
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              <Bar 
-                dataKey="volume" 
-                fill="#3b82f6" 
+              <Bar
+                dataKey="volume"
+                fill="#3b82f6"
                 name="الحجم"
                 radius={[0, 4, 4, 0]}
               />
-              <Bar 
-                dataKey="errorRate" 
-                fill="#ef4444" 
+              <Bar
+                dataKey="errorRate"
+                fill="#ef4444"
                 name="معدل الخطأ (%)"
                 radius={[0, 4, 4, 0]}
               />

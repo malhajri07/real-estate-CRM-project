@@ -61,21 +61,21 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
 
   const createPropertyMutation = useMutation({
     mutationFn: async (data: InsertProperty) => {
-      const response = await apiRequest("POST", "/api/properties", data);
+      const response = await apiRequest("POST", "/api/listings", data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
       toast({ title: "Success", description: "Property created successfully" });
       onOpenChange(false);
       form.reset();
     },
     onError: () => {
-      toast({ 
-        title: "Error", 
+      toast({
+        title: "Error",
         description: "Failed to create property",
-        variant: "destructive" 
+        variant: "destructive"
       });
     },
   });
@@ -95,7 +95,7 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">إضافة عقار جديد</DialogTitle>
         </DialogHeader>
-        
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -212,11 +212,11 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                   <FormItem>
                     <FormLabel>خط العرض</FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         type="number"
                         step="any"
-                        placeholder="مثال: 24.7136" 
-                        {...field} 
+                        placeholder="مثال: 24.7136"
+                        {...field}
                         value={field.value || ""}
                       />
                     </FormControl>
@@ -231,11 +231,11 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
                   <FormItem>
                     <FormLabel>خط الطول</FormLabel>
                     <FormControl>
-                      <Input 
+                      <Input
                         type="number"
                         step="any"
-                        placeholder="مثال: 46.6753" 
-                        {...field} 
+                        placeholder="مثال: 46.6753"
+                        {...field}
                         value={field.value || ""}
                       />
                     </FormControl>
@@ -431,15 +431,15 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
             </div>
 
             <div className="flex justify-end space-x-3 space-x-reverse pt-4">
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => onOpenChange(false)}
               >
                 إلغاء
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={createPropertyMutation.isPending}
               >
                 {createPropertyMutation.isPending ? "جار الحفظ..." : "حفظ العقار"}

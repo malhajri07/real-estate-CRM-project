@@ -218,7 +218,7 @@ export default function RoleManagement() {
           <p className="text-gray-600">إدارة الأدوار والصلاحيات في النظام</p>
         </div>
         <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleOpenCreateDialog}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4" />
           إنشاء دور جديد
         </Button>
       </div>

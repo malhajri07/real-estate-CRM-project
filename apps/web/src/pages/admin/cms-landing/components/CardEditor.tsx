@@ -59,7 +59,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
               aria-label="Toggle visibility"
             />
             <Button size="sm" variant="outline" onClick={onSave} disabled={saving}>
-              <Save className="h-4 w-4 ml-1" />
+              <Save className="h-4 w-4" />
               {saving ? "جار الحفظ..." : "حفظ"}
             </Button>
             <Button size="sm" variant="destructive" onClick={onDelete}>

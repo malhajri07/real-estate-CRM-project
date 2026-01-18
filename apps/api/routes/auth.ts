@@ -76,12 +76,12 @@ router.post('/login', async (req, res) => {
         'user-agent': req.headers['user-agent']
       }
     });
-    
+
     // Validate request body
     let validatedData;
     try {
       validatedData = loginSchema.parse(req.body);
-      console.log('Validation passed:', { 
+      console.log('Validation passed:', {
         hasIdentifier: !!validatedData.identifier,
         hasEmail: !!validatedData.email,
         hasUsername: !!validatedData.username,
@@ -90,15 +90,15 @@ router.post('/login', async (req, res) => {
     } catch (validationError) {
       console.error('Validation error:', validationError);
       if (validationError instanceof z.ZodError) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
           message: 'Invalid input',
-          errors: validationError.errors 
+          errors: validationError.errors
         });
       }
       throw validationError;
     }
-    
+
     const { identifier, email, username, password } = validatedData;
 
     const loginIdentifier = (identifier ?? email ?? username ?? '').trim();
@@ -106,9 +106,9 @@ router.post('/login', async (req, res) => {
 
     if (!loginIdentifier || !password) {
       console.log('Missing credentials');
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Username/email and password are required' 
+        message: 'Username/email and password are required'
       });
     }
 
@@ -116,37 +116,37 @@ router.post('/login', async (req, res) => {
     let result;
     try {
       result = await login(loginIdentifier, password);
-      console.log('Login result:', { 
-        success: result.success, 
-        hasUser: !!result.user, 
+      console.log('Login result:', {
+        success: result.success,
+        hasUser: !!result.user,
         hasToken: !!result.token,
-        message: result.message 
+        message: result.message
       });
     } catch (loginError) {
       console.error('Error in login function:', loginError);
-      return res.status(500).json({ 
+      return res.status(500).json({
         success: false,
-        message: loginError instanceof Error ? loginError.message : 'Login function failed' 
+        message: loginError instanceof Error ? loginError.message : 'Login function failed'
       });
     }
-    
+
     if (!result.success) {
       console.log('Login failed:', result.message);
-      return res.status(401).json({ 
+      return res.status(401).json({
         success: false,
-        message: result.message || 'Invalid credentials' 
+        message: result.message || 'Invalid credentials'
       });
     }
 
     // Ensure we have a user and token
     if (!result.user || !result.token) {
-      console.error('Login succeeded but missing user or token:', { 
-        hasUser: !!result.user, 
-        hasToken: !!result.token 
+      console.error('Login succeeded but missing user or token:', {
+        hasUser: !!result.user,
+        hasToken: !!result.token
       });
-      return res.status(500).json({ 
+      return res.status(500).json({
         success: false,
-        message: 'Login succeeded but authentication data is missing' 
+        message: 'Login succeeded but authentication data is missing'
       });
     }
 
@@ -171,7 +171,7 @@ router.post('/login', async (req, res) => {
 
     console.log('Login successful, sending response');
     console.log('=== LOGIN REQUEST END ===');
-    
+
     // Ensure response is sent properly
     try {
       res.json({
@@ -186,22 +186,22 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('=== LOGIN ERROR ===');
     console.error('Login route error:', error);
-    
+
     // Make sure we haven't already sent a response
     if (res.headersSent) {
       console.error('Response already sent, cannot send error response');
       return;
     }
-    
+
     if (error instanceof z.ZodError) {
       console.error('Validation error:', error.errors);
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
         message: 'Invalid input',
-        errors: error.errors 
+        errors: error.errors
       });
     }
-    
+
     const errorMessage = error instanceof Error ? error.message : 'Login failed';
     console.error('Error details:', {
       message: errorMessage,
@@ -209,9 +209,9 @@ router.post('/login', async (req, res) => {
       name: error instanceof Error ? error.name : undefined
     });
     console.error('=== LOGIN ERROR END ===');
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: errorMessage 
+      message: errorMessage
     });
   }
 });
@@ -221,9 +221,9 @@ router.post('/login', async (req, res) => {
 router.post('/register', async (req, res) => {
   try {
     const userData = registerSchema.parse(req.body);
-    
+
     const result = await register(userData);
-    
+
     if (!result.success) {
       return res.status(400).json({ message: result.message });
     }
@@ -240,12 +240,12 @@ router.post('/register', async (req, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         message: 'Invalid input',
-        errors: error.errors 
+        errors: error.errors
       });
     }
-    
+
     console.error('Registration error:', error);
     res.status(500).json({ message: 'Registration failed' });
   }
@@ -265,31 +265,31 @@ router.get('/me', authenticateToken, async (req, res) => {
 });
 
 // POST /api/auth/impersonate (admin only)
-router.post('/impersonate', 
-  authenticateToken, 
-  requireRole([UserRole.WEBSITE_ADMIN]), 
+router.post('/impersonate',
+  authenticateToken,
+  requireRole([UserRole.WEBSITE_ADMIN]),
   async (req, res) => {
     try {
       const { targetUserId } = impersonateSchema.parse(req.body);
-      
+
       const result = await impersonateUser(req.user!.id, targetUserId);
-      
+
       if (!result.success) {
         return res.status(400).json({ message: result.message });
       }
-      
+
       res.json({
         success: true,
         token: result.token
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: 'Invalid input',
-          errors: error.errors 
+          errors: error.errors
         });
       }
-      
+
       console.error('Impersonation error:', error);
       res.status(500).json({ message: 'Impersonation failed' });
     }
@@ -302,11 +302,23 @@ router.post('/logout', authenticateToken, async (req, res) => {
     // In a JWT-based system, logout is typically handled client-side
     // by removing the token. We could implement token blacklisting here
     // if needed for enhanced security.
-    
+
     res.json({ success: true, message: 'Logged out successfully' });
   } catch (error) {
     console.error('Logout error:', error);
     res.status(500).json({ message: 'Logout failed' });
+  }
+});
+
+// GET /api/auth/user - Get detailed user info
+router.get('/user', authenticateToken, async (req: any, res) => {
+  try {
+    const { storage } = await import('../storage-prisma');
+    const user = await storage.getUser(req.user.id);
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Failed to fetch user" });
   }
 });
 

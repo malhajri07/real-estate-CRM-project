@@ -88,6 +88,9 @@ const BlogPage = lazy(() => import("@/pages/blog"));
 const RealEstateRequestsPage = lazy(() => import("@/pages/real-estate-requests"));
 const CustomerRequestsPage = lazy(() => import("@/pages/customer-requests"));
 const AdminRequestsPage = lazy(() => import("@/pages/admin-requests"));
+const ActivitiesPage = lazy(() => import("@/pages/activities"));
+const CalendarPage = lazy(() => import("@/pages/calendar"));
+
 
 const ADMIN_DASHBOARD_ROUTES = Array.from(
   new Set<string>([
@@ -161,6 +164,7 @@ function Router() {
     UserRole.CORP_OWNER,
     UserRole.CORP_AGENT,
     UserRole.INDIV_AGENT,
+    UserRole.AGENT,
   ];
   const CORPORATE_MANAGEMENT_ROLES: readonly UserRole[] = [
     UserRole.WEBSITE_ADMIN,
@@ -172,6 +176,7 @@ function Router() {
     UserRole.CORP_OWNER,
     UserRole.CORP_AGENT,
     UserRole.INDIV_AGENT,
+    UserRole.AGENT,
     UserRole.SELLER,
     UserRole.BUYER,
   ];
@@ -219,7 +224,7 @@ function Router() {
       setLocation('/admin/overview/main-dashboard', { replace: true });
     }
   }, [isAdmin, location, setLocation]);
-  
+
   // Navigation loading state for smooth transitions
   const [isNavigationLoading, setIsNavigationLoading] = useState(false);
   const [previousLocation, setPreviousLocation] = useState("");
@@ -294,7 +299,7 @@ function Router() {
 
   // Detect which server port is being used
   const isDashboardPort = (window as any).SERVER_PORT === '3000' || window.location.port === '3000';
-  
+
   // Debug logging (development only)
   logger.debug('Routing state', {
     context: 'Router',
@@ -378,25 +383,25 @@ function Router() {
     allowedRoles?: readonly UserRole[];
     requiredPermission?: string;
   }> = [
-    { path: '/home/platform/customers', component: Customers, aliases: ['/customers'], allowedRoles: PLATFORM_CORE_ROLES },
-    { path: '/home/platform/properties', component: Properties, aliases: ['/properties'], allowedRoles: PLATFORM_CORE_ROLES },
-    { path: '/home/platform/leads', component: Leads, aliases: ['/leads'], allowedRoles: PLATFORM_CORE_ROLES },
-    { path: '/home/platform/pipeline', component: Pipeline, aliases: ['/pipeline'], allowedRoles: PLATFORM_CORE_ROLES },
-    { path: '/home/platform/clients', component: Clients, aliases: ['/clients'], allowedRoles: PLATFORM_CORE_ROLES },
-    { path: '/home/platform/reports', component: Reports, aliases: ['/reports'], allowedRoles: PLATFORM_CORE_ROLES },
-    { path: '/home/platform/notifications', component: Notifications, aliases: ['/notifications'], allowedRoles: PLATFORM_CORE_ROLES },
-    { path: '/home/platform/settings', component: Settings, aliases: ['/settings'], allowedRoles: PLATFORM_CORE_ROLES },
-    { path: '/home/platform/agencies', component: AgenciesPage, aliases: ['/agencies'], allowedRoles: CORPORATE_MANAGEMENT_ROLES },
-    { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: ADMIN_ONLY_ROLES },
-    { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms', '/cms-admin'], allowedRoles: ADMIN_ONLY_ROLES },
-    { path: '/home/platform/marketing-requests', component: LazyMarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },
-    { 
-      path: '/home/platform/unverified-listings', 
-      component: SuspendedUnverifiedListingsManagementPage, 
-      options: { title: 'إعلانات غير موثقة', searchPlaceholder: 'ابحث في الإعلانات غير الموثقة' },
-      allowedRoles: PLATFORM_CORE_ROLES 
-    },
-  ];
+      { path: '/home/platform/customers', component: Customers, aliases: ['/customers'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/properties', component: Properties, aliases: ['/properties'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/leads', component: Leads, aliases: ['/leads'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/pipeline', component: Pipeline, aliases: ['/pipeline'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/clients', component: Clients, aliases: ['/clients'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/reports', component: Reports, aliases: ['/reports'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/notifications', component: Notifications, aliases: ['/notifications'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/settings', component: Settings, aliases: ['/settings'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/agencies', component: AgenciesPage, aliases: ['/agencies'], allowedRoles: CORPORATE_MANAGEMENT_ROLES },
+      { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: ADMIN_ONLY_ROLES },
+      { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms', '/cms-admin'], allowedRoles: ADMIN_ONLY_ROLES },
+      { path: '/home/platform/marketing-requests', component: LazyMarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },
+      {
+        path: '/home/platform/unverified-listings',
+        component: SuspendedUnverifiedListingsManagementPage,
+        options: { title: 'إعلانات غير موثقة', searchPlaceholder: 'ابحث في الإعلانات غير الموثقة' },
+        allowedRoles: PLATFORM_CORE_ROLES
+      },
+    ];
 
   const platformDynamicRoutes: Array<{
     path: string;
@@ -405,11 +410,11 @@ function Router() {
     aliases?: string[];
     allowedRoles?: readonly UserRole[];
   }> = [
-    { path: '/home/platform/agency/:id', component: AgencyPage, aliases: ['/agency/:id'], allowedRoles: CORPORATE_MANAGEMENT_ROLES },
-    { path: '/home/platform/agent/:id', component: AgentPage, aliases: ['/agent/:id'], allowedRoles: PLATFORM_CORE_ROLES },
-    { path: '/home/platform/properties/:id', component: PropertyDetail, aliases: ['/properties/:id'], allowedRoles: PLATFORM_CORE_ROLES },
-    { path: '/home/platform/listing/:id', component: PublicListingPage, aliases: ['/listing/:id'] },
-  ];
+      { path: '/home/platform/agency/:id', component: AgencyPage, aliases: ['/agency/:id'], allowedRoles: CORPORATE_MANAGEMENT_ROLES },
+      { path: '/home/platform/agent/:id', component: AgentPage, aliases: ['/agent/:id'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/properties/:id', component: PropertyDetail, aliases: ['/properties/:id'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/listing/:id', component: PublicListingPage, aliases: ['/listing/:id'] },
+    ];
 
   const platformAdditionalRoutes: Array<{
     path: string;
@@ -419,19 +424,23 @@ function Router() {
     allowedRoles?: readonly UserRole[];
     requiredPermission?: string;
   }> = [
-    {
-      path: '/home/platform/customer-requests',
-      component: CustomerRequestsPage,
-      options: { title: 'طلبات العملاء', searchPlaceholder: 'ابحث في بيانات العملاء' },
-      aliases: ['/customer-requests'],
-      allowedRoles: CORPORATE_MANAGEMENT_ROLES
-    },
-    { path: '/home/platform/admin-requests', component: AdminRequestsPage, aliases: ['/admin/requests'], allowedRoles: ADMIN_ONLY_ROLES },
-    { path: '/home/platform/favorites', component: FavoritesPage, aliases: ['/favorites'], allowedRoles: EXTENDED_PLATFORM_ROLES },
-    { path: '/home/platform/compare', component: ComparePage, aliases: ['/compare'], allowedRoles: EXTENDED_PLATFORM_ROLES },
-    { path: '/home/platform/post-listing', component: PostListingPage, aliases: ['/post-listing'], allowedRoles: EXTENDED_PLATFORM_ROLES },
-    { path: '/home/platform/saved-searches', component: SavedSearchesPage, aliases: ['/saved-searches'], allowedRoles: EXTENDED_PLATFORM_ROLES },
-  ];
+      {
+        path: '/home/platform/customer-requests',
+        component: CustomerRequestsPage,
+        options: { title: 'طلبات العملاء', searchPlaceholder: 'ابحث في بيانات العملاء' },
+        aliases: ['/customer-requests'],
+        allowedRoles: CORPORATE_MANAGEMENT_ROLES
+      },
+      { path: '/home/platform/admin-requests', component: AdminRequestsPage, aliases: ['/admin/requests'], allowedRoles: ADMIN_ONLY_ROLES },
+      { path: '/home/platform/favorites', component: FavoritesPage, aliases: ['/favorites'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+      { path: '/home/platform/compare', component: ComparePage, aliases: ['/compare'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+      { path: '/home/platform/post-listing', component: PostListingPage, aliases: ['/post-listing'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+      { path: '/home/platform/saved-searches', component: SavedSearchesPage, aliases: ['/saved-searches'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+
+      { path: '/home/platform/activities', component: ActivitiesPage, aliases: ['/activities'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+      { path: '/home/platform/calendar', component: CalendarPage, aliases: ['/calendar'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+    ];
+
 
   /**
    * Handle logout functionality
@@ -452,7 +461,7 @@ function Router() {
     );
   }
 
-// Port-based routing logic:
+  // Port-based routing logic:
   // - Port 3000 (Express server): primary host serving both API and frontend
   // - Any other port (e.g. standalone Vite dev server): keep public experience and redirect
   logger.debug('Port routing check', {
@@ -580,7 +589,7 @@ function Router() {
     </>
   );
 
-  
+
   // Standalone Vite dev server (non-dashboard ports) should redirect back to Express
   if (!isDashboardPort) {
     logger.debug('Non-dashboard port detected: redirecting secured routes to 3000', {
@@ -591,38 +600,38 @@ function Router() {
     return (
       <Suspense fallback={fullScreenSuspenseFallback}>
         <Switch>
-        {/* Dashboard and authenticated routes should redirect to the unified server */}
-        {dashboardRedirectPaths.map((path) => (
-          <Route
-            key={path}
-            path={path}
-            component={() => {
-              window.location.href = `http://localhost:3000${path}`;
-              return (
-                <div className="min-h-screen flex items-center justify-center">
-                  جاري التوجيه إلى لوحة التحكم...
-                </div>
-              );
-            }}
-          />
-        ))}
-        {/* RBAC-aware login accessible from landing */}
-        <Route path="/home/login" component={SuspendedRBACLoginPage} />
-        <Route path="/home/platform" component={SuspendedPlatformPage} />
+          {/* Dashboard and authenticated routes should redirect to the unified server */}
+          {dashboardRedirectPaths.map((path) => (
+            <Route
+              key={path}
+              path={path}
+              component={() => {
+                window.location.href = `http://localhost:3000${path}`;
+                return (
+                  <div className="min-h-screen flex items-center justify-center">
+                    جاري التوجيه إلى لوحة التحكم...
+                  </div>
+                );
+              }}
+            />
+          ))}
+          {/* RBAC-aware login accessible from landing */}
+          <Route path="/home/login" component={SuspendedRBACLoginPage} />
+          <Route path="/home/platform" component={SuspendedPlatformPage} />
 
-        {/* Public Routes */}
-        {renderPublicRoutes()}
+          {/* Public Routes */}
+          {renderPublicRoutes()}
 
-        {/* Platform Dashboard Routes - All dashboard functionality under /home/platform/ */}
-        {renderPlatformRoutes(true)}
-        
-        {/* Admin Route with RBAC Dashboard - No sidebar/header */}
-        <Route path="/home/admin" component={renderAdminDashboardRoute} />
-        {/* Default route for non-dashboard port - redirect to home */}
-        <Route component={() => {
-          window.location.href = '/home';
-          return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى الصفحة الرئيسية...</div>;
-        }} />
+          {/* Platform Dashboard Routes - All dashboard functionality under /home/platform/ */}
+          {renderPlatformRoutes(true)}
+
+          {/* Admin Route with RBAC Dashboard - No sidebar/header */}
+          <Route path="/home/admin" component={renderAdminDashboardRoute} />
+          {/* Default route for non-dashboard port - redirect to home */}
+          <Route component={() => {
+            window.location.href = '/home';
+            return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى الصفحة الرئيسية...</div>;
+          }} />
         </Switch>
       </Suspense>
     );
@@ -633,25 +642,25 @@ function Router() {
     return (
       <Suspense fallback={fullScreenSuspenseFallback}>
         <Switch>
-        {/* Use RBAC-aware login that integrates with AuthProvider */}
-        <Route path="/rbac-login" component={SuspendedRBACLoginPage} />
-        <Route path="/login" component={() => {
-          window.location.href = '/rbac-login';
-          return null;
-        }} />
-        {/* Public Routes */}
-        {renderPublicRoutes()}
-        {ADMIN_DASHBOARD_ROUTES.map((path) => (
-          <Route
-            key={`guest-admin-${path}`}
-            path={path}
-            component={createRedirectComponent('/rbac-login', 'يرجى تسجيل الدخول للوصول إلى لوحة التحكم')}
-          />
-        ))}
-        {/* Root path for unauthenticated users on port 3000 - show landing */}
-        <Route path="/" component={Landing} />
-        {/* Fallback */}
-        <Route component={Landing} />
+          {/* Use RBAC-aware login that integrates with AuthProvider */}
+          <Route path="/rbac-login" component={SuspendedRBACLoginPage} />
+          <Route path="/login" component={() => {
+            window.location.href = '/rbac-login';
+            return null;
+          }} />
+          {/* Public Routes */}
+          {renderPublicRoutes()}
+          {ADMIN_DASHBOARD_ROUTES.map((path) => (
+            <Route
+              key={`guest-admin-${path}`}
+              path={path}
+              component={createRedirectComponent('/rbac-login', 'يرجى تسجيل الدخول للوصول إلى لوحة التحكم')}
+            />
+          ))}
+          {/* Root path for unauthenticated users on port 3000 - show landing */}
+          <Route path="/" component={Landing} />
+          {/* Fallback */}
+          <Route component={Landing} />
         </Switch>
       </Suspense>
     );
@@ -701,10 +710,10 @@ function Router() {
 
     // Separate admin users from platform users
     const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN);
-    const isPlatformUser = !!user?.roles?.some(role => 
-      [UserRole.CORP_OWNER, UserRole.CORP_AGENT, UserRole.INDIV_AGENT].includes(role)
+    const isPlatformUser = !!user?.roles?.some(role =>
+      [UserRole.CORP_OWNER, UserRole.CORP_AGENT, UserRole.INDIV_AGENT, UserRole.AGENT].includes(role)
     );
-    const isSellerBuyer = !!user?.roles?.some(role => 
+    const isSellerBuyer = !!user?.roles?.some(role =>
       [UserRole.SELLER, UserRole.BUYER].includes(role)
     );
 

@@ -30,6 +30,7 @@ export enum UserRole {
   INDIV_AGENT = 'INDIV_AGENT',
   SELLER = 'SELLER',
   BUYER = 'BUYER',
+  AGENT = 'AGENT', // Legacy role for seeded data
 }
 
 export const USER_ROLES: readonly UserRole[] = Object.values(UserRole);
@@ -43,6 +44,7 @@ export const ROLE_DISPLAY_TRANSLATIONS: Record<UserRole, string> = {
   [UserRole.INDIV_AGENT]: 'وكيل مستقل',
   [UserRole.SELLER]: 'بائع',
   [UserRole.BUYER]: 'مشتري',
+  [UserRole.AGENT]: 'وكيل عقاري',
 };
 
 export const ROLE_PERMISSIONS: Record<UserRole, readonly string[]> = {
@@ -74,6 +76,12 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly string[]> = {
     'update_personal_profile',
     'submit_marketing_requests',
     'respond_to_requests',
+  ],
+  [UserRole.AGENT]: [
+    'manage_listings',
+    'view_org_listings',
+    'manage_assigned_leads',
+    'view_org_leads',
   ],
   [UserRole.SELLER]: [
     'create_property_requests',

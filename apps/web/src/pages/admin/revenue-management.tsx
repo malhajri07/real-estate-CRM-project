@@ -227,11 +227,11 @@ function ActiveSubscriptionsTab() {
                 <h2 className="text-2xl font-bold tracking-tight">الاشتراكات النشطة</h2>
                 <div className="flex gap-2">
                     <Button variant="outline" size="sm">
-                        <Filter className="mr-2 h-4 w-4" />
+                        <Filter className="h-4 w-4" />
                         تصفية
                     </Button>
                     <Button variant="outline" size="sm">
-                        <Download className="mr-2 h-4 w-4" />
+                        <Download className="h-4 w-4" />
                         تصدير
                     </Button>
                 </div>
@@ -325,8 +325,8 @@ function PlansTab() {
                         <CardContent className="flex-1">
                             <ul className="space-y-2 text-sm">
                                 {plan.features.map((feature, idx) => (
-                                    <li key={idx} className="flex items-center">
-                                        <CheckCircle2 className="mr-2 h-4 w-4 text-green-500" />
+                                    <li key={idx} className="flex items-center gap-2">
+                                        <CheckCircle2 className="h-4 w-4 text-green-500" />
                                         {feature}
                                     </li>
                                 ))}

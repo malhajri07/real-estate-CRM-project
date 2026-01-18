@@ -68,5 +68,41 @@ router.post("/:id/resolve", async (req, res) => {
   }
 });
 
+
+// Dashboard metrics
+router.get("/dashboard/metrics", async (req, res) => {
+  try {
+    const leads = await storage.getAllLeads();
+    const properties = await storage.getAllProperties();
+    const deals = await storage.getAllDeals();
+
+    const activeDeals = deals.filter((deal: any) => !['closed', 'lost'].includes(deal.stage));
+    const closedDeals = deals.filter((deal: any) => deal.stage === 'closed');
+
+    const monthlyRevenue = closedDeals.reduce((sum: number, deal: any) => {
+      const commission = deal.commission ? parseFloat(deal.commission) : 0;
+      return sum + commission;
+    }, 0);
+
+    const metrics = {
+      totalLeads: leads.length,
+      activeProperties: properties.filter((p: any) => p.status === 'active').length,
+      dealsInPipeline: activeDeals.length,
+      monthlyRevenue: monthlyRevenue,
+      pipelineByStage: {
+        lead: deals.filter((d: any) => d.stage === 'lead').length,
+        qualified: deals.filter((d: any) => d.stage === 'qualified').length,
+        showing: deals.filter((d: any) => d.stage === 'showing').length,
+        negotiation: deals.filter((d: any) => d.stage === 'negotiation').length,
+        closed: deals.filter((d: any) => d.stage === 'closed').length,
+      }
+    };
+
+    res.json(metrics);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch dashboard metrics" });
+  }
+});
+
 export default router;
 

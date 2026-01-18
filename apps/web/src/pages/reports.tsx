@@ -65,7 +65,7 @@ export default function Reports() {
   });
 
   const { data: properties } = useQuery<Property[]>({
-    queryKey: ["/api/properties"],
+    queryKey: ["/api/listings"],
   });
 
   const { data: deals } = useQuery<Deal[]>({
@@ -77,7 +77,7 @@ export default function Reports() {
     const days = parseInt(selectedPeriod);
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
-    
+
     return data.filter(item => new Date(item[dateField]) >= cutoffDate);
   };
 
@@ -175,24 +175,24 @@ export default function Reports() {
   const getTimeSeriesData = () => {
     const days = parseInt(selectedPeriod);
     const data = [];
-    
+
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
-      
-      const dayLeads = filteredLeads.filter(lead => 
+
+      const dayLeads = filteredLeads.filter(lead =>
         new Date(lead.createdAt).toISOString().split('T')[0] === dateStr
       ).length;
-      
-      const dayProperties = filteredProperties.filter(property => 
+
+      const dayProperties = filteredProperties.filter(property =>
         new Date(property.createdAt).toISOString().split('T')[0] === dateStr
       ).length;
-      
-      const dayDeals = filteredDeals.filter(deal => 
+
+      const dayDeals = filteredDeals.filter(deal =>
         new Date(deal.createdAt).toISOString().split('T')[0] === dateStr
       ).length;
-      
+
       data.push({
         date: date.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }),
         leads: dayLeads,
@@ -201,7 +201,7 @@ export default function Reports() {
         revenue: dayDeals * 50000 // Mock revenue calculation
       });
     }
-    
+
     return data;
   };
 
@@ -219,7 +219,7 @@ export default function Reports() {
     const breakdown = getPropertyTypeBreakdown();
     // Using website's color scheme: primary green, secondary blue, success, warning, error
     const colors = ['hsl(145 35% 58%)', 'hsl(205 70% 27%)', 'hsl(142 76% 36%)', 'hsl(35 91% 65%)', 'hsl(0 84% 60%)', 'hsl(145 20% 90%)'];
-    
+
     return breakdown.map((item, index) => ({
       name: item.type,
       value: item.count,
@@ -231,7 +231,7 @@ export default function Reports() {
     const breakdown = getLeadSourceBreakdown();
     // Using website's color scheme: primary green, secondary blue, success, warning, error
     const colors = ['hsl(145 35% 58%)', 'hsl(205 70% 27%)', 'hsl(142 76% 36%)', 'hsl(35 91% 65%)', 'hsl(0 84% 60%)', 'hsl(145 20% 90%)'];
-    
+
     return breakdown.map((item, index) => ({
       name: item.source,
       value: item.count,
@@ -374,7 +374,7 @@ export default function Reports() {
               </Select>
             </div>
           </div>
-          
+
           <Button onClick={exportReport} className={BUTTON_PRIMARY_CLASSES}>
             <Download className="ml-2" size={16} />
             تصدير التقرير
@@ -391,7 +391,7 @@ export default function Reports() {
             icon={Users}
             iconColor="bg-blue-100 text-blue-600"
           />
-          
+
           <MetricsCard
             title="العقارات المدرجة"
             value={formatNumber(filteredProperties.length)}
@@ -400,7 +400,7 @@ export default function Reports() {
             icon={Building}
             iconColor="bg-green-100 text-green-600"
           />
-          
+
           <MetricsCard
             title="معدل التحويل"
             value={formatPercentage(calculateConversionRate())}
@@ -409,7 +409,7 @@ export default function Reports() {
             icon={TrendingUp}
             iconColor="bg-purple-100 text-purple-600"
           />
-          
+
           <MetricsCard
             title="إجمالي العمولة"
             value={formatCurrency(calculateTotalCommission())}

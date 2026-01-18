@@ -821,7 +821,7 @@ export default function RBACDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50" dir={dir}>
+    <div className="min-h-screen bg-slate-50" dir={dir} style={{ direction: dir === 'rtl' ? 'rtl' : 'ltr' }}>
       <AdminHeader
         title="لوحة إدارة النظام"
         subtitle="إدارة المستخدمين والمنظمات والمحتوى"
@@ -834,7 +834,7 @@ export default function RBACDashboard() {
         loading={dashboard.isFetching}
         userName={user?.firstName ? `${user.firstName} ${user.lastName ?? ""}`.trim() : user?.username}
       />
-      <div className="flex pt-20">
+      <div className="flex pt-20" dir={dir}>
         <AdminSidebar
           dir={dir}
           items={sidebarItems}
