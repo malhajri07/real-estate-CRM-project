@@ -63,7 +63,7 @@ interface User {
 interface AuthContextType {
   user: User | null;                                    // Current authenticated user (null if not logged in)
   token: string | null;                                 // JWT token for API authentication (null if not logged in)
-  login: (identifier: string, password: string) => Promise<void>;  // Function to authenticate user with credentials
+  login: (identifier: string, password: string, rememberMe?: boolean) => Promise<void>;  // Function to authenticate user with credentials
   logout: () => void;                                   // Function to log out the current user
   isLoading: boolean;                                   // Loading state for authentication operations
   hasRole: (roles: UserRole[]) => boolean;             // Function to check if user has any of the specified roles
@@ -97,7 +97,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [showSessionWarning, setShowSessionWarning] = useState(false); // تحديد ما إذا كان يجب عرض نافذة التحذير
   const [sessionExpired, setSessionExpired] = useState(false); // يحدد ما إذا كانت الجلسة منتهية بسبب الخمول
   const [countdownSeconds, setCountdownSeconds] = useState(0); // عدد الثواني المتبقية قبل تسجيل الخروج التلقائي
-  const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes inactivity timeout
+  // Dynamic timeout: 30 minutes standard, 7 days if "Remember Me" is active
+  const isRemembered = localStorage.getItem('remember_me') === 'true';
+  const INACTIVITY_TIMEOUT_MS = isRemembered ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000;
+
   const WARNING_LEAD_TIME_MS = 30 * 1000; // نعرض نافذة تحذير قبل 30 ثانية من انتهاء الجلسة
 
   /**
@@ -143,7 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * @param password - User's password
    * @throws Error if authentication fails
    */
-  const login = async (identifier: string, password: string) => {
+  const login = async (identifier: string, password: string, rememberMe: boolean = false) => {
     try {
       // Log login attempt (password is masked for security)
       logger.debug('Attempting login', {
@@ -222,6 +225,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setToken(data.token);                  // Set token in React state
         localStorage.setItem('auth_token', data.token);              // Persist token in localStorage
         localStorage.setItem('user_data', JSON.stringify(normalizedUser)); // Persist user data in localStorage
+        localStorage.setItem('remember_me', String(rememberMe)); // Persist remember me preference
         setSessionExpired(false);
         logger.info('Login successful', {
           context: 'AuthProvider',
@@ -234,19 +238,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // SELLER, BUYER → Platform Dashboard (limited access for now)
         const roles = normalizedRoles;
         if (roles.includes(UserRole.WEBSITE_ADMIN)) {
-          // Use window.location for a hard redirect to ensure it works reliably
-          window.location.href = '/admin/overview/main-dashboard';
+          // Use setLocation for a smooth client-side transition
+          setLocation('/admin/overview/main-dashboard');
         } else if (roles.some(role =>
           [UserRole.CORP_OWNER, UserRole.CORP_AGENT, UserRole.INDIV_AGENT].includes(role)
         )) {
-          window.location.href = '/home/platform';
+          setLocation('/home/platform');
         } else if (roles.some(role =>
           [UserRole.SELLER, UserRole.BUYER].includes(role)
         )) {
-          window.location.href = '/home/platform';
+          setLocation('/home/platform');
         } else {
           // Fallback for users with no recognized roles
-          window.location.href = '/home/platform';
+          setLocation('/home/platform');
         }
       } else {
         throw new Error(data.message || data.error || 'Login failed');
@@ -289,6 +293,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(null);                                   // Clear token from React state
     localStorage.removeItem('auth_token');            // Remove token from localStorage
     localStorage.removeItem('user_data');             // Remove user data from localStorage
+    localStorage.removeItem('remember_me');           // Clear remember me preference
   };
 
   const logout = () => {

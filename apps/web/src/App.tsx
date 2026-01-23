@@ -41,6 +41,8 @@ import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 import { UserRole } from "@shared/rbac";
 import { Button } from "@/components/ui/button";
 import { logger } from "@/lib/logger";
+import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
+import { RouteGuard } from "@/components/auth/RouteGuard";
 
 // Core page imports - loaded immediately for critical public routes
 import Landing from "@/pages/landing";
@@ -122,6 +124,7 @@ function Router() {
   // Get authentication state from AuthProvider context
   const { user, isLoading, logout, hasRole, hasPermission } = useAuth();
   const [location, setLocation] = useLocation();
+  const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN); // Helper flag to distinguish admin flow from standard platform users.
 
   const fullScreenSuspenseFallback = (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -130,8 +133,8 @@ function Router() {
   );
 
   const shellSuspenseFallback = (
-    <div className="flex h-full items-center justify-center py-16 text-sm text-gray-600">
-      جار تحميل بيانات الصفحة...
+    <div className="h-full">
+      <DashboardSkeleton />
     </div>
   );
 
@@ -181,41 +184,7 @@ function Router() {
     UserRole.BUYER,
   ];
 
-  const AccessDenied = ({
-    redirectTo = '/home/platform',
-    message = 'ليس لديك الصلاحية للوصول إلى هذه الصفحة.',
-  }: {
-    redirectTo?: string;
-    message?: string;
-  }) => (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <div className="max-w-md w-full space-y-4 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-600">
-          <span className="text-2xl">🔒</span>
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-xl font-semibold text-slate-900">صلاحية غير كافية</h1>
-          <p className="text-sm text-slate-600">{message}</p>
-        </div>
-        <div className="flex items-center justify-center gap-3">
-          <Button
-            variant="outline"
-            onClick={() => setLocation(redirectTo, { replace: true })}
-            className="rounded-full"
-          >
-            العودة إلى المنصة
-          </Button>
-          <Button
-            onClick={() => setLocation('/home', { replace: true })}
-            className="rounded-full bg-emerald-600 hover:bg-emerald-700"
-          >
-            الذهاب إلى الصفحة الرئيسية
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-  const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN); // Helper flag to distinguish admin flow from standard platform users.
+
 
   // Guard against admins momentarily visiting the platform shell; if they land there (e.g. via browser history) we immediately send them back to RBAC.
   // Navigation loading overlay should only run for normal platform users, never for admins (so RBAC loads without flashing the platform shell).
@@ -269,11 +238,8 @@ function Router() {
     }
 
     if (location !== previousLocation && previousLocation !== "") {
-      setIsNavigationLoading(true);
-      const timer = setTimeout(() => {
-        setIsNavigationLoading(false);
-      }, 2500);
-      return () => clearTimeout(timer);
+      // Remove artificial delay for better performance
+      setIsNavigationLoading(false);
     }
 
     setPreviousLocation(location);
@@ -337,44 +303,7 @@ function Router() {
 
   type PlatformRenderableComponent = ComponentType<any> | LazyExoticComponent<ComponentType<any>>;
 
-  const renderPlatformShellRoute = (
-    Component: PlatformRenderableComponent,
-    options: PlatformRouteOptions = {},
-    allowedRoles?: readonly UserRole[],
-    requiredPermission?: string
-  ) => () => {
-    if (allowedRoles && !hasRole(Array.from(allowedRoles))) {
-      return (
-        <AccessDenied message="حسابك الحالي لا يمتلك صلاحية الوصول إلى هذه الصفحة داخل المنصة." />
-      );
-    }
-
-    if (requiredPermission && !hasPermission(requiredPermission)) {
-      return (
-        <AccessDenied message="صلاحية إضافية مطلوبة للوصول إلى هذه الصفحة. يرجى التواصل مع مدير النظام." />
-      );
-    }
-
-    return (
-      <PlatformShell
-        onLogout={handlePlatformLogout}
-        title={options.title}
-        searchPlaceholder={options.searchPlaceholder}
-      >
-        <Suspense fallback={shellSuspenseFallback}>
-          <Component />
-        </Suspense>
-      </PlatformShell>
-    );
-  };
-
-  const renderAdminDashboardRoute = () => {
-    if (!hasRole(Array.from(ADMIN_ONLY_ROLES))) {
-      return <AccessDenied message="هذه الصفحة متاحة للمشرفين فقط وفق سياسات التحكم في الصلاحيات." />;
-    }
-    return <SuspendedRBACDashboard />;
-  };
-
+  // Define route configuration objects
   const platformShellRoutes: Array<{
     path: string;
     component: PlatformRenderableComponent;
@@ -520,67 +449,57 @@ function Router() {
     </>
   );
 
-  // Helper function to render platform routes
+  // Helper function to render platform routes using RouteGuard
   const renderPlatformRoutes = (includeAliases: boolean = true) => (
     <>
-      {platformShellRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
-        const routes = [
-          <Route
-            key={path}
-            path={path}
-            component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
+      {[...platformShellRoutes, ...platformAdditionalRoutes].flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
+        const renderComponent = () => (
+          <RouteGuard
+            component={component}
+            allowedRoles={allowedRoles}
+            requiredPermission={requiredPermission}
+            withShell={true}
+            shellProps={{
+              ...options,
+              onLogout: handlePlatformLogout
+            }}
           />
+        );
+
+        const routes = [
+          <Route key={path} path={path} component={renderComponent} />
         ];
+
         if (includeAliases && aliases) {
           routes.push(
             ...aliases.map((alias) => (
-              <Route
-                key={`${path}-alias-${alias}`}
-                path={alias}
-                component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
-              />
+              <Route key={`${path}-alias-${alias}`} path={alias} component={renderComponent} />
             ))
           );
         }
         return routes;
       })}
-      {platformAdditionalRoutes.flatMap(({ path, component, options, aliases, allowedRoles, requiredPermission }) => {
-        const routes = [
-          <Route
-            key={path}
-            path={path}
-            component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
-          />
-        ];
-        if (includeAliases && aliases) {
-          routes.push(
-            ...aliases.map((alias) => (
-              <Route
-                key={`${path}-alias-${alias}`}
-                path={alias}
-                component={renderPlatformShellRoute(component, options, allowedRoles, requiredPermission)}
-              />
-            ))
-          );
-        }
-        return routes;
-      })}
+
       {platformDynamicRoutes.flatMap(({ path, component, options, aliases, allowedRoles }) => {
-        const routes = [
-          <Route
-            key={path}
-            path={path}
-            component={renderPlatformShellRoute(component, options, allowedRoles)}
+        const renderComponent = () => (
+          <RouteGuard
+            component={component}
+            allowedRoles={allowedRoles}
+            withShell={true}
+            shellProps={{
+              ...options,
+              onLogout: handlePlatformLogout
+            }}
           />
+        );
+
+        const routes = [
+          <Route key={path} path={path} component={renderComponent} />
         ];
         if (includeAliases && aliases) {
           routes.push(
             ...aliases.map((alias) => (
-              <Route
-                key={`${path}-alias-${alias}`}
-                path={alias}
-                component={renderPlatformShellRoute(component, options, allowedRoles)}
-              />
+              <Route key={`${path}-alias-${alias}`} path={alias} component={renderComponent} />
             ))
           );
         }
@@ -626,7 +545,9 @@ function Router() {
           {renderPlatformRoutes(true)}
 
           {/* Admin Route with RBAC Dashboard - No sidebar/header */}
-          <Route path="/home/admin" component={renderAdminDashboardRoute} />
+          <Route path="/home/admin">
+            <RouteGuard component={SuspendedRBACDashboard} allowedRoles={ADMIN_ONLY_ROLES} />
+          </Route>
           {/* Default route for non-dashboard port - redirect to home */}
           <Route component={() => {
             window.location.href = '/home';
@@ -731,8 +652,11 @@ function Router() {
           {isAdmin && (
             <>
               <Route path="/login" component={createRedirectComponent('/admin/overview/main-dashboard', 'جاري التوجيه إلى لوحة التحكم الإدارية...')} />
+              <Route path="/rbac-login" component={createRedirectComponent('/admin/overview/main-dashboard', 'جاري التوجيه إلى لوحة التحكم الإدارية...')} />
               {ADMIN_DASHBOARD_ROUTES.map((path) => (
-                <Route key={`admin-${path}`} path={path} component={renderAdminDashboardRoute} />
+                <Route key={`admin-${path}`} path={path}>
+                  <RouteGuard component={SuspendedRBACDashboard} allowedRoles={ADMIN_ONLY_ROLES} />
+                </Route>
               ))}
               {/* Redirect admin users from platform routes to admin dashboard */}
               <Route path="/home/platform" component={createRedirectComponent('/admin/overview/main-dashboard', 'جاري التوجيه إلى لوحة التحكم الإدارية...')} />
@@ -742,6 +666,8 @@ function Router() {
           {/* Platform Routes - For CORP_OWNER, CORP_AGENT, INDIV_AGENT users */}
           {isPlatformUser && (
             <>
+              <Route path="/login" component={createRedirectComponent('/home/platform', 'جاري التوجيه إلى لوحة التحكم...')} />
+              <Route path="/rbac-login" component={createRedirectComponent('/home/platform', 'جاري التوجيه إلى لوحة التحكم...')} />
               <Route path="/home/platform" component={SuspendedPlatformPage} />
               <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
 
@@ -758,6 +684,8 @@ function Router() {
           {/* Seller/Buyer Routes - Limited access for now */}
           {isSellerBuyer && (
             <>
+              <Route path="/login" component={createRedirectComponent('/home/platform', 'جاري التوجيه إلى لوحة التحكم...')} />
+              <Route path="/rbac-login" component={createRedirectComponent('/home/platform', 'جاري التوجيه إلى لوحة التحكم...')} />
               <Route path="/home/platform" component={SuspendedPlatformPage} />
               <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
 

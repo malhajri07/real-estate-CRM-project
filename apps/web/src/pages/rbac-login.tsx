@@ -44,12 +44,12 @@ export default function RBACLoginPage() {
     setLocation(isAdmin ? '/admin/overview/main-dashboard' : '/home/platform');
   };
 
-  const handleLogin = async (username: string, password: string) => {
+  const handleLogin = async (username: string, password: string, rememberMe: boolean) => {
     try {
       setError(null);
       setIsRedirecting(true);
       // The AuthProvider's login function will handle navigation after successful login
-      await login(username, password);
+      await login(username, password, rememberMe);
       // Don't reset isRedirecting here - let it stay true to show loading during redirect
       // The AuthProvider will redirect, and the useEffect below will catch it
     } catch (err) {
@@ -70,7 +70,7 @@ export default function RBACLoginPage() {
       const isAdmin = user.roles?.includes(UserRole.WEBSITE_ADMIN);
       const targetPath = isAdmin ? '/admin/overview/main-dashboard' : '/home/platform';
       // Use window.location for a hard redirect to ensure it works even if routing changes
-      window.location.href = targetPath;
+      setLocation(targetPath);
     }
   }, [user, isAuthenticating]);
 
@@ -162,7 +162,7 @@ export default function RBACLoginPage() {
           <div className="flex flex-col items-center gap-3 text-center">
             <p className="text-sm text-slate-500">
               لا تملك حساباً بعد؟
-              <button 
+              <button
                 onClick={() => setLocation('/signup')}
                 className="mr-2 font-semibold text-emerald-600 hover:text-emerald-700 underline bg-transparent border-none cursor-pointer"
               >

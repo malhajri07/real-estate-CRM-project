@@ -21,11 +21,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Users, 
-  UserPlus, 
-  Search, 
-  Filter, 
+import {
+  Users,
+  UserPlus,
+  Search,
+  Filter,
   MoreHorizontal,
   Edit,
   Trash2,
@@ -185,6 +185,7 @@ const roleLabels: Record<UserRole, string> = {
   INDIV_AGENT: 'وكيل مستقل',
   SELLER: 'بائع',
   BUYER: 'مشتري',
+  AGENT: 'وكيل',
 };
 
 const roleColors: Record<UserRole, string> = {
@@ -194,6 +195,7 @@ const roleColors: Record<UserRole, string> = {
   INDIV_AGENT: 'bg-green-100 text-green-800',
   SELLER: 'bg-orange-100 text-orange-800',
   BUYER: 'bg-gray-100 text-gray-800',
+  AGENT: 'bg-teal-100 text-teal-800',
 };
 
 export default function UserManagement() {
@@ -238,17 +240,17 @@ export default function UserManagement() {
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = selectedRole === 'ALL' || user.roles.includes(selectedRole);
-    const matchesStatus = selectedStatus === 'ALL' || 
-                         (selectedStatus === 'ACTIVE' && user.isActive) ||
-                         (selectedStatus === 'INACTIVE' && !user.isActive);
-    
+    const matchesStatus = selectedStatus === 'ALL' ||
+      (selectedStatus === 'ACTIVE' && user.isActive) ||
+      (selectedStatus === 'INACTIVE' && !user.isActive);
+
     return matchesSearch && matchesRole && matchesStatus;
   });
 
   const toggleUserStatus = (userId: string) => {
-    setUsers(prev => prev.map(u => 
+    setUsers(prev => prev.map(u =>
       u.id === userId ? { ...u, isActive: !u.isActive } : u
     ));
   };
@@ -439,15 +441,15 @@ export default function UserManagement() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-medium">{org.name}</h3>
-                          <Badge 
+                          <Badge
                             className={
                               org.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
-                              org.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
+                                org.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-red-100 text-red-800'
                             }
                           >
                             {org.status === 'ACTIVE' ? 'نشط' :
-                             org.status === 'PENDING' ? 'في الانتظار' : 'معلق'}
+                              org.status === 'PENDING' ? 'في الانتظار' : 'معلق'}
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-600 mb-2">{org.legalName}</p>

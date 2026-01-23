@@ -35,6 +35,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
 
 /**
  * LoginFormProps Interface
@@ -45,7 +46,7 @@ import { Loader2, Eye, EyeOff } from 'lucide-react';
  * - error: Error message to display if authentication fails
  */
 interface LoginFormProps {
-  onLogin: (identifier: string, password: string) => Promise<void>;
+  onLogin: (identifier: string, password: string, rememberMe: boolean) => Promise<void>;
   isLoading?: boolean;
   error?: string;
 }
@@ -73,6 +74,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   /**
    * handleSubmit - Form submission handler
@@ -88,7 +90,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier || !password) return;
-    await onLogin(identifier, password);
+    await onLogin(identifier, password, rememberMe);
   };
 
   return (
@@ -159,17 +161,34 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
             </div>
           </div>
 
-          <div className="text-sm text-slate-500 text-right">
-            <Button
-              type="button"
-              variant="link"
-              className="p-0 h-auto text-sm text-emerald-600 hover:text-emerald-700"
-              onClick={() => {
-                alert('يرجى التواصل مع مدير النظام لاستعادة بيانات الدخول');
-              }}
-            >
-              نسيت بيانات الدخول؟
-            </Button>
+          <div className="flex items-center justify-between text-sm text-right">
+            <div className="flex items-center space-x-2 space-x-reverse">
+              <Checkbox
+                id="remember"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                disabled={isLoading}
+              />
+              <Label
+                htmlFor="remember"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-600 cursor-pointer"
+              >
+                تذكرني
+              </Label>
+            </div>
+
+            <div className="text-sm text-slate-500 text-right">
+              <Button
+                type="button"
+                variant="link"
+                className="p-0 h-auto text-sm text-emerald-600 hover:text-emerald-700"
+                onClick={() => {
+                  alert('يرجى التواصل مع مدير النظام لاستعادة بيانات الدخول');
+                }}
+              >
+                نسيت بيانات الدخول؟
+              </Button>
+            </div>
           </div>
 
           <Button

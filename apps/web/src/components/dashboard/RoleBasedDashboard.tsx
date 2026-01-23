@@ -18,14 +18,14 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Users, 
-  Building, 
-  Home, 
-  Search, 
-  FileText, 
-  BarChart3, 
-  Settings, 
+import {
+  Users,
+  Building,
+  Home,
+  Search,
+  FileText,
+  BarChart3,
+  Settings,
   Shield,
   UserCheck,
   Handshake,
@@ -57,7 +57,8 @@ export default function RoleBasedDashboard() {
       CORP_AGENT: 'bg-green-100 text-green-800',
       INDIV_AGENT: 'bg-yellow-100 text-yellow-800',
       SELLER: 'bg-purple-100 text-purple-800',
-      BUYER: 'bg-indigo-100 text-indigo-800'
+      BUYER: 'bg-indigo-100 text-indigo-800',
+      AGENT: 'bg-teal-100 text-teal-800'
     };
     return roleColors[role] || 'bg-gray-100 text-gray-800';
   };
@@ -94,7 +95,7 @@ export default function RoleBasedDashboard() {
 
       {/* Role-based Dashboard Content */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        
+
         {/* Website Admin Dashboard */}
         {hasRole([UserRole.WEBSITE_ADMIN]) && (
           <>

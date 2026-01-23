@@ -18,6 +18,10 @@
  */
 
 import { ReactNode, useMemo, useState } from "react";
+import { Link } from "wouter";
+import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
+import { RevenueChart } from "@/components/dashboard/RevenueChart";
+import { DateRangeFilter } from "@/components/dashboard/DateRangeFilter";
 import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
@@ -72,6 +76,7 @@ type MetricResponse = {
 export default function Dashboard() {
   const [addLeadDrawerOpen, setAddLeadDrawerOpen] = useState(false);
   const [addPropertyDrawerOpen, setAddPropertyDrawerOpen] = useState(false);
+  const [completedactivities, setCompletedActivities] = useState<string[]>([]);
   const { dir, language, t } = useLanguage();
   const locale = language === "ar" ? "ar-SA" : "en-US";
 
@@ -130,6 +135,7 @@ export default function Dashboard() {
         icon: Users,
         accent: "bg-gradient-to-br from-brand-50 via-white to-white text-brand-700",
         delta: { value: 12, tone: "up" as const },
+        href: "/home/platform/leads",
       },
       {
         id: "properties",
@@ -138,6 +144,7 @@ export default function Dashboard() {
         icon: Building,
         accent: "bg-gradient-to-br from-emerald-50 via-white to-white text-emerald-700",
         delta: { value: 8, tone: "up" as const },
+        href: "/home/platform/properties",
       },
       {
         id: "pipeline",
@@ -208,27 +215,35 @@ export default function Dashboard() {
     );
   }
 
+  const toggleActivity = (id: string) => {
+    setCompletedActivities(prev =>
+      prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+    );
+  };
+
   return (
     <div className="w-full space-y-6" dir={dir}>
       <section aria-label={t("dashboard.quick_summary")} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((metric) => (
-          <Card key={metric.id} className={cn("border border-border/60 shadow-card transition hover:-translate-y-0.5", metric.accent)}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/70 shadow-inner">
-                <metric.icon className="h-5 w-5" />
-              </div>
-              <Badge variant={metric.delta.tone === "down" ? "warning" : "success"} className="rounded-full px-3 py-1 text-xs font-semibold">
-                {metric.delta.tone === "down" ? "-" : "+"}
-                {Math.abs(metric.delta.value)}%
-              </Badge>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p className="text-3xl font-semibold text-slate-900">{metric.value}</p>
-              <CardDescription className="text-sm text-slate-600">
-                {metric.label}
-              </CardDescription>
-            </CardContent>
-          </Card>
+          <Link key={metric.id} to={metric.href || "#"}>
+            <Card className={cn("border border-border/60 shadow-card transition hover:-translate-y-0.5 hover:shadow-md cursor-pointer", metric.accent)}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/70 shadow-inner">
+                  <metric.icon className="h-5 w-5" />
+                </div>
+                <Badge variant={metric.delta.tone === "down" ? "warning" : "success"} className="rounded-full px-3 py-1 text-xs font-semibold">
+                  {metric.delta.tone === "down" ? "-" : "+"}
+                  {Math.abs(metric.delta.value)}%
+                </Badge>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <p className="text-3xl font-semibold text-slate-900">{metric.value}</p>
+                <CardDescription className="text-sm text-slate-600">
+                  {metric.label}
+                </CardDescription>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </section>
 
@@ -240,9 +255,12 @@ export default function Dashboard() {
                 <CardTitle className="text-lg font-semibold">{t("dashboard.pipeline_stages")}</CardTitle>
                 <CardDescription>{t("dashboard.pipeline_description")}</CardDescription>
               </div>
-              <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs">
-                {dateFormatter.format(new Date())}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <DateRangeFilter />
+                <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs">
+                  {dateFormatter.format(new Date())}
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -252,6 +270,9 @@ export default function Dashboard() {
                     <p className="mt-1 text-xs font-medium text-muted-foreground">{stage.label}</p>
                   </div>
                 ))}
+              </div>
+              <div className="mt-8">
+                <RevenueChart />
               </div>
             </CardContent>
           </Card>
@@ -376,22 +397,23 @@ export default function Dashboard() {
                     <li
                       key={activity.id}
                       className={cn(
-                        "flex items-start gap-3 rounded-2xl border border-border/60 bg-white/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card",
-                        activity.completed && "opacity-60"
+                        "flex items-start gap-3 rounded-2xl border border-border/60 bg-white/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card cursor-pointer group",
+                        (activity.completed || completedactivities.includes(activity.id)) && "opacity-60"
                       )}
+                      onClick={() => toggleActivity(activity.id)}
                     >
                       <span className={cn(
-                        "mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full border text-brand-600",
-                        activity.completed ? "border-emerald-300 bg-emerald-50 text-emerald-600" : "border-brand-200 bg-brand-50"
+                        "mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full border text-brand-600 transition-colors group-hover:bg-brand-100",
+                        (activity.completed || completedactivities.includes(activity.id)) ? "border-emerald-300 bg-emerald-50 text-emerald-600" : "border-brand-200 bg-brand-50"
                       )}>
-                        {activity.completed ? (
+                        {(activity.completed || completedactivities.includes(activity.id)) ? (
                           <Check className="h-4 w-4" />
                         ) : (
                           <Clock3 className="h-4 w-4" />
                         )}
                       </span>
                       <div className="space-y-1">
-                        <p className={cn("text-sm font-semibold", activity.completed && "line-through text-muted-foreground")}>{activity.title}</p>
+                        <p className={cn("text-sm font-semibold transition-colors", (activity.completed || completedactivities.includes(activity.id)) && "line-through text-muted-foreground")}>{activity.title}</p>
                         <p className="text-xs text-muted-foreground">
                           {activity.scheduledDate
                             ? new Date(activity.scheduledDate).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })
@@ -413,27 +435,7 @@ export default function Dashboard() {
   );
 }
 
-function DashboardSkeleton() {
-  return (
-    <div className="space-y-10 py-6">
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="h-36 w-full rounded-2xl" />
-        ))}
-      </section>
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="space-y-8 lg:col-span-2">
-          <Skeleton className="h-72 w-full rounded-3xl" />
-          <Skeleton className="h-96 w-full rounded-3xl" />
-        </div>
-        <div className="space-y-8">
-          <Skeleton className="h-64 w-full rounded-3xl" />
-          <Skeleton className="h-72 w-full rounded-3xl" />
-        </div>
-      </div>
-    </div>
-  );
-}
+
 
 interface EmptyStateProps {
   title: string;
