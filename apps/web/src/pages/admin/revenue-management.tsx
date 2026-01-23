@@ -409,11 +409,30 @@ export default function RevenueManagement() {
 
     return (
         <div className="space-y-6 p-6" dir="rtl">
-            <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold tracking-tight">إدارة الإيرادات</h1>
-                <p className="text-muted-foreground">
-                    نظرة شاملة على الأداء المالي، الاشتراكات، وخطط الأسعار.
-                </p>
+            <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-2">
+                    <h1 className="text-3xl font-bold tracking-tight">إدارة الإيرادات</h1>
+                    <p className="text-muted-foreground">
+                        نظرة شاملة على الأداء المالي، الاشتراكات، وخطط الأسعار.
+                    </p>
+                </div>
+                <Button
+                    variant="outline"
+                    onClick={async () => {
+                        try {
+                            const res = await fetch('/api/billing/seed', { method: 'POST' });
+                            if (res.ok) {
+                                window.location.reload();
+                            } else {
+                                alert('Failed to seed data');
+                            }
+                        } catch (e) {
+                            alert('Error seeding data');
+                        }
+                    }}
+                >
+                    Generate Sample Data
+                </Button>
             </div>
 
             <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">

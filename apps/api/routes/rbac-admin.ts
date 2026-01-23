@@ -145,13 +145,29 @@ router.get('/dashboard', async (req, res) => {
   try {
     // Simple dashboard with basic data
     // Real data queries
-    const userCount = await prisma.users.count();
-    const propertyCount = await prisma.properties.count();
-    const leadCount = await prisma.leads.count();
-    const claimCount = await prisma.claims.count();
-    const orgCount = await prisma.organizations.count();
+    // Helper to safely count - avoiding "Cannot read properties of undefined"
+    const safeCount = async (modelName: string, query?: any) => {
+      try {
+        const model = (prisma as any)[modelName];
+        if (!model) {
+          console.warn(`Prisma model ${modelName} missing`);
+          return 0;
+        }
+        return await model.count(query);
+      } catch (err) {
+        console.warn(`Count failed for ${modelName}:`, err);
+        return 0;
+      }
+    };
 
-    const appointmentsCount = await prisma.appointments.count({
+    // Real data queries with safety
+    const userCount = await safeCount('users');
+    const propertyCount = await safeCount('properties');
+    const leadCount = await safeCount('leads');
+    const claimCount = await safeCount('claims');
+    const orgCount = await safeCount('organizations'); // Unused but kept for consistency
+
+    const appointmentsCount = await safeCount('appointments', {
       where: {
         scheduledAt: {
           gte: new Date(new Date().setHours(0, 0, 0, 0)) // Today
@@ -159,7 +175,7 @@ router.get('/dashboard', async (req, res) => {
       }
     });
 
-    const appointments7Days = await prisma.appointments.count({
+    const appointments7Days = await safeCount('appointments', {
       where: {
         scheduledAt: {
           gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -167,7 +183,7 @@ router.get('/dashboard', async (req, res) => {
       }
     });
 
-    const appointments30Days = await prisma.appointments.count({
+    const appointments30Days = await safeCount('appointments', {
       where: {
         scheduledAt: {
           gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
@@ -176,70 +192,96 @@ router.get('/dashboard', async (req, res) => {
     });
 
     // Financials
-    const revenueAgg = await prisma.billing_invoices.aggregate({
-      _sum: {
-        amountPaid: true,
-        amountDue: true
+    let totalRevenue = 0;
+    let totalInvoiced = 0;
+
+    try {
+      if ((prisma as any).billing_invoices) {
+        const revenueAgg = await (prisma as any).billing_invoices.aggregate({
+          _sum: {
+            amountPaid: true,
+            amountDue: true
+          }
+        });
+        totalRevenue = Number(revenueAgg._sum.amountPaid || 0);
+        totalInvoiced = Number(revenueAgg._sum.amountDue || 0);
+      } else {
+        console.warn('Prisma model billing_invoices is not available');
       }
-    });
+    } catch (e) {
+      console.warn('Failed to fetch revenue metrics:', e);
+    }
 
     // Recent Tickets
-    const recentTickets = await prisma.support_tickets.findMany({
-      take: 5,
-      orderBy: { updatedAt: 'desc' },
-      include: {
-        createdBy: {
-          select: { firstName: true, lastName: true, email: true }
-        },
-        assignedTo: {
-          select: { firstName: true, lastName: true }
-        }
+    let recentTickets: any[] = [];
+    try {
+      if ((prisma as any).support_tickets) {
+        recentTickets = await (prisma as any).support_tickets.findMany({
+          take: 5,
+          orderBy: { updatedAt: 'desc' },
+          include: {
+            createdBy: {
+              select: { firstName: true, lastName: true, email: true }
+            },
+            assignedTo: {
+              select: { firstName: true, lastName: true }
+            }
+          }
+        });
       }
-    });
+    } catch (e) {
+      console.warn('Failed to fetch support tickets:', e);
+    }
 
     // Top Agents (based on WON leads)
-    const topAgentsGroups = await prisma.leads.groupBy({
-      by: ['agentId'],
-      where: {
-        status: 'WON',
-        agentId: { not: null }
-      },
-      _count: {
-        id: true
-      },
-      orderBy: {
-        _count: {
-          id: 'desc'
-        }
-      },
-      take: 5
-    } as any);
+    let topAgents: any[] = [];
+    try {
+      if ((prisma as any).leads) {
+        const topAgentsGroups = await (prisma as any).leads.groupBy({
+          by: ['agentId'],
+          where: {
+            status: 'WON'
+          },
+          _count: {
+            id: true
+          },
+          orderBy: {
+            _count: {
+              id: 'desc'
+            }
+          },
+          take: 5
+        } as any);
 
-    const topAgents = await Promise.all(topAgentsGroups.map(async (group) => {
-      if (!group.agentId) return null;
-      const agent = await prisma.users.findUnique({
-        where: { id: group.agentId },
-        select: { id: true, firstName: true, lastName: true, email: true, phone: true, avatarUrl: true }
-      });
-      return {
-        id: agent?.id,
-        name: `${agent?.firstName} ${agent?.lastName}`,
-        email: agent?.email,
-        phone: agent?.phone,
-        avatarUrl: agent?.avatarUrl,
-        dealsWon: (group._count as any).id || 0,
-        gmv: 0 // Placeholder as we don't have deal value easily yet
-      };
-    }));
+        topAgents = await Promise.all(topAgentsGroups.map(async (group: any) => {
+          if (!group.agentId) return null;
+          // Defensive user check
+          if (!(prisma as any).users) return null;
 
-    const totalRevenue = Number(revenueAgg._sum.amountPaid || 0);
-    const totalInvoiced = Number(revenueAgg._sum.amountDue || 0); // approximation
+          const agent = await (prisma as any).users.findUnique({
+            where: { id: group.agentId },
+            select: { id: true, firstName: true, lastName: true, email: true, phone: true, avatarUrl: true }
+          });
+          return {
+            id: agent?.id,
+            name: `${agent?.firstName} ${agent?.lastName}`,
+            email: agent?.email,
+            phone: agent?.phone,
+            avatarUrl: agent?.avatarUrl,
+            dealsWon: (group._count as any).id || 0,
+            gmv: 0 // Placeholder as we don't have deal value easily yet
+          };
+        }));
+      }
+    } catch (e) {
+      console.error('Failed to fetch top agents:', e);
+    }
 
     res.json({
       success: true,
       metrics: {
         currency: 'SAR',
-        leads: { today: leadCount, last7Days: leadCount, last30Days: leadCount }, // Keeping simple count for now to avoid specific range queries complexity if not requested
+        leads: { today: leadCount, last7Days: leadCount, last30Days: leadCount },
         listings: { today: propertyCount, last7Days: propertyCount, last30Days: propertyCount },
         appointments: { today: appointmentsCount, last7Days: appointments7Days, last30Days: appointments30Days },
         dealsWon: { today: claimCount, last7Days: claimCount, last30Days: claimCount },
@@ -261,10 +303,10 @@ router.get('/dashboard', async (req, res) => {
       }))
     });
   } catch (error) {
-    console.error('Dashboard error:', error);
-    res.status(500).json({
+    console.error('Dashboard error full:', error);
+    res.status(500).json({ // Still return 500 if catastrophic
       success: false,
-      message: 'Failed to fetch dashboard metrics',
+      message: 'Failed to fetch dashboard metrics. ERROR: ' + (error instanceof Error ? error.message : String(error)),
       error: error instanceof Error ? error.message : 'Unknown error'
     });
   }

@@ -73,6 +73,13 @@ type LegacyPrismaClient = PrismaClient & {
   propertiesSeeker: PrismaClient['properties_seeker'];
   marketingRequest: MarketingDelegate;
   marketingProposal: MarketingDelegate;
+  billing_invoices: PrismaClient['billing_invoices'];
+  billing_accounts: PrismaClient['billing_accounts'];
+  billing_subscriptions: PrismaClient['billing_subscriptions'];
+  system_roles: PrismaClient['system_roles'];
+  permissions: PrismaClient['permissions'];
+  role_permissions: PrismaClient['role_permissions'];
+  support_tickets: PrismaClient['support_tickets'];
 };
 
 const prisma = basePrisma as LegacyPrismaClient;
@@ -100,5 +107,13 @@ alias('listing', () => basePrisma.listings);
 alias('propertiesSeeker', () => basePrisma.properties_seeker);
 alias('marketingRequest', () => createStubDelegate('marketingRequest'));
 alias('marketingProposal', () => createStubDelegate('marketingProposal'));
+// New aliases for RBAC and Billing
+alias('billing_invoices', () => basePrisma.billing_invoices);
+alias('billing_accounts', () => basePrisma.billing_accounts);
+alias('billing_subscriptions', () => basePrisma.billing_subscriptions);
+alias('system_roles', () => basePrisma.system_roles);
+alias('permissions', () => basePrisma.permissions);
+alias('role_permissions', () => basePrisma.role_permissions);
+alias('support_tickets', () => basePrisma.support_tickets);
 
 export { prisma };

@@ -181,7 +181,10 @@ type DashboardMetricsResponse = {
 
 const dashboardQuery = async (): Promise<DashboardMetricsResponse> => {
   const res = await fetch("/api/rbac-admin/dashboard", { credentials: "include" });
-  if (!res.ok) throw new Error("فشل في تحميل لوحة التحكم");
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => 'No error details');
+    throw new Error(`فشل في تحميل لوحة التحكم (${res.status} ${res.statusText}): ${errorText}`);
+  }
   const payload = (await res.json()) as DashboardMetricsResponse;
   if (!payload.success) throw new Error("فشل في تحميل لوحة التحكم");
   return payload;

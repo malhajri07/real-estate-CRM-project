@@ -95,4 +95,56 @@ router.put('/:id', async (req: any, res) => {
     }
 });
 
+// POST /api/support/seed
+router.post('/seed', async (req: any, res) => {
+    try {
+        const userId = req.user?.id;
+        const orgId = req.user?.organizationId;
+
+        // Find existing user if not authenticated (dev mode fallback)
+        let targetUser = userId;
+        let targetOrg = orgId;
+
+        if (!targetUser) {
+            const u = await prisma.users.findFirst({ include: { organization: true } });
+            if (u) {
+                targetUser = u.id;
+                targetOrg = u.organizationId || (await prisma.organizations.findFirst())?.id;
+            }
+        }
+
+        if (!targetOrg) {
+            return res.status(400).json({ message: 'No organization found to seed tickets for' });
+        }
+
+        const dummyTickets = [
+            { subject: 'Login issue on mobile', status: 'OPEN', priority: 'HIGH' },
+            { subject: 'Billing question for March', status: 'RESOLVED', priority: 'MEDIUM' },
+            { subject: 'Feature request: Dark mode', status: 'OPEN', priority: 'LOW' },
+            { subject: 'API token not working', status: 'IN_PROGRESS', priority: 'URGENT' },
+            { subject: 'Update profile picture error', status: 'CLOSED', priority: 'LOW' }
+        ];
+
+        for (const t of dummyTickets) {
+            await prisma.support_tickets.create({
+                data: {
+                    subject: t.subject,
+                    description: `Automated seed ticket for ${t.subject}`,
+                    priority: t.priority as any,
+                    status: t.status as any,
+                    channel: 'WEBSITE',
+                    organizationId: targetOrg,
+                    createdByUserId: targetUser,
+                    updatedAt: new Date()
+                }
+            });
+        }
+
+        res.json({ success: true, message: 'Support tickets seeded' });
+    } catch (error) {
+        console.error('Seeding tickets error:', error);
+        res.status(500).json({ message: 'Failed to seed tickets' });
+    }
+});
+
 export default router;

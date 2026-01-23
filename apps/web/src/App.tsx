@@ -93,6 +93,19 @@ const AdminRequestsPage = lazy(() => import("@/pages/admin/requests"));
 const ActivitiesPage = lazy(() => import("@/pages/platform/activities"));
 const CalendarPage = lazy(() => import("@/pages/platform/calendar"));
 
+// Admin Pages
+const UserManagementPage = lazy(() => import("@/pages/admin/user-management"));
+const RoleManagementPage = lazy(() => import("@/pages/admin/role-management"));
+const OrganizationManagementPage = lazy(() => import("@/pages/admin/organization-management"));
+const ArticlesManagementPage = lazy(() => import("@/pages/admin/articles-management"));
+const MediaLibraryPage = lazy(() => import("@/pages/admin/media-library"));
+const NavigationManagementPage = lazy(() => import("@/pages/admin/navigation-management"));
+const SEOManagementPage = lazy(() => import("@/pages/admin/seo-management"));
+const TemplatesManagementPage = lazy(() => import("@/pages/admin/templates-management"));
+const ComplaintsManagementPage = lazy(() => import("@/pages/admin/complaints-management"));
+const RevenueManagementPage = lazy(() => import("@/pages/admin/revenue-management"));
+const EnhancedDashboardPage = lazy(() => import("@/pages/admin/enhanced-dashboard"));
+
 
 const ADMIN_DASHBOARD_ROUTES = Array.from(
   new Set<string>([
@@ -366,6 +379,25 @@ function Router() {
 
       { path: '/home/platform/activities', component: ActivitiesPage, aliases: ['/activities'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/calendar', component: CalendarPage, aliases: ['/calendar'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+    ];
+
+  // Admin-only routes
+  const adminRoutes: Array<{
+    path: string;
+    component: PlatformRenderableComponent;
+    aliases?: string[];
+  }> = [
+      { path: '/admin/users', component: UserManagementPage },
+      { path: '/admin/roles', component: RoleManagementPage },
+      { path: '/admin/organizations', component: OrganizationManagementPage },
+      { path: '/admin/content/articles', component: ArticlesManagementPage },
+      { path: '/admin/content/media', component: MediaLibraryPage },
+      { path: '/admin/content/navigation', component: NavigationManagementPage },
+      { path: '/admin/content/seo', component: SEOManagementPage },
+      { path: '/admin/content/templates', component: TemplatesManagementPage },
+      { path: '/admin/complaints', component: ComplaintsManagementPage },
+      { path: '/admin/revenue', component: RevenueManagementPage },
+      { path: '/admin/dashboard-v2', component: EnhancedDashboardPage },
     ];
 
 
@@ -656,6 +688,23 @@ function Router() {
                   <RouteGuard component={SuspendedRBACDashboard} allowedRoles={ADMIN_ONLY_ROLES} />
                 </Route>
               ))}
+
+              {/* Render Admin Management Routes */}
+              {adminRoutes.map(({ path, component, aliases }) => {
+                const routes = [
+                  <Route key={`admin-route-${path}`} path={path}>
+                    <RouteGuard component={withSuspense(component)} allowedRoles={ADMIN_ONLY_ROLES} />
+                  </Route>
+                ];
+                if (aliases) {
+                  routes.push(...aliases.map(alias => (
+                    <Route key={`admin-route-alias-${alias}`} path={alias}>
+                      <RouteGuard component={withSuspense(component)} allowedRoles={ADMIN_ONLY_ROLES} />
+                    </Route>
+                  )));
+                }
+                return routes;
+              })}
               {/* Redirect admin users from platform routes to admin dashboard */}
               <Route path="/home/platform" component={createRedirectComponent('/admin/overview/main-dashboard', 'جاري التوجيه إلى لوحة التحكم الإدارية...')} />
             </>

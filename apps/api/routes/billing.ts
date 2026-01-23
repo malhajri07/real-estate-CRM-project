@@ -267,4 +267,110 @@ router.get('/plans', async (_req, res) => {
     }
 });
 
+
+// --- Seeding ---
+
+router.post('/seed', async (req, res) => {
+    try {
+        console.log('🚀 Starting billing population via API...');
+
+        // 1. Get a user
+        const user = await prisma.users.findFirst();
+        if (!user) {
+            return res.status(400).json({ message: 'No users found' });
+        }
+
+        // 2. Create Plans
+        const plansData = [
+            { name: 'Basic', price: 99, period: 'monthly', currency: 'SAR' },
+            { name: 'Pro', price: 199, period: 'monthly', currency: 'SAR' },
+            { name: 'Enterprise', price: 2000, period: 'yearly', currency: 'SAR' },
+        ];
+
+        for (const p of plansData) {
+            const existing = await prisma.pricing_plans.findFirst({ where: { name: p.name } });
+            if (!existing) {
+                await prisma.pricing_plans.create({
+                    data: {
+                        name: p.name,
+                        price: p.price,
+                        period: p.period,
+                        billingInterval: p.period,
+                        currency: p.currency,
+                        description: `${p.name} Plan`,
+                        isPopular: p.name === 'Pro',
+                    }
+                });
+            }
+        }
+
+        const allPlans = await prisma.pricing_plans.findMany();
+
+        // 3. Create Billing Account
+        let account = await prisma.billing_accounts.findFirst({ where: { userId: user.id } });
+        if (!account) {
+            account = await prisma.billing_accounts.create({
+                data: {
+                    userId: user.id,
+                    organizationId: user.organizationId,
+                    status: 'ACTIVE',
+                    currency: 'SAR',
+                    billingEmail: user.email,
+                    // contactName is not in schema based on previous check, removing it
+                }
+            });
+        }
+
+        // 4. Create Subscription
+        const plan = allPlans.find(p => p.name === 'Pro') || allPlans[0];
+        let sub = await prisma.billing_subscriptions.findFirst({ where: { accountId: account.id } });
+        if (!sub && plan) {
+            sub = await prisma.billing_subscriptions.create({
+                data: {
+                    accountId: account.id,
+                    planId: plan.id,
+                    status: 'ACTIVE',
+                    currentPeriodStart: new Date(),
+                    currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                }
+            });
+        }
+
+        // 5. Create Invoices (Last 6 months)
+        if (sub) {
+            const existingInvoices = await prisma.billing_invoices.count({ where: { accountId: account.id } });
+            if (existingInvoices < 5) {
+                const months = 6;
+                for (let i = 0; i < months; i++) {
+                    const date = new Date();
+                    date.setMonth(date.getMonth() - i);
+
+                    const amount = i % 3 === 0 ? 2000 : 199;
+
+                    await prisma.billing_invoices.create({
+                        data: {
+                            accountId: account.id,
+                            subscriptionId: sub.id,
+                            number: `INV-${Date.now()}-${i}`,
+                            status: 'PAID',
+                            issueDate: date,
+                            dueDate: date,
+                            amountDue: amount,
+                            amountPaid: amount,
+                            currency: 'SAR',
+                            createdAt: date,
+                            updatedAt: date
+                        }
+                    });
+                }
+            }
+        }
+
+        res.json({ success: true, message: 'Billing data seeded successfully' });
+    } catch (error) {
+        console.error('Seeding error:', error);
+        res.status(500).json({ message: 'Seeding failed', error: String(error) });
+    }
+});
+
 export default router;

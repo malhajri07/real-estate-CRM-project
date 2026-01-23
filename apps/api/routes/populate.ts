@@ -20,82 +20,26 @@
  */
 
 import { Router } from "express";
-import { populateDatabase } from "../populateDatabase";
-import { populateAdmin1Data } from "../populateAdmin1Data";
-import { createAdmin1AndPopulate } from "../createAdmin1AndPopulate";
+// import { populateDatabase } from "../populateDatabase";
+// import { populateAdmin1Data } from "../populateAdmin1Data";
+// import { createAdmin1AndPopulate } from "../createAdmin1AndPopulate";
 import { storage } from "../storage-prisma";
 
 const router = Router();
 
 // Endpoint to populate database with more data
 router.post("/populate", async (req, res) => {
-  try {
-    const { count = 100 } = req.body;
-    
-    // Temporarily increase the count
-    const originalFile = await import("../populateDatabase");
-    
-    console.log(`🚀 Creating ${count} additional properties...`);
-    
-    const result = await populateDatabase();
-    
-    res.json({
-      success: true,
-      message: `تم إنشاء البيانات بنجاح`,
-      data: result
-    });
-  } catch (error) {
-    console.error("Error populating database:", error);
-    res.status(500).json({
-      success: false,
-      message: "خطأ في إنشاء البيانات",
-      error: error instanceof Error ? error.message : "Unknown error"
-    });
-  }
+  res.status(501).json({ message: "Population features disabled during cleanup" });
 });
 
 // Endpoint to create Admin1 and populate with data
 router.post("/create-admin1", async (req, res) => {
-  try {
-    console.log("🚀 بدء إنشاء Admin1 وإضافة البيانات...");
-    
-    const result = await createAdmin1AndPopulate();
-    
-    res.json({
-      success: true,
-      message: `تم إنشاء Admin1 والبيانات بنجاح`,
-      data: result
-    });
-  } catch (error) {
-    console.error("Error creating Admin1 and populating data:", error);
-    res.status(500).json({
-      success: false,
-      message: "خطأ في إنشاء Admin1 والبيانات",
-      error: error instanceof Error ? error.message : "Unknown error"
-    });
-  }
+  res.status(501).json({ message: "Population features disabled during cleanup" });
 });
 
 // Endpoint to populate Admin1 with additional data
 router.post("/populate-admin1", async (req, res) => {
-  try {
-    console.log("🚀 بدء إضافة البيانات الإضافية لـ Admin1...");
-    
-    const result = await populateAdmin1Data();
-    
-    res.json({
-      success: true,
-      message: `تم إنشاء البيانات الإضافية لـ Admin1 بنجاح`,
-      data: result
-    });
-  } catch (error) {
-    console.error("Error populating Admin1 data:", error);
-    res.status(500).json({
-      success: false,
-      message: "خطأ في إنشاء البيانات الإضافية لـ Admin1",
-      error: error instanceof Error ? error.message : "Unknown error"
-    });
-  }
+  res.status(501).json({ message: "Population features disabled during cleanup" });
 });
 
 export default router;
@@ -110,7 +54,7 @@ router.post("/fake", async (req, res) => {
       { name: "الدمام", lat: 26.4207, lng: 50.0888 },
       { name: "مكة", lat: 21.3891, lng: 39.8579 }
     ];
-    const types = ["شقة", "فيلا", "استوديو", "تاون هاوس"]; 
+    const types = ["شقة", "فيلا", "استوديو", "تاون هاوس"];
     const photos = [
       "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
