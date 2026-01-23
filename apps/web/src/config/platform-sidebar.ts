@@ -72,7 +72,6 @@ const PLATFORM_CORE_ROLES = [
   UserRole.CORP_OWNER,
   UserRole.CORP_AGENT,
   UserRole.INDIV_AGENT,
-  UserRole.AGENT,
 ];
 
 const CORPORATE_MANAGEMENT_ROLES = [
@@ -85,7 +84,6 @@ const EXTENDED_PLATFORM_ROLES = [
   UserRole.CORP_OWNER,
   UserRole.CORP_AGENT,
   UserRole.INDIV_AGENT,
-  UserRole.AGENT,
   UserRole.SELLER,
   UserRole.BUYER,
 ];

@@ -1,7 +1,7 @@
 /**
  * AdminHeader.tsx - Admin Header Component
  * 
- * Location: apps/web/src/ → Components/ → Feature Components → rbac/ → AdminHeader.tsx
+ * Location: apps/web/src/ → Components/ → Admin/ → Layout/ → AdminHeader.tsx
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
  * 
  * Admin header component for RBAC admin pages. Provides:
@@ -10,8 +10,8 @@
  * - Logout functionality
  * 
  * Related Files:
- * - apps/web/src/components/rbac/AdminSidebar.tsx - Admin sidebar
- * - apps/web/src/pages/rbac-dashboard.tsx - RBAC dashboard
+ * - apps/web/src/components/admin/layout/AdminSidebar.tsx - Admin sidebar
+ * - apps/web/src/pages/admin/dashboard.tsx - Admin dashboard
  */
 
 import { useEffect, useRef, useState } from 'react';

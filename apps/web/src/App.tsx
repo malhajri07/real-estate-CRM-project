@@ -46,11 +46,11 @@ import { RouteGuard } from "@/components/auth/RouteGuard";
 
 // Core page imports - loaded immediately for critical public routes
 import Landing from "@/pages/landing";
-import SignupSelection from "@/pages/signup-selection";
-import SignupIndividual from "@/pages/signup-individual";
-import SignupCorporate from "@/pages/signup-corporate";
-import SignupSuccess from "@/pages/signup-success";
-import KYCSubmitted from "@/pages/kyc-submitted";
+import SignupSelection from "@/pages/signup/selection";
+import SignupIndividual from "@/pages/signup/individual";
+import SignupCorporate from "@/pages/signup/corporate";
+import SignupSuccess from "@/pages/signup/success";
+import KYCSubmitted from "@/pages/signup/kyc-submitted";
 import Sidebar from "@/components/layout/sidebar";
 import PlatformShell from "@/components/layout/PlatformShell";
 import Header from "@/components/layout/header";
@@ -58,40 +58,40 @@ import Header from "@/components/layout/header";
 import { adminSidebarConfig } from "@/config/admin-sidebar";
 
 // Lazy-loaded page imports - loaded on demand for better performance
-const CMSAdmin = lazy(() => import("@/pages/cms-admin"));
-const Dashboard = lazy(() => import("@/pages/dashboard"));
+const CMSAdmin = lazy(() => import("@/pages/admin/cms"));
+const Dashboard = lazy(() => import("@/pages/platform/dashboard"));
 const MapPage = lazy(() => import("@/pages/map"));
-const Leads = lazy(() => import("@/pages/leads"));
-const Customers = lazy(() => import("@/pages/customers"));
-const Properties = lazy(() => import("@/pages/properties"));
-const Pipeline = lazy(() => import("@/pages/pipeline"));
-const Clients = lazy(() => import("@/pages/clients"));
-const Reports = lazy(() => import("@/pages/reports"));
-const Notifications = lazy(() => import("@/pages/notifications"));
-const Settings = lazy(() => import("@/pages/settings"));
-const PropertyDetail = lazy(() => import("@/pages/property-detail"));
-const LazyRBACDashboard = lazy(() => import("@/pages/rbac-dashboard"));
-const LazyRBACLoginPage = lazy(() => import("@/pages/rbac-login"));
-const LazyPlatformPage = lazy(() => import("@/pages/app"));
+const Leads = lazy(() => import("@/pages/platform/leads"));
+const Customers = lazy(() => import("@/pages/platform/customers"));
+const Properties = lazy(() => import("@/pages/platform/properties"));
+const Pipeline = lazy(() => import("@/pages/platform/pipeline"));
+const Clients = lazy(() => import("@/pages/platform/clients"));
+const Reports = lazy(() => import("@/pages/platform/reports"));
+const Notifications = lazy(() => import("@/pages/platform/notifications"));
+const Settings = lazy(() => import("@/pages/platform/settings"));
+const PropertyDetail = lazy(() => import("@/pages/platform/properties/detail"));
+const LazyRBACDashboard = lazy(() => import("@/pages/admin/dashboard"));
+const LazyRBACLoginPage = lazy(() => import("@/pages/auth/login"));
+const LazyPlatformPage = lazy(() => import("@/pages/platform/home"));
 const LazyUnverifiedListingPage = lazy(() => import("@/pages/unverified-listing"));
-const LazyUnverifiedListingsManagementPage = lazy(() => import("@/pages/unverified-listings-management"));
-const LazyMarketingRequestSubmissionPage = lazy(() => import("@/pages/marketing-request"));
-const LazyMarketingRequestsBoardPage = lazy(() => import("@/pages/marketing-requests"));
-const FavoritesPage = lazy(() => import("@/pages/favorites"));
-const ComparePage = lazy(() => import("@/pages/compare"));
-const PostListingPage = lazy(() => import("@/pages/post-listing"));
-const ModerationQueuePage = lazy(() => import("@/pages/moderation"));
-const AgenciesPage = lazy(() => import("@/pages/agencies"));
-const AgencyPage = lazy(() => import("@/pages/agency"));
-const AgentPage = lazy(() => import("@/pages/agent"));
+const LazyUnverifiedListingsManagementPage = lazy(() => import("@/pages/admin/unverified-listings"));
+const LazyMarketingRequestSubmissionPage = lazy(() => import("@/pages/marketing/submission"));
+const LazyMarketingRequestsBoardPage = lazy(() => import("@/pages/marketing/board"));
+const FavoritesPage = lazy(() => import("@/pages/platform/favorites"));
+const ComparePage = lazy(() => import("@/pages/platform/compare"));
+const PostListingPage = lazy(() => import("@/pages/platform/properties/post"));
+const ModerationQueuePage = lazy(() => import("@/pages/admin/moderation"));
+const AgenciesPage = lazy(() => import("@/pages/platform/agencies"));
+const AgencyPage = lazy(() => import("@/pages/platform/agencies/detail"));
+const AgentPage = lazy(() => import("@/pages/platform/agents/detail"));
 const PublicListingPage = lazy(() => import("@/pages/listing"));
-const SavedSearchesPage = lazy(() => import("@/pages/saved-searches"));
+const SavedSearchesPage = lazy(() => import("@/pages/platform/saved-searches"));
 const BlogPage = lazy(() => import("@/pages/blog"));
-const RealEstateRequestsPage = lazy(() => import("@/pages/real-estate-requests"));
-const CustomerRequestsPage = lazy(() => import("@/pages/customer-requests"));
-const AdminRequestsPage = lazy(() => import("@/pages/admin-requests"));
-const ActivitiesPage = lazy(() => import("@/pages/activities"));
-const CalendarPage = lazy(() => import("@/pages/calendar"));
+const RealEstateRequestsPage = lazy(() => import("@/pages/requests/real-estate"));
+const CustomerRequestsPage = lazy(() => import("@/pages/platform/requests/customer"));
+const AdminRequestsPage = lazy(() => import("@/pages/admin/requests"));
+const ActivitiesPage = lazy(() => import("@/pages/platform/activities"));
+const CalendarPage = lazy(() => import("@/pages/platform/calendar"));
 
 
 const ADMIN_DASHBOARD_ROUTES = Array.from(
@@ -167,7 +167,6 @@ function Router() {
     UserRole.CORP_OWNER,
     UserRole.CORP_AGENT,
     UserRole.INDIV_AGENT,
-    UserRole.AGENT,
   ];
   const CORPORATE_MANAGEMENT_ROLES: readonly UserRole[] = [
     UserRole.WEBSITE_ADMIN,
@@ -179,7 +178,6 @@ function Router() {
     UserRole.CORP_OWNER,
     UserRole.CORP_AGENT,
     UserRole.INDIV_AGENT,
-    UserRole.AGENT,
     UserRole.SELLER,
     UserRole.BUYER,
   ];
@@ -632,7 +630,7 @@ function Router() {
     // Separate admin users from platform users
     const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN);
     const isPlatformUser = !!user?.roles?.some(role =>
-      [UserRole.CORP_OWNER, UserRole.CORP_AGENT, UserRole.INDIV_AGENT, UserRole.AGENT].includes(role)
+      [UserRole.CORP_OWNER, UserRole.CORP_AGENT, UserRole.INDIV_AGENT].includes(role)
     );
     const isSellerBuyer = !!user?.roles?.some(role =>
       [UserRole.SELLER, UserRole.BUYER].includes(role)

@@ -1,7 +1,7 @@
 /**
  * AdminSidebar.tsx - Admin Sidebar Component
  * 
- * Location: apps/web/src/ → Components/ → Feature Components → rbac/ → AdminSidebar.tsx
+ * Location: apps/web/src/ → Components/ → Admin/ → Layout/ → AdminSidebar.tsx
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
  * 
  * Admin sidebar navigation component. Provides:
@@ -10,7 +10,7 @@
  * - Navigation helpers
  * 
  * Related Files:
- * - apps/web/src/components/rbac/AdminHeader.tsx - Admin header
+ * - apps/web/src/components/admin/layout/AdminHeader.tsx - Admin header
  * - apps/web/src/config/admin-sidebar.ts - Admin sidebar configuration
  */
 

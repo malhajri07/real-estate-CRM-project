@@ -26,7 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AddLeadModal from "@/components/modals/add-lead-modal";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
-import { CSVUploader } from "@/components/CSVUploader";
+import { CSVUploader } from "@/components/admin/data-display/CSVUploader";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -87,18 +87,18 @@ export default function Leads() {
         },
         body: JSON.stringify({ csvUrl }),
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || t('leads.csv_error'));
       }
-      
+
       return response.json();
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
-      
+
       if (data.results.errors.length > 0) {
         toast({
           title: t("leads.csv_partial_title"),
@@ -126,7 +126,7 @@ export default function Leads() {
     if (result.successful && result.successful.length > 0) {
       const uploadedFile = result.successful[0];
       const csvUrl = uploadedFile.uploadURL;
-      
+
       if (csvUrl) {
         csvProcessMutation.mutate(csvUrl);
       }
@@ -140,11 +140,11 @@ export default function Leads() {
         'Content-Type': 'application/json',
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(t('leads.upload_error'));
     }
-    
+
     const data = await response.json();
     return {
       method: 'PUT' as const,

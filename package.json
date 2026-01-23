@@ -21,7 +21,8 @@
     "db:generate": "prisma generate --schema=data/schema/prisma/schema.prisma",
     "db:seed": "tsx apps/api/lib/seeds/index.ts",
     "db:reseed": "pnpm db:deploy && pnpm db:seed",
-    "db:add-images": "tsx apps/api/scripts/add-sample-images.ts"
+    "db:add-images": "tsx apps/api/scripts/add-sample-images.ts",
+    "delete-legacy-agents": "tsx apps/api/scripts/delete-legacy-agent-users.ts"
   },
   "prisma": {
     "schema": "data/schema/prisma/schema.prisma"

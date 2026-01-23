@@ -1,7 +1,7 @@
 /**
- * app.tsx - Platform App Wrapper Page
+ * home.tsx - Platform App Wrapper Page
  * 
- * Location: apps/web/src/ → Pages/ → Platform Pages → app.tsx
+ * Location: apps/web/src/ → Pages/ → Platform/ → home.tsx
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
  * 
  * Platform app wrapper page. Provides:
@@ -12,7 +12,7 @@
  * Route: /home/platform/app
  * 
  * Related Files:
- * - apps/web/src/pages/dashboard.tsx - Dashboard page
+ * - apps/web/src/pages/platform/dashboard.tsx - Dashboard page
  * - apps/web/src/components/layout/PlatformShell.tsx - Platform shell layout
  */
 
@@ -22,7 +22,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 // Import dashboard components
-import Dashboard from '@/pages/dashboard';
+import Dashboard from '@/pages/platform/dashboard';
 import PlatformShell from '@/components/layout/PlatformShell';
 
 /**

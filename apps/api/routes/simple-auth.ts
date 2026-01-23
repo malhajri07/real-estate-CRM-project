@@ -94,9 +94,9 @@ router.post('/login', async (req, res) => {
 
     // Check account active
     if (user.isActive === false) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'حسابك في انتظار الموافقة من الإدارة. يرجى المحاولة لاحقاً أو التواصل مع الدعم الفني.' 
+      return res.status(403).json({
+        success: false,
+        message: 'حسابك في انتظار الموافقة من الإدارة. يرجى المحاولة لاحقاً أو التواصل مع الدعم الفني.'
       });
     }
 
@@ -158,7 +158,7 @@ router.post('/login', async (req, res) => {
       roles: normalizedRoles, // This should be an array of UserRole values
       organizationId: user.organizationId,
     };
-    
+
 
     req.session.user = sessionUser; // Store the active user in the session to allow parallel user sessions
     req.session.authToken = token; // Keep the JWT handy for session-authenticated API calls
@@ -182,13 +182,13 @@ router.get('/me', async (req, res) => {
   try {
     const headerToken = req.headers.authorization?.replace('Bearer ', '');
     const token = headerToken || req.session?.authToken;
-    
+
     if (!token) {
       return res.status(401).json({ success: false, message: 'No token provided' });
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as any;
-    
+
     const user = await prisma.users.findUnique({
       where: { id: decoded.userId }
     });
@@ -275,8 +275,8 @@ router.post('/register', async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 12);
 
     // Determine if user needs approval
-    const needsApproval = roles && (roles.includes('AGENT') || roles.includes('CORP_OWNER'));
-    
+    const needsApproval = roles && (roles.includes('CORP_OWNER'));
+
     // Create user
     const user = await prisma.users.create({
       data: {
@@ -363,7 +363,7 @@ router.post('/logout', (req, res) => {
 });
 
 export default router;
- 
+
 // Dev-only helper to ensure a primary admin exists
 router.post('/ensure-primary-admin', async (req, res) => {
   try {
