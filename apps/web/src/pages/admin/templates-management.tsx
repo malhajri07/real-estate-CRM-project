@@ -18,6 +18,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Card,
   CardContent,
@@ -81,10 +82,7 @@ const fetchTemplates = async (params: {
   if (params.pageSize) queryParams.append("pageSize", params.pageSize.toString());
   if (params.search) queryParams.append("search", params.search);
 
-  const res = await fetch(`/api/cms/templates?${queryParams.toString()}`, {
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to fetch templates");
+  const res = await apiRequest("GET", `/api/cms/templates?${queryParams.toString()}`);
   return res.json();
 };
 
@@ -110,13 +108,7 @@ export default function TemplatesManagement() {
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await fetch("/api/cms/templates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Failed to create template");
+      const res = await apiRequest("POST", "/api/cms/templates", data);
       return res.json();
     },
     onSuccess: () => {
@@ -128,13 +120,7 @@ export default function TemplatesManagement() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const res = await fetch(`/api/cms/templates/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Failed to update template");
+      const res = await apiRequest("PUT", `/api/cms/templates/${id}`, data);
       return res.json();
     },
     onSuccess: () => {
@@ -147,11 +133,7 @@ export default function TemplatesManagement() {
 
   const cloneMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/cms/templates/${id}/clone`, {
-        method: "POST",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to clone template");
+      const res = await apiRequest("POST", `/api/cms/templates/${id}/clone`);
       return res.json();
     },
     onSuccess: () => {
@@ -162,11 +144,7 @@ export default function TemplatesManagement() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/cms/templates/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to delete template");
+      await apiRequest("DELETE", `/api/cms/templates/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });

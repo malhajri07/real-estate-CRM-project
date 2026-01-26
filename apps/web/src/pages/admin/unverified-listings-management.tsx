@@ -90,8 +90,7 @@ export default function UnverifiedListingsManagement() {
   const { data: listings, isLoading } = useQuery<UnverifiedListing[]>({
     queryKey: ["/api/unverified-listings", statusFilter],
     queryFn: async () => {
-      const response = await fetch(`/api/unverified-listings?status=${statusFilter}`);
-      if (!response.ok) throw new Error("Failed to fetch listings");
+      const response = await apiRequest("GET", `/api/unverified-listings?status=${statusFilter}`);
       return response.json();
     },
   });

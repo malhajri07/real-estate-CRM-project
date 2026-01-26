@@ -23,6 +23,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { apiRequest } from "@/lib/queryClient";
 import type { LandingSection } from "../types";
 
 export function useCMSLandingSections(viewMode: "draft" | "published") {
@@ -32,10 +33,7 @@ export function useCMSLandingSections(viewMode: "draft" | "published") {
   const loadSections = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/cms/landing/sections?status=${viewMode}`);
-      if (!response.ok) {
-        throw new Error("لم يتم تحميل الأقسام");
-      }
+      const response = await apiRequest("GET", `/api/cms/landing/sections?status=${viewMode}`);
       const payload = await response.json();
       const data: LandingSection[] = payload.data ?? [];
       setSections(data);

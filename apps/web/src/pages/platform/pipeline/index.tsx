@@ -244,7 +244,7 @@ export default function Pipeline() {
     <main className={PAGE_WRAPPER} dir="rtl">
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-1 text-right">
+          <div className="space-y-1 text-end">
             <h1 className={cn(TYPOGRAPHY.pageTitle, "text-gray-900")}>لوحة مسار الصفقات</h1>
             <p className={cn(TYPOGRAPHY.body, "max-w-xl text-gray-600")}>
               تابع تقدم الفرص البيعية عبر مراحل المسار المختلفة واسحب البطاقات لتحديث حالة الصفقة فوراً.
@@ -275,14 +275,14 @@ export default function Pipeline() {
                 key={stage.id}
                 className="flex h-full flex-col rounded-[28px] border border-slate-200 bg-white/95 shadow-[0_20px_70px_rgba(148,163,184,0.12)] backdrop-blur"
               >
-                <div className="rounded-t-[28px] border-b border-slate-200 bg-gradient-to-br from-slate-50 to-white px-4 py-5 text-right">
+                <div className="rounded-t-[28px] border-b border-slate-200 bg-gradient-to-br from-slate-50 to-white px-4 py-5 text-end">
                   <div className="flex items-center justify-between">
-                    <div className={cn(TYPOGRAPHY.label, "font-semibold", stage.accent, "text-right")}>{stage.title}</div>
+                    <div className={cn(TYPOGRAPHY.label, "font-semibold", stage.accent, "text-end")}>{stage.title}</div>
                     <span className={cn("rounded-full px-3 py-1", TYPOGRAPHY.caption, "font-medium", stage.badge)}>
                       {stageDeals.length} صفقة
                     </span>
                   </div>
-                  <div className={cn("mt-2", TYPOGRAPHY.caption, "text-gray-500 text-right")}>{formatCurrency(stageValue)}</div>
+                  <div className={cn("mt-2", TYPOGRAPHY.caption, "text-gray-500 text-end")}>{formatCurrency(stageValue)}</div>
                 </div>
 
                 <Droppable droppableId={stage.id}>
@@ -299,11 +299,11 @@ export default function Pipeline() {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className={`rounded-2xl border border-slate-200 bg-white p-4 text-right shadow-sm transition-shadow ${
+                              className={`rounded-2xl border border-slate-200 bg-white p-4 text-end shadow-sm transition-shadow ${
                                 snapshot.isDragging ? "shadow-lg" : ""
                               }`}
                             >
-                              <div className="space-y-2 text-right">
+                              <div className="space-y-2 text-end">
                                 <div className="flex items-center justify-between">
                                   <h4 className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900")}>{getLeadName(deal.leadId)}</h4>
                                   {deal.dealValue && (
@@ -355,7 +355,7 @@ export default function Pipeline() {
           />
           <aside className="fixed inset-y-0 left-0 z-50 w-full max-w-md border-r border-slate-200 bg-white shadow-xl flex flex-col">
             <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-              <div className="text-right">
+              <div className="text-end">
                 <h2 className="text-base font-semibold text-slate-900">طلبات العملاء</h2>
                 <p className="text-xs text-slate-500">عرض مختصر لأحدث الطلبات المسجلة</p>
               </div>
@@ -384,7 +384,7 @@ export default function Pipeline() {
                   return (
                     <div
                       key={key}
-                      className="rounded-lg border border-slate-200 bg-[radial-gradient(circle_at_top,_#f5f5f7,_#eef1f5)] px-3 py-1.5 text-right shadow-sm space-y-1.5"
+                      className="rounded-lg border border-slate-200 bg-[radial-gradient(circle_at_top,_#f5f5f7,_#eef1f5)] px-3 py-1.5 text-end shadow-sm space-y-1.5"
                     >
                       <div className="flex items-start justify-between gap-1">
                         <div className="space-y-0.5">

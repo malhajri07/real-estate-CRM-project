@@ -74,7 +74,7 @@ const LazyRBACDashboard = lazy(() => import("@/pages/admin/dashboard"));
 const LazyRBACLoginPage = lazy(() => import("@/pages/auth/login"));
 const LazyPlatformPage = lazy(() => import("@/pages/platform/home"));
 const LazyUnverifiedListingPage = lazy(() => import("@/pages/unverified-listing"));
-const LazyUnverifiedListingsManagementPage = lazy(() => import("@/pages/admin/unverified-listings"));
+const LazyUnverifiedListingsManagementPage = lazy(() => import("@/pages/admin/unverified-listings-management"));
 const LazyMarketingRequestSubmissionPage = lazy(() => import("@/pages/marketing/submission"));
 const LazyMarketingRequestsBoardPage = lazy(() => import("@/pages/marketing/board"));
 const FavoritesPage = lazy(() => import("@/pages/platform/favorites"));
@@ -113,6 +113,13 @@ const ADMIN_DASHBOARD_ROUTES = Array.from(
     "/overview/dashboard",
     "/overview/main-dashboard",
     "/admin/overview/main-dashboard",
+    "/admin/users/all-users",
+    "/admin/content/landing-pages",
+    "/admin/content/articles",
+    "/admin/content/media-library",
+    "/admin/content/seo",
+    "/admin/content/templates",
+    "/admin/content/navigation",
     ...adminSidebarConfig.flatMap((section) => section.children.map((child) => child.route))
   ])
 );

@@ -265,7 +265,7 @@ export default function Leads() {
           )}
 
           {!displayLeads || displayLeads.length === 0 ? (
-            <div className={cn(EMPTY_STYLES.container, "text-right")}>
+            <div className={cn(EMPTY_STYLES.container, "text-end")}>
               <div className={cn(EMPTY_STYLES.description, "mb-4 text-gray-600")}>
                 {searchQuery ? t("leads.no_results") : t("leads.no_leads")}
               </div>
@@ -281,35 +281,35 @@ export default function Leads() {
               <Table className={TABLE_STYLES.container}>
                 <TableHeader className={cn(TABLE_STYLES.header, "bg-gray-50")}>
                   <TableRow>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.name")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.email")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.phone")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.status")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.source")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.interest")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.budget")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("leads.table.created_at")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-right w-[160px]")}>{t("leads.table.actions")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.name")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.email")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.phone")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.status")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.source")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.interest")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.budget")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.created_at")}</TableHead>
+                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end w-[160px]")}>{t("leads.table.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className={TABLE_STYLES.body}>
                   {displayLeads.map((lead) => (
                     <TableRow key={lead.id} className="divide-y divide-gray-200">
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-right font-medium")}>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-end font-medium")}>
                         {lead.firstName} {lead.lastName}
                       </TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{lead.email}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{lead.phone || '-'}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.email}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.phone || '-'}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>
                         <Badge className={cn(BADGE_STYLES.base, getStatusBadgeColor(lead.status))}>
                           {t(`status.${lead.status}`) || lead.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{lead.leadSource || '-'}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{lead.interestType ? (t(`interest.${lead.interestType}`) || lead.interestType) : '-'}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{lead.budgetRange || '-'}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>{new Date(lead.createdAt).toLocaleDateString(locale)}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.leadSource || '-'}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.interestType ? (t(`interest.${lead.interestType}`) || lead.interestType) : '-'}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.budgetRange || '-'}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{new Date(lead.createdAt).toLocaleDateString(locale)}</TableCell>
+                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>
                         <div className="flex items-center gap-2">
                           {lead.phone && (
                             <Button

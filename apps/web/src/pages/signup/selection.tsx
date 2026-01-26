@@ -63,7 +63,7 @@ export default function SignupSelection() {
 
       <main className="px-4 py-16">
         <div className="max-w-5xl mx-auto space-y-12">
-          <div className="space-y-4 text-right">
+          <div className="space-y-4 text-end">
             <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
               اختر الطريقة الأنسب للانضمام إلى المنصة
             </h1>
@@ -74,9 +74,9 @@ export default function SignupSelection() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card className="rounded-[32px] border border-white/80 bg-white/80 backdrop-blur-xl shadow-[0_40px_120px_rgba(15,23,42,0.08)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_50px_140px_rgba(15,23,42,0.12)]">
-              <CardHeader className="space-y-4 text-right">
+              <CardHeader className="space-y-4 text-end">
                 <div className="flex items-center justify-end gap-4">
-                  <div className="space-y-2 text-right">
+                  <div className="space-y-2 text-end">
                     <CardTitle className="text-2xl font-semibold text-slate-900">
                       وسيط عقاري معتمد
                     </CardTitle>
@@ -129,9 +129,9 @@ export default function SignupSelection() {
             </Card>
 
             <Card className="rounded-[32px] border border-white/80 bg-white/80 backdrop-blur-xl shadow-[0_40px_120px_rgba(15,23,42,0.08)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_50px_140px_rgba(15,23,42,0.12)]">
-              <CardHeader className="space-y-4 text-right">
+              <CardHeader className="space-y-4 text-end">
                 <div className="flex items-center justify-end gap-4">
-                  <div className="space-y-2 text-right">
+                  <div className="space-y-2 text-end">
                     <CardTitle className="text-2xl font-semibold text-slate-900">
                       باحث عن عقار أو مالك عقار
                     </CardTitle>
@@ -184,7 +184,7 @@ export default function SignupSelection() {
             </Card>
           </div>
 
-          <div className="flex flex-col items-center gap-3 text-right">
+          <div className="flex flex-col items-center gap-3 text-end">
             <p className="text-sm text-slate-500">
               لديك حساب بالفعل؟
               <a href="/rbac-login" className="mr-2 font-semibold text-emerald-600 hover:text-emerald-700">

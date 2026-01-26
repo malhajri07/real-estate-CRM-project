@@ -121,7 +121,7 @@ export default function NotificationsManagement() {
                         <div className="h-16 w-16 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-600/20">
                             <Bell className="h-8 w-8" />
                         </div>
-                        <div className="text-center md:text-right">
+                        <div className="text-center md:text-end">
                             <h1 className="text-3xl font-black text-slate-900 tracking-tight">مركز الإشعارات والقوالب</h1>
                             <p className="text-slate-500 font-medium text-lg">إدارة قوالب التواصل وقواعد الإرسال عبر القنوات المختلفة</p>
                         </div>

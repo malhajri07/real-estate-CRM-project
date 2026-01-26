@@ -132,7 +132,7 @@ export default function Settings() {
             <CardHeader className={cn(CARD_STYLES.header, "pb-5 flex items-center justify-between")}>
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Building2 size={18} /></span>
-              <div className="text-right">
+              <div className="text-end">
                 <CardTitle className={cn(TYPOGRAPHY.cardTitle, "text-slate-900")}>معلومات الشركة</CardTitle>
                 <CardDescription className={cn(TYPOGRAPHY.body, "text-slate-500")}>تفاصيل النشاط التجاري وقنوات التواصل الرسمية</CardDescription>
               </div>
@@ -352,7 +352,7 @@ export default function Settings() {
           <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Users size={18} /></span>
-              <div className="text-right">
+              <div className="text-end">
                 <CardTitle className="text-xl font-semibold text-slate-900">الملف الشخصي للفريق</CardTitle>
                 <CardDescription className="text-sm text-slate-500">تحكم ببياناتك الشخصية وصورتك الظاهرة في المنصة</CardDescription>
               </div>
@@ -465,7 +465,7 @@ export default function Settings() {
           <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Shield size={18} /></span>
-              <div className="text-right">
+              <div className="text-end">
                 <CardTitle className="text-xl font-semibold text-slate-900">الأمان وكلمة المرور</CardTitle>
                 <CardDescription className="text-sm text-slate-500">قم بتحديث كلمة المرور الخاصة بك بانتظام لحماية الحساب</CardDescription>
               </div>
@@ -503,7 +503,7 @@ export default function Settings() {
           <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Bell size={18} /></span>
-              <div className="text-right">
+              <div className="text-end">
                 <CardTitle className="text-xl font-semibold text-slate-900">إعدادات الإشعارات</CardTitle>
                 <CardDescription className="text-sm text-slate-500">حدد الإشعارات التي ترغب باستلامها عن نشاط المنصة</CardDescription>
               </div>

@@ -95,7 +95,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
 
   return (
     <Card className="w-full rounded-[32px] border border-white/80 bg-white/85 backdrop-blur-xl shadow-[0_40px_120px_rgba(15,23,42,0.08)]">
-      <CardHeader className="space-y-3 text-right border-b border-slate-100 bg-white/60">
+      <CardHeader className="space-y-3 text-end border-b border-slate-100 bg-white/60">
         <CardTitle className="text-2xl font-semibold text-slate-900">
           تسجيل الدخول إلى المنصة
         </CardTitle>
@@ -103,10 +103,10 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
           أدخل بيانات حسابك للوصول إلى أدوات إدارة العملاء والعقارات.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6 p-6 text-right">
+      <CardContent className="space-y-6 p-6 text-end">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <Alert variant="destructive" className="text-right">
+            <Alert variant="destructive" className="text-end">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -124,7 +124,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
               autoComplete="username"
               required
               disabled={isLoading}
-              className="h-12 rounded-2xl border-slate-200 bg-white/70 text-right placeholder:text-right placeholder:text-slate-400 pr-12 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              className="h-12 rounded-2xl border-slate-200 bg-white/70 text-end placeholder:text-end placeholder:text-slate-400 pr-12 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
             />
           </div>
 
@@ -142,7 +142,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
                 autoComplete="current-password"
                 required
                 disabled={isLoading}
-                className="h-12 rounded-2xl border-slate-200 bg-white/70 text-right placeholder:text-right placeholder:text-slate-400 pr-12 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                className="h-12 rounded-2xl border-slate-200 bg-white/70 text-end placeholder:text-end placeholder:text-slate-400 pr-12 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
               />
               <Button
                 type="button"
@@ -161,7 +161,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm text-right">
+          <div className="flex items-center justify-between text-sm text-end">
             <div className="flex items-center space-x-2 space-x-reverse">
               <Checkbox
                 id="remember"
@@ -177,7 +177,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
               </Label>
             </div>
 
-            <div className="text-sm text-slate-500 text-right">
+            <div className="text-sm text-slate-500 text-end">
               <Button
                 type="button"
                 variant="link"

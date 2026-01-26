@@ -111,7 +111,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
             href={item.path}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500",
-              dir === "rtl" ? "text-right" : "text-left",
+              dir === "rtl" ? "text-end" : "text-start",
               isActive ? "bg-blue-100 text-blue-700 shadow-sm" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
             )}
             aria-current={isActive ? "page" : undefined}

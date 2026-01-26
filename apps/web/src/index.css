@@ -4,29 +4,29 @@
 
 @layer base {
   :root {
-    /* Premium Blue Theme - HSL */
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    
+    /* Emerald Green Theme - HSL */
+    --primary: 164 72% 40%;
+    --primary-foreground: 0 0% 100%;
+
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-    
+
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-    
+
     --background: 210 40% 98%;
     --foreground: 222.2 84% 4.9%;
-    
+
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-    
+
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    
+
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    
+    --ring: 164 72% 40%;
+
     --radius: 0.75rem;
   }
 
@@ -38,19 +38,32 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white/60 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)];
+    @apply bg-white/60 backdrop-blur-xl border border-white/20;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
   }
-  
+
+  .aurora-bg {
+    background-image:
+      radial-gradient(at 100% 0%, hsla(210, 100%, 56%, 0.3) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, hsla(280, 100%, 70%, 0.3) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, hsla(340, 100%, 76%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(22, 100%, 77%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, hsla(240, 100%, 70%, 0.3) 0px, transparent 50%);
+    background-size: 200% 200%;
+    @apply animate-aurora;
+  }
+
   .glass-dark {
-    @apply bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+    @apply bg-slate-900/60 backdrop-blur-xl border border-white/10;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   }
 
   .premium-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, #10b981 100%);
   }
-  
+
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-blue-600 to-indigo-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-emerald-600 to-teal-600;
   }
 
   .animate-in-start {
@@ -62,6 +75,7 @@
       opacity: 0;
       transform: translateX(var(--dir-factor, 20px));
     }
+
     to {
       opacity: 1;
       transform: translateX(0);

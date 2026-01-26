@@ -147,12 +147,12 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                 <Table>
                     <TableHeader className="bg-slate-50/50">
                         <TableRow className="border-slate-100">
-                            <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">التذكرة</TableHead>
-                            <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الموضوع</TableHead>
-                            <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">العميل</TableHead>
-                            <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الأولوية</TableHead>
-                            <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
-                            <TableHead className="text-left text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">التاريخ</TableHead>
+                            <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">التذكرة</TableHead>
+                            <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الموضوع</TableHead>
+                            <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">العميل</TableHead>
+                            <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الأولوية</TableHead>
+                            <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
+                            <TableHead className="text-start text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">التاريخ</TableHead>
                             <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                     </TableHeader>
@@ -193,7 +193,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                                         </span>
                                     </TableCell>
                                     <TableCell>{getStatusBadge(ticket.status)}</TableCell>
-                                    <TableCell className="text-left py-4">
+                                    <TableCell className="text-start py-4">
                                         <span className="text-[11px] font-bold text-slate-400 uppercase">
                                             {format(new Date(ticket.createdAt), "dd MMM yyyy", { locale: arSA })}
                                         </span>
@@ -351,7 +351,7 @@ export default function ComplaintsManagement() {
         <div className="space-y-8 animate-in-start" dir="rtl">
             <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="space-y-2 text-center md:text-right">
+                    <div className="space-y-2 text-center md:text-end">
                         <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة الشكاوى والدعم الفني</h1>
                         <p className="text-slate-500 font-medium text-lg">متابعة تذاكر الدعم، حل مشاكل العملاء، وإعدادات قسم الشكاوى</p>
                     </div>

@@ -63,7 +63,7 @@ import populateRoutes from "./routes/populate";       // Data population
 import sitemapRoutes from "./routes/sitemap";         // SEO sitemap
 import authRoutes from "./routes/auth";               // Authentication routes (Prisma-backed)
 import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
-// import analyticsRoutes from "./src/routes/analytics"; // Analytics data (Module not found, possibly merged or removed)
+
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
 import propertyCategoriesRoutes from "./routes/property-categories"; // Property categories dimension table
 import propertyTypesRoutes from "./routes/property-types"; // Property types (related to categories)
@@ -74,7 +74,6 @@ import cmsSEORoutes from "./routes/cms-seo";
 import cmsTemplatesRoutes from "./routes/cms-templates";
 import cmsNavigationRoutes from "./routes/cms-navigation";
 import leadsRoutes from "./routes/leads";
-import adminUsersRoutes from "./routes/admin-users";
 import dealsRoutes from "./routes/deals";
 import activitiesRoutes from "./routes/activities";
 import messagesRoutes from "./routes/messages";
@@ -86,8 +85,8 @@ import billingRoutes from "./routes/billing";
 import supportRoutes from "./routes/support";
 import appointmentsRoutes from "./routes/appointments";
 import auditLogsRoutes from "./routes/audit-logs";
-import dashboardRoutes from "./routes/dashboard";
 import { JWT_SECRET as getJwtSecret } from "./config/env";
+import { localeMiddleware } from "./src/middleware/locale";
 
 // Force server restart for dashboard routes catch
 
@@ -171,6 +170,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Apply general rate limiting to all API routes
   app.use("/api/", apiLimiter);
 
+  // Apply locale middleware globally
+  app.use(localeMiddleware);
+
   // Apply rate limiting to authentication endpoints
   app.use("/api/auth/login", authLimiter);
   app.use("/api/auth/register", authLimiter);
@@ -220,14 +222,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Pages affected: RBAC dashboard, user management, organization management
    */
   app.use("/api/rbac-admin", rbacAdminRoutes);
-
-  /**
-   * Admin Routes - /admin/*
-   * 
-   * Direct admin routes for frontend pages
-   */
-  app.use("/admin/users", adminUsersRoutes);
-  app.use("/admin/users", adminUsersRoutes);
 
   /**
    * Property Listings Routes - /api/listings/*
@@ -440,9 +434,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/audit-logs", auditLogsRoutes);
 
   /**
-   * Dashboard Routes - /api/dashboard/*
+   * Audit Logs Routes - /api/audit-logs/*
    */
-  app.use("/api/dashboard", dashboardRoutes);
+  app.use("/api/audit-logs", auditLogsRoutes);
+
 
   /**
    * Public Landing Page Routes - /api/landing/*

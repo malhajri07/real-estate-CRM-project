@@ -456,10 +456,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }}
       >
-        <DialogContent className="sm:max-w-md text-right" dir="rtl">
+        <DialogContent className="sm:max-w-md text-end" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-right">{sessionExpired ? 'تم إنهاء الجلسة بسبب عدم النشاط' : 'انتهاء الجلسة قريباً'}</DialogTitle>
-            <DialogDescription className="text-right">
+            <DialogTitle className="text-end">{sessionExpired ? 'تم إنهاء الجلسة بسبب عدم النشاط' : 'انتهاء الجلسة قريباً'}</DialogTitle>
+            <DialogDescription className="text-end">
               {sessionExpired
                 ? 'لقد تم إنهاء جلستك تلقائياً بسبب عدم النشاط. الرجاء تسجيل الدخول مرة أخرى لمتابعة العمل.'
                 : 'بسبب عدم النشاط سيتم إغلاق الجلسة قريباً. يرجى الضغط على "متابعة" للحفاظ على تسجيل الدخول.'}

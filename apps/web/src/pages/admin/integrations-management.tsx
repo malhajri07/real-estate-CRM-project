@@ -223,7 +223,7 @@ function APITab() {
                 </div>
 
                 <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white/40">
-                    <table className="w-full text-right">
+                    <table className="w-full text-end">
                         <thead className="bg-slate-50/50">
                             <tr>
                                 <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">اسم المفتاح</th>
@@ -283,7 +283,7 @@ export default function IntegrationsManagement() {
         <div className="space-y-8 animate-in-start" dir="rtl">
             <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="space-y-2 text-center md:text-right">
+                    <div className="space-y-2 text-center md:text-end">
                         <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة التكامل والربط</h1>
                         <p className="text-slate-500 font-medium text-lg">إدارة الاتصال مع الخدمات الخارجية والواجهات البرمجية</p>
                     </div>

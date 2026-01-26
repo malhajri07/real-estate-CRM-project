@@ -133,7 +133,7 @@ export default function Clients() {
             <Card className={cn("h-full", interactiveCard)}>
               <CardHeader className="sticky top-0 z-10 border-b border-border/50 bg-card/90 backdrop-blur">
                 <div className="flex items-center justify-between">
-                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "text-right")}>العملاء ({filteredLeads.length})</CardTitle>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "text-end")}>العملاء ({filteredLeads.length})</CardTitle>
                   <Button size="sm" className={BUTTON_PRIMARY_CLASSES}>
                     <UserPlus className="ml-2" size={16} />
                     إضافة عميل
@@ -159,7 +159,7 @@ export default function Clients() {
                         onClick={() => setSelectedLeadId(lead.id)}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className={cn(TYPOGRAPHY.body, "font-medium text-gray-900 text-right")}>
+                          <h4 className={cn(TYPOGRAPHY.body, "font-medium text-gray-900 text-end")}>
                             {lead.firstName} {lead.lastName}
                           </h4>
                           <Badge className={cn(BADGE_STYLES.base, getStatusBadgeColor(lead.status))}>
@@ -167,17 +167,17 @@ export default function Clients() {
                           </Badge>
                         </div>
 
-                        <p className={cn("mb-1", TYPOGRAPHY.body, "text-gray-600 text-right")}>{lead.email}</p>
+                        <p className={cn("mb-1", TYPOGRAPHY.body, "text-gray-600 text-end")}>{lead.email}</p>
                         {lead.phone && (
-                          <p className={cn(TYPOGRAPHY.body, "text-gray-600 text-right")}>{lead.phone}</p>
+                          <p className={cn(TYPOGRAPHY.body, "text-gray-600 text-end")}>{lead.phone}</p>
                         )}
 
                         <div className="flex items-center justify-between mt-2">
-                          <span className={cn(TYPOGRAPHY.caption, "text-gray-500 text-right")}>
+                          <span className={cn(TYPOGRAPHY.caption, "text-gray-500 text-end")}>
                             {lead.interestType && `${t(`interest.${lead.interestType}`) || lead.interestType} • `}
                             {lead.budgetRange}
                           </span>
-                          <span className={cn(TYPOGRAPHY.caption, "text-gray-500 text-right")}>
+                          <span className={cn(TYPOGRAPHY.caption, "text-gray-500 text-end")}>
                             {new Date(lead.createdAt).toLocaleDateString()}
                           </span>
                         </div>
@@ -196,8 +196,8 @@ export default function Clients() {
                 <CardContent className="flex h-96 items-center justify-center">
                   <div className="space-y-2 text-center text-muted-foreground">
                     <MessageCircle size={48} className="mx-auto text-muted-foreground/40" />
-                    <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-gray-900 text-right")}>اختر عميلاً</h3>
-                    <p className={cn(TYPOGRAPHY.body, "text-gray-600 text-right")}>اختر عميلاً من القائمة لعرض تفاصيله وتاريخ نشاطه.</p>
+                    <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-gray-900 text-end")}>اختر عميلاً</h3>
+                    <p className={cn(TYPOGRAPHY.body, "text-gray-600 text-end")}>اختر عميلاً من القائمة لعرض تفاصيله وتاريخ نشاطه.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -207,12 +207,12 @@ export default function Clients() {
                   <CardContent className="space-y-6 p-6">
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div className="space-y-1">
-                        <h2 className={cn(TYPOGRAPHY.pageTitle, "text-gray-900 text-right")}>
+                        <h2 className={cn(TYPOGRAPHY.pageTitle, "text-gray-900 text-end")}>
                           {selectedLead.firstName} {selectedLead.lastName}
                         </h2>
-                        <p className={cn(TYPOGRAPHY.body, "text-gray-600 text-right")}>{selectedLead.email}</p>
+                        <p className={cn(TYPOGRAPHY.body, "text-gray-600 text-end")}>{selectedLead.email}</p>
                         {selectedLead.phone && (
-                          <p className={cn(TYPOGRAPHY.body, "text-gray-600 text-right")}>{selectedLead.phone}</p>
+                          <p className={cn(TYPOGRAPHY.body, "text-gray-600 text-end")}>{selectedLead.phone}</p>
                         )}
                       </div>
                       <Badge className={cn(BADGE_STYLES.base, getStatusBadgeColor(selectedLead.status))}>
@@ -222,20 +222,20 @@ export default function Clients() {
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                       <div className="rounded-2xl bg-muted/30 p-4">
-                        <span className={cn(TYPOGRAPHY.label, "text-gray-600 text-right")}>مصدر العميل</span>
-                        <p className={cn("mt-1", TYPOGRAPHY.body, "font-medium text-gray-900 text-right")}>
+                        <span className={cn(TYPOGRAPHY.label, "text-gray-600 text-end")}>مصدر العميل</span>
+                        <p className={cn("mt-1", TYPOGRAPHY.body, "font-medium text-gray-900 text-end")}>
                           {selectedLead.leadSource || "غير محدد"}
                         </p>
                       </div>
-                      <div className="rounded-2xl bg-muted/30 p-4 text-right">
-                        <span className={cn(TYPOGRAPHY.label, "text-gray-600 text-right")}>نوع الاهتمام</span>
-                        <p className={cn("mt-1", TYPOGRAPHY.body, "font-medium text-gray-900 text-right")}>
+                      <div className="rounded-2xl bg-muted/30 p-4 text-end">
+                        <span className={cn(TYPOGRAPHY.label, "text-gray-600 text-end")}>نوع الاهتمام</span>
+                        <p className={cn("mt-1", TYPOGRAPHY.body, "font-medium text-gray-900 text-end")}>
                           {selectedLead.interestType || "غير محدد"}
                         </p>
                       </div>
-                      <div className="rounded-2xl bg-muted/30 p-4 text-right">
-                        <span className={cn(TYPOGRAPHY.label, "text-gray-600 text-right")}>نطاق الميزانية</span>
-                        <p className={cn("mt-1", TYPOGRAPHY.body, "font-medium text-gray-900 text-right")}>
+                      <div className="rounded-2xl bg-muted/30 p-4 text-end">
+                        <span className={cn(TYPOGRAPHY.label, "text-gray-600 text-end")}>نطاق الميزانية</span>
+                        <p className={cn("mt-1", TYPOGRAPHY.body, "font-medium text-gray-900 text-end")}>
                           {selectedLead.budgetRange || "غير محدد"}
                         </p>
                       </div>
@@ -243,8 +243,8 @@ export default function Clients() {
 
                     {selectedLead.notes && (
                       <div className="rounded-2xl border border-border/50 bg-card/60 p-4">
-                        <span className={cn(TYPOGRAPHY.label, "text-gray-600 text-right")}>ملاحظات</span>
-                        <p className={cn("mt-2", TYPOGRAPHY.body, "text-gray-700 text-right")}>{selectedLead.notes}</p>
+                        <span className={cn(TYPOGRAPHY.label, "text-gray-600 text-end")}>ملاحظات</span>
+                        <p className={cn("mt-2", TYPOGRAPHY.body, "text-gray-700 text-end")}>{selectedLead.notes}</p>
                       </div>
                     )}
 
@@ -277,7 +277,7 @@ export default function Clients() {
 
                     <TabsContent value="activities" className="p-6">
                       <div className="mb-4 flex items-center justify-between">
-                        <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-gray-900 text-right")}>سجل الأنشطة</h3>
+                        <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-gray-900 text-end")}>سجل الأنشطة</h3>
                       <Button size="sm" className={BUTTON_PRIMARY_CLASSES}>
                         <Plus className="ml-2" size={16} />
                           إضافة نشاط
@@ -295,7 +295,7 @@ export default function Clients() {
                               </div>
                               <div className="flex-1">
                                 <div className="mb-1 flex items-center gap-2 rtl:space-x-reverse">
-                                  <h4 className={cn(TYPOGRAPHY.body, "font-medium text-gray-900 text-right")}>{activity.title}</h4>
+                                  <h4 className={cn(TYPOGRAPHY.body, "font-medium text-gray-900 text-end")}>{activity.title}</h4>
                                   <Badge variant="outline" className={cn(BADGE_STYLES.base, TYPOGRAPHY.caption)}>
                                     {activity.activityType}
                                   </Badge>
@@ -306,9 +306,9 @@ export default function Clients() {
                                   )}
                                 </div>
                                 {activity.description && (
-                                  <p className={cn("mb-2", TYPOGRAPHY.body, "text-gray-600 text-right")}>{activity.description}</p>
+                                  <p className={cn("mb-2", TYPOGRAPHY.body, "text-gray-600 text-end")}>{activity.description}</p>
                                 )}
-                                <div className={cn("flex items-center gap-4", TYPOGRAPHY.caption, "text-gray-500 text-right rtl:space-x-reverse")}>
+                                <div className={cn("flex items-center gap-4", TYPOGRAPHY.caption, "text-gray-500 text-end rtl:space-x-reverse")}>
                                   {activity.scheduledDate && (
                                     <span>
                                       مجدول: {new Date(activity.scheduledDate).toLocaleString('ar-SA')}

@@ -57,8 +57,8 @@ export default function Header({
   const defaultPlaceholder = searchPlaceholder || t("form.search") || "البحث...";
 
   const searchAlignment = dir === "rtl"
-    ? "pr-12 pl-4 text-right placeholder:text-right"
-    : "pl-12 pr-4 text-left placeholder:text-left";
+    ? "pr-12 pl-4 text-end placeholder:text-end"
+    : "pl-12 pr-4 text-start placeholder:text-start";
   const searchIconPosition = dir === "rtl" ? "right-4" : "left-4";
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -131,7 +131,7 @@ export default function Header({
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <User className="h-4 w-4" />
               </div>
-              <div className={cn("hidden flex-col sm:flex", dir === "rtl" ? "text-right" : "text-left")}>
+              <div className={cn("hidden flex-col sm:flex", dir === "rtl" ? "text-end" : "text-start")}>
                 <span className="text-sm font-medium text-foreground">{username}</span>
                 <span className="text-[0.65rem] text-muted-foreground/80">{t("auth.loggedIn") || "مرحباً بعودتك"}</span>
               </div>

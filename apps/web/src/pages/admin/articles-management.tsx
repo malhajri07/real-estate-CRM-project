@@ -19,6 +19,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Card,
   CardContent,
@@ -101,32 +102,18 @@ const fetchArticles = async (params: {
   if (params.pageSize) queryParams.append("pageSize", params.pageSize.toString());
   if (params.search) queryParams.append("search", params.search);
 
-  const res = await fetch(`/api/cms/articles?${queryParams.toString()}`, {
-    credentials: "include",
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({ message: "Failed to fetch articles" }));
-    console.error("API Error:", errorData);
-    throw new Error(errorData.message || `HTTP ${res.status}: Failed to fetch articles`);
-  }
-
+  if (params.search) queryParams.append("search", params.search);
+  const res = await apiRequest("GET", `/api/cms/articles?${queryParams.toString()}`);
   return res.json();
 };
 
 const fetchCategories = async () => {
-  const res = await fetch("/api/cms/articles/categories", {
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to fetch categories");
+  const res = await apiRequest("GET", "/api/cms/articles/categories");
   return res.json();
 };
 
 const fetchTags = async () => {
-  const res = await fetch("/api/cms/articles/tags", {
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to fetch tags");
+  const res = await apiRequest("GET", "/api/cms/articles/tags");
   return res.json();
 };
 
@@ -146,21 +133,14 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
   const { data: versions = [], isLoading } = useQuery({
     queryKey: ["article-versions", articleId],
     queryFn: async () => {
-      const res = await fetch(`/api/cms/articles/${articleId}/versions`, {
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to fetch versions");
+      const res = await apiRequest("GET", `/api/cms/articles/${articleId}/versions`);
       return res.json() as Promise<ArticleVersion[]>;
     },
   });
 
   const restoreMutation = useMutation({
     mutationFn: async (version: number) => {
-      const res = await fetch(`/api/cms/articles/${articleId}/versions/${version}/restore`, {
-        method: "POST",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to restore version");
+      const res = await apiRequest("POST", `/api/cms/articles/${articleId}/versions/${version}/restore`);
       return res.json();
     },
     onSuccess: () => {
@@ -270,13 +250,7 @@ export default function ArticlesManagement() {
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await fetch("/api/cms/articles", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Failed to create article");
+      const res = await apiRequest("POST", "/api/cms/articles", data);
       return res.json();
     },
     onSuccess: () => {
@@ -288,13 +262,7 @@ export default function ArticlesManagement() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const res = await fetch(`/api/cms/articles/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Failed to update article");
+      const res = await apiRequest("PUT", `/api/cms/articles/${id}`, data);
       return res.json();
     },
     onSuccess: () => {
@@ -307,11 +275,7 @@ export default function ArticlesManagement() {
 
   const publishMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/cms/articles/${id}/publish`, {
-        method: "POST",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to publish article");
+      const res = await apiRequest("POST", `/api/cms/articles/${id}/publish`);
       return res.json();
     },
     onSuccess: () => {
@@ -322,11 +286,7 @@ export default function ArticlesManagement() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/cms/articles/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to delete article");
+      await apiRequest("DELETE", `/api/cms/articles/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
@@ -336,13 +296,7 @@ export default function ArticlesManagement() {
 
   const bulkActionMutation = useMutation({
     mutationFn: async ({ action, articleIds }: { action: string; articleIds: string[] }) => {
-      const res = await fetch("/api/cms/articles/bulk", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ action, articleIds }),
-      });
-      if (!res.ok) throw new Error("Failed to perform bulk action");
+      const res = await apiRequest("POST", "/api/cms/articles/bulk", { action, articleIds });
       return res.json();
     },
     onSuccess: (data) => {

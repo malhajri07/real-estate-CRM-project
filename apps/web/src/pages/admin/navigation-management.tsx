@@ -18,6 +18,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Card,
   CardContent,
@@ -67,10 +68,7 @@ interface NavigationLink {
 }
 
 const fetchNavigationLinks = async (): Promise<NavigationLink[]> => {
-  const res = await fetch("/api/cms/navigation/all", {
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to fetch navigation links");
+  const res = await apiRequest("GET", "/api/cms/navigation/all");
   return res.json();
 };
 
@@ -87,13 +85,7 @@ export default function NavigationManagement() {
 
   const updateMutation = useMutation({
     mutationFn: async (updatedLinks: NavigationLink[]) => {
-      const res = await fetch("/api/cms/navigation", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(updatedLinks),
-      });
-      if (!res.ok) throw new Error("Failed to update navigation links");
+      const res = await apiRequest("PUT", "/api/cms/navigation", updatedLinks);
       return res.json();
     },
     onSuccess: () => {
@@ -105,13 +97,7 @@ export default function NavigationManagement() {
 
   const createMutation = useMutation({
     mutationFn: async (data: Partial<NavigationLink>) => {
-      const res = await fetch("/api/cms/navigation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Failed to create navigation link");
+      const res = await apiRequest("POST", "/api/cms/navigation", data);
       return res.json();
     },
     onSuccess: () => {
@@ -127,13 +113,7 @@ export default function NavigationManagement() {
         ...link,
         order: index,
       }));
-      const res = await fetch("/api/cms/navigation", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(updatedLinks),
-      });
-      if (!res.ok) throw new Error("Failed to delete navigation link");
+      const res = await apiRequest("PUT", "/api/cms/navigation", updatedLinks);
       return res.json();
     },
     onSuccess: () => {
@@ -147,13 +127,7 @@ export default function NavigationManagement() {
       const updatedLinks = links.map((link) =>
         link.id === id ? { ...link, visible } : link
       );
-      const res = await fetch("/api/cms/navigation", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(updatedLinks),
-      });
-      if (!res.ok) throw new Error("Failed to update visibility");
+      const res = await apiRequest("PUT", "/api/cms/navigation", updatedLinks);
       return res.json();
     },
     onSuccess: () => {

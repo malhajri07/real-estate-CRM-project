@@ -165,7 +165,7 @@ export default function OrganizationManagement() {
     <div className="space-y-8 animate-in-start" dir="rtl">
       <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center md:text-right">
+          <div className="space-y-2 text-center md:text-end">
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة المنظمات</h1>
             <p className="text-slate-500 font-medium text-lg">تحكم في الكيانات والشركات المشتركة في النظام</p>
           </div>
@@ -276,11 +276,11 @@ export default function OrganizationManagement() {
               <Table>
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="border-slate-100">
-                    <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المنظمة</TableHead>
-                    <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">النوع</TableHead>
-                    <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المستخدمين</TableHead>
-                    <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الاشتراك</TableHead>
-                    <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
+                    <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المنظمة</TableHead>
+                    <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">النوع</TableHead>
+                    <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المستخدمين</TableHead>
+                    <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الاشتراك</TableHead>
+                    <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
                     <TableHead className="text-center text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">تحكم</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -382,13 +382,13 @@ export default function OrganizationManagement() {
       {/* Create Organization Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="max-w-2xl" dir="rtl">
-          <DialogHeader className="text-right">
+          <DialogHeader className="text-end">
             <DialogTitle>إضافة منظمة جديدة</DialogTitle>
             <DialogDescription>
               إضافة منظمة جديدة إلى النظام
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 text-right">
+          <div className="space-y-4 text-end">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="org-name">اسم المنظمة <span className="text-red-500">*</span></Label>
@@ -475,7 +475,7 @@ export default function OrganizationManagement() {
       {/* Delete Organization Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent dir="rtl">
-          <DialogHeader className="text-right">
+          <DialogHeader className="text-end">
             <DialogTitle>تأكيد الحذف</DialogTitle>
             <DialogDescription>
               هل أنت متأكد من حذف المنظمة "{selectedOrganization?.name}"؟ لا يمكن التراجع عن هذا الإجراء.

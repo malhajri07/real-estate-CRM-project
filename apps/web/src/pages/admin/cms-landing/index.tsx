@@ -38,6 +38,7 @@ import { buildSectionPayload, buildCardPayload } from "./utils/builders";
 import { defaultCardDraft } from "./utils/defaults";
 import { SectionEditor, CardEditor } from "./components";
 import { useCMSLandingSections } from "./hooks";
+import { apiRequest } from "@/lib/queryClient";
 
 interface CMSLandingPageProps {
   embedded?: boolean;
@@ -106,11 +107,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     setSectionSaving(true);
     try {
       const payload = buildSectionPayload(selectedSection, sectionForm);
-      const response = await fetch(`/api/cms/landing/sections/${selectedSection.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await apiRequest("PUT", `/api/cms/landing/sections/${selectedSection.id}`, payload);
       if (!response.ok) {
         throw new Error("فشل حفظ القسم");
       }
@@ -138,13 +135,10 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     if (!selectedSection) return;
     setSectionPublishing(true);
     try {
-      const response = await fetch(
+      const response = await apiRequest(
+        "POST",
         `/api/cms/landing/sections/${selectedSection.id}/publish`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ publishCards: true }),
-        }
+        { publishCards: true }
       );
       if (!response.ok) {
         throw new Error("فشل نشر القسم");
@@ -175,11 +169,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     setCardSaving((prev) => ({ ...prev, [card.id]: true }));
     try {
       const payload = buildCardPayload(selectedSection.slug, form, selectedSection);
-      const response = await fetch(`/api/cms/landing/cards/${card.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await apiRequest("PUT", `/api/cms/landing/cards/${card.id}`, payload);
       if (!response.ok) {
         throw new Error("فشل حفظ البطاقة");
       }
@@ -220,9 +210,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
 
   const handleDeleteCard = async (cardId: string) => {
     try {
-      const response = await fetch(`/api/cms/landing/cards/${cardId}`, {
-        method: "DELETE",
-      });
+      const response = await apiRequest("DELETE", `/api/cms/landing/cards/${cardId}`);
       if (!response.ok) {
         throw new Error("فشل حذف البطاقة");
       }
@@ -254,10 +242,9 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     if (!selectedSection) return;
     try {
       const draft = defaultCardDraft(selectedSection);
-      const response = await fetch("/api/cms/landing/cards", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sectionId: selectedSection.id, draftJson: draft }),
+      const response = await apiRequest("POST", "/api/cms/landing/cards", {
+        sectionId: selectedSection.id,
+        draftJson: draft,
       });
       if (!response.ok) {
         throw new Error("فشل إنشاء بطاقة جديدة");
@@ -305,11 +292,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
       }));
 
       try {
-        await fetch("/api/cms/landing/sections/reorder", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orders }),
-        });
+        await apiRequest("PUT", "/api/cms/landing/sections/reorder", { orders });
         toast.success("تم تحديث ترتيب الأقسام");
       } catch (error) {
         logger.error("Error reordering sections", {
@@ -342,11 +325,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
       }));
 
       try {
-        await fetch("/api/cms/landing/cards/reorder", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sectionId: selectedSection.id, orders }),
-        });
+        await apiRequest("PUT", "/api/cms/landing/cards/reorder", { sectionId: selectedSection.id, orders });
         toast.success("تم تحديث ترتيب البطاقات");
       } catch (error) {
         logger.error("Error reordering cards", {
@@ -382,7 +361,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                 <div className="h-16 w-16 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-600/20 group-hover:scale-110 transition-transform duration-500">
                   <Sparkles className="h-8 w-8" />
                 </div>
-                <div className="text-center md:text-right">
+                <div className="text-center md:text-end">
                   <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة محتوى صفحة الهبوط</h1>
                   <p className="text-slate-500 font-medium text-lg">قم بتحديث النصوص والأيقونات والعناصر المرئية بكل سهولة</p>
                 </div>
@@ -438,7 +417,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                               {...dragProvided.dragHandleProps}
                               onClick={() => setSelectedSectionId(section.id)}
                               className={cn(
-                                "w-full p-4 rounded-2xl text-right transition-all duration-300 group relative overflow-hidden",
+                                "w-full p-4 rounded-2xl text-end transition-all duration-300 group relative overflow-hidden",
                                 selectedSectionId === section.id
                                   ? "bg-slate-900 text-white shadow-xl shadow-slate-900/20"
                                   : "bg-white/50 border border-slate-100 text-slate-600 hover:bg-white hover:shadow-lg hover:shadow-blue-500/5",

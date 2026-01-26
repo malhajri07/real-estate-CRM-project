@@ -228,7 +228,7 @@ export default function SignupIndividual() {
           </Button>
         </div>
 
-        <div className="space-y-3 text-right">
+        <div className="space-y-3 text-end">
           <span className="inline-block rounded-full bg-emerald-100 px-4 py-1 text-sm font-semibold text-emerald-700">
             تسجيل وسيط عقاري مستقل
           </span>
@@ -245,7 +245,7 @@ export default function SignupIndividual() {
         >
               {/* Account Credentials */}
               <section className="space-y-4">
-                <div className="flex flex-col gap-2 text-right md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col gap-2 text-end md:flex-row md:items-center md:justify-between">
                   <h2 className="text-xl font-semibold text-slate-900">بيانات الحساب الأساسية</h2>
                   <span className="text-sm text-slate-400">* الحقول الإلزامية</span>
                 </div>
@@ -263,7 +263,7 @@ export default function SignupIndividual() {
                     onChange={(e) => setUsername(e.target.value)}
                     required
                     dir="ltr"
-                    className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                    className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                   />
                   </div>
 
@@ -279,7 +279,7 @@ export default function SignupIndividual() {
                       placeholder="••••••••"
                       required
                       dir="ltr"
-                      className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500 font-password"
+                      className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500 font-password"
                     />
                   </div>
 
@@ -295,7 +295,7 @@ export default function SignupIndividual() {
                       placeholder="••••••••"
                       required
                       dir="ltr"
-                      className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500 font-password"
+                      className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500 font-password"
                     />
                   </div>
                 </div>
@@ -303,7 +303,7 @@ export default function SignupIndividual() {
 
               {/* Personal Information */}
               <section className="space-y-4 pt-6 border-t border-slate-100">
-                <div className="text-right space-y-1">
+                <div className="text-end space-y-1">
                   <h2 className="text-xl font-semibold text-slate-900">المعلومات الشخصية</h2>
                   <p className="text-sm text-slate-500">
                     ساعدنا في التعرف عليك للتواصل والتحقق من بياناتك المهنية.
@@ -322,7 +322,7 @@ export default function SignupIndividual() {
                     placeholder="05XXXXXXXX"
                     required
                     maxLength={10}
-                    className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                    className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                   />
                 </div>
 
@@ -338,7 +338,7 @@ export default function SignupIndividual() {
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="أدخل الاسم الأول"
                       required
-                      className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                      className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                     />
                   </div>
 
@@ -353,7 +353,7 @@ export default function SignupIndividual() {
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="أدخل اسم العائلة"
                       required
-                      className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                      className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                     />
                   </div>
                 </div>
@@ -364,12 +364,12 @@ export default function SignupIndividual() {
                       النوع *
                     </Label>
                     <Select value={gender} onValueChange={setGender} required>
-                      <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white text-right focus:ring-emerald-500">
+                      <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white text-end focus:ring-emerald-500">
                         <SelectValue placeholder="اختر النوع" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4} align="end" className="z-[100] text-right">
-                        <SelectItem value="male" className="flex justify-end text-right">ذكر</SelectItem>
-                        <SelectItem value="female" className="flex justify-end text-right">أنثى</SelectItem>
+                      <SelectContent position="popper" sideOffset={4} align="end" className="z-[100] text-end">
+                        <SelectItem value="male" className="flex justify-end text-end">ذكر</SelectItem>
+                        <SelectItem value="female" className="flex justify-end text-end">أنثى</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -379,12 +379,12 @@ export default function SignupIndividual() {
                       المنطقة *
                     </Label>
                     <Select value={city} onValueChange={setCity} required>
-                      <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white text-right focus:ring-emerald-500">
+                      <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white text-end focus:ring-emerald-500">
                         <SelectValue placeholder="اختر المنطقة" />
                       </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4} align="end" className="z-[100] text-right">
+                      <SelectContent position="popper" sideOffset={4} align="end" className="z-[100] text-end">
                         {saudiRegions.map((region) => (
-                          <SelectItem key={region} value={region} className="flex justify-end text-right">
+                          <SelectItem key={region} value={region} className="flex justify-end text-end">
                             {region}
                           </SelectItem>
                         ))}
@@ -405,14 +405,14 @@ export default function SignupIndividual() {
                     placeholder="أدخل رقم الهوية الوطنية (10 أرقام)"
                     required
                     maxLength={10}
-                    className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                    className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                   />
                 </div>
               </section>
 
               {/* Certification Information */}
               <section className="space-y-4 pt-6 border-t border-slate-100">
-                <div className="text-right space-y-1">
+                <div className="text-end space-y-1">
                   <h2 className="text-xl font-semibold text-slate-900">معلومات رخصة فال</h2>
                   <p className="text-sm text-slate-500">
                     أدخل بيانات الترخيص المهنية للتأكد من أهليتك كممارس معتمد.
@@ -430,7 +430,7 @@ export default function SignupIndividual() {
                     onChange={(e) => setCertificationNumber(e.target.value)}
                     placeholder="أدخل رقم الترخيص"
                     required
-                    className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                    className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                   />
                 </div>
 
@@ -444,7 +444,7 @@ export default function SignupIndividual() {
                     value={certificationStartDate}
                     onChange={(e) => setCertificationStartDate(e.target.value)}
                     required
-                    className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                    className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                   />
                 </div>
 
@@ -459,11 +459,11 @@ export default function SignupIndividual() {
                       accept="application/pdf"
                       onChange={handleFileChange}
                       required
-                      className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500 file:mr-10 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100 pl-10"
+                      className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500 file:mr-10 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100 pl-10"
                     />
                     <Upload className="w-4 h-4 text-gray-500 absolute left-3 top-4 pointer-events-none" />
                   </div>
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-right">
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 text-end">
                     <p className="text-sm font-medium text-emerald-700">
                       📋 يجب رفع ملف ترخيص فال العقاري بصيغة PDF فقط
                     </p>
@@ -473,14 +473,14 @@ export default function SignupIndividual() {
 
               {/* Terms and Conditions */}
               <section className="space-y-4 pt-6 border-t border-slate-100">
-                <div className="text-right space-y-1">
+                <div className="text-end space-y-1">
                   <h2 className="text-xl font-semibold text-slate-900">الشروط والأحكام</h2>
                   <p className="text-sm text-slate-500">
                     يرجى قراءة الشروط التالية بعناية قبل الموافقة والمتابعة لإكمال التسجيل.
                   </p>
                 </div>
 
-                <div className="rounded-3xl border border-emerald-100 bg-emerald-50/60 p-6 text-right shadow-sm">
+                <div className="rounded-3xl border border-emerald-100 bg-emerald-50/60 p-6 text-end shadow-sm">
                   <div className="space-y-4 text-sm leading-7 text-slate-700 max-h-80 overflow-y-auto">
                     <h3 className="text-base font-semibold text-slate-900">شروط استخدام منصة عقاراتي للوسطاء العقاريين:</h3>
                     

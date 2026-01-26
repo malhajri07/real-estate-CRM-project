@@ -80,23 +80,23 @@ export default function Activities() {
                             <Table className={TABLE_STYLES.container}>
                                 <TableHeader className={cn(TABLE_STYLES.header, "bg-gray-50")}>
                                     <TableRow>
-                                        <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("activities.table.title")}</TableHead>
-                                        <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("activities.table.type")}</TableHead>
-                                        <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("activities.table.date")}</TableHead>
-                                        <TableHead className={cn(TABLE_STYLES.headerCell, "text-right")}>{t("activities.table.status")}</TableHead>
-                                        <TableHead className={cn(TABLE_STYLES.headerCell, "text-right w-[100px]")}>{t("activities.table.actions")}</TableHead>
+                                        <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("activities.table.title")}</TableHead>
+                                        <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("activities.table.type")}</TableHead>
+                                        <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("activities.table.date")}</TableHead>
+                                        <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("activities.table.status")}</TableHead>
+                                        <TableHead className={cn(TABLE_STYLES.headerCell, "text-end w-[100px]")}>{t("activities.table.actions")}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody className={TABLE_STYLES.body}>
                                     {filteredActivities.map((activity) => (
                                         <TableRow key={activity.id} className="divide-y divide-gray-200">
-                                            <TableCell className={cn(TABLE_STYLES.cell, "text-right font-medium")}>
+                                            <TableCell className={cn(TABLE_STYLES.cell, "text-end font-medium")}>
                                                 {activity.title}
                                             </TableCell>
-                                            <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>
+                                            <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>
                                                 <Badge variant="outline" className="capitalize">{activity.type}</Badge>
                                             </TableCell>
-                                            <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>
+                                            <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>
                                                 <div className="flex items-center gap-2">
                                                     <Clock className="w-4 h-4 text-muted-foreground" />
                                                     <span>
@@ -110,12 +110,12 @@ export default function Activities() {
                                                     </span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>
+                                            <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>
                                                 <Badge className={cn(BADGE_STYLES.base, getStatusBadgeColor(!!activity.completed))}>
                                                     {activity.completed ? t("status.completed") : t("status.pending")}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className={cn(TABLE_STYLES.cell, "text-right")}>
+                                            <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>
                                                 <Button variant="ghost" size="sm" onClick={() => { }}>
                                                     <Check className="w-4 h-4" />
                                                 </Button>

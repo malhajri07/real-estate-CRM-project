@@ -61,7 +61,7 @@ export function SearchableCombobox({
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            "h-11 w-full justify-between rounded-2xl border border-border/60 bg-background/90 text-right font-normal",
+            "h-11 w-full justify-between rounded-2xl border border-border/60 bg-background/90 text-end font-normal",
             disabled && "opacity-70"
           )}
         >
@@ -73,7 +73,7 @@ export function SearchableCombobox({
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="end">
         <Command>
-          <CommandInput placeholder={searchPlaceholder} className="text-right" />
+          <CommandInput placeholder={searchPlaceholder} className="text-end" />
           <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">{emptyText}</CommandEmpty>
           <CommandList>
             <CommandGroup>

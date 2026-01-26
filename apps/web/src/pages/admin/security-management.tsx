@@ -31,16 +31,28 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
-// --- Mock Data ---
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
-const AUDIT_LOGS = [
-    { id: 1, user: "محمد العتيبي", action: "تغيير صلاحيات المشرف", target: "أدمن النظام", time: "منذ ١٠ دقائق", risk: "Low" },
-    { id: 2, user: "سارة خالد", action: "محاولة دخول فاشلة", target: "لوحة التحكم", time: "منذ ٣٠ دقيقة", risk: "High" },
-    { id: 3, user: "أحمد منصور", action: "تصدير بيانات المستخدمين", target: "قاعدة البيانات", time: "منذ ساعة", risk: "Medium" },
-    { id: 4, user: "النظام", action: "تحديث شهادة الأمان", target: "الخادم الرئيسي", time: "منذ ساعتين", risk: "Low" },
-];
+// --- Types ---
+interface AuditLog {
+    id: string;
+    user: string;
+    action: string;
+    target: string;
+    time: string;
+    risk: "Low" | "Medium" | "High";
+}
 
 function SecurityAuditLogs() {
+    const { data: logs = [], isLoading, isError } = useQuery<AuditLog[]>({
+        queryKey: ["admin-activities"],
+        queryFn: async () => {
+            const res = await apiRequest("GET", "/api/rbac-admin/activities");
+            return res.json();
+        }
+    });
+
     return (
         <Card className="glass border-0 rounded-[2.5rem] overflow-hidden shadow-none">
             <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
@@ -56,7 +68,7 @@ function SecurityAuditLogs() {
                 </div>
             </div>
             <div className="overflow-x-auto">
-                <table className="w-full text-right">
+                <table className="w-full text-end">
                     <thead className="bg-slate-50/50">
                         <tr>
                             <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">المستخدم</th>
@@ -67,38 +79,52 @@ function SecurityAuditLogs() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                        {AUDIT_LOGS.map((log) => (
-                            <tr key={log.id} className="hover:bg-blue-50/30 transition-colors group">
-                                <td className="p-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">{log.user[0]}</div>
-                                        <span className="text-sm font-bold text-slate-700">{log.user}</span>
-                                    </div>
-                                </td>
-                                <td className="p-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-black text-slate-900">{log.action}</span>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{log.target}</span>
-                                    </div>
-                                </td>
-                                <td className="p-4"><span className="text-xs font-bold text-slate-500">{log.time}</span></td>
-                                <td className="p-4">
-                                    <Badge className={cn(
-                                        "text-[10px] font-black border-0 px-3 py-1 rounded-lg",
-                                        log.risk === "Low" ? "bg-emerald-50 text-emerald-700" :
-                                            log.risk === "Medium" ? "bg-amber-50 text-amber-700" :
-                                                "bg-rose-50 text-rose-700"
-                                    )}>
-                                        {log.risk === "Low" ? "منخفض" : log.risk === "Medium" ? "متوسط" : "مرتفع"}
-                                    </Badge>
-                                </td>
-                                <td className="p-4">
-                                    <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 opacity-0 group-hover:opacity-100 transition-all">
-                                        <Eye className="h-4 w-4" />
-                                    </Button>
-                                </td>
+                        {isLoading ? (
+                            <tr>
+                                <td colSpan={5} className="p-8 text-center text-slate-500">جاري تحميل السجلات...</td>
                             </tr>
-                        ))}
+                        ) : isError ? (
+                            <tr>
+                                <td colSpan={5} className="p-8 text-center text-red-500">فشل تحميل السجلات</td>
+                            </tr>
+                        ) : logs.length === 0 ? (
+                            <tr>
+                                <td colSpan={5} className="p-8 text-center text-slate-500">لا توجد سجلات نشاط</td>
+                            </tr>
+                        ) : (
+                            logs.map((log) => (
+                                <tr key={log.id} className="hover:bg-blue-50/30 transition-colors group">
+                                    <td className="p-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">{log.user[0]}</div>
+                                            <span className="text-sm font-bold text-slate-700">{log.user}</span>
+                                        </div>
+                                    </td>
+                                    <td className="p-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-black text-slate-900">{log.action}</span>
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{log.target}</span>
+                                        </div>
+                                    </td>
+                                    <td className="p-4"><span className="text-xs font-bold text-slate-500">{new Date(log.time).toLocaleString('ar-SA')}</span></td>
+                                    <td className="p-4">
+                                        <Badge className={cn(
+                                            "text-[10px] font-black border-0 px-3 py-1 rounded-lg",
+                                            log.risk === "Low" ? "bg-emerald-50 text-emerald-700" :
+                                                log.risk === "Medium" ? "bg-amber-50 text-amber-700" :
+                                                    "bg-rose-50 text-rose-700"
+                                        )}>
+                                            {log.risk === "Low" ? "منخفض" : log.risk === "Medium" ? "متوسط" : "مرتفع"}
+                                        </Badge>
+                                    </td>
+                                    <td className="p-4">
+                                        <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 opacity-0 group-hover:opacity-100 transition-all">
+                                            <Eye className="h-4 w-4" />
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -125,7 +151,7 @@ export default function SecurityManagement() {
                         <div className="h-16 w-16 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-600/20">
                             <Shield className="h-8 w-8" />
                         </div>
-                        <div className="text-center md:text-right">
+                        <div className="text-center md:text-end">
                             <h1 className="text-3xl font-black text-slate-900 tracking-tight">مركز الأمن والتحكم</h1>
                             <p className="text-slate-500 font-medium text-lg">إدارة صلاحيات الوصول ومراقبة أمن المنصة والبيانات</p>
                         </div>

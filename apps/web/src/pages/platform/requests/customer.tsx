@@ -178,7 +178,7 @@ export default function CustomerRequestsPage() {
       <section className="space-y-6">
         <Card className={CARD_STYLES.container}>
           <CardHeader className={cn(CARD_STYLES.header, "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between")}>
-            <div className="space-y-2 text-right">
+            <div className="space-y-2 text-end">
               <CardTitle className={cn(TYPOGRAPHY.pageTitle, "text-slate-900")}>
                 قاعدة بيانات العملاء الباحثين عن العقار
               </CardTitle>
@@ -216,7 +216,7 @@ export default function CustomerRequestsPage() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="بحث بالاسم، المدينة، البريد أو الجوال"
-                  className="text-right"
+                  className="text-end"
                 />
               </div>
             </div>
@@ -228,7 +228,7 @@ export default function CustomerRequestsPage() {
                 ))}
               </div>
             ) : isError ? (
-              <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-right">
+              <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-end">
                 <p className="text-base font-semibold text-destructive">تعذر تحميل قائمة الطلبات</p>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {error?.message || "حدث خطأ غير متوقع"}
@@ -271,7 +271,7 @@ export default function CustomerRequestsPage() {
                       return (
                         <TableRow key={rowKey}>
                           <TableCell>
-                            <div className="flex flex-col items-end gap-1 text-right">
+                            <div className="flex flex-col items-end gap-1 text-end">
                               <span className="font-semibold text-slate-900">{fullName}</span>
                               {seeker.seekerId && (
                                 <span className="text-xs text-muted-foreground">معرف: {seeker.seekerId}</span>
@@ -285,7 +285,7 @@ export default function CustomerRequestsPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="space-y-2 text-right text-sm">
+                            <div className="space-y-2 text-end text-sm">
                               {seeker.mobileNumber && (
                                 <div className="flex items-center justify-end gap-2">
                                   <span>{seeker.mobileNumber}</span>
@@ -294,7 +294,7 @@ export default function CustomerRequestsPage() {
                               )}
                               {seeker.email && (
                                 <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
-                                  <span className="max-w-[220px] truncate ltr:text-left rtl:text-right">{seeker.email}</span>
+                                  <span className="max-w-[220px] truncate ltr:text-start rtl:text-end">{seeker.email}</span>
                                   <Mail className="h-3.5 w-3.5" />
                                 </div>
                               )}
@@ -304,7 +304,7 @@ export default function CustomerRequestsPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex flex-col items-end gap-2 text-right text-sm">
+                            <div className="flex flex-col items-end gap-2 text-end text-sm">
                               {seeker.typeOfProperty && (
                                 <Badge variant="secondary" className="w-fit">
                                   {seeker.typeOfProperty}
@@ -333,7 +333,7 @@ export default function CustomerRequestsPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex flex-col items-end gap-1 text-right text-sm">
+                            <div className="flex flex-col items-end gap-1 text-end text-sm">
                               <span className="font-semibold text-emerald-600">
                                 {formatCurrency(seeker.budgetSize)}
                               </span>
@@ -348,7 +348,7 @@ export default function CustomerRequestsPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex flex-col items-end gap-1 text-right text-sm">
+                            <div className="flex flex-col items-end gap-1 text-end text-sm">
                               <span>
                                 {[seeker.city, seeker.district].filter(Boolean).join("، ") || "—"}
                               </span>
@@ -364,7 +364,7 @@ export default function CustomerRequestsPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex flex-col items-end gap-1 text-right text-sm">
+                            <div className="flex flex-col items-end gap-1 text-end text-sm">
                               <span>{createdLabel}</span>
                               {seeker.updatedAt && updatedLabel !== createdLabel && (
                                 <span className="text-xs text-muted-foreground">

@@ -18,7 +18,8 @@
     "delete-legacy-agents": "tsx apps/api/scripts/delete-legacy-agent-users.ts"
   },
   "prisma": {
-    "schema": "data/schema/prisma/schema.prisma"
+    "schema": "data/schema/prisma/schema.prisma",
+    "seed": "tsx data/schema/prisma/seed.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^9.0.0",

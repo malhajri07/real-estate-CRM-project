@@ -64,18 +64,18 @@ export function PropertiesList({
 
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm relative z-50">
-      <table className={cn(TABLE_STYLES.container, "min-w-[900px] w-full text-right")}>
+      <table className={cn(TABLE_STYLES.container, "min-w-[900px] w-full text-end")}>
         <thead className={cn(TABLE_STYLES.header, "bg-gray-50 border-b border-gray-200")}>
           <tr className={cn(TABLE_STYLES.headerCell, "text-xs font-medium text-gray-700 uppercase tracking-wider")}>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الصورة</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>العقار</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الموقع</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>النوع</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الحالة</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>السعر</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>المساحة</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الغرف</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الإجراءات</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الصورة</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>العقار</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الموقع</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>النوع</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الحالة</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>السعر</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>المساحة</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الغرف</th>
+            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الإجراءات</th>
           </tr>
         </thead>
         <tbody className={cn(TABLE_STYLES.body, "divide-y divide-gray-200")}>
@@ -127,28 +127,28 @@ export function PropertiesList({
                 </td>
 
                 {/* Property */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
-                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900 text-right")}>{property.title}</div>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
+                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900 text-end")}>{property.title}</div>
                 </td>
 
                 {/* Location */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
-                  <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-right")}>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
+                  <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-end")}>
                     {property.city}
                     {property.district && `, ${property.district}`}
                   </div>
-                  <div className={cn("mt-1", TYPOGRAPHY.caption, "text-gray-600 text-right")}>{property.address}</div>
+                  <div className={cn("mt-1", TYPOGRAPHY.caption, "text-gray-600 text-end")}>{property.address}</div>
                 </td>
 
                 {/* Type */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
-                  <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-right")}>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
+                  <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-end")}>
                     {property.propertyType || property.transactionType || '-'}
                   </div>
                 </td>
 
                 {/* Status */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                   {property.status && (
                     <span className={cn(BADGE_STYLES.base, getStatusBadgeClasses(property.status))}>
                       {property.status}
@@ -157,20 +157,20 @@ export function PropertiesList({
                 </td>
 
                 {/* Price */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
-                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-[rgb(128_193_165)] text-right")}>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
+                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-[rgb(128_193_165)] text-end")}>
                     {formatCurrency(property.price)}
                   </div>
                 </td>
 
                 {/* Area */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                   {property.areaSqm ? `${property.areaSqm.toLocaleString()} متر²` : '-'}
                 </td>
 
                 {/* Rooms */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
-                  <div className={cn("flex items-center gap-2", TYPOGRAPHY.body, "text-gray-900 text-right")}>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
+                  <div className={cn("flex items-center gap-2", TYPOGRAPHY.body, "text-gray-900 text-end")}>
                     {property.bedrooms && (
                       <span className="flex items-center gap-1">
                         <Bed size={12} />
@@ -187,7 +187,7 @@ export function PropertiesList({
                 </td>
 
                 {/* Actions */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                   <div className="flex items-center justify-end gap-1 relative z-50" onClick={(e) => e.stopPropagation()}>
                     <button 
                       className={cn(

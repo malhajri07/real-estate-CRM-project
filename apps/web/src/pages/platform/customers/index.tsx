@@ -462,19 +462,19 @@ export default function Customers() {
             ) : (
               <>
                 <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-                  <table className={cn(TABLE_STYLES.container, "min-w-[900px] w-full text-right")}>
+                  <table className={cn(TABLE_STYLES.container, "min-w-[900px] w-full text-end")}>
                     <thead className={cn(TABLE_STYLES.header, "bg-gray-50 border-b border-gray-200")}>
                       <tr className={cn(TABLE_STYLES.headerCell, "text-xs font-medium text-gray-700 uppercase tracking-wider")}>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>العميل</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>المدينة</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>العمر</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الحالة الاجتماعية</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>المُعالين</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>نوع الاهتمام</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>نطاق الميزانية</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الحالة</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>تاريخ الانضمام</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-right")}>الإجراءات</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>العميل</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>المدينة</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>العمر</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الحالة الاجتماعية</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>المُعالين</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>نوع الاهتمام</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>نطاق الميزانية</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الحالة</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>تاريخ الانضمام</th>
+                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الإجراءات</th>
                       </tr>
                     </thead>
                     <tbody className={cn(TABLE_STYLES.body, "divide-y divide-gray-200")}>
@@ -487,33 +487,33 @@ export default function Customers() {
                             <span>{lead.phone}</span>
                           </div>
                         </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                           {lead.city || "غير محدد"}
                         </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                           {lead.age || "غير محدد"}
                         </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                           {getMaritalStatusLabel(lead.maritalStatus || "")}
                         </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                           {lead.numberOfDependents || 0}
                         </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                           {getInterestTypeLabel(lead.interestType || "")}
                         </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                           {formatBudgetRange(lead.budgetRange)}
                         </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                           <span className={cn(BADGE_STYLES.base, getStatusBadgeColor(lead.status))}>
                             {getStatusLabel(lead.status)}
                           </span>
                         </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                           {new Date(lead.createdAt).toLocaleDateString('en-GB')}
                         </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-right")}>
+                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                           <div className="flex items-center justify-end gap-1">
                             <button 
                               className="p-2 rounded-md text-emerald-600 transition-colors duration-150 hover:text-emerald-800 hover:bg-emerald-50"
@@ -612,11 +612,11 @@ export default function Customers() {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-right">
+            <DialogTitle className="flex items-center gap-2 text-end">
               <AlertTriangle className="h-5 w-5 text-red-500" />
               تأكيد الحذف
             </DialogTitle>
-            <DialogDescription className="text-right pt-2">
+            <DialogDescription className="text-end pt-2">
               <div className="space-y-3">
                 <p className="text-slate-600">
                   هل أنت متأكد من حذف العميل التالي؟

@@ -20,6 +20,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Card,
   CardContent,
@@ -65,10 +66,9 @@ const fetchMedia = async (params: {
   if (params.search) queryParams.append("search", params.search);
   if (params.mimeType) queryParams.append("mimeType", params.mimeType);
 
-  const res = await fetch(`/api/cms/media?${queryParams.toString()}`, {
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to fetch media");
+  if (params.mimeType) queryParams.append("mimeType", params.mimeType);
+
+  const res = await apiRequest("GET", `/api/cms/media?${queryParams.toString()}`);
   return res.json();
 };
 
@@ -95,8 +95,13 @@ export default function MediaLibrary() {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
+      const token = localStorage.getItem('auth_token');
+      const headers: HeadersInit = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch("/api/cms/media", {
         method: "POST",
+        headers,
         credentials: "include",
         body: formData,
       });
@@ -111,14 +116,7 @@ export default function MediaLibrary() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/cms/media/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!res.ok) {
-        const error = await res.json().catch(() => ({ message: "Failed to delete media" }));
-        throw new Error(error.message || "Failed to delete media");
-      }
+      await apiRequest("DELETE", `/api/cms/media/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["media"] });

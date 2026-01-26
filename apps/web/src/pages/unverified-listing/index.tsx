@@ -558,7 +558,7 @@ export default function UnverifiedListingPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-100 px-4 py-16">
         <div className="max-w-3xl mx-auto">
-          <div className="space-y-6 rounded-[32px] border border-white/80 bg-white/90 backdrop-blur-xl p-10 shadow-[0_35px_120px_rgba(16,185,129,0.18)] text-right">
+          <div className="space-y-6 rounded-[32px] border border-white/80 bg-white/90 backdrop-blur-xl p-10 shadow-[0_35px_120px_rgba(16,185,129,0.18)] text-end">
             <div className="flex items-center justify-end gap-4">
               <div className="rounded-3xl bg-emerald-100 p-4 text-emerald-600">
                 <CheckCircle2 className="h-10 w-10" />
@@ -645,7 +645,7 @@ export default function UnverifiedListingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-100 px-4 py-16">
       <div className="max-w-5xl mx-auto space-y-10">
-        <div className="space-y-3 text-right">
+        <div className="space-y-3 text-end">
           <span className="inline-block rounded-full bg-emerald-100 px-4 py-1 text-sm font-semibold text-emerald-700">
             إدراج عقار للبيع
           </span>

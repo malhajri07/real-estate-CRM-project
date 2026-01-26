@@ -330,7 +330,7 @@ export default function Reports() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg text-right">
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg text-end">
           <p className="font-medium text-gray-900 mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p
@@ -764,11 +764,11 @@ export default function Reports() {
                     <table className="w-full">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-right py-3 px-4">الوكيل</th>
-                          <th className="text-right py-3 px-4">عدد الصفقات</th>
-                          <th className="text-right py-3 px-4">الإيرادات</th>
-                          <th className="text-right py-3 px-4">معدل التحويل</th>
-                          <th className="text-right py-3 px-4">الحالة</th>
+                          <th className="text-end py-3 px-4">الوكيل</th>
+                          <th className="text-end py-3 px-4">عدد الصفقات</th>
+                          <th className="text-end py-3 px-4">الإيرادات</th>
+                          <th className="text-end py-3 px-4">معدل التحويل</th>
+                          <th className="text-end py-3 px-4">الحالة</th>
                         </tr>
                       </thead>
                       <tbody>

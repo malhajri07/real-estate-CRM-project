@@ -444,7 +444,7 @@ export default function RevenueManagement() {
         <div className="space-y-8 animate-in-start" dir="rtl">
             <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="space-y-2 text-center md:text-right">
+                    <div className="space-y-2 text-center md:text-end">
                         <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة الإيرادات</h1>
                         <p className="text-slate-500 font-medium text-lg">نظرة شاملة على الأداء المالي، الاشتراكات، وخطط الأسعار</p>
                     </div>

@@ -70,7 +70,7 @@ const createEmptyFormState = (): UserFormState => ({
   email: "",
   username: "",
   phone: "",
-  role: USER_ROLES[0],
+  role: UserRole.BUYER, // Safer default than USER_ROLES[0]
   password: "",
   isActive: true,
 });
@@ -108,11 +108,14 @@ export default function UserManagement() {
   const updateUserMutation = useUpdateAdminUser();
   const deleteUserMutation = useDeleteAdminUser();
 
+  // Defensive check for USER_ROLES
+  const SAFE_USER_ROLES = USER_ROLES || Object.values(UserRole);
+
   const roleOptions = useMemo(() => {
     if (roles.length) {
       const normalized = roles
         .map((role) => role.name)
-        .filter((value): value is UserRole => USER_ROLES.includes(value as UserRole));
+        .filter((value): value is UserRole => SAFE_USER_ROLES.includes(value as UserRole));
 
       if (normalized.length) {
         return normalized.map((role) => ({
@@ -123,7 +126,7 @@ export default function UserManagement() {
         }));
       }
     }
-    return USER_ROLES.map((role) => ({ value: role, label: ROLE_DISPLAY_TRANSLATIONS[role] }));
+    return SAFE_USER_ROLES.map((role) => ({ value: role, label: ROLE_DISPLAY_TRANSLATIONS[role] }));
   }, [roles]);
 
   // Filter users based on status

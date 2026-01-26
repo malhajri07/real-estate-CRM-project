@@ -18,6 +18,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Card,
   CardContent,
@@ -51,18 +52,12 @@ interface SEOSettings {
 }
 
 const fetchSEOSettings = async (): Promise<SEOSettings[]> => {
-  const res = await fetch("/api/cms/seo", {
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to fetch SEO settings");
+  const res = await apiRequest("GET", "/api/cms/seo");
   return res.json();
 };
 
 const fetchSitemap = async (): Promise<string> => {
-  const res = await fetch("/api/cms/seo/sitemap.xml", {
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("Failed to generate sitemap");
+  const res = await apiRequest("GET", "/api/cms/seo/sitemap.xml");
   return res.text();
 };
 
@@ -81,13 +76,7 @@ export default function SEOManagement() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: SEOSettings) => {
-      const res = await fetch(`/api/cms/seo${data.pagePath}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Failed to update SEO settings");
+      const res = await apiRequest("PUT", `/api/cms/seo${data.pagePath}`, data);
       return res.json();
     },
     onSuccess: () => {
@@ -111,10 +100,7 @@ export default function SEOManagement() {
   });
 
   const fetchRobotsTxt = async (): Promise<string> => {
-    const res = await fetch("/api/cms/seo/robots.txt/content", {
-      credentials: "include",
-    });
-    if (!res.ok) throw new Error("Failed to fetch robots.txt");
+    const res = await apiRequest("GET", "/api/cms/seo/robots.txt/content");
     const data = await res.json();
     return data.content;
   };
@@ -134,13 +120,7 @@ export default function SEOManagement() {
 
   const robotsTxtMutation = useMutation({
     mutationFn: async (content: string) => {
-      const res = await fetch("/api/cms/seo/robots.txt", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ content }),
-      });
-      if (!res.ok) throw new Error("Failed to update robots.txt");
+      const res = await apiRequest("PUT", "/api/cms/seo/robots.txt", { content });
       return res.json();
     },
     onSuccess: () => {

@@ -127,7 +127,7 @@ export function PropertyMap({ properties, activeProperty, className = "" }: Prop
         : "بدون سعر";
 
       marker.bindPopup(
-        `<div class="min-w-[180px] space-y-1 rounded-2xl border border-border/60 bg-slate-900/90 px-4 py-3 text-right text-xs font-medium text-white shadow-[0_18px_35px_rgba(15,23,42,0.25)]">
+        `<div class="min-w-[180px] space-y-1 rounded-2xl border border-border/60 bg-slate-900/90 px-4 py-3 text-end text-xs font-medium text-white shadow-[0_18px_35px_rgba(15,23,42,0.25)]">
           <p class="text-sm font-semibold text-white">${title}</p>
           <p class="text-white/80">${city}</p>
           <p class="text-[13px] text-white/70">${formattedPrice}</p>

@@ -28,7 +28,7 @@ export default function KYCSubmitted() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-slate-100 px-4 py-16">
       <div className="mx-auto max-w-3xl">
-        <div className="space-y-6 rounded-[32px] border border-white/80 bg-white/90 p-10 text-right shadow-[0_35px_120px_rgba(16,185,129,0.18)] backdrop-blur-xl">
+        <div className="space-y-6 rounded-[32px] border border-white/80 bg-white/90 p-10 text-end shadow-[0_35px_120px_rgba(16,185,129,0.18)] backdrop-blur-xl">
           <div className="flex items-center justify-end gap-4">
             <div className="rounded-3xl bg-emerald-100 p-4 text-emerald-600">
               <Clock className="h-10 w-10" />

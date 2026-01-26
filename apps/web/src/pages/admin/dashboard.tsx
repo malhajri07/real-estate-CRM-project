@@ -25,6 +25,7 @@ import { AdminHeader } from "@/components/admin/layout/AdminHeader";
 import { AdminSidebar, type SidebarItem } from "@/components/admin/layout/AdminSidebar";
 import { adminSidebarConfig, type AdminSidebarContentSection } from "@/config/admin-sidebar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import UserManagement from "@/pages/admin/user-management";
 import RoleManagement from "@/pages/admin/role-management";
 import OrganizationManagement from "@/pages/admin/organization-management";
@@ -106,11 +107,7 @@ type DashboardMetricsResponse = {
 };
 
 const dashboardQuery = async (): Promise<DashboardMetricsResponse> => {
-  const res = await fetch("/api/rbac-admin/dashboard", { credentials: "include" });
-  if (!res.ok) {
-    const errorText = await res.text().catch(() => 'No error details');
-    throw new Error(`فشل في تحميل لوحة التحكم (${res.status} ${res.statusText}): ${errorText}`);
-  }
+  const res = await apiRequest("GET", "/api/rbac-admin/dashboard");
   const payload = (await res.json()) as DashboardMetricsResponse;
   if (!payload.success) throw new Error("فشل في تحميل لوحة التحكم");
   return payload;
@@ -632,7 +629,6 @@ export default function RBACDashboard() {
       case "/admin/revenue/payment-methods":
       case "/admin/revenue/reports":
       case "/admin/revenue/subscription-plans":
-      case "/admin/revenue/subscription-plans":
         return <RevenueManagement />;
       case "/admin/complaints":
       case "/admin/complaints/all":
@@ -691,7 +687,11 @@ export default function RBACDashboard() {
     return (
       <Alert variant="destructive" className="mt-6">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>المسار غير مدعوم: {activeRoute}</AlertDescription>
+        <AlertDescription>
+          المسار غير مدعوم: {activeRoute}
+          <br />
+          Current Location: {location}
+        </AlertDescription>
       </Alert>
     );
   };

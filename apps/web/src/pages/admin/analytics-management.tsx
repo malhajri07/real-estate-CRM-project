@@ -66,7 +66,7 @@ const PAGE_VIEWS = [
 function CustomTooltip({ active, payload, label }: any) {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white/90 backdrop-blur-md border border-slate-100 shadow-2xl rounded-2xl p-4 text-right">
+            <div className="bg-white/90 backdrop-blur-md border border-slate-100 shadow-2xl rounded-2xl p-4 text-end">
                 <p className="font-black text-slate-900 mb-2">{label}</p>
                 {payload.map((entry: any, index: number) => (
                     <div key={index} className="flex items-center gap-2 mb-1 last:mb-0 justify-end">
@@ -95,7 +95,7 @@ export default function AnalyticsManagement() {
                         <div className="h-16 w-16 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-600/20">
                             <BarChart3 className="h-8 w-8" />
                         </div>
-                        <div className="text-center md:text-right">
+                        <div className="text-center md:text-end">
                             <h1 className="text-3xl font-black text-slate-900 tracking-tight">تحليلات المنصة</h1>
                             <p className="text-slate-500 font-medium text-lg">مراقبة أداء النظام وتفاعل المستخدمين في الوقت الفعلي</p>
                         </div>
@@ -249,7 +249,7 @@ export default function AnalyticsManagement() {
                     </Button>
                 </div>
                 <div className="overflow-hidden rounded-2xl border border-slate-100">
-                    <table className="w-full text-right">
+                    <table className="w-full text-end">
                         <thead className="bg-slate-50/50">
                             <tr>
                                 <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">المسار (Path)</th>

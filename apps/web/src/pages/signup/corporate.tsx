@@ -217,7 +217,7 @@ export default function SignupCorporate() {
           </Button>
         </div>
 
-        <div className="space-y-3 text-right">
+        <div className="space-y-3 text-end">
           <span className="inline-block rounded-full bg-emerald-100 px-4 py-1 text-sm font-semibold text-emerald-700">
             تسجيل شركة عقارية
           </span>
@@ -233,7 +233,7 @@ export default function SignupCorporate() {
           className="relative space-y-10 rounded-[32px] border border-white/80 bg-white/90 backdrop-blur-xl px-6 py-10 shadow-[0_35px_120px_rgba(148,163,184,0.18)]"
         >
           <section className="space-y-4">
-            <div className="flex flex-col gap-2 text-right md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-2 text-end md:flex-row md:items-center md:justify-between">
               <h2 className="text-xl font-semibold text-slate-900">بيانات الحساب الأساسية</h2>
               <span className="text-sm text-slate-400">* الحقول الإلزامية</span>
             </div>
@@ -250,7 +250,7 @@ export default function SignupCorporate() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
 
@@ -266,7 +266,7 @@ export default function SignupCorporate() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500 font-password"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500 font-password"
                 />
               </div>
 
@@ -282,14 +282,14 @@ export default function SignupCorporate() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500 font-password"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500 font-password"
                 />
               </div>
             </div>
           </section>
 
           <section className="space-y-4 border-t border-slate-100 pt-6">
-            <div className="space-y-1 text-right">
+            <div className="space-y-1 text-end">
               <h2 className="text-xl font-semibold text-slate-900">معلومات الشركة</h2>
               <p className="text-sm text-slate-500">
                 استخدم بيانات السجل التجاري الرسمية لضمان التحقق السريع للحساب.
@@ -308,7 +308,7 @@ export default function SignupCorporate() {
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="أدخل اسم الشركة"
                   required
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
               <div className="space-y-2">
@@ -316,7 +316,7 @@ export default function SignupCorporate() {
                   نوع الشركة *
                 </Label>
                 <Select value={companyType} onValueChange={setCompanyType} required>
-                  <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white text-right focus:ring-emerald-500">
+                  <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white text-end focus:ring-emerald-500">
                     <SelectValue placeholder="اختر نوع الشركة" />
                   </SelectTrigger>
                   <SelectContent position="popper" sideOffset={4} align="end" className="z-[100]">
@@ -341,7 +341,7 @@ export default function SignupCorporate() {
                   value={commercialRegistration}
                   onChange={(e) => handleNumericInput(e.target.value, setCommercialRegistration)}
                   placeholder="10 أرقام"
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
               <div className="space-y-2">
@@ -354,7 +354,7 @@ export default function SignupCorporate() {
                   value={taxNumber}
                   onChange={(e) => handleNumericInput(e.target.value, setTaxNumber)}
                   placeholder="الرقم الضريبي إن وجد"
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
               <div className="space-y-2">
@@ -366,7 +366,7 @@ export default function SignupCorporate() {
                   type="date"
                   value={establishmentDate}
                   onChange={(e) => setEstablishmentDate(e.target.value)}
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
             </div>
@@ -382,7 +382,7 @@ export default function SignupCorporate() {
                   value={employeesCount}
                   onChange={(e) => handleNumericInput(e.target.value, setEmployeesCount)}
                   placeholder="عدد الموظفين"
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
               <div className="space-y-2">
@@ -390,7 +390,7 @@ export default function SignupCorporate() {
                   المدينة الرئيسية *
                 </Label>
                 <Select value={companyCity} onValueChange={setCompanyCity} required>
-                  <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white text-right focus:ring-emerald-500">
+                  <SelectTrigger className="h-12 rounded-2xl border-slate-200 bg-white text-end focus:ring-emerald-500">
                     <SelectValue placeholder="اختر المدينة" />
                   </SelectTrigger>
                   <SelectContent position="popper" sideOffset={4} align="end" className="z-[100]">
@@ -415,7 +415,7 @@ export default function SignupCorporate() {
                   value={companyAddress}
                   onChange={(e) => setCompanyAddress(e.target.value)}
                   placeholder="المدينة، الحي، الشارع"
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
               <div className="space-y-2">
@@ -429,7 +429,7 @@ export default function SignupCorporate() {
                   value={companyWebsite}
                   onChange={(e) => setCompanyWebsite(e.target.value)}
                   placeholder="https://company.sa"
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
             </div>
@@ -443,13 +443,13 @@ export default function SignupCorporate() {
                 value={companyDescription}
                 onChange={(e) => setCompanyDescription(e.target.value)}
                 placeholder="صف مجالات عمل الشركة والخدمات التي تقدمها"
-                className="min-h-[120px] rounded-3xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                className="min-h-[120px] rounded-3xl border-slate-200 text-end focus-visible:ring-emerald-500"
               />
             </div>
           </section>
 
           <section className="space-y-4 border-t border-slate-100 pt-6">
-            <div className="space-y-1 text-right">
+            <div className="space-y-1 text-end">
               <h2 className="text-xl font-semibold text-slate-900">مسؤول الاتصال الرئيسي</h2>
               <p className="text-sm text-slate-500">سيتم استخدام هذه البيانات للتواصل وإرسال تحديثات الحساب.</p>
             </div>
@@ -466,7 +466,7 @@ export default function SignupCorporate() {
                   onChange={(e) => setContactName(e.target.value)}
                   placeholder="اسم الشخص المسؤول"
                   required
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
               <div className="space-y-2">
@@ -479,7 +479,7 @@ export default function SignupCorporate() {
                   value={contactPosition}
                   onChange={(e) => setContactPosition(e.target.value)}
                   placeholder="مثال: المدير التنفيذي"
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
             </div>
@@ -497,7 +497,7 @@ export default function SignupCorporate() {
                   onChange={(e) => setContactEmail(e.target.value)}
                   placeholder="example@company.com"
                   required
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
               <div className="space-y-2">
@@ -512,14 +512,14 @@ export default function SignupCorporate() {
                   placeholder="05XXXXXXXX"
                   required
                   maxLength={10}
-                  className="h-12 rounded-2xl border-slate-200 text-right focus-visible:ring-emerald-500"
+                  className="h-12 rounded-2xl border-slate-200 text-end focus-visible:ring-emerald-500"
                 />
               </div>
             </div>
           </section>
 
           <section className="space-y-4 border-t border-slate-100 pt-6">
-            <div className="space-y-1 text-right">
+            <div className="space-y-1 text-end">
               <h2 className="text-xl font-semibold text-slate-900">المستندات المساندة (اختيارية)</h2>
               <p className="text-sm text-slate-500">يساعد رفع المستندات في تسريع عملية الموافقة والتحقق.</p>
             </div>
@@ -535,7 +535,7 @@ export default function SignupCorporate() {
                     type="file"
                     accept="application/pdf"
                     onChange={(e) => setCommercialRegDoc(e.target.files)}
-                    className="h-12 rounded-2xl border-slate-200 text-right file:ml-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-emerald-700 file:font-medium focus-visible:ring-emerald-500"
+                    className="h-12 rounded-2xl border-slate-200 text-end file:ml-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-emerald-700 file:font-medium focus-visible:ring-emerald-500"
                   />
                   <Upload className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
                 </div>
@@ -551,7 +551,7 @@ export default function SignupCorporate() {
                     type="file"
                     accept="application/pdf"
                     onChange={(e) => setVatCertificate(e.target.files)}
-                    className="h-12 rounded-2xl border-slate-200 text-right file:ml-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-emerald-700 file:font-medium focus-visible:ring-emerald-500"
+                    className="h-12 rounded-2xl border-slate-200 text-end file:ml-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-emerald-700 file:font-medium focus-visible:ring-emerald-500"
                   />
                   <Upload className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
                 </div>
@@ -567,7 +567,7 @@ export default function SignupCorporate() {
                     type="file"
                     accept="application/pdf"
                     onChange={(e) => setCompanyProfile(e.target.files)}
-                    className="h-12 rounded-2xl border-slate-200 text-right file:ml-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-emerald-700 file:font-medium focus-visible:ring-emerald-500"
+                    className="h-12 rounded-2xl border-slate-200 text-end file:ml-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:text-emerald-700 file:font-medium focus-visible:ring-emerald-500"
                   />
                   <Upload className="absolute left-4 top-3.5 h-4 w-4 text-slate-400" />
                 </div>
@@ -580,7 +580,7 @@ export default function SignupCorporate() {
           </section>
 
           <section className="space-y-4 border-t border-slate-100 pt-6">
-            <div className="space-y-1 text-right">
+            <div className="space-y-1 text-end">
               <h2 className="text-xl font-semibold text-slate-900">الشروط والأحكام</h2>
               <p className="text-sm text-slate-500">يرجى قراءة الشروط بعناية قبل الاستمرار في التسجيل.</p>
             </div>
@@ -622,7 +622,7 @@ export default function SignupCorporate() {
             )}
           </div>
 
-          <section className="space-y-3 border-t border-slate-100 pt-8 text-right">
+          <section className="space-y-3 border-t border-slate-100 pt-8 text-end">
             <h3 className="text-lg font-semibold text-slate-900">بعد إرسال الطلب</h3>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
               <div className="rounded-2xl border border-slate-100 bg-white/70 p-4 text-sm text-slate-600 shadow-sm">

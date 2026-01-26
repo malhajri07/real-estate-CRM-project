@@ -55,7 +55,7 @@ function ComparisonMatrix() {
     return (
         <Card className="glass border-0 rounded-[2.5rem] overflow-hidden shadow-none">
             <div className="overflow-x-auto">
-                <table className="w-full text-right border-collapse">
+                <table className="w-full text-end border-collapse">
                     <thead>
                         <tr className="bg-slate-50/50">
                             <th className="p-8 w-[40%]">
@@ -211,7 +211,7 @@ export default function FeaturesManagement() {
                         <div className="h-16 w-16 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-600/20">
                             <Layers className="h-8 w-8" />
                         </div>
-                        <div className="text-center md:text-right">
+                        <div className="text-center md:text-end">
                             <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة ميزات النظام</h1>
                             <p className="text-slate-500 font-medium text-lg">تحكم في توافر المزايا وربطها بخطط الاشتراك المختلفة</p>
                         </div>
