@@ -60,7 +60,7 @@ export function AdminBulkActions({
                         onClick={onClear}
                         className="h-7 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100"
                     >
-                        <X className="h-4 w-4 ml-1" />
+                        <X className="h-4 w-4 ms-1" />
                         إلغاء التحديد
                     </Button>
                 )}
@@ -78,7 +78,7 @@ export function AdminBulkActions({
                             action.variant === 'destructive' && 'text-red-600 hover:text-red-700'
                         )}
                     >
-                        {action.icon && <span className="ml-2">{action.icon}</span>}
+                        {action.icon && <span className="ms-2">{action.icon}</span>}
                         {action.label}
                     </Button>
                 ))}

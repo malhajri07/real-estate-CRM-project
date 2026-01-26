@@ -1,5 +1,5 @@
 import React from "react";
-import { Type, Save, Trash2 } from "lucide-react";
+import { Type, Save, Trash2, Smartphone, Globe, Shield, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import type { LandingCard, LandingSection, CardFormState } from "../types";
 import { SECTION_LABELS, FEATURE_ICON_OPTIONS, CONTACT_ICON_OPTIONS, HERO_METRIC_COLORS } from "../utils/constants";
 import { ListInput } from "./inputs/ListInput";
@@ -42,258 +43,137 @@ export const CardEditor: React.FC<CardEditorProps> = ({
   };
 
   const cardTitle =
-    formState.title || formState.label || card.title || SECTION_LABELS[section.slug] || "Card";
+    formState.title || formState.label || card.title || SECTION_LABELS[section.slug] || "عنصر";
 
   return (
-    <Card className="relative">
-      <CardHeader>
-        <div className="flex items-center justify-between gap-3 overflow-visible">
-          <CardTitle className="flex items-center gap-2 text-base flex-1">
-            <Type className="h-4 w-4" />
-            {cardTitle}
-          </CardTitle>
-          <div className="flex items-center gap-2 flex-shrink-0 overflow-visible">
+    <Card className="bg-white/50 border border-slate-100 rounded-[2rem] p-6 hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group relative overflow-visible">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 overflow-visible">
+        <div className="flex items-center gap-4">
+          <div className="h-10 w-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+            <Type className="h-5 w-5" />
+          </div>
+          <h3 className="text-lg font-black text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors">{cardTitle}</h3>
+        </div>
+        <div className="flex items-center gap-2 overflow-visible">
+          <div className="flex items-center gap-3 px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100 overflow-visible">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ظهور</span>
             <Switch
               checked={formState.visible}
               onCheckedChange={(checked) => setField("visible", checked)}
-              aria-label="Toggle visibility"
+              className="data-[state=checked]:bg-blue-600"
             />
-            <Button size="sm" variant="outline" onClick={onSave} disabled={saving}>
-              <Save className="h-4 w-4" />
-              {saving ? "جار الحفظ..." : "حفظ"}
-            </Button>
-            <Button size="sm" variant="destructive" onClick={onDelete}>
-              <Trash2 className="h-4 w-4" />
-            </Button>
           </div>
+          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-all" onClick={onSave} disabled={saving}>
+            <Save className={cn("h-5 w-5", saving && "animate-spin")} />
+          </Button>
+          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all" onClick={onDelete}>
+            <Trash2 className="h-5 w-5" />
+          </Button>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
+      </div>
+
+      <div className="space-y-6">
         {section.slug !== "hero" && section.slug !== "stats" && section.slug !== "navigation" && (
-          <div>
-            <Label>العنوان</Label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">العنوان</label>
             <Input
               value={formState.title ?? ""}
               onChange={(event) => setField("title", event.target.value)}
+              className="h-12 rounded-xl bg-slate-50/50 border-slate-100 focus:ring-blue-500/20 font-bold"
             />
           </div>
         )}
 
         {section.slug === "hero" && (
-          <>
-            <div>
-              <Label>القيمة</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">القيمة (Value)</label>
               <Input
                 value={formState.value ?? ""}
                 onChange={(event) => setField("value", event.target.value)}
-                placeholder="قيمة المؤشر (مثال: 1.2M ﷼)"
+                placeholder="مثال: +١٥٤"
+                className="h-12 rounded-xl bg-slate-50/50 border-slate-100 focus:ring-blue-500/20 font-black text-blue-600"
               />
             </div>
-            <div>
-              <Label>الوصف المختصر</Label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">الوصف</label>
               <Input
                 value={formState.label ?? ""}
                 onChange={(event) => setField("label", event.target.value)}
-                placeholder="نص يظهر أسفل المؤشر"
+                placeholder="مثال: عملاء سعداء"
+                className="h-12 rounded-xl bg-slate-50/50 border-slate-100 focus:ring-blue-500/20 font-bold"
               />
             </div>
-            <div>
-              <Label>لون الشارة</Label>
-              <Select
-                value={formState.color ?? "blue"}
-                onValueChange={(value) => setField("color", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر اللون" />
-                </SelectTrigger>
-                <SelectContent>
-                  {HERO_METRIC_COLORS.map((color) => (
-                    <SelectItem key={color} value={color}>
-                      {color}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </>
+          </div>
         )}
 
         {["features", "solutions", "pricing", "contact"].includes(section.slug) && (
-          <div>
-            <Label>الوصف</Label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">المحتوى</label>
             <Textarea
               value={formState.body ?? ""}
               onChange={(event) => setField("body", event.target.value)}
               rows={3}
-            />
-          </div>
-        )}
-
-        {section.slug === "solutions" && (
-          <div>
-            <ListInput
-              label="قائمة المزايا"
-              value={formState.featuresText ?? ""}
-              onChange={(val) => setField("featuresText", val)}
-              placeholder="ميزة جديدة..."
+              placeholder="أدخل تفاصيل العنصر هنا..."
+              className="rounded-xl bg-slate-50/50 border-slate-100 focus:ring-blue-500/20 font-medium text-slate-600 leading-relaxed"
             />
           </div>
         )}
 
         {section.slug === "pricing" && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label>السعر</Label>
+          <div className="p-6 bg-blue-50/30 rounded-[1.5rem] border border-blue-100/30 space-y-6">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">السعر</label>
                 <Input
                   type="number"
                   value={formState.price ?? ""}
                   onChange={(event) => setField("price", event.target.value)}
-                  min="0"
-                  step="0.01"
+                  className="h-12 rounded-xl bg-white border-slate-100 font-black text-blue-600"
                 />
               </div>
-              <div>
-                <Label>الدورة</Label>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">المنشور</label>
                 <Select
                   value={formState.period ?? "monthly"}
                   onValueChange={(value: "monthly" | "yearly") => setField("period", value)}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="نوع الاشتراك" />
+                  <SelectTrigger className="h-12 rounded-xl bg-white border-slate-100 font-bold">
+                    <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="rounded-xl border-slate-100">
                     <SelectItem value="monthly">شهري</SelectItem>
                     <SelectItem value="yearly">سنوي</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center gap-2">
-                <Label className="text-sm whitespace-nowrap">الخطة المميزة</Label>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 overflow-visible">
+              <span className="text-sm font-bold text-slate-700">تحديد كخطة مميزة (جديد)</span>
+              <div className="overflow-visible">
                 <Switch
                   checked={formState.isPopular ?? false}
                   onCheckedChange={(checked) => setField("isPopular", checked)}
+                  className="data-[state=checked]:bg-amber-500"
                 />
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>زر الإجراء - النص</Label>
-                <Input
-                  value={formState.ctaLabel ?? ""}
-                  onChange={(event) => setField("ctaLabel", event.target.value)}
-                />
-              </div>
-              <div>
-                <Label>زر الإجراء - الرابط</Label>
-                <Input
-                  value={formState.ctaHref ?? ""}
-                  onChange={(event) => setField("ctaHref", event.target.value)}
-                />
-              </div>
-            </div>
-            <div>
-              <ListInput
-                label="المزايا"
-                value={formState.featuresText ?? ""}
-                onChange={(val) => setField("featuresText", val)}
-                placeholder="ميزة في الخطة..."
-              />
-            </div>
-          </>
+          </div>
         )}
 
-        {section.slug === "contact" && (
-          <>
-            <div>
-              <Label>نوع جهة الاتصال</Label>
-              <Select
-                value={formState.type ?? ""}
-                onValueChange={(value) => setField("type", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر النوع" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="phone">هاتف</SelectItem>
-                  <SelectItem value="email">بريد إلكتروني</SelectItem>
-                  <SelectItem value="location">الموقع</SelectItem>
-                  <SelectItem value="support">الدعم</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>الرمز</Label>
-              <Select
-                value={formState.icon ?? ""}
-                onValueChange={(value) => setField("icon", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر رمزاً" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CONTACT_ICON_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </>
-        )}
-
-        {section.slug === "navigation" && (
-          <>
-            <div>
-              <Label>عنوان الرابط</Label>
-              <Input
-                value={formState.title ?? ""}
-                onChange={(event) => setField("title", event.target.value)}
-              />
-            </div>
-            <div>
-              <Label>الرابط</Label>
-              <Input
-                value={formState.link ?? ""}
-                onChange={(event) => setField("link", event.target.value)}
-              />
-            </div>
-          </>
-        )}
-
-        {section.slug === "footer" && (
-          <>
-            <div>
-              <Label>عنوان المجموعة</Label>
-              <Input
-                value={formState.category ?? formState.title ?? ""}
-                onChange={(event) => setField("category", event.target.value)}
-              />
-            </div>
-            <div>
-              <LinkListInput
-                label="الروابط"
-                value={formState.featuresText ?? ""}
-                onChange={(val) => setField("featuresText", val)}
-              />
-            </div>
-          </>
-        )}
-
-        {["features", "solutions"].includes(section.slug) && (
-          <div>
-            <Label>الرمز</Label>
+        {["features", "solutions", "contact"].includes(section.slug) && (
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">أيقونة العنصر</label>
             <Select
               value={formState.icon ?? ""}
               onValueChange={(value) => setField("icon", value)}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="اختر رمزاً" />
+              <SelectTrigger className="h-12 rounded-xl bg-slate-50/50 border-slate-100 font-bold">
+                <SelectValue placeholder="اختر أيقونة مناسبة" />
               </SelectTrigger>
-              <SelectContent>
-                {FEATURE_ICON_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+              <SelectContent className="rounded-xl border-slate-100">
+                {(section.slug === "contact" ? CONTACT_ICON_OPTIONS : FEATURE_ICON_OPTIONS).map((option) => (
+                  <SelectItem key={option.value} value={option.value} className="font-bold">
                     {option.label}
                   </SelectItem>
                 ))}
@@ -301,36 +181,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
             </Select>
           </div>
         )}
-
-        {section.slug === "stats" && (
-          <>
-            <div>
-              <Label>القيمة</Label>
-              <Input
-                value={formState.value ?? ""}
-                onChange={(event) => setField("value", event.target.value)}
-                placeholder="1000"
-              />
-            </div>
-            <div>
-              <Label>الوصف</Label>
-              <Input
-                value={formState.label ?? ""}
-                onChange={(event) => setField("label", event.target.value)}
-                placeholder="إحصائية"
-              />
-            </div>
-            <div>
-              <Label>اللاحقة</Label>
-              <Input
-                value={formState.suffix ?? ""}
-                onChange={(event) => setField("suffix", event.target.value)}
-                placeholder="+"
-              />
-            </div>
-          </>
-        )}
-      </CardContent>
+      </div>
     </Card>
   );
 };

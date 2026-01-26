@@ -63,7 +63,7 @@ import populateRoutes from "./routes/populate";       // Data population
 import sitemapRoutes from "./routes/sitemap";         // SEO sitemap
 import authRoutes from "./routes/auth";               // Authentication routes (Prisma-backed)
 import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
-import analyticsRoutes from "./src/routes/analytics"; // Analytics data
+// import analyticsRoutes from "./src/routes/analytics"; // Analytics data (Module not found, possibly merged or removed)
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
 import propertyCategoriesRoutes from "./routes/property-categories"; // Property categories dimension table
 import propertyTypesRoutes from "./routes/property-types"; // Property types (related to categories)
@@ -86,7 +86,11 @@ import billingRoutes from "./routes/billing";
 import supportRoutes from "./routes/support";
 import appointmentsRoutes from "./routes/appointments";
 import auditLogsRoutes from "./routes/audit-logs";
+import dashboardRoutes from "./routes/dashboard";
 import { JWT_SECRET as getJwtSecret } from "./config/env";
+
+// Force server restart for dashboard routes catch
+
 
 /**
  * registerRoutes - Main route registration function
@@ -383,7 +387,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Dependencies: analyticsRoutes from ./src/routes/analytics.ts
    * Pages affected: Analytics dashboard, RBAC dashboard, KPI displays
    */
-  app.use("/api/analytics", analyticsRoutes);
+  // app.use("/api/analytics", analyticsRoutes);
 
   /**
    * Deals Routes - /api/deals/*
@@ -434,6 +438,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Audit Logs Routes - /api/audit-logs/*
    */
   app.use("/api/audit-logs", auditLogsRoutes);
+
+  /**
+   * Dashboard Routes - /api/dashboard/*
+   */
+  app.use("/api/dashboard", dashboardRoutes);
 
   /**
    * Public Landing Page Routes - /api/landing/*

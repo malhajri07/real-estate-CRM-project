@@ -28,6 +28,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Menu, Type, Sparkles, Link as LinkIcon } from "lucide-react";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { cn } from "@/lib/utils";
 
 // Import extracted types, utilities, components, and hooks
 import type { LandingSection, LandingCard, SectionFormState, CardFormState } from "./types";
@@ -367,59 +368,66 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     );
   }
 
-  const outerClasses = embedded ? "bg-transparent py-6" : "min-h-screen bg-slate-50 py-10";
-  const innerClasses = embedded ? "max-w-7xl mx-auto space-y-6" : "max-w-7xl mx-auto px-6 space-y-8";
+  const outerClasses = embedded ? "bg-transparent" : "min-h-screen animate-in-start";
+  const innerClasses = embedded ? "space-y-8" : "space-y-8 p-0";
 
   return (
-    <div className={outerClasses}>
+    <div className={outerClasses} dir="rtl">
       <div className={innerClasses}>
-        <header className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <Sparkles className="h-6 w-6 text-primary" />
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                إدارة محتوى صفحة الهبوط
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                قم بتحديث كل النصوص والأيقونات والعناصر المرئية لصفحة الهبوط بكل سهولة.
-              </p>
-            </div>
-            <div className="mr-auto">
+        <div className="px-8 pt-8 flex flex-col gap-6">
+          <Card className="glass border-0 rounded-[2rem] p-8 shadow-none group relative overflow-hidden">
+            <div className="absolute top-0 end-0 w-[30%] h-[30%] bg-blue-600/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+              <div className="flex items-center gap-6">
+                <div className="h-16 w-16 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-600/20 group-hover:scale-110 transition-transform duration-500">
+                  <Sparkles className="h-8 w-8" />
+                </div>
+                <div className="text-center md:text-right">
+                  <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة محتوى صفحة الهبوط</h1>
+                  <p className="text-slate-500 font-medium text-lg">قم بتحديث النصوص والأيقونات والعناصر المرئية بكل سهولة</p>
+                </div>
+              </div>
               <Button
                 variant="outline"
-                className="gap-2"
+                className="h-12 px-8 rounded-2xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-3"
                 onClick={() => window.open("/", "_blank")}
               >
                 <LinkIcon className="h-4 w-4" />
-                عرض الموقع
+                عرض الموقع المباشر
               </Button>
             </div>
+          </Card>
+
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "draft" | "published")} className="w-full lg:w-auto">
+              <TabsList className="bg-slate-100/50 p-1 rounded-2xl border-0 h-14 w-full lg:w-auto">
+                <TabsTrigger value="draft" className="rounded-xl px-8 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all flex-1 lg:flex-none">المسودة (قيد التحرير)</TabsTrigger>
+                <TabsTrigger value="published" className="rounded-xl px-8 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all flex-1 lg:flex-none">المنشور حالياً</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <div className="flex items-center gap-3">
+              <Badge className="bg-blue-50 text-blue-700 border-0 text-[10px] font-black uppercase px-3 py-1 rounded-lg">إصدار ٢.٤.٠</Badge>
+            </div>
           </div>
-          <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "draft" | "published")}>
-            <TabsList>
-              <TabsTrigger value="draft">المسودة (قيد التحرير)</TabsTrigger>
-              <TabsTrigger value="published">المنشور حالياً</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </header>
+        </div>
 
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 px-8 pb-12">
             <Droppable droppableId="sections">
               {(provided) => (
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="space-y-2"
+                  className="space-y-4"
                 >
-                  <Card className="sticky top-6">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="flex items-center gap-2 text-base">
+                  <Card className="glass border-0 rounded-[2.5rem] p-6 shadow-none sticky top-8">
+                    <div className="mb-6 px-2">
+                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                         <Menu className="h-4 w-4" />
                         أقسام الصفحة
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
+                      </h3>
+                    </div>
+                    <div className="space-y-3">
                       {sections.map((section, index) => (
                         <Draggable key={section.id} draggableId={section.id} index={index}>
                           {(dragProvided, snapshot) => (
@@ -429,21 +437,35 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                               {...dragProvided.draggableProps}
                               {...dragProvided.dragHandleProps}
                               onClick={() => setSelectedSectionId(section.id)}
-                              className={`w-full p-3 border rounded-lg text-right transition ${selectedSectionId === section.id
-                                ? "border-primary/60 bg-primary/10 text-primary"
-                                : "border-muted bg-white text-foreground"
-                                } ${snapshot.isDragging ? "shadow-lg" : ""}`}
+                              className={cn(
+                                "w-full p-4 rounded-2xl text-right transition-all duration-300 group relative overflow-hidden",
+                                selectedSectionId === section.id
+                                  ? "bg-slate-900 text-white shadow-xl shadow-slate-900/20"
+                                  : "bg-white/50 border border-slate-100 text-slate-600 hover:bg-white hover:shadow-lg hover:shadow-blue-500/5",
+                                snapshot.isDragging && "shadow-2xl ring-2 ring-blue-500/20"
+                              )}
                             >
-                              <div className="flex items-center justify-between">
+                              <div className="flex items-center justify-between relative z-10">
                                 <div className="flex flex-col items-start gap-1">
-                                  <span className="text-sm font-medium">
+                                  <span className={cn(
+                                    "text-sm font-black tracking-tight transition-colors",
+                                    selectedSectionId === section.id ? "text-white" : "text-slate-900 group-hover:text-blue-600"
+                                  )}>
                                     {SECTION_LABELS[section.slug] ?? section.title}
                                   </span>
-                                  <span className="text-xs text-muted-foreground">
-                                    {section.title}
+                                  <span className={cn(
+                                    "text-[10px] font-bold uppercase tracking-tighter opacity-70",
+                                    selectedSectionId === section.id ? "text-slate-300" : "text-slate-400"
+                                  )}>
+                                    {section.slug.replace(/-/g, ' ')}
                                   </span>
                                 </div>
-                                <Badge variant={section.status === "published" ? "default" : "secondary"}>
+                                <Badge className={cn(
+                                  "text-[9px] font-black uppercase px-2 py-0.5 rounded-md border-0 shrink-0",
+                                  section.status === "published"
+                                    ? (selectedSectionId === section.id ? "bg-emerald-500/20 text-emerald-300" : "bg-emerald-50 text-emerald-700")
+                                    : (selectedSectionId === section.id ? "bg-white/10 text-slate-300" : "bg-slate-100 text-slate-500")
+                                )}>
                                   {section.status === "published" ? "منشور" : "مسودة"}
                                 </Badge>
                               </div>
@@ -452,7 +474,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                         </Draggable>
                       ))}
                       {provided.placeholder}
-                    </CardContent>
+                    </div>
                   </Card>
                 </div>
               )}

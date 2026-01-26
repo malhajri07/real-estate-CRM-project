@@ -36,11 +36,20 @@ import TemplatesManagement from "@/pages/admin/templates-management";
 import NavigationManagement from "@/pages/admin/navigation-management";
 import RevenueManagement from "@/pages/admin/revenue-management";
 import ComplaintsManagement from "@/pages/admin/complaints-management";
+import IntegrationsManagement from "@/pages/admin/integrations-management";
+import FeaturesManagement from "@/pages/admin/features-management";
+import AnalyticsManagement from "@/pages/admin/analytics-management";
+import BillingManagement from "@/pages/admin/billing-management";
+import SecurityManagement from "@/pages/admin/security-management";
+import NotificationsManagement from "@/pages/admin/notifications-management";
+import SystemSettings from "@/pages/admin/system-settings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle, Users } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
+import { AdminLayout } from "@/components/admin/layout/AdminLayout";
+import { MetricCard } from "@/components/admin";
 import {
   LineChart,
   Line,
@@ -54,90 +63,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const LABELS: Record<string, string> = {
-  "admin.sidebar.overview": "نظرة عامة",
-  "admin.sidebar.overview.main_dashboard": "لوحة التحكم الرئيسية",
-  "admin.sidebar.overview.general_statistics": "الإحصائيات العامة",
-  "admin.sidebar.overview.recent_activity": "النشاط الأخير",
-  "admin.sidebar.user_management": "إدارة المستخدمين",
-  "admin.sidebar.user_management.all_users": "جميع المستخدمين",
-  "admin.sidebar.user_management.active_users": "المستخدمون النشطون",
-  "admin.sidebar.user_management.pending_users": "المستخدمون المعلقون",
-  "admin.sidebar.user_management.user_roles": "أدوار المستخدمين",
-  "admin.sidebar.user_management.user_permissions": "صلاحيات المستخدمين",
-  "admin.sidebar.role_management": "إدارة الأدوار",
-  "admin.sidebar.role_management.roles_list": "قائمة الأدوار",
-  "admin.sidebar.role_management.create_role": "إنشاء دور جديد",
-  "admin.sidebar.role_management.permissions_management": "إدارة الصلاحيات",
-  "admin.sidebar.role_management.role_assignments": "تعيين الأدوار",
-  "admin.sidebar.organization_management": "إدارة المنظمات",
-  "admin.sidebar.organization_management.organizations_list": "قائمة المنظمات",
-  "admin.sidebar.organization_management.create_organization": "إنشاء منظمة جديدة",
-  "admin.sidebar.organization_management.organization_types": "أنواع المنظمات",
-  "admin.sidebar.organization_management.organization_settings": "إعدادات المنظمات",
-  "admin.sidebar.revenue": "الإيرادات والاشتراكات",
-  "admin.sidebar.revenue.overview": "نظرة عامة على الإيرادات",
-  "admin.sidebar.revenue.active_subscriptions": "الاشتراكات النشطة",
-  "admin.sidebar.revenue.payment_methods": "طرق الدفع",
-  "admin.sidebar.revenue.reports": "تقارير الإيرادات",
-  "admin.sidebar.revenue.subscription_plans": "خطط الاشتراك",
-  "admin.sidebar.complaints": "إدارة الشكاوى",
-  "admin.sidebar.complaints.all_complaints": "جميع الشكاوى",
-  "admin.sidebar.complaints.open_complaints": "الشكاوى المفتوحة",
-  "admin.sidebar.complaints.resolved_complaints": "الشكاوى المحلولة",
-  "admin.sidebar.complaints.categories": "فئات الشكاوى",
-  "admin.sidebar.complaints.response_templates": "قوالب الردود",
-  "admin.sidebar.integrations": "التكاملات",
-  "admin.sidebar.integrations.whatsapp_settings": "إعدادات WhatsApp",
-  "admin.sidebar.integrations.email_settings": "إعدادات البريد الإلكتروني",
-  "admin.sidebar.integrations.sms_settings": "إعدادات الرسائل النصية",
-  "admin.sidebar.integrations.social_media": "وسائل التواصل الاجتماعي",
-  "admin.sidebar.integrations.api_integrations": "تكاملات API",
-  "admin.sidebar.content_management": "إدارة المحتوى",
-  "admin.sidebar.content_management.landing_pages": "صفحات الهبوط",
-  "admin.sidebar.content_management.articles": "المقالات",
-  "admin.sidebar.content_management.media_library": "مكتبة الوسائط",
-  "admin.sidebar.content_management.seo_settings": "إعدادات SEO",
-  "admin.sidebar.content_management.content_templates": "قوالب المحتوى",
-  "admin.sidebar.features": "الميزات والخطط",
-  "admin.sidebar.features.feature_comparison": "مقارنة الميزات",
-  "admin.sidebar.features.pricing_plans": "خطط الأسعار",
-  "admin.sidebar.features.corporate_features": "ميزات الشركات",
-  "admin.sidebar.features.individual_features": "ميزات الأفراد",
-  "admin.sidebar.features.feature_requests": "طلبات الميزات",
-  "admin.sidebar.analytics": "التحليلات المتقدمة",
-  "admin.sidebar.analytics.user_analytics": "تحليلات المستخدمين",
-  "admin.sidebar.analytics.revenue_analytics": "تحليلات الإيرادات",
-  "admin.sidebar.analytics.usage_statistics": "إحصائيات الاستخدام",
-  "admin.sidebar.analytics.performance_metrics": "مقاييس الأداء",
-  "admin.sidebar.analytics.custom_reports": "التقارير المخصصة",
-  "admin.sidebar.billing": "الفواتير والمدفوعات",
-  "admin.sidebar.billing.invoices_list": "قائمة الفواتير",
-  "admin.sidebar.billing.create_invoice": "إنشاء فاتورة جديدة",
-  "admin.sidebar.billing.payment_tracking": "تتبع المدفوعات",
-  "admin.sidebar.billing.payment_methods": "طرق الدفع",
-  "admin.sidebar.billing.billing_settings": "إعدادات الفواتير",
-  "admin.sidebar.security": "الأمان",
-  "admin.sidebar.security.access_control": "التحكم في الوصول",
-  "admin.sidebar.security.security_logs": "سجلات الأمان",
-  "admin.sidebar.security.two_factor": "المصادقة الثنائية",
-  "admin.sidebar.security.password_policies": "سياسات كلمات المرور",
-  "admin.sidebar.security.security_alerts": "تنبيهات الأمان",
-  "admin.sidebar.notifications": "الإشعارات",
-  "admin.sidebar.notifications.notification_center": "مركز الإشعارات",
-  "admin.sidebar.notifications.email_notifications": "إشعارات البريد الإلكتروني",
-  "admin.sidebar.notifications.push_notifications": "الإشعارات الفورية",
-  "admin.sidebar.notifications.notification_templates": "قوالب الإشعارات",
-  "admin.sidebar.notifications.notification_settings": "إعدادات الإشعارات",
-  "admin.sidebar.system_settings": "إعدادات النظام",
-  "admin.sidebar.system_settings.general_settings": "الإعدادات العامة",
-  "admin.sidebar.system_settings.database_management": "إدارة قاعدة البيانات",
-  "admin.sidebar.system_settings.backup_restore": "النسخ الاحتياطي والاستعادة",
-  "admin.sidebar.system_settings.system_logs": "سجلات النظام",
-  "admin.sidebar.system_settings.maintenance": "الصيانة"
-};
-
-const translate = (key: string) => LABELS[key] ?? key;
+// LABELS mapping removed - now using central LanguageContext translations
 
 type SidebarContentMeta = {
   label: string;
@@ -191,28 +117,7 @@ const dashboardQuery = async (): Promise<DashboardMetricsResponse> => {
 };
 
 const sidebarContentMap = new Map<string, SidebarContentMeta>();
-
-const sidebarItems: SidebarItem[] = adminSidebarConfig.map((item) => {
-  const groupLabel = translate(item.labelKey);
-  return {
-    id: item.id,
-    label: groupLabel,
-    icon: item.icon,
-    subPages: item.children.map((child) => {
-      const childLabel = translate(child.labelKey);
-      sidebarContentMap.set(child.route, {
-        label: childLabel,
-        groupLabel,
-        sections: child.contentSections
-      });
-      return {
-        id: child.id,
-        label: childLabel,
-        route: child.route
-      };
-    })
-  };
-});
+// sidebarContentMap is now populated inside RBACDashboard to use the translation function
 
 type DashboardProps = {
   data?: DashboardMetricsResponse;
@@ -252,162 +157,120 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
     ];
   }, [metrics]);
 
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white/80 backdrop-blur-md border border-white/20 shadow-xl rounded-2xl p-4 text-xs">
+          <p className="font-bold text-slate-800 mb-2">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center gap-2 mb-1 last:mb-0">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+              <span className="text-slate-600 font-medium">{entry.name}:</span>
+              <span className="text-slate-900 font-bold ml-auto">{
+                typeof entry.value === 'number' && entry.name.includes('قيمة') || entry.name.includes('التحصيلات')
+                  ? formatCurrency(entry.value, currency)
+                  : formatNumber(entry.value)
+              }</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-in-start">
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card className="border border-slate-200 shadow-sm transition hover:shadow-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-base font-semibold text-slate-900">العملاء المحتملون</CardTitle>
-            <p className="text-xs text-slate-500">أداء اليوم وآخر ٧ / ٣٠ يوم</p>
-          </CardHeader>
-          <CardContent>
-            {isLoading && !metrics ? (
-              <LoadingRows rows={1} />
-            ) : (
-              <dl className="grid grid-cols-3 gap-4 text-center text-sm">
-                <div className="space-y-1">
-                  <dt className="text-slate-500">اليوم</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.leads.today)}</dd>
-                </div>
-                <div className="space-y-1">
-                  <dt className="text-slate-500">٧ أيام</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.leads.last7Days)}</dd>
-                </div>
-                <div className="space-y-1">
-                  <dt className="text-slate-500">٣٠ يوم</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.leads.last30Days)}</dd>
-                </div>
-              </dl>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border border-slate-200 shadow-sm transition hover:shadow-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-base font-semibold text-slate-900">الإعلانات المنشورة</CardTitle>
-            <p className="text-xs text-slate-500">أداء اليوم وآخر ٧ / ٣٠ يوم</p>
-          </CardHeader>
-          <CardContent>
-            {isLoading && !metrics ? (
-              <LoadingRows rows={1} />
-            ) : (
-              <dl className="grid grid-cols-3 gap-4 text-center text-sm">
-                <div className="space-y-1">
-                  <dt className="text-slate-500">اليوم</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.listings.today)}</dd>
-                </div>
-                <div className="space-y-1">
-                  <dt className="text-slate-500">٧ أيام</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.listings.last7Days)}</dd>
-                </div>
-                <div className="space-y-1">
-                  <dt className="text-slate-500">٣٠ يوم</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.listings.last30Days)}</dd>
-                </div>
-              </dl>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border border-slate-200 shadow-sm transition hover:shadow-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-base font-semibold text-slate-900">الصفقات الرابحة</CardTitle>
-            <p className="text-xs text-slate-500">أداء اليوم وآخر ٧ / ٣٠ يوم</p>
-          </CardHeader>
-          <CardContent>
-            {isLoading && !metrics ? (
-              <LoadingRows rows={1} />
-            ) : (
-              <dl className="grid grid-cols-3 gap-4 text-center text-sm">
-                <div className="space-y-1">
-                  <dt className="text-slate-500">اليوم</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.dealsWon.today)}</dd>
-                </div>
-                <div className="space-y-1">
-                  <dt className="text-slate-500">٧ أيام</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.dealsWon.last7Days)}</dd>
-                </div>
-                <div className="space-y-1">
-                  <dt className="text-slate-500">٣٠ يوم</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatNumber(metrics?.dealsWon.last30Days)}</dd>
-                </div>
-              </dl>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="border border-slate-200 shadow-sm transition hover:shadow-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-base font-semibold text-slate-900">إجمالي قيمة المبيعات</CardTitle>
-            <p className="text-xs text-slate-500">أداء اليوم وآخر ٧ / ٣٠ يوم</p>
-          </CardHeader>
-          <CardContent>
-            {isLoading && !metrics ? (
-              <LoadingRows rows={1} />
-            ) : (
-              <dl className="grid grid-cols-3 gap-4 text-center text-sm">
-                <div className="space-y-1">
-                  <dt className="text-slate-500">اليوم</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatCurrency(metrics?.gmv.today, currency)}</dd>
-                </div>
-                <div className="space-y-1">
-                  <dt className="text-slate-500">٧ أيام</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatCurrency(metrics?.gmv.last7Days, currency)}</dd>
-                </div>
-                <div className="space-y-1">
-                  <dt className="text-slate-500">٣٠ يوم</dt>
-                  <dd className="text-lg font-semibold text-slate-900">{formatCurrency(metrics?.gmv.last30Days, currency)}</dd>
-                </div>
-              </dl>
-            )}
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard
+          title="العملاء المحتملون"
+          subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
+          icon={<Users className="w-5 h-5 text-blue-600" />}
+          metric={metrics?.leads}
+          loading={isLoading && !metrics}
+        />
+        <MetricCard
+          title="الإعلانات المنشورة"
+          subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
+          icon={<div className="text-xl">🏠</div>}
+          metric={metrics?.listings}
+          loading={isLoading && !metrics}
+        />
+        <MetricCard
+          title="الصفقات الرابحة"
+          subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
+          icon={<div className="text-xl">🏆</div>}
+          metric={metrics?.dealsWon}
+          loading={isLoading && !metrics}
+        />
+        <MetricCard
+          title="قيمة المبيعات (GMV)"
+          subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
+          icon={<div className="text-xl">💰</div>}
+          metric={metrics?.gmv}
+          currency={currency}
+          loading={isLoading && !metrics}
+        />
       </div>
 
       {/* Charts Section - NEW! */}
       {!isLoading && metrics && (
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <Card className="border border-slate-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold text-slate-900">نشاط المبيعات</CardTitle>
-              <p className="text-sm text-slate-500">العملاء المحتملون، الإعلانات، والصفقات</p>
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <Card className="glass border-0 rounded-[2rem] overflow-hidden p-2 transition-all hover:shadow-2xl">
+            <CardHeader className="px-6 pt-6 pb-2">
+              <CardTitle className="text-lg font-bold text-slate-900 tracking-tight">نشاط المبيعات</CardTitle>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">العملاء المحتملون، الإعلانات، والصفقات</p>
             </CardHeader>
-            <CardContent>
-              <div className="h-[300px]">
+            <CardContent className="px-6 pb-6">
+              <div className="h-[320px] mt-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="period" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="leads" fill="#3b82f6" name="العملاء المحتملون" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="listings" fill="#10b981" name="الإعلانات" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="deals" fill="#8b5cf6" name="الصفقات" radius={[4, 4, 0, 0]} />
+                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
+                    <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.02)' }} />
+                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '25px', fontSize: '12px', fontWeight: 600, color: '#64748b' }} />
+                    <Bar dataKey="leads" fill="url(#colorLeads)" name="العملاء المحتملون" radius={[8, 8, 0, 0]} maxBarSize={40} />
+                    <Bar dataKey="listings" fill="url(#colorListings)" name="الإعلانات" radius={[8, 8, 0, 0]} maxBarSize={40} />
+                    <Bar dataKey="deals" fill="url(#colorDeals)" name="الصفقات" radius={[8, 8, 0, 0]} maxBarSize={40} />
+                    <defs>
+                      <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={1} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.6} />
+                      </linearGradient>
+                      <linearGradient id="colorListings" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={1} />
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.6} />
+                      </linearGradient>
+                      <linearGradient id="colorDeals" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={1} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.6} />
+                      </linearGradient>
+                    </defs>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border border-slate-200 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold text-slate-900">الإيرادات المالية</CardTitle>
-              <p className="text-sm text-slate-500">قيمة المبيعات، الفواتير، والتحصيلات</p>
+          <Card className="glass border-0 rounded-[2rem] overflow-hidden p-2 transition-all hover:shadow-2xl">
+            <CardHeader className="px-6 pt-6 pb-2">
+              <CardTitle className="text-lg font-bold text-slate-900 tracking-tight">الإيرادات المالية</CardTitle>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">قيمة المبيعات، الفواتير، والتحصيلات</p>
             </CardHeader>
-            <CardContent>
-              <div className="h-[300px]">
+            <CardContent className="px-6 pb-6">
+              <div className="h-[320px] mt-4">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={revenueChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="period" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="gmv" stroke="#10b981" strokeWidth={2} name="قيمة المبيعات" dot={{ r: 4 }} />
-                    <Line type="monotone" dataKey="invoices" stroke="#3b82f6" strokeWidth={2} name="الفواتير" dot={{ r: 4 }} />
-                    <Line type="monotone" dataKey="cash" stroke="#f59e0b" strokeWidth={2} name="التحصيلات" dot={{ r: 4 }} />
+                  <LineChart data={revenueChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
+                    <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '25px', fontSize: '12px', fontWeight: 600, color: '#64748b' }} />
+                    <Line type="monotone" dataKey="gmv" stroke="#10b981" strokeWidth={4} name="قيمة المبيعات" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                    <Line type="monotone" dataKey="invoices" stroke="#3b82f6" strokeWidth={4} name="الفواتير" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                    <Line type="monotone" dataKey="cash" stroke="#f59e0b" strokeWidth={4} name="التحصيلات" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -417,87 +280,93 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
       )}
 
       {/* Bottom Section */}
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <Card className="border border-slate-200 shadow-sm xl:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">أفضل الوكلاء (آخر 90 يوم)</CardTitle>
-            <p className="text-sm text-slate-500">استنادًا إلى عدد الصفقات الرابحة وقيمتها</p>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <Card className="glass border-0 rounded-[2rem] xl:col-span-2 overflow-hidden transition-all hover:shadow-2xl">
+          <CardHeader className="p-8 pb-4">
+            <CardTitle className="text-xl font-bold text-slate-900 tracking-tight">أفضل الوكلاء</CardTitle>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">النشاط خلال آخر ٩٠ يومًا</p>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="p-8 pt-2 space-y-4">
             {isLoading && <LoadingRows rows={4} />}
             {!isLoading && (!data?.topAgents || data.topAgents.length === 0) ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center space-y-3">
-                <div className="rounded-full bg-slate-100 p-3">
-                  <Users className="h-6 w-6 text-slate-400" />
-                </div>
+              <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-slate-50/50 rounded-[2rem] border border-dashed border-slate-200">
+                <div className="rounded-2xl bg-white p-4 shadow-sm text-3xl">👥</div>
                 <div>
-                  <p className="text-sm font-medium text-slate-900">لا يوجد وكلاء نشطين</p>
-                  <p className="text-xs text-slate-500 mt-1">لم يتم تسجيل أي نشاط للوكلاء في الفترة المحددة</p>
+                  <p className="text-base font-bold text-slate-800">لا يوجد وكلاء نشطين</p>
+                  <p className="text-sm text-slate-500 mt-1">لم يتم تسجيل أي نشاط للوكلاء في الفترة المحددة</p>
                 </div>
               </div>
             ) : (
-              data?.topAgents.map((agent) => (
-                <div
-                  key={agent.id}
-                  className="flex items-center justify-between rounded-xl border border-slate-100 bg-white px-4 py-3 shadow-sm"
-                >
-                  <div className="space-y-1 text-right">
-                    <p className="text-sm font-medium text-slate-900">{agent.name}</p>
-                    <p className="text-xs text-slate-500">
-                      {agent.dealsWon.toLocaleString("ar-SA")} صفقة • {formatCurrency(agent.gmv, currency)}
-                    </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {data?.topAgents.map((agent) => (
+                  <div
+                    key={agent.id}
+                    className="flex flex-col p-5 rounded-2xl bg-white/50 border border-slate-100 hover:bg-white hover:border-blue-200 hover:shadow-md transition-all duration-300 group"
+                  >
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="h-10 w-10 rounded-xl bg-blue-600/10 flex items-center justify-center text-blue-600 font-bold group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                        {agent.name.charAt(0)}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-900 leading-none mb-1">{agent.name}</span>
+                        <span className="text-[10px] font-bold text-slate-400 truncate max-w-[150px]">{agent.email || "بدون بريد"}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between pt-3 border-t border-slate-50">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-tighter">الصفقات</span>
+                        <span className="text-xs font-black text-slate-900">{agent.dealsWon}</span>
+                      </div>
+                      <div className="flex flex-col text-end">
+                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-tighter">القيمة الإجمالية</span>
+                        <span className="text-xs font-black text-blue-600">{formatCurrency(agent.gmv, currency)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-left text-xs text-slate-500">
-                    {agent.email && <p>{agent.email}</p>}
-                    {agent.phone && <p>{agent.phone}</p>}
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="border border-slate-200 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-slate-900">التذاكر الحديثة</CardTitle>
-            <p className="text-sm text-slate-500">آخر عشرة تحديثات ضمن نطاق صلاحياتك</p>
+        <Card className="glass border-0 rounded-[2rem] overflow-hidden transition-all hover:shadow-2xl">
+          <CardHeader className="p-8 pb-4">
+            <CardTitle className="text-xl font-bold text-slate-900 tracking-tight">التذاكر الحديثة</CardTitle>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">آخر التحديثات</p>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="p-8 pt-2 space-y-4">
             {isLoading && <LoadingRows rows={5} />}
             {!isLoading && (!data?.recentTickets || data.recentTickets.length === 0) ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center space-y-3">
-                <div className="rounded-full bg-slate-100 p-3">
-                  <div className="h-6 w-6 text-slate-400">🎫</div>
-                </div>
+              <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-slate-50/50 rounded-[2rem] border border-dashed border-slate-200">
+                <div className="rounded-2xl bg-white p-4 shadow-sm text-3xl">🎫</div>
                 <div>
-                  <p className="text-sm font-medium text-slate-900">لا توجد تذاكر نشطة</p>
-                  <p className="text-xs text-slate-500 mt-1">جميع التذاكر تمت معالجتها أو لا توجد تذاكر جديدة</p>
+                  <p className="text-base font-bold text-slate-800">لا توجد تذاكر</p>
+                  <p className="text-sm text-slate-500 mt-1">جميع التذاكر تمت معالجتها</p>
                 </div>
               </div>
             ) : (
-              data?.recentTickets.map((ticket) => (
-                <div
-                  key={ticket.id}
-                  className="space-y-2 rounded-xl border border-slate-100 bg-white px-4 py-3 shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-slate-900">{ticket.subject}</p>
-                    <Badge variant="outline" className={cn("text-xs", ticketStatusColor(ticket.status))}>
-                      {ticketStatusLabel(ticket.status)}
-                    </Badge>
+              <div className="space-y-3">
+                {data?.recentTickets.map((ticket) => (
+                  <div
+                    key={ticket.id}
+                    className="flex flex-col p-4 rounded-xl bg-white/50 border border-slate-100 hover:bg-white hover:border-blue-100 transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <p className="text-xs font-bold text-slate-900 group-hover:text-blue-700 transition-colors line-clamp-1">{ticket.subject}</p>
+                      <Badge className={cn("text-[9px] font-black uppercase px-2 py-0.5 rounded-md border-0 shrink-0", ticketStatusColor(ticket.status))}>
+                        {ticketStatusLabel(ticket.status)}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between mt-auto">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1 h-1 rounded-full bg-slate-300" />
+                        <span className="text-[10px] font-bold text-slate-500">{ticket.customerName || "عميل"}</span>
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400">{new Date(ticket.updatedAt).toLocaleDateString("ar-SA")}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span>{ticket.customerName ?? "-"}</span>
-                    <span>{ticket.assignedTo ? `المسؤول: ${ticket.assignedTo}` : "غير معيّن"}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <Badge variant="secondary" className={cn("text-xs", ticketPriorityColor(ticket.priority))}>
-                      {ticketPriorityLabel(ticket.priority)}
-                    </Badge>
-                    <span>{new Date(ticket.updatedAt).toLocaleString("ar-SA")}</span>
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -584,81 +453,48 @@ const LoadingRows = ({ rows }: { rows: number }) => (
   </div>
 );
 
-function MetricTripleCard({
-  title,
-  metric,
-  currency,
-  loading
-}: {
-  title: string;
-  metric?: { today: number; last7Days: number; last30Days: number };
-  currency?: string;
-  loading?: boolean;
-}) {
-  return (
-    <Card className="border border-slate-200 shadow-sm transition hover:shadow-md">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-base font-semibold text-slate-900">{title}</CardTitle>
-        <p className="text-xs text-slate-500">أداء اليوم وآخر ٧ / ٣٠ يوم</p>
-      </CardHeader>
-      <CardContent>
-        {loading && !metric ? (
-          <LoadingRows rows={1} />
-        ) : (
-          <dl className="grid grid-cols-3 gap-4 text-center text-sm">
-            <div className="space-y-1">
-              <dt className="text-slate-500">اليوم</dt>
-              <dd className="text-lg font-semibold text-slate-900">
-                {currency ? formatCurrency(metric?.today, currency) : formatNumber(metric?.today)}
-              </dd>
-            </div>
-            <div className="space-y-1">
-              <dt className="text-slate-500">آخر ٧ أيام</dt>
-              <dd className="text-lg font-semibold text-slate-900">
-                {currency ? formatCurrency(metric?.last7Days, currency) : formatNumber(metric?.last7Days)}
-              </dd>
-            </div>
-            <div className="space-y-1">
-              <dt className="text-slate-500">آخر ٣٠ يومًا</dt>
-              <dd className="text-lg font-semibold text-slate-900">
-                {currency ? formatCurrency(metric?.last30Days, currency) : formatNumber(metric?.last30Days)}
-              </dd>
-            </div>
-          </dl>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
 function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
   const { label, groupLabel, sections } = meta;
 
   return (
-    <div className="space-y-6">
-      <Card className="border border-slate-200 shadow-sm">
-        <CardHeader className="space-y-2">
-          <Badge variant="secondary" className="self-start">
+    <div className="space-y-8 animate-in-start">
+      <Card className="glass border-0 rounded-[2.5rem] overflow-hidden relative p-4 lg:p-12">
+        <div className="absolute top-0 end-0 w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        <CardHeader className="space-y-6 relative z-10 pt-0 ps-0">
+          <Badge variant="secondary" className="px-3 py-1 bg-blue-600/10 text-blue-700 border-0 rounded-lg text-[10px] font-bold uppercase tracking-widest w-fit">
             {groupLabel}
           </Badge>
-          <CardTitle className="text-base font-semibold text-slate-900">{label}</CardTitle>
-          <p className="text-sm text-slate-500">المحتوى التفصيلي قيد الإعداد وسيتكامل مع الواجهات قريباً.</p>
+          <CardTitle className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">{label}</CardTitle>
+          <p className="text-lg lg:text-xl text-slate-500 max-w-2xl leading-relaxed">
+            المحتوى التفصيلي قيد الإعداد وسيتكامل مع الواجهات قريباً. نحن نعمل على تطوير حلول ذكية ومبتكرة تليق بجودة أعمالكم.
+          </p>
         </CardHeader>
-        <CardContent className="space-y-5">
+        <CardContent className="space-y-10 relative z-10 ps-0 pe-0 pb-0">
           {sections && sections.length > 0 ? (
-            sections.map((section) => (
-              <div key={section.title} className="space-y-2">
-                <h3 className="text-sm font-semibold text-slate-800">{section.title}</h3>
-                <ul className="list-disc space-y-1 pr-5 text-sm text-slate-600 marker:text-slate-400">
-                  {section.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            ))
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              {sections.map((section) => (
+                <div key={section.title} className="bg-white/40 backdrop-blur-sm p-8 rounded-[2rem] border border-white/40 shadow-sm transition hover:shadow-xl hover:bg-white/60 hover:-translate-y-1 duration-300">
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-3 mb-5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.4)]" />
+                    {section.title}
+                  </h3>
+                  <ul className="space-y-4 ps-1">
+                    {section.items.map((item) => (
+                      <li key={item} className="text-sm text-slate-600 font-semibold flex items-center gap-3 group">
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-blue-400 transition-colors" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
           ) : (
-            <p className="text-sm text-slate-500">لا توجد تفاصيل متاحة لهذا القسم حتى الآن.</p>
+            <div className="p-20 text-center bg-slate-50/50 rounded-[2.5rem] border-2 border-dashed border-slate-200/50 flex flex-col items-center">
+              <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-6 text-2xl">⏳</div>
+              <p className="text-xl font-bold text-slate-400 italic">لا توجد تفاصيل متاحة لهذا القسم حتى الآن. سيتم التحديث قريباً.</p>
+            </div>
           )}
-          <p className="text-xs text-slate-400">هذا العرض يلخص مسؤوليات القسم لتتبع التنفيذ والربط مع المهام القادمة.</p>
         </CardContent>
       </Card>
     </div>
@@ -668,9 +504,24 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
 
 export default function RBACDashboard() {
   const { logout, user } = useAuth();
-  const { dir } = useLanguage();
+  const { dir, t } = useLanguage();
   const [location, setLocation] = useLocation();
   const queryClient = useQueryClient();
+
+  // Populate sidebarContentMap for dynamic headers and placeholders
+  useMemo(() => {
+    adminSidebarConfig.forEach((item) => {
+      const groupLabel = t(item.labelKey);
+      item.children.forEach((child) => {
+        const childLabel = t(child.labelKey);
+        sidebarContentMap.set(child.route, {
+          label: childLabel,
+          groupLabel,
+          sections: child.contentSections
+        });
+      });
+    });
+  }, [t]);
 
   useEffect(() => {
     const legacyRedirects: Record<string, string> = {
@@ -715,6 +566,8 @@ export default function RBACDashboard() {
     }
   }, [location, setLocation]);
 
+  /* State logic removed - handled by AdminLayout */
+
   const activeRoute =
     location === "/admin" || location === "/rbac-dashboard"
       ? "/admin/overview/main-dashboard"
@@ -725,26 +578,6 @@ export default function RBACDashboard() {
     queryFn: dashboardQuery,
     staleTime: 60_000
   });
-
-  const activeItemId = useMemo(() => {
-    const match = sidebarItems.find((item) => item.subPages?.some((child) => child.route === activeRoute));
-    return match?.id ?? sidebarItems[0]?.id ?? "overview";
-  }, [activeRoute]);
-
-  const [expandedItems, setExpandedItems] = useState<string[]>(() => [sidebarItems[0]?.id ?? "overview"]);
-
-  useEffect(() => {
-    setExpandedItems((prev) => (prev.includes(activeItemId) ? prev : [...prev, activeItemId]));
-  }, [activeItemId]);
-
-  const handleToggleItem = (id: string) => {
-    setExpandedItems((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
-  };
-
-  const handleNavigate = (route: string) => {
-    if (!route) return;
-    setLocation(route);
-  };
 
   const handleRefresh = () => {
     void queryClient.invalidateQueries({ queryKey: ["rbac-admin", "dashboard"] });
@@ -808,6 +641,45 @@ export default function RBACDashboard() {
       case "/admin/complaints/categories":
       case "/admin/complaints/response-templates":
         return <ComplaintsManagement />;
+      case "/admin/integrations":
+      case "/admin/integrations/whatsapp":
+      case "/admin/integrations/email":
+      case "/admin/integrations/sms":
+      case "/admin/integrations/api":
+      case "/admin/integrations/social-media":
+        return <IntegrationsManagement />;
+      case "/admin/features":
+      case "/admin/features/comparison":
+      case "/admin/features/requests":
+      case "/admin/features/pricing":
+        return <FeaturesManagement />;
+      case "/admin/analytics":
+      case "/admin/analytics/users":
+      case "/admin/analytics/revenue":
+      case "/admin/analytics/listings":
+      case "/admin/analytics/performance":
+        return <AnalyticsManagement />;
+      case "/admin/billing":
+      case "/admin/billing/invoices":
+      case "/admin/billing/subscriptions":
+      case "/admin/billing/settings":
+        return <BillingManagement />;
+      case "/admin/security":
+      case "/admin/security/access-control":
+      case "/admin/security/audit-logs":
+      case "/admin/security/authentication":
+        return <SecurityManagement />;
+      case "/admin/notifications":
+      case "/admin/notifications/center":
+      case "/admin/notifications/templates":
+      case "/admin/notifications/logs":
+        return <NotificationsManagement />;
+      case "/admin/system":
+      case "/admin/system/general":
+      case "/admin/system/branding":
+      case "/admin/system/integrations":
+      case "/admin/system/advanced":
+        return <SystemSettings />;
     }
 
     const fallbackMeta = sidebarContentMap.get(activeRoute);
@@ -815,6 +687,7 @@ export default function RBACDashboard() {
       return <ContentPlaceholder meta={fallbackMeta} />;
     }
 
+    // Default fallback needed to prevent null returns if route doesn't match
     return (
       <Alert variant="destructive" className="mt-6">
         <AlertCircle className="h-4 w-4" />
@@ -823,34 +696,18 @@ export default function RBACDashboard() {
     );
   };
 
+  const layoutMeta = sidebarContentMap.get(activeRoute);
+  const layoutTitle = layoutMeta?.label || "لوحة إدارة النظام";
+  const layoutSubtitle = layoutMeta?.groupLabel || "إدارة المستخدمين والمنظمات والمحتوى";
+
   return (
-    <div className="min-h-screen bg-slate-50" dir={dir} style={{ direction: dir === 'rtl' ? 'rtl' : 'ltr' }}>
-      <AdminHeader
-        title="لوحة إدارة النظام"
-        subtitle="إدارة المستخدمين والمنظمات والمحتوى"
-        onBack={() => setLocation("/home")}
-        onLogout={() => {
-          logout();
-          setLocation("/home");
-        }}
-        onRefresh={handleRefresh}
-        loading={dashboard.isFetching}
-        userName={user?.firstName ? `${user.firstName} ${user.lastName ?? ""}`.trim() : user?.username}
-      />
-      <div className="flex pt-20" dir={dir}>
-        <AdminSidebar
-          dir={dir}
-          items={sidebarItems}
-          activeItem={activeItemId}
-          expandedItems={expandedItems}
-          onToggleItem={handleToggleItem}
-          activeRoute={activeRoute}
-          onSelectSubPage={handleNavigate}
-        />
-        <main className="flex-1 min-h-screen bg-slate-50">
-          <div className="mx-auto w-full max-w-6xl px-6 py-8">{renderContent()}</div>
-        </main>
-      </div>
-    </div>
+    <AdminLayout
+      title={layoutTitle}
+      subtitle={layoutSubtitle}
+      isLoading={dashboard.isFetching}
+      onRefresh={handleRefresh}
+    >
+      {renderContent()}
+    </AdminLayout>
   );
 }

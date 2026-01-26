@@ -98,26 +98,26 @@ export function AdminExport({ data, filename = 'export', formats = ['csv', 'json
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 ml-2" />
+                    <Download className="h-4 w-4 ms-2" />
                     تصدير
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 {formats.includes('csv') && (
                     <DropdownMenuItem onClick={exportToCSV}>
-                        <FileSpreadsheet className="h-4 w-4 ml-2" />
+                        <FileSpreadsheet className="h-4 w-4 ms-2" />
                         تصدير كملف CSV
                     </DropdownMenuItem>
                 )}
                 {formats.includes('json') && (
                     <DropdownMenuItem onClick={exportToJSON}>
-                        <FileText className="h-4 w-4 ml-2" />
+                        <FileText className="h-4 w-4 ms-2" />
                         تصدير كملف JSON
                     </DropdownMenuItem>
                 )}
                 {formats.includes('excel') && (
                     <DropdownMenuItem disabled>
-                        <FileSpreadsheet className="h-4 w-4 ml-2" />
+                        <FileSpreadsheet className="h-4 w-4 ms-2" />
                         تصدير كملف Excel (قريباً)
                     </DropdownMenuItem>
                 )}

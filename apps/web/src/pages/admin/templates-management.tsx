@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface Template {
   id: string;
@@ -193,101 +194,106 @@ export default function TemplatesManagement() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>إدارة القوالب</CardTitle>
-            <Button onClick={handleCreate}>
-              <Plus className="ml-2 h-4 w-4" />
-              إنشاء قالب جديد
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 mb-4">
-            <Input
-              placeholder="بحث في القوالب..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setPage(1);
-              }}
-              className="max-w-sm"
-            />
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="نوع القالب" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">الكل</SelectItem>
-                <SelectItem value="email">بريد إلكتروني</SelectItem>
-                <SelectItem value="landing_section">قسم صفحة هبوط</SelectItem>
-                <SelectItem value="article">مقال</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">إدارة القوالب</h1>
+          <p className="text-gray-600">قوالب البريد الإلكتروني والمقالات وصفحات الهبوط</p>
+        </div>
+        <Button onClick={handleCreate}>
+          <Plus className="ml-2 h-4 w-4" />
+          إنشاء قالب جديد
+        </Button>
+      </div>
 
-          {isLoading ? (
-            <div className="text-center py-8">جار التحميل...</div>
-          ) : error ? (
-            <div className="text-center py-8 text-red-600">
-              حدث خطأ في تحميل القوالب
+      <div className="space-y-6">
+        {/* ... (rest of the content remains same) */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex gap-4 mb-4">
+              <Input
+                placeholder="بحث في القوالب..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setPage(1);
+                }}
+                className="max-w-sm"
+              />
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="نوع القالب" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">الكل</SelectItem>
+                  <SelectItem value="email">بريد إلكتروني</SelectItem>
+                  <SelectItem value="landing_section">قسم صفحة هبوط</SelectItem>
+                  <SelectItem value="article">مقال</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          ) : !data?.items.length ? (
-            <div className="text-center py-8">لا توجد قوالب</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {data.items.map((template) => (
-                <Card key={template.id}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{template.name}</CardTitle>
-                    <p className="text-sm text-gray-500">{template.description}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between mb-4">
-                      <Badge variant="outline">{template.type}</Badge>
-                      <span className="text-xs text-gray-500">
-                        {template.versionCount} إصدار
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(template)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => cloneMutation.mutate(template.id)}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => deleteMutation.mutate(template.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
-      <TemplateDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        template={editingTemplate}
-        onSubmit={handleSubmit}
-        isLoading={createMutation.isPending || updateMutation.isPending}
-      />
+            {isLoading ? (
+              <div className="text-center py-8">جار التحميل...</div>
+            ) : error ? (
+              <div className="text-center py-8 text-red-600">
+                حدث خطأ في تحميل القوالب
+              </div>
+            ) : !data?.items.length ? (
+              <div className="text-center py-8">لا توجد قوالب</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {data.items.map((template) => (
+                  <Card key={template.id}>
+                    <CardHeader>
+                      <CardTitle className="text-lg">{template.name}</CardTitle>
+                      <p className="text-sm text-gray-500">{template.description}</p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center justify-between mb-4">
+                        <Badge variant="outline">{template.type}</Badge>
+                        <span className="text-xs text-gray-500">
+                          {template.versionCount} إصدار
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(template)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => cloneMutation.mutate(template.id)}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => deleteMutation.mutate(template.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <TemplateDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          template={editingTemplate}
+          onSubmit={handleSubmit}
+          isLoading={createMutation.isPending || updateMutation.isPending}
+        />
+      </div>
     </div>
   );
 }

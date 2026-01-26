@@ -1,30 +1,10 @@
-/**
- * AdminCard.tsx - Admin Card Component
- * 
- * Location: apps/web/src/ → Components/ → Admin Components → data-display/ → AdminCard.tsx
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * Admin card component for displaying metrics and data. Provides:
- * - Metric card display
- * - Trend indicators
- * - Icon support
- * 
- * Related Files:
- * - apps/web/src/pages/admin/enhanced-dashboard.tsx - Uses this component
- */
-
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface AdminCardProps {
     title?: string;
     description?: string;
-    value?: string | number;
-    icon?: ReactNode;
-    trend?: {
-        value: number;
-        isPositive: boolean;
-    };
     className?: string;
     children?: ReactNode;
     onClick?: () => void;
@@ -33,123 +13,100 @@ interface AdminCardProps {
 export function AdminCard({
     title,
     description,
-    value,
-    icon,
-    trend,
     className,
     children,
     onClick,
 }: AdminCardProps) {
-    const isClickable = !!onClick;
-
     return (
-        <div
+        <Card
             className={cn(
-                'rounded-lg border bg-card text-card-foreground shadow-sm transition-all',
-                isClickable && 'cursor-pointer hover:shadow-md hover:scale-[1.02]',
+                'glass border-0 rounded-[2rem] transition-all duration-300',
+                onClick && 'cursor-pointer hover:shadow-2xl hover:-translate-y-1',
                 className
             )}
             onClick={onClick}
         >
-            <div className="p-6">
-                {(title || icon) && (
-                    <div className="flex items-center justify-between mb-2 gap-4">
-                        {icon && (
-                            <div className="h-8 w-8 text-muted-foreground shrink-0">
-                                {icon}
-                            </div>
-                        )}
-                        {title && (
-                            <h3 className="text-sm font-medium text-muted-foreground flex-1">
-                                {title}
-                            </h3>
-                        )}
-                    </div>
-                )}
-
-                {value !== undefined && (
-                    <div className="flex items-baseline gap-2">
-                        <p className="text-2xl font-bold">{value}</p>
-                        {trend && (
-                            <span
-                                className={cn(
-                                    'text-xs font-medium',
-                                    trend.isPositive ? 'text-green-600' : 'text-red-600'
-                                )}
-                            >
-                                {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
-                            </span>
-                        )}
-                    </div>
-                )}
-
-                {description && (
-                    <p className="text-xs text-muted-foreground mt-1">{description}</p>
-                )}
-
-                {children && <div className="mt-4">{children}</div>}
-            </div>
-        </div>
+            <CardHeader className="p-6 pb-2">
+                {title && <CardTitle className="text-xl font-bold tracking-tight text-slate-900">{title}</CardTitle>}
+                {description && <p className="text-sm text-slate-500 font-medium">{description}</p>}
+            </CardHeader>
+            <CardContent className="p-6 pt-2">
+                {children}
+            </CardContent>
+        </Card>
     );
 }
 
-interface AdminMetricCardProps {
+interface MetricCardProps {
     title: string;
-    value: string | number;
+    subtitle: string;
     icon: ReactNode;
-    trend?: {
-        value: number;
-        isPositive: boolean;
-        label?: string;
-    };
-    color?: 'blue' | 'green' | 'yellow' | 'purple' | 'red';
-    onClick?: () => void;
+    metric?: { today: number; last7Days: number; last30Days: number };
+    currency?: string;
+    loading?: boolean;
+    className?: string;
 }
 
-export function AdminMetricCard({
+export function MetricCard({
     title,
-    value,
+    subtitle,
     icon,
-    trend,
-    color = 'blue',
-    onClick,
-}: AdminMetricCardProps) {
-    const colorClasses = {
-        blue: 'bg-blue-50 text-blue-600',
-        green: 'bg-green-50 text-green-600',
-        yellow: 'bg-yellow-50 text-yellow-600',
-        purple: 'bg-purple-50 text-purple-600',
-        red: 'bg-red-50 text-red-600',
+    metric,
+    currency,
+    loading,
+    className,
+}: MetricCardProps) {
+    const formatNumber = (val?: number) => (val ?? 0).toLocaleString('en-US');
+    const formatCurrency = (val?: number, curr = 'SAR') => {
+        const formatted = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(val ?? 0);
+        return `${formatted} ريال`;
     };
 
     return (
-        <AdminCard onClick={onClick}>
-            <div className="flex items-center justify-between gap-4">
-                <div className={cn('h-12 w-12 rounded-lg flex items-center justify-center shrink-0', colorClasses[color])}>
+        <Card className={cn("glass border-0 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 rounded-[2rem] group", className)}>
+            <CardHeader className="flex flex-row items-center justify-between pb-2 px-6 pt-6">
+                <div className="space-y-1">
+                    <CardTitle className="text-sm font-bold text-slate-900 tracking-tight">{title}</CardTitle>
+                    <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">{subtitle}</p>
+                </div>
+                <div className="p-2.5 bg-slate-50 rounded-2xl group-hover:bg-blue-600 transition-colors duration-300 group-hover:text-white">
                     {icon}
                 </div>
-                <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-muted-foreground">{title}</p>
-                    <p className="text-2xl font-bold mt-2">{value}</p>
-                    {trend && (
-                        <div className="flex items-center gap-1 mt-2">
-                            <span
-                                className={cn(
-                                    'text-xs font-medium',
-                                    trend.isPositive ? 'text-green-600' : 'text-red-600'
-                                )}
-                            >
-                                {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
+            </CardHeader>
+            <CardContent className="px-6 pb-6 pt-2">
+                {loading ? (
+                    <div className="h-10 w-full animate-pulse bg-slate-100 rounded-xl" />
+                ) : (
+                    <div className="grid grid-cols-3 gap-2 mt-2">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-slate-400 mb-1">اليوم</span>
+                            <span className="text-sm font-black text-slate-900">
+                                {currency ? formatCurrency(metric?.today, currency) : formatNumber(metric?.today)}
                             </span>
-                            {trend.label && (
-                                <span className="text-xs text-muted-foreground">
-                                    {trend.label}
-                                </span>
-                            )}
                         </div>
-                    )}
-                </div>
-            </div>
-        </AdminCard>
+                        <div className="flex flex-col border-s border-slate-100 ps-3">
+                            <span className="text-[10px] font-bold text-slate-400 mb-1">٧ أيام</span>
+                            <span className="text-sm font-black text-slate-900">
+                                {currency ? formatCurrency(metric?.last7Days, currency) : formatNumber(metric?.last7Days)}
+                            </span>
+                        </div>
+                        <div className="flex flex-col border-s border-slate-100 ps-3">
+                            <span className="text-[10px] font-bold text-slate-400 mb-1">٣٠ يوم</span>
+                            <span className="text-sm font-black text-slate-900">
+                                {currency ? formatCurrency(metric?.last30Days, currency) : formatNumber(metric?.last30Days)}
+                            </span>
+                        </div>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
     );
 }
+
+/**
+ * @deprecated Use MetricCard instead.
+ */
+export const AdminMetricCard = MetricCard;

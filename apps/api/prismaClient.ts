@@ -25,6 +25,7 @@ type MarketingDelegate = {
 };
 
 export const basePrisma = new PrismaClient();
+// Forced reload check
 
 const createStubDelegate = (name: string): MarketingDelegate => {
   const warn = (method: string) => {
@@ -107,13 +108,7 @@ alias('listing', () => basePrisma.listings);
 alias('propertiesSeeker', () => basePrisma.properties_seeker);
 alias('marketingRequest', () => createStubDelegate('marketingRequest'));
 alias('marketingProposal', () => createStubDelegate('marketingProposal'));
-// New aliases for RBAC and Billing
-alias('billing_invoices', () => basePrisma.billing_invoices);
-alias('billing_accounts', () => basePrisma.billing_accounts);
-alias('billing_subscriptions', () => basePrisma.billing_subscriptions);
-alias('system_roles', () => basePrisma.system_roles);
-alias('permissions', () => basePrisma.permissions);
-alias('role_permissions', () => basePrisma.role_permissions);
-alias('support_tickets', () => basePrisma.support_tickets);
+// New aliases for RBAC and Billing are not needed as they match the base prisma client names
+// and aliasing them to themselves causes infinite recursion since prisma === basePrisma
 
 export { prisma };

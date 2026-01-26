@@ -18,22 +18,18 @@
 
 import { useMemo, useState } from "react";
 import { Edit, Eye, Plus, Settings, Shield, Trash2, Unlock, Users } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { AdminCard, MetricCard } from "@/components/admin";
+import { AdminTable, type AdminTableColumn } from "@/components/admin";
+import { AdminDialog } from "@/components/admin/AdminDialog";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { AdminDialog } from "@/components/admin/AdminDialog";
 import {
   useAdminRoles,
   useCreateAdminRole,
@@ -41,6 +37,7 @@ import {
   useDeleteAdminRole,
   type AdminRole,
 } from "@/lib/rbacAdmin";
+import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface RoleFormState {
   id?: string;
@@ -105,6 +102,80 @@ export default function RoleManagement() {
       return acc;
     }, {});
   }, [permissionCatalog]);
+
+  const roleColumns: AdminTableColumn<AdminRole>[] = useMemo(() => [
+    {
+      key: "name",
+      label: "اسم الدور",
+      sortable: true,
+      render: (role) => (
+        <div className="flex flex-col py-1">
+          <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+            {role.displayName || role.name}
+          </span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{role.name}</span>
+        </div>
+      ),
+    },
+    {
+      key: "description",
+      label: "الوصف",
+      render: (role) => <div className="text-sm font-medium text-slate-500 max-w-xs truncate">{role.description || "—"}</div>
+    },
+    {
+      key: "scope",
+      label: "النطاق",
+      render: (role) => (
+        <div className="flex flex-col gap-1">
+          <Badge className={cn("w-fit text-[9px] font-black uppercase px-2 py-0.5 rounded-md border-0", role.isSystem ? "bg-blue-50 text-blue-700" : "bg-purple-50 text-purple-700")}>
+            {role.isSystem ? "نظام" : "مخصص"}
+          </Badge>
+          <span className="text-[10px] font-bold text-slate-400">
+            {role.scope === "ORGANIZATION" ? "منظمة" : "شامل"}
+          </span>
+        </div>
+      )
+    },
+    {
+      key: "permissions",
+      label: "الصلاحيات",
+      render: (role) => (
+        <div className="flex flex-wrap gap-1">
+          {role.permissions.slice(0, 3).map((permission) => (
+            <Badge key={permission} variant="secondary" className="bg-slate-50 text-slate-500 border-0 text-[9px] font-bold px-2 py-0.5 rounded-md">
+              {permission}
+            </Badge>
+          ))}
+          {role.permissions.length > 3 ? (
+            <Badge className="bg-slate-100 text-slate-400 border-0 text-[9px] font-bold px-2 py-0.5 rounded-md">+{role.permissions.length - 3}</Badge>
+          ) : null}
+        </div>
+      )
+    },
+    {
+      key: "actions",
+      label: "تحكم",
+      className: "w-24 text-center",
+      render: (role) => (
+        <div className="flex items-center justify-center gap-1">
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-slate-50 transition-all" onClick={() => handleOpenEditDialog(role)}>
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all" onClick={() => handleOpenEditDialog(role)}>
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleOpenDeleteDialog(role)}
+            className="h-8 w-8 p-0 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      )
+    }
+  ], []);
 
   const handleOpenCreateDialog = () => {
     setDialogMode("create");
@@ -211,66 +282,49 @@ export default function RoleManagement() {
   const organizationRolesCount = roles.filter((role) => role.scope === "ORGANIZATION").length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">إدارة الأدوار</h1>
-          <p className="text-gray-600">إدارة الأدوار والصلاحيات في النظام</p>
+    <div className="space-y-8 animate-in-start" dir="rtl">
+      <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center md:text-right">
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة الأدوار</h1>
+            <p className="text-slate-500 font-medium text-lg">تحكم في الصلاحيات والوصول لمختلف مجموعات المستخدمين</p>
+          </div>
+          <Button className="premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 h-12 px-8 rounded-2xl font-bold w-full md:w-auto" onClick={handleOpenCreateDialog}>
+            <Plus className="h-5 w-5 me-2" />
+            إنشاء دور جديد
+          </Button>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleOpenCreateDialog}>
-          <Plus className="h-4 w-4" />
-          إنشاء دور جديد
-        </Button>
-      </div>
+      </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">إجمالي الأدوار</p>
-                <p className="text-2xl font-bold text-gray-900">{roles.length}</p>
-              </div>
-              <Shield className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">الأدوار المخصصة</p>
-                <p className="text-2xl font-bold text-gray-900">{customRolesCount}</p>
-              </div>
-              <Settings className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">إجمالي الصلاحيات</p>
-                <p className="text-2xl font-bold text-gray-900">{permissionCatalog.length}</p>
-              </div>
-              <Unlock className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">أدوار مستوى المنظمة</p>
-                <p className="text-2xl font-bold text-gray-900">{organizationRolesCount}</p>
-              </div>
-              <Users className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <MetricCard
+          title="إجمالي الأدوار"
+          subtitle="قاعدية ومخصصة"
+          icon={<Shield className="w-5 h-5 text-blue-600" />}
+          metric={{ today: roles.length, last7Days: roles.length, last30Days: roles.length }}
+          loading={isLoadingRoles}
+        />
+        <MetricCard
+          title="الأدوار المخصصة"
+          subtitle="تم إنشاؤها يدويًا"
+          icon={<Settings className="w-5 h-5 text-emerald-600" />}
+          metric={{ today: customRolesCount, last7Days: customRolesCount, last30Days: customRolesCount }}
+          loading={isLoadingRoles}
+        />
+        <MetricCard
+          title="إجمالي الصلاحيات"
+          subtitle="متاحة في النظام"
+          icon={<Unlock className="w-5 h-5 text-purple-600" />}
+          metric={{ today: permissionCatalog.length, last7Days: permissionCatalog.length, last30Days: permissionCatalog.length }}
+          loading={isLoadingRoles}
+        />
+        <MetricCard
+          title="أدوار المنظمات"
+          subtitle="مستوى المنظمة"
+          icon={<Users className="w-5 h-5 text-amber-600" />}
+          metric={{ today: organizationRolesCount, last7Days: organizationRolesCount, last30Days: organizationRolesCount }}
+          loading={isLoadingRoles}
+        />
       </div>
 
       {isRolesError ? (
@@ -280,88 +334,18 @@ export default function RoleManagement() {
         </Alert>
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>قائمة الأدوار</CardTitle>
-          <CardDescription>عرض وإدارة الأدوار والصلاحيات في النظام</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoadingRoles ? (
-            <div className="py-8 text-center text-sm text-gray-500">جاري تحميل الأدوار...</div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>الدور</TableHead>
-                  <TableHead>الوصف</TableHead>
-                  <TableHead>تصنيف الدور</TableHead>
-                  <TableHead>الصلاحيات</TableHead>
-                  <TableHead className="text-center">الإجراءات</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {roles.map((role) => (
-                  <TableRow key={role.name}>
-                    <TableCell>
-                      <div className="font-medium text-gray-900">{role.displayName || role.name}</div>
-                      <div className="text-sm text-gray-500">{role.name}</div>
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-600">
-                      {role.description || "—"}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <Badge variant="outline" className="w-fit">
-                          {role.isSystem ? "دور نظام" : "دور مخصص"}
-                        </Badge>
-                        <span className="text-xs text-gray-500">
-                          {role.scope === "ORGANIZATION" ? "مستوى المنظمة" : "مستوى النظام"}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {role.permissions.slice(0, 4).map((permission) => (
-                          <Badge key={permission} variant="outline">
-                            {permission}
-                          </Badge>
-                        ))}
-                        {role.permissions.length > 4 ? (
-                          <Badge variant="secondary">+{role.permissions.length - 4}</Badge>
-                        ) : null}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleOpenEditDialog(role)}>
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleOpenEditDialog(role)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenDeleteDialog(role)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {!roles.length && !isLoadingRoles ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="py-8 text-center text-sm text-gray-500">
-                      لا توجد أدوار متاحة حاليًا.
-                    </TableCell>
-                  </TableRow>
-                ) : null}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
+      <Card className="glass border-0 rounded-[2rem] p-8 shadow-none mt-8">
+        <div className="mb-6">
+          <h2 className="text-xl font-black text-slate-900 tracking-tight">قائمة الأدوار</h2>
+          <p className="text-slate-500 font-medium">عرض وإدارة الصلاحيات لكل دور وظيفي</p>
+        </div>
+        <AdminTable
+          columns={roleColumns}
+          data={roles}
+          keyExtractor={(role) => role.name}
+          loading={isLoadingRoles}
+          pageSize={10}
+        />
       </Card>
 
       <AdminDialog
@@ -418,7 +402,7 @@ export default function RoleManagement() {
                                   handleTogglePermission(permission.key, Boolean(value))
                                 }
                               />
-                              <span>
+                              <span className="mr-2 rtl:ml-2 rtl:mr-0">
                                 <div className="text-sm font-medium text-gray-900">
                                   {permission.label}
                                 </div>

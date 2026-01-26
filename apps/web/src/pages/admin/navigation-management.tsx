@@ -54,6 +54,7 @@ import {
 import { Plus, Edit, Trash2, GripVertical, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface NavigationLink {
   id: string;
@@ -208,131 +209,136 @@ export default function NavigationManagement() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>إدارة روابط التنقل</CardTitle>
-            <Button onClick={handleCreate}>
-              <Plus className="h-4 w-4" />
-              إضافة رابط جديد
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-center py-8">جار التحميل...</div>
-          ) : error ? (
-            <div className="text-center py-8 text-red-600">
-              حدث خطأ في تحميل روابط التنقل
-            </div>
-          ) : !links.length ? (
-            <div className="text-center py-8">لا توجد روابط تنقل</div>
-          ) : (
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="navigation-links">
-                {(provided) => (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-12"></TableHead>
-                        <TableHead>النص</TableHead>
-                        <TableHead>الرابط</TableHead>
-                        <TableHead>الهدف</TableHead>
-                        <TableHead>الحالة</TableHead>
-                        <TableHead>الإجراءات</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                    >
-                      {links.map((link, index) => (
-                        <Draggable
-                          key={link.id}
-                          draggableId={link.id}
-                          index={index}
-                        >
-                          {(provided, snapshot) => (
-                            <TableRow
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              className={snapshot.isDragging ? "bg-gray-50" : ""}
-                            >
-                              <TableCell {...provided.dragHandleProps}>
-                                <GripVertical className="h-5 w-5 text-gray-400" />
-                              </TableCell>
-                              <TableCell className="font-medium">
-                                {link.label}
-                              </TableCell>
-                              <TableCell>
-                                <code className="text-sm bg-gray-100 px-2 py-1 rounded">
-                                  {link.href}
-                                </code>
-                              </TableCell>
-                              <TableCell>
-                                {link.target === "_blank" ? (
-                                  <Badge variant="outline">نافذة جديدة</Badge>
-                                ) : (
-                                  <Badge variant="secondary">نفس الصفحة</Badge>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <Switch
-                                    checked={link.visible}
-                                    onCheckedChange={(checked) =>
-                                      toggleVisibilityMutation.mutate({
-                                        id: link.id,
-                                        visible: checked,
-                                      })
-                                    }
-                                  />
-                                  {link.visible ? (
-                                    <Eye className="h-4 w-4 text-green-600" />
-                                  ) : (
-                                    <EyeOff className="h-4 w-4 text-gray-400" />
-                                  )}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex gap-2">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => handleEdit(link)}
-                                  >
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => deleteMutation.mutate(link.id)}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </TableBody>
-                  </Table>
-                )}
-              </Droppable>
-            </DragDropContext>
-          )}
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">إدارة روابط التنقل</h1>
+          <p className="text-gray-600">تخصيص القائمة العلوية وروابط الموقع</p>
+        </div>
+        <Button onClick={handleCreate}>
+          <Plus className="ml-2 h-4 w-4" />
+          إضافة رابط جديد
+        </Button>
+      </div>
 
-      <NavigationLinkDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        link={editingLink}
-        onSubmit={handleSubmit}
-        isLoading={createMutation.isPending || updateMutation.isPending}
-      />
+      <div className="space-y-6">
+        {/* ... (rest of the content remains same) */}
+        <Card>
+          <CardContent className="pt-6">
+            {isLoading ? (
+              <div className="text-center py-8">جار التحميل...</div>
+            ) : error ? (
+              <div className="text-center py-8 text-red-600">
+                حدث خطأ في تحميل روابط التنقل
+              </div>
+            ) : !links.length ? (
+              <div className="text-center py-8">لا توجد روابط تنقل</div>
+            ) : (
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="navigation-links">
+                  {(provided) => (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-12"></TableHead>
+                          <TableHead>النص</TableHead>
+                          <TableHead>الرابط</TableHead>
+                          <TableHead>الهدف</TableHead>
+                          <TableHead>الحالة</TableHead>
+                          <TableHead>الإجراءات</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                      >
+                        {links.map((link, index) => (
+                          <Draggable
+                            key={link.id}
+                            draggableId={link.id}
+                            index={index}
+                          >
+                            {(provided, snapshot) => (
+                              <TableRow
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                className={snapshot.isDragging ? "bg-gray-50" : ""}
+                              >
+                                <TableCell {...provided.dragHandleProps}>
+                                  <GripVertical className="h-5 w-5 text-gray-400" />
+                                </TableCell>
+                                <TableCell className="font-medium">
+                                  {link.label}
+                                </TableCell>
+                                <TableCell>
+                                  <code className="text-sm bg-gray-100 px-2 py-1 rounded">
+                                    {link.href}
+                                  </code>
+                                </TableCell>
+                                <TableCell>
+                                  {link.target === "_blank" ? (
+                                    <Badge variant="outline">نافذة جديدة</Badge>
+                                  ) : (
+                                    <Badge variant="secondary">نفس الصفحة</Badge>
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <Switch
+                                      checked={link.visible}
+                                      onCheckedChange={(checked) =>
+                                        toggleVisibilityMutation.mutate({
+                                          id: link.id,
+                                          visible: checked,
+                                        })
+                                      }
+                                    />
+                                    {link.visible ? (
+                                      <Eye className="h-4 w-4 text-green-600" />
+                                    ) : (
+                                      <EyeOff className="h-4 w-4 text-gray-400" />
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleEdit(link)}
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => deleteMutation.mutate(link.id)}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </TableBody>
+                    </Table>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            )}
+          </CardContent>
+        </Card>
+
+        <NavigationLinkDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          link={editingLink}
+          onSubmit={handleSubmit}
+          isLoading={createMutation.isPending || updateMutation.isPending}
+        />
+      </div>
     </div>
   );
 }

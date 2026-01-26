@@ -68,45 +68,47 @@ export function AdminHeader({
   }, [showNotificationPanel]);
 
   return (
-    <div className="bg-white shadow-md fixed inset-x-0 top-0 z-50 h-20">
+    <header className="glass fixed inset-x-0 top-0 z-50 h-20 transition-all duration-300 border-b-0 shadow-none">
       <div className="w-full px-6 sm:px-8 lg:px-12 h-full">
         <div className="flex items-center justify-between h-full">
-          <div className="flex items-center gap-4">
-            <Icon className="w-8 h-8 text-blue-600" />
+          <div className="flex items-center gap-5">
+            <div className="p-2.5 bg-blue-600/10 rounded-2xl">
+              <Icon className="w-7 h-7 text-blue-600" />
+            </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
-              {subtitle && <p className="text-gray-600">{subtitle}</p>}
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-tight">{title}</h1>
+              {subtitle && <p className="text-sm text-slate-500 font-medium">{subtitle}</p>}
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div ref={notificationRef} className="relative flex flex-col items-center">
               <Button
                 variant="ghost"
                 size="sm"
-                className="relative h-10 w-10 p-0 hover:bg-gray-100 rounded-full"
+                className="relative h-11 w-11 p-0 hover:bg-slate-100/80 rounded-2xl transition-colors"
                 aria-label="الإشعارات"
                 aria-expanded={showNotificationPanel}
                 onClick={() => setShowNotificationPanel((prev) => !prev)}
               >
-                <Bell className="h-5 w-5 text-gray-600" />
+                <Bell className="h-5 w-5 text-slate-600" />
                 {notificationCount && notificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs font-medium rounded-full flex items-center justify-center shadow-sm">
+                  <span className="absolute top-2.5 end-2.5 h-4 w-4 bg-red-500 border-2 border-white text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
                     {notificationCount > 9 ? '9+' : notificationCount}
                   </span>
                 )}
               </Button>
               {notificationMessage && notificationCount && notificationCount > 0 && showNotificationPanel && (
-                <div className="absolute top-12 right-0 w-56">
+                <div className="absolute top-14 end-0 w-64 animate-in fade-in slide-in-from-top-2 duration-200">
                   <button
                     type="button"
                     onClick={() => {
                       setShowNotificationPanel(false);
                       onNotificationAction?.();
                     }}
-                    className="relative w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-medium text-slate-700 shadow-xl ring-1 ring-slate-100 text-right hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-200 transition"
+                    className="relative w-full bg-white/90 backdrop-blur-xl border border-slate-200/50 rounded-2xl px-5 py-4 text-sm font-medium text-slate-700 shadow-2xl text-start hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
                   >
                     <span
-                      className="absolute -top-2 right-8 block h-3 w-3 bg-white border border-slate-200 border-b-0 border-r-0 rotate-45 shadow-sm"
+                      className="absolute -top-1.5 end-8 block h-3 w-3 bg-white border-t border-s border-slate-200/50 rotate-45"
                       aria-hidden="true"
                     />
                     {notificationMessage}
@@ -114,42 +116,48 @@ export function AdminHeader({
                 </div>
               )}
             </div>
+
             {userName && (
-              <div className="text-sm font-medium text-gray-700" data-testid="admin-username">
-                {userName}
+              <div className="hidden sm:flex flex-col items-end me-2 px-3">
+                <span className="text-xs font-semibold text-slate-900 leading-none mb-1">{userName}</span>
+                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider leading-none">Admin</span>
               </div>
             )}
-            <Button
-              variant="outline"
-              onClick={onLogout}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100"
-              size="sm"
-              aria-label="تسجيل الخروج"
-            >
-              <LogOut size={16} />
-            </Button>
-            <Button
-              variant="outline"
-              onClick={onBack}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100"
-              size="sm"
-              aria-label="العودة للمنصة"
-            >
-              <Navigation size={16} />
-            </Button>
-            <Button
-              variant="outline"
-              onClick={onRefresh}
-              disabled={loading}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100"
-              size="sm"
-              aria-label="تحديث"
-            >
-              <RefreshCw size={16} className={cn(loading ? 'animate-spin' : undefined)} />
-            </Button>
+
+            <div className="h-8 w-px bg-slate-200/50 mx-1 hidden sm:block" />
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={onRefresh}
+                disabled={loading}
+                className="h-10 w-10 p-0 rounded-2xl bg-white/50 border-slate-200/60 hover:bg-white hover:border-blue-200 hover:text-blue-600 transition-all shadow-sm"
+                aria-label="تحديث"
+              >
+                <RefreshCw size={18} className={cn(loading ? 'animate-spin' : undefined)} />
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={onBack}
+                className="h-10 w-10 p-0 rounded-2xl bg-white/50 border-slate-200/60 hover:bg-white hover:border-blue-200 hover:text-blue-600 transition-all shadow-sm"
+                aria-label="العودة للمنصة"
+              >
+                <Navigation size={18} />
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={onLogout}
+                className="h-10 w-10 p-0 rounded-2xl bg-red-50/50 border-red-100/60 text-red-600 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm"
+                aria-label="تسجيل الخروج"
+              >
+                <LogOut size={18} />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 }

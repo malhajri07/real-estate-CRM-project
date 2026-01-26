@@ -71,20 +71,20 @@ export function AdminSearch({
 
     return (
         <div className={cn('relative', className)}>
-            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute end-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
                 type="text"
                 placeholder={placeholder}
                 value={value}
                 onChange={(e) => handleChange(e.target.value)}
-                className={cn('pr-10', showClearButton && value && 'pl-10')}
+                className={cn('pe-10', showClearButton && value && 'ps-10')}
             />
             {showClearButton && value && (
                 <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleClear}
-                    className="absolute left-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
+                    className="absolute start-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
                 >
                     <X className="h-4 w-4" />
                 </Button>

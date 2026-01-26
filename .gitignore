@@ -8,3 +8,14 @@ vite.config.ts.*
 /generated/prisma
 playwright-report
 test-results
+
+# Agent & Tooling
+.agent/
+.npm-cache/
+logfile
+start-local.sh
+
+# Local Data
+local_pg_data/
+*.db
+*.sqlite

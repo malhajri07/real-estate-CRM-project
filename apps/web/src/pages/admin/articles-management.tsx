@@ -65,6 +65,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface Article {
   id: string;
@@ -103,13 +104,13 @@ const fetchArticles = async (params: {
   const res = await fetch(`/api/cms/articles?${queryParams.toString()}`, {
     credentials: "include",
   });
-  
+
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({ message: "Failed to fetch articles" }));
     console.error("API Error:", errorData);
     throw new Error(errorData.message || `HTTP ${res.status}: Failed to fetch articles`);
   }
-  
+
   return res.json();
 };
 
@@ -435,179 +436,185 @@ export default function ArticlesManagement() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>إدارة المقالات</CardTitle>
-            <Button onClick={handleCreate}>
-              <Plus className="ml-2 h-4 w-4" />
-              إنشاء مقال جديد
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 mb-4">
-            <div className="flex-1">
-              <Input
-                placeholder="بحث في المقالات..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setPage(1);
-                }}
-                className="max-w-sm"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="حالة المقال" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">الكل</SelectItem>
-                <SelectItem value="published">منشور</SelectItem>
-                <SelectItem value="draft">مسودة</SelectItem>
-                <SelectItem value="archived">مؤرشف</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">إدارة المقالات</h1>
+          <p className="text-gray-600">إدارة ونشر المحتوى والمقالات</p>
+        </div>
+        <Button onClick={handleCreate}>
+          <Plus className="ml-2 h-4 w-4" />
+          إنشاء مقال جديد
+        </Button>
+      </div>
 
-          {isLoading ? (
-            <div className="text-center py-8">جار التحميل...</div>
-          ) : error ? (
-            <div className="text-center py-8 text-red-600">
-              <div>حدث خطأ في تحميل المقالات</div>
-              <div className="text-sm mt-2 text-gray-500">
-                {error instanceof Error ? error.message : "خطأ غير معروف"}
+      <div className="space-y-6">
+        {/* ... (rest of the content remains same) */}
+        <Card>
+
+          <CardContent className="pt-6">
+            <div className="flex gap-4 mb-4">
+              <div className="flex-1">
+                <Input
+                  placeholder="بحث في المقالات..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(1);
+                  }}
+                  className="max-w-sm"
+                />
               </div>
-              <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => window.location.reload()}
-              >
-                إعادة المحاولة
-              </Button>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="حالة المقال" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">الكل</SelectItem>
+                  <SelectItem value="published">منشور</SelectItem>
+                  <SelectItem value="draft">مسودة</SelectItem>
+                  <SelectItem value="archived">مؤرشف</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          ) : !data?.items.length ? (
-            <div className="text-center py-8">لا توجد مقالات</div>
-          ) : (
-            <>
-              {selectedArticles.size > 0 && (
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-4">
-                  <span className="text-sm font-medium">
-                    تم اختيار {selectedArticles.size} مقال
-                  </span>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleBulkAction("publish")}
-                      disabled={bulkActionMutation.isPending}
-                    >
-                      نشر
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleBulkAction("archive")}
-                      disabled={bulkActionMutation.isPending}
-                    >
-                      أرشفة
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleBulkAction("delete")}
-                      disabled={bulkActionMutation.isPending}
-                    >
-                      حذف
-                    </Button>
-                  </div>
+
+            {isLoading ? (
+              <div className="text-center py-8">جار التحميل...</div>
+            ) : error ? (
+              <div className="text-center py-8 text-red-600">
+                <div>حدث خطأ في تحميل المقالات</div>
+                <div className="text-sm mt-2 text-gray-500">
+                  {error instanceof Error ? error.message : "خطأ غير معروف"}
                 </div>
-              )}
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">
-                      <Checkbox
-                        checked={selectedArticles.size === data.items.length && data.items.length > 0}
-                        onCheckedChange={toggleSelectAll}
-                      />
-                    </TableHead>
-                    <TableHead>العنوان</TableHead>
-                    <TableHead>الحالة</TableHead>
-                    <TableHead>التصنيفات</TableHead>
-                    <TableHead>تاريخ الإنشاء</TableHead>
-                    <TableHead>الإجراءات</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.items.map((article) => (
-                    <TableRow key={article.id}>
-                      <TableCell>
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => window.location.reload()}
+                >
+                  إعادة المحاولة
+                </Button>
+              </div>
+            ) : !data?.items.length ? (
+              <div className="text-center py-8">لا توجد مقالات</div>
+            ) : (
+              <>
+                {selectedArticles.size > 0 && (
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-4">
+                    <span className="text-sm font-medium">
+                      تم اختيار {selectedArticles.size} مقال
+                    </span>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleBulkAction("publish")}
+                        disabled={bulkActionMutation.isPending}
+                      >
+                        نشر
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleBulkAction("archive")}
+                        disabled={bulkActionMutation.isPending}
+                      >
+                        أرشفة
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleBulkAction("delete")}
+                        disabled={bulkActionMutation.isPending}
+                      >
+                        حذف
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">
                         <Checkbox
-                          checked={selectedArticles.has(article.id)}
-                          onCheckedChange={() => toggleSelectArticle(article.id)}
+                          checked={selectedArticles.size === data.items.length && data.items.length > 0}
+                          onCheckedChange={toggleSelectAll}
                         />
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {article.title}
-                      </TableCell>
-                      <TableCell>{getStatusBadge(article.status)}</TableCell>
-                      <TableCell>
-                        {article.categories.map((cat) => (
-                          <Badge key={cat.id} variant="outline" className="ml-1">
-                            {cat.name}
-                          </Badge>
-                        ))}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(article.createdAt).toLocaleDateString("ar-SA")}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(article)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          {article.status === "draft" && (
+                      </TableHead>
+                      <TableHead>العنوان</TableHead>
+                      <TableHead>الحالة</TableHead>
+                      <TableHead>التصنيفات</TableHead>
+                      <TableHead>تاريخ الإنشاء</TableHead>
+                      <TableHead>الإجراءات</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {data.items.map((article) => (
+                      <TableRow key={article.id}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedArticles.has(article.id)}
+                            onCheckedChange={() => toggleSelectArticle(article.id)}
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {article.title}
+                        </TableCell>
+                        <TableCell>{getStatusBadge(article.status)}</TableCell>
+                        <TableCell>
+                          {article.categories.map((cat) => (
+                            <Badge key={cat.id} variant="outline" className="ml-1">
+                              {cat.name}
+                            </Badge>
+                          ))}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(article.createdAt).toLocaleDateString("ar-SA")}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => publishMutation.mutate(article.id)}
+                              onClick={() => handleEdit(article)}
                             >
-                              <Eye className="h-4 w-4" />
+                              <Edit className="h-4 w-4" />
                             </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteMutation.mutate(article.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </>
-          )}
-        </CardContent>
-      </Card>
+                            {article.status === "draft" && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => publishMutation.mutate(article.id)}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => deleteMutation.mutate(article.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </>
+            )}
+          </CardContent>
+        </Card>
 
-      <ArticleDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        article={editingArticle}
-        categories={categories}
-        tags={tags}
-        onSubmit={handleSubmit}
-        isLoading={createMutation.isPending || updateMutation.isPending}
-      />
+        <ArticleDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          article={editingArticle}
+          categories={categories}
+          tags={tags}
+          onSubmit={handleSubmit}
+          isLoading={createMutation.isPending || updateMutation.isPending}
+        />
+      </div>
     </div>
   );
 }
@@ -699,136 +706,136 @@ function ArticleDialog({
           </TabsList>
           <TabsContent value="edit">
             <form onSubmit={handleSubmit} className="space-y-4" dir="rtl">
-          <div>
-            <Label htmlFor="title">العنوان</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="slug">الرابط (Slug)</Label>
-            <Input
-              id="slug"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="سيتم إنشاؤه تلقائياً من العنوان"
-            />
-          </div>
-          <div>
-            <Label htmlFor="excerpt">الملخص</Label>
-            <Textarea
-              id="excerpt"
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-              rows={3}
-            />
-          </div>
-          <div>
-            <Label htmlFor="content">المحتوى</Label>
-            <RichTextEditor
-              value={content}
-              onChange={setContent}
-              placeholder="اكتب محتوى المقال هنا..."
-            />
-          </div>
-          <div>
-            <Label>الصورة المميزة</Label>
-            <div className="mt-2 space-y-2">
-              {featuredImageUrl && (
-                <div className="relative w-32 h-32 border rounded-lg overflow-hidden">
-                  <img
-                    src={featuredImageUrl}
-                    alt="Featured"
-                    className="w-full h-full object-cover"
-                  />
+              <div>
+                <Label htmlFor="title">العنوان</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="slug">الرابط (Slug)</Label>
+                <Input
+                  id="slug"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  placeholder="سيتم إنشاؤه تلقائياً من العنوان"
+                />
+              </div>
+              <div>
+                <Label htmlFor="excerpt">الملخص</Label>
+                <Textarea
+                  id="excerpt"
+                  value={excerpt}
+                  onChange={(e) => setExcerpt(e.target.value)}
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label htmlFor="content">المحتوى</Label>
+                <RichTextEditor
+                  value={content}
+                  onChange={setContent}
+                  placeholder="اكتب محتوى المقال هنا..."
+                />
+              </div>
+              <div>
+                <Label>الصورة المميزة</Label>
+                <div className="mt-2 space-y-2">
+                  {featuredImageUrl && (
+                    <div className="relative w-32 h-32 border rounded-lg overflow-hidden">
+                      <img
+                        src={featuredImageUrl}
+                        alt="Featured"
+                        className="w-full h-full object-cover"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-1 left-1 rtl:left-auto rtl:right-1"
+                        onClick={() => {
+                          setFeaturedImageId(undefined);
+                          setFeaturedImageUrl(undefined);
+                        }}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  )}
                   <Button
                     type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-1 left-1 rtl:left-auto rtl:right-1"
-                    onClick={() => {
-                      setFeaturedImageId(undefined);
-                      setFeaturedImageUrl(undefined);
-                    }}
+                    variant="outline"
+                    onClick={() => setIsMediaSelectorOpen(true)}
                   >
-                    ×
+                    <ImageIcon className="ml-2 rtl:ml-0 rtl:mr-2 h-4 w-4" />
+                    {featuredImageUrl ? "تغيير الصورة" : "اختر صورة"}
                   </Button>
                 </div>
-              )}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsMediaSelectorOpen(true)}
-              >
-                <ImageIcon className="ml-2 rtl:ml-0 rtl:mr-2 h-4 w-4" />
-                {featuredImageUrl ? "تغيير الصورة" : "اختر صورة"}
-              </Button>
-            </div>
-          </div>
-          <div>
-            <Label>التصنيفات</Label>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {categories.map((cat) => (
+              </div>
+              <div>
+                <Label>التصنيفات</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {categories.map((cat) => (
+                    <Button
+                      key={cat.id}
+                      type="button"
+                      variant={
+                        selectedCategories.includes(cat.id) ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() => {
+                        setSelectedCategories((prev) =>
+                          prev.includes(cat.id)
+                            ? prev.filter((id) => id !== cat.id)
+                            : [...prev, cat.id]
+                        );
+                      }}
+                    >
+                      {cat.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Label>الوسوم</Label>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {tags.map((tag) => (
+                    <Button
+                      key={tag.id}
+                      type="button"
+                      variant={
+                        selectedTags.includes(tag.id) ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() => {
+                        setSelectedTags((prev) =>
+                          prev.includes(tag.id)
+                            ? prev.filter((id) => id !== tag.id)
+                            : [...prev, tag.id]
+                        );
+                      }}
+                    >
+                      {tag.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-start gap-2">
                 <Button
-                  key={cat.id}
                   type="button"
-                  variant={
-                    selectedCategories.includes(cat.id) ? "default" : "outline"
-                  }
-                  size="sm"
-                  onClick={() => {
-                    setSelectedCategories((prev) =>
-                      prev.includes(cat.id)
-                        ? prev.filter((id) => id !== cat.id)
-                        : [...prev, cat.id]
-                    );
-                  }}
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
                 >
-                  {cat.name}
+                  إلغاء
                 </Button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <Label>الوسوم</Label>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {tags.map((tag) => (
-                <Button
-                  key={tag.id}
-                  type="button"
-                  variant={
-                    selectedTags.includes(tag.id) ? "default" : "outline"
-                  }
-                  size="sm"
-                  onClick={() => {
-                    setSelectedTags((prev) =>
-                      prev.includes(tag.id)
-                        ? prev.filter((id) => id !== tag.id)
-                        : [...prev, tag.id]
-                    );
-                  }}
-                >
-                  {tag.name}
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? "جاري الحفظ..." : article ? "تحديث" : "إنشاء"}
                 </Button>
-              ))}
-            </div>
-          </div>
-          <div className="flex justify-start gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              إلغاء
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? "جاري الحفظ..." : article ? "تحديث" : "إنشاء"}
-            </Button>
-          </div>
-        </form>
+              </div>
+            </form>
           </TabsContent>
           <TabsContent value="preview" dir="rtl">
             <div className="space-y-4">

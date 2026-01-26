@@ -51,7 +51,7 @@ export function AdminDatePicker({
             {label && (
                 <Label className="text-sm font-medium">
                     {label}
-                    {required && <span className="text-red-500 mr-1">*</span>}
+                    {required && <span className="text-red-500 ms-1">*</span>}
                 </Label>
             )}
 
@@ -61,12 +61,12 @@ export function AdminDatePicker({
                         variant="outline"
                         disabled={disabled}
                         className={cn(
-                            'w-full justify-start text-right font-normal',
+                            'w-full justify-start text-start font-normal',
                             !value && 'text-muted-foreground',
                             error && 'border-red-500'
                         )}
                     >
-                        <CalendarIcon className="ml-2 h-4 w-4" />
+                        <CalendarIcon className="me-2 h-4 w-4" />
                         {value ? format(value, 'PPP', { locale: ar }) : placeholder}
                     </Button>
                 </PopoverTrigger>
@@ -128,7 +128,7 @@ export function AdminDateRangePicker({
             {label && (
                 <Label className="text-sm font-medium">
                     {label}
-                    {required && <span className="text-red-500 mr-1">*</span>}
+                    {required && <span className="text-red-500 ms-1">*</span>}
                 </Label>
             )}
 
@@ -138,12 +138,12 @@ export function AdminDateRangePicker({
                         variant="outline"
                         disabled={disabled}
                         className={cn(
-                            'w-full justify-start text-right font-normal',
+                            'w-full justify-start text-start font-normal',
                             !value?.from && 'text-muted-foreground',
                             error && 'border-red-500'
                         )}
                     >
-                        <CalendarIcon className="ml-2 h-4 w-4" />
+                        <CalendarIcon className="me-2 h-4 w-4" />
                         {formatRange(value)}
                     </Button>
                 </PopoverTrigger>

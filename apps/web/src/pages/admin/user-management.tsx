@@ -18,7 +18,7 @@
  */
 
 import { useMemo, useState } from "react";
-import { Building2, Edit, Eye, Shield, Trash2, UserPlus, Users, CheckCircle, XCircle } from "lucide-react";
+import { Building2, Edit, Eye, Shield, Trash2, UserPlus, Users, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { ROLE_DISPLAY_TRANSLATIONS, USER_ROLES, type UserRole } from "@shared/rbac";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +31,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { AdminDialog } from "@/components/admin/AdminDialog";
 import {
-  AdminMetricCard,
+  MetricCard,
   AdminTable,
   AdminExport,
   AdminBulkActions,
@@ -47,6 +47,7 @@ import {
   type AdminUser,
 } from "@/lib/rbacAdmin";
 import { formatAdminDate, formatAdminDateTime } from "@/lib/formatters";
+import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface UserFormState {
   id?: string;
@@ -282,40 +283,26 @@ export default function UserManagement() {
   const columns: AdminTableColumn<AdminUser>[] = [
     {
       key: "name",
-      label: "المستخدم",
+      label: "المستخدِم",
       sortable: true,
       render: (user) => (
-        <div>
-          <div className="font-medium text-gray-900">
+        <div className="flex flex-col py-1">
+          <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
             {user.firstName && user.lastName
               ? `${user.firstName} ${user.lastName}`
               : user.name || user.username}
-          </div>
-          <div className="text-sm text-gray-500">{user.email}</div>
-          <div className="text-sm text-gray-500">{user.username}</div>
-          {user.phone && <div className="text-sm text-gray-500">{user.phone}</div>}
-        </div>
-      ),
-    },
-    {
-      key: "organization",
-      label: "المنظمة",
-      render: (user) => (
-        <div className="flex items-center">
-          <Building2 className="h-4 w-4 text-gray-400 mr-2" />
-          <span className="text-sm">
-            {user.organization?.tradeName ?? user.organization?.legalName ?? "غير محدد"}
           </span>
+          <span className="text-xs font-medium text-slate-400 mt-0.5">{user.email}</span>
         </div>
       ),
     },
     {
       key: "roles",
-      label: "الأدوار",
+      label: "الدور",
       render: (user) => (
         <div className="flex flex-wrap gap-1">
           {user.roles.map((role) => (
-            <Badge key={role} variant="outline" className="text-xs">
+            <Badge key={role} variant="secondary" className="bg-slate-50 text-slate-700 border-0 text-[10px] font-bold px-2.5 py-0.5 rounded-md">
               {ROLE_DISPLAY_TRANSLATIONS[role] ?? role}
             </Badge>
           ))}
@@ -324,19 +311,17 @@ export default function UserManagement() {
     },
     {
       key: "isActive",
-      label: "الحالة",
+      label: "حالة الحساب",
       sortable: true,
       render: (user) => (
         <div className="flex items-center gap-2">
           {user.isActive ? (
-            <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
-              <CheckCircle className="h-3 w-3 mr-1" />
+            <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase">
               نشط
             </Badge>
           ) : (
-            <Badge variant="secondary" className="bg-gray-100 text-gray-800">
-              <XCircle className="h-3 w-3 mr-1" />
-              غير نشط
+            <Badge className="bg-slate-100 text-slate-500 border-0 text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase">
+              متوقف
             </Badge>
           )}
           {user.approvalStatus && (
@@ -347,37 +332,27 @@ export default function UserManagement() {
     },
     {
       key: "lastLoginAt",
-      label: "آخر نشاط",
+      label: "النشاط",
       sortable: true,
       render: (user) => (
-        <div className="text-sm text-gray-600">
-          {user.lastLoginAt ? formatAdminDateTime(user.lastLoginAt) : "لم يسجل دخول"}
-        </div>
-      ),
-    },
-    {
-      key: "createdAt",
-      label: "تاريخ الإنشاء",
-      sortable: true,
-      render: (user) => (
-        <div className="text-sm text-gray-600">
-          {formatAdminDate(user.createdAt)}
-        </div>
+        <span className="text-[11px] font-bold text-slate-400">
+          {user.lastLoginAt ? formatAdminDateTime(user.lastLoginAt) : "—"}
+        </span>
       ),
     },
     {
       key: "actions",
-      label: "الإجراءات",
-      className: "text-center",
+      label: "تحكم",
+      className: "w-20 text-center",
       render: (user) => (
-        <div className="flex items-center justify-center gap-2">
-          <Button variant="ghost" size="sm" onClick={() => handleOpenEditDialog(user)}>
+        <div className="flex items-center justify-center gap-1">
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all" onClick={() => handleOpenEditDialog(user)}>
             <Edit className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="h-8 w-8 p-0 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all"
             onClick={() => handleOpenDeleteDialog(user)}
           >
             <Trash2 className="h-4 w-4" />
@@ -410,111 +385,120 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">إدارة المستخدمين</h1>
-          <p className="text-gray-600">إدارة المستخدمين والصلاحيات في النظام</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <AdminExport data={users} filename="users" formats={["csv", "json"]} />
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleOpenCreateDialog}>
-            <UserPlus className="h-4 w-4 mr-2" />
-            إضافة مستخدم جديد
-          </Button>
-        </div>
-      </div>
-
+    <div className="space-y-8 animate-in-start" dir="rtl">
       {/* Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <AdminMetricCard
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <MetricCard
           title="إجمالي المستخدمين"
-          value={users.length}
-          icon={<Users className="h-6 w-6" />}
-          color="blue"
+          subtitle="مستخدم مسجل"
+          icon={<Users className="w-5 h-5 text-blue-600" />}
+          metric={{ today: users.length, last7Days: users.length, last30Days: users.length }} // Placeholder for actual trend data if available
+          loading={isLoadingUsers}
         />
-        <AdminMetricCard
+        <MetricCard
           title="المستخدمون النشطون"
-          value={activeUsers}
-          icon={<Shield className="h-6 w-6" />}
-          color="green"
-          trend={{ value: 12, isPositive: true, label: "من الشهر الماضي" }}
+          subtitle="حسابات مفعلة"
+          icon={<CheckCircle className="w-5 h-5 text-emerald-600" />}
+          metric={{ today: activeUsers, last7Days: activeUsers, last30Days: activeUsers }}
+          loading={isLoadingUsers}
         />
-        <AdminMetricCard
+        <MetricCard
           title="المستخدمون المعلقون"
-          value={pendingUsers}
-          icon={<Users className="h-6 w-6" />}
-          color="yellow"
+          subtitle="بانتظار المراجعة"
+          icon={<AlertCircle className="w-5 h-5 text-amber-600" />}
+          metric={{ today: pendingUsers, last7Days: pendingUsers, last30Days: pendingUsers }}
+          loading={isLoadingUsers}
         />
-        <AdminMetricCard
-          title="المنظمات"
-          value={totalOrgs}
-          icon={<Building2 className="h-6 w-6" />}
-          color="purple"
+        <MetricCard
+          title="إجمالي المنظمات"
+          subtitle="منظمة نشطة"
+          icon={<Building2 className="w-5 h-5 text-purple-600" />}
+          metric={{ today: totalOrgs, last7Days: totalOrgs, last30Days: totalOrgs }}
+          loading={isLoadingUsers}
         />
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
-          <Label htmlFor="status-filter">تصفية حسب الحالة</Label>
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
-            <SelectTrigger id="status-filter">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع الحالات</SelectItem>
-              <SelectItem value="active">نشط</SelectItem>
-              <SelectItem value="inactive">غير نشط</SelectItem>
-              <SelectItem value="pending">معلق</SelectItem>
-              <SelectItem value="needs_info">يحتاج معلومات</SelectItem>
-              <SelectItem value="rejected">مرفوض</SelectItem>
-            </SelectContent>
-          </Select>
+      <Card className="glass border-0 rounded-[2rem] p-8 shadow-none mb-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة المستخدمين</h1>
+            <p className="text-slate-500 font-medium">تحكم كامل في صلاحيات وحسابات المستخدمين والمنظمات</p>
+          </div>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <AdminExport data={users} filename="users" formats={["csv", "json"]} />
+            <Button className="premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 h-12 px-6 rounded-2xl font-bold flex-1 md:flex-none" onClick={handleOpenCreateDialog}>
+              <UserPlus className="h-5 w-5 me-2" />
+              إضافة مستخدم جديد
+            </Button>
+          </div>
         </div>
+      </Card>
 
-        <div className="flex-1">
-          <Label htmlFor="role-filter">تصفية حسب الدور</Label>
-          <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as "all" | UserRole)}>
-            <SelectTrigger id="role-filter">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">جميع الأدوار</SelectItem>
-              {roleOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* Filters & Actions Container */}
+      <Card className="glass border-0 rounded-[2rem] p-6 shadow-none">
+        <div className="flex flex-col lg:flex-row items-end gap-6">
+          <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="status-filter" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">الحالة</Label>
+              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
+                <SelectTrigger id="status-filter" className="h-11 bg-white/50 border-slate-200/60 rounded-xl focus:ring-blue-500/20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
+                  <SelectItem value="all">جميع الحالات</SelectItem>
+                  <SelectItem value="active">نشط</SelectItem>
+                  <SelectItem value="inactive">غير نشط</SelectItem>
+                  <SelectItem value="pending">معلق</SelectItem>
+                  <SelectItem value="needs_info">يحتاج معلومات</SelectItem>
+                  <SelectItem value="rejected">مرفوض</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="role-filter" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">الدور الوظيفي</Label>
+              <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as "all" | UserRole)}>
+                <SelectTrigger id="role-filter" className="h-11 bg-white/50 border-slate-200/60 rounded-xl focus:ring-blue-500/20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
+                  <SelectItem value="all">جميع الأدوار</SelectItem>
+                  {roleOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="shrink-0 w-full lg:w-auto">
+            <AdminBulkActions
+              selectedCount={selectedUserIds.length}
+              actions={[
+                {
+                  label: "تفعيل",
+                  icon: <CheckCircle className="h-4 w-4" />,
+                  onClick: handleBulkActivate,
+                },
+                {
+                  label: "إيقاف",
+                  icon: <XCircle className="h-4 w-4" />,
+                  onClick: handleBulkDeactivate,
+                },
+                {
+                  label: "حذف",
+                  icon: <Trash2 className="h-4 w-4" />,
+                  onClick: handleBulkDelete,
+                  variant: "destructive",
+                },
+              ]}
+              onClear={() => setSelectedUserIds([])}
+            />
+          </div>
         </div>
-      </div>
-
-      {/* Bulk Actions */}
-      <AdminBulkActions
-        selectedCount={selectedUserIds.length}
-        actions={[
-          {
-            label: "تفعيل",
-            icon: <CheckCircle className="h-4 w-4" />,
-            onClick: handleBulkActivate,
-          },
-          {
-            label: "إلغاء التفعيل",
-            icon: <XCircle className="h-4 w-4" />,
-            onClick: handleBulkDeactivate,
-          },
-          {
-            label: "حذف",
-            icon: <Trash2 className="h-4 w-4" />,
-            onClick: handleBulkDelete,
-            variant: "destructive",
-          },
-        ]}
-        onClear={() => setSelectedUserIds([])}
-      />
+      </Card>
 
       {/* Table */}
       <AdminTable
@@ -633,7 +617,6 @@ export default function UserManagement() {
         </div>
       </AdminDialog>
 
-      {/* Delete Dialog */}
       <AdminDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}

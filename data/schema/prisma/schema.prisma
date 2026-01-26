@@ -1798,3 +1798,17 @@ model property_type {
   @@index([code])
   @@map("property_type")
 }
+
+model daily_system_stats {
+  id              String   @id @default(uuid())
+  date            DateTime @unique @db.Date
+  totalUsers      Int      @default(0)
+  activeUsers     Int      @default(0)
+  totalListings   Int      @default(0)
+  totalRevenue    Decimal  @default(0) @db.Decimal(14, 2)
+  totalOrders     Int      @default(0)
+  disputesOpened  Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  @@index([date])
+}

@@ -181,7 +181,7 @@ export function AdminTable<T extends Record<string, any>>({
             {searchable && (
                 <div className="flex items-center gap-2">
                     <div className="relative flex-1 max-w-sm">
-                        <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute end-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder={searchPlaceholder}
                             value={searchTerm}
@@ -189,7 +189,7 @@ export function AdminTable<T extends Record<string, any>>({
                                 setSearchTerm(e.target.value);
                                 setCurrentPage(1);
                             }}
-                            className="pr-10"
+                            className="pe-10"
                         />
                     </div>
                 </div>
@@ -210,23 +210,23 @@ export function AdminTable<T extends Record<string, any>>({
                                 </TableHead>
                             )}
                             {columns.map((column) => (
-                                <TableHead key={column.key} className={cn("text-right h-12 text-xs font-semibold text-slate-600 uppercase tracking-wider", column.className)}>
+                                <TableHead key={column.key} className={cn("text-start h-12 text-xs font-semibold text-slate-600 uppercase tracking-wider", column.className)}>
                                     {column.sortable ? (
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="h-8 -mr-3 text-xs font-semibold hover:bg-slate-200/50 text-slate-600"
+                                            className="h-8 -me-3 text-xs font-semibold hover:bg-slate-200/50 text-slate-600"
                                             onClick={() => handleSort(column.key)}
                                         >
                                             {column.label}
                                             {sortColumn === column.key ? (
                                                 sortDirection === 'asc' ? (
-                                                    <ArrowUp className="mr-2 h-3 w-3" />
+                                                    <ArrowUp className="me-2 h-3 w-3" />
                                                 ) : (
-                                                    <ArrowDown className="mr-2 h-3 w-3" />
+                                                    <ArrowDown className="me-2 h-3 w-3" />
                                                 )
                                             ) : (
-                                                <ArrowUpDown className="mr-2 h-3 w-3 opacity-30" />
+                                                <ArrowUpDown className="me-2 h-3 w-3 opacity-30" />
                                             )}
                                         </Button>
                                     ) : (

@@ -21,13 +21,14 @@
  */
 
 import React from "react";
-import { Layout, Save, Send } from "lucide-react";
+import { Layout, Save, Send, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import type { LandingSection, SectionFormState } from "../types";
 import { SECTION_LABELS } from "../utils/constants";
 
@@ -57,247 +58,169 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Layout className="h-5 w-5" />
-            {sectionLabel}
-          </CardTitle>
-          <div className="flex items-center gap-2">
-            <Button onClick={onSave} size="sm" disabled={saving}>
-              <Save className="h-4 w-4 ml-2" />
-              {saving ? "جار الحفظ..." : "حفظ المسودة"}
-            </Button>
-            <Button
-              onClick={onPublish}
-              size="sm"
-              variant="outline"
-              disabled={publishing}
-            >
-              <Send className="h-4 w-4 ml-2" />
-              {publishing ? "جاري النشر..." : "نشر التعديلات"}
-            </Button>
+    <Card className="glass border-0 rounded-[2.5rem] p-8 shadow-none relative overflow-visible">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10 overflow-visible">
+        <div className="flex items-center gap-4">
+          <div className="h-12 w-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+            <Layout className="h-6 w-6" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">{sectionLabel}</h2>
+            <p className="text-slate-500 font-medium text-sm">تعديل محتوى وإعدادات القسم</p>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between gap-4 bg-muted/40 p-3 rounded-lg overflow-visible">
-          <div className="flex-1">
-            <p className="text-sm text-muted-foreground">إظهار القسم في الصفحة</p>
-            <p className="text-xs text-muted-foreground/80">
-              يمكن إخفاء القسم مؤقتاً دون حذفه
-            </p>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <Button
+            onClick={onSave}
+            disabled={saving}
+            className="h-11 px-6 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition-all shadow-sm flex-1 md:flex-none"
+          >
+            <Save className="h-4 w-4 me-2" />
+            {saving ? "جار الحفظ..." : "حفظ المسودة"}
+          </Button>
+          <Button
+            onClick={onPublish}
+            disabled={publishing}
+            className="h-11 px-6 rounded-xl premium-gradient text-white border-0 font-bold shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex-1 md:flex-none"
+          >
+            <Send className="h-4 w-4 me-2" />
+            {publishing ? "جاري النشر..." : "نشر التعديلات"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="space-y-8">
+        <div className="flex items-center justify-between gap-6 p-6 bg-blue-50/50 rounded-3xl border border-blue-100/50 group transition-all hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 overflow-visible">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center text-blue-600 shadow-sm">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="font-black text-slate-900 tracking-tight">ظهور القسم</p>
+              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">إظهار أو إخفاء هذا القسم من الصفحة الرئيسية</p>
+            </div>
           </div>
-          <div className="flex-shrink-0 overflow-visible">
+          <div className="overflow-visible">
             <Switch
               checked={formState.visible}
               onCheckedChange={(checked) => setField("visible", checked)}
+              className="data-[state=checked]:bg-blue-600"
             />
           </div>
         </div>
 
-        <div className="grid gap-4">
-          <div>
-            <Label>العنوان الرئيسي</Label>
+        <div className="grid gap-8">
+          <div className="space-y-3">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">العنوان الرئيسي للقسم</label>
             <Input
               value={formState.title ?? ""}
               onChange={(event) => setField("title", event.target.value)}
-              placeholder="عنوان القسم"
+              placeholder="أدخل عنواناً جذاباً..."
+              className="h-14 rounded-2xl bg-white/50 border-slate-100 focus:ring-blue-500/20 text-lg font-black text-slate-900 placeholder:text-slate-300"
             />
           </div>
 
           {section.slug !== "footer" && section.slug !== "navigation" && (
-            <div>
-              <Label>العنوان الفرعي</Label>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">العنوان الفرعي</label>
               <Input
                 value={formState.subtitle ?? ""}
                 onChange={(event) => setField("subtitle", event.target.value)}
-                placeholder="عنوان فرعي"
+                placeholder="أضف سياقاً إضافياً للعنوان..."
+                className="h-14 rounded-2xl bg-white/50 border-slate-100 focus:ring-blue-500/20 font-bold text-slate-600 placeholder:text-slate-300"
               />
             </div>
           )}
 
           {section.slug === "hero" && (
             <>
-              <div>
-                <Label>نص الشارة العلوية</Label>
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">نص الشارة العلوية (Badge)</label>
                 <Input
                   value={formState.badge ?? ""}
                   onChange={(event) => setField("badge", event.target.value)}
-                  placeholder="مثال: منصة عقاراتي"
+                  placeholder="مثال: الإصدار الجديد ٢.٠"
+                  className="h-14 rounded-2xl bg-white/50 border-slate-100 focus:ring-blue-500/20 font-black text-blue-600 placeholder:text-slate-300"
                 />
               </div>
-              <div>
-                <Label>وصف مختصر</Label>
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">وصف الفقرة الرئيسية</label>
                 <Textarea
                   value={formState.body ?? ""}
                   onChange={(event) => setField("body", event.target.value)}
-                  rows={3}
-                  placeholder="وصف مختصر يظهر أسفل العنوان"
+                  rows={4}
+                  placeholder="وصف مختصر ومؤثر لمهمة المنصة..."
+                  className="rounded-2xl bg-white/50 border-slate-100 focus:ring-blue-500/20 font-medium text-slate-600 leading-relaxed placeholder:text-slate-300"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>زر رئيسي - النص</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50/50 rounded-3xl border border-slate-100">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">الزر الرئيسي - النص</label>
                   <Input
                     value={formState.primaryCtaLabel ?? ""}
                     onChange={(event) =>
                       setField("primaryCtaLabel", event.target.value)
                     }
-                    placeholder="ابدأ الآن"
+                    placeholder="ابدأ رحلتك"
+                    className="h-12 rounded-xl bg-white border-slate-100 focus:ring-blue-500/20 font-bold"
                   />
                 </div>
-                <div>
-                  <Label>زر رئيسي - الرابط</Label>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">الزر الرئيسي - الرابط (URL)</label>
                   <Input
                     value={formState.primaryCtaHref ?? ""}
                     onChange={(event) =>
                       setField("primaryCtaHref", event.target.value)
                     }
                     placeholder="/signup"
+                    dir="ltr"
+                    className="h-12 rounded-xl bg-white border-slate-100 focus:ring-blue-500/20 font-mono text-xs"
                   />
                 </div>
-                <div>
-                  <Label>زر ثانوي - النص</Label>
-                  <Input
-                    value={formState.secondaryCtaLabel ?? ""}
-                    onChange={(event) =>
-                      setField("secondaryCtaLabel", event.target.value)
-                    }
-                    placeholder="تسجيل الدخول"
-                  />
-                </div>
-                <div>
-                  <Label>زر ثانوي - الرابط</Label>
-                  <Input
-                    value={formState.secondaryCtaHref ?? ""}
-                    onChange={(event) =>
-                      setField("secondaryCtaHref", event.target.value)
-                    }
-                    placeholder="/rbac-login"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label>عنوان لوحة المؤشرات</Label>
-                <Input
-                  value={formState.dashboardTitle ?? ""}
-                  onChange={(event) =>
-                    setField("dashboardTitle", event.target.value)
-                  }
-                  placeholder="عنوان يظهر أعلى لوحة المؤشرات"
-                />
               </div>
             </>
           )}
 
           {["features", "solutions", "pricing", "contact"].includes(section.slug) && (
-            <div>
-              <Label>الوصف</Label>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">وصف القسم التفصيلي</label>
               <Textarea
                 value={formState.description ?? ""}
                 onChange={(event) =>
                   setField("description", event.target.value)
                 }
                 rows={4}
-                placeholder="نص يوضح تفاصيل القسم"
+                placeholder="اشرح لعملائك أهمية هذا القسم وما سيستفيدونه منه..."
+                className="rounded-2xl bg-white/50 border-slate-100 focus:ring-blue-500/20 font-medium text-slate-600 leading-relaxed placeholder:text-slate-300"
               />
             </div>
           )}
 
           {section.slug === "footer" && (
-            <>
-              <div>
-                <Label>وصف التذييل</Label>
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">رسالة التذييل</label>
                 <Textarea
                   value={formState.body ?? ""}
                   onChange={(event) => setField("body", event.target.value)}
                   rows={4}
-                  placeholder="وصف مختصر يظهر في التذييل"
+                  placeholder="كلمة أخيرة للزوار في نهاية الصفحة..."
+                  className="rounded-2xl bg-white/50 border-slate-100 focus:ring-blue-500/20 font-medium text-slate-600"
                 />
               </div>
-              <div>
-                <Label>حقوق النشر</Label>
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">حقوق النشر والملكية (Copyright)</label>
                 <Input
                   value={formState.copyright ?? ""}
                   onChange={(event) => setField("copyright", event.target.value)}
-                  placeholder="© 2024 منصة عقاراتي. جميع الحقوق محفوظة."
+                  placeholder="© ٢٠٢٤ جميع الحقوق محفوظة"
+                  className="h-12 rounded-xl bg-white/50 border-slate-100 font-bold text-slate-500"
                 />
               </div>
-              <div>
-                <Label>رابط شعار التذييل (URL)</Label>
-                <Input
-                  value={formState.logoUrl ?? ""}
-                  onChange={(event) => setField("logoUrl", event.target.value)}
-                  placeholder="/assets/footer-logo.png"
-                  dir="ltr"
-                />
-              </div>
-            </>
+            </div>
           )}
-
-          {section.slug === "cta" && (
-            <>
-              <div>
-                <Label>نص الرسالة</Label>
-                <Textarea
-                  value={formState.body ?? ""}
-                  onChange={(event) => setField("body", event.target.value)}
-                  rows={3}
-                  placeholder="رسالة تشجيعية للانضمام"
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>زر الإجراء - النص</Label>
-                  <Input
-                    value={formState.primaryCtaLabel ?? ""}
-                    onChange={(event) =>
-                      setField("primaryCtaLabel", event.target.value)
-                    }
-                    placeholder="سجل الآن"
-                  />
-                </div>
-                <div>
-                  <Label>زر الإجراء - الرابط</Label>
-                  <Input
-                    value={formState.primaryCtaHref ?? ""}
-                    onChange={(event) =>
-                      setField("primaryCtaHref", event.target.value)
-                    }
-                    placeholder="/signup"
-                  />
-                </div>
-              </div>
-            </>
-          )}
-
-          {section.slug === "header" && (
-            <>
-              <div>
-                <Label>اسم الموقع (مهم لـ SEO)</Label>
-                <Input
-                  value={formState.siteName ?? ""}
-                  onChange={(event) => setField("siteName", event.target.value)}
-                  placeholder="عقاركم"
-                />
-              </div>
-              <div>
-                <Label>رابط الشعار (URL)</Label>
-                <Input
-                  value={formState.logoUrl ?? ""}
-                  onChange={(event) => setField("logoUrl", event.target.value)}
-                  placeholder="/assets/logo.png"
-                  dir="ltr"
-                />
-                <p className="text-xs text-muted-foreground mt-1">يمكنك استخدام رابط خارجي أو مسار صورة في المشروع</p>
-              </div>
-            </>
-          )}
-
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 };

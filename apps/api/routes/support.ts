@@ -95,7 +95,32 @@ router.put('/:id', async (req: any, res) => {
     }
 });
 
-// POST /api/support/seed
+
+
+// GET /api/support/categories (Mock)
+router.get('/categories', async (_req, res) => {
+    // Static categories until we add a table
+    const categories = [
+        { id: '1', name: 'الدعم الفني', ticketCount: 15, active: true },
+        { id: '2', name: 'الاستفسارات العامة', ticketCount: 8, active: true },
+        { id: '3', name: 'المدفوعات', ticketCount: 3, active: true },
+        { id: '4', name: 'حسابي', ticketCount: 5, active: true },
+    ];
+    res.json({ categories });
+});
+
+// GET /api/support/templates (Mock)
+router.get('/templates', async (_req, res) => {
+    // Static templates until we add a table
+    const templates = [
+        { id: '1', title: 'رد تلقائي - استلام', content: 'نشكرك على تواصلك معنا. تم استلام طلبك ورقم التذكرة هو...', usageCount: 120 },
+        { id: '2', title: 'طلب معلومات إضافية', content: 'نحتاج إلى مزيد من التفاصيل لمساعدتك في حل المشكلة...', usageCount: 45 },
+        { id: '3', title: 'إغلاق التذكرة', content: 'نود إعلامك بأنه تم حل المشكلة وإغلاق التذكرة. شكراً لك.', usageCount: 80 },
+    ];
+    res.json({ templates });
+});
+
+// POST /api/support/seed (Moved down)
 router.post('/seed', async (req: any, res) => {
     try {
         const userId = req.user?.id;

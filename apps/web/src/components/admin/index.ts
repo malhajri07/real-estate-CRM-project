@@ -2,7 +2,7 @@
 export { AdminBreadcrumbs } from './layout/AdminBreadcrumbs';
 
 // Data Display Components
-export { AdminCard, AdminMetricCard } from './data-display/AdminCard';
+export { AdminCard, AdminMetricCard, MetricCard } from './data-display/AdminCard';
 export { AdminEmptyState } from './data-display/AdminEmptyState';
 export { AdminTable } from './data-display/AdminTable';
 export type { AdminTableColumn } from './data-display/AdminTable';
@@ -27,5 +27,5 @@ export { AdminSearch } from './utilities/AdminSearch';
 export { AdminBulkActions } from './utilities/AdminBulkActions';
 
 // Existing Components (re-export for convenience)
-export { AdminDialog } from './AdminDialog';
+export { AdminDialog } from './ui/AdminDialog';
 export { AdminStatusBadge } from './AdminStatusBadge';

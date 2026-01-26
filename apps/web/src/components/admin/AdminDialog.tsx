@@ -1,89 +1,89 @@
-/**
- * AdminDialog.tsx - Admin Dialog Component
- * 
- * Location: apps/web/src/ → Components/ → Admin Components → AdminDialog.tsx
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * Admin dialog component. Provides:
- * - Standardized admin dialog interface
- * - Loading states
- * - Action buttons
- * 
- * Related Files:
- * - apps/web/src/components/admin/ - Other admin components
- */
-
-import { type ReactNode } from "react";
-import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import * as React from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+    AdminDialog as Dialog,
+    AdminDialogContent,
+    AdminDialogHeader,
+    AdminDialogFooter,
+    AdminDialogTitle,
+    AdminDialogDescription,
+} from "./ui/AdminDialog";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 interface AdminDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  description?: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  confirmVariant?: "default" | "outline" | "destructive";
-  confirmLoading?: boolean;
-  confirmDisabled?: boolean;
-  onConfirm?: () => void;
-  children?: ReactNode;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    title: string;
+    description?: string;
+    children?: React.ReactNode;
+    confirmLabel?: string;
+    cancelLabel?: string;
+    onConfirm?: () => void;
+    confirmVariant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+    confirmDisabled?: boolean;
+    confirmLoading?: boolean;
+    showFooter?: boolean;
+    maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "full";
 }
 
-export const AdminDialog = ({
-  open,
-  onOpenChange,
-  title,
-  description,
-  confirmLabel,
-  cancelLabel = "إلغاء",
-  confirmVariant = "default",
-  confirmLoading = false,
-  confirmDisabled = false,
-  onConfirm,
-  children,
-}: AdminDialogProps) => (
-  <Dialog open={open} onOpenChange={onOpenChange}>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{title}</DialogTitle>
-        {description ? (
-          <DialogDescription>{description}</DialogDescription>
-        ) : null}
-      </DialogHeader>
-      {children}
-      {(confirmLabel || onConfirm) && (
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={confirmLoading}>
-            {cancelLabel}
-          </Button>
-          {confirmLabel ? (
-            <Button
-              variant={confirmVariant}
-              onClick={onConfirm}
-              disabled={confirmDisabled || confirmLoading}
-            >
-              {confirmLoading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {confirmLabel}
-                </span>
-              ) : (
-                confirmLabel
-              )}
-            </Button>
-          ) : null}
-        </DialogFooter>
-      )}
-    </DialogContent>
-  </Dialog>
-);
+export function AdminDialog({
+    open,
+    onOpenChange,
+    title,
+    description,
+    children,
+    confirmLabel = "تأكيد",
+    cancelLabel = "إلغاء",
+    onConfirm,
+    confirmVariant = "default",
+    confirmDisabled = false,
+    confirmLoading = false,
+    showFooter = true,
+    maxWidth = "lg",
+}: AdminDialogProps) {
+    const maxWidthClass = {
+        sm: "sm:max-w-sm",
+        md: "sm:max-w-md",
+        lg: "sm:max-w-lg",
+        xl: "sm:max-w-xl",
+        "2xl": "sm:max-w-2xl",
+        full: "sm:max-w-[95vw]",
+    }[maxWidth];
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <AdminDialogContent className={maxWidthClass}>
+                <AdminDialogHeader>
+                    <AdminDialogTitle>{title}</AdminDialogTitle>
+                    {description && <AdminDialogDescription>{description}</AdminDialogDescription>}
+                </AdminDialogHeader>
+
+                <div className="py-4">
+                    {children}
+                </div>
+
+                {showFooter && (
+                    <AdminDialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            disabled={confirmLoading}
+                        >
+                            {cancelLabel}
+                        </Button>
+                        {onConfirm && (
+                            <Button
+                                variant={confirmVariant}
+                                onClick={onConfirm}
+                                disabled={confirmDisabled || confirmLoading}
+                            >
+                                {confirmLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin rtl:ml-2 rtl:mr-0" />}
+                                {confirmLabel}
+                            </Button>
+                        )}
+                    </AdminDialogFooter>
+                )}
+            </AdminDialogContent>
+        </Dialog>
+    );
+}

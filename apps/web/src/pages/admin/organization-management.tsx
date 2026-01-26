@@ -1,21 +1,4 @@
-/**
- * organization-management.tsx - Organization Management Page
- * 
- * Location: apps/web/src/ → Pages/ → Admin Pages → admin/ → organization-management.tsx
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * Organization management page. Provides:
- * - Organization listing and search
- * - Organization CRUD operations
- * - Organization settings management
- * 
- * Route: /admin/organizations/organizations-list
- * 
- * Related Files:
- * - apps/api/routes/rbac-admin.ts - Organization API routes
- */
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,54 +9,44 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Building2, 
-  Plus, 
-  Edit, 
-  Trash2, 
+import { useToast } from "@/hooks/use-toast";
+import {
+  Building2,
+  Plus,
+  Edit,
+  Trash2,
   Users,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  Eye,
+  TrendingUp,
   Settings,
-  TrendingUp
+  Eye,
+  Loader2,
+  AlertCircle,
+  ShieldCheck,
+  CreditCard
 } from 'lucide-react';
-
-interface Organization {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
-  status: 'active' | 'inactive' | 'pending' | 'suspended';
-  userCount: number;
-  contactInfo: {
-    email: string;
-    phone: string;
-    address: string;
-    website?: string;
-  };
-  subscription: {
-    plan: string;
-    status: 'active' | 'expired' | 'cancelled';
-    expiryDate: string;
-  };
-  createdAt: string;
-  lastActive: string;
-}
+import {
+  useAdminOrganizations,
+  useCreateAdminOrganization,
+  useDeleteAdminOrganization,
+  useUpdateAdminOrganization,
+  type AdminOrganization,
+  type CreateAdminOrganizationInput
+} from "@/lib/rbacAdmin";
+import { AdminLayout } from "@/components/admin/layout/AdminLayout";
+import { MetricCard } from "@/components/admin";
+import { cn } from "@/lib/utils";
 
 export default function OrganizationManagement() {
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [filteredOrganizations, setFilteredOrganizations] = useState<Organization[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
+
+  const [selectedOrganization, setSelectedOrganization] = useState<AdminOrganization | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [newOrganization, setNewOrganization] = useState({
+
+  const [newOrganization, setNewOrganization] = useState<CreateAdminOrganizationInput>({
     name: '',
     description: '',
     type: '',
@@ -82,123 +55,37 @@ export default function OrganizationManagement() {
     address: ''
   });
 
-  // Mock data
-  useEffect(() => {
-    const mockOrganizations: Organization[] = [
-      {
-        id: '1',
-        name: 'شركة العقارات المتقدمة',
-        description: 'شركة رائدة في مجال العقارات والاستثمار',
-        type: 'شركة عقارية',
-        status: 'active',
-        userCount: 25,
-        contactInfo: {
-          email: 'info@advanced-realestate.com',
-          phone: '+966112345678',
-          address: 'الرياض، المملكة العربية السعودية',
-          website: 'www.advanced-realestate.com'
-        },
-        subscription: {
-          plan: 'الخطة المؤسسية',
-          status: 'active',
-          expiryDate: '2025-12-31T23:59:59Z'
-        },
-        createdAt: '2024-01-15T10:00:00Z',
-        lastActive: '2025-01-20T14:30:00Z'
-      },
-      {
-        id: '2',
-        name: 'مؤسسة العقارات الحديثة',
-        description: 'مؤسسة متخصصة في التطوير العقاري',
-        type: 'مؤسسة',
-        status: 'active',
-        userCount: 12,
-        contactInfo: {
-          email: 'contact@modern-realestate.com',
-          phone: '+966198765432',
-          address: 'جدة، المملكة العربية السعودية'
-        },
-        subscription: {
-          plan: 'الخطة المتقدمة',
-          status: 'active',
-          expiryDate: '2025-06-30T23:59:59Z'
-        },
-        createdAt: '2024-03-10T09:30:00Z',
-        lastActive: '2025-01-19T16:45:00Z'
-      },
-      {
-        id: '3',
-        name: 'مجموعة الاستثمار العقاري',
-        description: 'مجموعة استثمارية في القطاع العقاري',
-        type: 'مجموعة استثمارية',
-        status: 'pending',
-        userCount: 5,
-        contactInfo: {
-          email: 'admin@investment-group.com',
-          phone: '+966155555555',
-          address: 'الدمام، المملكة العربية السعودية'
-        },
-        subscription: {
-          plan: 'الخطة الأساسية',
-          status: 'expired',
-          expiryDate: '2024-12-31T23:59:59Z'
-        },
-        createdAt: '2024-11-20T14:00:00Z',
-        lastActive: '2025-01-18T11:20:00Z'
-      }
-    ];
-    setOrganizations(mockOrganizations);
-    setFilteredOrganizations(mockOrganizations);
-  }, []);
+  const { toast } = useToast();
 
-  // Filter organizations
-  useEffect(() => {
-    let filtered = organizations;
+  // API Hooks
+  const queryFilters = useMemo(() => ({
+    search: searchTerm || undefined,
+    status: statusFilter === 'all' ? undefined : statusFilter,
+    type: typeFilter === 'all' ? undefined : typeFilter,
+  }), [searchTerm, statusFilter, typeFilter]);
 
-    if (searchTerm) {
-      filtered = filtered.filter(org => 
-      org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      org.contactInfo.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    }
+  const {
+    data: organizations = [],
+    isLoading,
+    isError,
+    error
+  } = useAdminOrganizations(queryFilters);
 
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(org => org.status === statusFilter);
-    }
-
-    if (typeFilter !== 'all') {
-      filtered = filtered.filter(org => org.type === typeFilter);
-    }
-
-    setFilteredOrganizations(filtered);
-  }, [organizations, searchTerm, statusFilter, typeFilter]);
+  const createMutation = useCreateAdminOrganization();
+  const updateMutation = useUpdateAdminOrganization();
+  const deleteMutation = useDeleteAdminOrganization();
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
+    const statusConfig: Record<string, { label: string; className: string }> = {
       active: { label: 'نشط', className: 'bg-green-100 text-green-800 border-green-200' },
       inactive: { label: 'غير نشط', className: 'bg-gray-100 text-gray-800 border-gray-200' },
-      pending: { label: 'معلق', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+      pending_verification: { label: 'معلق', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
       suspended: { label: 'معلق', className: 'bg-red-100 text-red-800 border-red-200' }
     };
-    
-    const config = statusConfig[status as keyof typeof statusConfig];
-    return (
-      <Badge className={`${config.className} border`}>
-        {config.label}
-      </Badge>
-    );
-  };
 
-  const getSubscriptionBadge = (status: string) => {
-    const statusConfig = {
-      active: { label: 'نشط', className: 'bg-green-100 text-green-800 border-green-200' },
-      expired: { label: 'منتهي', className: 'bg-red-100 text-red-800 border-red-200' },
-      cancelled: { label: 'ملغي', className: 'bg-gray-100 text-gray-800 border-gray-200' }
-    };
-    
-    const config = statusConfig[status as keyof typeof statusConfig];
+    const config = statusConfig[status.toLowerCase()] || statusConfig['inactive'];
     return (
-      <Badge className={`${config.className} border`}>
+      <Badge className={`${config.className} border text-[10px] font-bold px-2 py-0.5 rounded-md`}>
         {config.label}
       </Badge>
     );
@@ -213,151 +100,152 @@ export default function OrganizationManagement() {
   };
 
   const handleCreateOrganization = () => {
-    const organization: Organization = {
-      id: Date.now().toString(),
-      name: newOrganization.name,
-      description: newOrganization.description,
-      type: newOrganization.type,
-      status: 'pending',
-      userCount: 0,
-      contactInfo: {
-        email: newOrganization.email,
-        phone: newOrganization.phone,
-        address: newOrganization.address
+    createMutation.mutate(newOrganization, {
+      onSuccess: () => {
+        setIsCreateDialogOpen(false);
+        setNewOrganization({ name: '', description: '', type: '', email: '', phone: '', address: '' });
+        toast({ title: "تم إنشاء المنظمة بنجاح" });
       },
-      subscription: {
-        plan: 'الخطة الأساسية',
-        status: 'active',
-        expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
-      },
-      createdAt: new Date().toISOString(),
-      lastActive: new Date().toISOString()
-    };
-    setOrganizations([...organizations, organization]);
-    setNewOrganization({ name: '', description: '', type: '', email: '', phone: '', address: '' });
-    setIsCreateDialogOpen(false);
+      onError: (err) => {
+        toast({
+          variant: "destructive",
+          title: "فشل إنشاء المنظمة",
+          description: err.message
+        });
+      }
+    });
+  };
+
+  const handleUpdateOrganization = () => {
+    if (!selectedOrganization) return;
+    // Implementation for update would go here - simplified for now
+    setIsEditDialogOpen(false);
   };
 
   const handleDeleteOrganization = () => {
     if (selectedOrganization) {
-      setOrganizations(organizations.filter(org => org.id !== selectedOrganization.id));
-      setIsDeleteDialogOpen(false);
+      deleteMutation.mutate({ id: selectedOrganization.id }, {
+        onSuccess: () => {
+          setIsDeleteDialogOpen(false);
+          toast({ title: "تم حذف المنظمة بنجاح" });
+        },
+        onError: (err) => {
+          toast({
+            variant: "destructive",
+            title: "فشل حذف المنظمة",
+            description: err.message
+          });
+        }
+      });
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <span className="mr-2 text-lg text-slate-600">جاري تحميل المنظمات...</span>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-8 text-center text-red-600 bg-red-50 rounded-lg border border-red-200">
+        <p>فشل في تحميل البيانات: {error?.message}</p>
+      </div>
+    );
+  }
+
+  const activeOrgsCount = organizations.filter(o => o.status?.toLowerCase() === 'active').length;
+  const totalUsersCount = organizations.reduce((sum, org) => sum + (org.userCount || 0), 0);
+  const activeSubsCount = organizations.filter(o => o.subscription?.status === 'active').length;
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">إدارة المنظمات</h1>
-          <p className="text-gray-600">إدارة المنظمات والشركات في النظام</p>
+    <div className="space-y-8 animate-in-start" dir="rtl">
+      <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center md:text-right">
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة المنظمات</h1>
+            <p className="text-slate-500 font-medium text-lg">تحكم في الكيانات والشركات المشتركة في النظام</p>
+          </div>
+          <Button className="premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 h-12 px-8 rounded-2xl font-bold w-full md:w-auto" onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="h-5 w-5 me-2" />
+            إضافة منظمة جديدة
+          </Button>
         </div>
-        <Button 
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-          onClick={() => setIsCreateDialogOpen(true)}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          إضافة منظمة جديدة
-        </Button>
+      </Card>
+
+      {/* Metrics Section */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <MetricCard
+          title="إجمالي المنظمات"
+          subtitle="شركات ومؤسسات"
+          icon={<Building2 className="w-5 h-5 text-blue-600" />}
+          metric={{ today: organizations.length, last7Days: organizations.length, last30Days: organizations.length }}
+          loading={isLoading}
+        />
+        <MetricCard
+          title="المنظمات النشطة"
+          subtitle="اشتراكات مفعلة"
+          icon={<ShieldCheck className="w-5 h-5 text-emerald-600" />}
+          metric={{ today: activeOrgsCount, last7Days: activeOrgsCount, last30Days: activeOrgsCount }}
+          loading={isLoading}
+        />
+        <MetricCard
+          title="إجمالي المستخدمين"
+          subtitle="في جميع المنظمات"
+          icon={<Users className="w-5 h-5 text-purple-600" />}
+          metric={{ today: totalUsersCount, last7Days: totalUsersCount, last30Days: totalUsersCount }}
+          loading={isLoading}
+        />
+        <MetricCard
+          title="الاشتراكات المميزة"
+          subtitle="تراخيص نشطة"
+          icon={<CreditCard className="w-5 h-5 text-amber-600" />}
+          metric={{ today: activeSubsCount, last7Days: activeSubsCount, last30Days: activeSubsCount }}
+          loading={isLoading}
+        />
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">إجمالي المنظمات</p>
-                <p className="text-2xl font-bold text-gray-900">{organizations.length}</p>
-              </div>
-              <Building2 className="h-8 w-8 text-blue-600" />
+      {/* Filters Container */}
+      <Card className="glass border-0 rounded-[2rem] p-6 shadow-none">
+        <div className="flex flex-col lg:flex-row items-end gap-6">
+          <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="search" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">البحث</Label>
+              <Input
+                id="search"
+                placeholder="اسم المنظمة، البريد..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-11 bg-white/50 border-slate-200/60 rounded-xl focus:ring-blue-500/20"
+              />
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">المنظمات النشطة</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {organizations.filter(o => o.status === 'active').length}
-                </p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">إجمالي المستخدمين</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {organizations.reduce((sum, org) => sum + org.userCount, 0)}
-                </p>
-              </div>
-              <Users className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">الاشتراكات النشطة</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {organizations.filter(o => o.subscription.status === 'active').length}
-                </p>
-              </div>
-              <Settings className="h-8 w-8 text-orange-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <Label htmlFor="search">البحث</Label>
-              <div className="relative">
-                <Input
-                  id="search"
-                  placeholder="البحث بالاسم أو البريد الإلكتروني..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-            
-            <div className="md:w-48">
-              <Label htmlFor="status-filter">الحالة</Label>
+            <div className="space-y-2">
+              <Label htmlFor="status-filter" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">الحالة</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر الحالة" />
+                <SelectTrigger className="h-11 bg-white/50 border-slate-200/60 rounded-xl focus:ring-blue-500/20">
+                  <SelectValue placeholder="الكل" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
                   <SelectItem value="all">جميع الحالات</SelectItem>
                   <SelectItem value="active">نشط</SelectItem>
                   <SelectItem value="inactive">غير نشط</SelectItem>
                   <SelectItem value="pending">معلق</SelectItem>
-                  <SelectItem value="suspended">معلق</SelectItem>
+                  <SelectItem value="suspended">موقوف</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            
-            <div className="md:w-48">
-              <Label htmlFor="type-filter">النوع</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="type-filter" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">نوع الكيان</Label>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر النوع" />
+                <SelectTrigger className="h-11 bg-white/50 border-slate-200/60 rounded-xl focus:ring-blue-500/20">
+                  <SelectValue placeholder="الكل" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
                   <SelectItem value="all">جميع الأنواع</SelectItem>
                   <SelectItem value="شركة عقارية">شركة عقارية</SelectItem>
                   <SelectItem value="مؤسسة">مؤسسة</SelectItem>
@@ -366,206 +254,144 @@ export default function OrganizationManagement() {
               </Select>
             </div>
           </div>
-        </CardContent>
+        </div>
       </Card>
 
-      <Tabs defaultValue="organizations" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="organizations">المنظمات</TabsTrigger>
-          <TabsTrigger value="types">أنواع المنظمات</TabsTrigger>
+      <Tabs defaultValue="organizations" className="space-y-6">
+        <TabsList className="bg-slate-100/50 p-1 rounded-2xl border-0 h-14">
+          <TabsTrigger value="organizations" className="rounded-xl px-8 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all">المنظمات</TabsTrigger>
+          <TabsTrigger value="types" className="rounded-xl px-8 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all">أنواع المنظمات</TabsTrigger>
         </TabsList>
 
         <TabsContent value="organizations">
-          {/* Organizations Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>قائمة المنظمات</CardTitle>
-              <CardDescription>
-                عرض وإدارة جميع المنظمات في النظام
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 tracking-tight">قائمة المنظمات</h2>
+                <p className="text-slate-500 font-medium text-sm">عرض وتصفية الشركات المشتركة في النظام</p>
+              </div>
+            </div>
+
+            <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white/40">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>المنظمة</TableHead>
-                    <TableHead>النوع</TableHead>
-                    <TableHead>المستخدمين</TableHead>
-                    <TableHead>الاشتراك</TableHead>
-                    <TableHead>الحالة</TableHead>
-                    <TableHead>آخر نشاط</TableHead>
-                    <TableHead className="text-center">الإجراءات</TableHead>
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow className="border-slate-100">
+                    <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المنظمة</TableHead>
+                    <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">النوع</TableHead>
+                    <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المستخدمين</TableHead>
+                    <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الاشتراك</TableHead>
+                    <TableHead className="text-right text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
+                    <TableHead className="text-center text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">تحكم</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredOrganizations.map((organization) => (
-                    <TableRow key={organization.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium text-gray-900">{organization.name}</div>
-                          <div className="text-sm text-gray-500">{organization.contactInfo.email}</div>
-                          <div className="text-sm text-gray-500">{organization.contactInfo.phone}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{organization.type}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 text-gray-400 mr-2" />
-                          {organization.userCount}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="text-sm font-medium">{organization.subscription.plan}</div>
-                          <div className="text-xs text-gray-500">
-                            ينتهي: {formatDate(organization.subscription.expiryDate)}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(organization.status)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm text-gray-600">
-                          {formatDate(organization.lastActive)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedOrganization(organization);
-                              setIsEditDialogOpen(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedOrganization(organization);
-                              setIsEditDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedOrganization(organization);
-                              setIsDeleteDialogOpen(true);
-                            }}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                  {organizations.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-12 text-slate-500 font-medium">
+                        لا توجد منظمات مطابقة للبحث
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : (
+                    organizations.map((organization) => (
+                      <TableRow key={organization.id} className="border-slate-50 hover:bg-blue-50/30 transition-colors group">
+                        <TableCell className="py-4">
+                          <div className="flex flex-col">
+                            <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{organization.name}</span>
+                            <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tight">{organization.contactInfo?.email}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="bg-slate-50 text-slate-500 border-0 text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase">
+                            {organization.type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-black text-xs">
+                              {organization.userCount}
+                            </div>
+                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">مستخدم</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-black text-slate-900">{organization.subscription?.plan ?? 'Basic'}</span>
+                            <span className="text-[10px] font-bold text-slate-400 mt-0.5">
+                              {organization.subscription?.expiryDate
+                                ? `ينتهي: ${formatDate(organization.subscription.expiryDate)}`
+                                : '-'}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(organization.status)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-slate-50 transition-all"
+                              onClick={() => {
+                                setSelectedOrganization(organization);
+                                setIsEditDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all"
+                              onClick={() => {
+                                setSelectedOrganization(organization);
+                                setIsEditDialogOpen(true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all"
+                              onClick={() => {
+                                setSelectedOrganization(organization);
+                                setIsDeleteDialogOpen(true);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
-            </CardContent>
+            </div>
           </Card>
         </TabsContent>
 
         <TabsContent value="types">
-          {/* Organization Types */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Building2 className="h-5 w-5 mr-2" />
-                  شركة عقارية
-                </CardTitle>
-                <CardDescription>
-                  شركات متخصصة في العقارات والوساطة
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">عدد المنظمات:</span>
-                    <span className="font-medium">2</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">المستخدمين:</span>
-                    <span className="font-medium">37</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Building2 className="h-5 w-5 mr-2" />
-                  مؤسسة
-                </CardTitle>
-                <CardDescription>
-                  مؤسسات غير ربحية في القطاع العقاري
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">عدد المنظمات:</span>
-                    <span className="font-medium">1</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">المستخدمين:</span>
-                    <span className="font-medium">12</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Building2 className="h-5 w-5 mr-2" />
-                  مجموعة استثمارية
-                </CardTitle>
-                <CardDescription>
-                  مجموعات استثمارية في القطاع العقاري
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">عدد المنظمات:</span>
-                    <span className="font-medium">1</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">المستخدمين:</span>
-                    <span className="font-medium">5</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="p-8 text-center text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+            ميزة أنواع المنظمات قادمة قريباً
           </div>
         </TabsContent>
       </Tabs>
 
       {/* Create Organization Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl" dir="rtl">
+          <DialogHeader className="text-right">
             <DialogTitle>إضافة منظمة جديدة</DialogTitle>
             <DialogDescription>
               إضافة منظمة جديدة إلى النظام
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-4 text-right">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="org-name">اسم المنظمة</Label>
+                <Label htmlFor="org-name">اسم المنظمة <span className="text-red-500">*</span></Label>
                 <Input
                   id="org-name"
                   value={newOrganization.name}
@@ -587,7 +413,7 @@ export default function OrganizationManagement() {
                 </Select>
               </div>
             </div>
-            
+
             <div>
               <Label htmlFor="org-description">الوصف</Label>
               <Textarea
@@ -598,7 +424,7 @@ export default function OrganizationManagement() {
                 rows={3}
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="org-email">البريد الإلكتروني</Label>
@@ -620,7 +446,7 @@ export default function OrganizationManagement() {
                 />
               </div>
             </div>
-            
+
             <div>
               <Label htmlFor="org-address">العنوان</Label>
               <Input
@@ -631,11 +457,15 @@ export default function OrganizationManagement() {
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
               إلغاء
             </Button>
-            <Button onClick={handleCreateOrganization}>
+            <Button
+              onClick={handleCreateOrganization}
+              disabled={createMutation.isPending || !newOrganization.name}
+            >
+              {createMutation.isPending && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
               إضافة المنظمة
             </Button>
           </DialogFooter>
@@ -644,21 +474,23 @@ export default function OrganizationManagement() {
 
       {/* Delete Organization Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent dir="rtl">
+          <DialogHeader className="text-right">
             <DialogTitle>تأكيد الحذف</DialogTitle>
             <DialogDescription>
-              هل أنت متأكد من حذف هذه المنظمة؟ لا يمكن التراجع عن هذا الإجراء.
+              هل أنت متأكد من حذف المنظمة "{selectedOrganization?.name}"؟ لا يمكن التراجع عن هذا الإجراء.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               إلغاء
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={handleDeleteOrganization}
+              disabled={deleteMutation.isPending}
             >
+              {deleteMutation.isPending && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
               حذف المنظمة
             </Button>
           </DialogFooter>

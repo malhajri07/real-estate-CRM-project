@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Save, FileText, Code } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface SEOSettings {
   pagePath: string;
@@ -168,221 +169,229 @@ export default function SEOManagement() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      <Tabs defaultValue="seo" className="w-full">
-        <TabsList>
-          <TabsTrigger value="seo">إعدادات SEO</TabsTrigger>
-          <TabsTrigger value="robots">Robots.txt</TabsTrigger>
-        </TabsList>
-        <TabsContent value="seo">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>إعدادات SEO</CardTitle>
-                <Button onClick={() => sitemapMutation.mutate()}>
-                  <FileText className="h-4 w-4" />
-                  إنشاء Sitemap
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-1">
-                  <Label className="mb-2 block">الصفحات</Label>
-                  <div className="space-y-2">
-                    <Button
-                      variant={selectedPage === "/" ? "default" : "outline"}
-                      className="w-full justify-start"
-                      onClick={() => handleSelectPage("/")}
-                    >
-                      الصفحة الرئيسية (/)
-                    </Button>
-                    <Button
-                      variant={selectedPage === "/blog" ? "default" : "outline"}
-                      className="w-full justify-start"
-                      onClick={() => handleSelectPage("/blog")}
-                    >
-                      المدونة (/blog)
-                    </Button>
-                    {settings
-                      .filter((s) => s.pagePath !== "/" && s.pagePath !== "/blog")
-                      .map((setting) => (
-                        <Button
-                          key={setting.pagePath}
-                          variant={
-                            selectedPage === setting.pagePath ? "default" : "outline"
-                          }
-                          className="w-full justify-start"
-                          onClick={() => handleSelectPage(setting.pagePath)}
-                        >
-                          {setting.pagePath}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">إدارة SEO</h1>
+        <p className="text-gray-600">تحسين محركات البحث وملفات sitemap</p>
+      </div>
+
+      <div className="space-y-6">
+        {/* ... (rest of the content remains same) */}
+        <Tabs defaultValue="seo" className="w-full">
+          <TabsList>
+            <TabsTrigger value="seo">إعدادات SEO</TabsTrigger>
+            <TabsTrigger value="robots">Robots.txt</TabsTrigger>
+          </TabsList>
+          <TabsContent value="seo">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>إعدادات SEO</CardTitle>
+                  <Button onClick={() => sitemapMutation.mutate()}>
+                    <FileText className="h-4 w-4" />
+                    إنشاء Sitemap
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="md:col-span-1">
+                    <Label className="mb-2 block">الصفحات</Label>
+                    <div className="space-y-2">
+                      <Button
+                        variant={selectedPage === "/" ? "default" : "outline"}
+                        className="w-full justify-start"
+                        onClick={() => handleSelectPage("/")}
+                      >
+                        الصفحة الرئيسية (/)
+                      </Button>
+                      <Button
+                        variant={selectedPage === "/blog" ? "default" : "outline"}
+                        className="w-full justify-start"
+                        onClick={() => handleSelectPage("/blog")}
+                      >
+                        المدونة (/blog)
+                      </Button>
+                      {settings
+                        .filter((s) => s.pagePath !== "/" && s.pagePath !== "/blog")
+                        .map((setting) => (
+                          <Button
+                            key={setting.pagePath}
+                            variant={
+                              selectedPage === setting.pagePath ? "default" : "outline"
+                            }
+                            className="w-full justify-start"
+                            onClick={() => handleSelectPage(setting.pagePath)}
+                          >
+                            {setting.pagePath}
+                          </Button>
+                        ))}
+                    </div>
+                  </div>
+                  <div className="md:col-span-2">
+                    {selectedPage ? (
+                      <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                          <Label htmlFor="metaTitle">عنوان Meta</Label>
+                          <Input
+                            id="metaTitle"
+                            value={formData.metaTitle || ""}
+                            onChange={(e) =>
+                              setFormData({ ...formData, metaTitle: e.target.value })
+                            }
+                            maxLength={60}
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            {formData.metaTitle?.length || 0}/60
+                          </p>
+                        </div>
+                        <div>
+                          <Label htmlFor="metaDescription">وصف Meta</Label>
+                          <Textarea
+                            id="metaDescription"
+                            value={formData.metaDescription || ""}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                metaDescription: e.target.value,
+                              })
+                            }
+                            maxLength={160}
+                            rows={3}
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            {formData.metaDescription?.length || 0}/160
+                          </p>
+                        </div>
+                        <div>
+                          <Label htmlFor="metaKeywords">الكلمات المفتاحية</Label>
+                          <Input
+                            id="metaKeywords"
+                            value={formData.metaKeywords || ""}
+                            onChange={(e) =>
+                              setFormData({ ...formData, metaKeywords: e.target.value })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="ogTitle">عنوان Open Graph</Label>
+                          <Input
+                            id="ogTitle"
+                            value={formData.ogTitle || ""}
+                            onChange={(e) =>
+                              setFormData({ ...formData, ogTitle: e.target.value })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="ogDescription">وصف Open Graph</Label>
+                          <Textarea
+                            id="ogDescription"
+                            value={formData.ogDescription || ""}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                ogDescription: e.target.value,
+                              })
+                            }
+                            rows={3}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="ogImage">صورة Open Graph</Label>
+                          <Input
+                            id="ogImage"
+                            type="url"
+                            value={formData.ogImage || ""}
+                            onChange={(e) =>
+                              setFormData({ ...formData, ogImage: e.target.value })
+                            }
+                            placeholder="https://example.com/image.jpg"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="canonicalUrl">رابط Canonical</Label>
+                          <Input
+                            id="canonicalUrl"
+                            type="url"
+                            value={formData.canonicalUrl || ""}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                canonicalUrl: e.target.value,
+                              })
+                            }
+                            placeholder="https://example.com/page"
+                          />
+                        </div>
+                        <Button type="submit" disabled={updateMutation.isPending}>
+                          <Save className="h-4 w-4" />
+                          {updateMutation.isPending ? "جاري الحفظ..." : "حفظ"}
                         </Button>
-                      ))}
+                      </form>
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        اختر صفحة لتعديل إعدادات SEO الخاصة بها
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="md:col-span-2">
-                  {selectedPage ? (
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <div>
-                        <Label htmlFor="metaTitle">عنوان Meta</Label>
-                        <Input
-                          id="metaTitle"
-                          value={formData.metaTitle || ""}
-                          onChange={(e) =>
-                            setFormData({ ...formData, metaTitle: e.target.value })
-                          }
-                          maxLength={60}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          {formData.metaTitle?.length || 0}/60
-                        </p>
-                      </div>
-                      <div>
-                        <Label htmlFor="metaDescription">وصف Meta</Label>
-                        <Textarea
-                          id="metaDescription"
-                          value={formData.metaDescription || ""}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              metaDescription: e.target.value,
-                            })
-                          }
-                          maxLength={160}
-                          rows={3}
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          {formData.metaDescription?.length || 0}/160
-                        </p>
-                      </div>
-                      <div>
-                        <Label htmlFor="metaKeywords">الكلمات المفتاحية</Label>
-                        <Input
-                          id="metaKeywords"
-                          value={formData.metaKeywords || ""}
-                          onChange={(e) =>
-                            setFormData({ ...formData, metaKeywords: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="ogTitle">عنوان Open Graph</Label>
-                        <Input
-                          id="ogTitle"
-                          value={formData.ogTitle || ""}
-                          onChange={(e) =>
-                            setFormData({ ...formData, ogTitle: e.target.value })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="ogDescription">وصف Open Graph</Label>
-                        <Textarea
-                          id="ogDescription"
-                          value={formData.ogDescription || ""}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              ogDescription: e.target.value,
-                            })
-                          }
-                          rows={3}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="ogImage">صورة Open Graph</Label>
-                        <Input
-                          id="ogImage"
-                          type="url"
-                          value={formData.ogImage || ""}
-                          onChange={(e) =>
-                            setFormData({ ...formData, ogImage: e.target.value })
-                          }
-                          placeholder="https://example.com/image.jpg"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="canonicalUrl">رابط Canonical</Label>
-                        <Input
-                          id="canonicalUrl"
-                          type="url"
-                          value={formData.canonicalUrl || ""}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              canonicalUrl: e.target.value,
-                            })
-                          }
-                          placeholder="https://example.com/page"
-                        />
-                      </div>
-                      <Button type="submit" disabled={updateMutation.isPending}>
-                        <Save className="h-4 w-4" />
-                        {updateMutation.isPending ? "جاري الحفظ..." : "حفظ"}
-                      </Button>
-                    </form>
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      اختر صفحة لتعديل إعدادات SEO الخاصة بها
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="robots">
-          <Card>
-            <CardHeader>
-              <CardTitle>Robots.txt Editor</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoadingRobots ? (
-                <div className="text-center py-8">جار التحميل...</div>
-              ) : (
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="robotsTxt">محتوى robots.txt</Label>
-                    <Textarea
-                      id="robotsTxt"
-                      value={robotsTxt}
-                      onChange={(e) => setRobotsTxt(e.target.value)}
-                      rows={15}
-                      className="font-mono text-sm"
-                      placeholder="User-agent: *
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="robots">
+            <Card>
+              <CardHeader>
+                <CardTitle>Robots.txt Editor</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoadingRobots ? (
+                  <div className="text-center py-8">جار التحميل...</div>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="robotsTxt">محتوى robots.txt</Label>
+                      <Textarea
+                        id="robotsTxt"
+                        value={robotsTxt}
+                        onChange={(e) => setRobotsTxt(e.target.value)}
+                        rows={15}
+                        className="font-mono text-sm"
+                        placeholder="User-agent: *
 Allow: /
 Disallow: /admin/"
-                    />
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => robotsTxtMutation.mutate(robotsTxt)}
+                        disabled={robotsTxtMutation.isPending}
+                      >
+                        <Save className="h-4 w-4" />
+                        {robotsTxtMutation.isPending ? "جاري الحفظ..." : "حفظ"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          const blob = new Blob([robotsTxt], { type: "text/plain" });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = "robots.txt";
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        }}
+                      >
+                        <FileText className="h-4 w-4" />
+                        تنزيل
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => robotsTxtMutation.mutate(robotsTxt)}
-                      disabled={robotsTxtMutation.isPending}
-                    >
-                      <Save className="h-4 w-4" />
-                      {robotsTxtMutation.isPending ? "جاري الحفظ..." : "حفظ"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        const blob = new Blob([robotsTxt], { type: "text/plain" });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = "robots.txt";
-                        a.click();
-                        URL.revokeObjectURL(url);
-                      }}
-                    >
-                      <FileText className="h-4 w-4" />
-                      تنزيل
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

@@ -201,10 +201,10 @@ const mapMutationPayloadToAdminUser = (
     ? fallback?.organization?.id === payload.organizationId
       ? fallback.organization
       : {
-          id: payload.organizationId,
-          legalName: fallback?.organization?.legalName ?? null,
-          tradeName: fallback?.organization?.tradeName ?? null,
-        }
+        id: payload.organizationId,
+        legalName: fallback?.organization?.legalName ?? null,
+        tradeName: fallback?.organization?.tradeName ?? null,
+      }
     : null;
 
   return {
@@ -396,22 +396,22 @@ export const useUpdateAdminUser = () => {
             users: current.users.map((user) =>
               user.id === id
                 ? {
-                    ...user,
-                    ...payload,
-                    firstName: payload.firstName ?? user.firstName,
-                    lastName: payload.lastName ?? user.lastName,
-                    name:
-                      `${payload.firstName ?? user.firstName ?? ""} ${payload.lastName ?? user.lastName ?? ""}`.trim() ||
-                      user.username,
-                    phone: payload.phone ?? user.phone,
-                    roles: payload.roles ?? user.roles,
-                    organization: payload.organizationId
-                      ? user.organization?.id === payload.organizationId
-                        ? user.organization
-                        : { id: payload.organizationId, legalName: null, tradeName: null }
-                      : null,
-                    isActive: payload.isActive ?? user.isActive,
-                  }
+                  ...user,
+                  ...payload,
+                  firstName: payload.firstName ?? user.firstName,
+                  lastName: payload.lastName ?? user.lastName,
+                  name:
+                    `${payload.firstName ?? user.firstName ?? ""} ${payload.lastName ?? user.lastName ?? ""}`.trim() ||
+                    user.username,
+                  phone: payload.phone ?? user.phone,
+                  roles: payload.roles ?? user.roles,
+                  organization: payload.organizationId
+                    ? user.organization?.id === payload.organizationId
+                      ? user.organization
+                      : { id: payload.organizationId, legalName: null, tradeName: null }
+                    : null,
+                  isActive: payload.isActive ?? user.isActive,
+                }
                 : user,
             ),
           };
@@ -558,12 +558,12 @@ export const useUpdateAdminRole = () => {
           return roles.map((role) =>
             role.name === id
               ? {
-                  ...role,
-                  ...payload,
-                  displayName: payload.displayName ?? role.displayName,
-                  description: payload.description ?? role.description,
-                  permissions: payload.permissions ?? role.permissions,
-                }
+                ...role,
+                ...payload,
+                displayName: payload.displayName ?? role.displayName,
+                description: payload.description ?? role.description,
+                permissions: payload.permissions ?? role.permissions,
+              }
               : role,
           );
         });
@@ -611,6 +611,120 @@ export const useDeleteAdminRole = () => {
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: RBAC_ROLES_KEY });
+    },
+  });
+};
+export interface AdminOrganization {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  status: string;
+  userCount: number;
+  contactInfo: {
+    email: string;
+    phone: string;
+    address: string;
+    website: string;
+  };
+  subscription: {
+    plan: string;
+    status: string;
+    expiryDate: string;
+  };
+  createdAt: string;
+  lastActive: string;
+}
+
+export interface AdminOrganizationFilters {
+  search?: string;
+  status?: string;
+  type?: string;
+}
+
+interface AdminOrganizationsResponse {
+  success: boolean;
+  organizations: AdminOrganization[];
+  message?: string;
+}
+
+export interface CreateAdminOrganizationInput {
+  name: string;
+  type: string;
+  description?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+}
+
+export interface UpdateAdminOrganizationInput extends Partial<CreateAdminOrganizationInput> {
+  id: string;
+  status?: string;
+}
+
+const RBAC_ORGS_KEY = ["rbac-admin", "organizations"] as const;
+
+export const useAdminOrganizations = (filters?: AdminOrganizationFilters) => {
+  return useQuery<AdminOrganization[], Error>({
+    queryKey: [...RBAC_ORGS_KEY, filters],
+    queryFn: async () => {
+      const payload = await getJson<AdminOrganizationsResponse>(
+        `/api/rbac-admin/organizations${toQueryString({
+          search: filters?.search,
+          status: filters?.status === 'all' ? undefined : filters?.status,
+          type: filters?.type === 'all' ? undefined : filters?.type,
+        })}`
+      );
+      return ensureSuccess(payload).organizations;
+    },
+  });
+};
+
+export const useCreateAdminOrganization = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<AdminOrganization, Error, CreateAdminOrganizationInput>({
+    mutationFn: async (payload) => {
+      const res = await apiRequest("POST", "/api/rbac-admin/organizations", payload);
+      const json = await res.json();
+      if (!json.success || !json.organization) {
+        throw new Error(json.message ?? "فشل إنشاء المنظمة");
+      }
+      return json.organization;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: RBAC_ORGS_KEY });
+    },
+  });
+};
+
+export const useUpdateAdminOrganization = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<AdminOrganization, Error, UpdateAdminOrganizationInput>({
+    mutationFn: async ({ id, ...payload }) => {
+      const res = await apiRequest("PUT", `/api/rbac-admin/organizations/${id}`, payload);
+      const json = await res.json();
+      if (!json.success || !json.organization) {
+        throw new Error(json.message ?? "فشل تحديث المنظمة");
+      }
+      return json.organization;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: RBAC_ORGS_KEY });
+    },
+  });
+};
+
+export const useDeleteAdminOrganization = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      await apiRequest("DELETE", `/api/rbac-admin/organizations/${id}`);
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: RBAC_ORGS_KEY });
     },
   });
 };
