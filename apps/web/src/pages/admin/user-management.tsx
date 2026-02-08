@@ -18,18 +18,27 @@
  */
 
 import { useMemo, useState } from "react";
-import { Building2, Edit, Eye, Shield, Trash2, UserPlus, Users, CheckCircle, XCircle, AlertCircle } from "lucide-react";
-import { ROLE_DISPLAY_TRANSLATIONS, USER_ROLES, type UserRole } from "@shared/rbac";
+import { Building2, Edit, Eye, Shield, Trash2, UserPlus, Users, CheckCircle, XCircle, AlertCircle, Loader2 } from "lucide-react";
+import { ROLE_DISPLAY_TRANSLATIONS, USER_ROLES, UserRole } from "@shared/rbac";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { AdminDialog } from "@/components/admin/AdminDialog";
+import {
+  AdminSheet,
+  AdminSheetContent,
+  AdminSheetHeader,
+  AdminSheetTitle,
+  AdminSheetDescription,
+  AdminSheetFooter,
+} from "@/components/admin/ui/AdminSheet";
 import {
   MetricCard,
   AdminTable,
@@ -70,7 +79,7 @@ const createEmptyFormState = (): UserFormState => ({
   email: "",
   username: "",
   phone: "",
-  role: UserRole.BUYER, // Safer default than USER_ROLES[0]
+  role: (UserRole?.BUYER || 'BUYER') as UserRole, // Safer default than USER_ROLES[0]
   password: "",
   isActive: true,
 });
@@ -109,9 +118,12 @@ export default function UserManagement() {
   const deleteUserMutation = useDeleteAdminUser();
 
   // Defensive check for USER_ROLES
-  const SAFE_USER_ROLES = USER_ROLES || Object.values(UserRole);
+  const SAFE_USER_ROLES = USER_ROLES || (UserRole ? Object.values(UserRole) : []) || [];
+  const SAFE_TRANSLATIONS = ROLE_DISPLAY_TRANSLATIONS || {};
 
   const roleOptions = useMemo(() => {
+    if (!SAFE_USER_ROLES.length) return [];
+
     if (roles.length) {
       const normalized = roles
         .map((role) => role.name)
@@ -122,11 +134,11 @@ export default function UserManagement() {
           value: role,
           label:
             roles.find((definition) => definition.name === role)?.displayName ??
-            ROLE_DISPLAY_TRANSLATIONS[role],
+            SAFE_TRANSLATIONS[role] ?? role,
         }));
       }
     }
-    return SAFE_USER_ROLES.map((role) => ({ value: role, label: ROLE_DISPLAY_TRANSLATIONS[role] }));
+    return SAFE_USER_ROLES.map((role) => ({ value: role, label: SAFE_TRANSLATIONS[role] ?? role }));
   }, [roles]);
 
   // Filter users based on status
@@ -306,7 +318,7 @@ export default function UserManagement() {
         <div className="flex flex-wrap gap-1">
           {user.roles.map((role) => (
             <Badge key={role} variant="secondary" className="bg-slate-50 text-slate-700 border-0 text-[10px] font-bold px-2.5 py-0.5 rounded-md">
-              {ROLE_DISPLAY_TRANSLATIONS[role] ?? role}
+              {(ROLE_DISPLAY_TRANSLATIONS && ROLE_DISPLAY_TRANSLATIONS[role]) ?? role}
             </Badge>
           ))}
         </div>
@@ -516,109 +528,184 @@ export default function UserManagement() {
       />
 
       {/* Create/Edit Dialog */}
-      <AdminDialog
+      {/* Create/Edit Sheet (Drawer) */}
+      <AdminSheet
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        title={dialogMode === "create" ? "إضافة مستخدم جديد" : "تعديل المستخدم"}
-        description={
-          dialogMode === "create"
-            ? "أدخل بيانات المستخدم الجديد"
-            : "تعديل بيانات المستخدم"
-        }
-        onConfirm={handleSubmit}
-        confirmLabel={dialogMode === "create" ? "إنشاء" : "حفظ"}
-        confirmDisabled={disableSubmit || isSubmitting}
-        confirmLoading={isSubmitting}
       >
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="firstName">الاسم الأول *</Label>
-              <Input
-                id="firstName"
-                value={formState.firstName}
-                onChange={(e) => setFormState({ ...formState, firstName: e.target.value })}
-              />
+        <AdminSheetContent side="start" className="w-[400px] sm:w-[540px] overflow-y-auto">
+          <AdminSheetHeader>
+            <AdminSheetTitle>{dialogMode === "create" ? "إضافة مستخدم جديد" : "تعديل المستخدم"}</AdminSheetTitle>
+            <AdminSheetDescription>
+              {dialogMode === "create" ? "أدخل بيانات المستخدم الجديد" : "تعديل بيانات المستخدم"}
+            </AdminSheetDescription>
+          </AdminSheetHeader>
+
+          <div className="space-y-8 py-6">
+
+            {/* Section: Personal Info */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-8 w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
+                <h3 className="text-lg font-bold text-slate-800">بيانات الهوية</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="text-xs font-bold text-slate-500 uppercase tracking-wider">الاسم الأول *</Label>
+                  <div className="relative group">
+                    <Users className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                    <Input
+                      id="firstName"
+                      value={formState.firstName}
+                      onChange={(e) => setFormState({ ...formState, firstName: e.target.value })}
+                      className="pr-10 bg-white/50 border-slate-200 focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
+                      placeholder="الاسم الأول"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="text-xs font-bold text-slate-500 uppercase tracking-wider">الاسم الأخير *</Label>
+                  <div className="relative group">
+                    <Users className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                    <Input
+                      id="lastName"
+                      value={formState.lastName}
+                      onChange={(e) => setFormState({ ...formState, lastName: e.target.value })}
+                      className="pr-10 bg-white/50 border-slate-200 focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
+                      placeholder="الاسم الأخير"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="lastName">الاسم الأخير *</Label>
-              <Input
-                id="lastName"
-                value={formState.lastName}
-                onChange={(e) => setFormState({ ...formState, lastName: e.target.value })}
-              />
+
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+
+            {/* Section: Contact & Access */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-8 w-1 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full" />
+                <h3 className="text-lg font-bold text-slate-800">معلومات الاتصال والدخول</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-xs font-bold text-slate-500 uppercase tracking-wider">البريد الإلكتروني *</Label>
+                  <div className="relative group">
+                    <Building2 className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formState.email}
+                      onChange={(e) => setFormState({ ...formState, email: e.target.value })}
+                      className="pr-10 bg-white/50 border-slate-200 focus:bg-white focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all h-11 rounded-xl shadow-sm text-right"
+                      placeholder="example@domain.com"
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-xs font-bold text-slate-500 uppercase tracking-wider">رقم الهاتف</Label>
+                  <div className="relative group">
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formState.phone}
+                      onChange={(e) => setFormState({ ...formState, phone: e.target.value })}
+                      className="bg-white/50 border-slate-200 focus:bg-white focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all h-11 rounded-xl shadow-sm text-right"
+                      placeholder="+966 50 000 0000"
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-xs font-bold text-slate-500 uppercase tracking-wider">اسم المستخدم *</Label>
+                  <div className="relative group">
+                    <Shield className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-purple-600 transition-colors" />
+                    <Input
+                      id="username"
+                      value={formState.username}
+                      onChange={(e) => setFormState({ ...formState, username: e.target.value })}
+                      className="pr-10 bg-white/50 border-slate-200 focus:bg-white focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10 transition-all h-11 rounded-xl shadow-sm"
+                      placeholder="username"
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="role" className="text-xs font-bold text-slate-500 uppercase tracking-wider">الدور *</Label>
+                  <Select value={formState.role} onValueChange={(value) => setFormState({ ...formState, role: value as UserRole })}>
+                    <SelectTrigger id="role" className="h-11 bg-white/50 border-slate-200 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-xl shadow-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                      {roleOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {dialogMode === "create" && (
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-xs font-bold text-slate-500 uppercase tracking-wider">كلمة المرور *</Label>
+                  <div className="relative group">
+                    <Shield className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-red-500 transition-colors" />
+                    <Input
+                      id="password"
+                      type="password"
+                      value={formState.password}
+                      onChange={(e) => setFormState({ ...formState, password: e.target.value })}
+                      className="pr-10 bg-white/50 border-slate-200 focus:bg-white focus:border-red-500/50 focus:ring-4 focus:ring-red-500/10 transition-all h-11 rounded-xl shadow-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {dialogMode === "edit" && (
+                <div className="flex items-center justify-between p-4 bg-slate-50/50 rounded-xl border border-slate-100">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="isActive" className="text-base font-bold text-slate-700">حالة الحساب</Label>
+                    <p className="text-xs text-slate-500">تفعيل أو تعطيل دخول المستخدم للنظام</p>
+                  </div>
+                  <Switch
+                    id="isActive"
+                    checked={formState.isActive}
+                    onCheckedChange={(checked) => setFormState({ ...formState, isActive: checked })}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="email">البريد الإلكتروني *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formState.email}
-              onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="username">اسم المستخدم *</Label>
-            <Input
-              id="username"
-              value={formState.username}
-              onChange={(e) => setFormState({ ...formState, username: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="phone">رقم الهاتف</Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={formState.phone}
-              onChange={(e) => setFormState({ ...formState, phone: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="role">الدور *</Label>
-            <Select value={formState.role} onValueChange={(value) => setFormState({ ...formState, role: value as UserRole })}>
-              <SelectTrigger id="role">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {roleOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {dialogMode === "create" && (
-            <div>
-              <Label htmlFor="password">كلمة المرور *</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formState.password}
-                onChange={(e) => setFormState({ ...formState, password: e.target.value })}
-              />
-            </div>
-          )}
-
-          {dialogMode === "edit" && (
-            <div className="flex items-center justify-between">
-              <Label htmlFor="isActive">المستخدم نشط</Label>
-              <Switch
-                id="isActive"
-                checked={formState.isActive}
-                onCheckedChange={(checked) => setFormState({ ...formState, isActive: checked })}
-              />
-            </div>
-          )}
-        </div>
-      </AdminDialog>
+          <AdminSheetFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              disabled={isSubmitting}
+            >
+              إلغاء
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={disableSubmit || isSubmitting}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isSubmitting && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+              {dialogMode === "create" ? "إنشاء" : "حفظ"}
+            </Button>
+          </AdminSheetFooter>
+        </AdminSheetContent>
+      </AdminSheet>
 
       <AdminDialog
         open={isDeleteDialogOpen}

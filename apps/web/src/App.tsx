@@ -34,7 +34,7 @@ import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useState, useEffect, lazy, Suspense, type ComponentType, type LazyExoticComponent, type ReactNode } from "react";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
@@ -92,6 +92,8 @@ const CustomerRequestsPage = lazy(() => import("@/pages/platform/requests/custom
 const AdminRequestsPage = lazy(() => import("@/pages/admin/requests"));
 const ActivitiesPage = lazy(() => import("@/pages/platform/activities"));
 const CalendarPage = lazy(() => import("@/pages/platform/calendar"));
+const PoolPage = lazy(() => import("@/pages/platform/pool"));
+const ForumPage = lazy(() => import("@/pages/platform/forum"));
 
 // Admin Pages
 const UserManagementPage = lazy(() => import("@/pages/admin/user-management"));
@@ -347,6 +349,8 @@ function Router() {
         options: { title: 'إعلانات غير موثقة', searchPlaceholder: 'ابحث في الإعلانات غير الموثقة' },
         allowedRoles: PLATFORM_CORE_ROLES
       },
+      { path: '/home/platform/pool', component: withSuspense(PoolPage), aliases: ['/pool'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/forum', component: withSuspense(ForumPage), aliases: ['/forum'], allowedRoles: PLATFORM_CORE_ROLES },
     ];
 
   const platformDynamicRoutes: Array<{

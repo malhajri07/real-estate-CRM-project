@@ -1,3 +1,5 @@
+SET search_path = public;
+
 -- Create property_category dimension table
 -- This is a lookup/reference table for property categories
 

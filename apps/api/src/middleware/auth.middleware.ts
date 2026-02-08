@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
 import { prisma } from '../../prismaClient';
 import { parseStoredRoles, normalizeRoleKeys } from '@shared/rbac';
+import { getErrorResponse } from '../../i18n';
 
 export interface AuthenticatedUser {
     id: string;
@@ -29,11 +30,12 @@ declare global {
 export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
+    const locale = (req as any).locale || 'ar'; // locale middleware should run before this
 
-    if (!token) return res.status(401).json({ message: 'Access token required' });
+    if (!token) return res.status(401).json(getErrorResponse('ACCESS_TOKEN_REQUIRED', locale));
 
     const payload = AuthService.verifyToken(token);
-    if (!payload) return res.status(403).json({ message: 'Invalid or expired token' });
+    if (!payload) return res.status(403).json(getErrorResponse('INVALID_TOKEN', locale));
 
     try {
         const user = await prisma.users.findUnique({
@@ -44,7 +46,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
             }
         });
 
-        if (!user || !user.isActive) return res.status(403).json({ message: 'User inactive' });
+        if (!user || !user.isActive) return res.status(403).json(getErrorResponse('USER_INACTIVE', locale));
 
         const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
 
@@ -65,6 +67,6 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
         next();
     } catch (e) {
         console.error('Auth Middleware Error', e);
-        res.status(500).json({ message: 'Authentication failed' });
+        res.status(500).json(getErrorResponse('AUTH_FAILED', (req as any).locale || 'ar'));
     }
 };

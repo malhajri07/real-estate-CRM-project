@@ -1,127 +1,109 @@
 import express from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";
-import jwt from 'jsonwebtoken';
+import { authenticateToken } from "../src/middleware/auth.middleware";
 import { hasPermission, getVisibilityScope } from '../rbac-policy';
-import { JWT_SECRET as getJwtSecret } from "../config/env";
+import { getErrorResponse } from '../i18n';
+import { leadSchemas } from "../src/validators/leads.schema";
 
 const router = express.Router();
 
-const insertLeadSchema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  email: z.union([z.string().email(), z.literal("")]).optional().transform((value) => (value ? value : undefined)),
-  phone: z.string().min(1).optional(),
-  status: z.string().optional(),
-  leadSource: z.string().optional(),
-  interestType: z.string().optional(),
-  city: z.string().optional(),
-  budgetRange: z.union([z.string(), z.number()]).optional(),
-  notes: z.string().optional(),
-}).passthrough();
-
 // Helper: decode roles/org from Authorization header (simple-auth JWT)
-function decodeAuth(req: any): { id?: string; roles: string[]; organizationId?: string } {
-  try {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) return { roles: [] };
-    const decoded: any = jwt.verify(token, getJwtSecret());
-    let roles: string[] = [];
-    try { roles = JSON.parse(decoded.roles || '[]'); } catch { if (decoded.roles) roles = [decoded.roles]; }
-    return { id: decoded.userId, roles, organizationId: decoded.organizationId };
-  } catch { return { roles: [] }; }
-}
+// REPLACED by authenticateToken middleware in routes, but kept here if needed for legacy specific logic
+// or we migrate routes to use req.user
+
 
 const requireAnyPerm = (perms: string[]) => (req: any, res: any, next: any) => {
-  const auth = decodeAuth(req);
-  if (perms.some(p => hasPermission(auth.roles, p as any))) return next();
-  return res.status(403).json({ message: 'Forbidden' });
+  // Assuming authenticateToken is run before this
+  const user = req.user;
+  if (!user) return res.status(401).json(getErrorResponse('UNAUTHORIZED', req.locale));
+
+  if (perms.some(p => hasPermission(user.roles, p as any))) return next();
+  return res.status(403).json(getErrorResponse('FORBIDDEN', req.locale));
 };
 
-router.get("/", async (req, res) => {
+router.get("/", authenticateToken, async (req, res) => {
   try {
-    const auth = decodeAuth(req);
+    const user = (req as any).user;
     const leads = await storage.getAllLeads();
-    const scope = getVisibilityScope(auth.roles);
+    const scope = getVisibilityScope(user.roles);
     let filtered = leads;
     if (scope === 'corporate') {
-      filtered = leads.filter((l: any) => l.agent?.organizationId && l.agent.organizationId === auth.organizationId);
+      filtered = leads.filter((l: any) => l.agent?.organizationId && l.agent.organizationId === user.organizationId);
     } else if (scope === 'self') {
-      filtered = leads.filter((l: any) => l.agentId === auth.id);
+      filtered = leads.filter((l: any) => l.agentId === user.id);
     }
     res.json(filtered);
   } catch (error) {
     console.error("Error fetching leads:", error);
-    res.status(500).json({ message: "Failed to fetch leads" });
+    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
   }
 });
 
-router.get("/search", async (req, res) => {
+router.get("/search", authenticateToken, async (req, res) => {
   try {
     const query = req.query.q as string;
     if (!query) {
-      return res.status(400).json({ message: "Search query is required" });
+      return res.status(400).json(getErrorResponse('MISSING_FIELDS', (req as any).locale));
     }
     const leads = await storage.searchLeads(query);
     res.json(leads);
   } catch (error) {
-    res.status(500).json({ message: "Failed to search leads" });
+    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const lead = await storage.getLead(req.params.id);
     if (!lead) {
-      return res.status(404).json({ message: "Lead not found" });
+      return res.status(404).json(getErrorResponse('LEAD_NOT_FOUND', (req as any).locale));
     }
     res.json(lead);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch lead" });
+    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
   }
 });
 
-router.post("/", requireAnyPerm(['requests:manage:all', 'requests:manage:corporate', 'requests:pool:pickup']), async (req, res) => {
+router.post("/", authenticateToken, requireAnyPerm(['requests:manage:all', 'requests:manage:corporate', 'requests:pool:pickup']), async (req, res) => {
   try {
-    const validatedData = insertLeadSchema.parse(req.body);
-    const auth = decodeAuth(req);
-    if (!auth.id) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
+    const validatedData = leadSchemas.create.parse(req.body);
+    const user = (req as any).user;
+
     // const tenantId = auth.organizationId ?? "default-tenant"; // unused
-    const lead = await storage.createLead(validatedData);
+    const lead = await storage.createLead(validatedData, user.id);
     res.status(201).json(lead);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      return res.status(400).json(getErrorResponse('VALIDATION_ERROR', (req as any).locale, error.errors));
     }
     const message = error instanceof Error ? error.message : "Failed to create lead";
-    res.status(500).json({ message });
+    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale, { originalError: message }));
   }
 });
 
-router.put("/:id", requireAnyPerm(['requests:manage:all', 'requests:manage:corporate', 'requests:pool:pickup']), async (req, res) => {
+router.put("/:id", authenticateToken, requireAnyPerm(['requests:manage:all', 'requests:manage:corporate', 'requests:pool:pickup']), async (req, res) => {
   try {
-    const validatedData = insertLeadSchema.partial().parse(req.body);
+    const validatedData = leadSchemas.update.parse(req.body);
     const lead = await storage.updateLead(req.params.id, validatedData);
     if (!lead) {
-      return res.status(404).json({ message: "Lead not found" });
+      return res.status(404).json(getErrorResponse('LEAD_NOT_FOUND', (req as any).locale));
     }
     res.json(lead);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      return res.status(400).json(getErrorResponse('VALIDATION_ERROR', (req as any).locale, error.errors));
     }
-    res.status(500).json({ message: "Failed to update lead" });
+    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
   }
 });
 
-router.delete("/:id", requireAnyPerm(['requests:manage:all', 'requests:manage:corporate', 'requests:pool:pickup']), async (req, res) => {
+router.delete("/:id", authenticateToken, requireAnyPerm(['requests:manage:all', 'requests:manage:corporate', 'requests:pool:pickup']), async (req, res) => {
   try {
     await storage.deleteLead(req.params.id);
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({ message: "Failed to delete lead" });
+    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
   }
 });
 

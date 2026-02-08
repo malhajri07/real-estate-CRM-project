@@ -98,12 +98,25 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         id: "customers-core",
         labelKey: "sidebar.customers.core",
         children: [
+          // [REMOVED] Customers Listing as per requirement
+          // {
+          //   id: "customers-registry",
           {
-            id: "customers-registry",
-            labelKey: "nav.customers",
-            path: "/home/platform/customers",
+            id: "customers-pool",
+            labelKey: "nav.pool",
+            label: "طلبات العملاء (Pool)",
+            path: "/home/platform/pool",
+            icon: Inbox,
+            matchPaths: ["/pool"],
+            allowedRoles: PLATFORM_CORE_ROLES,
+          },
+          {
+            id: "customers-forum",
+            labelKey: "nav.forum",
+            label: "المنتدى العقاري",
+            path: "/home/platform/forum",
             icon: Users,
-            matchPaths: ["/customers"],
+            matchPaths: ["/forum"],
             allowedRoles: PLATFORM_CORE_ROLES,
           },
           {
@@ -123,6 +136,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
             matchPaths: ["/leads"],
             allowedRoles: PLATFORM_CORE_ROLES,
           },
+
           {
             id: "customers-pipeline",
             labelKey: "nav.pipeline",
@@ -151,14 +165,6 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
             path: "/home/platform/reports",
             icon: BarChart3,
             matchPaths: ["/reports"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-          {
-            id: "customers-notifications",
-            labelKey: "nav.notifications",
-            path: "/home/platform/notifications",
-            icon: Bell,
-            matchPaths: ["/notifications"],
             allowedRoles: PLATFORM_CORE_ROLES,
           },
           {
@@ -315,7 +321,8 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
               "/home/platform/unverified-listings"
             ],
             allowedRoles: PLATFORM_CORE_ROLES,
-          }
+          },
+
         ]
       }
     ]

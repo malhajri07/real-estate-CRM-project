@@ -47,6 +47,7 @@ const AdminSheetContent = React.forwardRef<
                 // Ensure close button uses logical positioning override
                 // Standard shadcn generic sheet might hardcode right-4.
                 "[&>button]:right-auto [&>button]:end-4",
+                "bg-white/85 backdrop-blur-2xl border-l border-white/20 shadow-2xl ring-1 ring-white/40", // Aurora Deluxe Drawer
                 className
             )}
             {...props}
@@ -56,17 +57,6 @@ const AdminSheetContent = React.forwardRef<
     );
 });
 AdminSheetContent.displayName = "AdminSheetContent";
-
-export {
-    AdminSheet,
-    AdminSheetTrigger,
-    AdminSheetClose,
-    AdminSheetContent,
-    AdminSheetHeader,
-    AdminSheetFooter,
-    AdminSheetTitle,
-    AdminSheetDescription,
-};
 
 const AdminSheetHeader = ({
     className,
@@ -85,15 +75,7 @@ const AdminSheetFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
     <SheetFooter
         className={cn(
-            "sm:justify-start", // Often users want actions at the start or end, adjust as needed. 
-            // Standard shadcn footer is 'sm:justify-end'. 
-            // In RTL, justify-end puts it on the Left.
-            // Usually we want Form actions on the Left (End) in RTL too?
-            // Actually, 'justify-end' respects flex direction.
-            // RTL flex-direction is row-reverse? No, usually just row, but Start is Right.
-            // So 'justify-end' in RTL (row) puts items on the Left. Correct.
-            // So we might not need to override this unless we want them on the Right (Start).
-            // Let's keep specific overrides minimal unless we see a bug.
+            "sm:justify-start",
             className
         )}
         {...props}
@@ -103,3 +85,14 @@ AdminSheetFooter.displayName = "AdminSheetFooter";
 
 const AdminSheetTitle = SheetTitle;
 const AdminSheetDescription = SheetDescription;
+
+export {
+    AdminSheet,
+    AdminSheetTrigger,
+    AdminSheetClose,
+    AdminSheetContent,
+    AdminSheetHeader,
+    AdminSheetFooter,
+    AdminSheetTitle,
+    AdminSheetDescription,
+};

@@ -23,7 +23,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AdminSheet,
+  AdminSheetContent,
+  AdminSheetHeader,
+  AdminSheetTitle,
+  AdminSheetDescription,
+} from "@/components/admin";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -315,59 +321,61 @@ export default function UnverifiedListingsManagement() {
         )}
       </div>
 
-      {/* Detail Dialog */}
-      <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">{selectedListing?.title}</DialogTitle>
-            <DialogDescription>
+      {/* Detail Drawer */}
+      <AdminSheet open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
+        <AdminSheetContent side="start" className="w-full sm:max-w-3xl overflow-y-auto">
+          <AdminSheetHeader>
+            <AdminSheetTitle className="text-2xl font-bold">{selectedListing?.title}</AdminSheetTitle>
+            <AdminSheetDescription>
               <span className="font-mono text-sm text-gray-500">{selectedListing?.propertyId}</span>
-            </DialogDescription>
-          </DialogHeader>
+            </AdminSheetDescription>
+          </AdminSheetHeader>
 
           {selectedListing && (
-            <div className="space-y-6">
+            <div className="space-y-8 py-6">
               {/* Images */}
               {selectedListing.imageGallery && selectedListing.imageGallery.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">الصور</h3>
-                  <PhotoCarousel
-                    photos={selectedListing.imageGallery ?? []}
-                    alt={selectedListing.title ?? "صور الإعلان"}
-                    autoHeight
-                  />
+                  <h3 className="text-lg font-semibold mb-4 text-gray-900 border-b pb-2">الصور</h3>
+                  <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                    <PhotoCarousel
+                      photos={selectedListing.imageGallery ?? []}
+                      alt={selectedListing.title ?? "صور الإعلان"}
+                      autoHeight
+                    />
+                  </div>
                 </div>
               )}
 
               {/* Basic Info */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">نوع العقار</label>
-                  <p className="text-base">{selectedListing.propertyType}</p>
+                  <label className="text-sm font-medium text-gray-500 block mb-1">نوع العقار</label>
+                  <p className="text-base font-semibold text-gray-900">{selectedListing.propertyType}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">نوع العرض</label>
-                  <p className="text-base">{selectedListing.listingType}</p>
+                  <label className="text-sm font-medium text-gray-500 block mb-1">نوع العرض</label>
+                  <Badge variant="outline" className="text-base font-normal">{selectedListing.listingType}</Badge>
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">السعر</label>
-                  <p className="text-base font-semibold">{formatPrice(selectedListing.price, selectedListing.currency)}</p>
+                <div className="col-span-2 sm:col-span-1">
+                  <label className="text-sm font-medium text-gray-500 block mb-1">السعر</label>
+                  <p className="text-xl font-bold text-emerald-600">{formatPrice(selectedListing.price, selectedListing.currency)}</p>
                 </div>
                 {selectedListing.paymentFrequency && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">تكرار الدفع</label>
-                    <p className="text-base">{selectedListing.paymentFrequency}</p>
+                    <label className="text-sm font-medium text-gray-500 block mb-1">تكرار الدفع</label>
+                    <p className="text-base font-medium text-gray-900">{selectedListing.paymentFrequency}</p>
                   </div>
                 )}
               </div>
 
               {/* Location */}
               <div>
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
+                <h3 className="text-lg font-semibold mb-4 text-gray-900 flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-blue-500" />
                   الموقع
                 </h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-slate-100">
                   {selectedListing.region && (
                     <div>
                       <label className="text-sm font-medium text-gray-500">المنطقة</label>
@@ -397,89 +405,97 @@ export default function UnverifiedListingsManagement() {
 
               {/* Specifications */}
               <div>
-                <h3 className="text-lg font-semibold mb-3">المواصفات</h3>
-                <div className="grid grid-cols-3 gap-4">
+                <h3 className="text-lg font-semibold mb-4 text-gray-900">المواصفات</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {selectedListing.bedrooms !== null && selectedListing.bedrooms !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <Bed className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm">{selectedListing.bedrooms} غرف</span>
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <Bed className="h-5 w-5 text-gray-400" />
+                      <span className="text-sm font-medium">{selectedListing.bedrooms} غرف</span>
                     </div>
                   )}
                   {selectedListing.bathrooms !== null && selectedListing.bathrooms !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <Bath className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm">{selectedListing.bathrooms} حمامات</span>
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <Bath className="h-5 w-5 text-gray-400" />
+                      <span className="text-sm font-medium">{selectedListing.bathrooms} حمامات</span>
                     </div>
                   )}
                   {selectedListing.areaSqm !== null && selectedListing.areaSqm !== undefined && (
-                    <div className="flex items-center gap-2">
-                      <Square className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm">{selectedListing.areaSqm} م²</span>
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <Square className="h-5 w-5 text-gray-400" />
+                      <span className="text-sm font-medium">{selectedListing.areaSqm} م²</span>
                     </div>
                   )}
                   {selectedListing.livingRooms !== null && selectedListing.livingRooms !== undefined && (
-                    <div className="text-sm">صالات المعيشة: {selectedListing.livingRooms}</div>
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <span className="text-sm font-medium">صالات المعيشة: {selectedListing.livingRooms}</span>
+                    </div>
                   )}
                   {selectedListing.kitchens !== null && selectedListing.kitchens !== undefined && (
-                    <div className="text-sm">مطابخ: {selectedListing.kitchens}</div>
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <span className="text-sm font-medium">مطابخ: {selectedListing.kitchens}</span>
+                    </div>
                   )}
                   {selectedListing.buildingYear && (
-                    <div className="text-sm">سنة البناء: {selectedListing.buildingYear}</div>
+                    <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                      <span className="text-sm font-medium">سنة البناء: {selectedListing.buildingYear}</span>
+                    </div>
                   )}
                 </div>
               </div>
 
               {/* Amenities */}
               <div>
-                <h3 className="text-lg font-semibold mb-3">المرافق</h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-900">المرافق</h3>
                 <div className="flex flex-wrap gap-2">
-                  {selectedListing.hasParking && <Badge variant="secondary">موقف سيارة</Badge>}
-                  {selectedListing.hasElevator && <Badge variant="secondary">مصعد</Badge>}
-                  {selectedListing.hasMaidsRoom && <Badge variant="secondary">غرفة خادمة</Badge>}
-                  {selectedListing.hasDriverRoom && <Badge variant="secondary">غرفة سائق</Badge>}
-                  {selectedListing.furnished && <Badge variant="secondary">مفروش</Badge>}
-                  {selectedListing.balcony && <Badge variant="secondary">شرفة</Badge>}
-                  {selectedListing.swimmingPool && <Badge variant="secondary">مسبح</Badge>}
-                  {selectedListing.centralAc && <Badge variant="secondary">تكييف مركزي</Badge>}
+                  {selectedListing.hasParking && <Badge variant="secondary" className="px-3 py-1 text-sm bg-blue-50 text-blue-700 hover:bg-blue-100">موقف سيارة</Badge>}
+                  {selectedListing.hasElevator && <Badge variant="secondary" className="px-3 py-1 text-sm bg-blue-50 text-blue-700 hover:bg-blue-100">مصعد</Badge>}
+                  {selectedListing.hasMaidsRoom && <Badge variant="secondary" className="px-3 py-1 text-sm bg-blue-50 text-blue-700 hover:bg-blue-100">غرفة خادمة</Badge>}
+                  {selectedListing.hasDriverRoom && <Badge variant="secondary" className="px-3 py-1 text-sm bg-blue-50 text-blue-700 hover:bg-blue-100">غرفة سائق</Badge>}
+                  {selectedListing.furnished && <Badge variant="secondary" className="px-3 py-1 text-sm bg-purple-50 text-purple-700 hover:bg-purple-100">مفروش</Badge>}
+                  {selectedListing.balcony && <Badge variant="secondary" className="px-3 py-1 text-sm bg-green-50 text-green-700 hover:bg-green-100">شرفة</Badge>}
+                  {selectedListing.swimmingPool && <Badge variant="secondary" className="px-3 py-1 text-sm bg-cyan-50 text-cyan-700 hover:bg-cyan-100">مسبح</Badge>}
+                  {selectedListing.centralAc && <Badge variant="secondary" className="px-3 py-1 text-sm bg-orange-50 text-orange-700 hover:bg-orange-100">تكييف مركزي</Badge>}
                 </div>
               </div>
 
               {/* Description */}
               {selectedListing.description && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">الوصف</h3>
-                  <p className="text-base text-gray-700 whitespace-pre-wrap">{selectedListing.description}</p>
+                  <h3 className="text-lg font-semibold mb-4 text-gray-900">الوصف</h3>
+                  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-base leading-relaxed text-gray-700 whitespace-pre-wrap">
+                    {selectedListing.description}
+                  </div>
                 </div>
               )}
 
               {/* Contact Info */}
               <div>
-                <h3 className="text-lg font-semibold mb-3">معلومات التواصل</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <h3 className="text-lg font-semibold mb-4 text-gray-900">معلومات التواصل</h3>
+                <div className="grid grid-cols-2 gap-6 bg-slate-900 text-white p-6 rounded-2xl shadow-lg">
                   {selectedListing.contactName && (
                     <div>
-                      <label className="text-sm font-medium text-gray-500">الاسم</label>
-                      <p className="text-base">{selectedListing.contactName}</p>
+                      <label className="text-sm font-medium text-slate-400 mb-1 block">الاسم</label>
+                      <p className="text-lg font-semibold">{selectedListing.contactName}</p>
                     </div>
                   )}
                   <div>
-                    <label className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                    <label className="text-sm font-medium text-slate-400 mb-1 flex items-center gap-2">
                       <Phone className="h-4 w-4" />
                       رقم الجوال
                     </label>
-                    <p className="text-base">{selectedListing.mobileNumber}</p>
+                    <p className="text-lg font-semibold font-mono dir-ltr text-right">{selectedListing.mobileNumber}</p>
                   </div>
                 </div>
               </div>
 
               {/* Actions */}
               {selectedListing.status === "Pending" && (
-                <div className="flex items-center justify-end gap-3 pt-4 border-t">
+                <div className="sticky bottom-0 bg-white/95 backdrop-blur-sm border-t p-6 mt-6 -mx-6 mb-[-1.5rem] flex items-center justify-end gap-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                   <Button
                     variant="outline"
                     onClick={() => handleReject(selectedListing)}
                     disabled={rejectMutation.isPending}
-                    className="text-red-600 border-red-300 hover:bg-red-50"
+                    className="h-11 px-6 rounded-xl text-red-600 border-red-200 hover:bg-red-50"
                   >
                     {rejectMutation.isPending ? (
                       <>
@@ -496,7 +512,7 @@ export default function UnverifiedListingsManagement() {
                   <Button
                     onClick={() => handleAccept(selectedListing)}
                     disabled={acceptMutation.isPending}
-                    className={BUTTON_PRIMARY_CLASSES}
+                    className="h-11 px-8 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20"
                   >
                     {acceptMutation.isPending ? (
                       <>
@@ -514,8 +530,8 @@ export default function UnverifiedListingsManagement() {
               )}
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </AdminSheetContent>
+      </AdminSheet>
     </div>
   );
 }

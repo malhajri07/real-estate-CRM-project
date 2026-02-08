@@ -81,6 +81,8 @@ type LegacyPrismaClient = PrismaClient & {
   permissions: PrismaClient['permissions'];
   role_permissions: PrismaClient['role_permissions'];
   support_tickets: PrismaClient['support_tickets'];
+  communityPost: PrismaClient['community_posts'];
+  communityComment: PrismaClient['community_comments'];
 };
 
 const prisma = basePrisma as LegacyPrismaClient;
@@ -108,6 +110,10 @@ alias('listing', () => basePrisma.listings);
 alias('propertiesSeeker', () => basePrisma.properties_seeker);
 alias('marketingRequest', () => createStubDelegate('marketingRequest'));
 alias('marketingProposal', () => createStubDelegate('marketingProposal'));
+// @ts-ignore
+alias('communityPost', () => basePrisma.community_posts);
+// @ts-ignore
+alias('communityComment', () => basePrisma.community_comments);
 // New aliases for RBAC and Billing are not needed as they match the base prisma client names
 // and aliasing them to themselves causes infinite recursion since prisma === basePrisma
 

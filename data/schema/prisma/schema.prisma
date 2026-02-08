@@ -732,11 +732,13 @@ model support_tickets {
   status           SupportTicketStatus   @default(OPEN)
   priority         SupportTicketPriority @default(MEDIUM)
   channel          InquiryChannel?       @default(WEBSITE)
+  categoryId       String?
   openedAt         DateTime              @default(now())
   closedAt         DateTime?
   updatedAt        DateTime              @updatedAt
   organization     organizations         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   customer         customers?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  category         support_categories?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   createdBy        users?                @relation("SupportTicketsCreated", fields: [createdByUserId], references: [id], onDelete: SetNull)
   assignedTo       users?                @relation("SupportTicketsAssigned", fields: [assignedToUserId], references: [id], onDelete: SetNull)
 
@@ -745,6 +747,34 @@ model support_tickets {
   @@index([assignedToUserId])
   @@index([status])
   @@index([priority])
+  @@index([categoryId])
+}
+
+model support_categories {
+  id              String            @id @default(uuid())
+  name            String
+  description     String?
+  slug            String            @unique
+  displayOrder    Int               @default(0)
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  tickets         support_tickets[]
+
+  @@index([slug])
+  @@index([isActive])
+}
+
+model support_templates {
+  id              String            @id @default(uuid())
+  title           String
+  content         String            @db.Text
+  usageCount      Int               @default(0)
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([title])
 }
 
 model users {
@@ -789,6 +819,8 @@ model users {
   inquiries                inquiries[]
   appointments             appointments[]
   deals                    deals[]
+  community_posts          community_posts[]
+  community_comments       community_comments[]
 
   @@index([approvalStatus])
   @@index([email])
@@ -803,11 +835,13 @@ enum AgentStatus {
   PENDING_VERIFICATION
 }
 
+
 enum BuyerRequestStatus {
   OPEN
   CLAIMED
   CLOSED
   PAUSED
+  ARCHIVED
 }
 
 enum ClaimStatus {
@@ -1811,4 +1845,52 @@ model daily_system_stats {
   createdAt       DateTime @default(now())
 
   @@index([date])
+}
+
+model community_posts {
+  id        String   @id @default(uuid())
+  authorId  String
+  content   String   @db.Text
+  tags      Json?    // Array of strings e.g. ["Riyadh", "Villa"]
+  likes     Int      @default(0)
+  isPinned  Boolean  @default(false)
+  type      String   @default("DISCUSSION") // DISCUSSION, DEAL, ALERT
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    users    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments  community_comments[]
+
+  @@index([authorId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model community_comments {
+  id        String   @id @default(uuid())
+  postId    String
+  authorId  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post      community_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    users           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model agent_memory {
+  id             String   @id @default(uuid())
+  agentId        String
+  conversationId String?
+  type           String
+  status         String
+  summary        String   @db.Text
+  details        Json?
+  tags           String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([type])
+  @@index([createdAt])
 }

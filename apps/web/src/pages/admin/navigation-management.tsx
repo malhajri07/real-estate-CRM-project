@@ -39,12 +39,13 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  AdminSheet,
+  AdminSheetContent,
+  AdminSheetHeader,
+  AdminSheetTitle,
+  AdminSheetDescription,
+  AdminSheetFooter,
+} from "@/components/admin";
 import {
   Select,
   SelectContent,
@@ -189,7 +190,7 @@ export default function NavigationManagement() {
           <p className="text-gray-600">تخصيص القائمة العلوية وروابط الموقع</p>
         </div>
         <Button onClick={handleCreate}>
-          <Plus className="ml-2 h-4 w-4" />
+          <Plus className="me-2 h-4 w-4" />
           إضافة رابط جديد
         </Button>
       </div>
@@ -366,82 +367,90 @@ function NavigationLinkDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>
+    <AdminSheet open={open} onOpenChange={onOpenChange}>
+      <AdminSheetContent side="start">
+        <AdminSheetHeader>
+          <AdminSheetTitle>
             {link ? "تعديل رابط التنقل" : "إضافة رابط تنقل جديد"}
-          </DialogTitle>
-          <DialogDescription>
+          </AdminSheetTitle>
+          <AdminSheetDescription>
             {link
               ? "قم بتعديل معلومات رابط التنقل"
               : "أضف رابطاً جديداً إلى قائمة التنقل العلوية"}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="label">النص</Label>
-            <Input
-              id="label"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              placeholder="مثال: المدونة"
-              required
-            />
+          </AdminSheetDescription>
+        </AdminSheetHeader>
+        <form onSubmit={handleSubmit} className="space-y-6 py-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="label">النص</Label>
+              <Input
+                id="label"
+                value={label}
+                onChange={(e) => setLabel(e.target.value)}
+                placeholder="مثال: المدونة"
+                required
+                className="bg-white/50 border-slate-200 focus:bg-white transition-all h-11"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="href">الرابط</Label>
+              <Input
+                id="href"
+                value={href}
+                onChange={(e) => setHref(e.target.value)}
+                placeholder="مثال: /blog أو https://example.com"
+                required
+                dir="ltr"
+                className="text-left bg-white/50 border-slate-200 focus:bg-white transition-all h-11 font-mono text-sm"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="target">الهدف</Label>
+              <Select value={target} onValueChange={(v: "_self" | "_blank") => setTarget(v)}>
+                <SelectTrigger className="h-11 bg-white/50 border-slate-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_self">نفس الصفحة</SelectItem>
+                  <SelectItem value="_blank">نافذة جديدة</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="icon">الأيقونة (اختياري)</Label>
+              <Input
+                id="icon"
+                value={icon}
+                onChange={(e) => setIcon(e.target.value)}
+                placeholder="اسم أيقونة Lucide (مثال: BookOpen)"
+                className="bg-white/50 border-slate-200 focus:bg-white transition-all h-11"
+              />
+            </div>
+            <div className="flex items-center gap-2 p-4 rounded-xl border border-slate-100 bg-slate-50/50">
+              <Switch
+                id="visible"
+                checked={visible}
+                onCheckedChange={setVisible}
+              />
+              <Label htmlFor="visible" className="cursor-pointer">مرئي في القائمة</Label>
+            </div>
           </div>
-          <div>
-            <Label htmlFor="href">الرابط</Label>
-            <Input
-              id="href"
-              value={href}
-              onChange={(e) => setHref(e.target.value)}
-              placeholder="مثال: /blog أو https://example.com"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="target">الهدف</Label>
-            <Select value={target} onValueChange={(v: "_self" | "_blank") => setTarget(v)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="_self">نفس الصفحة</SelectItem>
-                <SelectItem value="_blank">نافذة جديدة</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="icon">الأيقونة (اختياري)</Label>
-            <Input
-              id="icon"
-              value={icon}
-              onChange={(e) => setIcon(e.target.value)}
-              placeholder="اسم أيقونة Lucide (مثال: BookOpen)"
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch
-              id="visible"
-              checked={visible}
-              onCheckedChange={setVisible}
-            />
-            <Label htmlFor="visible">مرئي في القائمة</Label>
-          </div>
-          <div className="flex justify-end gap-2">
+
+          <AdminSheetFooter>
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="mt-2 sm:mt-0"
             >
               إلغاء
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
               {isLoading ? "جاري الحفظ..." : link ? "تحديث" : "إنشاء"}
             </Button>
-          </div>
+          </AdminSheetFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </AdminSheetContent>
+    </AdminSheet>
   );
 }

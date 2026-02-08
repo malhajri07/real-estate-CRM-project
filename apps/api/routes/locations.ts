@@ -33,7 +33,9 @@ function asCenter(latitude: number | null, longitude: number | null) {
 router.get("/regions", async (req, res) => {
   try {
     const includeBoundary = req.query.includeBoundary === "true";
-    const regions = await storage.getAllSaudiRegions();
+    const regions = includeBoundary
+      ? await storage.getAllSaudiRegions()
+      : await storage.getSaudiRegionsBasic();
 
     const payload = regions.map((region) => ({
       id: region.id,
@@ -184,6 +186,27 @@ router.post("/saudi-cities/seed", async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: "Failed to seed Saudi cities" });
+  }
+});
+
+// Seed default data
+router.post("/seed-defaults", async (req, res) => {
+  try {
+    // Dynamic import to avoid loading data if not needed
+    const { SAUDI_REGIONS, SAUDI_CITIES } = await import("../data/saudi-locations");
+
+    console.log("Seeding default regions and cities...");
+    await storage.seedSaudiRegions(SAUDI_REGIONS);
+    await storage.seedSaudiCities(SAUDI_CITIES);
+
+    res.json({
+      message: "Default Saudi regions and cities seeded successfully",
+      regionsCount: SAUDI_REGIONS.length,
+      citiesCount: SAUDI_CITIES.length
+    });
+  } catch (error) {
+    console.error("Failed to seed default locations:", error);
+    res.status(500).json({ message: "Failed to seed default locations" });
   }
 });
 

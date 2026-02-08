@@ -38,12 +38,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  AdminSheet,
+  AdminSheetContent,
+  AdminSheetHeader,
+  AdminSheetTitle,
+  AdminSheetDescription,
+  AdminSheetFooter,
+} from "@/components/admin";
 import { Plus, Edit, Trash2, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
@@ -329,84 +330,105 @@ function TemplateDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
+    <AdminSheet open={open} onOpenChange={onOpenChange}>
+      <AdminSheetContent side="start" className="w-full sm:max-w-2xl overflow-y-auto">
+        <AdminSheetHeader>
+          <AdminSheetTitle>
             {template ? "تعديل القالب" : "إنشاء قالب جديد"}
-          </DialogTitle>
-          <DialogDescription>
+          </AdminSheetTitle>
+          <AdminSheetDescription>
             {template
               ? "قم بتعديل معلومات القالب"
               : "املأ المعلومات لإنشاء قالب جديد"}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">الاسم</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
+          </AdminSheetDescription>
+        </AdminSheetHeader>
+        <form onSubmit={handleSubmit} className="space-y-6 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">الاسم</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="bg-white/50 border-slate-200 focus:bg-white transition-all h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="slug">الرابط (Slug)</Label>
+                <Input
+                  id="slug"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  placeholder="سيتم إنشاؤه تلقائياً من الاسم"
+                  className="bg-white/50 border-slate-200 focus:bg-white transition-all h-11 font-mono text-sm"
+                  dir="ltr"
+                />
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="type">النوع</Label>
+                <Select value={type} onValueChange={setType}>
+                  <SelectTrigger className="h-11 bg-white/50 border-slate-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="email">بريد إلكتروني</SelectItem>
+                    <SelectItem value="landing_section">قسم صفحة هبوط</SelectItem>
+                    <SelectItem value="article">مقال</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">الوصف</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={2}
+                  className="bg-white/50 border-slate-200 focus:bg-white transition-all resize-none"
+                />
+              </div>
+            </div>
           </div>
-          <div>
-            <Label htmlFor="slug">الرابط (Slug)</Label>
-            <Input
-              id="slug"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              placeholder="سيتم إنشاؤه تلقائياً من الاسم"
-            />
-          </div>
-          <div>
-            <Label htmlFor="type">النوع</Label>
-            <Select value={type} onValueChange={setType}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="email">بريد إلكتروني</SelectItem>
-                <SelectItem value="landing_section">قسم صفحة هبوط</SelectItem>
-                <SelectItem value="article">مقال</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="description">الوصف</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={2}
-            />
-          </div>
-          <div>
+
+          <div className="space-y-2">
             <Label htmlFor="content">المحتوى</Label>
-            <Textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={10}
-              required
-            />
+            <div className="relative border rounded-xl overflow-hidden bg-slate-900 shadow-sm group">
+              <div className="absolute top-2 right-2 px-2 py-1 bg-slate-800 text-xs text-slate-400 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                HTML / Text
+              </div>
+              <Textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={16}
+                required
+                className="bg-slate-900 border-0 focus-visible:ring-0 text-slate-50 font-mono text-sm resize-none p-4 leading-relaxed"
+                dir="ltr"
+                spellCheck={false}
+              />
+            </div>
           </div>
-          <div className="flex justify-end gap-2">
+
+          <AdminSheetFooter>
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="mt-2 sm:mt-0"
             >
               إلغاء
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 min-w-[100px]">
               {isLoading ? "جاري الحفظ..." : template ? "تحديث" : "إنشاء"}
             </Button>
-          </div>
+          </AdminSheetFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </AdminSheetContent>
+    </AdminSheet>
   );
 }
 

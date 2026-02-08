@@ -21,6 +21,14 @@ import { Edit, Eye, Plus, Settings, Shield, Trash2, Unlock, Users } from "lucide
 import { AdminCard, MetricCard } from "@/components/admin";
 import { AdminTable, type AdminTableColumn } from "@/components/admin";
 import { AdminDialog } from "@/components/admin/AdminDialog";
+import {
+  AdminSheet,
+  AdminSheetContent,
+  AdminSheetHeader,
+  AdminSheetTitle,
+  AdminSheetDescription,
+  AdminSheetFooter,
+} from "@/components/admin/ui/AdminSheet";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -348,78 +356,119 @@ export default function RoleManagement() {
         />
       </Card>
 
-      <AdminDialog
+      <AdminSheet
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        title={dialogMode === "create" ? "إنشاء دور جديد" : "تعديل الدور"}
-        description="حدد اسم الدور والصلاحيات المرتبطة به"
-        confirmLabel={dialogMode === "create" ? "إنشاء الدور" : "حفظ التغييرات"}
-        confirmLoading={isSubmitting}
-        confirmDisabled={disableSubmit}
-        onConfirm={handleSubmit}
       >
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="role-name">اسم الدور</Label>
-              <Input
-                id="role-name"
-                value={formState.name}
-                onChange={(event) => setFormState((prev) => ({ ...prev, name: event.target.value }))}
-              />
-            </div>
-          </div>
-          <div>
-            <Label htmlFor="role-description">الوصف</Label>
-            <Input
-              id="role-description"
-              value={formState.description}
-              onChange={(event) => setFormState((prev) => ({ ...prev, description: event.target.value }))}
-              placeholder="صف الاستخدام الأساسي لهذا الدور"
-            />
-          </div>
-          <div className="space-y-3">
-            <div>
-              <span className="text-sm font-medium text-gray-700">الصلاحيات</span>
-              {isLoadingRoles ? (
-                <div className="text-sm text-gray-500 mt-2">جاري تحميل الصلاحيات...</div>
-              ) : (
-                <div className="mt-3 space-y-4 max-h-64 overflow-y-auto pr-2">
-                  {Object.entries(permissionCategories).map(([category, categoryPermissions]) => (
-                    <div key={category} className="space-y-2">
-                      <div className="text-sm font-semibold text-gray-800">{category}</div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        {categoryPermissions.map((permission) => {
-                          const checked = formState.permissions.includes(permission.key);
-                          return (
-                            <label
-                              key={permission.key}
-                              className="flex items-start space-x-2 rtl:space-x-reverse rounded-lg border p-3 hover:bg-gray-50"
-                            >
-                              <Checkbox
-                                checked={checked}
-                                onCheckedChange={(value) =>
-                                  handleTogglePermission(permission.key, Boolean(value))
-                                }
-                              />
-                              <span className="mr-2 rtl:ml-2 rtl:mr-0">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {permission.label}
-                                </div>
-                                <div className="text-xs text-gray-500">{permission.description || "—"}</div>
-                              </span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+        <AdminSheetContent side="start" className="w-[480px] sm:w-[540px] overflow-y-auto">
+          <AdminSheetHeader>
+            <AdminSheetTitle>{dialogMode === "create" ? "إنشاء دور جديد" : "تعديل الدور"}</AdminSheetTitle>
+            <AdminSheetDescription>
+              حدد اسم الدور والصلاحيات المرتبطة به
+            </AdminSheetDescription>
+          </AdminSheetHeader>
+
+          <div className="space-y-6 py-6">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <Label htmlFor="role-name" className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">اسم الدور</Label>
+                  <Input
+                    id="role-name"
+                    value={formState.name}
+                    onChange={(event) => setFormState((prev) => ({ ...prev, name: event.target.value }))}
+                    className="bg-white/50 border-slate-200 focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
+                    placeholder="اسم الدور (مثلاً: مدير النظام)"
+                  />
                 </div>
-              )}
+              </div>
+              <div>
+                <Label htmlFor="role-description" className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">الوصف</Label>
+                <Input
+                  id="role-description"
+                  value={formState.description}
+                  onChange={(event) => setFormState((prev) => ({ ...prev, description: event.target.value }))}
+                  placeholder="صف الاستخدام الأساسي لهذا الدور"
+                  className="bg-white/50 border-slate-200 focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
+                />
+              </div>
+            </div>
+
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="h-6 w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
+                <h3 className="text-base font-bold text-slate-800">صلاحيات الدور</h3>
+              </div>
+
+              <div className="space-y-3">
+                {isLoadingRoles ? (
+                  <div className="text-sm text-gray-500 mt-2">جاري تحميل الصلاحيات...</div>
+                ) : (
+                  <div className="mt-2 space-y-6 overflow-y-auto pr-1">
+                    {Object.entries(permissionCategories).map(([category, categoryPermissions]) => (
+                      <div key={category} className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs font-bold text-slate-600 bg-slate-50">{category}</Badge>
+                          <div className="h-px flex-1 bg-slate-100" />
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                          {categoryPermissions.map((permission) => {
+                            const checked = formState.permissions.includes(permission.key);
+                            return (
+                              <label
+                                key={permission.key}
+                                className={cn(
+                                  "flex items-start space-x-3 rtl:space-x-reverse rounded-xl border p-3 cursor-pointer transition-all duration-200 group",
+                                  checked
+                                    ? "bg-blue-50/50 border-blue-200 shadow-sm"
+                                    : "bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50"
+                                )}
+                              >
+                                <Checkbox
+                                  checked={checked}
+                                  onCheckedChange={(value) =>
+                                    handleTogglePermission(permission.key, Boolean(value))
+                                  }
+                                  className="mt-1 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                />
+                                <span className="flex-1 ms-2">
+                                  <div className={cn("text-sm font-bold transition-colors", checked ? "text-blue-900" : "text-slate-700")}>
+                                    {permission.label}
+                                  </div>
+                                  <div className="text-xs text-slate-500 mt-0.5 leading-snug">{permission.description || "—"}</div>
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </AdminDialog>
+
+          <AdminSheetFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              disabled={isSubmitting}
+            >
+              إلغاء
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={disableSubmit || isSubmitting}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {dialogMode === "create" ? "إنشاء الدور" : "حفظ التغييرات"}
+            </Button>
+          </AdminSheetFooter>
+        </AdminSheetContent>
+      </AdminSheet>
 
       <AdminDialog
         open={isDeleteDialogOpen}

@@ -182,4 +182,45 @@ router.post('/users', async (req, res) => {
   }
 });
 
+/**
+ * PUT /api/rbac-admin/users/:id - Update user
+ */
+router.put('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    // Explicitly handle password update if present
+    if (updates.password && updates.password.trim() === '') {
+      delete updates.password;
+    }
+
+    const updatedUser = await rbacService.updateUser(id, updates);
+    res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(400).json({
+      success: false,
+      message: error instanceof Error ? error.message : 'Failed to update user'
+    });
+  }
+});
+
+/**
+ * DELETE /api/rbac-admin/users/:id - Delete user
+ */
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await rbacService.deleteUser(id);
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : 'Failed to delete user'
+    });
+  }
+});
+
 export default router;

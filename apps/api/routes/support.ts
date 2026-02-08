@@ -97,27 +97,34 @@ router.put('/:id', async (req: any, res) => {
 
 
 
-// GET /api/support/categories (Mock)
+// GET /api/support/categories
 router.get('/categories', async (_req, res) => {
-    // Static categories until we add a table
-    const categories = [
-        { id: '1', name: 'الدعم الفني', ticketCount: 15, active: true },
-        { id: '2', name: 'الاستفسارات العامة', ticketCount: 8, active: true },
-        { id: '3', name: 'المدفوعات', ticketCount: 3, active: true },
-        { id: '4', name: 'حسابي', ticketCount: 5, active: true },
-    ];
-    res.json({ categories });
+    try {
+        // Use casting until schema is generated
+        const categories = await (prisma as any).support_categories.findMany({
+            where: { isActive: true },
+            orderBy: { displayOrder: 'asc' }
+        });
+        res.json({ categories });
+    } catch (error) {
+        console.error('Failed to fetch categories:', error);
+        res.status(500).json({ message: 'Failed to fetch categories' });
+    }
 });
 
-// GET /api/support/templates (Mock)
+// GET /api/support/templates
 router.get('/templates', async (_req, res) => {
-    // Static templates until we add a table
-    const templates = [
-        { id: '1', title: 'رد تلقائي - استلام', content: 'نشكرك على تواصلك معنا. تم استلام طلبك ورقم التذكرة هو...', usageCount: 120 },
-        { id: '2', title: 'طلب معلومات إضافية', content: 'نحتاج إلى مزيد من التفاصيل لمساعدتك في حل المشكلة...', usageCount: 45 },
-        { id: '3', title: 'إغلاق التذكرة', content: 'نود إعلامك بأنه تم حل المشكلة وإغلاق التذكرة. شكراً لك.', usageCount: 80 },
-    ];
-    res.json({ templates });
+    try {
+        // Use casting until schema is generated
+        const templates = await (prisma as any).support_templates.findMany({
+            where: { isActive: true },
+            orderBy: { title: 'asc' }
+        });
+        res.json({ templates });
+    } catch (error) {
+        console.error('Failed to fetch templates:', error);
+        res.status(500).json({ message: 'Failed to fetch templates' });
+    }
 });
 
 // POST /api/support/seed (Moved down)

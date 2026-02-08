@@ -28,4 +28,13 @@ export { AdminBulkActions } from './utilities/AdminBulkActions';
 
 // Existing Components (re-export for convenience)
 export { AdminDialog } from './ui/AdminDialog';
+export {
+    AdminSheet,
+    AdminSheetTrigger,
+    AdminSheetContent,
+    AdminSheetHeader,
+    AdminSheetFooter,
+    AdminSheetTitle,
+    AdminSheetDescription
+} from './ui/AdminSheet';
 export { AdminStatusBadge } from './AdminStatusBadge';

@@ -20,6 +20,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -45,19 +46,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  AdminSheet,
+  AdminSheetContent,
+  AdminSheetHeader,
+  AdminSheetTitle,
+  AdminSheetDescription,
+  AdminSheetFooter,
+} from "@/components/admin";
+import { Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit, Trash2, Eye, Search, Image as ImageIcon, CheckSquare, Square, MoreVertical, History, RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { MediaSelector } from "@/components/cms/MediaSelector";
 import { RichTextEditor } from "@/components/cms/RichTextEditor";
 import {
@@ -640,220 +643,262 @@ function ArticleDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
-        <DialogHeader>
-          <DialogTitle>
+    <AdminSheet open={open} onOpenChange={onOpenChange}>
+      <AdminSheetContent side="start" className="w-full sm:max-w-4xl overflow-y-auto">
+        <AdminSheetHeader>
+          <AdminSheetTitle>
             {article ? "تعديل المقال" : "إنشاء مقال جديد"}
-          </DialogTitle>
-          <DialogDescription>
+          </AdminSheetTitle>
+          <AdminSheetDescription>
             {article
               ? "قم بتعديل معلومات المقال"
               : "املأ المعلومات لإنشاء مقال جديد"}
-          </DialogDescription>
-        </DialogHeader>
-        <Tabs defaultValue="edit" className="w-full" dir="rtl">
-          <TabsList>
-            <TabsTrigger value="edit">تحرير</TabsTrigger>
-            <TabsTrigger value="preview">معاينة</TabsTrigger>
-            {article && <TabsTrigger value="versions">سجل الإصدارات</TabsTrigger>}
-          </TabsList>
-          <TabsContent value="edit">
-            <form onSubmit={handleSubmit} className="space-y-4" dir="rtl">
-              <div>
-                <Label htmlFor="title">العنوان</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="slug">الرابط (Slug)</Label>
-                <Input
-                  id="slug"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  placeholder="سيتم إنشاؤه تلقائياً من العنوان"
-                />
-              </div>
-              <div>
-                <Label htmlFor="excerpt">الملخص</Label>
-                <Textarea
-                  id="excerpt"
-                  value={excerpt}
-                  onChange={(e) => setExcerpt(e.target.value)}
-                  rows={3}
-                />
-              </div>
-              <div>
-                <Label htmlFor="content">المحتوى</Label>
-                <RichTextEditor
-                  value={content}
-                  onChange={setContent}
-                  placeholder="اكتب محتوى المقال هنا..."
-                />
-              </div>
-              <div>
-                <Label>الصورة المميزة</Label>
-                <div className="mt-2 space-y-2">
-                  {featuredImageUrl && (
-                    <div className="relative w-32 h-32 border rounded-lg overflow-hidden">
-                      <img
-                        src={featuredImageUrl}
-                        alt="Featured"
-                        className="w-full h-full object-cover"
+          </AdminSheetDescription>
+        </AdminSheetHeader>
+        <div className="py-6">
+          <Tabs defaultValue="edit" className="w-full" dir="rtl">
+            <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent gap-6">
+              <TabsTrigger
+                value="edit"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-2"
+              >
+                تحرير
+              </TabsTrigger>
+              <TabsTrigger
+                value="preview"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-2"
+              >
+                معاينة
+              </TabsTrigger>
+              {article && (
+                <TabsTrigger
+                  value="versions"
+                  className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-0 py-2 opacity-50 cursor-not-allowed hidden sm:block"
+                  disabled
+                >
+                  سجل الإصدارات (قريباً)
+                </TabsTrigger>
+              )}
+            </TabsList>
+            <TabsContent value="edit" className="pt-6">
+              <form onSubmit={handleSubmit} className="space-y-6" dir="rtl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">العنوان</Label>
+                      <Input
+                        id="title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                        className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all"
                       />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-1 left-1 rtl:left-auto rtl:right-1"
-                        onClick={() => {
-                          setFeaturedImageId(undefined);
-                          setFeaturedImageUrl(undefined);
-                        }}
-                      >
-                        ×
-                      </Button>
                     </div>
-                  )}
+                    <div className="space-y-2">
+                      <Label htmlFor="slug">الرابط (Slug)</Label>
+                      <Input
+                        id="slug"
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value)}
+                        placeholder="سيتم إنشاؤه تلقائياً من العنوان"
+                        className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all font-mono text-sm"
+                        dir="ltr"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="excerpt">الملخص</Label>
+                    <Textarea
+                      id="excerpt"
+                      value={excerpt}
+                      onChange={(e) => setExcerpt(e.target.value)}
+                      rows={5}
+                      className="bg-white/50 border-slate-200 focus:bg-white transition-all resize-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="content">المحتوى</Label>
+                  <div className="border rounded-xl overflow-hidden bg-white shadow-sm">
+                    <RichTextEditor
+                      value={content}
+                      onChange={setContent}
+                      placeholder="اكتب محتوى المقال هنا..."
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t">
+                  <div className="space-y-4">
+                    <div>
+                      <Label className="block mb-2">التصنيفات</Label>
+                      <div className="flex flex-wrap gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 min-h-[60px]">
+                        {categories.map((cat) => (
+                          <div
+                            key={cat.id}
+                            onClick={() => {
+                              setSelectedCategories((prev) =>
+                                prev.includes(cat.id)
+                                  ? prev.filter((id) => id !== cat.id)
+                                  : [...prev, cat.id]
+                              );
+                            }}
+                            className={cn(
+                              "cursor-pointer px-3 py-1.5 rounded-full text-sm transition-all border select-none",
+                              selectedCategories.includes(cat.id)
+                                ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-600/20"
+                                : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                            )}
+                          >
+                            {cat.name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="block mb-2">الوسوم</Label>
+                      <div className="flex flex-wrap gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100 min-h-[60px]">
+                        {tags.map((tag) => (
+                          <div
+                            key={tag.id}
+                            onClick={() => {
+                              setSelectedTags((prev) =>
+                                prev.includes(tag.id)
+                                  ? prev.filter((id) => id !== tag.id)
+                                  : [...prev, tag.id]
+                              );
+                            }}
+                            className={cn(
+                              "cursor-pointer px-3 py-1.5 rounded-full text-sm transition-all border select-none",
+                              selectedTags.includes(tag.id)
+                                ? "bg-slate-800 border-slate-800 text-white shadow-md"
+                                : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                            )}
+                          >
+                            {tag.name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>الصورة المميزة</Label>
+                    <div className="mt-2 space-y-3">
+                      {featuredImageUrl ? (
+                        <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-200 shadow-sm group">
+                          <img
+                            src={featuredImageUrl}
+                            alt="Featured"
+                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-sm">
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => setIsMediaSelectorOpen(true)}
+                              className="bg-white/90 hover:bg-white"
+                            >
+                              تغيير
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                setFeaturedImageId(undefined);
+                                setFeaturedImageUrl(undefined);
+                              }}
+                            >
+                              حذف
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => setIsMediaSelectorOpen(true)}
+                          className="w-full aspect-video rounded-xl border-2 border-dashed border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 transition-all flex flex-col items-center justify-center cursor-pointer gap-2 text-slate-400 hover:text-blue-500"
+                        >
+                          <ImageIcon className="h-8 w-8" />
+                          <span className="text-sm font-medium">اضغط لاختيار صورة</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <AdminSheetFooter>
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setIsMediaSelectorOpen(true)}
+                    onClick={() => onOpenChange(false)}
+                    className="mt-2 sm:mt-0"
                   >
-                    <ImageIcon className="ml-2 rtl:ml-0 rtl:mr-2 h-4 w-4" />
-                    {featuredImageUrl ? "تغيير الصورة" : "اختر صورة"}
+                    إلغاء
                   </Button>
-                </div>
-              </div>
-              <div>
-                <Label>التصنيفات</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {categories.map((cat) => (
-                    <Button
-                      key={cat.id}
-                      type="button"
-                      variant={
-                        selectedCategories.includes(cat.id) ? "default" : "outline"
-                      }
-                      size="sm"
-                      onClick={() => {
-                        setSelectedCategories((prev) =>
-                          prev.includes(cat.id)
-                            ? prev.filter((id) => id !== cat.id)
-                            : [...prev, cat.id]
-                        );
-                      }}
-                    >
-                      {cat.name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <Label>الوسوم</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {tags.map((tag) => (
-                    <Button
-                      key={tag.id}
-                      type="button"
-                      variant={
-                        selectedTags.includes(tag.id) ? "default" : "outline"
-                      }
-                      size="sm"
-                      onClick={() => {
-                        setSelectedTags((prev) =>
-                          prev.includes(tag.id)
-                            ? prev.filter((id) => id !== tag.id)
-                            : [...prev, tag.id]
-                        );
-                      }}
-                    >
-                      {tag.name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex justify-start gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                >
-                  إلغاء
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "جاري الحفظ..." : article ? "تحديث" : "إنشاء"}
-                </Button>
-              </div>
-            </form>
-          </TabsContent>
-          <TabsContent value="preview" dir="rtl">
-            <div className="space-y-4">
-              {featuredImageUrl && (
-                <div className="w-full h-64 overflow-hidden rounded-lg">
-                  <img
-                    src={featuredImageUrl}
-                    alt={title || "Featured"}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              <h1 className="text-3xl font-bold">{title || "عنوان المقال"}</h1>
-              {excerpt && <p className="text-lg text-gray-600">{excerpt}</p>}
-              <div
-                className="prose prose-lg max-w-none"
-                dangerouslySetInnerHTML={{ __html: content || "<p>لا يوجد محتوى</p>" }}
-              />
-              {selectedCategories.length > 0 && (
-                <div className="flex gap-2">
-                  {selectedCategories.map((catId) => {
-                    const cat = categories.find((c) => c.id === catId);
-                    return cat ? (
-                      <Badge key={catId} variant="outline">
-                        {cat.name}
-                      </Badge>
-                    ) : null;
-                  })}
-                </div>
-              )}
-              {selectedTags.length > 0 && (
-                <div className="flex gap-2">
-                  {selectedTags.map((tagId) => {
-                    const tag = tags.find((t) => t.id === tagId);
-                    return tag ? (
-                      <Badge key={tagId} variant="secondary">
-                        {tag.name}
-                      </Badge>
-                    ) : null;
-                  })}
-                </div>
-              )}
-            </div>
-          </TabsContent>
-          {article && (
-            <TabsContent value="versions" dir="rtl">
-              <ArticleVersionHistory articleId={article.id} onRestore={() => {
-                onOpenChange(false);
-                queryClient.invalidateQueries({ queryKey: ["articles"] });
-              }} />
+                  <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 min-w-[100px]">
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : article ? "تحديث" : "إنشاء"}
+                  </Button>
+                </AdminSheetFooter>
+              </form>
             </TabsContent>
-          )}
-        </Tabs>
-        <MediaSelector
-          open={isMediaSelectorOpen}
-          onOpenChange={setIsMediaSelectorOpen}
-          filterType="image"
-          onSelect={(media: { id: string; url: string }) => {
-            setFeaturedImageId(media.id);
-            setFeaturedImageUrl(media.url);
-          }}
-        />
-      </DialogContent>
-    </Dialog>
+            <TabsContent value="preview" dir="rtl" className="pt-6">
+              <div className="space-y-6 max-w-none prose prose-slate prose-lg dark:prose-invert mx-auto">
+                <div className="space-y-4 not-prose border-b pb-6">
+                  {featuredImageUrl && (
+                    <div className="w-full h-[300px] overflow-hidden rounded-2xl mb-6 shadow-lg">
+                      <img
+                        src={featuredImageUrl}
+                        alt={title || "Featured"}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    {selectedCategories.map(catId => {
+                      const cat = categories.find(c => c.id === catId);
+                      return cat ? <Badge key={catId} variant="secondary">{cat.name}</Badge> : null;
+                    })}
+                  </div>
+                  <h1 className="text-3xl font-bold tracking-tight text-gray-900 leading-tight">
+                    {title || "عنوان المقال"}
+                  </h1>
+                  {excerpt && (
+                    <p className="text-xl text-gray-600 leading-relaxed font-light">
+                      {excerpt}
+                    </p>
+                  )}
+                </div>
+
+                <div
+                  className="prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:leading-relaxed prose-img:rounded-xl prose-img:shadow-md"
+                  dangerouslySetInnerHTML={{ __html: content || "<p class='text-gray-400 italic'>لا يوجد محتوى...</p>" }}
+                />
+              </div>
+            </TabsContent>
+            {article && (
+              <TabsContent value="versions" dir="rtl" className="pt-6">
+                {/* Pending implementation */}
+                <div className="text-center py-12 text-gray-400 bg-slate-50 rounded-xl border border-dashed text-sm">
+                  سجل الإصدارات سيكون متاحاً قريباً
+                </div>
+              </TabsContent>
+            )}
+          </Tabs>
+        </div>
+      </AdminSheetContent>
+
+      <MediaSelector
+        open={isMediaSelectorOpen}
+        onOpenChange={setIsMediaSelectorOpen}
+        onSelect={(media) => {
+          setFeaturedImageId(media.id);
+          setFeaturedImageUrl(media.url);
+          setIsMediaSelectorOpen(false);
+        }}
+      />
+    </AdminSheet>
   );
 }
-

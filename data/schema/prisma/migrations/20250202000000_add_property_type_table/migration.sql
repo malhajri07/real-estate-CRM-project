@@ -1,3 +1,5 @@
+SET search_path = public;
+
 -- Create property_type table with relationship to property_category
 -- This enables dynamic form selection: category -> types
 

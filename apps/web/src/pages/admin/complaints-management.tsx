@@ -25,6 +25,14 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
@@ -137,7 +145,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                 <div className="flex items-center gap-3">
                     <div className="relative group w-full lg:w-72">
                         <Search className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                        <Input placeholder="بحث برقم التذكرة..." className="pr-10 h-10 rounded-xl bg-white/50 border-slate-100 focus:ring-blue-500/20" />
+                        <Input placeholder="بحث برقم التذكرة..." className="pe-10 h-10 rounded-xl bg-white/50 border-slate-100 focus:ring-blue-500/20" />
                     </div>
                     <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl border-slate-100 text-slate-500 hover:bg-slate-50 transition-all"><Filter className="h-4 w-4" /></Button>
                 </div>

@@ -317,7 +317,7 @@ class PrismaStorageSimple {
         include: {
           cities: true,
           districts: true,
-          },
+        },
         orderBy: {
           nameAr: 'asc',
         },
@@ -325,6 +325,27 @@ class PrismaStorageSimple {
       return regions;
     } catch (error) {
       console.error('Error fetching Saudi regions:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get basic Saudi regions list (without heavy relations)
+   */
+  async getSaudiRegionsBasic(): Promise<any[]> {
+    try {
+      const regions = await prisma.regions.findMany({
+        orderBy: {
+          nameAr: 'asc',
+        },
+      });
+      return regions.map(r => ({
+        ...r,
+        citiesCount: 0,
+        districtsCount: 0
+      }));
+    } catch (error) {
+      console.error('Error fetching Saudi regions basic:', error);
       return [];
     }
   }
@@ -431,8 +452,8 @@ class PrismaStorageSimple {
   }
 
   async getTodaysActivities(): Promise<any[]> {
-      return [];
-    }
+    return [];
+  }
 
   async createActivity(data: any, tenantId?: string): Promise<any> {
     const activityData = {
@@ -466,9 +487,46 @@ class PrismaStorageSimple {
 
   // Seeding methods
   async seedSaudiRegions(data: any[]): Promise<any[]> {
-    // Stub implementation
-    console.log('Seeding regions:', data.length);
-    return data;
+    try {
+      console.log('Seeding regions:', data.length);
+      const results = [];
+      for (const region of data) {
+        // Ensure ID is an integer
+        const id = parseInt(String(region.id), 10);
+        if (isNaN(id)) {
+          console.warn(`Skipping region with invalid ID: ${region.id}`);
+          continue;
+        }
+
+        const result = await prisma.regions.upsert({
+          where: { id },
+          create: {
+            id,
+            nameAr: region.nameAr,
+            nameEn: region.nameEn,
+            code: region.code,
+            population: region.population,
+            centerLatitude: region.centerLatitude,
+            centerLongitude: region.centerLongitude,
+            boundary: region.boundary
+          },
+          update: {
+            nameAr: region.nameAr,
+            nameEn: region.nameEn,
+            code: region.code,
+            population: region.population,
+            centerLatitude: region.centerLatitude,
+            centerLongitude: region.centerLongitude,
+            boundary: region.boundary
+          }
+        });
+        results.push(result);
+      }
+      return results;
+    } catch (error) {
+      console.error('Error seeding regions:', error);
+      throw error;
+    }
   }
 
   async getCitiesByRegion(regionId: number): Promise<any[]> {
@@ -484,9 +542,44 @@ class PrismaStorageSimple {
   }
 
   async seedSaudiCities(data: any[]): Promise<any[]> {
-    // Stub implementation
-    console.log('Seeding cities:', data.length);
-    return data;
+    try {
+      console.log('Seeding cities:', data.length);
+      const results = [];
+      for (const city of data) {
+        // Ensure IDs are integers
+        const id = parseInt(String(city.id), 10);
+        const regionId = parseInt(String(city.regionId), 10);
+
+        if (isNaN(id) || isNaN(regionId)) {
+          console.warn(`Skipping city with invalid ID/RegionID: ${city.id}/${city.regionId}`);
+          continue;
+        }
+
+        const result = await prisma.cities.upsert({
+          where: { id },
+          create: {
+            id,
+            regionId,
+            nameAr: city.nameAr,
+            nameEn: city.nameEn,
+            centerLatitude: city.centerLatitude,
+            centerLongitude: city.centerLongitude
+          },
+          update: {
+            regionId,
+            nameAr: city.nameAr,
+            nameEn: city.nameEn,
+            centerLatitude: city.centerLatitude,
+            centerLongitude: city.centerLongitude
+          }
+        });
+        results.push(result);
+      }
+      return results;
+    } catch (error) {
+      console.error('Error seeding cities:', error);
+      throw error;
+    }
   }
 
   // User permission methods
@@ -529,7 +622,7 @@ class PrismaStorageSimple {
 
   // Favorites methods (stub implementations)
   async getFavoriteProperties(userId: string): Promise<any[]> {
-      return [];
+    return [];
   }
 
   async addFavorite(userId: string, propertyId: string): Promise<any> {
@@ -581,8 +674,8 @@ class PrismaStorageSimple {
 
   async getAllSaudiDistricts(regionId?: number): Promise<any[]> {
     try {
-      const where = regionId ? { 
-        regionId 
+      const where = regionId ? {
+        regionId
       } : {};
       // Don't include relationships to avoid BigInt serialization issues
       return await prisma.districts.findMany({
@@ -661,7 +754,7 @@ class PrismaStorageSimple {
           other_comments: data.notes || null,
         },
       });
-      
+
       // Map back to camelCase for API response
       return {
         id: created.seeker_id || String(created.seeker_num),
@@ -708,7 +801,7 @@ class PrismaStorageSimple {
           created_at: 'desc',
         },
       });
-      
+
       // Map to camelCase for API response
       return requests.map((req) => ({
         id: req.seeker_id || String(req.seeker_num),
@@ -751,10 +844,10 @@ class PrismaStorageSimple {
   async updateRealEstateRequest(id: string, data: any): Promise<any> {
     try {
       // Try to find by seeker_id first, then by seeker_num
-      const where = id.startsWith('S-') 
+      const where = id.startsWith('S-')
         ? { seeker_id: id }
         : { seeker_num: BigInt(id) };
-      
+
       const updateData: any = {};
       if (data.firstName !== undefined) updateData.first_name = data.firstName;
       if (data.lastName !== undefined) updateData.last_name = data.lastName;
@@ -782,12 +875,12 @@ class PrismaStorageSimple {
       if (data.sqm !== undefined) updateData.Sqm = data.sqm ? BigInt(Math.floor(data.sqm)) : null;
       if (data.notes !== undefined) updateData.other_comments = data.notes || null;
       updateData.updated_at = new Date();
-      
+
       const updated = await basePrisma.properties_seeker.update({
         where,
         data: updateData,
       });
-      
+
       // Map back to camelCase
       return {
         id: updated.seeker_id || String(updated.seeker_num),
@@ -871,8 +964,8 @@ class PrismaStorageSimple {
           currency: data.currency || "SAR",
           payment_frequency: data.paymentFrequency || data.payment_frequency || null,
           main_image_url: data.mainImageUrl || data.main_image_url || null,
-          image_gallery: Array.isArray(data.imageGallery || data.image_gallery || data.images) 
-            ? (data.imageGallery || data.image_gallery || data.images) 
+          image_gallery: Array.isArray(data.imageGallery || data.image_gallery || data.images)
+            ? (data.imageGallery || data.image_gallery || data.images)
             : [],
           video_clip_url: data.videoClipUrl || data.video_clip_url || null,
           contact_name: data.contactName || data.contact_name || null,
@@ -943,12 +1036,12 @@ class PrismaStorageSimple {
       if (status) {
         where.status = status;
       }
-      
+
       const listings = await basePrisma.property_listings.findMany({
         where,
         orderBy: { listed_date: 'desc' },
       });
-      
+
       return listings.map(listing => ({
         id: listing.id.toString(),
         propertyId: listing.property_id,
@@ -1009,9 +1102,9 @@ class PrismaStorageSimple {
       const listing = await basePrisma.property_listings.findUnique({
         where: { id: BigInt(id) },
       });
-      
+
       if (!listing) return null;
-      
+
       return {
         id: listing.id.toString(),
         propertyId: listing.property_id,
@@ -1070,7 +1163,7 @@ class PrismaStorageSimple {
   async updatePropertyListing(id: string, data: any): Promise<any> {
     try {
       const updateData: any = {};
-      
+
       if (data.is_verified !== undefined) updateData.is_verified = data.is_verified;
       if (data.is_active !== undefined) updateData.is_active = data.is_active;
       if (data.status !== undefined) updateData.status = data.status;
@@ -1080,12 +1173,12 @@ class PrismaStorageSimple {
       if (data.city !== undefined) updateData.city = data.city;
       if (data.region !== undefined) updateData.region = data.region;
       if (data.district !== undefined) updateData.district = data.district;
-      
+
       const updated = await basePrisma.property_listings.update({
         where: { id: BigInt(id) },
         data: updateData,
       });
-      
+
       return {
         id: updated.id.toString(),
         propertyId: updated.property_id,
@@ -1120,7 +1213,7 @@ class PrismaStorageSimple {
         where: { is_active: true },
         orderBy: { display_order: 'asc' },
       });
-      
+
       return categories.map(cat => ({
         id: cat.id,
         code: cat.code,
@@ -1147,11 +1240,11 @@ class PrismaStorageSimple {
       const category = await basePrisma.property_category.findUnique({
         where: { id },
       });
-      
+
       if (!category) {
         return null;
       }
-      
+
       return {
         id: category.id,
         code: category.code,
@@ -1179,7 +1272,7 @@ class PrismaStorageSimple {
       if (categoryId) {
         where.category_id = categoryId;
       }
-      
+
       const types = await basePrisma.property_type.findMany({
         where,
         orderBy: { display_order: 'asc' },
@@ -1194,7 +1287,7 @@ class PrismaStorageSimple {
           },
         },
       });
-      
+
       return types.map(type => ({
         id: type.id,
         categoryId: type.category_id,
@@ -1228,11 +1321,11 @@ class PrismaStorageSimple {
       const category = await basePrisma.property_category.findUnique({
         where: { code: categoryCode },
       });
-      
+
       if (!category) {
         return [];
       }
-      
+
       return this.getAllPropertyTypes(category.id);
     } catch (error) {
       console.error('Error fetching property types by category code:', error);

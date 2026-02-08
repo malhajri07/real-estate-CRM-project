@@ -201,7 +201,17 @@ export class RbacService {
 
     async getAllUsers() {
         const users = await prisma.users.findMany({
-            include: { organization: true, agent_profiles: true },
+            include: {
+                organization: true,
+                agent_profiles: true,
+                organization_memberships: {
+                    include: {
+                        organization: {
+                            select: { id: true, legalName: true, tradeName: true }
+                        }
+                    }
+                }
+            },
             orderBy: { createdAt: 'desc' },
         });
 
@@ -227,11 +237,11 @@ export class RbacService {
                 organizationId: user.organizationId,
                 organization: user.organization,
                 agent_profiles: user.agent_profiles,
-                approvalStatus: null,
-                lastLoginAt: null,
-                licenseNumber: null,
-                memberships: [],
-                primaryMembership: null,
+                approvalStatus: user.approvalStatus,
+                lastLoginAt: user.lastLoginAt,
+                licenseNumber: user.agent_profiles?.licenseNo || null,
+                memberships: user.organization_memberships || [],
+                primaryMembership: user.organization_memberships?.find((m: any) => m.isPrimary) || null,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt
             };
@@ -325,6 +335,45 @@ export class RbacService {
         }
 
         return newUser;
+    }
+
+    async updateUser(id: string, updates: any, adminId?: string) {
+        // If updating password, hash it
+        if (updates.password) {
+            updates.passwordHash = await bcrypt.hash(updates.password, 10);
+            delete updates.password;
+        }
+
+        // If roles provided, ensure JSON string
+        if (updates.roles) {
+            updates.roles = JSON.stringify(Array.isArray(updates.roles) ? updates.roles : [updates.roles]);
+        }
+
+        const updatedUser = await prisma.users.update({
+            where: { id },
+            data: {
+                ...updates,
+                updatedAt: new Date()
+            }
+        });
+
+        if (adminId) {
+            await this.logActivity(adminId, 'UPDATE_USER', 'User', id, { updates: Object.keys(updates) });
+        }
+
+        return updatedUser;
+    }
+
+    async deleteUser(id: string, adminId?: string) {
+        // First delete related entities or rely on cascade if configured
+        // Ideally specific logic here, for now rely on prisma
+        await prisma.users.delete({ where: { id } });
+
+        if (adminId) {
+            await this.logActivity(adminId, 'DELETE_USER', 'User', id, {});
+        }
+
+        return true;
     }
 
     async logActivity(userId: string, action: string, entity: string, entityId: string, metadata?: any) {

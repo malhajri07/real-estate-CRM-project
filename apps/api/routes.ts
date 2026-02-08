@@ -63,11 +63,13 @@ import populateRoutes from "./routes/populate";       // Data population
 import sitemapRoutes from "./routes/sitemap";         // SEO sitemap
 import authRoutes from "./routes/auth";               // Authentication routes (Prisma-backed)
 import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
+import knowledgeBaseRoutes from "./routes/knowledge-base"; // Agent Knowledge Base
 
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
 import propertyCategoriesRoutes from "./routes/property-categories"; // Property categories dimension table
 import propertyTypesRoutes from "./routes/property-types"; // Property types (related to categories)
 import cmsLandingRoutes from "./routes/cms-landing";
+import communityRoutes from "./routes/community";
 import cmsArticlesRoutes from "./routes/cms-articles";
 import cmsMediaRoutes from "./routes/cms-media";
 import cmsSEORoutes from "./routes/cms-seo";
@@ -190,6 +192,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Pages affected: Buyer pool search, lead management, claims workflow
    */
   app.use("/api/pool", buyerPoolRoutes);
+  app.use("/api/pool", buyerPoolRoutes);
+  app.use("/api/community", communityRoutes);
+  app.use("/api/knowledge", knowledgeBaseRoutes);
 
   // CMS Routes
   app.use("/api/cms", cmsLandingRoutes);

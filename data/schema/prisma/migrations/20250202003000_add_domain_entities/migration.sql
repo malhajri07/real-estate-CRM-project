@@ -1,3 +1,5 @@
+SET search_path = public;
+
 ALTER TYPE "ListingStatus" ADD VALUE IF NOT EXISTS 'DRAFT';
 ALTER TYPE "ListingStatus" ADD VALUE IF NOT EXISTS 'RESERVED';
 ALTER TYPE "ListingStatus" ADD VALUE IF NOT EXISTS 'ARCHIVED';
@@ -13,7 +15,7 @@ CREATE TYPE "SupportTicketStatus" AS ENUM ('OPEN', 'IN_PROGRESS', 'RESOLVED', 'C
 CREATE TYPE "SupportTicketPriority" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'URGENT');
 
 CREATE TABLE "property_units" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" TEXT NOT NULL,
     "propertyId" TEXT NOT NULL,
     "unitType" TEXT,
     "bedrooms" INTEGER,
@@ -34,7 +36,7 @@ ALTER TABLE "property_units"
   ADD CONSTRAINT "property_units_propertyId_fkey" FOREIGN KEY ("propertyId") REFERENCES "properties"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 CREATE TABLE "property_media" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" TEXT NOT NULL,
     "propertyId" TEXT NOT NULL,
     "mediaType" TEXT NOT NULL DEFAULT 'PHOTO',
     "url" TEXT NOT NULL,
@@ -51,7 +53,7 @@ ALTER TABLE "property_media"
   ADD CONSTRAINT "property_media_propertyId_fkey" FOREIGN KEY ("propertyId") REFERENCES "properties"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 CREATE TABLE "customers" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
     "type" "CustomerType" NOT NULL DEFAULT 'BUYER',
     "salutation" TEXT,
@@ -107,7 +109,7 @@ ALTER TABLE "leads"
   ADD CONSTRAINT "leads_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "customers"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 CREATE TABLE "inquiries" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
     "customerId" TEXT NOT NULL,
     "propertyId" TEXT,
@@ -137,7 +139,7 @@ ALTER TABLE "inquiries"
   ADD CONSTRAINT "inquiries_agentId_fkey" FOREIGN KEY ("agentId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 CREATE TABLE "appointments" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
     "customerId" TEXT NOT NULL,
     "propertyId" TEXT,
@@ -171,7 +173,7 @@ ALTER TABLE "appointments"
   ADD CONSTRAINT "appointments_agentId_fkey" FOREIGN KEY ("agentId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 CREATE TABLE "deals" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
     "listingId" TEXT,
     "propertyId" TEXT,
@@ -205,7 +207,7 @@ ALTER TABLE "deals"
   ADD CONSTRAINT "deals_agentId_fkey" FOREIGN KEY ("agentId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 CREATE TABLE "support_tickets" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" TEXT NOT NULL,
     "organizationId" TEXT NOT NULL,
     "customerId" TEXT,
     "createdByUserId" TEXT,
@@ -241,7 +243,7 @@ ALTER TYPE "AnalyticsMetricType" ADD VALUE IF NOT EXISTS 'INVOICE_TOTAL';
 ALTER TYPE "AnalyticsMetricType" ADD VALUE IF NOT EXISTS 'CASH_COLLECTED';
 
 CREATE TABLE "billing_payouts" (
-    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "id" TEXT NOT NULL,
     "organizationId" TEXT,
     "accountId" UUID NOT NULL,
     "amount" NUMERIC(14, 2) NOT NULL,

@@ -57,8 +57,8 @@ function SecurityAuditLogs() {
         <Card className="glass border-0 rounded-[2.5rem] overflow-hidden shadow-none">
             <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
                 <div className="relative w-full md:w-96 group">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                    <Input placeholder="البحث في سجلات الأمان..." className="h-12 pr-11 rounded-2xl bg-white border-slate-100 focus:ring-blue-500/20" />
+                    <Search className="absolute start-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                    <Input placeholder="البحث في سجلات الأمان..." className="h-12 ps-11 rounded-2xl bg-white border-slate-100 focus:ring-blue-500/20" />
                 </div>
                 <div className="flex items-center gap-3">
                     <Button variant="outline" className="h-12 px-6 rounded-2xl border-slate-200 font-bold text-slate-600">

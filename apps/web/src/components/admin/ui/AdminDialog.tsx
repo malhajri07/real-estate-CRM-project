@@ -26,7 +26,9 @@ const AdminDialogContent = React.forwardRef<
             // In RTL, we want left-4 top-4 (which is end-4).
             // CSS logical properties: inset-inline-end-4
             "[&>button]:right-auto [&>button]:end-4",
-            "data-[state=open]:duration-200", // Standardize duration
+            "[&>button]:right-auto [&>button]:end-4",
+            "data-[state=open]:duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95", // Smooth entry/exit
+            "bg-white/85 backdrop-blur-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/40", // Aurora Deluxe
             className
         )}
         {...props}

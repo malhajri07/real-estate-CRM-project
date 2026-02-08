@@ -47,6 +47,9 @@
 import express from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";
+import { getErrorResponse } from "../i18n";
+import { listingSchemas } from "../src/validators/listings.schema";
+import { authenticateToken } from "../src/middleware/auth.middleware";
 
 const router = express.Router();
 
@@ -156,7 +159,7 @@ router.get("/", async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching listings:", err);
-    res.status(500).json({ message: "Failed to fetch listings" });
+    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
   }
 });
 
@@ -195,7 +198,7 @@ router.get("/map", async (req, res) => {
     res.json(mapProperties);
   } catch (err) {
     console.error("Error fetching listings for map:", err);
-    res.status(500).json({ message: "Failed to fetch listings for map" });
+    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
   }
 });
 
@@ -203,11 +206,11 @@ router.get("/map", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const item = await storage.getProperty(req.params.id);
-    if (!item) return res.status(404).json({ message: "Listing not found" });
+    if (!item) return res.status(404).json(getErrorResponse('LISTING_NOT_FOUND', (req as any).locale));
     res.json(item);
   } catch (err) {
     console.error("Error fetching listing detail:", err);
-    res.status(500).json({ message: "Failed to fetch listing" });
+    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
   }
 });
 
@@ -244,22 +247,9 @@ router.get("/featured", async (req, res) => {
 });
 
 // Create a new listing
-router.post("/", async (req, res) => {
+router.post("/", authenticateToken, async (req, res) => {
   try {
-    // Minimal required fields validation
-    const schema = z.object({
-      title: z.string(),
-      address: z.string(),
-      city: z.string(),
-      state: z.string(),
-      zipCode: z.string(),
-      price: z.union([z.number(), z.string()]),
-      propertyCategory: z.string(),
-      propertyType: z.string(),
-      ownerId: z.string().optional(),
-      createdBy: z.string().optional(),
-    });
-    const data = schema.parse(req.body);
+    const data = listingSchemas.create.parse(req.body);
 
     const listing = await storage.createProperty(
       {
@@ -275,10 +265,10 @@ router.post("/", async (req, res) => {
     res.status(201).json(listing);
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ message: "Invalid listing data", errors: err.errors });
+      return res.status(400).json(getErrorResponse('VALIDATION_ERROR', (req as any).locale, err.errors));
     }
     console.error("Error creating listing:", err);
-    res.status(500).json({ message: "Failed to create listing" });
+    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
   }
 });
 
