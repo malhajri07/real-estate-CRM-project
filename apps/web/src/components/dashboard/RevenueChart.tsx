@@ -1,42 +1,49 @@
 
 import React, { useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useQuery } from '@tanstack/react-query';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const data = [
-    { name: 'Jan', revenue: 4000 },
-    { name: 'Feb', revenue: 3000 },
-    { name: 'Mar', revenue: 2000 },
-    { name: 'Apr', revenue: 2780 },
-    { name: 'May', revenue: 1890 },
-    { name: 'Jun', revenue: 2390 },
-    { name: 'Jul', revenue: 3490 },
-    { name: 'Aug', revenue: 4000 },
-    { name: 'Sep', revenue: 3000 },
-    { name: 'Oct', revenue: 2000 },
-    { name: 'Nov', revenue: 2780 },
-    { name: 'Dec', revenue: 1890 },
-];
+interface RevenueChartData {
+    name: string;
+    revenue: number;
+}
 
 export function RevenueChart() {
     const { t, language } = useLanguage();
     const isRtl = language === 'ar';
 
+    // Fetch real revenue data from API
+    const { data: chartData, isLoading } = useQuery<RevenueChartData[]>({
+        queryKey: ["/api/reports/dashboard/revenue-chart"],
+    });
+
     const formattedData = useMemo(() => {
-        // In a real app, we would localize month names here
-        return data;
-    }, []);
+        if (!chartData || chartData.length === 0) {
+            // Return empty data structure if no data
+            const monthNames = isRtl 
+                ? ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"]
+                : ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            return monthNames.map(name => ({ name, revenue: 0 }));
+        }
+        return chartData;
+    }, [chartData, isRtl]);
+
+    if (isLoading) {
+        return (
+            <div className="w-full">
+                <CardContent className="ps-2">
+                    <Skeleton className="h-[300px] w-full rounded-2xl" />
+                </CardContent>
+            </div>
+        );
+    }
 
     return (
-        <Card className="col-span-4">
-            <CardHeader>
-                <CardTitle>{t('dashboard.revenue_overview') || 'نظرة عامة على الإيرادات'}</CardTitle>
-                <CardDescription>
-                    {t('dashboard.revenue_description') || 'تحليل الإيرادات الشهرية للسنة الحالية'}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="pl-2">
+        <div className="w-full">
+            <CardContent className="ps-2">
                 <div className="h-[300px] w-full" style={{ direction: 'ltr' }}>
                     {/* Charts are usually LTR regardless of page direction for axis consistency, or need specific handling */}
                     <ResponsiveContainer width="100%" height="100%">
@@ -92,6 +99,6 @@ export function RevenueChart() {
                     </ResponsiveContainer>
                 </div>
             </CardContent>
-        </Card>
+        </div>
     );
 }

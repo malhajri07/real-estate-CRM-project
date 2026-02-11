@@ -25,12 +25,12 @@ import { Card, CardContent } from "@/components/ui/card";
 type AgencyRow = { id: string; name: string; verified: boolean; agentsCount: number; listingsCount: number };
 
 export default function AgenciesPage() {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const { data = [], isLoading, error } = useQuery<AgencyRow[]>({ queryKey: ["/api/agencies"] });
   
   if (isLoading) {
     return (
-      <main className={PAGE_WRAPPER} dir="rtl">
+      <main className={PAGE_WRAPPER} dir={dir}>
         <div className={LOADING_STYLES.container}>
           <div className={LOADING_STYLES.text}>...جار التحميل</div>
         </div>
@@ -40,7 +40,7 @@ export default function AgenciesPage() {
   
   if (error) {
     return (
-      <main className={PAGE_WRAPPER} dir="rtl">
+      <main className={PAGE_WRAPPER} dir={dir}>
         <Card className={CARD_STYLES.container}>
           <CardContent className="p-6">
             <div className="text-red-600 text-center">تعذر تحميل الوكالات</div>
@@ -51,7 +51,7 @@ export default function AgenciesPage() {
   }
 
   return (
-    <main className={PAGE_WRAPPER} dir="rtl">
+    <main className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {data.map((a) => (

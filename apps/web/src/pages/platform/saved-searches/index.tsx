@@ -20,8 +20,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, LOADING_STYLES, EMPTY_STYLES } from '@/config/platform-theme';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function SavedSearchesPage() {
+  const { dir } = useLanguage();
   const qc = useQueryClient();
   const { data = [], isLoading } = useQuery<any[]>({ queryKey: ['/api/search/saved'] });
 
@@ -48,7 +50,7 @@ export default function SavedSearchesPage() {
   });
 
   return (
-    <main className={PAGE_WRAPPER} dir="rtl">
+    <main className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
         <Card className={CARD_STYLES.container}>
           <CardHeader className={CARD_STYLES.header}>

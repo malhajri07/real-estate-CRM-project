@@ -18,7 +18,23 @@ export default function ModerationQueuePage() {
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   const { data: items = [], isLoading } = useQuery<Property[]>({
-    queryKey: ["/api/moderation/queue"]
+    queryKey: ["/api/moderation/queue"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/moderation/queue");
+      return res.json();
+    }
+  });
+
+  const { data: stats, isLoading: statsLoading } = useQuery<{
+    pending: { today: number; last7Days: number; last30Days: number };
+    approved: { today: number; last7Days: number; last30Days: number };
+    rejected: { today: number; last7Days: number; last30Days: number };
+  }>({
+    queryKey: ["/api/moderation/stats"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", "/api/moderation/stats");
+      return res.json();
+    }
   });
 
   const approveMutation = useMutation({
@@ -157,22 +173,22 @@ export default function ModerationQueuePage() {
           title="بانتظار المراجعة"
           subtitle="إعلانات جديدة"
           icon={<Clock className="w-5 h-5 text-amber-600" />}
-          metric={{ today: items.length, last7Days: items.length, last30Days: items.length }}
-          loading={isLoading}
+          metric={stats?.pending || { today: items.length, last7Days: items.length, last30Days: items.length }}
+          loading={isLoading || statsLoading}
         />
         <MetricCard
           title="تم اعتماده اليوم"
           subtitle="إجراء تلقائي"
           icon={<CheckCircle2 className="w-5 h-5 text-emerald-600" />}
-          metric={{ today: 0, last7Days: 0, last30Days: 0 }} // Mock for now, requires backend count
-          loading={false}
+          metric={stats?.approved || { today: 0, last7Days: 0, last30Days: 0 }}
+          loading={statsLoading}
         />
         <MetricCard
           title="تم رفضه اليوم"
           subtitle="مخالف للسياسات"
           icon={<XCircle className="w-5 h-5 text-rose-600" />}
-          metric={{ today: 0, last7Days: 0, last30Days: 0 }} // Mock for now
-          loading={false}
+          metric={stats?.rejected || { today: 0, last7Days: 0, last30Days: 0 }}
+          loading={statsLoading}
         />
       </div>
 

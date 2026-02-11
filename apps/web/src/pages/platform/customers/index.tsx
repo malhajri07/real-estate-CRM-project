@@ -34,8 +34,10 @@ import { useToast } from "@/hooks/use-toast";
 import type { Lead } from "@shared/types";
 import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, INPUT_STYLES, EMPTY_STYLES, LOADING_STYLES, BADGE_STYLES } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Customers() {
+  const { dir } = useLanguage();
   const [addLeadDrawerOpen, setAddLeadDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -297,7 +299,7 @@ export default function Customers() {
 
   if (isLoading) {
     return (
-      <div className={LOADING_STYLES.container} dir="rtl">
+      <div className={LOADING_STYLES.container} dir={dir}>
         <div className={LOADING_STYLES.text}>جار تحميل العملاء...</div>
       </div>
     );
@@ -305,7 +307,7 @@ export default function Customers() {
 
   return (
     <>
-      <main className={PAGE_WRAPPER} dir="rtl">
+      <main className={PAGE_WRAPPER} dir={dir}>
         <Card className={CARD_STYLES.container}>
           <CardHeader className={cn(CARD_STYLES.header, "border-b border-gray-200")}>
             <div className="flex items-center justify-between mb-4">

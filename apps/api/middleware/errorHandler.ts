@@ -20,6 +20,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../errors/AppError';
 import { logger } from '../logger';
 import { ZodError } from 'zod';
+import { getErrorResponse } from '../i18n';
 
 /**
  * Error handling middleware
@@ -40,37 +41,36 @@ export const errorHandler = (
     userId: (req as any).user?.id,
   }, 'Error occurred');
 
+  // Get locale from request (set by localeMiddleware) or default to Arabic
+  const locale = (req as any).locale || (req.headers['accept-language'] || '').split(',')[0]?.split('-')[0] || 'ar';
+
   // Handle known errors (AppError instances)
   if (err instanceof AppError) {
+    // If AppError has a code, try to localize it, otherwise use the message as-is
+    const errorCode = err.code || 'SERVER_ERROR';
+    const errorResponse = getErrorResponse(errorCode as any, locale, err.details);
     return res.status(err.statusCode).json({
-      error: err.code || 'APP_ERROR',
-      message: err.message,
-      ...(err.details && { details: err.details }),
+      ...errorResponse,
       ...(process.env.NODE_ENV === 'development' && {
         stack: err.stack,
+        originalMessage: err.message,
       }),
     });
   }
 
   // Handle validation errors (Zod)
   if (err instanceof ZodError) {
-    return res.status(400).json({
-      error: 'VALIDATION_ERROR',
-      message: 'Invalid input data',
-      details: err.errors,
-    });
+    const errorResponse = getErrorResponse('VALIDATION_ERROR', locale, err.errors);
+    return res.status(400).json(errorResponse);
   }
 
   // Handle unknown errors
-  res.status(500).json({
-    error: 'INTERNAL_ERROR',
-    message: process.env.NODE_ENV === 'production'
-      ? 'An error occurred'
-      : err.message,
-    ...(process.env.NODE_ENV === 'development' && {
-      stack: err.stack,
-    }),
-  });
+  const errorResponse = getErrorResponse(
+    'SERVER_ERROR',
+    locale,
+    process.env.NODE_ENV === 'development' ? { originalMessage: err.message, stack: err.stack } : undefined
+  );
+  res.status(500).json(errorResponse);
 };
 
 /**

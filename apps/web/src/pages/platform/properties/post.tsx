@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function PostListingPage() {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const [form, setForm] = useState({
     title: "",
     address: "",
@@ -71,7 +71,7 @@ export default function PostListingPage() {
   };
 
   return (
-    <main className={PAGE_WRAPPER} dir="rtl">
+    <main className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
         <Card className={CARD_STYLES.container}>
           <CardHeader className={CARD_STYLES.header}>

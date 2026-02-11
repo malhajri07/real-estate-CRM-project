@@ -111,19 +111,19 @@ export default function RoleBasedDashboard() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button variant="outline" className="w-full justify-start">
-                  <Users className="h-4 w-4 mr-2" />
+                  <Users className="h-4 w-4 me-2" />
                   إدارة المستخدمين
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <Building className="h-4 w-4 mr-2" />
+                  <Building className="h-4 w-4 me-2" />
                   إدارة الشركات
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <Settings className="h-4 w-4 mr-2" />
+                  <Settings className="h-4 w-4 me-2" />
                   إعدادات النظام
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <BarChart3 className="h-4 w-4 mr-2" />
+                  <BarChart3 className="h-4 w-4 me-2" />
                   سجلات التدقيق
                 </Button>
               </CardContent>
@@ -146,19 +146,19 @@ export default function RoleBasedDashboard() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button variant="outline" className="w-full justify-start">
-                  <UserCheck className="h-4 w-4 mr-2" />
+                  <UserCheck className="h-4 w-4 me-2" />
                   إدارة الوكلاء
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <Home className="h-4 w-4 mr-2" />
+                  <Home className="h-4 w-4 me-2" />
                   عقارات الشركة
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <BarChart3 className="h-4 w-4 mr-2" />
+                  <BarChart3 className="h-4 w-4 me-2" />
                   تقارير الأداء
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <Handshake className="h-4 w-4 mr-2" />
+                  <Handshake className="h-4 w-4 me-2" />
                   توزيع العملاء
                 </Button>
               </CardContent>
@@ -181,19 +181,19 @@ export default function RoleBasedDashboard() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button variant="outline" className="w-full justify-start">
-                  <Home className="h-4 w-4 mr-2" />
+                  <Home className="h-4 w-4 me-2" />
                   عقاراتي
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <Search className="h-4 w-4 mr-2" />
+                  <Search className="h-4 w-4 me-2" />
                   قاعدة بيانات المشترين
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <FileText className="h-4 w-4 mr-2" />
+                  <FileText className="h-4 w-4 me-2" />
                   العملاء المحتملين
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <Handshake className="h-4 w-4 mr-2" />
+                  <Handshake className="h-4 w-4 me-2" />
                   مطالباتي النشطة
                 </Button>
               </CardContent>
@@ -216,15 +216,15 @@ export default function RoleBasedDashboard() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button variant="outline" className="w-full justify-start">
-                  <FileText className="h-4 w-4 mr-2" />
+                  <FileText className="h-4 w-4 me-2" />
                   عروض البيع
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <Handshake className="h-4 w-4 mr-2" />
+                  <Handshake className="h-4 w-4 me-2" />
                   عروض الوكلاء
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <BarChart3 className="h-4 w-4 mr-2" />
+                  <BarChart3 className="h-4 w-4 me-2" />
                   تتبع المبيعات
                 </Button>
               </CardContent>
@@ -247,15 +247,15 @@ export default function RoleBasedDashboard() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <Button variant="outline" className="w-full justify-start">
-                  <FileText className="h-4 w-4 mr-2" />
+                  <FileText className="h-4 w-4 me-2" />
                   طلبات الشراء
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <Handshake className="h-4 w-4 mr-2" />
+                  <Handshake className="h-4 w-4 me-2" />
                   الوكلاء المطالبين
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <Search className="h-4 w-4 mr-2" />
+                  <Search className="h-4 w-4 me-2" />
                   البحث عن عقارات
                 </Button>
               </CardContent>
@@ -276,15 +276,15 @@ export default function RoleBasedDashboard() {
           </CardHeader>
           <CardContent className="space-y-2">
             <Button variant="outline" className="w-full justify-start">
-              <User className="h-4 w-4 mr-2" />
+              <User className="h-4 w-4 me-2" />
               الملف الشخصي
             </Button>
             <Button variant="outline" className="w-full justify-start">
-              <Settings className="h-4 w-4 mr-2" />
+              <Settings className="h-4 w-4 me-2" />
               إعدادات الحساب
             </Button>
             <Button variant="outline" className="w-full justify-start">
-              <Shield className="h-4 w-4 mr-2" />
+              <Shield className="h-4 w-4 me-2" />
               الأمان
             </Button>
           </CardContent>

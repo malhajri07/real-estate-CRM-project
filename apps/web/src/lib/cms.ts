@@ -120,11 +120,13 @@ export interface LandingPageContent {
   heroDashboardMetrics: HeroDashboardMetric[];
 
   // Features Section
+  featuresBadge?: string;
   featuresTitle: string;
   featuresDescription: string;
   features: Feature[];
 
   // Solutions Section
+  solutionsBadge?: string;
   solutionsTitle: string;
   solutionsDescription: string;
   solutions: Solution[];
@@ -134,10 +136,12 @@ export interface LandingPageContent {
   stats: Stat[];
 
   // Pricing Section
+  pricingBadge?: string;
   pricingTitle: string;
   pricingSubtitle: string;
 
   // Contact Section
+  contactBadge?: string;
   contactTitle: string;
   contactDescription: string;
   contactInfo: ContactInfo[];

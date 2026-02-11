@@ -24,14 +24,14 @@ import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, LOADING_STYLES, EMPTY_STYLES } f
 import { cn } from "@/lib/utils";
 
 export default function FavoritesPage() {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const { data: items = [], isLoading, error } = useQuery<Property[]>({
     queryKey: ["/api/favorites"],
   });
 
   if (isLoading) {
     return (
-      <main className={PAGE_WRAPPER} dir="rtl">
+      <main className={PAGE_WRAPPER} dir={dir}>
         <div className={LOADING_STYLES.container}>
           <div className={LOADING_STYLES.text}>...جار التحميل</div>
         </div>
@@ -41,7 +41,7 @@ export default function FavoritesPage() {
 
   if (error) {
     return (
-      <main className={PAGE_WRAPPER} dir="rtl">
+      <main className={PAGE_WRAPPER} dir={dir}>
         <Card className={CARD_STYLES.container}>
           <CardContent className="p-6">
             <div className={cn(EMPTY_STYLES.description, "text-red-600 text-center")}>حدث خطأ في جلب المفضلة</div>
@@ -52,7 +52,7 @@ export default function FavoritesPage() {
   }
 
   return (
-    <main className={PAGE_WRAPPER} dir="rtl">
+    <main className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
         <Card className={CARD_STYLES.container}>
           <CardHeader className={CARD_STYLES.header}>

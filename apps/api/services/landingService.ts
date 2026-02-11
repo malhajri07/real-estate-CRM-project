@@ -172,7 +172,8 @@ export const LandingService = {
   },
 
   async getPublicLanding() {
-    const sections = await prisma.landingSection.findMany({
+    // First try to get published sections
+    let sections = await prisma.landingSection.findMany({
       where: { status: "published", visible: true },
       orderBy: { orderIndex: "asc" },
       include: {
@@ -183,9 +184,25 @@ export const LandingService = {
       },
     });
 
-    return sections.map((section) =>
-      transformSection(section, { view: "published", includeMeta: false })
-    );
+    // If no published sections exist, fallback to draft sections (for initial setup)
+    if (sections.length === 0) {
+      sections = await prisma.landingSection.findMany({
+        where: { visible: true, status: { not: "archived" } },
+        orderBy: { orderIndex: "asc" },
+        include: {
+          cards: {
+            where: { visible: true, status: { not: "archived" } },
+            orderBy: { orderIndex: "asc" },
+          },
+        },
+      });
+    }
+
+    return sections.map((section) => {
+      // Use published view if section is published, otherwise use draft
+      const view = section.status === "published" ? "published" : "draft";
+      return transformSection(section, { view, includeMeta: false });
+    });
   },
 
   async createSection(params: {

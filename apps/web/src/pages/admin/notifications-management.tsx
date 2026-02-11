@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
     Bell,
     Mail,
@@ -19,6 +22,7 @@ import {
     Zap,
     CheckCircle2,
     AlertCircle,
+    AlertTriangle,
     Layout,
     MoreHorizontal,
     Code,
@@ -29,16 +33,16 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
-// --- Mock Data ---
+type NotificationTemplate = {
+    id: string;
+    name: string;
+    channels: string[];
+    status: string;
+    lastUpdated: string;
+    category: string;
+};
 
-const TEMPLATES = [
-    { id: 1, name: "تفعيل الحساب", channels: ["Email", "SMS"], status: "Active", lastUpdated: "منذ يومين", category: "Authentication" },
-    { id: 2, name: "تنبيه عقار جديد", channels: ["Push", "Email"], status: "Active", lastUpdated: "منذ ٥ ساعات", category: "Marketing" },
-    { id: 3, name: "تأكيد الدفع", channels: ["Email"], status: "Draft", lastUpdated: "منذ أسبوع", category: "Billing" },
-    { id: 4, name: "رمز التحقق (OTP)", channels: ["SMS", "WhatsApp"], status: "Active", lastUpdated: "منذ ساعة", category: "Security" },
-];
-
-function NotificationTemplates() {
+function NotificationTemplates({ templates, isLoading }: { templates: NotificationTemplate[]; isLoading: boolean }) {
     return (
         <Card className="glass border-0 rounded-[2.5rem] overflow-hidden shadow-none">
             <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
@@ -58,7 +62,18 @@ function NotificationTemplates() {
                 </div>
             </div>
             <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                {TEMPLATES.map((template) => (
+                {isLoading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                        <Card key={i} className="bg-white/50 border border-slate-100 rounded-[2rem] p-6">
+                            <Skeleton className="h-32 w-full" />
+                        </Card>
+                    ))
+                ) : templates.length === 0 ? (
+                    <div className="col-span-2 p-8 text-center">
+                        <p className="text-slate-500 font-medium">لا توجد قوالب إشعارات</p>
+                    </div>
+                ) : (
+                    templates.map((template) => (
                     <Card key={template.id} className="bg-white/50 border border-slate-100 rounded-[2rem] p-6 hover:bg-white hover:shadow-2xl transition-all duration-300 group relative overflow-visible">
                         <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-4">
@@ -96,7 +111,8 @@ function NotificationTemplates() {
                             </div>
                         </div>
                     </Card>
-                ))}
+                    ))
+                )}
             </div>
         </Card>
     );
@@ -111,6 +127,27 @@ export default function NotificationsManagement() {
     const handleTabChange = (value: string) => {
         setLocation(`/admin/notifications/${value}`);
     };
+
+    // Fetch notification templates
+    const { data: templatesData, isLoading: templatesLoading } = useQuery<{ success: boolean; templates: NotificationTemplate[] }>({
+        queryKey: ['/api/rbac-admin/notifications/templates'],
+        queryFn: async () => {
+            const res = await apiRequest('GET', '/api/rbac-admin/notifications/templates');
+            return res.json();
+        }
+    });
+
+    // Fetch notification stats
+    const { data: statsData, isLoading: statsLoading } = useQuery<{ success: boolean; stats: { notificationsToday: string; deliveryRate: string; errors: number; avgDeliveryTime: string } }>({
+        queryKey: ['/api/rbac-admin/notifications/stats'],
+        queryFn: async () => {
+            const res = await apiRequest('GET', '/api/rbac-admin/notifications/stats');
+            return res.json();
+        }
+    });
+
+    const templates = templatesData?.templates || [];
+    const stats = statsData?.stats;
 
     return (
         <div className="space-y-8 animate-in-start" dir="rtl">
@@ -130,22 +167,30 @@ export default function NotificationsManagement() {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                    { title: "إشعارات اليوم", value: "٤,٢٥٠", icon: Send, color: "text-blue-600", bg: "bg-blue-50" },
-                    { title: "معدل الوصول", value: "٩٩.٨٪", icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
-                    { title: "أخطاء الإرسال", value: "٥ أخطاء", icon: AlertTriangle, color: "text-rose-600", bg: "bg-rose-50" },
-                    { title: "وقت التسليم", value: "١.٢ ث", icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
-                ].map((stat, i) => (
-                    <Card key={i} className="glass border-0 rounded-[2rem] p-6 shadow-none flex items-center gap-4 hover:bg-white hover:shadow-xl transition-all">
-                        <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", stat.bg, stat.color)}>
-                            <stat.icon className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.title}</p>
-                            <h3 className="text-xl font-black text-slate-900">{stat.value}</h3>
-                        </div>
-                    </Card>
-                ))}
+                {statsLoading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                        <Card key={i} className="glass border-0 rounded-[2rem] p-6 shadow-none">
+                            <Skeleton className="h-20 w-full" />
+                        </Card>
+                    ))
+                ) : (
+                    [
+                        { title: "إشعارات اليوم", value: stats?.notificationsToday || "0", icon: Send, color: "text-blue-600", bg: "bg-blue-50" },
+                        { title: "معدل الوصول", value: stats?.deliveryRate || "0%", icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
+                        { title: "أخطاء الإرسال", value: `${stats?.errors || 0} أخطاء`, icon: AlertTriangle, color: "text-rose-600", bg: "bg-rose-50" },
+                        { title: "وقت التسليم", value: stats?.avgDeliveryTime || "0 ث", icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
+                    ].map((stat, i) => (
+                        <Card key={i} className="glass border-0 rounded-[2rem] p-6 shadow-none flex items-center gap-4 hover:bg-white hover:shadow-xl transition-all">
+                            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", stat.bg, stat.color)}>
+                                <stat.icon className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.title}</p>
+                                <h3 className="text-xl font-black text-slate-900">{stat.value}</h3>
+                            </div>
+                        </Card>
+                    ))
+                )}
             </div>
 
             <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
@@ -156,7 +201,7 @@ export default function NotificationsManagement() {
                 </TabsList>
 
                 <TabsContent value="templates" className="space-y-4">
-                    <NotificationTemplates />
+                    <NotificationTemplates templates={templates} isLoading={templatesLoading} />
                 </TabsContent>
 
                 <TabsContent value="channels" className="space-y-6">

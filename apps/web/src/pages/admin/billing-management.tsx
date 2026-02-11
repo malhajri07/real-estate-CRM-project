@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,17 +28,42 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
-// --- Mock Data ---
+type Invoice = {
+    id: string;
+    number: string;
+    status: string;
+    issueDate: string;
+    amountDue: number | string;
+    amountPaid: number | string;
+    currency: string;
+    account?: {
+        organization?: {
+            nameAr?: string;
+            nameEn?: string;
+        } | null;
+        user?: {
+            firstName?: string | null;
+            lastName?: string | null;
+            email?: string | null;
+        } | null;
+    };
+    subscription?: {
+        plan?: {
+            nameAr?: string;
+            nameEn?: string;
+        } | null;
+    } | null;
+};
 
-const INVOICES = [
-    { id: "INV-2024-001", client: "شركة الأندلس العقارية", amount: "١٢,٤٠٠ ﷼", date: "٢٠٢٤/٠١/١٥", status: "Paid", type: "Subscription" },
-    { id: "INV-2024-002", client: "مؤسسة الرياض للاستثمار", amount: "٨,٩٠٠ ﷼", date: "٢٠٢٤/٠١/٢٠", status: "Pending", type: "Add-on" },
-    { id: "INV-2024-003", client: "عقارات الخليج", amount: "٤,٥٠٠ ﷼", date: "٢٠٢٤/٠٢/٠٥", status: "Overdue", type: "Subscription" },
-    { id: "INV-2024-004", client: "نماء العقارية", amount: "١٥,٠٠٠ ﷼", date: "٢٠٢٤/٠٢/١٠", status: "Paid", type: "Custom" },
-];
+type BillingStats = {
+    totalCollected: number;
+    pendingInvoices: number;
+    revenueChange: string;
+};
 
-function InvoiceTable() {
+function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading: boolean }) {
     return (
         <Card className="glass border-0 rounded-[2.5rem] overflow-hidden shadow-none">
             <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
@@ -68,36 +95,68 @@ function InvoiceTable() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 px-8">
-                        {INVOICES.map((inv, i) => (
-                            <tr key={i} className="hover:bg-blue-50/30 transition-colors group">
-                                <td className="p-4"><span className="text-sm font-black text-slate-900">{inv.id}</span></td>
-                                <td className="p-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-slate-700">{inv.client}</span>
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{inv.type}</span>
-                                    </div>
-                                </td>
-                                <td className="p-4"><span className="text-sm font-black text-blue-600">{inv.amount}</span></td>
-                                <td className="p-4"><span className="text-xs font-bold text-slate-500">{inv.date}</span></td>
-                                <td className="p-4">
-                                    <Badge className={cn(
-                                        "text-[10px] font-black border-0 px-3 py-1 rounded-lg",
-                                        inv.status === "Paid" ? "bg-emerald-50 text-emerald-700" :
-                                            inv.status === "Pending" ? "bg-amber-50 text-amber-700" :
-                                                "bg-rose-50 text-rose-700"
-                                    )}>
-                                        {inv.status === "Paid" ? "مدفوعة" : inv.status === "Pending" ? "معلقة" : "متأخرة"}
-                                    </Badge>
-                                </td>
-                                <td className="p-4">
-                                    <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50"><Eye className="h-4 w-4" /></Button>
-                                        <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50"><Download className="h-4 w-4" /></Button>
-                                        <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50"><MoreHorizontal className="h-4 w-4" /></Button>
-                                    </div>
+                        {isLoading ? (
+                            Array.from({ length: 5 }).map((_, i) => (
+                                <tr key={i}>
+                                    <td colSpan={6} className="p-4">
+                                        <Skeleton className="h-12 w-full" />
+                                    </td>
+                                </tr>
+                            ))
+                        ) : invoices.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} className="p-8 text-center">
+                                    <p className="text-slate-500 font-medium">لا توجد فواتير</p>
                                 </td>
                             </tr>
-                        ))}
+                        ) : (
+                            invoices.map((inv) => {
+                                const clientName = inv.account?.organization?.nameAr || 
+                                    inv.account?.organization?.nameEn ||
+                                    `${inv.account?.user?.firstName || ''} ${inv.account?.user?.lastName || ''}`.trim() ||
+                                    inv.account?.user?.email ||
+                                    'غير محدد';
+                                const invoiceType = inv.subscription?.plan?.nameAr || 
+                                    inv.subscription?.plan?.nameEn || 
+                                    'فاتورة';
+                                const amount = Number(inv.amountPaid || inv.amountDue || 0);
+                                const formattedAmount = amount.toLocaleString('ar-SA');
+                                const statusMap: Record<string, { label: string; className: string }> = {
+                                    'PAID': { label: 'مدفوعة', className: 'bg-emerald-50 text-emerald-700' },
+                                    'PENDING': { label: 'معلقة', className: 'bg-amber-50 text-amber-700' },
+                                    'OVERDUE': { label: 'متأخرة', className: 'bg-rose-50 text-rose-700' },
+                                    'DRAFT': { label: 'مسودة', className: 'bg-slate-50 text-slate-700' }
+                                };
+                                const statusInfo = statusMap[inv.status] || { label: inv.status, className: 'bg-slate-50 text-slate-700' };
+                                const issueDate = new Date(inv.issueDate).toLocaleDateString('ar-SA');
+
+                                return (
+                                    <tr key={inv.id} className="hover:bg-blue-50/30 transition-colors group">
+                                        <td className="p-4"><span className="text-sm font-black text-slate-900">{inv.number}</span></td>
+                                        <td className="p-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-bold text-slate-700">{clientName}</span>
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{invoiceType}</span>
+                                            </div>
+                                        </td>
+                                        <td className="p-4"><span className="text-sm font-black text-blue-600">{formattedAmount} {inv.currency || 'ر.س'}</span></td>
+                                        <td className="p-4"><span className="text-xs font-bold text-slate-500">{issueDate}</span></td>
+                                        <td className="p-4">
+                                            <Badge className={cn("text-[10px] font-black border-0 px-3 py-1 rounded-lg", statusInfo.className)}>
+                                                {statusInfo.label}
+                                            </Badge>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50"><Eye className="h-4 w-4" /></Button>
+                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50"><Download className="h-4 w-4" /></Button>
+                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50"><MoreHorizontal className="h-4 w-4" /></Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -114,6 +173,27 @@ export default function BillingManagement() {
     const handleTabChange = (value: string) => {
         setLocation(`/admin/billing/${value}`);
     };
+
+    // Fetch invoices
+    const { data: invoicesData, isLoading: invoicesLoading } = useQuery<{ success: boolean; invoices: Invoice[] }>({
+        queryKey: ['/api/rbac-admin/billing/invoices'],
+        queryFn: async () => {
+            const res = await apiRequest('GET', '/api/rbac-admin/billing/invoices');
+            return res.json();
+        }
+    });
+
+    // Fetch billing stats
+    const { data: statsData, isLoading: statsLoading } = useQuery<{ success: boolean; stats: BillingStats }>({
+        queryKey: ['/api/rbac-admin/billing/stats'],
+        queryFn: async () => {
+            const res = await apiRequest('GET', '/api/rbac-admin/billing/stats');
+            return res.json();
+        }
+    });
+
+    const invoices = invoicesData?.invoices || [];
+    const stats = statsData?.stats;
 
     return (
         <div className="space-y-8 animate-in-start" dir="rtl">
@@ -133,23 +213,49 @@ export default function BillingManagement() {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                    { title: "إجمالي التحصيل", value: "٤٥٠,٠٠٠ ﷼", icon: Wallet, color: "text-blue-600", bg: "bg-blue-50" },
-                    { title: "فواتير معلقة", value: "١٢ فاتورة", icon: History, color: "text-amber-600", bg: "bg-amber-50" },
-                    { title: "الإيراد الشهري", value: "+١٥٪", icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50" },
-                ].map((stat, i) => (
-                    <Card key={i} className="glass border-0 rounded-[2rem] p-6 shadow-none hover:bg-white hover:shadow-xl transition-all">
-                        <div className="flex items-center gap-4">
-                            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", stat.bg, stat.color)}>
-                                <stat.icon className="h-6 w-6" />
+                {statsLoading ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                        <Card key={i} className="glass border-0 rounded-[2rem] p-6 shadow-none">
+                            <Skeleton className="h-20 w-full" />
+                        </Card>
+                    ))
+                ) : (
+                    [
+                        { 
+                            title: "إجمالي التحصيل", 
+                            value: `${(stats?.totalCollected || 0).toLocaleString('ar-SA')} ر.س`, 
+                            icon: Wallet, 
+                            color: "text-blue-600", 
+                            bg: "bg-blue-50" 
+                        },
+                        { 
+                            title: "فواتير معلقة", 
+                            value: `${stats?.pendingInvoices || 0} فاتورة`, 
+                            icon: History, 
+                            color: "text-amber-600", 
+                            bg: "bg-amber-50" 
+                        },
+                        { 
+                            title: "الإيراد الشهري", 
+                            value: `${stats?.revenueChange ? (Number(stats.revenueChange) > 0 ? '+' : '') + stats.revenueChange : '0'}٪`, 
+                            icon: TrendingUp, 
+                            color: "text-emerald-600", 
+                            bg: "bg-emerald-50" 
+                        },
+                    ].map((stat, i) => (
+                        <Card key={i} className="glass border-0 rounded-[2rem] p-6 shadow-none hover:bg-white hover:shadow-xl transition-all">
+                            <div className="flex items-center gap-4">
+                                <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", stat.bg, stat.color)}>
+                                    <stat.icon className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.title}</p>
+                                    <h3 className="text-xl font-black text-slate-900">{stat.value}</h3>
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.title}</p>
-                                <h3 className="text-xl font-black text-slate-900">{stat.value}</h3>
-                            </div>
-                        </div>
-                    </Card>
-                ))}
+                        </Card>
+                    ))
+                )}
             </div>
 
             <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
@@ -160,7 +266,7 @@ export default function BillingManagement() {
                 </TabsList>
 
                 <TabsContent value="invoices" className="space-y-4">
-                    <InvoiceTable />
+                    <InvoiceTable invoices={invoices} isLoading={invoicesLoading} />
                 </TabsContent>
 
                 <TabsContent value="subscriptions" className="space-y-4">

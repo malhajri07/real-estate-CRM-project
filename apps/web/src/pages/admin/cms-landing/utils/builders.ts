@@ -57,6 +57,7 @@ export function buildSectionPayload(section: LandingSection, form: SectionFormSt
     case "contact":
       draftJson = {
         ...baseDraft,
+        badge: form.badge ?? "",
         title: form.title ?? "",
         subtitle: form.subtitle ?? "",
         description: form.description ?? "",

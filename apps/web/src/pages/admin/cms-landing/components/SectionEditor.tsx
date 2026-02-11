@@ -182,18 +182,30 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
           )}
 
           {["features", "solutions", "pricing", "contact"].includes(section.slug) && (
-            <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">وصف القسم التفصيلي</label>
-              <Textarea
-                value={formState.description ?? ""}
-                onChange={(event) =>
-                  setField("description", event.target.value)
-                }
-                rows={4}
-                placeholder="اشرح لعملائك أهمية هذا القسم وما سيستفيدونه منه..."
-                className="rounded-2xl bg-white/50 border-slate-100 focus:ring-blue-500/20 font-medium text-slate-600 leading-relaxed placeholder:text-slate-300"
-              />
-            </div>
+            <>
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">نص الشارة العلوية (Badge)</label>
+                <Input
+                  value={formState.badge ?? ""}
+                  onChange={(event) => setField("badge", event.target.value)}
+                  placeholder="مثال: مميزات النظام، حلول متكاملة، خطط التسعير، تواصل معنا"
+                  className="h-14 rounded-2xl bg-white/50 border-slate-100 focus:ring-blue-500/20 font-black text-blue-600 placeholder:text-slate-300"
+                />
+                <p className="text-xs text-slate-400 px-1">نص صغير يظهر أعلى العنوان الرئيسي للقسم</p>
+              </div>
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">وصف القسم التفصيلي</label>
+                <Textarea
+                  value={formState.description ?? ""}
+                  onChange={(event) =>
+                    setField("description", event.target.value)
+                  }
+                  rows={4}
+                  placeholder="اشرح لعملائك أهمية هذا القسم وما سيستفيدونه منه..."
+                  className="rounded-2xl bg-white/50 border-slate-100 focus:ring-blue-500/20 font-medium text-slate-600 leading-relaxed placeholder:text-slate-300"
+                />
+              </div>
+            </>
           )}
 
           {section.slug === "footer" && (

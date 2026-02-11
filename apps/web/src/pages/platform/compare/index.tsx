@@ -34,7 +34,7 @@ type Listing = {
 };
 
 export default function ComparePage() {
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
   const [items, setItems] = useState<Listing[]>([]);
 
   const ids = useMemo(() => {
@@ -58,7 +58,7 @@ export default function ComparePage() {
   }, [ids]);
 
   return (
-    <main className={PAGE_WRAPPER} dir="rtl">
+    <main className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
         <Card className={CARD_STYLES.container}>
           <CardHeader className={CARD_STYLES.header}>

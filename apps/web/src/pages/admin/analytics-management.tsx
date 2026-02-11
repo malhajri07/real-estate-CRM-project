@@ -1,8 +1,11 @@
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
     BarChart3,
     TrendingUp,
@@ -36,31 +39,6 @@ import {
 } from "recharts";
 import { cn } from "@/lib/utils";
 
-// --- Mock Data ---
-
-const VISITOR_DATA = [
-    { name: "السبت", visits: 4500, users: 3200 },
-    { name: "الأحد", visits: 5200, users: 4100 },
-    { name: "الاثنين", visits: 4800, users: 3800 },
-    { name: "الثلاثاء", visits: 6100, users: 4900 },
-    { name: "الأربعاء", visits: 5900, users: 4600 },
-    { name: "الخميس", visits: 7200, users: 5800 },
-    { name: "الجمعة", visits: 6800, users: 5400 },
-];
-
-const DEVICE_DATA = [
-    { name: "جوال", value: 65, color: "#3b82f6" },
-    { name: "حاسوب", value: 30, color: "#10b981" },
-    { name: "تابلت", value: 5, color: "#f59e0b" },
-];
-
-const PAGE_VIEWS = [
-    { page: "/listings", views: "١٢,٤٠٠", change: "+١٢٪", status: "up" },
-    { page: "/search", views: "٨,٩٠٠", change: "+١٨٪", status: "up" },
-    { page: "/login", views: "٤,٥٠٠", change: "-٥٪", status: "down" },
-    { page: "/signup", views: "٢,١٠٠", change: "+٢٤٪", status: "up" },
-];
-
 // --- Sub-components ---
 
 function CustomTooltip({ active, payload, label }: any) {
@@ -85,6 +63,30 @@ function CustomTooltip({ active, payload, label }: any) {
 
 export default function AnalyticsManagement() {
     const [timeRange, setTimeRange] = useState("7d");
+
+    const { data: analyticsData, isLoading } = useQuery<{
+        success: boolean;
+        metrics: {
+            totalVisits: string;
+            activeUsers: string;
+            conversionRate: string;
+            avgSessionTime: string;
+        };
+        visitorData: Array<{ name: string; visits: number; users: number }>;
+        deviceData: Array<{ name: string; value: number; color: string }>;
+        pageViews: Array<{ page: string; views: string; change: string; status: string }>;
+    }>({
+        queryKey: ['/api/rbac-admin/analytics/overview', timeRange],
+        queryFn: async () => {
+            const res = await apiRequest('GET', `/api/rbac-admin/analytics/overview?timeRange=${timeRange}`);
+            return res.json();
+        }
+    });
+
+    const metrics = analyticsData?.metrics;
+    const visitorData = analyticsData?.visitorData || [];
+    const deviceData = analyticsData?.deviceData || [];
+    const pageViews = analyticsData?.pageViews || [];
 
     return (
         <div className="space-y-8 animate-in-start" dir="rtl">
@@ -126,30 +128,38 @@ export default function AnalyticsManagement() {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                    { title: "إجمالي الزيارات", value: "١٢٨,٤٠٠", change: "+١٤.٢٪", icon: Eye, color: "text-blue-600", bg: "bg-blue-50" },
-                    { title: "المستخدمين النشطين", value: "٤٢,١٥٠", change: "+٨.١٪", icon: Users, color: "text-emerald-600", bg: "bg-emerald-50" },
-                    { title: "معدل التحويل", value: "٢.٤٪", change: "-١.٢٪", icon: Zap, color: "text-amber-600", bg: "bg-amber-50" },
-                    { title: "وقت الجلسة", value: "٤:٢٠ د", change: "+٠.٥٪", icon: Clock, color: "text-purple-600", bg: "bg-purple-50" },
-                ].map((metric, i) => (
-                    <Card key={i} className="glass border-0 rounded-[2rem] p-6 shadow-none flex flex-col justify-between hover:bg-white hover:shadow-2xl transition-all duration-300">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", metric.bg, metric.color)}>
-                                <metric.icon className="h-6 w-6" />
+                {isLoading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                        <Card key={i} className="glass border-0 rounded-[2rem] p-6 shadow-none">
+                            <Skeleton className="h-20 w-full" />
+                        </Card>
+                    ))
+                ) : (
+                    [
+                        { title: "إجمالي الزيارات", value: metrics?.totalVisits || "0", change: "+0%", icon: Eye, color: "text-blue-600", bg: "bg-blue-50" },
+                        { title: "المستخدمين النشطين", value: metrics?.activeUsers || "0", change: "+0%", icon: Users, color: "text-emerald-600", bg: "bg-emerald-50" },
+                        { title: "معدل التحويل", value: metrics?.conversionRate || "0%", change: "+0%", icon: Zap, color: "text-amber-600", bg: "bg-amber-50" },
+                        { title: "وقت الجلسة", value: metrics?.avgSessionTime || "0 د", change: "+0%", icon: Clock, color: "text-purple-600", bg: "bg-purple-50" },
+                    ].map((metric, i) => (
+                        <Card key={i} className="glass border-0 rounded-[2rem] p-6 shadow-none flex flex-col justify-between hover:bg-white hover:shadow-2xl transition-all duration-300">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", metric.bg, metric.color)}>
+                                    <metric.icon className="h-6 w-6" />
+                                </div>
+                                <Badge className={cn(
+                                    "text-[10px] font-black border-0 px-2 py-0.5 rounded-lg",
+                                    metric.change.startsWith("+") ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+                                )}>
+                                    {metric.change}
+                                </Badge>
                             </div>
-                            <Badge className={cn(
-                                "text-[10px] font-black border-0 px-2 py-0.5 rounded-lg",
-                                metric.change.startsWith("+") ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
-                            )}>
-                                {metric.change}
-                            </Badge>
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{metric.title}</p>
-                            <h3 className="text-2xl font-black text-slate-900 tracking-tight">{metric.value}</h3>
-                        </div>
-                    </Card>
-                ))}
+                            <div>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{metric.title}</p>
+                                <h3 className="text-2xl font-black text-slate-900 tracking-tight">{metric.value}</h3>
+                            </div>
+                        </Card>
+                    ))
+                )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -171,8 +181,11 @@ export default function AnalyticsManagement() {
                         </div>
                     </div>
                     <div className="h-[350px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={VISITOR_DATA} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                        {isLoading ? (
+                            <Skeleton className="h-full w-full" />
+                        ) : (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={visitorData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
@@ -189,8 +202,9 @@ export default function AnalyticsManagement() {
                                 <Tooltip content={<CustomTooltip />} />
                                 <Area type="monotone" dataKey="visits" name="الزيارات" stroke="#3b82f6" strokeWidth={4} fillOpacity={1} fill="url(#colorVisits)" />
                                 <Area type="monotone" dataKey="users" name="المستخدمين" stroke="#10b981" strokeWidth={4} fillOpacity={1} fill="url(#colorUsers)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        )}
                     </div>
                 </Card>
 
@@ -200,31 +214,37 @@ export default function AnalyticsManagement() {
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">نسبة استخدام المنصة حسب الجهاز</p>
                     </div>
                     <div className="h-[250px] w-full relative">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={DEVICE_DATA}
+                        {isLoading ? (
+                            <Skeleton className="h-full w-full" />
+                        ) : (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={deviceData}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={60}
                                     outerRadius={80}
                                     paddingAngle={8}
-                                    dataKey="value"
-                                >
-                                    {DEVICE_DATA.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                            </PieChart>
-                        </ResponsiveContainer>
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
-                            <p className="text-2xl font-black text-slate-900">٦٥٪</p>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">جوال</p>
-                        </div>
+                                        dataKey="value"
+                                    >
+                                        {deviceData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        )}
+                        {deviceData.length > 0 && (
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+                                <p className="text-2xl font-black text-slate-900">{deviceData[0]?.value || 0}٪</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{deviceData[0]?.name || ''}</p>
+                            </div>
+                        )}
                     </div>
                     <div className="space-y-3 mt-6">
-                        {DEVICE_DATA.map((device, i) => (
+                        {deviceData.map((device, i) => (
                             <div key={i} className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl border border-slate-100">
                                 <div className="flex items-center gap-3">
                                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: device.color }} />
@@ -259,7 +279,22 @@ export default function AnalyticsManagement() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {PAGE_VIEWS.map((page, i) => (
+                            {isLoading ? (
+                                Array.from({ length: 4 }).map((_, i) => (
+                                    <tr key={i}>
+                                        <td colSpan={4} className="p-4">
+                                            <Skeleton className="h-12 w-full" />
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : pageViews.length === 0 ? (
+                                <tr>
+                                    <td colSpan={4} className="p-8 text-center">
+                                        <p className="text-slate-500 font-medium">لا توجد بيانات</p>
+                                    </td>
+                                </tr>
+                            ) : (
+                                pageViews.map((page, i) => (
                                 <tr key={i} className="hover:bg-blue-50/30 transition-colors group">
                                     <td className="p-4"><span className="text-sm font-bold text-slate-700">{page.page}</span></td>
                                     <td className="p-4"><span className="text-sm font-black text-slate-900">{page.views}</span></td>
@@ -277,7 +312,8 @@ export default function AnalyticsManagement() {
                                         </div>
                                     </td>
                                 </tr>
-                            ))}
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>

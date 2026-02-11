@@ -25,6 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Deal, Lead } from "@shared/types";
 import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, LOADING_STYLES } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const STAGES = [
   { id: "lead", title: "عميل محتمل", badge: "bg-slate-100 text-slate-700", accent: "text-slate-600" },
@@ -46,6 +47,7 @@ export default function Pipeline() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showRequestDrawer, setShowRequestDrawer] = useState(false);
+  const { dir } = useLanguage();
 
   const { data: deals, isLoading } = useQuery<Deal[]>({ queryKey: ["/api/deals"] });
   const { data: leads } = useQuery<Lead[]>({ queryKey: ["/api/leads"] });
@@ -234,14 +236,14 @@ export default function Pipeline() {
 
   if (isLoading) {
     return (
-      <div className={LOADING_STYLES.container} dir="rtl">
+      <div className={LOADING_STYLES.container} dir={dir}>
         <div className={LOADING_STYLES.text}>جارٍ تحميل مسار الصفقات...</div>
       </div>
     );
   }
 
   return (
-    <main className={PAGE_WRAPPER} dir="rtl">
+    <main className={PAGE_WRAPPER} dir={dir}>
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-1 text-end">

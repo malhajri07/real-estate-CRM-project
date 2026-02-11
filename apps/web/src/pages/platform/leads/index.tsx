@@ -224,14 +224,14 @@ export default function Leads() {
 
   if (isLoading) {
     return (
-      <div className={LOADING_STYLES.container} dir="rtl">
+      <div className={LOADING_STYLES.container} dir={dir}>
         <div className={LOADING_STYLES.text}>{t("leads.loading")}</div>
       </div>
     );
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir="rtl">
+    <div className={PAGE_WRAPPER} dir={dir}>
       <section className="ui-section">
         <header className="ui-section__header">
           <h2 className="text-lg font-semibold text-foreground">

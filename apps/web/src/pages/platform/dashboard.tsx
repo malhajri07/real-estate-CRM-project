@@ -18,11 +18,17 @@
  */
 
 import { ReactNode, useMemo, useState } from "react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
+import { motion } from "framer-motion";
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
-import { DateRangeFilter } from "@/components/dashboard/DateRangeFilter";
+import { MetricCard } from "@/components/dashboard/MetricCard";
+import { PipelineFlow } from "@/components/dashboard/PipelineFlow";
+import { LeadCard } from "@/components/dashboard/LeadCard";
+import { ActionCard } from "@/components/dashboard/ActionCard";
+import { TaskCard } from "@/components/dashboard/TaskCard";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/components/auth/AuthProvider";
 import {
   Activity,
   Lead,
@@ -44,15 +50,12 @@ import {
   Banknote,
   Building,
   Calendar,
-  Check,
-  Clock3,
   Download,
   Filter,
   Home,
-  MapPin,
-  Phone,
   Plus,
   Users,
+  Phone,
 } from "lucide-react";
 import AddLeadDrawer from "@/components/modals/add-lead-drawer";
 import AddPropertyDrawer from "@/components/modals/add-property-drawer";
@@ -78,7 +81,12 @@ export default function Dashboard() {
   const [addPropertyDrawerOpen, setAddPropertyDrawerOpen] = useState(false);
   const [completedactivities, setCompletedActivities] = useState<string[]>([]);
   const { dir, language, t } = useLanguage();
+  const [, setLocation] = useLocation();
+  const { user } = useAuth();
   const locale = language === "ar" ? "ar-SA" : "en-US";
+  
+  // Get user's name for welcome message
+  const userName = user?.firstName || user?.name || user?.username || "مستخدم";
 
   const {
     data: metrics,
@@ -133,7 +141,7 @@ export default function Dashboard() {
         label: t("dashboard.total_leads"),
         value: metrics?.totalLeads ?? 0,
         icon: Users,
-        accent: "bg-gradient-to-br from-brand-50 via-white to-white text-brand-700",
+        accent: "bg-gradient-to-br from-blue-50 via-white to-blue-50/30 text-blue-700",
         delta: { value: 12, tone: "up" as const },
         href: "/home/platform/leads",
       },
@@ -142,7 +150,7 @@ export default function Dashboard() {
         label: t("dashboard.active_properties"),
         value: metrics?.activeProperties ?? 0,
         icon: Building,
-        accent: "bg-gradient-to-br from-emerald-50 via-white to-white text-emerald-700",
+        accent: "bg-gradient-to-br from-emerald-50 via-white to-emerald-50/30 text-emerald-700",
         delta: { value: 8, tone: "up" as const },
         href: "/home/platform/properties",
       },
@@ -151,15 +159,16 @@ export default function Dashboard() {
         label: t("dashboard.deals_in_pipeline"),
         value: metrics?.dealsInPipeline ?? 0,
         icon: Filter,
-        accent: "bg-gradient-to-br from-amber-50 via-white to-white text-amber-600",
+        accent: "bg-gradient-to-br from-amber-50 via-white to-amber-50/30 text-amber-600",
         delta: { value: -2, tone: "down" as const },
+        href: "/home/platform/pipeline",
       },
       {
         id: "revenue",
         label: t("dashboard.monthly_revenue"),
         value: formatCurrency(metrics?.monthlyRevenue ?? 0),
         icon: Banknote,
-        accent: "bg-gradient-to-br from-rose-50 via-white to-white text-rose-600",
+        accent: "bg-gradient-to-br from-rose-50 via-white to-rose-50/30 text-rose-600",
         delta: { value: 24, tone: "up" as const },
       },
     ],
@@ -184,26 +193,40 @@ export default function Dashboard() {
         label: t("dashboard.quick_actions.add_lead"),
         icon: Plus,
         onClick: () => setAddLeadDrawerOpen(true),
+        variant: "primary" as const,
       },
       {
         id: "add-property",
         label: t("dashboard.quick_actions.add_property"),
         icon: Home,
         onClick: () => setAddPropertyDrawerOpen(true),
+        variant: "primary" as const,
       },
       {
         id: "schedule-showing",
         label: t("dashboard.quick_actions.schedule_showing"),
         icon: Calendar,
+        onClick: () => setLocation("/home/platform/calendar"),
+        variant: "secondary" as const,
       },
       {
         id: "export-leads",
         label: t("dashboard.quick_actions.export_leads"),
         icon: Download,
+        onClick: () => setLocation("/home/platform/leads"),
+        variant: "secondary" as const,
       },
     ],
-    [t]
+    [t, setLocation]
   );
+
+  const handleLeadCall = (phone: string) => {
+    window.open(`tel:${phone}`, '_self');
+  };
+
+  const handleLeadMessage = (leadId: string) => {
+    setLocation(`/home/platform/leads/${leadId}`);
+  };
 
   if (metricsLoading) {
     return (
@@ -222,76 +245,140 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="w-full space-y-6" dir={dir}>
-      <section aria-label={t("dashboard.quick_summary")} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {metricCards.map((metric) => (
-          <Link key={metric.id} to={metric.href || "#"}>
-            <Card className={cn("border border-border/60 shadow-card transition hover:-translate-y-0.5 hover:shadow-md cursor-pointer", metric.accent)}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/70 shadow-inner">
-                  <metric.icon className="h-5 w-5" />
-                </div>
-                <Badge variant={metric.delta.tone === "down" ? "warning" : "success"} className="rounded-full px-3 py-1 text-xs font-semibold">
-                  {metric.delta.tone === "down" ? "-" : "+"}
-                  {Math.abs(metric.delta.value)}%
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p className="text-3xl font-semibold text-slate-900">{metric.value}</p>
-                <CardDescription className="text-sm text-slate-600">
-                  {metric.label}
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </Link>
+    <div className="w-full space-y-8 relative min-h-screen" dir={dir}>
+      {/* Enhanced Background with Gradient Mesh */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.1),transparent_50%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)] pointer-events-none" />
+      
+      {/* Animated Background Orbs */}
+      <motion.div
+        animate={{
+          x: [0, 100, 0],
+          y: [0, 50, 0],
+          scale: [1, 1.1, 1],
+        }}
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+        className="absolute top-20 end-20 w-96 h-96 bg-emerald-400/10 blur-[120px] rounded-full pointer-events-none"
+      />
+      <motion.div
+        animate={{
+          x: [0, -80, 0],
+          y: [0, -40, 0],
+          scale: [1, 1.2, 1],
+        }}
+        transition={{
+          duration: 25,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1
+        }}
+        className="absolute bottom-20 start-20 w-80 h-80 bg-blue-400/10 blur-[100px] rounded-full pointer-events-none"
+      />
+      
+      {/* Enhanced Welcome Header with Gradient Card */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10"
+      >
+        <div className="bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 rounded-3xl p-8 border border-emerald-100/50 shadow-lg mb-8">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50/80 backdrop-blur-sm border border-emerald-100/50 text-emerald-700 text-sm font-bold shadow-sm mb-4">
+                <span>📊</span>
+                <span>{t("dashboard.dashboard") || "لوحة التحكم"}</span>
+              </div>
+              <h1 className="text-4xl lg:text-5xl font-black text-slate-900 mb-3" style={{ lineHeight: '1.4' }}>
+                {t("dashboard.welcome") || "مرحباً"} {userName}
+              </h1>
+              <p className="text-xl text-slate-600" style={{ lineHeight: '1.8' }}>
+                {t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+      
+      {/* Enhanced Metric Cards */}
+      <section aria-label={t("dashboard.quick_summary")} className="grid gap-6 md:grid-cols-2 xl:grid-cols-4 relative z-10">
+        {metricCards.map((metric, index) => (
+          <MetricCard
+            key={metric.id}
+            {...metric}
+            index={index}
+          />
         ))}
       </section>
 
-      <div className="grid gap-8 lg:grid-cols-3" aria-label={t("dashboard.details_section")}>
+      {/* Main Content Grid */}
+      <div className="grid gap-8 lg:grid-cols-3 relative z-10" aria-label={t("dashboard.details_section")}>
+        {/* Left Column - Main Content */}
         <div className="space-y-8 lg:col-span-2">
-          <Card className="shadow-card">
-            <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <CardTitle className="text-lg font-semibold">{t("dashboard.pipeline_stages")}</CardTitle>
-                <CardDescription>{t("dashboard.pipeline_description")}</CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <DateRangeFilter />
-                <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs">
-                  {dateFormatter.format(new Date())}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                {pipelineStages.map((stage) => (
-                  <div key={stage.id} className="rounded-2xl border border-border/60 bg-white/70 p-4 text-center shadow-sm">
-                    <p className="text-2xl font-semibold text-foreground">{stage.value}</p>
-                    <p className="mt-1 text-xs font-medium text-muted-foreground">{stage.label}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-8">
-                <RevenueChart />
-              </div>
-            </CardContent>
-          </Card>
+          {/* Enhanced Pipeline Flow */}
+          <div className="bg-gradient-to-br from-indigo-50/50 via-white to-indigo-50/30 rounded-3xl p-6 border-l-4 border-indigo-500 shadow-xl">
+            <PipelineFlow stages={pipelineStages} dateFormatter={dateFormatter} />
+          </div>
 
-          <Card className="shadow-card">
-            <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <CardTitle className="text-lg font-semibold">{t("dashboard.recent_leads")}</CardTitle>
-                <CardDescription>{t("dashboard.recent_leads_description")}</CardDescription>
-              </div>
-              <Button variant="ghost" size="sm" className="rounded-full px-4">
-                {t("form.view_all")}
-              </Button>
-            </CardHeader>
-            <CardContent>
+          {/* Revenue Chart with Gradient Background */}
+          <div className="bg-gradient-to-br from-emerald-50/50 via-white to-emerald-50/30 rounded-3xl p-6 border-l-4 border-emerald-500 shadow-xl">
+            <Card className="bg-transparent border-0 shadow-none">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50/80 backdrop-blur-sm border border-emerald-100/50 text-emerald-700 text-xs font-bold">
+                    <span>💰</span>
+                    <span>{t("dashboard.revenue") || "الإيرادات"}</span>
+                  </div>
+                </div>
+                <CardTitle className="text-2xl font-black text-slate-900">
+                  {t("dashboard.monthly_revenue") || "إيرادات الشهر"}
+                </CardTitle>
+                <CardDescription className="text-slate-600 mt-2" style={{ lineHeight: '1.8' }}>
+                  {t("dashboard.revenue_description") || t("dashboard.pipeline_description") || "نظرة عامة على الإيرادات الشهرية"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RevenueChart />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Enhanced Recent Leads with Gradient Background */}
+          <div className="bg-gradient-to-br from-blue-50/50 via-white to-blue-50/30 rounded-3xl p-6 border-l-4 border-blue-500 shadow-xl">
+            <Card className="bg-transparent border-0 shadow-none">
+              <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between pb-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/80 backdrop-blur-sm border border-blue-100/50 text-blue-700 text-xs font-bold">
+                      <span>👥</span>
+                    </div>
+                  </div>
+                  <CardTitle className="text-2xl font-black text-slate-900 mb-2">
+                    {t("dashboard.recent_leads")}
+                  </CardTitle>
+                  <CardDescription className="text-slate-600" style={{ lineHeight: '1.8' }}>
+                    {t("dashboard.recent_leads_description")}
+                  </CardDescription>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="rounded-full px-4 font-bold"
+                  onClick={() => setLocation("/home/platform/leads")}
+                >
+                  {t("form.view_all")}
+                </Button>
+              </CardHeader>
+              <CardContent>
               {leadsLoading ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {Array.from({ length: 4 }).map((_, index) => (
-                    <Skeleton key={index} className="h-16 w-full rounded-2xl" />
+                    <Skeleton key={index} className="h-20 w-full rounded-2xl" />
                   ))}
                 </div>
               ) : recentLeads.length === 0 ? (
@@ -301,46 +388,23 @@ export default function Dashboard() {
                   action={<Button onClick={() => setAddLeadDrawerOpen(true)}>{t("leads.add_lead")}</Button>}
                 />
               ) : (
-                <ul className="space-y-3" aria-live="polite">
-                  {recentLeads.slice(0, 6).map((lead) => {
+                <ul className="space-y-4" aria-live="polite">
+                  {recentLeads.slice(0, 6).map((lead, index) => {
                     const status = statusBadges[lead.status ?? ""] ?? {
                       label: lead.status ? t(`status.${lead.status}`) ?? lead.status : undefined,
                       variant: "secondary" as const,
                     };
 
                     return (
-                      <li key={lead.id} className="rounded-2xl border border-border/60 bg-white/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card">
-                        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-foreground">
-                              {lead.firstName} {lead.lastName}
-                            </p>
-                            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                              {lead.phone && (
-                                <span className="inline-flex items-center gap-1">
-                                  <Phone className="h-3.5 w-3.5" />
-                                  {lead.phone}
-                                </span>
-                              )}
-                              {lead.city && (
-                                <span className="inline-flex items-center gap-1">
-                                  <MapPin className="h-3.5 w-3.5" />
-                                  {lead.city}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col items-start gap-2 lg:items-end">
-                            <Badge variant={status.variant} className="rounded-full px-3 py-1 text-xs font-semibold">
-                              {status.label ?? (lead.status ?? t("status.new"))}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(lead.createdAt).toLocaleDateString(locale)}
-                            </span>
-                          </div>
-                        </div>
-                      </li>
+                      <LeadCard
+                        key={lead.id}
+                        lead={lead}
+                        statusBadge={status}
+                        locale={locale}
+                        index={index}
+                        onCall={handleLeadCall}
+                        onMessage={handleLeadMessage}
+                      />
                     );
                   })}
                 </ul>
@@ -349,41 +413,49 @@ export default function Dashboard() {
           </Card>
         </div>
 
+        {/* Right Column - Sidebar */}
         <div className="space-y-8">
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">{t("dashboard.quick_actions")}</CardTitle>
-              <CardDescription>{t("dashboard.quick_actions_description")}</CardDescription>
+          {/* Enhanced Quick Actions */}
+          <Card className="glass border-0 rounded-3xl shadow-xl">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-xl font-black text-slate-900 mb-2">
+                {t("dashboard.quick_actions")}
+              </CardTitle>
+              <CardDescription className="text-slate-600" style={{ lineHeight: '1.8' }}>
+                {t("dashboard.quick_actions_description")}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {quickActions.map((action) => (
-                <Button
+              {quickActions.map((action, index) => (
+                <ActionCard
                   key={action.id}
-                  variant={action.onClick ? "default" : "secondary"}
-                  className={cn(
-                    "w-full justify-between rounded-2xl px-4",
-                    !action.onClick && "opacity-50 cursor-not-allowed"
-                  )}
+                  id={action.id}
+                  label={action.label}
+                  icon={action.icon}
                   onClick={action.onClick}
                   disabled={!action.onClick}
-                >
-                  <span className="text-sm font-semibold">{action.label}</span>
-                  <action.icon className="h-4 w-4" />
-                </Button>
+                  variant={action.variant}
+                  index={index}
+                />
               ))}
             </CardContent>
           </Card>
 
-          <Card className="shadow-card">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold">{t("dashboard.tasks_title")}</CardTitle>
-              <CardDescription>{t("dashboard.tasks_description")}</CardDescription>
+          {/* Enhanced Today's Tasks */}
+          <Card className="glass border-0 rounded-3xl shadow-xl">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-xl font-black text-slate-900 mb-2">
+                {t("dashboard.tasks_title")}
+              </CardTitle>
+              <CardDescription className="text-slate-600" style={{ lineHeight: '1.8' }}>
+                {t("dashboard.tasks_description")}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {activitiesLoading ? (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {Array.from({ length: 3 }).map((_, index) => (
-                    <Skeleton key={index} className="h-16 w-full rounded-2xl" />
+                    <Skeleton key={index} className="h-20 w-full rounded-2xl" />
                   ))}
                 </div>
               ) : !todaysActivities || todaysActivities.length === 0 ? (
@@ -393,39 +465,21 @@ export default function Dashboard() {
                 />
               ) : (
                 <ul className="space-y-3" aria-live="polite">
-                  {todaysActivities.map((activity) => (
-                    <li
+                  {todaysActivities.map((activity, index) => (
+                    <TaskCard
                       key={activity.id}
-                      className={cn(
-                        "flex items-start gap-3 rounded-2xl border border-border/60 bg-white/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-card cursor-pointer group",
-                        (activity.completed || completedactivities.includes(activity.id)) && "opacity-60"
-                      )}
+                      activity={activity}
+                      completed={activity.completed || completedactivities.includes(activity.id)}
                       onClick={() => toggleActivity(activity.id)}
-                    >
-                      <span className={cn(
-                        "mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full border text-brand-600 transition-colors group-hover:bg-brand-100",
-                        (activity.completed || completedactivities.includes(activity.id)) ? "border-emerald-300 bg-emerald-50 text-emerald-600" : "border-brand-200 bg-brand-50"
-                      )}>
-                        {(activity.completed || completedactivities.includes(activity.id)) ? (
-                          <Check className="h-4 w-4" />
-                        ) : (
-                          <Clock3 className="h-4 w-4" />
-                        )}
-                      </span>
-                      <div className="space-y-1">
-                        <p className={cn("text-sm font-semibold transition-colors", (activity.completed || completedactivities.includes(activity.id)) && "line-through text-muted-foreground")}>{activity.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {activity.scheduledDate
-                            ? new Date(activity.scheduledDate).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })
-                            : t("dashboard.no_time_scheduled")}
-                        </p>
-                      </div>
-                    </li>
+                      locale={locale}
+                      index={index}
+                    />
                   ))}
                 </ul>
               )}
             </CardContent>
-          </Card>
+            </Card>
+          </div>
         </div>
       </div>
 

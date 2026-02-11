@@ -36,7 +36,7 @@ export function DateRangeFilter({
                             !date && "text-muted-foreground"
                         )}
                     >
-                        <CalendarIcon className="ml-2 h-4 w-4" />
+                        <CalendarIcon className="ms-2 h-4 w-4" />
                         {date?.from ? (
                             date.to ? (
                                 <>

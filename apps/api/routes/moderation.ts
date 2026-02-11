@@ -98,4 +98,117 @@ router.post("/:id/reject", async (req, res) => {
   }
 });
 
+/**
+ * GET /api/moderation/stats - Get moderation statistics
+ */
+router.get("/stats", async (_req, res) => {
+  try {
+    const { prisma } = await import("../prismaClient");
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    // Get all properties
+    const allProperties = await prisma.property_listings.findMany({
+      select: {
+        id: true,
+        status: true,
+        listed_date: true,
+        updated_at: true,
+        is_active: true
+      }
+    });
+
+    // Helper to check if needs moderation
+    const needsModeration = (p: any) => {
+      const status = (p.status || '').toLowerCase();
+      // Status can be "Pending", "pending", etc. - check if it needs review
+      return status === 'pending' || (!p.is_active && status !== 'active');
+    };
+
+    // Helper to check if approved
+    const isApproved = (p: any) => {
+      const status = (p.status || '').toLowerCase();
+      return status === 'approved' || (p.is_active && status === 'active');
+    };
+
+    // Helper to check if rejected
+    const isRejected = (p: any) => {
+      const status = (p.status || '').toLowerCase();
+      return status === 'rejected' || (!p.is_active && status !== 'pending');
+    };
+
+    // Helper to check if updated today
+    const updatedToday = (p: any) => {
+      if (!p.updated_at) return false;
+      const updated = new Date(p.updated_at);
+      return updated >= todayStart;
+    };
+
+    // Count pending
+    const pending = allProperties.filter(needsModeration);
+    const pendingToday = pending.filter(p => {
+      const created = new Date(p.listed_date);
+      return created >= todayStart;
+    });
+    const pending7Days = pending.filter(p => {
+      const created = new Date(p.listed_date);
+      return created >= sevenDaysAgo;
+    });
+    const pending30Days = pending.filter(p => {
+      const created = new Date(p.listed_date);
+      return created >= thirtyDaysAgo;
+    });
+
+    // Count approved today
+    const approvedToday = allProperties.filter(p => isApproved(p) && updatedToday(p));
+    const approved7Days = allProperties.filter(p => {
+      if (!isApproved(p)) return false;
+      const updated = new Date(p.updated_at);
+      return updated >= sevenDaysAgo;
+    });
+    const approved30Days = allProperties.filter(p => {
+      if (!isApproved(p)) return false;
+      const updated = new Date(p.updated_at);
+      return updated >= thirtyDaysAgo;
+    });
+
+    // Count rejected today
+    const rejectedToday = allProperties.filter(p => isRejected(p) && updatedToday(p));
+    const rejected7Days = allProperties.filter(p => {
+      if (!isRejected(p)) return false;
+      const updated = new Date(p.updated_at);
+      return updated >= sevenDaysAgo;
+    });
+    const rejected30Days = allProperties.filter(p => {
+      if (!isRejected(p)) return false;
+      const updated = new Date(p.updated_at);
+      return updated >= thirtyDaysAgo;
+    });
+
+    res.json({
+      pending: {
+        today: pendingToday.length,
+        last7Days: pending7Days.length,
+        last30Days: pending30Days.length
+      },
+      approved: {
+        today: approvedToday.length,
+        last7Days: approved7Days.length,
+        last30Days: approved30Days.length
+      },
+      rejected: {
+        today: rejectedToday.length,
+        last7Days: rejected7Days.length,
+        last30Days: rejected30Days.length
+      }
+    });
+  } catch (err) {
+    console.error("Error fetching moderation stats:", err);
+    res.status(500).json({ message: "Failed to fetch moderation stats" });
+  }
+});
+
 export default router;

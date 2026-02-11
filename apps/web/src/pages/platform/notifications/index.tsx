@@ -31,8 +31,10 @@ import type { Lead } from "@shared/types";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Notifications() {
+  const { dir } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [campaignTitle, setCampaignTitle] = useState("");
@@ -149,7 +151,7 @@ export default function Notifications() {
 
   if (isLoading) {
     return (
-      <main className={PAGE_WRAPPER} dir="rtl">
+      <main className={PAGE_WRAPPER} dir={dir}>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-slate-500">جار تحميل إشعارات العملاء...</div>
         </div>
@@ -159,7 +161,7 @@ export default function Notifications() {
 
   return (
     <>
-      <main className={PAGE_WRAPPER} dir="rtl">
+      <main className={PAGE_WRAPPER} dir={dir}>
         <section className="space-y-6">
           <Tabs defaultValue="customers" className="space-y-6">
             <TabsList className="grid w-full grid-cols-3">

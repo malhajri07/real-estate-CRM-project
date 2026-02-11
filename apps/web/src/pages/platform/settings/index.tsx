@@ -28,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Building2, User, Save, Upload, Shield, Bell, Users, CheckCircle, TrendingUp, ChevronDown } from "lucide-react";
 import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AccountDetails {
   companyName: string;
@@ -59,6 +60,7 @@ interface UserProfile {
 
 export default function Settings() {
   const { toast } = useToast();
+  const { dir } = useLanguage();
 
   const [accountDetails, setAccountDetails] = useState<AccountDetails>({
     companyName: "شركة عقاراتي للتطوير العقاري",
@@ -110,7 +112,7 @@ export default function Settings() {
   };
 
   return (
-    <main className={PAGE_WRAPPER} dir="rtl">
+    <main className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-8">
         <div className={cn(CARD_STYLES.container, "px-6 py-5 flex flex-col gap-4")}>
         <div>

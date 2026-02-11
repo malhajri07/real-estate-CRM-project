@@ -27,6 +27,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Download, Mail, Phone, RefreshCcw } from "lucide-react";
 import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const CONTRACT_LABELS: Record<string, string> = {
   buy: "شراء",
@@ -116,6 +117,7 @@ const formatDateTime = (value: unknown): string => {
 };
 
 export default function CustomerRequestsPage() {
+  const { dir } = useLanguage();
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery<PropertySeekerRecord[], Error>({
     queryKey: ["property-seekers"],
     queryFn: async () => {
@@ -174,7 +176,7 @@ export default function CustomerRequestsPage() {
   }, [seekers]);
 
   return (
-    <main className={PAGE_WRAPPER} dir="rtl">
+    <main className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
         <Card className={CARD_STYLES.container}>
           <CardHeader className={cn(CARD_STYLES.header, "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between")}>

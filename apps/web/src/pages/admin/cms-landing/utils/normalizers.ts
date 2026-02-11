@@ -50,6 +50,7 @@ export function normalizeSectionContent(section: LandingSection): SectionFormSta
     case "contact":
       return {
         ...base,
+        badge: content.badge ?? "",
         description: content.subtitle ?? content.body ?? "",
       };
     case "footer":

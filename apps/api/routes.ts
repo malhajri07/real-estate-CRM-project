@@ -23,9 +23,7 @@
  * - /api/moderation/* - Content moderation
  * - /api/reports/* - Analytics and reporting
  * - /api/agencies/* - Agency and agent management
- * - /api/media/* - File upload and media management
  * - /api/requests/* - General request handling
- * - /api/analytics/* - Analytics and KPI data
  * - /api/csv/* - CSV upload and processing
  * - / - Sitemap and SEO routes
  * 
@@ -336,20 +334,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/agencies", agenciesRoutes);
 
   /**
-   * Media Upload Routes - /api/media/*
-   * 
-   * Handles file upload and media management:
-   * - POST /api/media/upload - Upload files
-   * - GET /api/media/:id - Get media file
-   * - DELETE /api/media/:id - Delete media file
-   * 
-   * Dependencies: mediaRoutes from ./routes/media.ts
-   * Pages affected: Property images, profile pictures, document uploads
-   * Status: Temporarily disabled - requires Replit object storage replacement
-   */
-  // app.use("/api/media", mediaRoutes);
-
-  /**
    * General Request Routes - /api/requests/*
    * 
    * Handles general request processing:
@@ -374,19 +358,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Pages affected: Admin data management, development tools
    */
   app.use("/api", populateRoutes);
-
-  /**
-   * Analytics Routes - /api/analytics/*
-   * 
-   * Handles analytics and KPI data:
-   * - GET /api/analytics/overview - Get overview analytics
-   * - GET /api/analytics/comprehensive - Get comprehensive analytics
-   * - GET /api/analytics/kpis - Get KPI data
-   * 
-   * Dependencies: analyticsRoutes from ./src/routes/analytics.ts
-   * Pages affected: Analytics dashboard, RBAC dashboard, KPI displays
-   */
-  // app.use("/api/analytics", analyticsRoutes);
 
   /**
    * Deals Routes - /api/deals/*
@@ -432,11 +403,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Appointments Routes - /api/appointments/*
    */
   app.use("/api/appointments", appointmentsRoutes);
-
-  /**
-   * Audit Logs Routes - /api/audit-logs/*
-   */
-  app.use("/api/audit-logs", auditLogsRoutes);
 
   /**
    * Audit Logs Routes - /api/audit-logs/*

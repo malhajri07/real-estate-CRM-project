@@ -54,7 +54,7 @@ import {
 export default function Reports() {
   const [selectedPeriod, setSelectedPeriod] = useState("30");
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
 
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ["/api/dashboard/metrics"],
@@ -403,7 +403,7 @@ export default function Reports() {
 
   if (metricsLoading) {
     return (
-      <div className={LOADING_STYLES.container} dir="rtl">
+      <div className={LOADING_STYLES.container} dir={dir}>
         <div className={LOADING_STYLES.text}>جار تحميل التقارير...</div>
       </div>
     );
@@ -411,7 +411,7 @@ export default function Reports() {
 
   return (
     <>
-      <main className={PAGE_WRAPPER} dir="rtl">
+      <main className={PAGE_WRAPPER} dir={dir}>
         {/* Report Controls */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4 rtl:space-x-reverse">

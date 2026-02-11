@@ -32,7 +32,7 @@ import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, METRICS_
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const { t } = useLanguage();
+  const { t, dir } = useLanguage();
 
   const { data: leads, isLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
@@ -89,7 +89,7 @@ export default function Clients() {
 
   if (isLoading) {
     return (
-      <div className={LOADING_STYLES.container} dir="rtl">
+      <div className={LOADING_STYLES.container} dir={dir}>
         <div className={LOADING_STYLES.text}>جار تحميل العملاء...</div>
       </div>
     );
@@ -97,7 +97,7 @@ export default function Clients() {
 
   return (
     <>
-      <main className={PAGE_WRAPPER} dir="rtl">
+      <main className={PAGE_WRAPPER} dir={dir}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card className={interactiveCard}>
             <CardContent className="flex items-center justify-between p-5">
