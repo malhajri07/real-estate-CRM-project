@@ -42,15 +42,13 @@ export function LeadCard({
       className="group"
     >
       <Link to={`/home/platform/leads/${lead.id}`}>
-        <div className="bg-gradient-to-br from-white/90 via-white/80 to-blue-50/30 rounded-2xl p-5 border-l-4 border-blue-500 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden group">
-          {/* Enhanced Gradient Overlay on Hover */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/0 via-emerald-50/0 to-blue-50/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden group">
           
           <div className="relative z-10 flex items-start gap-4">
             {/* Avatar */}
             <div className="flex-shrink-0">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-100 to-blue-100 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
-                <span className="text-lg font-black text-emerald-700">
+              <div className="h-12 w-12 rounded-xl bg-slate-50 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300">
+                <span className="text-lg font-black text-slate-700">
                   {initials || "?"}
                 </span>
               </div>

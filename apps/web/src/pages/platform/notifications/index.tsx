@@ -29,7 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Lead } from "@shared/types";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY } from "@/config/platform-theme";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BADGE_STYLES, getNotificationStatusBadge } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -139,16 +139,6 @@ export default function Notifications() {
     setWhatsappModalOpen(true);
   };
 
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case "new": return "bg-blue-100 text-blue-800";
-      case "contacted": return "bg-yellow-100 text-yellow-800";
-      case "qualified": return "bg-green-100 text-green-800";
-      case "lost": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
-
   if (isLoading) {
     return (
       <main className={PAGE_WRAPPER} dir={dir}>
@@ -218,7 +208,7 @@ export default function Notifications() {
                                 <h4 className="font-semibold text-slate-900">
                                   {lead.firstName} {lead.lastName}
                                 </h4>
-                                <Badge className={getStatusBadgeColor(lead.status)}>
+                                <Badge className={cn(BADGE_STYLES.base, getNotificationStatusBadge(lead.status))}>
                                   {lead.status}
                                 </Badge>
                               </div>
@@ -271,14 +261,14 @@ export default function Notifications() {
 
           {/* Campaign Creation Tab */}
           <TabsContent value="campaign">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+            <Card className={CARD_STYLES.container}>
+              <CardHeader className={CARD_STYLES.header}>
+                <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                   <Send size={20} />
                   <span>إنشاء حملة جديدة</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className={cn(CARD_STYLES.content, "space-y-6")}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>

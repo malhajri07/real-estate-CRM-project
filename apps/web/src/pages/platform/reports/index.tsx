@@ -30,7 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type { Lead, Property, Deal } from "@shared/types";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, LOADING_STYLES } from "@/config/platform-theme";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, LOADING_STYLES, getIconSpacing } from "@/config/platform-theme";
 
 // Recharts components for comprehensive charts
 import {
@@ -56,40 +56,47 @@ export default function Reports() {
   const { toast } = useToast();
   const { t, dir } = useLanguage();
 
-  const { data: metrics, isLoading: metricsLoading } = useQuery({
-    queryKey: ["/api/dashboard/metrics"],
-  });
-
-  const { data: leads } = useQuery<Lead[]>({
+  const { data: leads = [], isLoading: leadsLoading, isError: leadsError } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
+    retry: false,
   });
 
-  const { data: properties } = useQuery<Property[]>({
+  const { data: properties = [], isLoading: propertiesLoading, isError: propertiesError } = useQuery<Property[]>({
     queryKey: ["/api/listings"],
+    retry: false,
   });
 
-  const { data: deals } = useQuery<Deal[]>({
+  const { data: deals = [], isLoading: dealsLoading, isError: dealsError } = useQuery<Deal[]>({
     queryKey: ["/api/deals"],
+    retry: false,
   });
+
+  const safeLeads = Array.isArray(leads) ? leads : [];
+  const safeProperties = Array.isArray(properties) ? properties : [];
+  const safeDeals = Array.isArray(deals) ? deals : [];
 
   const filterDataByPeriod = (data: any[], dateField: string) => {
-    if (!data) return [];
+    if (!Array.isArray(data)) return [];
     const days = parseInt(selectedPeriod);
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
 
-    return data.filter(item => new Date(item[dateField]) >= cutoffDate);
+    return data.filter(item => {
+      const val = item?.[dateField];
+      if (val == null) return false;
+      const d = new Date(val);
+      return !isNaN(d.getTime()) && d >= cutoffDate;
+    });
   };
 
-  const filteredLeads = filterDataByPeriod(leads || [], 'createdAt');
-  const filteredProperties = filterDataByPeriod(properties || [], 'createdAt');
-  const filteredDeals = filterDataByPeriod(deals || [], 'createdAt');
+  const filteredLeads = filterDataByPeriod(safeLeads, 'createdAt');
+  const filteredProperties = filterDataByPeriod(safeProperties, 'createdAt');
+  const filteredDeals = filterDataByPeriod(safeDeals, 'createdAt');
 
   const toNumber = (value: string | number | null | undefined): number | null => {
     if (value === null || value === undefined) return null;
-    if (typeof value === "number") {
-      return Number.isFinite(value) ? value : null;
-    }
+    if (typeof value === "number") return Number.isFinite(value) ? value : null;
+    if (typeof value !== "string") return null;
     const trimmed = value.trim();
     if (!trimmed) return null;
     const parsed = Number(trimmed);
@@ -330,8 +337,8 @@ export default function Reports() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg text-end">
-          <p className="font-medium text-gray-900 mb-2">{label}</p>
+        <div className="bg-white p-3 border border-slate-200 rounded-xl shadow-lg text-end">
+          <p className={cn(TYPOGRAPHY.label, "text-slate-900 mb-2")}>{label}</p>
           {payload.map((entry: any, index: number) => (
             <p
               key={index}
@@ -401,23 +408,29 @@ export default function Reports() {
     toast({ title: "نجح", description: "تم تصدير التقرير بنجاح" });
   };
 
-  if (metricsLoading) {
-    return (
-      <div className={LOADING_STYLES.container} dir={dir}>
-        <div className={LOADING_STYLES.text}>جار تحميل التقارير...</div>
-      </div>
-    );
-  }
+  const isInitialLoading = leadsLoading && propertiesLoading && dealsLoading;
+  const hasAnyError = leadsError || propertiesError || dealsError;
 
   return (
     <>
       <main className={PAGE_WRAPPER} dir={dir}>
+        {isInitialLoading && (
+          <div className={cn(LOADING_STYLES.container, "flex-col gap-4 mb-6")} dir={dir}>
+            <div className={LOADING_STYLES.spinner} />
+            <div className={LOADING_STYLES.text}>جار تحميل التقارير...</div>
+          </div>
+        )}
+        {hasAnyError && (
+          <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            قد لا تظهر بعض البيانات بسبب خطأ في تحميلها. جرب تحديث الصفحة.
+          </div>
+        )}
         {/* Report Controls */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-4 rtl:space-x-reverse">
             <div className="flex items-center space-x-2 rtl:space-x-reverse">
               <Calendar size={20} className="text-slate-500" />
-              <span className={cn(TYPOGRAPHY.label, "text-gray-700")}>فترة التقرير:</span>
+              <span className={cn(TYPOGRAPHY.label, "text-slate-700")}>فترة التقرير:</span>
               <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
                 <SelectTrigger className="w-32">
                   <SelectValue />
@@ -433,7 +446,7 @@ export default function Reports() {
           </div>
 
           <Button onClick={exportReport} className={BUTTON_PRIMARY_CLASSES}>
-            <Download className="ml-2" size={16} />
+            <Download className={getIconSpacing(dir)} size={16} />
             تصدير التقرير
           </Button>
         </div>
@@ -492,14 +505,14 @@ export default function Reports() {
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Time Series Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <LineChart size={20} />
                     <span>الاتجاهات الزمنية</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <ResponsiveContainer width="100%" height={300}>
                     <RechartsLineChart data={getTimeSeriesData()}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -516,32 +529,36 @@ export default function Reports() {
               </Card>
 
               {/* Lead Sources Pie Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <PieChart size={20} />
                     <span>مصادر العملاء المحتملين</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <ResponsiveContainer width="100%" height={300}>
-                    <RechartsPieChart>
-                      <Pie
-                        data={getLeadSourceChartData()}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={80}
-                        fill="hsl(145 35% 58%)"
-                        dataKey="value"
-                      >
-                        {getLeadSourceChartData().map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </RechartsPieChart>
+                    {getLeadSourceChartData().length > 0 ? (
+                      <RechartsPieChart>
+                        <Pie
+                          data={getLeadSourceChartData()}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="hsl(145 35% 58%)"
+                          dataKey="value"
+                        >
+                          {getLeadSourceChartData().map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </RechartsPieChart>
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-slate-500 text-sm">لا توجد بيانات</div>
+                    )}
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
@@ -549,14 +566,14 @@ export default function Reports() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Property Types Bar Chart */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <BarChart3 size={20} />
                     <span>أنواع العقارات</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={getPropertyTypeChartData()}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -570,14 +587,14 @@ export default function Reports() {
               </Card>
 
               {/* Deal Stages */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <Target size={20} />
                     <span>مراحل الصفقات</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={getDealStageData()}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -596,14 +613,14 @@ export default function Reports() {
           <TabsContent value="performance" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Agent Performance */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <Users size={20} />
                     <span>أداء الوسطاء</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={getAgentPerformanceData()}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -617,14 +634,14 @@ export default function Reports() {
               </Card>
 
               {/* Conversion Rates */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <TrendingUp size={20} />
                     <span>معدلات التحويل</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={getAgentPerformanceData()}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -643,14 +660,14 @@ export default function Reports() {
           <TabsContent value="revenue" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Revenue Trend */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <DollarSign size={20} />
                     <span>اتجاه الإيرادات</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <ResponsiveContainer width="100%" height={300}>
                     <AreaChart data={getRevenueData()}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -665,14 +682,14 @@ export default function Reports() {
               </Card>
 
               {/* Revenue by Agent */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <Building size={20} />
                     <span>الإيرادات حسب الوكيل</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={getAgentPerformanceData()}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -691,14 +708,14 @@ export default function Reports() {
           <TabsContent value="market" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Market Trends */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <Activity size={20} />
                     <span>اتجاهات السوق</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <ResponsiveContainer width="100%" height={300}>
                     <RechartsLineChart data={getMarketTrendsData()}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -716,14 +733,14 @@ export default function Reports() {
               </Card>
 
               {/* Property Distribution */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <PieChart size={20} />
                     <span>توزيع العقارات</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <ResponsiveContainer width="100%" height={300}>
                     <RechartsPieChart>
                       <Pie
@@ -752,14 +769,14 @@ export default function Reports() {
           <TabsContent value="agents" className="space-y-6">
             <div className="grid grid-cols-1 gap-6">
               {/* Agent Performance Table */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <Users size={20} />
                     <span>جدول أداء الوسطاء</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
@@ -797,14 +814,14 @@ export default function Reports() {
           <TabsContent value="analytics" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Deal Pipeline Summary */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <Target size={20} />
                     <span>ملخص خط الأنابيب</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-slate-600">إجمالي الصفقات</span>
@@ -833,14 +850,14 @@ export default function Reports() {
               </Card>
 
               {/* Property Analytics */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <Building size={20} />
                     <span>تحليلات العقارات</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-slate-600">إجمالي العقارات</span>
@@ -869,14 +886,14 @@ export default function Reports() {
               </Card>
 
               {/* Performance Metrics */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <Card className={CARD_STYLES.container}>
+                <CardHeader className={CARD_STYLES.header}>
+                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
                     <Zap size={20} />
                     <span>مقاييس الأداء</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-slate-600">تحويل العملاء المحتملين</span>

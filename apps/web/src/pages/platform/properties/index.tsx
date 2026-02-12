@@ -35,7 +35,7 @@ import AddPropertyModal from "@/components/modals/add-property-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Property } from "@shared/types";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES } from "@/config/platform-theme";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES, getPropertyStatusBadge } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -217,23 +217,6 @@ export default function Properties() {
     (type): type is string => typeof type === "string" && type.trim() !== ""
   );
 
-  // Map property status to Tailwind badge classes
-  const getStatusBadgeClasses = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-yellow-100 text-yellow-800 border border-yellow-200";
-      case "pending":
-        return "bg-blue-100 text-blue-800 border border-blue-200";
-      case "sold":
-        return "bg-green-100 text-green-800 border border-green-200";
-      case "withdrawn":
-        return "bg-red-100 text-red-800 border border-red-200";
-      default:
-        return "bg-slate-100 text-slate-700 border border-slate-200";
-    }
-  };
-
-
   const formatCurrency = (amount: string | number | null | undefined) => {
     const numeric = toNumber(amount);
     if (numeric === null) return "—";
@@ -281,7 +264,7 @@ export default function Properties() {
     <>
       <main className={PAGE_WRAPPER} dir={dir}>
         <Card className={CARD_STYLES.container}>
-          <CardHeader className={cn(CARD_STYLES.header, "border-b border-gray-200")}>
+          <CardHeader className={CARD_STYLES.header}>
             <div className="flex items-center justify-between mb-4">
               <CardTitle className={TYPOGRAPHY.cardTitle}>
                 جميع العقارات ({allProperties?.length || 0})
@@ -330,7 +313,7 @@ export default function Properties() {
             {showFilters && (
               <div className="rounded-2xl p-5 space-y-4 border border-slate-200/60 shadow-sm ui-stable backdrop-blur-xl bg-white/90 ring-1 ring-emerald-200/40">
                 <div className="flex items-center justify-between">
-                  <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-gray-900 text-end")}>فلاتر البحث</h3>
+                  <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-slate-900 text-end")}>فلاتر البحث</h3>
                   <Button variant="ghost" size="sm" onClick={resetFilters} className={BUTTON_PRIMARY_CLASSES}>
                     إعادة تعيين
                   </Button>
@@ -540,7 +523,7 @@ export default function Properties() {
           <CardContent className="p-0">
             {!displayProperties || displayProperties.length === 0 ? (
               <div className={cn(EMPTY_STYLES.container, "text-end")}>
-                <div className={cn(EMPTY_STYLES.description, "mb-4 text-gray-600")}>
+                <div className={cn(EMPTY_STYLES.description, "mb-4 text-slate-600")}>
                   {searchQuery ? "لا توجد عقارات تطابق بحثك." : "لا توجد عقارات. أضف أول عقار للبدء."}
                 </div>
                 {!searchQuery && (
@@ -568,9 +551,9 @@ export default function Properties() {
                             showIndicators={property.photoUrls.length > 1}
                           />
                         ) : (
-                          <div className="aspect-video bg-muted flex items-center justify-center border-b">
-                            <div className="text-center text-muted-foreground">
-                              <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-muted-foreground/10 flex items-center justify-center">
+                          <div className="aspect-video bg-slate-100 flex items-center justify-center border-b">
+                            <div className="text-center text-slate-500">
+                              <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-slate-200/60 flex items-center justify-center">
                                 <svg
                                   width="24"
                                   height="24"
@@ -596,17 +579,17 @@ export default function Properties() {
                             <h3 className="font-semibold text-lg text-foreground line-clamp-1 tracking-tight">
                               {property.title}
                             </h3>
-                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getStatusBadgeClasses(property.status)}`}>
+                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getPropertyStatusBadge(property.status)}`}>
                               {property.status}
                             </span>
                           </div>
 
-                          <p className="text-muted-foreground text-sm mb-4">
+                          <p className="text-slate-500 text-sm mb-4">
                             {property.address}, {property.city}, {property.state}
                           </p>
 
 
-                          <div className="flex items-center space-x-4 rtl:space-x-reverse text-sm text-muted-foreground mb-4">
+                          <div className="flex items-center space-x-4 rtl:space-x-reverse text-sm text-slate-500 mb-4">
                             {property.bedrooms && (
                               <div className="flex items-center space-x-1">
                                 <Bed size={14} />
@@ -664,14 +647,14 @@ export default function Properties() {
                                 </Button>
 
                                 {/* Share Dropdown Menu */}
-                                <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-[120px]">
+                                <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-lg border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-[120px]">
                                   <div className="p-2 space-y-1">
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         shareProperty(property, 'whatsapp');
                                       }}
-                                      className="w-full text-end px-3 py-2 text-sm hover:bg-gray-100 rounded-md flex items-center gap-2 text-gray-700"
+                                      className="w-full text-end px-3 py-2 text-sm hover:bg-slate-100 rounded-md flex items-center gap-2 text-slate-700"
                                     >
                                       <svg className="w-4 h-4 fill-current text-green-500" viewBox="0 0 24 24">
                                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.382" />
@@ -683,7 +666,7 @@ export default function Properties() {
                                         e.stopPropagation();
                                         shareProperty(property, 'twitter');
                                       }}
-                                      className="w-full text-end px-3 py-2 text-sm hover:bg-gray-100 rounded-md flex items-center gap-2 text-gray-700"
+                                      className="w-full text-end px-3 py-2 text-sm hover:bg-slate-100 rounded-md flex items-center gap-2 text-slate-700"
                                     >
                                       <svg className="w-4 h-4 fill-current text-blue-400" viewBox="0 0 24 24">
                                         <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
@@ -729,8 +712,8 @@ export default function Properties() {
                 ) : (
                   <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
                     <table className={cn(TABLE_STYLES.container, "min-w-[900px] w-full text-end")}>
-                      <thead className={cn(TABLE_STYLES.header, "bg-gray-50 border-b border-gray-200")}>
-                        <tr className={cn(TABLE_STYLES.headerCell, "text-xs font-medium text-gray-700 uppercase tracking-wider")}>
+                      <thead className={cn(TABLE_STYLES.header, "bg-slate-50 border-b border-slate-200")}>
+                        <tr className={cn(TABLE_STYLES.headerCell, "text-xs font-medium text-slate-700 uppercase tracking-wider")}>
                           <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الصورة</th>
                           <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>العقار</th>
                           <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الموقع</th>
@@ -742,7 +725,7 @@ export default function Properties() {
                           <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الإجراءات</th>
                         </tr>
                       </thead>
-                      <tbody className={cn(TABLE_STYLES.body, "divide-y divide-gray-200")}>
+                      <tbody className={cn(TABLE_STYLES.body, "divide-y divide-slate-200")}>
                         {displayProperties.map((property) => (
                           <tr
                             key={property.id}
@@ -757,8 +740,8 @@ export default function Properties() {
                                   className="w-16 h-12 object-cover rounded"
                                 />
                               ) : (
-                                <div className="w-16 h-12 bg-gray-100 rounded flex items-center justify-center">
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
+                                <div className="w-16 h-12 bg-slate-100 rounded flex items-center justify-center">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400">
                                     <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
                                     <circle cx="9" cy="9" r="2" />
                                     <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
@@ -767,8 +750,8 @@ export default function Properties() {
                               )}
                             </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                              <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900 line-clamp-1 text-end")}>{property.title}</div>
-                              <div className={cn("mt-1 flex items-center gap-2", TYPOGRAPHY.caption, "text-gray-500 text-end")}>
+                              <div className={cn(TYPOGRAPHY.body, "font-semibold text-slate-900 line-clamp-1 text-end")}>{property.title}</div>
+                              <div className={cn("mt-1 flex items-center gap-2", TYPOGRAPHY.caption, "text-slate-500 text-end")}>
                                 <span className="flex items-center gap-1">
                                   <Square size={12} />
                                   {property.propertyType}
@@ -776,19 +759,19 @@ export default function Properties() {
                               </div>
                             </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                              <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-end")}>{property.city}, {property.state}</div>
-                              <div className={cn("mt-1", TYPOGRAPHY.caption, "text-gray-600 text-end")}>{property.address}</div>
+                              <div className={cn(TYPOGRAPHY.body, "text-slate-900 text-end")}>{property.city}, {property.state}</div>
+                              <div className={cn("mt-1", TYPOGRAPHY.caption, "text-slate-600 text-end")}>{property.address}</div>
                             </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                              <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-end")}>{property.propertyType}</div>
+                              <div className={cn(TYPOGRAPHY.body, "text-slate-900 text-end")}>{property.propertyType}</div>
                             </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                              <span className={cn(BADGE_STYLES.base, getStatusBadgeClasses(property.status))}>
+                              <span className={cn(BADGE_STYLES.base, getPropertyStatusBadge(property.status))}>
                                 {property.status}
                               </span>
                             </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                              <div className={cn(TYPOGRAPHY.body, "font-semibold text-[rgb(128_193_165)] text-end")}>
+                              <div className={cn(TYPOGRAPHY.body, "font-semibold text-emerald-600 text-end")}>
                                 {formatCurrency(property.price)}
                               </div>
                             </td>
@@ -796,7 +779,7 @@ export default function Properties() {
                               {(property as any).areaSqm ? `${((property as any).areaSqm?.toLocaleString?.() ?? (property as any).areaSqm)} متر²` : '-'}
                             </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                              <div className={cn("flex items-center gap-2", TYPOGRAPHY.body, "text-gray-900 text-end")}>
+                              <div className={cn("flex items-center gap-2", TYPOGRAPHY.body, "text-slate-900 text-end")}>
                                 {property.bedrooms && (
                                   <span className="flex items-center gap-1">
                                     <Bed size={12} />

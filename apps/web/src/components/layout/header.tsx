@@ -16,12 +16,14 @@
 
 import { useState, type ReactNode } from "react";
 import type { ChangeEvent } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Bell, Menu, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { HEADER_STYLES } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
@@ -56,18 +58,18 @@ export default function Header({
 
   const defaultPlaceholder = searchPlaceholder || t("form.search") || "البحث...";
 
-  const searchAlignment = dir === "rtl"
-    ? "pr-12 pl-4 text-end placeholder:text-end"
-    : "pl-12 pr-4 text-start placeholder:text-start";
-  const searchIconPosition = dir === "rtl" ? "right-4" : "left-4";
-
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearchQuery(value);
     onSearch?.(value);
   };
 
-  const notificationCount = 3;
+  const { data: notifications } = useQuery({
+    queryKey: ["/api/notifications"],
+  });
+  const notificationCount = Array.isArray(notifications)
+    ? notifications.filter((n: { read?: boolean; readAt?: string }) => !n?.read && !n?.readAt).length
+    : 0;
 
   const username = user?.name || user?.username || user?.email?.split("@")[0] || "المستخدم";
 
@@ -77,67 +79,83 @@ export default function Header({
       initial="hidden"
       animate="visible"
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70"
+      className="glass fixed inset-x-0 top-0 z-50 h-20 transition-all duration-300 border-b-0 shadow-none"
       aria-label={title || "الشريط العلوي"}
     >
-      <div className="mx-auto flex h-[4.25rem] w-full max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8" dir={dir}>
-        {onToggleSidebar && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={onToggleSidebar}
-            aria-label={isSidebarOpen ? t("header.toggleSidebarClose") : t("header.toggleSidebarOpen")}
-            className="inline-flex rounded-full border border-border/60 bg-card/70 text-muted-foreground shadow-outline transition hover:bg-card/90 focus-visible:ring-primary/40 lg:hidden"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
-        )}
+      <div className="w-full px-6 sm:px-8 lg:px-12 h-full" dir={dir}>
+        <div className="flex items-center justify-between h-full gap-4">
+          {onToggleSidebar && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={onToggleSidebar}
+              aria-label={isSidebarOpen ? t("header.toggleSidebarClose") : t("header.toggleSidebarOpen")}
+              className={cn("inline-flex border border-white/60 bg-white/50 text-slate-600 shadow-sm transition hover:bg-white/80 hover:text-slate-900 focus-visible:ring-emerald-500/40 lg:hidden rounded-2xl h-11 w-11")}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
 
-        {title && (
-          <div className="flex min-w-0 flex-1 flex-col">
-            <span className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground/70">
-              {t("app.subtitle") || "Aqarkom Platform"}
-            </span>
-            <h1 className="truncate text-lg font-semibold text-foreground lg:text-xl">{title}</h1>
-          </div>
-        )}
-
-        {showSearch && (
-          <div className="relative flex-1">
-            <Input
-              type="search"
-              placeholder={defaultPlaceholder}
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className={cn(
-                "h-11 w-full rounded-full border border-border/70 bg-card/80 pr-4 text-sm shadow-outline transition focus:border-primary/40 focus:ring-primary/40",
-                searchAlignment
-              )}
-            />
-            <Search className={cn("absolute top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60", searchIconPosition)} />
-          </div>
-        )}
-
-        {extraContent && (
-          <div className="hidden items-center gap-2 sm:flex" dir={dir}>
-            {extraContent}
-          </div>
-        )}
-
-        {showActions && (
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-3 rounded-full border border-border/60 bg-card/70 px-3 py-1.5 shadow-outline">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                <User className="h-4 w-4" />
-              </div>
-              <div className={cn("hidden flex-col sm:flex", dir === "rtl" ? "text-end" : "text-start")}>
-                <span className="text-sm font-medium text-foreground">{username}</span>
-                <span className="text-[0.65rem] text-muted-foreground/80">{t("auth.loggedIn") || "مرحباً بعودتك"}</span>
-              </div>
+          {title && (
+            <div className="flex min-w-0 flex-col">
+              <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-tight">{title}</h1>
+              <span className="text-sm text-slate-500 font-medium">
+                {t("app.subtitle") || "Aqarkom Platform"}
+              </span>
             </div>
+          )}
+
+          <div className="flex-1 max-w-2xl mx-auto hidden md:block">
+            {showSearch && (
+              <div className="relative">
+                <Input
+                  type="search"
+                  placeholder={defaultPlaceholder}
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="w-full h-11 border-0 bg-slate-100/50 hover:bg-white focus:bg-white ring-1 ring-slate-200/60 ps-12 pe-4 text-sm shadow-sm transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/20 text-start placeholder:text-start rounded-2xl"
+                />
+                <Search className="absolute start-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              </div>
+            )}
           </div>
-        )}
+
+          <div className="flex items-center gap-3">
+            {extraContent && (
+              <div className="hidden items-center gap-2 sm:flex" dir={dir}>
+                {extraContent}
+              </div>
+            )}
+
+            {showActions && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="relative h-11 w-11 p-0 hover:bg-slate-100/80 rounded-2xl transition-colors"
+                >
+                  <Bell className="h-5 w-5 text-slate-600" />
+                  {notificationCount > 0 && (
+                    <span className="absolute top-2.5 end-2.5 h-4 w-4 bg-red-500 border-2 border-white text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                      {notificationCount > 9 ? '9+' : notificationCount}
+                    </span>
+                  )}
+                </Button>
+                
+                <div className="flex items-center gap-3 ps-3 border-s border-slate-200/50">
+                  <div className="hidden flex-col items-end sm:flex">
+                    <span className="text-xs font-semibold text-slate-900 leading-none mb-1">{username}</span>
+                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider leading-none">{t("auth.loggedIn") || "مرحباً بعودتك"}</span>
+                  </div>
+                  <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+                    <User className="h-5 w-5" />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </motion.header>
   );

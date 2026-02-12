@@ -63,15 +63,15 @@ export default function ComparePage() {
         <Card className={CARD_STYLES.container}>
           <CardHeader className={CARD_STYLES.header}>
             <CardTitle className={TYPOGRAPHY.pageTitle}>مقارنة العقارات</CardTitle>
-            <p className={cn(TYPOGRAPHY.body, "text-gray-600 mt-2")}>قارن بين العقارات المختلفة</p>
+            <p className={cn(TYPOGRAPHY.body, "text-slate-600 mt-2")}>قارن بين العقارات المختلفة</p>
           </CardHeader>
         </Card>
 
         {items.length === 0 ? (
           <Card className={CARD_STYLES.container}>
             <CardContent className={cn(EMPTY_STYLES.container, "p-8")}>
-              <div className={cn(EMPTY_STYLES.title, "text-gray-600")}>لا يوجد عناصر للمقارنة</div>
-              <p className={cn(EMPTY_STYLES.description, "text-gray-500 mt-2")}>أضف عقارات للمقارنة من صفحة البحث</p>
+              <div className={cn(EMPTY_STYLES.title, "text-slate-600")}>لا يوجد عناصر للمقارنة</div>
+              <p className={cn(EMPTY_STYLES.description, "text-slate-500 mt-2")}>أضف عقارات للمقارنة من صفحة البحث</p>
             </CardContent>
           </Card>
         ) : (
@@ -79,9 +79,9 @@ export default function ComparePage() {
             {items.map((p) => (
               <Card key={p.id} className={CARD_STYLES.container}>
                 <CardContent className="p-5 space-y-2">
-                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900")}>{p.title}</div>
-                  <div className={cn(TYPOGRAPHY.caption, "text-gray-600")}>{p.address}، {p.city}</div>
-                  <div className={cn(TYPOGRAPHY.sectionTitle, "text-green-700 font-bold")}>{p.price} ﷼</div>
+                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-slate-900")}>{p.title}</div>
+                  <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>{p.address}، {p.city}</div>
+                  <div className={cn(TYPOGRAPHY.sectionTitle, "text-emerald-600 font-bold")}>{p.price} ﷼</div>
                   <div className={cn(TYPOGRAPHY.caption, "text-sm")}>النوع: {p.propertyType || '-'}</div>
                   <div className={cn(TYPOGRAPHY.caption, "text-sm")}>الغرف: {p.bedrooms ?? '-'}</div>
                   <div className={cn(TYPOGRAPHY.caption, "text-sm")}>الحمامات: {typeof p.bathrooms === 'string' ? p.bathrooms : (p.bathrooms ?? '-')}</div>

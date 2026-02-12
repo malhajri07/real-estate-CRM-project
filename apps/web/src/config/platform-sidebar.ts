@@ -21,6 +21,7 @@ import {
   Building,
   Building2,
   ClipboardList,
+  FileText,
   Globe2,
   Heart,
   Home,
@@ -30,7 +31,6 @@ import {
   CheckSquare,
   Megaphone,
   Settings,
-  Share2,
   ShieldCheck,
   Shuffle,
   UserCircle2,
@@ -88,243 +88,202 @@ const EXTENDED_PLATFORM_ROLES = [
   UserRole.BUYER,
 ];
 
+const ADMIN_ONLY_ROLES = [UserRole.WEBSITE_ADMIN];
+
 export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
   {
-    id: "customers",
-    labelKey: "sidebar.customers",
-    icon: Users,
-    subgroups: [
+    id: "nav",
+    labelKey: "sidebar.navigation",
+    icon: LayoutDashboard,
+    children: [
       {
-        id: "customers-core",
-        labelKey: "sidebar.customers.core",
-        children: [
-          // [REMOVED] Customers Listing as per requirement
-          // {
-          //   id: "customers-registry",
-          {
-            id: "customers-pool",
-            labelKey: "nav.pool",
-            label: "طلبات العملاء (Pool)",
-            path: "/home/platform/pool",
-            icon: Inbox,
-            matchPaths: ["/pool"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-          {
-            id: "customers-forum",
-            labelKey: "nav.forum",
-            label: "المنتدى العقاري",
-            path: "/home/platform/forum",
-            icon: Users,
-            matchPaths: ["/forum"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-          {
-            id: "customers-properties",
-            labelKey: "nav.properties",
-            path: "/home/platform/properties",
-            icon: Building,
-            matchPaths: ["/properties"],
-            matchPrefixes: ["/home/platform/properties/", "/properties/"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-          {
-            id: "customers-leads",
-            labelKey: "nav.leads",
-            path: "/home/platform/leads",
-            icon: Users,
-            matchPaths: ["/leads"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-
-          {
-            id: "customers-pipeline",
-            labelKey: "nav.pipeline",
-            path: "/home/platform/pipeline",
-            icon: ClipboardList,
-            matchPaths: ["/pipeline"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-          {
-            id: "customers-clients",
-            labelKey: "nav.clients",
-            path: "/home/platform/clients",
-            icon: UserCircle2,
-            matchPaths: ["/clients"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          }
-        ]
+        id: "dashboard",
+        labelKey: "nav.dashboard",
+        path: "/home/platform",
+        icon: LayoutDashboard,
+        matchPaths: ["/home/platform", "/"],
+        allowedRoles: EXTENDED_PLATFORM_ROLES,
       },
       {
-        id: "customers-ops",
-        labelKey: "sidebar.customers.operations",
-        children: [
-          {
-            id: "customers-reports",
-            labelKey: "nav.reports",
-            path: "/home/platform/reports",
-            icon: BarChart3,
-            matchPaths: ["/reports"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-          {
-            id: "customers-settings",
-            labelKey: "nav.workspace_settings",
-            path: "/home/platform/settings",
-            icon: Settings,
-            matchPaths: ["/settings"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-          {
-            id: "customers-marketing-requests",
-            labelKey: "nav.marketing_requests",
-            path: "/home/platform/marketing-requests",
-            icon: Megaphone,
-            matchPaths: ["/marketing-requests"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-          {
-            id: "customers-activities",
-            labelKey: "nav.activities",
-            path: "/home/platform/activities",
-            icon: CheckSquare,
-            matchPaths: ["/activities"],
-            allowedRoles: EXTENDED_PLATFORM_ROLES,
-          },
-          {
-            id: "customers-calendar",
-            labelKey: "nav.calendar",
-            path: "/home/platform/calendar",
-            icon: Calendar,
-            matchPaths: ["/calendar"],
-            allowedRoles: EXTENDED_PLATFORM_ROLES,
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: "corporate",
-    labelKey: "sidebar.corporateExclusive",
-    icon: Building2,
-    subgroups: [
-      {
-        id: "corporate-directory",
-        labelKey: "sidebar.corporate.directory",
-        children: [
-          {
-            id: "corporate-agencies",
-            labelKey: "nav.agencies",
-            path: "/home/platform/agencies",
-            icon: Building2,
-            matchPaths: ["/agencies"],
-            allowedRoles: CORPORATE_MANAGEMENT_ROLES,
-          },
-          {
-            id: "corporate-agency-profile",
-            labelKey: "nav.agency_profile",
-            path: "/home/platform/agencies",
-            icon: Home,
-            matchPrefixes: ["/home/platform/agency/", "/agency/"],
-            allowedRoles: CORPORATE_MANAGEMENT_ROLES,
-          },
-          {
-            id: "corporate-customer-requests",
-            labelKey: "nav.customer_requests",
-            path: "/home/platform/customer-requests",
-            icon: Inbox,
-            matchPaths: ["/customer-requests"],
-            allowedRoles: CORPORATE_MANAGEMENT_ROLES,
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: "cross-role",
-    labelKey: "sidebar.crossRole",
-    icon: Share2,
-    subgroups: [
-      {
-        id: "cross-role-discovery",
-        labelKey: "sidebar.crossRole.discovery",
-        children: [
-          {
-            id: "cross-role-favorites",
-            labelKey: "nav.favorites",
-            path: "/home/platform/favorites",
-            icon: Heart,
-            matchPaths: ["/favorites"],
-            allowedRoles: EXTENDED_PLATFORM_ROLES,
-          },
-          {
-            id: "cross-role-saved-searches",
-            labelKey: "nav.saved_searches",
-            path: "/home/platform/saved-searches",
-            icon: Bookmark,
-            matchPaths: ["/saved-searches"],
-            allowedRoles: EXTENDED_PLATFORM_ROLES,
-          },
-          {
-            id: "cross-role-compare",
-            labelKey: "nav.compare",
-            path: "/home/platform/compare",
-            icon: Shuffle,
-            matchPaths: ["/compare"],
-            allowedRoles: EXTENDED_PLATFORM_ROLES,
-          },
-          {
-            id: "cross-role-post-listing",
-            labelKey: "nav.post_listing",
-            path: "/home/platform/post-listing",
-            icon: Megaphone,
-            matchPaths: ["/post-listing"],
-            allowedRoles: EXTENDED_PLATFORM_ROLES,
-          }
-        ]
+        id: "pool",
+        labelKey: "nav.pool",
+        label: "طلبات العملاء (Pool)",
+        path: "/home/platform/pool",
+        icon: Inbox,
+        matchPaths: ["/pool"],
+        allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
-        id: "cross-role-oversight",
-        labelKey: "sidebar.crossRole.oversight",
-        children: [
-          {
-            id: "cross-role-agent-profile",
-            labelKey: "nav.agent_profile",
-            path: "/home/platform/agencies",
-            icon: UserCircle2,
-            matchPrefixes: ["/home/platform/agent/", "/agent/"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-          {
-            id: "cross-role-property-detail",
-            labelKey: "nav.property_detail",
-            path: "/home/platform/properties",
-            icon: Building,
-            matchPrefixes: ["/home/platform/properties/", "/properties/"],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-          {
-            id: "cross-role-public-listing",
-            labelKey: "nav.listing_public",
-            path: "/home/platform/properties",
-            icon: Globe2,
-            matchPrefixes: ["/home/platform/listing/", "/listing/"],
-            allowedRoles: EXTENDED_PLATFORM_ROLES,
-          },
-          {
-            id: "cross-role-unverified-listings",
-            labelKey: "nav.unverified_listings",
-            path: "/home/platform/unverified-listings",
-            icon: ShieldCheck,
-            matchPaths: [
-              "/unverified-listings",
-              "/home/platform/unverified-listings"
-            ],
-            allowedRoles: PLATFORM_CORE_ROLES,
-          },
-
-        ]
-      }
-    ]
-  }
+        id: "forum",
+        labelKey: "nav.forum",
+        label: "المنتدى العقاري",
+        path: "/home/platform/forum",
+        icon: Users,
+        matchPaths: ["/forum"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "properties",
+        labelKey: "nav.properties",
+        path: "/home/platform/properties",
+        icon: Building,
+        matchPaths: ["/properties"],
+        matchPrefixes: ["/home/platform/properties/", "/properties/"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "leads",
+        labelKey: "nav.leads",
+        path: "/home/platform/leads",
+        icon: Users,
+        matchPaths: ["/leads"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "pipeline",
+        labelKey: "nav.pipeline",
+        path: "/home/platform/pipeline",
+        icon: ClipboardList,
+        matchPaths: ["/pipeline"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "clients",
+        labelKey: "nav.clients",
+        path: "/home/platform/clients",
+        icon: UserCircle2,
+        matchPaths: ["/clients"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "reports",
+        labelKey: "nav.reports",
+        path: "/home/platform/reports",
+        icon: BarChart3,
+        matchPaths: ["/reports"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "notifications",
+        labelKey: "nav.notifications",
+        path: "/home/platform/notifications",
+        icon: Bell,
+        matchPaths: ["/notifications"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "settings",
+        labelKey: "nav.workspace_settings",
+        path: "/home/platform/settings",
+        icon: Settings,
+        matchPaths: ["/settings"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "marketing-requests",
+        labelKey: "nav.marketing_requests",
+        path: "/home/platform/marketing-requests",
+        icon: Megaphone,
+        matchPaths: ["/marketing-requests"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "activities",
+        labelKey: "nav.activities",
+        path: "/home/platform/activities",
+        icon: CheckSquare,
+        matchPaths: ["/activities"],
+        allowedRoles: EXTENDED_PLATFORM_ROLES,
+      },
+      {
+        id: "calendar",
+        labelKey: "nav.calendar",
+        path: "/home/platform/calendar",
+        icon: Calendar,
+        matchPaths: ["/calendar"],
+        allowedRoles: EXTENDED_PLATFORM_ROLES,
+      },
+      {
+        id: "agencies",
+        labelKey: "nav.agencies",
+        path: "/home/platform/agencies",
+        icon: Building2,
+        matchPaths: ["/agencies"],
+        matchPrefixes: ["/home/platform/agency/", "/agency/"],
+        allowedRoles: CORPORATE_MANAGEMENT_ROLES,
+      },
+      {
+        id: "customer-requests",
+        labelKey: "nav.customer_requests",
+        path: "/home/platform/customer-requests",
+        icon: Inbox,
+        matchPaths: ["/customer-requests"],
+        allowedRoles: CORPORATE_MANAGEMENT_ROLES,
+      },
+      {
+        id: "favorites",
+        labelKey: "nav.favorites",
+        path: "/home/platform/favorites",
+        icon: Heart,
+        matchPaths: ["/favorites"],
+        allowedRoles: EXTENDED_PLATFORM_ROLES,
+      },
+      {
+        id: "saved-searches",
+        labelKey: "nav.saved_searches",
+        path: "/home/platform/saved-searches",
+        icon: Bookmark,
+        matchPaths: ["/saved-searches"],
+        allowedRoles: EXTENDED_PLATFORM_ROLES,
+      },
+      {
+        id: "compare",
+        labelKey: "nav.compare",
+        path: "/home/platform/compare",
+        icon: Shuffle,
+        matchPaths: ["/compare"],
+        allowedRoles: EXTENDED_PLATFORM_ROLES,
+      },
+      {
+        id: "post-listing",
+        labelKey: "nav.post_listing",
+        path: "/home/platform/post-listing",
+        icon: Megaphone,
+        matchPaths: ["/post-listing"],
+        allowedRoles: EXTENDED_PLATFORM_ROLES,
+      },
+      {
+        id: "unverified-listings",
+        labelKey: "nav.unverified_listings",
+        path: "/home/platform/unverified-listings",
+        icon: ShieldCheck,
+        matchPaths: ["/unverified-listings", "/home/platform/unverified-listings"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "moderation",
+        labelKey: "nav.moderation",
+        path: "/home/platform/moderation",
+        icon: ShieldCheck,
+        matchPaths: ["/moderation"],
+        allowedRoles: ADMIN_ONLY_ROLES,
+      },
+      {
+        id: "cms",
+        labelKey: "nav.cms",
+        path: "/home/platform/cms",
+        icon: FileText,
+        matchPaths: ["/cms", "/cms-admin"],
+        allowedRoles: ADMIN_ONLY_ROLES,
+      },
+      {
+        id: "admin-requests",
+        labelKey: "nav.admin_requests",
+        path: "/home/platform/admin-requests",
+        icon: Inbox,
+        matchPaths: ["/admin/requests"],
+        allowedRoles: ADMIN_ONLY_ROLES,
+      },
+    ],
+  },
 ];

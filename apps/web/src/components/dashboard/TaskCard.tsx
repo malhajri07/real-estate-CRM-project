@@ -39,58 +39,44 @@ export function TaskCard({
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={cn(
-        "group rounded-2xl p-4 border-l-4 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden",
-        completed 
-          ? "bg-gradient-to-br from-emerald-50/50 via-white/80 to-emerald-50/30 border-l-emerald-500 opacity-70"
-          : isOverdue
-          ? "bg-gradient-to-br from-amber-50/50 via-white/80 to-amber-50/30 border-l-amber-500"
-          : "bg-gradient-to-br from-amber-50/30 via-white/80 to-amber-50/20 border-l-amber-400"
+        "group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden bg-white border border-slate-100",
+        completed && "opacity-70 bg-slate-50"
       )}
     >
-      {/* Enhanced Gradient Overlay */}
-      <div className={cn(
-        "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
-        completed 
-          ? "bg-gradient-to-br from-emerald-50/50 to-emerald-50/80"
-          : isOverdue
-          ? "bg-gradient-to-br from-amber-50/50 to-amber-50/80"
-          : "bg-gradient-to-br from-amber-50/30 to-amber-50/60"
-      )} />
-
       <div className="relative z-10 flex items-start gap-4">
         {/* Checkbox/Status Icon */}
         <div className={cn(
-          "flex-shrink-0 h-10 w-10 rounded-xl flex items-center justify-center border-2 transition-all duration-300 group-hover:scale-110",
+          "flex-shrink-0 h-12 w-12 rounded-xl flex items-center justify-center bg-slate-50 transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-110",
           completed
-            ? "border-emerald-300 bg-emerald-50 text-emerald-600"
+            ? "text-emerald-600"
             : isOverdue
-            ? "border-amber-300 bg-amber-50 text-amber-600"
-            : "border-blue-200 bg-blue-50 text-blue-600 group-hover:border-blue-300 group-hover:bg-blue-100"
+            ? "text-amber-600"
+            : "text-slate-600"
         )}>
           {completed ? (
-            <Check className="h-5 w-5" />
+            <Check className="h-6 w-6" />
           ) : isOverdue ? (
-            <AlertCircle className="h-5 w-5" />
+            <AlertCircle className="h-6 w-6" />
           ) : (
-            <Clock3 className="h-5 w-5" />
+            <Clock3 className="h-6 w-6" />
           )}
         </div>
 
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 pt-1">
           <h3 className={cn(
-            "text-sm font-black text-slate-900 mb-1 transition-colors group-hover:text-emerald-600",
+            "text-sm font-bold text-slate-900 mb-1 transition-colors group-hover:text-emerald-600",
             completed && "line-through text-slate-500"
           )} style={{ lineHeight: '1.6' }}>
             {activity.title}
           </h3>
           {timeStr && (
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-500">
+              <span className="text-xs font-medium text-slate-500">
                 {timeStr}
               </span>
               {isOverdue && (
-                <span className="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
                   متأخر
                 </span>
               )}

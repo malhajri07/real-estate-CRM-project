@@ -120,7 +120,7 @@ export default function Settings() {
             إعدادات المنصة والملف الشخصي
           </Badge>
           <h1 className={cn(TYPOGRAPHY.pageTitle, "mt-3 text-slate-900")}>الإعدادات</h1>
-          <p className={cn(TYPOGRAPHY.body, "text-muted-foreground mt-2")}>إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد</p>
+          <p className={cn(TYPOGRAPHY.body, "text-slate-500 mt-2")}>إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد</p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
           <Button variant="outline" size="sm" className={cn("rounded-xl", BUTTON_PRIMARY_CLASSES)} onClick={handleAccountSave}>
@@ -381,7 +381,7 @@ export default function Settings() {
                   <Upload size={16} />
                   تغيير الصورة الشخصية
                 </Button>
-                <p className="text-sm text-muted-foreground">يفضل استخدام صور بحجم 400x400 بكسل أو أكبر</p>
+                <p className="text-sm text-slate-500">يفضل استخدام صور بحجم 400x400 بكسل أو أكبر</p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

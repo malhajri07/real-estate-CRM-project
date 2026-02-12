@@ -4,7 +4,28 @@
 
 ### Recent Completed Work
 
-1. **Comprehensive Codebase Fixes** (Completed - Feb 8, 2026)
+1. **Platform Design Unification** (Completed - Feb 8, 2026)
+   - 8-phase design audit across all platform pages
+   - Phase 1: platform-theme.ts tokens (ICON_CONTAINER, getIconSpacing, EMPTY_STATE_BASELINE)
+   - Phase 2: gray/muted → slate palette across activities, calendar, clients, leads, pipeline, properties, notifications, etc.
+   - Phase 3: Centralized badge status (getLeadStatusBadge, getPropertyStatusBadge, getNotificationStatusBadge)
+   - Phase 4: Icon containers standardization (Calendar, Clients, Forum)
+   - Phase 5: RTL fixes with getIconSpacing in activities, leads, calendar, reports
+   - Phases 6–8: Cards, tables, remaining pages aligned to baseline
+
+2. **RBAC Login Redesign** (Completed - Feb 8, 2026)
+   - Redesigned /rbac-login page with modern centered layout
+   - LoginForm updated with platform-theme (INPUT_STYLES, BUTTON_PRIMARY_CLASSES)
+   - Clean background pattern, RTL support
+
+3. **Dashboard Arabic Labels Fix** (Completed - Feb 8, 2026)
+   - Added dashboard.active_stages and dashboard.total_deals to LanguageContext
+   - Fixed PipelineFlow showing raw keys instead of "المراحل النشطة" / "إجمالي الصفقات"
+
+4. **Leads Page Fix** (Completed - Feb 8, 2026)
+   - Added missing getIconSpacing import (was causing runtime error)
+
+5. **Comprehensive Codebase Fixes** (Completed - Feb 8, 2026)
    - Fixed all hardcoded RTL directions across 16 platform pages (30+ instances)
    - Localized error handler middleware for proper i18n support
    - All platform pages now respect language switching
@@ -13,7 +34,7 @@
    - Full compliance with Frontend Architect and API Architect standards
    - Updated agent memory with comprehensive fixes log
 
-2. **Revenue Chart Real Data Integration & RTL Compliance** (Completed - Feb 8, 2026)
+6. **Revenue Chart Real Data Integration & RTL Compliance** (Completed - Feb 8, 2026)
    - Replaced mock data in RevenueChart with real PostgreSQL data
    - Created new API endpoint `/api/reports/dashboard/revenue-chart`
    - Fixed all RTL violations across dashboard components (20+ instances)
@@ -23,7 +44,7 @@
    - Created comprehensive validation reports and change logs
    - Updated agent memory with integration log
 
-2. **Platform Dashboard Redesign** (Completed - Feb 2026)
+7. **Platform Dashboard Redesign** (Completed - Feb 2026)
    - Redesigned `/home/platform` dashboard with modern UI/UX
    - Created 5 new enhanced components (MetricCard, PipelineFlow, LeadCard, ActionCard, TaskCard)
    - Implemented glass morphism effects and animations
@@ -40,7 +61,7 @@
    - Created seed script for default landing page content
    - Updated agent memory with comprehensive redesign log
 
-2. **Admin Dashboard Audit** (Completed)
+9. **Admin Dashboard Audit** (Completed)
    - Removed all mock data from admin pages
    - Replaced with real PostgreSQL database queries
    - Created 7 new admin API endpoints
@@ -55,14 +76,13 @@
 
 ### Current Status
 
-**Platform Dashboard:**
+**Platform Dashboard & Pages:**
 - ✅ Fully redesigned with modern UI/UX
 - ✅ 5 new enhanced components created
-- ✅ Glass morphism effects implemented
-- ✅ Framer Motion animations added
+- ✅ Design unification complete (slate palette, BADGE_STYLES, icon containers)
+- ✅ RTL fixes with getIconSpacing across platform pages
+- ✅ Dashboard Arabic labels fixed (dashboard.active_stages, dashboard.total_deals)
 - ✅ All data from real PostgreSQL APIs (no mock data)
-- ✅ RTL-first layout optimized
-- ✅ Agent memory updated
 
 **Landing Page:**
 - ✅ Fully redesigned with modern UI
@@ -176,11 +196,11 @@
 
 ### Code Changes
 
-- Fixed `stat.value` → `stat.number` in StatsBanner.tsx
-- Added missing `cn` import in ContactSection.tsx
-- Created comprehensive default landing content
-- Added error boundary for landing page
-- Created memory bank initialization
+- **Design unification:** platform-theme.ts (getLeadStatusBadge, getPropertyStatusBadge, getIconSpacing), slate palette across platform pages
+- **RBAC login:** Redesigned login.tsx and LoginForm.tsx with platform-theme tokens
+- **LanguageContext:** Added dashboard.active_stages, dashboard.total_deals (Arabic/English)
+- **Leads page:** Added missing getIconSpacing import
+- Previously: Fixed `stat.value` → `stat.number`, `cn` import in ContactSection, default landing content, error boundary
 
 ### Database Changes
 
@@ -206,18 +226,18 @@ When continuing work:
    - Check `progress.md` for what's done/remaining
 
 2. **Check Recent Work**
-   - Review agent memory entries in database
-   - Check recent commits/changes
+   - Platform design unification complete (platform-theme.ts, slate palette)
+   - RBAC login redesigned
+   - Dashboard Arabic labels fixed
    - Review any open issues or TODOs
 
 3. **Understand Current Focus**
-   - Landing page is complete and functional
-   - CMS system is operational
-   - Memory bank is initialized
-   - Focus should be on testing, refinement, or new features
+   - Platform dashboard and pages: design-unified, RTL-compliant
+   - RBAC login: redesigned with platform-theme
+   - Focus: testing, documentation, or new features
 
 4. **Maintain Patterns**
-   - RTL-first architecture
-   - Service layer pattern
+   - RTL-first architecture (getIconSpacing, logical properties)
+   - platform-theme.ts for shared tokens (BADGE_STYLES, INPUT_STYLES, etc.)
+   - Centralized status helpers (getLeadStatusBadge, getPropertyStatusBadge)
    - CMS draft/publish workflow
-   - Agent memory logging

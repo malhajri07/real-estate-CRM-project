@@ -244,11 +244,11 @@ export default function Pipeline() {
 
   return (
     <main className={PAGE_WRAPPER} dir={dir}>
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
+      <div className={cn(CARD_STYLES.container, "p-6")}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-1 text-end">
-            <h1 className={cn(TYPOGRAPHY.pageTitle, "text-gray-900")}>لوحة مسار الصفقات</h1>
-            <p className={cn(TYPOGRAPHY.body, "max-w-xl text-gray-600")}>
+            <h1 className={cn(TYPOGRAPHY.pageTitle, "text-slate-900")}>لوحة مسار الصفقات</h1>
+            <p className={cn(TYPOGRAPHY.body, "max-w-xl text-slate-600")}>
               تابع تقدم الفرص البيعية عبر مراحل المسار المختلفة واسحب البطاقات لتحديث حالة الصفقة فوراً.
             </p>
           </div>
@@ -284,7 +284,7 @@ export default function Pipeline() {
                       {stageDeals.length} صفقة
                     </span>
                   </div>
-                  <div className={cn("mt-2", TYPOGRAPHY.caption, "text-gray-500 text-end")}>{formatCurrency(stageValue)}</div>
+                  <div className={cn("mt-2", TYPOGRAPHY.caption, "text-slate-500 text-end")}>{formatCurrency(stageValue)}</div>
                 </div>
 
                 <Droppable droppableId={stage.id}>
@@ -307,16 +307,16 @@ export default function Pipeline() {
                             >
                               <div className="space-y-2 text-end">
                                 <div className="flex items-center justify-between">
-                                  <h4 className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900")}>{getLeadName(deal.leadId)}</h4>
+                                  <h4 className={cn(TYPOGRAPHY.body, "font-semibold text-slate-900")}>{getLeadName(deal.leadId)}</h4>
                                   {deal.dealValue && (
-                                    <span className={cn(TYPOGRAPHY.body, "font-semibold text-[rgb(128_193_165)]")}>
+                                    <span className={cn(TYPOGRAPHY.body, "font-semibold text-emerald-600")}>
                                       {formatCurrency(deal.dealValue)}
                                     </span>
                                   )}
                                 </div>
 
                                 {deal.expectedCloseDate && (
-                                  <div className={cn(TYPOGRAPHY.caption, "text-gray-600")}>
+                                  <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>
                                     متوقع في {new Date(deal.expectedCloseDate).toLocaleDateString()}
                                   </div>
                                 )}

@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER, BUTTON_PRIMARY_CLASSES, CARD_STYLES } from "@/config/platform-theme";
+import { PAGE_WRAPPER, BUTTON_PRIMARY_CLASSES, CARD_STYLES, TYPOGRAPHY, BADGE_STYLES, METRICS_CARD_STYLES, ICON_CONTAINER_SM, getIconSpacing } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon, Clock, MapPin, User, CheckCircle, XCircle, AlertCircle, Plus } from "lucide-react";
@@ -80,11 +81,11 @@ export default function AppointmentsManager() {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'SCHEDULED': return "bg-blue-100 text-blue-800";
-            case 'COMPLETED': return "bg-green-100 text-green-800";
-            case 'CANCELLED': return "bg-red-100 text-red-800";
-            case 'RESCHEDULED': return "bg-yellow-100 text-yellow-800";
-            default: return "bg-gray-100 text-gray-800";
+            case 'SCHEDULED': return BADGE_STYLES.info;
+            case 'COMPLETED': return BADGE_STYLES.success;
+            case 'CANCELLED': return BADGE_STYLES.error;
+            case 'RESCHEDULED': return BADGE_STYLES.warning;
+            default: return BADGE_STYLES.secondary;
         }
     };
 
@@ -95,11 +96,11 @@ export default function AppointmentsManager() {
     return (
         <div className={PAGE_WRAPPER} dir={dir}>
             <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">{t("nav.calendar")} & {t("common.appointments") || "Appointments"}</h1>
+                <h1 className={TYPOGRAPHY.pageTitle}>{t("nav.calendar")} & {t("common.appointments") || "Appointments"}</h1>
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                     <DialogTrigger asChild>
                         <Button className={BUTTON_PRIMARY_CLASSES}>
-                            <Plus className="mr-2 h-4 w-4" />
+                            <Plus className={cn(getIconSpacing(dir), "h-4 w-4")} />
                             {t("common.create") || "New Appointment"}
                         </Button>
                     </DialogTrigger>
@@ -140,33 +141,39 @@ export default function AppointmentsManager() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Appointments</CardTitle>
-                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                <Card className={CARD_STYLES.container}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-6 pt-6">
+                        <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Appointments</CardTitle>
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                            <CalendarIcon className="h-6 w-6" />
+                        </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">{appointments?.length || 0}</div>
+                    <CardContent className="px-6 pb-6">
+                        <div className="text-3xl font-black text-slate-900">{appointments?.length || 0}</div>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Upcoming</CardTitle>
-                        <Clock className="h-4 w-4 text-muted-foreground" />
+                <Card className={CARD_STYLES.container}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-6 pt-6">
+                        <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">Upcoming</CardTitle>
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                            <Clock className="h-6 w-6" />
+                        </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
+                    <CardContent className="px-6 pb-6">
+                        <div className="text-3xl font-black text-slate-900">
                             {appointments?.filter(a => new Date(a.scheduledAt) > new Date() && a.status === 'SCHEDULED').length || 0}
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Completed</CardTitle>
-                        <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                <Card className={CARD_STYLES.container}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-6 pt-6">
+                        <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-wider">Completed</CardTitle>
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                            <CheckCircle className="h-6 w-6" />
+                        </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">
+                    <CardContent className="px-6 pb-6">
+                        <div className="text-3xl font-black text-slate-900">
                             {appointments?.filter(a => a.status === 'COMPLETED').length || 0}
                         </div>
                     </CardContent>
@@ -174,10 +181,10 @@ export default function AppointmentsManager() {
             </div>
 
             <Card className={CARD_STYLES.container}>
-                <CardHeader>
-                    <CardTitle>Appointments List</CardTitle>
+                <CardHeader className={CARD_STYLES.header}>
+                    <CardTitle className={TYPOGRAPHY.cardTitle}>Appointments List</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className={CARD_STYLES.content}>
                     {isLoading ? (
                         <div className="text-center py-8">Loading...</div>
                     ) : appointments && appointments.length > 0 ? (
@@ -185,14 +192,14 @@ export default function AppointmentsManager() {
                             {appointments.map((appointment) => (
                                 <div key={appointment.id} className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 border rounded-lg hover:bg-slate-50 transition-colors">
                                     <div className="flex items-start space-x-4 rtl:space-x-reverse mb-4 md:mb-0">
-                                        <div className="bg-blue-100 p-2 rounded-full">
-                                            <CalendarIcon className="h-5 w-5 text-blue-600" />
+                                        <div className={ICON_CONTAINER_SM}>
+                                            <CalendarIcon className="h-5 w-5" />
                                         </div>
                                         <div>
-                                            <h3 className="font-semibold text-gray-900">
+                                            <h3 className="font-semibold text-slate-900">
                                                 {appointment.customer ? `${appointment.customer.firstName} ${appointment.customer.lastName}` : "Unknown Customer"}
                                             </h3>
-                                            <div className="flex items-center text-sm text-gray-500 mt-1 space-x-3 rtl:space-x-reverse">
+                                            <div className="flex items-center text-sm text-slate-500 mt-1 space-x-3 rtl:space-x-reverse">
                                                 <span className="flex items-center">
                                                     <Clock className="w-3 h-3 mr-1 ml-1" />
                                                     {formatDate(appointment.scheduledAt)}
@@ -205,7 +212,7 @@ export default function AppointmentsManager() {
                                                 )}
                                             </div>
                                             {appointment.notes && (
-                                                <p className="text-sm text-gray-600 mt-2 max-w-xl">{appointment.notes}</p>
+                                                <p className="text-sm text-slate-600 mt-2 max-w-xl">{appointment.notes}</p>
                                             )}
                                         </div>
                                     </div>
@@ -217,7 +224,7 @@ export default function AppointmentsManager() {
 
                                         {appointment.status === 'SCHEDULED' && (
                                             <div className="flex space-x-1 rtl:space-x-reverse">
-                                                <Button size="sm" variant="outline" className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                <Button size="sm" variant="outline" className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                                     onClick={() => updateStatusMutation.mutate({ id: appointment.id, status: 'COMPLETED' })}
                                                 >
                                                     <CheckCircle className="w-4 h-4" />
@@ -234,7 +241,7 @@ export default function AppointmentsManager() {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-12 text-gray-500">
+                        <div className="text-center py-12 text-slate-500">
                             <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-20" />
                             <p>No appointments found.</p>
                         </div>

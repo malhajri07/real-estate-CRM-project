@@ -343,12 +343,7 @@ function Router() {
       { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: ADMIN_ONLY_ROLES },
       { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms', '/cms-admin'], allowedRoles: ADMIN_ONLY_ROLES },
       { path: '/home/platform/marketing-requests', component: LazyMarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },
-      {
-        path: '/home/platform/unverified-listings',
-        component: SuspendedUnverifiedListingsManagementPage,
-        options: { title: 'إعلانات غير موثقة', searchPlaceholder: 'ابحث في الإعلانات غير الموثقة' },
-        allowedRoles: PLATFORM_CORE_ROLES
-      },
+      { path: '/home/platform/unverified-listings', component: SuspendedUnverifiedListingsManagementPage, allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/pool', component: withSuspense(PoolPage), aliases: ['/pool'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/forum', component: withSuspense(ForumPage), aliases: ['/forum'], allowedRoles: PLATFORM_CORE_ROLES },
     ];
@@ -374,13 +369,7 @@ function Router() {
     allowedRoles?: readonly UserRole[];
     requiredPermission?: string;
   }> = [
-      {
-        path: '/home/platform/customer-requests',
-        component: CustomerRequestsPage,
-        options: { title: 'طلبات العملاء', searchPlaceholder: 'ابحث في بيانات العملاء' },
-        aliases: ['/customer-requests'],
-        allowedRoles: CORPORATE_MANAGEMENT_ROLES
-      },
+      { path: '/home/platform/customer-requests', component: CustomerRequestsPage, aliases: ['/customer-requests'], allowedRoles: CORPORATE_MANAGEMENT_ROLES },
       { path: '/home/platform/admin-requests', component: AdminRequestsPage, aliases: ['/admin/requests'], allowedRoles: ADMIN_ONLY_ROLES },
       { path: '/home/platform/favorites', component: FavoritesPage, aliases: ['/favorites'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/compare', component: ComparePage, aliases: ['/compare'], allowedRoles: EXTENDED_PLATFORM_ROLES },

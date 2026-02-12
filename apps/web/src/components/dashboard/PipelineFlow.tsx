@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { DateRangeFilter } from "./DateRangeFilter";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, TrendingUp } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PipelineStage {
@@ -32,11 +32,11 @@ export function PipelineFlow({ stages, dateFormatter }: PipelineFlowProps) {
       <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between pb-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50/80 backdrop-blur-sm border border-indigo-100/50 text-indigo-700 text-xs font-bold">
-              <span>📈</span>
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+              <TrendingUp className="h-6 w-6" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-black text-slate-900 mb-2">
+          <CardTitle className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">
             {t("dashboard.pipeline_stages")}
           </CardTitle>
           <CardDescription className="text-slate-600" style={{ lineHeight: '1.8' }}>
@@ -45,16 +45,13 @@ export function PipelineFlow({ stages, dateFormatter }: PipelineFlowProps) {
         </div>
         <div className="flex items-center gap-2">
           <DateRangeFilter />
-          <Badge variant="secondary" className="rounded-full px-4 py-1.5 text-xs font-bold">
-            {dateFormatter.format(new Date())}
-          </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Pipeline Flow Visualization */}
         <div className="relative">
           {/* Flow Line */}
-          <div className="absolute top-1/2 start-0 end-0 h-1 bg-gradient-to-l from-emerald-200 via-blue-200 to-emerald-200 rounded-full opacity-30" 
+          <div className="absolute top-1/2 start-0 end-0 h-1 bg-slate-200 rounded-full opacity-40" 
             style={{ transform: 'translateY(-50%)' }}
           />
           
@@ -75,9 +72,9 @@ export function PipelineFlow({ stages, dateFormatter }: PipelineFlowProps) {
                   className="group relative"
                 >
                   {/* Stage Card */}
-                  <div className="glass rounded-2xl p-5 border border-white/60 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 text-center cursor-pointer">
+                  <div className="rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white text-center cursor-pointer">
                     {/* Progress Bar */}
-                    <div className="absolute bottom-0 start-0 end-0 h-1 bg-gradient-to-l from-emerald-500 to-teal-500 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    <div className="absolute bottom-0 start-0 end-0 h-1 bg-emerald-500 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{ height: `${Math.max(percentage / 10, 2)}px` }}
                     />
                     

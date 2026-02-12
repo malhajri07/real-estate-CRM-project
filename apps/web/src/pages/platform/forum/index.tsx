@@ -17,6 +17,8 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, ICON_CONTAINER_SM } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 
 export default function ForumPage() {
     const { t, dir } = useLanguage();
@@ -57,17 +59,17 @@ export default function ForumPage() {
     const posts = feedData?.data || [];
 
     return (
-        <div className="min-h-screen bg-gray-50/50 pb-20" dir={dir}>
+        <div className={cn(PAGE_WRAPPER, "pb-20")} dir={dir}>
             {/* Header */}
             <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                 >
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                    <h1 className={TYPOGRAPHY.pageTitle}>
                         {t("nav.forum") || "Community Forum"}
                     </h1>
-                    <p className="mt-1 text-gray-500">
+                    <p className={TYPOGRAPHY.pageSubtitle}>
                         Connect, share deals, and discuss market trends.
                     </p>
                 </motion.div>
@@ -78,7 +80,7 @@ export default function ForumPage() {
                 >
                     <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                         <DialogTrigger asChild>
-                            <Button className="gap-2 rounded-full bg-emerald-600 shadow-xl shadow-emerald-900/20 hover:bg-emerald-700">
+                            <Button className="gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold shadow-md hover:shadow-lg transition-all">
                                 <PenLine className="h-4 w-4" />
                                 <span>Start Discussion</span>
                             </Button>
@@ -115,16 +117,16 @@ export default function ForumPage() {
 
                 {/* Left Sidebar (Topics) */}
                 <div className="hidden space-y-6 lg:block lg:col-span-1">
-                    <div className="rounded-[24px] bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
-                        <h3 className="mb-4 font-bold text-gray-900">Trending Topics</h3>
+                    <div className={cn(CARD_STYLES.container, "p-6")}>
+                        <h3 className={cn(TYPOGRAPHY.sectionTitle, "mb-4")}>Trending Topics</h3>
                         <ul className="space-y-3">
                             {['Market Trends', 'Legal Updates', 'General Discussion', 'Commercial', 'Off-Plan'].map((topic) => (
-                                <li key={topic} className="flex items-center justify-between rounded-lg p-2 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                                <li key={topic} className="flex items-center justify-between rounded-xl p-2 text-sm text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors">
                                     <span className="flex items-center gap-2">
                                         <TrendingUp className="h-4 w-4 text-emerald-500" />
                                         {topic}
                                     </span>
-                                    <Badge variant="secondary" className="bg-gray-100 text-gray-500">12</Badge>
+                                    <Badge variant="secondary" className="bg-slate-100 text-slate-500">12</Badge>
                                 </li>
                             ))}
                         </ul>
@@ -134,8 +136,8 @@ export default function ForumPage() {
                 {/* Feed Area */}
                 <div className="lg:col-span-2 space-y-6">
                     {/* Search Input for Mobile/Tablet */}
-                    <div className="flex items-center rounded-2xl bg-white p-3 shadow-sm ring-1 ring-gray-900/5 lg:hidden">
-                        <Search className="ml-2 h-5 w-5 text-gray-400" />
+                    <div className={cn(CARD_STYLES.container, "flex items-center p-3 lg:hidden")}>
+                        <Search className="ms-2 h-5 w-5 text-slate-400" />
                         <input type="text" placeholder="Search discussions..." className="flex-1 bg-transparent px-2 text-sm outline-none" />
                     </div>
 
@@ -151,11 +153,11 @@ export default function ForumPage() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: i * 0.05 }}
-                                    className="rounded-[24px] bg-white p-6 shadow-sm ring-1 ring-gray-900/5 transition-shadow hover:shadow-md"
+                                    className={cn(CARD_STYLES.container, "p-6")}
                                 >
                                     <div className="mb-4 flex items-start justify-between">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 overflow-hidden">
+                                            <div className={cn(ICON_CONTAINER_SM, "overflow-hidden")}>
                                                 {post.author?.avatarUrl ? (
                                                     <img src={post.author.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
                                                 ) : (
@@ -164,36 +166,36 @@ export default function ForumPage() {
                                             </div>
                                             <div>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-bold text-gray-900">
+                                                    <span className={cn(TYPOGRAPHY.body, "font-bold text-slate-900")}>
                                                         {post.author?.firstName} {post.author?.lastName}
                                                     </span>
                                                     {post.author?.role === "WEBSITE_ADMIN" && <Award className="h-3 w-3 text-emerald-500" />}
                                                 </div>
-                                                <div className="text-xs text-gray-500">
+                                                <div className={TYPOGRAPHY.caption}>
                                                     {post.author?.organization?.tradeName || "Agent"} • {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
                                                 </div>
                                             </div>
                                         </div>
                                         <Button variant="ghost" size="icon" className="rounded-full">
-                                            <MoreHorizontal className="h-4 w-4 text-gray-400" />
+                                            <MoreHorizontal className="h-4 w-4 text-slate-400" />
                                         </Button>
                                     </div>
 
-                                    <p className="mb-4 text-gray-700 leading-relaxed whitespace-pre-wrap">
+                                    <p className={cn(TYPOGRAPHY.body, "mb-4 leading-relaxed whitespace-pre-wrap")}>
                                         {post.content}
                                     </p>
 
                                     {post.tags && (
                                         <div className="mb-4 flex flex-wrap gap-2">
                                             {(JSON.parse(post.tags as string || "[]") as string[]).map(tag => (
-                                                <span key={tag} className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-emerald-50 text-emerald-700`}>
+                                                <span key={tag} className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
                                                     #{tag}
                                                 </span>
                                             ))}
                                         </div>
                                     )}
 
-                                    <div className="flex items-center gap-6 border-t border-gray-100 pt-4 text-gray-500">
+                                    <div className="flex items-center gap-6 border-t border-slate-100 pt-4 text-slate-500">
                                         <button className="flex items-center gap-2 text-sm hover:text-red-500 transition-colors">
                                             <Heart className="h-4 w-4" />
                                             <span>{post.likes}</span>
@@ -202,7 +204,7 @@ export default function ForumPage() {
                                             <MessageCircle className="h-4 w-4" />
                                             <span>{post._count?.comments || 0}</span>
                                         </button>
-                                        <button className="flex items-center gap-2 text-sm hover:text-gray-900 transition-colors ml-auto">
+                                        <button className="flex items-center gap-2 text-sm hover:text-slate-900 transition-colors ms-auto">
                                             <Share2 className="h-4 w-4" />
                                         </button>
                                     </div>
@@ -214,12 +216,11 @@ export default function ForumPage() {
 
                 {/* Right Sidebar (Stats/Profile) */}
                 <div className="hidden lg:block lg:col-span-1">
-                    {/* Placeholder for future widgets */}
-                    <div className="rounded-[24px] bg-emerald-900 p-6 text-white shadow-lg">
-                        <h3 className="mb-2 font-bold">Top Contributor</h3>
-                        <p className="text-sm text-emerald-100/80 mb-4">You are in the top 5% of active agents this week!</p>
-                        <div className="h-2 w-full bg-emerald-800 rounded-full overflow-hidden">
-                            <div className="h-full w-[75%] bg-emerald-400 rounded-full" />
+                    <div className={cn(CARD_STYLES.container, "p-6 border-s-4 border-emerald-500")}>
+                        <h3 className={cn(TYPOGRAPHY.sectionTitle, "mb-2")}>Top Contributor</h3>
+                        <p className={cn(TYPOGRAPHY.body, "text-emerald-700 mb-4")}>You are in the top 5% of active agents this week!</p>
+                        <div className="h-2 w-full bg-emerald-100 rounded-full overflow-hidden">
+                            <div className="h-full w-[75%] bg-emerald-500 rounded-full" />
                         </div>
                     </div>
                 </div>

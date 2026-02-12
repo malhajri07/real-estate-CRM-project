@@ -55,7 +55,7 @@ export default function AgencyPage() {
       <section className="space-y-6">
         <Card className={CARD_STYLES.container}>
           <CardContent className="p-6">
-            <div className={cn(TYPOGRAPHY.body, "text-gray-600 mb-6")}>وسطاء: {data.agents.length} — إعلانات: {data.listings.length}</div>
+            <div className={cn(TYPOGRAPHY.body, "text-slate-600 mb-6")}>وسطاء: {data.agents.length} — إعلانات: {data.listings.length}</div>
           </CardContent>
         </Card>
 
@@ -88,8 +88,8 @@ export default function AgencyPage() {
                 <Card key={p.id} className={CARD_STYLES.container}>
                   <CardContent className="p-5">
                     <div className={cn(TYPOGRAPHY.body, "font-semibold")}>{p.title}</div>
-                    <div className={cn(TYPOGRAPHY.caption, "text-gray-600")}>{p.address}، {p.city}</div>
-                    <div className={cn(TYPOGRAPHY.sectionTitle, "text-green-700 font-bold")}>{p.price} ﷼</div>
+                    <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>{p.address}، {p.city}</div>
+                    <div className={cn(TYPOGRAPHY.sectionTitle, "text-emerald-600 font-bold")}>{p.price} ﷼</div>
                   </CardContent>
                 </Card>
               ))}

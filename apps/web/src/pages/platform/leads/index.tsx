@@ -24,6 +24,7 @@ import { Trash2, Edit, Eye, Plus, MessageCircle, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AddLeadModal from "@/components/modals/add-lead-modal";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { CSVUploader } from "@/components/admin/data-display/CSVUploader";
@@ -33,7 +34,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type { Lead } from "@shared/types";
 import type { UploadResult } from "@uppy/core";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES } from "@/config/platform-theme";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES, getLeadStatusBadge, getIconSpacing } from "@/config/platform-theme";
 
 export default function Leads() {
   const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
@@ -153,19 +154,7 @@ export default function Leads() {
   };
 
   const displayLeads = searchQuery.trim() ? searchResults : leads;
-  const iconSpacing = dir === "rtl" ? "ml-2" : "mr-2";
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case "new": return "bg-yellow-100 text-yellow-800";
-      case "qualified": return "bg-blue-100 text-blue-800";
-      case "showing": return "bg-orange-100 text-orange-800";
-      case "negotiation": return "bg-purple-100 text-purple-800";
-      case "closed": return "bg-green-100 text-green-800";
-      case "lost": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  };
+  const iconSpacing = getIconSpacing(dir);
 
   const handleDelete = (id: string) => {
     if (confirm(t("leads.confirm_delete"))) {
@@ -232,41 +221,43 @@ export default function Leads() {
 
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
-      <section className="ui-section">
-        <header className="ui-section__header">
-          <h2 className="text-lg font-semibold text-foreground">
-            {t("leads.all_leads")} ({displayLeads?.length || 0})
-          </h2>
-          <div className="flex items-center gap-2">
-            <CSVUploader
-              onGetUploadParameters={handleGetUploadParameters}
-              onComplete={handleCSVUploadComplete}
-              buttonClassName="bg-emerald-600 hover:bg-emerald-700"
-            >
-              <Upload className={iconSpacing} size={16} />
-              {t("leads.upload_csv")}
-            </CSVUploader>
-            <Button variant="outline" onClick={exportLeads}>
-              {t("leads.export_csv")}
-            </Button>
-            <Button onClick={() => setAddLeadModalOpen(true)} className={BUTTON_PRIMARY_CLASSES}>
-              <Plus className={iconSpacing} size={16} />
-              {t("leads.add_lead")}
-            </Button>
+      <Card className={CARD_STYLES.container}>
+        <CardHeader className={CARD_STYLES.header}>
+          <div className="flex items-center justify-between">
+            <CardTitle className={TYPOGRAPHY.cardTitle}>
+              {t("leads.all_leads")} ({displayLeads?.length || 0})
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <CSVUploader
+                onGetUploadParameters={handleGetUploadParameters}
+                onComplete={handleCSVUploadComplete}
+                buttonClassName="bg-emerald-600 hover:bg-emerald-700"
+              >
+                <Upload className={iconSpacing} size={16} />
+                {t("leads.upload_csv")}
+              </CSVUploader>
+              <Button variant="outline" onClick={exportLeads}>
+                {t("leads.export_csv")}
+              </Button>
+              <Button onClick={() => setAddLeadModalOpen(true)} className={BUTTON_PRIMARY_CLASSES}>
+                <Plus className={iconSpacing} size={16} />
+                {t("leads.add_lead")}
+              </Button>
+            </div>
           </div>
-        </header>
+        </CardHeader>
 
-        <div className="ui-section__body">
+        <CardContent className={CARD_STYLES.content}>
           {csvProcessMutation.isPending && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-3 text-blue-700">
-              <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700", dir === "rtl" ? "ml-2" : "mr-2")}></div>
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-3 text-blue-700 mb-4">
+              <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700", getIconSpacing(dir))}></div>
               {t("leads.csv_processing")}
             </div>
           )}
 
           {!displayLeads || displayLeads.length === 0 ? (
             <div className={cn(EMPTY_STYLES.container, "text-end")}>
-              <div className={cn(EMPTY_STYLES.description, "mb-4 text-gray-600")}>
+              <div className={cn(EMPTY_STYLES.description, "mb-4 text-slate-600")}>
                 {searchQuery ? t("leads.no_results") : t("leads.no_leads")}
               </div>
               {!searchQuery && (
@@ -277,9 +268,9 @@ export default function Leads() {
               )}
             </div>
           ) : (
-            <div className="ui-surface">
+            <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
               <Table className={TABLE_STYLES.container}>
-                <TableHeader className={cn(TABLE_STYLES.header, "bg-gray-50")}>
+                <TableHeader className={cn(TABLE_STYLES.header, "bg-slate-50")}>
                   <TableRow>
                     <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.name")}</TableHead>
                     <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.email")}</TableHead>
@@ -294,14 +285,14 @@ export default function Leads() {
                 </TableHeader>
                 <TableBody className={TABLE_STYLES.body}>
                   {displayLeads.map((lead) => (
-                    <TableRow key={lead.id} className="divide-y divide-gray-200">
+                    <TableRow key={lead.id} className="divide-y divide-slate-200">
                       <TableCell className={cn(TABLE_STYLES.cell, "text-end font-medium")}>
                         {lead.firstName} {lead.lastName}
                       </TableCell>
                       <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.email}</TableCell>
                       <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.phone || '-'}</TableCell>
                       <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>
-                        <Badge className={cn(BADGE_STYLES.base, getStatusBadgeColor(lead.status))}>
+                        <Badge className={cn(BADGE_STYLES.base, getLeadStatusBadge(lead.status))}>
                           {t(`status.${lead.status}`) || lead.status}
                         </Badge>
                       </TableCell>
@@ -344,8 +335,8 @@ export default function Leads() {
               </Table>
             </div>
           )}
-        </div>
-      </section>
+        </CardContent>
+      </Card>
 
       <AddLeadModal open={addLeadModalOpen} onOpenChange={setAddLeadModalOpen} />
       {selectedLead && (

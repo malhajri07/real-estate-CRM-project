@@ -55,7 +55,7 @@ export default function SavedSearchesPage() {
         <Card className={CARD_STYLES.container}>
           <CardHeader className={CARD_STYLES.header}>
             <CardTitle className={TYPOGRAPHY.pageTitle}>عمليات البحث المحفوظة</CardTitle>
-            <p className={cn(TYPOGRAPHY.body, "text-gray-600 mt-2")}>إدارة التنبيهات والبحث السريع</p>
+            <p className={cn(TYPOGRAPHY.body, "text-slate-600 mt-2")}>إدارة التنبيهات والبحث السريع</p>
           </CardHeader>
         </Card>
 
@@ -85,11 +85,11 @@ export default function SavedSearchesPage() {
                 <CardContent className="p-6">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className={cn(TYPOGRAPHY.cardTitle, "text-gray-900")}>{s.alertName}</div>
-                      <div className={cn(TYPOGRAPHY.caption, "text-gray-600 mt-1")}>
+                      <div className={cn(TYPOGRAPHY.cardTitle, "text-slate-900")}>{s.alertName}</div>
+                      <div className={cn(TYPOGRAPHY.caption, "text-slate-600 mt-1")}>
                         المدن: {(s.cities||[]).join(', ') || 'الكل'}
                       </div>
-                      <div className={cn(TYPOGRAPHY.caption, "text-gray-600")}>
+                      <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>
                         الأنواع: {(s.propertyTypes||[]).join(', ') || 'الكل'}
                       </div>
                     </div>
@@ -103,8 +103,8 @@ export default function SavedSearchesPage() {
             {data.length === 0 && (
               <Card className={CARD_STYLES.container}>
                 <CardContent className={cn(EMPTY_STYLES.container, "p-8")}>
-                  <div className={cn(EMPTY_STYLES.title, "text-gray-600")}>لا توجد عمليات بحث محفوظة</div>
-                  <p className={cn(EMPTY_STYLES.description, "text-gray-500 mt-2")}>ابدأ بإنشاء بحث محفوظ جديد</p>
+                  <div className={cn(EMPTY_STYLES.title, "text-slate-600")}>لا توجد عمليات بحث محفوظة</div>
+                  <p className={cn(EMPTY_STYLES.description, "text-slate-500 mt-2")}>ابدأ بإنشاء بحث محفوظ جديد</p>
                 </CardContent>
               </Card>
             )}

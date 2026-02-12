@@ -15,6 +15,8 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
+import { METRICS_CARD_STYLES } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 
 interface MetricsCardProps {
   title: string;
@@ -34,9 +36,9 @@ export default function MetricsCard({
   iconColor 
 }: MetricsCardProps) {
   const changeColorMap = {
-    positive: "text-success",
-    negative: "text-error",
-    neutral: "text-warning"
+    positive: "text-emerald-600",
+    negative: "text-red-600",
+    neutral: "text-amber-600"
   };
 
   const changeIconMap = {
@@ -46,24 +48,22 @@ export default function MetricsCard({
   };
 
   return (
-    <Card className="border border-slate-200">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-600">{title}</p>
-            <p className="text-3xl font-bold text-slate-900">{value}</p>
-            {change && (
-              <p className={`text-sm ${changeColorMap[changeType]}`}>
-                <span className="mr-1">{changeIconMap[changeType]}</span>
-                {change}
-              </p>
-            )}
-          </div>
-          <div className={`w-12 h-12 ${iconColor} rounded-lg flex items-center justify-center`}>
-            <Icon className="text-xl" size={24} />
-          </div>
+    <Card className={METRICS_CARD_STYLES.container}>
+      <div className="flex items-center justify-between pb-2">
+        <div>
+          <p className={METRICS_CARD_STYLES.label}>{title}</p>
+          <p className={METRICS_CARD_STYLES.value}>{value}</p>
+          {change && (
+            <p className={cn("text-xs font-bold mt-1 flex items-center gap-1", changeColorMap[changeType])}>
+              <span>{changeIconMap[changeType]}</span>
+              {change}
+            </p>
+          )}
         </div>
-      </CardContent>
+        <div className={cn(METRICS_CARD_STYLES.icon, iconColor)}>
+          <Icon size={24} />
+        </div>
+      </div>
     </Card>
   );
 }

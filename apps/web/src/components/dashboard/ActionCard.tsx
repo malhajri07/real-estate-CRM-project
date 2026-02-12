@@ -44,35 +44,22 @@ export function ActionCard({
         onClick={onClick}
         disabled={disabled}
         className={cn(
-          "w-full justify-between rounded-2xl px-5 py-4 h-auto font-bold transition-all duration-300 relative overflow-hidden",
-          isPrimary
-            ? "bg-gradient-to-l from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 border-l-4 border-emerald-400"
-            : "bg-gradient-to-br from-white/90 via-white/80 to-slate-50/50 border-2 border-slate-200 hover:border-pink-300 text-slate-700 hover:text-pink-600 shadow-sm hover:shadow-md",
+          "w-full justify-between rounded-2xl px-5 py-4 h-auto font-bold transition-all duration-300 relative overflow-hidden bg-white border border-slate-100 hover:border-slate-200 hover:shadow-md text-slate-700 hover:bg-slate-50",
           disabled && "opacity-50 cursor-not-allowed"
         )}
       >
-        {/* Gradient overlay on hover for secondary */}
-        {!isPrimary && !disabled && (
-          <div className="absolute inset-0 bg-gradient-to-br from-pink-50/0 to-pink-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-        )}
         <span className="flex items-center gap-3">
           <div className={cn(
-            "h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-300",
-            isPrimary
-              ? "bg-white/20 group-hover:bg-white/30"
-              : "bg-emerald-50 group-hover:bg-emerald-100"
+            "flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600 transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-110"
           )}>
-            <Icon className={cn(
-              "h-5 w-5 transition-colors",
-              isPrimary ? "text-white" : "text-emerald-600"
-            )} />
+            <Icon className="h-6 w-6" />
           </div>
-          <span className="text-sm font-black" style={{ lineHeight: '1.6' }}>
+          <span className="text-sm font-bold text-slate-900" style={{ lineHeight: '1.6' }}>
             {label}
           </span>
         </span>
         {!disabled && (
-          <ArrowLeft className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-[-4px] transition-all duration-300" />
+          <ArrowLeft className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-[-4px] transition-all duration-300 text-slate-400" />
         )}
       </Button>
     </motion.div>

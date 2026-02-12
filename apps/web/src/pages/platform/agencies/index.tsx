@@ -60,10 +60,10 @@ export default function AgenciesPage() {
                 <a href={`/home/platform/agency/${a.id}`} className="block">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900")}>
+                      <div className={cn(TYPOGRAPHY.body, "font-semibold text-slate-900")}>
                         {a.name}{a.verified && <span className="ml-2 text-green-600">✓</span>}
                       </div>
-                      <div className={cn(TYPOGRAPHY.caption, "text-gray-600")}>
+                      <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>
                         عدد الوسطاء: {a.agentsCount} — عدد الإعلانات: {a.listingsCount}
                       </div>
                     </div>

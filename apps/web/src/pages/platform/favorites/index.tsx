@@ -57,15 +57,15 @@ export default function FavoritesPage() {
         <Card className={CARD_STYLES.container}>
           <CardHeader className={CARD_STYLES.header}>
             <CardTitle className={TYPOGRAPHY.pageTitle}>العقارات المفضلة</CardTitle>
-            <p className={cn(TYPOGRAPHY.body, "text-gray-600 mt-2")}>العقارات التي قمت بحفظها</p>
+            <p className={cn(TYPOGRAPHY.body, "text-slate-600 mt-2")}>العقارات التي قمت بحفظها</p>
           </CardHeader>
         </Card>
 
         {items.length === 0 ? (
           <Card className={CARD_STYLES.container}>
             <CardContent className={cn(EMPTY_STYLES.container, "p-8")}>
-              <div className={cn(EMPTY_STYLES.title, "text-gray-600")}>لا توجد عناصر محفوظة</div>
-              <p className={cn(EMPTY_STYLES.description, "text-gray-500 mt-2")}>ابدأ بحفظ العقارات التي تعجبك</p>
+              <div className={cn(EMPTY_STYLES.title, "text-slate-600")}>لا توجد عناصر محفوظة</div>
+              <p className={cn(EMPTY_STYLES.description, "text-slate-500 mt-2")}>ابدأ بحفظ العقارات التي تعجبك</p>
             </CardContent>
           </Card>
         ) : (

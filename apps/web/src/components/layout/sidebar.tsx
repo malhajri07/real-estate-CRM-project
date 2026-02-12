@@ -110,16 +110,26 @@ export default function Sidebar({ onLogout }: SidebarProps) {
           <Link
             href={item.path}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500",
+              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group relative",
               dir === "rtl" ? "text-end" : "text-start",
-              isActive ? "bg-blue-100 text-blue-700 shadow-sm" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              isActive 
+                ? "bg-gradient-to-r from-emerald-50 to-emerald-100/50 text-emerald-700 shadow-sm" 
+                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             )}
             aria-current={isActive ? "page" : undefined}
           >
+            {isActive && (
+              <div className={cn(
+                "absolute top-1/2 -translate-y-1/2 w-1 h-6 rounded-full bg-emerald-500",
+                dir === "rtl" ? "-right-0.5" : "-left-0.5"
+              )} />
+            )}
             <span
               className={cn(
-                "flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600",
-                isActive && "border-blue-300 bg-blue-100 text-blue-700"
+                "flex h-8 w-8 items-center justify-center rounded-lg border transition-all duration-200",
+                isActive 
+                  ? "border-emerald-200 bg-white text-emerald-600 shadow-sm" 
+                  : "border-slate-200 bg-white text-slate-500 group-hover:border-emerald-200 group-hover:text-emerald-600"
               )}
             >
               <ItemIcon size={16} />
@@ -131,90 +141,149 @@ export default function Sidebar({ onLogout }: SidebarProps) {
     });
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto bg-white" dir={dir}>
-      <nav className="flex-1 space-y-6 px-4 py-6" aria-label={t("nav.system_title")}>
-        <ul className="space-y-4">
-          {visibleGroups.map((group) => {
-            const GroupIcon = group.icon;
-            const groupLabel = group.label ?? (group.labelKey ? t(group.labelKey) : group.id);
-            const isExpanded = expandedGroups.includes(group.id);
-            const isActiveGroup = groupChildren(group).some((child) => routeMatches(child, location));
-            const hasSubgroups = Boolean(group.subgroups?.length);
-
-            // Filter subgroups individually too
-            const visibleSubgroups = group.subgroups?.filter(subgroup =>
-              getVisibleChildren(subgroup.children).length > 0
-            );
-
-            return (
-              <li key={group.id}>
-                <button
-                  type="button"
-                  onClick={() => toggleGroup(group.id)}
-                  aria-expanded={isExpanded}
-                  className={cn(
-                    "group flex w-full items-center justify-between rounded-lg border border-transparent bg-transparent px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500",
-                    isActiveGroup ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50"
-                  )}
-                >
-                  <span className="flex items-center gap-3" dir={dir}>
-                    <span
-                      className={cn(
-                        "flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600 shadow-sm",
-                        isActiveGroup && "border-blue-300 text-blue-600 bg-blue-50"
-                      )}
-                    >
-                      <GroupIcon size={18} />
-                    </span>
-                    <span className="text-sm font-semibold tracking-tight">{groupLabel}</span>
-                  </span>
-                  <span className="text-gray-400 group-hover:text-gray-600">
-                    {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  </span>
-                </button>
-
-                <div
-                  className={cn(
-                    "mt-2 space-y-1 overflow-hidden rounded-lg border border-gray-200 bg-gray-50",
-                    isExpanded ? "max-h-[480px] opacity-100" : "max-h-0 opacity-0"
-                  )}
-                >
-                  <div className="space-y-3 px-2 py-3">
-                    {hasSubgroups
-                      ? visibleSubgroups?.map((subgroup: PlatformSidebarSubgroupConfig) => {
-                        const subgroupLabel = subgroup.label ?? (subgroup.labelKey ? t(subgroup.labelKey) : subgroup.id);
-                        return (
-                          <div key={subgroup.id} className="space-y-2">
-                            {subgroupLabel && (
-                              <div className="px-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                {subgroupLabel}
-                              </div>
-                            )}
-                            <ul className="space-y-1">{renderItems(subgroup.children, location, dir, t)}</ul>
-                          </div>
-                        );
-                      })
-                      : <ul className="space-y-1">{renderItems(group.children ?? [], location, dir, t)}</ul>}
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-
-        {onLogout && (
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 shadow-sm">
-            <button
-              onClick={onLogout}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
-              data-testid="button-logout"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>{t("auth.logout") || "تسجيل الخروج"}</span>
-            </button>
+    <div className="glass h-[calc(100vh-5rem)] w-72 flex flex-col sticky top-20 border-e-0 md:rounded-e-[2rem] overflow-hidden" dir={dir}>
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+        {/* App Logo/Name */}
+        <div className="flex items-center gap-3 px-2 mb-8">
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white font-bold text-xl">
+            A
           </div>
-        )}
-      </nav>
+          <span className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">
+            {t("app.name") || "عقاركم"}
+          </span>
+        </div>
+
+        <nav className="space-y-2" aria-label={t("nav.system_title")}>
+          <ul className="space-y-2">
+            {visibleGroups.map((group) => {
+              const GroupIcon = group.icon;
+              const groupLabel = group.label ?? (group.labelKey ? t(group.labelKey) : group.id);
+              const isExpanded = expandedGroups.includes(group.id);
+              const isActiveGroup = groupChildren(group).some((child) => routeMatches(child, location));
+              const hasSubgroups = Boolean(group.subgroups?.length);
+
+              // Filter subgroups individually too
+              const visibleSubgroups = group.subgroups?.filter(subgroup =>
+                getVisibleChildren(subgroup.children).length > 0
+              );
+
+              return (
+                <li key={group.id} className="space-y-1.5">
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(group.id)}
+                    aria-expanded={isExpanded}
+                    className={cn(
+                      "w-full group flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-300 outline-none select-none",
+                      isActiveGroup 
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25" 
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                    )}
+                  >
+                    <div className={cn(
+                      "flex items-center justify-center p-2 rounded-xl transition-all duration-300",
+                      isActiveGroup 
+                        ? "bg-white/20" 
+                        : "bg-slate-100 group-hover:bg-white shadow-sm"
+                    )}>
+                      <GroupIcon size={20} className={cn(isActiveGroup ? "text-white" : "text-slate-500 group-hover:text-emerald-600")} />
+                    </div>
+                    <span className="flex-1 text-sm font-semibold tracking-tight text-start">{groupLabel}</span>
+                    <span className={cn(
+                      "transition-transform duration-300",
+                      isExpanded && "rotate-180"
+                    )}>
+                      <ChevronDown size={14} className={isActiveGroup ? "text-emerald-100" : "text-slate-400"} />
+                    </span>
+                  </button>
+
+                  <div
+                    className={cn(
+                      "overflow-hidden transition-all duration-300 ease-in-out",
+                      isExpanded ? "max-h-[1000px] opacity-100 mt-1" : "max-h-0 opacity-0 mt-0"
+                    )}
+                  >
+                    <div className="ms-6 ps-4 border-s-2 border-slate-100/50 space-y-1 pb-2">
+                      {hasSubgroups
+                        ? visibleSubgroups?.map((subgroup: PlatformSidebarSubgroupConfig) => {
+                          const subgroupLabel = subgroup.label ?? (subgroup.labelKey ? t(subgroup.labelKey) : subgroup.id);
+                          return (
+                            <div key={subgroup.id} className="space-y-1">
+                              {subgroupLabel && (
+                                <div className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                  {subgroupLabel}
+                                </div>
+                              )}
+                              <ul className="space-y-1">
+                                {subgroup.children.filter(isItemVisible).map((item) => {
+                                  const itemLabel = item.label ?? (item.labelKey ? t(item.labelKey) : item.id);
+                                  const isActive = routeMatches(item, location);
+                                  return (
+                                    <li key={item.id}>
+                                      <Link
+                                        href={item.path}
+                                        className={cn(
+                                          "w-full flex items-center px-4 py-2.5 rounded-xl transition-all text-sm font-medium outline-none select-none text-start",
+                                          isActive
+                                            ? "bg-emerald-50 text-emerald-700"
+                                            : "text-slate-500 hover:bg-slate-100/60 hover:text-slate-900"
+                                        )}
+                                        aria-current={isActive ? "page" : undefined}
+                                      >
+                                        <span className="flex-1 leading-tight">{itemLabel}</span>
+                                      </Link>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          );
+                        })
+                        : <ul className="space-y-1">
+                            {group.children?.filter(isItemVisible).map((item) => {
+                              const itemLabel = item.label ?? (item.labelKey ? t(item.labelKey) : item.id);
+                              const isActive = routeMatches(item, location);
+                              return (
+                                <li key={item.id}>
+                                  <Link
+                                    href={item.path}
+                                    className={cn(
+                                      "w-full flex items-center px-4 py-2.5 rounded-xl transition-all text-sm font-medium outline-none select-none text-start",
+                                      isActive
+                                        ? "bg-emerald-50 text-emerald-700"
+                                        : "text-slate-500 hover:bg-slate-100/60 hover:text-slate-900"
+                                    )}
+                                    aria-current={isActive ? "page" : undefined}
+                                  >
+                                    <span className="flex-1 leading-tight">{itemLabel}</span>
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                          </ul>}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          {onLogout && (
+            <div className="pt-4 border-t border-slate-100/50 mt-4">
+              <button
+                onClick={onLogout}
+                className="w-full group flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-300 outline-none select-none text-red-600 hover:bg-red-50"
+                data-testid="button-logout"
+              >
+                <div className="flex items-center justify-center p-2 rounded-xl bg-red-50 group-hover:bg-red-100 transition-all duration-300">
+                  <LogOut size={20} className="text-red-500 group-hover:text-red-600" />
+                </div>
+                <span className="flex-1 text-sm font-semibold tracking-tight text-start">{t("auth.logout") || "تسجيل الخروج"}</span>
+              </button>
+            </div>
+          )}
+        </nav>
+      </div>
     </div>
   );
 }

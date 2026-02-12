@@ -56,11 +56,14 @@ import {
   Plus,
   Users,
   Phone,
+  Zap,
+  ListTodo,
 } from "lucide-react";
 import AddLeadDrawer from "@/components/modals/add-lead-drawer";
 import AddPropertyDrawer from "@/components/modals/add-property-drawer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, LOADING_STYLES } from "@/config/platform-theme";
 
 type MetricResponse = {
   totalLeads: number;
@@ -141,7 +144,7 @@ export default function Dashboard() {
         label: t("dashboard.total_leads"),
         value: metrics?.totalLeads ?? 0,
         icon: Users,
-        accent: "bg-gradient-to-br from-blue-50 via-white to-blue-50/30 text-blue-700",
+        // accent removed
         delta: { value: 12, tone: "up" as const },
         href: "/home/platform/leads",
       },
@@ -150,7 +153,7 @@ export default function Dashboard() {
         label: t("dashboard.active_properties"),
         value: metrics?.activeProperties ?? 0,
         icon: Building,
-        accent: "bg-gradient-to-br from-emerald-50 via-white to-emerald-50/30 text-emerald-700",
+        // accent removed
         delta: { value: 8, tone: "up" as const },
         href: "/home/platform/properties",
       },
@@ -159,7 +162,7 @@ export default function Dashboard() {
         label: t("dashboard.deals_in_pipeline"),
         value: metrics?.dealsInPipeline ?? 0,
         icon: Filter,
-        accent: "bg-gradient-to-br from-amber-50 via-white to-amber-50/30 text-amber-600",
+        // accent removed
         delta: { value: -2, tone: "down" as const },
         href: "/home/platform/pipeline",
       },
@@ -168,7 +171,7 @@ export default function Dashboard() {
         label: t("dashboard.monthly_revenue"),
         value: formatCurrency(metrics?.monthlyRevenue ?? 0),
         icon: Banknote,
-        accent: "bg-gradient-to-br from-rose-50 via-white to-rose-50/30 text-rose-600",
+        // accent removed
         delta: { value: 24, tone: "up" as const },
       },
     ],
@@ -246,72 +249,34 @@ export default function Dashboard() {
 
   return (
     <div className="w-full space-y-8 relative min-h-screen" dir={dir}>
-      {/* Enhanced Background with Gradient Mesh */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.1),transparent_50%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)] pointer-events-none" />
+      {/* Clean Background - Apple Style */}
+      <div className="absolute inset-0 bg-[#F5F5F7] pointer-events-none z-0" />
       
-      {/* Animated Background Orbs */}
-      <motion.div
-        animate={{
-          x: [0, 100, 0],
-          y: [0, 50, 0],
-          scale: [1, 1.1, 1],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute top-20 end-20 w-96 h-96 bg-emerald-400/10 blur-[120px] rounded-full pointer-events-none"
-      />
-      <motion.div
-        animate={{
-          x: [0, -80, 0],
-          y: [0, -40, 0],
-          scale: [1, 1.2, 1],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-        className="absolute bottom-20 start-20 w-80 h-80 bg-blue-400/10 blur-[100px] rounded-full pointer-events-none"
-      />
-      
-      {/* Enhanced Welcome Header with Gradient Card */}
+      {/* Welcome Header - Minimal Text */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative z-10"
+        className="relative z-10 px-2"
       >
-        <div className="bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 rounded-3xl p-8 border border-emerald-100/50 shadow-lg mb-8">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50/80 backdrop-blur-sm border border-emerald-100/50 text-emerald-700 text-sm font-bold shadow-sm mb-4">
-                <span>📊</span>
-                <span>{t("dashboard.dashboard") || "لوحة التحكم"}</span>
-              </div>
-              <h1 className="text-4xl lg:text-5xl font-black text-slate-900 mb-3" style={{ lineHeight: '1.4' }}>
-                {t("dashboard.welcome") || "مرحباً"} {userName}
-              </h1>
-              <p className="text-xl text-slate-600" style={{ lineHeight: '1.8' }}>
-                {t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
-              </p>
-            </div>
-          </div>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+            {t("dashboard.welcome") || "مرحباً"} {userName}
+          </h1>
+          <p className="text-sm font-medium text-slate-500">
+            {t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
+          </p>
         </div>
       </motion.div>
       
-      {/* Enhanced Metric Cards */}
-      <section aria-label={t("dashboard.quick_summary")} className="grid gap-6 md:grid-cols-2 xl:grid-cols-4 relative z-10">
+      {/* Clean Metric Cards */}
+      <section aria-label={t("dashboard.quick_summary")} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 relative z-10">
         {metricCards.map((metric, index) => (
           <MetricCard
             key={metric.id}
             {...metric}
             index={index}
+            className="bg-white shadow-sm hover:shadow-md transition-shadow rounded-2xl border-none"
           />
         ))}
       </section>
@@ -320,61 +285,60 @@ export default function Dashboard() {
       <div className="grid gap-8 lg:grid-cols-3 relative z-10" aria-label={t("dashboard.details_section")}>
         {/* Left Column - Main Content */}
         <div className="space-y-8 lg:col-span-2">
-          {/* Enhanced Pipeline Flow */}
-          <div className="bg-gradient-to-br from-indigo-50/50 via-white to-indigo-50/30 rounded-3xl p-6 border-l-4 border-indigo-500 shadow-xl">
+          {/* Clean Pipeline Flow */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
             <PipelineFlow stages={pipelineStages} dateFormatter={dateFormatter} />
           </div>
 
-          {/* Revenue Chart with Gradient Background */}
-          <div className="bg-gradient-to-br from-emerald-50/50 via-white to-emerald-50/30 rounded-3xl p-6 border-l-4 border-emerald-500 shadow-xl">
-            <Card className="bg-transparent border-0 shadow-none">
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50/80 backdrop-blur-sm border border-emerald-100/50 text-emerald-700 text-xs font-bold">
-                    <span>💰</span>
-                    <span>{t("dashboard.revenue") || "الإيرادات"}</span>
+          {/* Revenue Chart with Clean Background */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <Card className="bg-transparent border-0 shadow-none p-0">
+              <CardHeader className="pb-4 px-0 pt-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                      <Banknote className="h-6 w-6" />
+                    </div>
                   </div>
-                </div>
-                <CardTitle className="text-2xl font-black text-slate-900">
+                <CardTitle className="text-2xl font-bold text-slate-900 tracking-tight">
                   {t("dashboard.monthly_revenue") || "إيرادات الشهر"}
                 </CardTitle>
-                <CardDescription className="text-slate-600 mt-2" style={{ lineHeight: '1.8' }}>
+                <CardDescription className="text-slate-500 mt-2 font-medium" style={{ lineHeight: '1.6' }}>
                   {t("dashboard.revenue_description") || t("dashboard.pipeline_description") || "نظرة عامة على الإيرادات الشهرية"}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-0 pb-0">
                 <RevenueChart />
               </CardContent>
             </Card>
           </div>
 
-          {/* Enhanced Recent Leads with Gradient Background */}
-          <div className="bg-gradient-to-br from-blue-50/50 via-white to-blue-50/30 rounded-3xl p-6 border-l-4 border-blue-500 shadow-xl">
-            <Card className="bg-transparent border-0 shadow-none">
-              <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between pb-6">
+          {/* Clean Recent Leads */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <Card className="bg-transparent border-0 shadow-none p-0">
+              <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between pb-6 px-0 pt-0">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/80 backdrop-blur-sm border border-blue-100/50 text-blue-700 text-xs font-bold">
-                      <span>👥</span>
-                    </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                    <Users className="h-6 w-6" />
                   </div>
-                  <CardTitle className="text-2xl font-black text-slate-900 mb-2">
+                  </div>
+                  <CardTitle className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">
                     {t("dashboard.recent_leads")}
                   </CardTitle>
-                  <CardDescription className="text-slate-600" style={{ lineHeight: '1.8' }}>
+                  <CardDescription className="text-slate-500 font-medium" style={{ lineHeight: '1.6' }}>
                     {t("dashboard.recent_leads_description")}
                   </CardDescription>
                 </div>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="rounded-full px-4 font-bold"
+                  className="rounded-full px-4 font-bold bg-slate-50 text-slate-600 hover:bg-slate-100"
                   onClick={() => setLocation("/home/platform/leads")}
                 >
                   {t("form.view_all")}
                 </Button>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-0 pb-0">
               {leadsLoading ? (
                 <div className="space-y-4">
                   {Array.from({ length: 4 }).map((_, index) => (
@@ -416,16 +380,21 @@ export default function Dashboard() {
         {/* Right Column - Sidebar */}
         <div className="space-y-8">
           {/* Enhanced Quick Actions */}
-          <Card className="glass border-0 rounded-3xl shadow-xl">
-            <CardHeader className="pb-6">
-              <CardTitle className="text-xl font-black text-slate-900 mb-2">
+          <Card className={CARD_STYLES.container}>
+            <CardHeader className={CARD_STYLES.header}>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                  <Zap className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className={TYPOGRAPHY.cardTitle}>
                 {t("dashboard.quick_actions")}
               </CardTitle>
-              <CardDescription className="text-slate-600" style={{ lineHeight: '1.8' }}>
+              <CardDescription className={TYPOGRAPHY.cardDescription}>
                 {t("dashboard.quick_actions_description")}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className={cn(CARD_STYLES.content, "space-y-3")}>
               {quickActions.map((action, index) => (
                 <ActionCard
                   key={action.id}
@@ -442,16 +411,21 @@ export default function Dashboard() {
           </Card>
 
           {/* Enhanced Today's Tasks */}
-          <Card className="glass border-0 rounded-3xl shadow-xl">
-            <CardHeader className="pb-6">
-              <CardTitle className="text-xl font-black text-slate-900 mb-2">
+          <Card className={CARD_STYLES.container}>
+            <CardHeader className={CARD_STYLES.header}>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                  <ListTodo className="h-6 w-6" />
+                </div>
+              </div>
+              <CardTitle className={TYPOGRAPHY.cardTitle}>
                 {t("dashboard.tasks_title")}
               </CardTitle>
-              <CardDescription className="text-slate-600" style={{ lineHeight: '1.8' }}>
+              <CardDescription className={TYPOGRAPHY.cardDescription}>
                 {t("dashboard.tasks_description")}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className={CARD_STYLES.content}>
               {activitiesLoading ? (
                 <div className="space-y-4">
                   {Array.from({ length: 3 }).map((_, index) => (
@@ -499,9 +473,9 @@ interface EmptyStateProps {
 
 function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-border/60 bg-muted/40 px-6 py-12 text-center">
-      <p className="text-base font-semibold text-foreground">{title}</p>
-      <p className="text-sm text-muted-foreground">{description}</p>
+    <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center">
+      <p className="text-base font-semibold text-slate-900">{title}</p>
+      <p className="text-sm text-slate-500">{description}</p>
       {action}
     </div>
   );

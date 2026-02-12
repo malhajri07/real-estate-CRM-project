@@ -15,9 +15,12 @@
  */
 
 import { PropsWithChildren, type ReactNode, useState } from "react";
+import { useLocation } from "wouter";
+import { motion } from "framer-motion";
 import Header from "@/components/layout/header";
 import PlatformSidebar from "@/components/layout/sidebar";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getHeaderConfigForPath } from "@/config/platform-header-config";
 import { cn } from "@/lib/utils";
 
 type PlatformShellProps = PropsWithChildren<{
@@ -30,67 +33,70 @@ type PlatformShellProps = PropsWithChildren<{
 export default function PlatformShell({
   children,
   onLogout,
-  title,
-  searchPlaceholder,
+  title: titleOverride,
+  searchPlaceholder: searchPlaceholderOverride,
   headerExtraContent,
 }: PlatformShellProps) {
   const { dir, t } = useLanguage();
+  const [location] = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const headerConfig = getHeaderConfigForPath(location);
+  const title = titleOverride ?? t(headerConfig.titleKey);
+  const searchPlaceholder = searchPlaceholderOverride ?? (headerConfig.searchPlaceholderKey ? t(headerConfig.searchPlaceholderKey) : t("nav.search"));
+  const showSearch = headerConfig.showSearch ?? true;
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden" dir={dir}>
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col relative overflow-hidden" dir={dir}>
+      {/* Global Background with Clean Apple Style */}
+      <div className="absolute inset-0 bg-[#F5F5F7] z-0" />
+
       {/* Sidebar Overlay - Only on mobile when sidebar is open */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-[60] lg:hidden"
           onClick={toggleSidebar}
           aria-hidden="true"
         />
       )}
 
-      {/* Sidebar - Hidden by default on mobile, visible on desktop */}
-      <aside
-        className={cn(
-          "w-72 bg-white border-r border-gray-200 shadow-lg flex-shrink-0",
-          "fixed lg:static inset-y-0 z-50",
-          "transform transition-transform duration-300 ease-in-out",
-          // Mobile: slide in/out based on state
-          // Desktop: always visible (static positioning, no transform)
-          dir === "rtl"
-            ? isSidebarOpen 
-              ? "translate-x-0 lg:translate-x-0" 
-              : "translate-x-full lg:translate-x-0"
-            : isSidebarOpen 
-              ? "translate-x-0 lg:translate-x-0" 
-              : "-translate-x-full lg:translate-x-0",
-          dir === "rtl" 
-            ? "border-l border-r-0 right-0 lg:right-auto" 
-            : "border-r left-0 lg:left-auto"
-        )}
-      >
-        <PlatformSidebar onLogout={onLogout} />
-      </aside>
+      {/* Header - Fixed at Top */}
+      <Header
+        searchPlaceholder={searchPlaceholder}
+        title={title}
+        showSearch={showSearch}
+        extraContent={headerExtraContent}
+        onToggleSidebar={toggleSidebar}
+        isSidebarOpen={isSidebarOpen}
+      />
 
-      {/* Main content area - Full width on mobile, with proper spacing on desktop */}
-      <div className="flex flex-col flex-1 min-w-0 w-full lg:w-auto">
-        {/* Header */}
-        <Header
-          searchPlaceholder={searchPlaceholder || t("nav.search")}
-          title={title}
-          extraContent={headerExtraContent}
-          onToggleSidebar={toggleSidebar}
-          isSidebarOpen={isSidebarOpen}
-        />
-        
-        {/* Main content */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 w-full">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-            {children}
-          </div>
+      <div className="flex flex-1 pt-20 relative z-10">
+        {/* Sidebar - Fixed on Desktop */}
+        <aside
+          className={cn(
+            "w-72 flex-shrink-0 z-[40]",
+            "fixed inset-y-0 start-0 lg:top-20", 
+            "transition-transform duration-300 ease-in-out",
+            dir === "rtl"
+              ? isSidebarOpen 
+                ? "translate-x-0" 
+                : "translate-x-full lg:translate-x-0"
+              : isSidebarOpen 
+                ? "translate-x-0" 
+                : "-translate-x-full lg:translate-x-0",
+             dir === "rtl" ? "right-0 lg:right-auto lg:left-auto" : "left-0 lg:left-auto"
+          )}
+        >
+          <PlatformSidebar onLogout={onLogout} />
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 lg:ms-72 p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto transition-all duration-300">
+          {children}
         </main>
       </div>
     </div>

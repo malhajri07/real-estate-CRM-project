@@ -10,83 +10,35 @@
  * - Form validation and error handling
  * - Loading states during authentication
  * - RTL (Right-to-Left) layout support for Arabic
- * - Demo account credentials for testing
- * 
- * The form integrates with the AuthProvider context through the onLogin callback
- * and handles all authentication UI states including loading, errors, and success.
- * 
- * Related Files:
- * - apps/web/src/pages/rbac-login.tsx - Login page that uses this component
- * - apps/web/src/components/auth/AuthProvider.tsx - Auth context
- * 
- * Dependencies:
- * - AuthProvider context for authentication state
- * - UI components from shadcn/ui library
- * - Lucide React icons for visual elements
  * 
  * Routes affected: Login page, RBAC login page
- * Pages that use this: /login, /rbac-login
  */
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { Checkbox } from "@/components/ui/checkbox";
+import { BUTTON_PRIMARY_CLASSES, INPUT_STYLES } from '@/config/platform-theme';
+import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-/**
- * LoginFormProps Interface
- * 
- * Defines the props for the LoginForm component:
- * - onLogin: Callback function to handle login submission
- * - isLoading: Boolean to show loading state during authentication
- * - error: Error message to display if authentication fails
- */
 interface LoginFormProps {
   onLogin: (identifier: string, password: string, rememberMe: boolean) => Promise<void>;
   isLoading?: boolean;
   error?: string;
 }
 
-/**
- * LoginForm Component - Main login form component
- * 
- * This component renders a complete login form with:
- * - Email and password input fields
- * - Password visibility toggle functionality
- * - Form validation and submission handling
- * - Loading states and error display
- * - Demo account credentials for testing
- * 
- * State Management:
- * - email: User's email input
- * - password: User's password input
- * - showPassword: Toggle for password visibility
- * 
- * Dependencies: onLogin callback from parent component (AuthProvider)
- * Pages affected: Login page, RBAC login page
- */
 export default function LoginForm({ onLogin, isLoading = false, error }: LoginFormProps) {
-  // Form state management
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const { dir } = useLanguage();
 
-  /**
-   * handleSubmit - Form submission handler
-   * 
-   * Handles form submission by:
-   * - Preventing default form submission
-   * - Validating that both email and password are provided
-   * - Calling the onLogin callback with credentials
-   * 
-   * Dependencies: onLogin prop from AuthProvider
-   * Routes affected: Authentication flow
-   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!identifier || !password) return;
@@ -94,44 +46,57 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
   };
 
   return (
-    <Card className="w-full rounded-[32px] border border-white/80 bg-white/85 backdrop-blur-xl shadow-[0_40px_120px_rgba(15,23,42,0.08)]">
-      <CardHeader className="space-y-3 text-end border-b border-slate-100 bg-white/60">
-        <CardTitle className="text-2xl font-semibold text-slate-900">
-          تسجيل الدخول إلى المنصة
+    <Card className="w-full border-0 rounded-3xl shadow-xl shadow-slate-200/50 bg-white overflow-hidden">
+      <CardHeader className="space-y-2 text-center pb-8 pt-8 border-b border-slate-50 bg-slate-50/30">
+        <CardTitle className="text-xl font-bold text-slate-900">
+          مرحباً بك مجدداً
         </CardTitle>
-        <CardDescription className="text-sm leading-6 text-slate-500">
-          أدخل بيانات حسابك للوصول إلى أدوات إدارة العملاء والعقارات.
+        <CardDescription className="text-sm text-slate-500">
+          أدخل بيانات حسابك للمتابعة
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6 p-6 text-end">
+      
+      <CardContent className="space-y-6 p-8">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <Alert variant="destructive" className="text-end">
+            <Alert variant="destructive" className="bg-red-50 text-red-900 border-red-100 rounded-xl">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="identifier" className="block text-sm font-medium text-slate-700">
-              البريد الإلكتروني أو اسم المستخدم
+          <div className="space-y-2 text-start">
+            <Label htmlFor="identifier" className="text-sm font-semibold text-slate-700">
+              البريد الإلكتروني
             </Label>
             <Input
               id="identifier"
               type="text"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
-              placeholder="أدخل البريد الإلكتروني أو اسم المستخدم"
+              placeholder="example@domain.com"
               autoComplete="username"
               required
               disabled={isLoading}
-              className="h-12 rounded-2xl border-slate-200 bg-white/70 text-end placeholder:text-end placeholder:text-slate-400 pr-12 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+              className={cn(INPUT_STYLES.base, "h-11")}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password" className="block text-sm font-medium text-slate-700">
-              كلمة المرور
-            </Label>
+          <div className="space-y-2 text-start">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password" className="text-sm font-semibold text-slate-700">
+                كلمة المرور
+              </Label>
+              <Button
+                type="button"
+                variant="link"
+                className="p-0 h-auto text-xs font-medium text-emerald-600 hover:text-emerald-700"
+                onClick={() => {
+                  alert('يرجى التواصل مع مدير النظام لاستعادة بيانات الدخول');
+                }}
+              >
+                نسيت كلمة المرور؟
+              </Button>
+            </div>
             <div className="relative">
               <Input
                 id="password"
@@ -142,13 +107,16 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
                 autoComplete="current-password"
                 required
                 disabled={isLoading}
-                className="h-12 rounded-2xl border-slate-200 bg-white/70 text-end placeholder:text-end placeholder:text-slate-400 pr-12 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                className={cn(INPUT_STYLES.base, "h-11", dir === 'rtl' ? "pl-10" : "pr-10")}
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 hover:bg-transparent"
+                className={cn(
+                  "absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hover:bg-transparent h-8 w-8",
+                  dir === 'rtl' ? "left-2" : "right-2"
+                )}
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading}
               >
@@ -161,45 +129,31 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm text-end">
-            <div className="flex items-center space-x-2 space-x-reverse">
-              <Checkbox
-                id="remember"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                disabled={isLoading}
-              />
-              <Label
-                htmlFor="remember"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-600 cursor-pointer"
-              >
-                تذكرني
-              </Label>
-            </div>
-
-            <div className="text-sm text-slate-500 text-end">
-              <Button
-                type="button"
-                variant="link"
-                className="p-0 h-auto text-sm text-emerald-600 hover:text-emerald-700"
-                onClick={() => {
-                  alert('يرجى التواصل مع مدير النظام لاستعادة بيانات الدخول');
-                }}
-              >
-                نسيت بيانات الدخول؟
-              </Button>
-            </div>
+          <div className="flex items-center space-x-2 rtl:space-x-reverse pt-2">
+            <Checkbox
+              id="remember"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+              disabled={isLoading}
+              className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+            />
+            <Label
+              htmlFor="remember"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-600 cursor-pointer select-none"
+            >
+              تذكر تسجيل دخولي
+            </Label>
           </div>
 
           <Button
             type="submit"
-            className="w-full h-12 rounded-2xl bg-emerald-600 text-white font-semibold shadow-[0_20px_45px_rgba(16,185,129,0.25)] hover:bg-emerald-700 hover:shadow-[0_25px_60px_rgba(16,185,129,0.28)] transition-all disabled:opacity-60"
+            className={cn(BUTTON_PRIMARY_CLASSES, "w-full h-12 text-base shadow-lg shadow-emerald-600/20 mt-4")}
             disabled={isLoading || !identifier || !password}
           >
             {isLoading ? (
               <>
-                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                جاري تسجيل الدخول...
+                <Loader2 className="ml-2 h-5 w-5 animate-spin" />
+                جاري الدخول...
               </>
             ) : (
               'تسجيل الدخول'
