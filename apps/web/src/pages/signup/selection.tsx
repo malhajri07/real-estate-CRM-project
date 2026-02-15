@@ -9,204 +9,162 @@
  * - Corporate signup
  * 
  * Route: /signup
- * 
- * Related Files:
- * - apps/web/src/pages/signup-individual.tsx - Individual signup page
- * - apps/web/src/pages/signup-corporate.tsx - Corporate signup page
  */
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion } from "framer-motion";
 import { useLocation } from "wouter";
-import { UserRound, Check, Home } from "lucide-react";
-import agarkomLogo from "@assets/Aqarkom (3)_1756501849666.png";
+import { UserRound, Building2, ArrowRight } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { cn } from "@/lib/utils";
+import PublicHeader from "@/components/layout/PublicHeader";
 
 export default function SignupSelection() {
   const [, setLocation] = useLocation();
+  const { dir } = useLanguage();
 
-  const goHome = () => setLocation("/");
   const handleIndividualSignup = () => setLocation("/signup/individual");
   const handleCorporateSignup = () => setLocation("/signup/corporate");
-  const handleBuyerPool = () => setLocation("/real-estate-requests");
-  const handleSellerListing = () => setLocation("/home/platform/post-listing");
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50">
-      <header className="bg-white/90 backdrop-blur-xl border-b border-white/60 shadow-[0_6px_20px_rgba(15,23,42,0.05)]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-[82px]">
-            <Button
-              onClick={goHome}
-              variant="ghost"
-              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-            >
-              العودة للرئيسية
-            </Button>
-            <button
-              onClick={goHome}
-              className="flex flex-row-reverse items-center"
-            >
-              <span className="sr-only">الانتقال إلى الصفحة الرئيسية</span>
-              <img
-                src={agarkomLogo}
-                alt="شعار منصة عقاراتي"
-                width={114}
-                height={64}
-                loading="eager"
-                decoding="async"
-                className="h-16 w-auto object-contain"
-              />
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
+      {/* Background Effects */}
+      <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
+      
+      <PublicHeader />
 
-      <main className="px-4 py-16">
-        <div className="max-w-5xl mx-auto space-y-12">
-          <div className="space-y-4 text-end">
-            <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
-              اختر الطريقة الأنسب للانضمام إلى المنصة
-            </h1>
-            <p className="text-lg text-slate-500 leading-relaxed">
-              لست بحاجة إلى إعدادات معقدة. اختر المسار الذي يعكس دورك وستحصل على تجربة مصممة بعناية لإدارة العقارات والعملاء بكل سلاسة.
-            </p>
-          </div>
+      <main className="relative pt-32 pb-20 px-4 min-h-[85vh] flex flex-col items-center justify-center">
+        {/* Background Blobs */}
+        <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-teal-500/10 blur-[100px] rounded-full pointer-events-none" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="rounded-[32px] border border-white/80 bg-white/80 backdrop-blur-xl shadow-[0_40px_120px_rgba(15,23,42,0.08)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_50px_140px_rgba(15,23,42,0.12)]">
-              <CardHeader className="space-y-4 text-end">
-                <div className="flex items-center justify-end gap-4">
-                  <div className="space-y-2 text-end">
-                    <CardTitle className="text-2xl font-semibold text-slate-900">
-                      وسيط عقاري معتمد
-                    </CardTitle>
-                    <p className="text-sm text-slate-500 leading-7">
-                      لوحة تحكم تعكس المعايير الاحترافية للوسطاء والشركات مع أدوات دقيقة لتنظيم الصفقات والفرق.
-                    </p>
+        <div className="w-full max-w-5xl mx-auto relative z-10">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-12"
+          >
+            {/* Header Section */}
+            <motion.div variants={itemVariants} className="text-center space-y-6 max-w-2xl mx-auto">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-medium">
+                <UserRound className="w-4 h-4" />
+                <span>حساب جديد</span>
+              </span>
+              
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
+                اختر نوع الحساب للانضمام إلى <span className="text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-teal-600">منصة عقاراتي</span>
+              </h1>
+              
+              <p className="text-lg text-slate-600 leading-relaxed">
+                سواء كنت وسيطاً مستقلاً أو تمثل منشأة عقارية، لدينا الأدوات المناسبة لمساعدتك في إدارة أعمالك وتنمية استثماراتك.
+              </p>
+            </motion.div>
+
+            {/* Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Individual Card */}
+              <motion.div variants={itemVariants}>
+                <div 
+                  onClick={handleIndividualSignup}
+                  className="glass rounded-[32px] p-8 md:p-10 h-full cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-white/40"
+                >
+                  <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  <div className="flex flex-col h-full gap-6">
+                    <div className="flex items-start justify-between">
+                      <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:scale-110 group-hover:bg-emerald-100 transition-all duration-300">
+                        <UserRound className="w-8 h-8" strokeWidth={1.5} />
+                      </div>
+                      <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+                        <ArrowRight className={cn("w-5 h-5", dir === 'rtl' ? "rotate-180" : "")} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 text-start">
+                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">وسيط مستقل</h3>
+                      <p className="text-slate-500 leading-relaxed">
+                        مصمم للأفراد والوسطاء المستقلين. ابدأ رحلتك في السوق العقاري مع أدوات احترافية لإدارة عملائك وعروضك.
+                      </p>
+                    </div>
+
+                    <div className="mt-auto pt-4 flex flex-wrap gap-2">
+                      <span className="px-3 py-1 rounded-lg bg-emerald-50/50 text-emerald-700 text-xs font-medium border border-emerald-100/50">إدارة عملاء</span>
+                      <span className="px-3 py-1 rounded-lg bg-emerald-50/50 text-emerald-700 text-xs font-medium border border-emerald-100/50">تسويق عقاري</span>
+                    </div>
                   </div>
-                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 text-emerald-700">
-                    <UserRound className="h-7 w-7" strokeWidth={1.6} />
-                  </span>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Button
-                    onClick={handleIndividualSignup}
-                    className="h-12 rounded-2xl bg-emerald-600 text-white text-base font-semibold shadow-[0_20px_45px_rgba(16,185,129,0.25)] hover:bg-emerald-700"
-                  >
-                    وسيط مستقل
-                  </Button>
-                  <Button
-                    onClick={handleCorporateSignup}
-                    variant="outline"
-                    className="h-12 rounded-2xl border-emerald-200 text-emerald-700 text-base font-semibold hover:border-emerald-300"
-                  >
-                    منشأة عقارية
-                  </Button>
-                </div>
-                <ul className="space-y-3 text-sm text-slate-600">
-                  <li className="flex items-center justify-end gap-3">
-                    <span>إدارة متقدمة للمحفظة والصفقات ومتابعة الأداء اليومي للفريق.</span>
-                    <span className="rounded-xl border border-emerald-100 bg-emerald-50 p-1.5 text-emerald-600">
-                      <Check className="h-4 w-4" strokeWidth={1.8} />
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-end gap-3">
-                    <span>مركز موحد لمتابعة العملاء المحتملين والتواصل معهم باحترافية.</span>
-                    <span className="rounded-xl border border-emerald-100 bg-emerald-50 p-1.5 text-emerald-600">
-                      <Check className="h-4 w-4" strokeWidth={1.8} />
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-end gap-3">
-                    <span>تقارير فورية تساعدك على اتخاذ قرارات دقيقة دون عناء.</span>
-                    <span className="rounded-xl border border-emerald-100 bg-emerald-50 p-1.5 text-emerald-600">
-                      <Check className="h-4 w-4" strokeWidth={1.8} />
-                    </span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+              </motion.div>
 
-            <Card className="rounded-[32px] border border-white/80 bg-white/80 backdrop-blur-xl shadow-[0_40px_120px_rgba(15,23,42,0.08)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_50px_140px_rgba(15,23,42,0.12)]">
-              <CardHeader className="space-y-4 text-end">
-                <div className="flex items-center justify-end gap-4">
-                  <div className="space-y-2 text-end">
-                    <CardTitle className="text-2xl font-semibold text-slate-900">
-                      باحث عن عقار أو مالك عقار
-                    </CardTitle>
-                    <p className="text-sm text-slate-500 leading-7">
-                      شاركنا تفضيلاتك أو تفاصيل عقارك لتحصل على دعم نخبة الوسطاء المعتمدين بسرعة واحترافية.
-                    </p>
+              {/* Corporate Card */}
+              <motion.div variants={itemVariants}>
+                <div 
+                  onClick={handleCorporateSignup}
+                  className="glass rounded-[32px] p-8 md:p-10 h-full cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-white/40"
+                >
+                  <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  
+                  <div className="flex flex-col h-full gap-6">
+                    <div className="flex items-start justify-between">
+                      <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-300">
+                        <Building2 className="w-8 h-8" strokeWidth={1.5} />
+                      </div>
+                      <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                        <ArrowRight className={cn("w-5 h-5", dir === 'rtl' ? "rotate-180" : "")} />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 text-start">
+                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors">منشأة عقارية</h3>
+                      <p className="text-slate-500 leading-relaxed">
+                        حل متكامل للشركات والمكاتب العقارية. إدارة صلاحيات الفريق، متابعة الأداء، وتقارير تفصيلية متقدمة.
+                      </p>
+                    </div>
+
+                    <div className="mt-auto pt-4 flex flex-wrap gap-2">
+                      <span className="px-3 py-1 rounded-lg bg-blue-50/50 text-blue-700 text-xs font-medium border border-blue-100/50">إدارة فريق</span>
+                      <span className="px-3 py-1 rounded-lg bg-blue-50/50 text-blue-700 text-xs font-medium border border-blue-100/50">تقارير أداء</span>
+                    </div>
                   </div>
-                  <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-100 to-blue-200 text-blue-700">
-                    <Home className="h-7 w-7" strokeWidth={1.6} />
-                  </span>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Button
-                    onClick={handleBuyerPool}
-                    className="h-12 rounded-2xl bg-blue-600 text-white text-base font-semibold shadow-[0_20px_45px_rgba(37,99,235,0.22)] hover:bg-blue-700"
-                  >
-                    انضم كمشتري
-                  </Button>
-                  <Button
-                    onClick={handleSellerListing}
-                    variant="outline"
-                    className="h-12 rounded-2xl border-blue-200 text-blue-700 text-base font-semibold hover:border-blue-300"
-                  >
-                    أدرج عقارك للبيع
-                  </Button>
-                </div>
-                <ul className="space-y-3 text-sm text-slate-600">
-                  <li className="flex items-center justify-end gap-3">
-                    <span>مواءمة فورية بين احتياجاتك وقاعدة بيانات العقارات الموثوقة.</span>
-                    <span className="rounded-xl border border-blue-100 bg-blue-50 p-1.5 text-blue-600">
-                      <Check className="h-4 w-4" strokeWidth={1.8} />
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-end gap-3">
-                    <span>تواصل مباشر مع وسطاء مختارين بعناية لضمان أعلى جودة للخدمة.</span>
-                    <span className="rounded-xl border border-blue-100 bg-blue-50 p-1.5 text-blue-600">
-                      <Check className="h-4 w-4" strokeWidth={1.8} />
-                    </span>
-                  </li>
-                  <li className="flex items-center justify-end gap-3">
-                    <span>تجربة مبسطة لإدراج عقارك مع دعم فني في كل خطوة.</span>
-                    <span className="rounded-xl border border-blue-100 bg-blue-50 p-1.5 text-blue-600">
-                      <Check className="h-4 w-4" strokeWidth={1.8} />
-                    </span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
+              </motion.div>
+            </div>
 
-          <div className="flex flex-col items-center gap-3 text-end">
-            <p className="text-sm text-slate-500">
-              لديك حساب بالفعل؟
-              <a href="/rbac-login" className="mr-2 font-semibold text-emerald-600 hover:text-emerald-700">
-                تسجيل الدخول
-              </a>
-            </p>
-            <Button
-              variant="ghost"
-              onClick={goHome}
-              className="text-slate-500 hover:text-slate-700"
-            >
-              العودة للصفحة الرئيسية
-            </Button>
-          </div>
+            {/* Login Link */}
+            <motion.div variants={itemVariants} className="text-center pt-8">
+              <p className="text-slate-500 text-sm">
+                لديك حساب بالفعل؟{' '}
+                <button
+                  onClick={() => setLocation('/rbac-login')}
+                  className="font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors"
+                >
+                  تسجيل الدخول
+                </button>
+              </p>
+            </motion.div>
+          </motion.div>
         </div>
       </main>
-
-      <footer className="px-4 pb-10">
-        <div className="max-w-5xl mx-auto text-center text-xs text-slate-400">
-          جميع الحقوق محفوظة © {new Date().getFullYear()} منصة عقاراتي
-        </div>
-      </footer>
     </div>
   );
 }
