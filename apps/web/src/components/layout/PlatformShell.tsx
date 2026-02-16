@@ -94,9 +94,11 @@ export default function PlatformShell({
           <PlatformSidebar onLogout={onLogout} />
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 lg:ms-72 p-4 sm:p-6 lg:p-8 w-full max-w-7xl mx-auto transition-all duration-300">
-          {children}
+        {/* Main Content - centered with max-width */}
+        <main className="flex-1 lg:ms-72 p-4 sm:p-6 lg:p-8 w-full flex flex-col items-center min-w-0 transition-all duration-300">
+          <div className="w-full max-w-7xl">
+            {children}
+          </div>
         </main>
       </div>
     </div>

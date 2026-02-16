@@ -108,7 +108,7 @@ export default function ModerationQueuePage() {
       label: "السعر",
       render: (item) => (
         <span className="font-bold text-slate-700">
-          {item.price ? Number(item.price).toLocaleString('ar-SA') : '—'} <span className="text-xs text-slate-400">ر.س</span>
+          {item.price ? Number(item.price).toLocaleString('en-US') : '—'} <span className="text-xs text-slate-400">ر.س</span>
         </span>
       )
     },

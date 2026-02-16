@@ -165,7 +165,7 @@ export function PropertiesList({
 
                 {/* Area */}
                 <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                  {property.areaSqm ? `${property.areaSqm.toLocaleString()} متر²` : '-'}
+                  {property.areaSqm ? `${property.areaSqm.toLocaleString("en-US")} متر²` : '-'}
                 </td>
 
                 {/* Rooms */}

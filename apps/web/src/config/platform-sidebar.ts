@@ -110,7 +110,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         label: "طلبات العملاء (Pool)",
         path: "/home/platform/pool",
         icon: Inbox,
-        matchPaths: ["/pool"],
+        matchPaths: ["/pool", "/home/platform/pool"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
       {

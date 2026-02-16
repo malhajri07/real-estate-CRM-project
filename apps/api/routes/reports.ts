@@ -69,6 +69,12 @@ router.post("/:id/resolve", async (req, res) => {
 });
 
 
+// Helper: normalize deal stage (backend may use 'stage' or 'status')
+function getDealStage(deal: any): string {
+  const raw = deal?.stage ?? deal?.status;
+  return typeof raw === "string" ? raw.toLowerCase().trim() : "";
+}
+
 // Dashboard metrics
 router.get("/dashboard/metrics", async (req, res) => {
   try {
@@ -76,8 +82,8 @@ router.get("/dashboard/metrics", async (req, res) => {
     const properties = await storage.getAllProperties();
     const deals = await storage.getAllDeals();
 
-    const activeDeals = deals.filter((deal: any) => !['closed', 'lost'].includes(deal.stage));
-    const closedDeals = deals.filter((deal: any) => deal.stage === 'closed');
+    const activeDeals = deals.filter((deal: any) => !["closed", "lost"].includes(getDealStage(deal)));
+    const closedDeals = deals.filter((deal: any) => getDealStage(deal) === "closed");
 
     const monthlyRevenue = closedDeals.reduce((sum: number, deal: any) => {
       const commission = deal.commission ? parseFloat(deal.commission) : 0;
@@ -86,16 +92,16 @@ router.get("/dashboard/metrics", async (req, res) => {
 
     const metrics = {
       totalLeads: leads.length,
-      activeProperties: properties.filter((p: any) => p.status === 'active').length,
+      activeProperties: properties.filter((p: any) => p.status === "active").length,
       dealsInPipeline: activeDeals.length,
       monthlyRevenue: monthlyRevenue,
       pipelineByStage: {
-        lead: deals.filter((d: any) => d.stage === 'lead').length,
-        qualified: deals.filter((d: any) => d.stage === 'qualified').length,
-        showing: deals.filter((d: any) => d.stage === 'showing').length,
-        negotiation: deals.filter((d: any) => d.stage === 'negotiation').length,
-        closed: deals.filter((d: any) => d.stage === 'closed').length,
-      }
+        lead: deals.filter((d: any) => getDealStage(d) === "lead").length,
+        qualified: deals.filter((d: any) => getDealStage(d) === "qualified").length,
+        showing: deals.filter((d: any) => getDealStage(d) === "showing").length,
+        negotiation: deals.filter((d: any) => getDealStage(d) === "negotiation").length,
+        closed: deals.filter((d: any) => getDealStage(d) === "closed").length,
+      },
     };
 
     res.json(metrics);

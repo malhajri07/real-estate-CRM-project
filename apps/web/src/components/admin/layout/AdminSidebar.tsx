@@ -15,7 +15,7 @@
  */
 
 import type { LucideIcon } from 'lucide-react';
-import { ChevronDown, Shield, Navigation } from 'lucide-react';
+import { ChevronDown, ChevronLeft, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type SidebarSubPage = {
@@ -95,7 +95,11 @@ export function AdminSidebar({
                       "transition-transform duration-300",
                       isExpanded ? "rotate-180" : ""
                     )}>
-                      <ChevronDown size={14} className={isActive ? "text-blue-100" : "text-slate-400"} />
+                      {dir === "rtl" ? (
+                        <ChevronLeft size={14} className={isActive ? "text-blue-100" : "text-slate-400"} />
+                      ) : (
+                        <ChevronDown size={14} className={isActive ? "text-blue-100" : "text-slate-400"} />
+                      )}
                     </span>
                   )}
                 </button>

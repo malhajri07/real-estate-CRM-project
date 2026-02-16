@@ -74,15 +74,21 @@ done
 
 # Seed the database
 echo "🌱 Seeding database with sample data..."
-npx tsx apps/api/seed-rbac.ts
+if [ -f "apps/api/seed-rbac.ts" ]; then
+  npx tsx apps/api/seed-rbac.ts
+fi
+npx prisma db seed --schema data/schema/prisma/schema.prisma 2>/dev/null || true
+# Ensure agent1 exists as INDIV_AGENT (individual agent)
+echo "🔐 Ensuring agent1 is individual agent..."
+npx tsx scripts/create-agent1.ts
 
 echo "✅ Database setup completed!"
 echo ""
 echo "🔑 Test Accounts:"
 echo "Website Admin: admin@aqaraty.com / admin123"
 echo "Corporate Owner: owner1@riyadh-realestate.com / owner123"
-echo "Corporate Agent: agent1@riyadh-realestate.com / agent123"
-echo "Individual Agent: indiv1@example.com / agent123"
+echo "Corporate Agent: (see seed for corp agent)"
+echo "Individual Agent: agent1 / 123456  (agent1@example.com)"
 echo "Seller: seller1@example.com / seller123"
 echo "Buyer: buyer1@example.com / buyer123"
 echo ""

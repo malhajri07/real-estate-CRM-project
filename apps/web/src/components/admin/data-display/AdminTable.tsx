@@ -42,6 +42,7 @@ import {
     ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { AdminEmptyState } from './AdminEmptyState';
 
 export interface AdminTableColumn<T> {
@@ -81,6 +82,7 @@ export function AdminTable<T extends Record<string, any>>({
     className,
     pageSize = 10,
 }: AdminTableProps<T>) {
+    const { dir } = useLanguage();
     const [searchTerm, setSearchTerm] = useState('');
     const [sortColumn, setSortColumn] = useState<string | null>(null);
     const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -289,14 +291,14 @@ export function AdminTable<T extends Record<string, any>>({
                     <div className="text-sm text-muted-foreground">
                         عرض {((currentPage - 1) * pageSize) + 1} إلى {Math.min(currentPage * pageSize, sortedData.length)} من {sortedData.length}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className={cn("flex items-center gap-2", dir === "rtl" && "flex-row-reverse")}>
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
                         >
-                            <ChevronRight className="h-4 w-4" />
+                            <ChevronRight className="h-4 w-4 ms-1" />
                             السابق
                         </Button>
                         <div className="flex items-center gap-1">
@@ -332,7 +334,7 @@ export function AdminTable<T extends Record<string, any>>({
                             disabled={currentPage === totalPages}
                         >
                             التالي
-                            <ChevronLeft className="h-4 w-4" />
+                            <ChevronLeft className="h-4 w-4 me-1" />
                         </Button>
                     </div>
                 </div>

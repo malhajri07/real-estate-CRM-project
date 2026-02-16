@@ -89,15 +89,17 @@ export function AdminLayout({
                     />
                 </aside>
 
-                {/* Main Content */}
-                <main className="flex-1 md:ms-72 p-6 md:p-10 w-full max-w-7xl mx-auto transition-all duration-300 animate-in-start">
-                    {actions && (
-                        <div className="mb-8 flex justify-end gap-3 flex-wrap">
-                            {actions}
+                {/* Main Content - centered with max-width */}
+                <main className="flex-1 md:ms-72 p-6 md:p-10 w-full flex flex-col items-center min-w-0 transition-all duration-300 animate-in-start">
+                    <div className="w-full max-w-7xl">
+                        {actions && (
+                            <div className="mb-8 flex justify-end gap-3 flex-wrap">
+                                {actions}
+                            </div>
+                        )}
+                        <div className="relative">
+                            {children}
                         </div>
-                    )}
-                    <div className="relative">
-                        {children}
                     </div>
                 </main>
             </div>

@@ -240,7 +240,7 @@ export default function Customers() {
         return `${thousands.toFixed(1)}K`;
       }
       
-      return num.toLocaleString();
+      return num.toLocaleString("en-US");
     };
 
     // Handle range format (e.g., "2,000,000 - 3,000,000 ريال")

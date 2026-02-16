@@ -15,6 +15,9 @@
 
 const DEFAULT_LOCALE = "ar-SA";
 
+/** Use en-US for all numeric values (0-9) across the application */
+export const NUMERIC_LOCALE = "en-US";
+
 const DEFAULT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
   year: "numeric",
   month: "short",

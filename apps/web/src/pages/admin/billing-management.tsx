@@ -120,7 +120,7 @@ function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading:
                                     inv.subscription?.plan?.nameEn || 
                                     'فاتورة';
                                 const amount = Number(inv.amountPaid || inv.amountDue || 0);
-                                const formattedAmount = amount.toLocaleString('ar-SA');
+                                const formattedAmount = amount.toLocaleString('en-US');
                                 const statusMap: Record<string, { label: string; className: string }> = {
                                     'PAID': { label: 'مدفوعة', className: 'bg-emerald-50 text-emerald-700' },
                                     'PENDING': { label: 'معلقة', className: 'bg-amber-50 text-amber-700' },
@@ -223,7 +223,7 @@ export default function BillingManagement() {
                     [
                         { 
                             title: "إجمالي التحصيل", 
-                            value: `${(stats?.totalCollected || 0).toLocaleString('ar-SA')} ر.س`, 
+                            value: `${(stats?.totalCollected || 0).toLocaleString('en-US')} ر.س`, 
                             icon: Wallet, 
                             color: "text-blue-600", 
                             bg: "bg-blue-50" 

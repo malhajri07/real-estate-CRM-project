@@ -1,3 +1,12 @@
 ---
 alwaysApply: true
 ---
+# Memory Bank
+
+Project context and patterns. Read `.cursor/rules/memory-bank/` for:
+- **activeContext.md** - Current work, recent completions, next steps
+- **progress.md** - What works, achievements, milestones
+- **techContext.md** - Stack, constraints, agent skills reference
+- **systemPatterns.md** - Architecture, design patterns
+- **productContext.md** - Product vision, user flows
+- **projectbrief.md** - Mission, scope, constraints

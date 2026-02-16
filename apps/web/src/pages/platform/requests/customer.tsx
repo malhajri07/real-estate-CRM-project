@@ -93,7 +93,7 @@ const toNumber = (value: unknown): number | null => {
 const formatCurrency = (value: unknown): string => {
   const numeric = toNumber(value);
   if (numeric === null) return "—";
-  return new Intl.NumberFormat("ar-SA", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "SAR",
     minimumFractionDigits: 0,
@@ -103,7 +103,7 @@ const formatCurrency = (value: unknown): string => {
 const formatNumber = (value: unknown): string => {
   const numeric = toNumber(value);
   if (numeric === null) return "—";
-  return new Intl.NumberFormat("ar-SA").format(numeric);
+  return new Intl.NumberFormat("en-US").format(numeric);
 };
 
 const formatDateTime = (value: unknown): string => {

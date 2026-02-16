@@ -143,11 +143,8 @@ export default function Sidebar({ onLogout }: SidebarProps) {
   return (
     <div className="glass h-[calc(100vh-5rem)] w-72 flex flex-col sticky top-20 border-e-0 md:rounded-e-[2rem] overflow-hidden" dir={dir}>
       <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
-        {/* App Logo/Name */}
+        {/* App Name */}
         <div className="flex items-center gap-3 px-2 mb-8">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white font-bold text-xl">
-            A
-          </div>
           <span className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">
             {t("app.name") || "عقاركم"}
           </span>

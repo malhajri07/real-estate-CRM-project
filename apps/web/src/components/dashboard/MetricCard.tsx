@@ -98,7 +98,7 @@ export function MetricCard({
         {/* Value */}
         <div className="mb-1">
           <p className="text-3xl font-bold text-slate-900 leading-tight">
-            {isNumeric ? displayValue.toLocaleString() : value}
+            {isNumeric ? displayValue.toLocaleString("en-US") : value}
           </p>
         </div>
 

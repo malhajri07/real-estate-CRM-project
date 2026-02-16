@@ -57,16 +57,17 @@ async function createAgent1() {
         });
       }
 
-      // Update roles if needed
-      const currentRoles = JSON.parse(existingUser.roles);
-      if (!currentRoles.includes('INDIV_AGENT')) {
-        console.log('🔄 Updating roles to include INDIV_AGENT...');
-        const updatedRoles = [...new Set([...currentRoles, 'INDIV_AGENT'])];
+      // Ensure agent1 has exactly INDIV_AGENT role (individual agent)
+      const currentRoles = JSON.parse(existingUser.roles || '[]');
+      const correctRoles = ['INDIV_AGENT'];
+      const rolesMatch = Array.isArray(currentRoles) && currentRoles.length === 1 && currentRoles[0] === 'INDIV_AGENT';
+      if (!rolesMatch) {
+        console.log('🔄 Updating roles to INDIV_AGENT (individual agent)...');
         await prisma.users.update({
           where: { username: 'agent1' },
-          data: { roles: JSON.stringify(updatedRoles) }
+          data: { roles: JSON.stringify(correctRoles) }
         });
-        console.log('✅ Roles updated:', updatedRoles);
+        console.log('✅ Roles updated to:', correctRoles);
       }
 
       console.log('\n✅ agent1 user is ready!');

@@ -97,14 +97,6 @@ export default function Header({
             </Button>
           )}
 
-          {title && (
-            <div className="flex min-w-0 flex-col">
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight leading-tight">{title}</h1>
-              <span className="text-sm text-slate-500 font-medium">
-                {t("app.subtitle") || "Aqarkom Platform"}
-              </span>
-            </div>
-          )}
 
           <div className="flex-1 max-w-2xl mx-auto hidden md:block">
             {showSearch && (

@@ -48,7 +48,7 @@ function CustomTooltip({ active, payload, label }: any) {
                 <p className="font-black text-slate-900 mb-2">{label}</p>
                 {payload.map((entry: any, index: number) => (
                     <div key={index} className="flex items-center gap-2 mb-1 last:mb-0 justify-end">
-                        <span className="text-slate-900 font-bold">{entry.value.toLocaleString()}</span>
+                        <span className="text-slate-900 font-bold">{entry.value.toLocaleString("en-US")}</span>
                         <span className="text-slate-500 font-medium">{entry.name}:</span>
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
                     </div>

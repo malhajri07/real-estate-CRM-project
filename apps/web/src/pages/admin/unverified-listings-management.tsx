@@ -177,7 +177,7 @@ export default function UnverifiedListingsManagement() {
   };
 
   const formatPrice = (price: number, currency: string = "SAR") => {
-    return new Intl.NumberFormat("ar-SA", {
+    return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: currency,
       minimumFractionDigits: 0,

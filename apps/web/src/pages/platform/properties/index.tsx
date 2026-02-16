@@ -611,7 +611,7 @@ export default function Properties() {
                             {(property as any).areaSqm && (
                               <div className="flex items-center space-x-1">
                                 <Square size={14} />
-                                <span>{(property as any).areaSqm?.toLocaleString?.() ?? (property as any).areaSqm} متر²</span>
+                                <span>{(property as any).areaSqm?.toLocaleString?.("en-US") ?? (property as any).areaSqm} متر²</span>
                               </div>
                             )}
                           </div>
@@ -776,7 +776,7 @@ export default function Properties() {
                               </div>
                             </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                              {(property as any).areaSqm ? `${((property as any).areaSqm?.toLocaleString?.() ?? (property as any).areaSqm)} متر²` : '-'}
+                              {(property as any).areaSqm ? `${((property as any).areaSqm?.toLocaleString?.("en-US") ?? (property as any).areaSqm)} متر²` : '-'}
                             </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                               <div className={cn("flex items-center gap-2", TYPOGRAPHY.body, "text-slate-900 text-end")}>

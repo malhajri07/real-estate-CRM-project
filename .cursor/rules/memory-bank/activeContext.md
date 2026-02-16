@@ -4,7 +4,30 @@
 
 ### Recent Completed Work
 
-1. **Platform Design Unification** (Completed - Feb 8, 2026)
+1. **Customer Pool Page** (Completed - Feb 8, 2026)
+   - Pool at `/home/platform/pool` shows customer requests (`properties_seeker`) + buyer requests, sorted by latest first
+   - Table layout: Type, City, Region, Budget, Bedrooms, Bathrooms, Living Rooms, Notes, Source, Date, Actions (ID column removed)
+   - Send SMS for customer requests (Twilio: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER)
+   - Claim flow for both sources (customer_request → creates buyer_request + lead)
+   - Legacy "AGENT" role mapped to INDIV_AGENT in normalizeRoleKeys + parseStoredRoles (sidebar & API)
+   - WEBSITE_ADMIN can access pool; pool requires PLATFORM_CORE_ROLES
+   - **Fix:** useQuery must destructure `error, isError` when rendering error state (was causing ReferenceError crash)
+   - **API/DB fix:** buyer_requests relation is `users` not `createdBy`; use `basePrisma.buyer_requests` with `include: { users: {...} }`; wrap both queries in try/catch so one failing doesn't break the pool
+   - **Removed:** "My Matches" button, "Check data" button, ID column, GET /api/pool/buyers/my-claims API
+
+2. **Numeric Display Convention** (Completed - Feb 8, 2026)
+   - All numeric values (prices, amounts, counts, pagination) use `en-US` locale for Western digits (0-9) across the application
+   - Pattern: `toLocaleString("en-US")` or `Intl.NumberFormat("en-US", {...})`
+   - Export: `NUMERIC_LOCALE = "en-US"` in `lib/formatters.ts`
+   - Date formatting remains language-specific (ar-SA for Arabic)
+
+3. **Centered Main Content Layout** (Completed - Feb 8, 2026)
+   - Admin: `AdminLayout` main section uses `flex flex-col items-center` + inner `max-w-7xl` wrapper
+   - Platform: `PlatformShell` main section same pattern—content floats centered, max 1280px
+   - Both layouts: main area gets sidebar margin; content block centered in remaining space
+   - Applies to all admin pages and all platform pages (dashboard, pool, leads, properties, etc.)
+
+4. **Platform Design Unification** (Completed - Feb 8, 2026)
    - 8-phase design audit across all platform pages
    - Phase 1: platform-theme.ts tokens (ICON_CONTAINER, getIconSpacing, EMPTY_STATE_BASELINE)
    - Phase 2: gray/muted → slate palette across activities, calendar, clients, leads, pipeline, properties, notifications, etc.
@@ -18,14 +41,14 @@
    - LoginForm updated with platform-theme (INPUT_STYLES, BUTTON_PRIMARY_CLASSES)
    - Clean background pattern, RTL support
 
-3. **Dashboard Arabic Labels Fix** (Completed - Feb 8, 2026)
+6. **Dashboard Arabic Labels Fix** (Completed - Feb 8, 2026)
    - Added dashboard.active_stages and dashboard.total_deals to LanguageContext
    - Fixed PipelineFlow showing raw keys instead of "المراحل النشطة" / "إجمالي الصفقات"
 
-4. **Leads Page Fix** (Completed - Feb 8, 2026)
+7. **Leads Page Fix** (Completed - Feb 8, 2026)
    - Added missing getIconSpacing import (was causing runtime error)
 
-5. **Comprehensive Codebase Fixes** (Completed - Feb 8, 2026)
+8. **Comprehensive Codebase Fixes** (Completed - Feb 8, 2026)
    - Fixed all hardcoded RTL directions across 16 platform pages (30+ instances)
    - Localized error handler middleware for proper i18n support
    - All platform pages now respect language switching
@@ -34,7 +57,7 @@
    - Full compliance with Frontend Architect and API Architect standards
    - Updated agent memory with comprehensive fixes log
 
-6. **Revenue Chart Real Data Integration & RTL Compliance** (Completed - Feb 8, 2026)
+9. **Revenue Chart Real Data Integration & RTL Compliance** (Completed - Feb 8, 2026)
    - Replaced mock data in RevenueChart with real PostgreSQL data
    - Created new API endpoint `/api/reports/dashboard/revenue-chart`
    - Fixed all RTL violations across dashboard components (20+ instances)
@@ -44,7 +67,7 @@
    - Created comprehensive validation reports and change logs
    - Updated agent memory with integration log
 
-7. **Platform Dashboard Redesign** (Completed - Feb 2026)
+10. **Platform Dashboard Redesign** (Completed - Feb 2026)
    - Redesigned `/home/platform` dashboard with modern UI/UX
    - Created 5 new enhanced components (MetricCard, PipelineFlow, LeadCard, ActionCard, TaskCard)
    - Implemented glass morphism effects and animations
@@ -52,7 +75,7 @@
    - Enhanced visual hierarchy and RTL-first layout
    - Updated agent memory with comprehensive redesign log
 
-2. **Landing Page Redesign** (Completed)
+11. **Landing Page Redesign** (Completed)
    - Redesigned all landing page components with modern UI/UX
    - Implemented RTL-first architecture with glass morphism effects
    - Added Framer Motion animations
@@ -61,14 +84,14 @@
    - Created seed script for default landing page content
    - Updated agent memory with comprehensive redesign log
 
-9. **Admin Dashboard Audit** (Completed)
+12. **Admin Dashboard Audit** (Completed)
    - Removed all mock data from admin pages
    - Replaced with real PostgreSQL database queries
    - Created 7 new admin API endpoints
    - Added loading states and error handling
    - Updated agent memory with audit completion log
 
-3. **Agent Memory System** (Completed)
+13. **Agent Memory System** (Completed)
    - Created `agent_memory` table in database
    - Implemented `KnowledgeBaseService` for memory operations
    - Created scripts to log work to database
@@ -185,12 +208,15 @@
    - Some API endpoints may need better documentation
    - Some components may need inline comments
 
+### Resolved Issues
+
+- **Pool page crash:** useQuery was missing `error` and `isError` destructuring; component referenced them for error UI → ReferenceError. Fixed.
+
 ### No Critical Issues
 
 - Landing page renders correctly
 - CMS system functional
 - Database connections stable
-- No blocking bugs identified
 
 ## Recent Changes Summary
 
@@ -241,3 +267,4 @@ When continuing work:
    - platform-theme.ts for shared tokens (BADGE_STYLES, INPUT_STYLES, etc.)
    - Centralized status helpers (getLeadStatusBadge, getPropertyStatusBadge)
    - CMS draft/publish workflow
+   - **Numeric values:** Always use `en-US` locale (Western digits 0-9) - never `ar-SA` for numbers

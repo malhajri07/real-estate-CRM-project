@@ -52,7 +52,26 @@ real-estate-CRM-project/
 
 **Rationale**: Ensures perfect RTL/LTR mirroring without conditional logic
 
-### 2. Multi-Tenancy Model
+### 2. Centered Main Content Layout
+
+**Pattern**: Admin and Platform shells center main content with `max-w-7xl`
+- Main: `flex flex-col items-center min-w-0`
+- Inner wrapper: `w-full max-w-7xl` (1280px)
+- Admin: `AdminLayout.tsx`; Platform: `PlatformShell.tsx`
+
+**Rationale**: Content floats centered on wide viewports instead of stretching edge-to-edge
+
+### 3. Numeric Display Pattern
+
+**Pattern**: English numerals (en-US) for all numeric values
+- Use `toLocaleString("en-US")` or `Intl.NumberFormat("en-US", {...})`
+- Export `NUMERIC_LOCALE = "en-US"` from `lib/formatters.ts`
+- Applies to: prices, amounts, counts, pagination, area (m²)
+- Dates remain language-specific (ar-SA for Arabic, en-US for English)
+
+**Rationale**: Consistent Western digits (0-9) regardless of UI language
+
+### 4. Multi-Tenancy Model
 
 **Pattern**: RBAC + ABAC with PostgreSQL RLS
 - Role-based access control (6 roles: WEBSITE_ADMIN, CORP_OWNER, CORP_AGENT, INDIV_AGENT, SELLER, BUYER)
@@ -62,7 +81,7 @@ real-estate-CRM-project/
 
 **Rationale**: Secure multi-tenant isolation with flexible permissions
 
-### 3. CMS Architecture
+### 5. CMS Architecture
 
 **Pattern**: Draft/Publish workflow with version control
 - `LandingSection` and `LandingCard` tables
@@ -72,7 +91,7 @@ real-estate-CRM-project/
 
 **Rationale**: Content versioning and approval workflows
 
-### 4. Authentication & Session Management
+### 6. Authentication & Session Management
 
 **Pattern**: JWT + Express Sessions
 - JWT tokens for API authentication
@@ -82,7 +101,7 @@ real-estate-CRM-project/
 
 **Rationale**: Secure authentication with session persistence
 
-### 5. State Management
+### 7. State Management
 
 **Pattern**: React Query + Local State
 - `@tanstack/react-query` for server state

@@ -24,6 +24,7 @@
 - Lead tracking and management
 - Customer relationship management
 - Buyer pool with claim/release workflow
+- **Customer Pool** (`/home/platform/pool`): Table of customer requests + buyer requests, Send SMS, Claim, sorted by latest first
 - Contact logging and history
 - Automated workflows
 
@@ -178,7 +179,26 @@
 
 ## Recent Achievements
 
-1. **Platform Design Unification** (Feb 2026)
+1. **Centered Main Content Layout** (Feb 8, 2026)
+   - Admin and Platform layouts: main content floats centered with `max-w-7xl` (1280px)
+   - AdminLayout: `flex flex-col items-center` + inner `max-w-7xl` wrapper
+   - PlatformShell: same pattern for platform dashboard, pool, leads, etc.
+
+2. **Pool Page Simplification & Numeric Convention** (Feb 8, 2026)
+   - Removed ID column from pool table
+   - Removed "My Matches" and "Check data" buttons
+   - Removed GET /api/pool/buyers/my-claims API
+   - **Numeric Convention:** All numbers use `en-US` (Western digits 0-9) across application
+   - `NUMERIC_LOCALE = "en-US"` in lib/formatters.ts; `toLocaleString("en-US")` for prices, amounts, counts
+
+3. **Customer Pool Page** (Feb 2026)
+   - Pool shows properties_seeker (customer requests) + buyer_requests
+   - Table: Type, City, Region, Budget, Bedrooms, Bathrooms, Living Rooms, Notes, Source, Date, Actions
+   - Send SMS (Twilio), Claim flow
+   - Legacy AGENT role support (mapped to INDIV_AGENT)
+   - Fixed: useQuery missing error/isError destructuring (page crash)
+
+4. **Platform Design Unification** (Feb 2026)
    - 8-phase design audit across all platform pages
    - Replaced gray/muted with slate palette
    - Centralized badge status colors (getLeadStatusBadge, getPropertyStatusBadge)
@@ -186,19 +206,19 @@
    - RTL fixes with getIconSpacing(dir) where needed
    - Dashboard Arabic labels fix (dashboard.active_stages, dashboard.total_deals)
 
-2. **RBAC Login Redesign** (Feb 2026)
+5. **RBAC Login Redesign** (Feb 2026)
    - Redesigned /rbac-login with modern centered layout
    - Updated LoginForm with platform-theme tokens (INPUT_STYLES, BUTTON_PRIMARY_CLASSES)
    - Clean background pattern and subtle gradients
 
-3. **Platform Dashboard Redesign** (Feb 2026)
+6. **Platform Dashboard Redesign** (Feb 2026)
    - Complete UI/UX overhaul
    - 5 new enhanced components
    - Glass morphism and animations
    - Real data integration (no mock data)
    - RTL-first optimization
 
-4. **Landing Page Redesign** (Feb 2026)
+7. **Landing Page Redesign** (Feb 2026)
    - Complete UI/UX overhaul
    - CMS integration
    - Modern design system
@@ -210,7 +230,7 @@
    - New API endpoints
    - Improved error handling
 
-6. **Memory Bank Initialization** (Feb 2026)
+9. **Memory Bank Initialization** (Feb 2026)
    - Core files created
    - Project context documented
    - System patterns documented

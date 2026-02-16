@@ -25,8 +25,10 @@ import express from 'express';
 import { z } from 'zod';
 import { BuyerRequestStatus, ClaimStatus } from '@prisma/client';
 import { prisma } from '../prismaClient';
-import { requireRole, isAgent, canClaimBuyerRequest, canReleaseClaim, maskContact, CLAIM_RATE_LIMITS, UserRole } from '../rbac';
+import { basePrisma } from '../prismaClient';
+import { requireRole, isAgent, isWebsiteAdmin, isCorpOwner, canClaimBuyerRequest, canReleaseClaim, maskContact, CLAIM_RATE_LIMITS, UserRole } from '../rbac';
 import { authenticateToken } from '../auth';
+import twilio from 'twilio';
 
 const router = express.Router();
 
@@ -52,7 +54,27 @@ const releaseClaimSchema = z.object({
   notes: z.string().optional()
 });
 
-// GET /api/pool/buyers/search
+const sendSmsSchema = z.object({
+  message: z.string().min(1).max(500)
+});
+
+// GET /api/pool/health - No auth, returns DB counts (for debugging)
+router.get('/health', async (_req, res) => {
+  try {
+    const [seekerCount, buyerCount] = await Promise.all([
+      basePrisma.$queryRawUnsafe<[{ count: bigint }]>(
+        'SELECT COUNT(*)::bigint as count FROM public.properties_seeker'
+      ).then((r) => Number(r[0]?.count ?? 0)).catch(() => 0),
+      basePrisma.buyer_requests.count().catch(() => 0)
+    ]);
+    res.json({ ok: true, propertiesSeekerCount: seekerCount, buyerRequestsCount: buyerCount });
+  } catch (err) {
+    console.error('Pool health check error:', err);
+    res.status(500).json({ ok: false, error: String((err as Error).message) });
+  }
+});
+
+// GET /api/pool/search – Unified pool: customer requests (properties_seeker) first, then buyer_requests
 router.get('/search', authenticateToken, async (req, res) => {
   try {
     const query = searchBuyerRequestsSchema.parse({
@@ -65,73 +87,105 @@ router.get('/search', authenticateToken, async (req, res) => {
       maxBedrooms: req.query.maxBedrooms ? parseInt(req.query.maxBedrooms as string) : undefined
     });
 
-    // Check if user can search buyer pool
-    if (!isAgent(req.user!.roles)) {
-      return res.status(403).json({ message: 'Only agents can search buyer pool' });
+    const canAccessPool = isAgent(req.user!.roles) || isWebsiteAdmin(req.user!.roles) || isCorpOwner(req.user!.roles);
+    if (!canAccessPool) {
+      return res.status(403).json({ message: 'Only agents or admins can search buyer pool' });
     }
 
-    // Build where clause
-    const where: any = {
-      status: BuyerRequestStatus.OPEN
-    };
+    // 1. Customer requests from public.properties_seeker
+    let customerPoolItems: any[] = [];
+    try {
+      // Query public.properties_seeker explicitly to ensure correct table
+      const conditions: string[] = [];
+      const params: any[] = [];
+      let paramIndex = 1;
+      if (query.city) {
+        conditions.push(`city = $${paramIndex++}`);
+        params.push(query.city);
+      }
+      if (query.type) {
+        conditions.push(`type_of_property = $${paramIndex++}`);
+        params.push(query.type);
+      }
+      if (query.minPrice != null) {
+        conditions.push(`budget_size >= $${paramIndex++}`);
+        params.push(query.minPrice);
+      }
+      if (query.maxPrice != null) {
+        conditions.push(`budget_size <= $${paramIndex++}`);
+        params.push(query.maxPrice);
+      }
+      const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+      const customerRequests = await basePrisma.$queryRawUnsafe<any[]>(
+        `SELECT seeker_num, seeker_id, city, region, type_of_property, number_of_rooms, number_of_bathrooms, number_of_living_rooms, budget_size, other_comments, created_at
+         FROM public.properties_seeker ${whereClause}
+         ORDER BY created_at DESC
+         LIMIT 100`,
+        ...params
+      );
 
-    if (query.city) {
-      where.city = query.city;
+      customerPoolItems = customerRequests.map((r: any) => ({
+        id: r.seeker_id || String(r.seeker_num),
+        source: 'customer_request' as const,
+        city: r.city || null,
+        region: r.region || null,
+        type: r.type_of_property || 'Property',
+        minBedrooms: r.number_of_rooms ?? null,
+        maxBedrooms: r.number_of_rooms ?? null,
+        bathrooms: r.number_of_bathrooms ?? null,
+        livingRooms: r.number_of_living_rooms ?? null,
+        minPrice: r.budget_size ? Number(r.budget_size) : null,
+        maxPrice: r.budget_size ? Number(r.budget_size) : null,
+        status: 'OPEN',
+        hasActiveClaim: false,
+        canSendSms: true,
+        notes: r.other_comments || null,
+        createdAt: r.created_at,
+        createdBy: null
+      }));
+    } catch (err) {
+      console.error('Pool: public.properties_seeker query failed:', err);
     }
 
-    if (query.type) {
-      where.type = query.type;
-    }
+    // 2. Buyer requests (buyer_requests)
+    let buyerPoolItems: any[] = [];
+    try {
+      const where: any = { status: BuyerRequestStatus.OPEN };
+      if (query.city) where.city = query.city;
+      if (query.type) where.type = query.type;
+      if (query.minPrice) where.minPrice = { gte: query.minPrice };
+      if (query.maxPrice) where.maxPrice = { lte: query.maxPrice };
+      if (query.minBedrooms) where.minBedrooms = { gte: query.minBedrooms };
+      if (query.maxBedrooms) where.maxBedrooms = { lte: query.maxBedrooms };
 
-    if (query.minPrice || query.maxPrice) {
-      where.price = {};
-      if (query.minPrice) where.price.gte = query.minPrice;
-      if (query.maxPrice) where.price.lte = query.maxPrice;
-    }
-
-    if (query.minBedrooms || query.maxBedrooms) {
-      where.bedrooms = {};
-      if (query.minBedrooms) where.bedrooms.gte = query.minBedrooms;
-      if (query.maxBedrooms) where.bedrooms.lte = query.maxBedrooms;
-    }
-
-    // Get buyer requests
-    const [buyerRequests, total] = await Promise.all([
-      prisma.buyerRequest.findMany({
+      const buyerRequests = await basePrisma.buyer_requests.findMany({
         where,
-        skip: (query.page - 1) * query.pageSize,
-        take: query.pageSize,
         orderBy: { createdAt: 'desc' },
+        take: 100,
         include: {
-          createdBy: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true
-            }
+          users: {
+            select: { id: true, firstName: true, lastName: true }
           },
           claims: {
-            where: {
-              agentId: req.user!.id,
-              status: ClaimStatus.ACTIVE
-            }
+            where: { agentId: req.user!.id, status: ClaimStatus.ACTIVE }
           }
         }
-      }),
-      prisma.buyerRequest.count({ where })
-    ]);
+      });
 
-    // Process results - mask contact information
-    const processedRequests = buyerRequests.map(request => {
+      buyerPoolItems = buyerRequests.map((request: any) => {
       const hasActiveClaim = request.claims.length > 0;
       const canViewFullContact = hasActiveClaim || req.user!.roles.includes(UserRole.WEBSITE_ADMIN);
-      
+      const creator = request.users;
       return {
         id: request.id,
+        source: 'buyer_pool' as const,
         city: request.city,
+        region: null,
         type: request.type,
         minBedrooms: request.minBedrooms,
         maxBedrooms: request.maxBedrooms,
+        bathrooms: null,
+        livingRooms: null,
         minPrice: request.minPrice,
         maxPrice: request.maxPrice,
         contactPreferences: request.contactPreferences,
@@ -139,18 +193,33 @@ router.get('/search', authenticateToken, async (req, res) => {
         maskedContact: request.maskedContact,
         fullContact: canViewFullContact ? request.fullContactJson : null,
         hasActiveClaim,
+        canSendSms: false,
+        notes: request.notes,
         createdAt: request.createdAt,
-        createdBy: {
-          id: request.createdBy.id,
-          firstName: request.createdBy.firstName,
-          lastName: request.createdBy.lastName
-        }
+        createdBy: creator ? {
+          id: creator.id,
+          firstName: creator.firstName,
+          lastName: creator.lastName
+        } : null
       };
     });
+    } catch (err) {
+      console.error('Pool: buyer_requests query failed:', err);
+    }
+
+    // Merge and sort by date – show most recent requests first
+    const allSorted = [...customerPoolItems, ...buyerPoolItems].sort((a, b) => {
+      const dateA = new Date(a.createdAt || 0).getTime();
+      const dateB = new Date(b.createdAt || 0).getTime();
+      return dateB - dateA;
+    });
+    const total = allSorted.length;
+    const skip = (query.page - 1) * query.pageSize;
+    const data = allSorted.slice(skip, skip + query.pageSize);
 
     res.json({
       success: true,
-      data: processedRequests,
+      data,
       pagination: {
         page: query.page,
         pageSize: query.pageSize,
@@ -160,14 +229,156 @@ router.get('/search', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ 
-        message: 'Invalid query parameters',
-        errors: error.errors 
-      });
+      return res.status(400).json({ message: 'Invalid query parameters', errors: error.errors });
     }
-    
     console.error('Search buyer requests error:', error);
     res.status(500).json({ message: 'Failed to search buyer requests' });
+  }
+});
+
+// POST /api/pool/customer-requests/:id/send-sms
+router.post('/customer-requests/:id/send-sms', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { message } = sendSmsSchema.parse(req.body);
+
+    if (!isAgent(req.user!.roles)) {
+      return res.status(403).json({ message: 'Only agents can send SMS' });
+    }
+
+    const seeker = await basePrisma.properties_seeker.findFirst({
+      where: {
+        OR: [
+          { seeker_id: id },
+          { seeker_num: id },
+          { seeker_num: BigInt(Number(id)) }
+        ]
+      }
+    });
+
+    if (!seeker || !seeker.mobile_number) {
+      return res.status(404).json({ message: 'Customer request not found or has no phone number' });
+    }
+
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+
+    if (!accountSid || !authToken || !fromNumber || accountSid === 'your_twilio_sid') {
+      return res.status(503).json({
+        message: 'SMS sending is not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER in your environment.'
+      });
+    }
+
+    const client = twilio(accountSid, authToken);
+    const digits = seeker.mobile_number.replace(/\D/g, '');
+    const to = digits.startsWith('966') ? `+${digits}` : digits.startsWith('0') ? `+966${digits.slice(1)}` : `+966${digits}`;
+
+    await client.messages.create({
+      body: message,
+      from: fromNumber,
+      to
+    });
+
+    res.json({ success: true, message: 'SMS sent successfully' });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Invalid input', errors: error.errors });
+    }
+    console.error('Send SMS error:', error);
+    res.status(500).json({ message: 'Failed to send SMS' });
+  }
+});
+
+// POST /api/pool/customer-requests/:id/claim – Convert properties_seeker to buyer_request and claim
+router.post('/customer-requests/:id/claim', authenticateToken, async (req, res) => {
+  try {
+    const { id: seekerId } = req.params;
+    const { notes } = claimBuyerRequestSchema.pick({ notes: true }).optional().parse(req.body || {});
+
+    if (!canClaimBuyerRequest(req.user!.roles, req.user!.organizationId)) {
+      return res.status(403).json({ message: 'Cannot claim buyer requests' });
+    }
+
+    const seeker = await basePrisma.properties_seeker.findFirst({
+      where: {
+        OR: [
+          { seeker_id: seekerId },
+          { seeker_num: seekerId },
+          { seeker_num: BigInt(Number(seekerId)) }
+        ]
+      }
+    });
+
+    if (!seeker) {
+      return res.status(404).json({ message: 'Customer request not found' });
+    }
+
+    const systemUser = await prisma.users.findFirst({
+      where: { roles: { contains: 'AGENT' } }
+    });
+    const createdByUserId = systemUser?.id || req.user!.id;
+
+    const fullContact = JSON.stringify({
+      name: `${seeker.first_name} ${seeker.last_name}`,
+      phone: seeker.mobile_number,
+      email: seeker.email
+    });
+
+    const buyerRequest = await prisma.buyer_requests.create({
+      data: {
+        createdByUserId,
+        city: seeker.city || 'Riyadh',
+        type: seeker.type_of_property,
+        minBedrooms: seeker.number_of_rooms,
+        maxBedrooms: seeker.number_of_rooms,
+        minPrice: seeker.budget_size,
+        maxPrice: seeker.budget_size,
+        contactPreferences: 'PHONE',
+        status: BuyerRequestStatus.OPEN,
+        maskedContact: `+966 *** ${String(seeker.mobile_number).slice(-4)}`,
+        fullContactJson: fullContact,
+        multiAgentAllowed: false,
+        notes: seeker.other_comments || `From customer request ${seeker.seeker_id || seeker.seeker_num}`
+      }
+    });
+
+    const expiresAt = new Date(Date.now() + CLAIM_RATE_LIMITS.CLAIM_EXPIRY_HOURS * 60 * 60 * 1000);
+    const claim = await prisma.claim.create({
+      data: {
+        agentId: req.user!.id,
+        buyerRequestId: buyerRequest.id,
+        expiresAt,
+        notes: notes || `Claimed from customer request`,
+        status: ClaimStatus.ACTIVE
+      }
+    });
+
+    await prisma.lead.create({
+      data: {
+        agentId: req.user!.id,
+        buyerRequestId: buyerRequest.id,
+        status: 'NEW',
+        source: 'customer_request'
+      }
+    });
+
+    await prisma.buyer_requests.update({
+      where: { id: buyerRequest.id },
+      data: { status: BuyerRequestStatus.CLAIMED }
+    });
+
+    res.status(201).json({
+      success: true,
+      claim: { id: claim.id, buyerRequestId: buyerRequest.id, expiresAt: claim.expiresAt, status: claim.status },
+      message: 'Customer request claimed successfully'
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Invalid input', errors: error.errors });
+    }
+    console.error('Claim customer request error:', error);
+    res.status(500).json({ message: 'Failed to claim customer request' });
   }
 });
 
@@ -175,7 +386,7 @@ router.get('/search', authenticateToken, async (req, res) => {
 router.post('/:id/claim', authenticateToken, async (req, res) => {
   try {
     const { id: buyerRequestId } = req.params;
-    const { notes } = claimBuyerRequestSchema.parse(req.body);
+    const { notes } = claimBuyerRequestSchema.pick({ notes: true }).optional().parse(req.body || {}) || {};
 
     // Check if user can claim buyer requests
     if (!canClaimBuyerRequest(req.user!.roles, req.user!.organizationId)) {
@@ -369,62 +580,6 @@ router.post('/:id/release', authenticateToken, async (req, res) => {
     
     console.error('Release claim error:', error);
     res.status(500).json({ message: 'Failed to release claim' });
-  }
-});
-
-// GET /api/pool/buyers/my-claims
-router.get('/my-claims', authenticateToken, async (req, res) => {
-  try {
-    if (!isAgent(req.user!.roles)) {
-      return res.status(403).json({ message: 'Only agents can view claims' });
-    }
-
-    const claims = await prisma.claim.findMany({
-      where: {
-        agentId: req.user!.id,
-        status: ClaimStatus.ACTIVE
-      },
-      include: {
-        buyerRequest: {
-          include: {
-            createdBy: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true
-              }
-            }
-          }
-        }
-      },
-      orderBy: { claimedAt: 'desc' }
-    });
-
-    res.json({
-      success: true,
-      claims: claims.map(claim => ({
-        id: claim.id,
-        buyerRequestId: claim.buyerRequestId,
-        claimedAt: claim.claimedAt,
-        expiresAt: claim.expiresAt,
-        status: claim.status,
-        notes: claim.notes,
-        buyerRequest: {
-          id: claim.buyerRequest.id,
-          city: claim.buyerRequest.city,
-          type: claim.buyerRequest.type,
-          minBedrooms: claim.buyerRequest.minBedrooms,
-          maxBedrooms: claim.buyerRequest.maxBedrooms,
-          minPrice: claim.buyerRequest.minPrice,
-          maxPrice: claim.buyerRequest.maxPrice,
-          fullContact: claim.buyerRequest.fullContactJson,
-          createdBy: claim.buyerRequest.createdBy
-        }
-      }))
-    });
-  } catch (error) {
-    console.error('Get my claims error:', error);
-    res.status(500).json({ message: 'Failed to get claims' });
   }
 });
 

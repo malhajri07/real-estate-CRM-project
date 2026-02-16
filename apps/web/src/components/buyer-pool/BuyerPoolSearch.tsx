@@ -120,7 +120,6 @@ export default function BuyerPoolSearch() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['buyer-requests'] });
-      queryClient.invalidateQueries({ queryKey: ['my-claims'] });
     },
   });
 
@@ -145,7 +144,6 @@ export default function BuyerPoolSearch() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['buyer-requests'] });
-      queryClient.invalidateQueries({ queryKey: ['my-claims'] });
     },
   });
 
@@ -158,7 +156,7 @@ export default function BuyerPoolSearch() {
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ar-SA', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'SAR',
       minimumFractionDigits: 0,

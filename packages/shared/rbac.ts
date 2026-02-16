@@ -101,18 +101,24 @@ export const normalizeRoleKeys = (
 
   const normalize = (value: string) => value.trim().toUpperCase();
 
+  const mapLegacyRole = (value: string): UserRole | null => {
+    const v = normalize(value);
+    if (v === 'AGENT') return UserRole.INDIV_AGENT;
+    return USER_ROLES.includes(v as UserRole) ? (v as UserRole) : null;
+  };
+
   if (Array.isArray(input)) {
     const cleaned = input
       .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
-      .map((value) => normalize(value))
-      .filter((value): value is UserRole => USER_ROLES.includes(value as UserRole));
+      .map((value) => mapLegacyRole(value))
+      .filter((value): value is UserRole => value !== null);
 
     return cleaned.length ? Array.from(new Set(cleaned)) : [fallback];
   }
 
   if (typeof input === 'string' && input.trim().length > 0) {
-    const normalized = normalize(input);
-    return USER_ROLES.includes(normalized as UserRole) ? [normalized as UserRole] : [fallback];
+    const mapped = mapLegacyRole(input);
+    return mapped !== null ? [mapped] : [fallback];
   }
 
   return [fallback];
@@ -133,12 +139,14 @@ export const parseStoredRoles = (raw: string | null | undefined): UserRole[] => 
     const cleaned = parsed
       .filter((value): value is string => typeof value === 'string')
       .map((value) => value.trim().toUpperCase())
+      .map((value) => (value === 'AGENT' ? UserRole.INDIV_AGENT : value))
       .filter((value): value is UserRole => USER_ROLES.includes(value as UserRole));
 
     return cleaned.length ? Array.from(new Set(cleaned)) : [DEFAULT_USER_ROLE];
   } catch {
     const normalized = raw.trim().toUpperCase();
-    return USER_ROLES.includes(normalized as UserRole) ? [normalized as UserRole] : [DEFAULT_USER_ROLE];
+    const role = normalized === 'AGENT' ? UserRole.INDIV_AGENT : normalized;
+    return USER_ROLES.includes(role as UserRole) ? [role as UserRole] : [DEFAULT_USER_ROLE];
   }
 };
 

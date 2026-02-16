@@ -137,13 +137,20 @@ packages/
 - **Impact**: Line-height 1.6-1.8, proper font weights, no text-transform
 - **Enforcement**: Design system guidelines
 
-### 4. Performance Requirements
+### 4. Numeric Display (English Numerals)
+
+- **Constraint**: All numeric values use Western digits (0-9) across the application
+- **Pattern**: `toLocaleString("en-US")` or `Intl.NumberFormat("en-US", {...})`
+- **Constant**: `NUMERIC_LOCALE = "en-US"` in `apps/web/src/lib/formatters.ts`
+- **Rationale**: Consistent numeral display regardless of language; dates remain language-specific (ar-SA for Arabic)
+
+### 5. Performance Requirements
 
 - **Constraint**: Fast page loads, responsive interactions
 - **Impact**: Code splitting, lazy loading, query optimization
 - **Enforcement**: Performance budgets, monitoring
 
-### 5. Browser Support
+### 6. Browser Support
 
 - **Constraint**: Modern browsers (Chrome, Firefox, Safari, Edge)
 - **Impact**: Can use modern JavaScript features
@@ -296,6 +303,27 @@ postgresql://postgres:password@localhost:5432/real_estate_crm?schema=real_estate
 - `REDIS_URL` - Redis connection (if using)
 - `GOOGLE_MAPS_API_KEY` - Google Maps API key
 - `SMTP_*` - Email configuration
+
+## Codebase Size
+
+- **Total LOC**: ~72,200 lines (excluding node_modules, dist)
+- **apps/web**: ~49,400 (frontend)
+- **apps/api**: ~16,730 (backend)
+- **packages**: ~650 (shared)
+- **data**: ~234
+
+## Agent Skills Reference
+
+Project uses `.agent/skills/` for role-specific standards:
+
+| Skill | Focus | Key Standards |
+|-------|-------|---------------|
+| 01-frontend-architect | RTL, Arabic UX | Logical properties only; `dir={dir}`; IBM Plex Sans Arabic; no conditional RTL hacks |
+| 02-database-engineer | PostgreSQL, Prisma | UTF-8, Arabic collation, GIN indexes for search |
+| 03-api-architect | i18n, security | Accept-Language; localized errors; Zod validation |
+| 04-planner | Product, MENA | Arabic-first PRDs; cultural UX |
+| 05-qa-devops | QA, testing | Functional, regression, API, security, performance domains |
+| 06-system-design-architict | System design | Architecture patterns |
 
 ## Performance Considerations
 

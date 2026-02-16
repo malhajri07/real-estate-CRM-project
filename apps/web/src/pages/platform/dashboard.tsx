@@ -32,6 +32,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import {
   Activity,
   Lead,
+  Deal,
 } from "@shared/types";
 import {
   Badge,
@@ -87,7 +88,8 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const locale = language === "ar" ? "ar-SA" : "en-US";
-  
+  const numericLocale = "en-US"; // Numeric values (0-9) across application
+
   // Get user's name for welcome message
   const userName = user?.firstName || user?.name || user?.username || "مستخدم";
 
@@ -100,6 +102,10 @@ export default function Dashboard() {
 
   const { data: leads, isLoading: leadsLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
+  });
+
+  const { data: deals } = useQuery<Deal[]>({
+    queryKey: ["/api/deals"],
   });
 
   const { data: todaysActivities, isLoading: activitiesLoading } = useQuery<Activity[]>({
@@ -121,13 +127,13 @@ export default function Dashboard() {
 
   const currencyFormatter = useMemo(
     () =>
-      new Intl.NumberFormat(locale, {
+      new Intl.NumberFormat(numericLocale, {
         style: "currency",
         currency: "SAR",
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }),
-    [locale]
+    [numericLocale]
   );
 
   const dateFormatter = useMemo(
@@ -178,16 +184,23 @@ export default function Dashboard() {
     [metrics, formatCurrency, t]
   );
 
-  const pipelineStages = useMemo(
-    () => [
-      { id: "lead", label: t("dashboard.pipeline.lead"), value: metrics?.pipelineByStage?.lead ?? 0 },
-      { id: "qualified", label: t("dashboard.pipeline.qualified"), value: metrics?.pipelineByStage?.qualified ?? 0 },
-      { id: "showing", label: t("dashboard.pipeline.showing"), value: metrics?.pipelineByStage?.showing ?? 0 },
-      { id: "negotiation", label: t("dashboard.pipeline.negotiation"), value: metrics?.pipelineByStage?.negotiation ?? 0 },
-      { id: "closed", label: t("dashboard.pipeline.closed"), value: metrics?.pipelineByStage?.closed ?? 0 },
-    ],
-    [metrics, t]
-  );
+  const pipelineStages = useMemo(() => {
+    const STAGE_IDS = ["lead", "qualified", "showing", "negotiation", "closed"] as const;
+    const counts = { lead: 0, qualified: 0, showing: 0, negotiation: 0, closed: 0 };
+    (deals ?? []).forEach((deal: any) => {
+      const stage = (deal.stage ?? deal.status ?? "").toString().toLowerCase();
+      if (STAGE_IDS.includes(stage as any)) {
+        counts[stage as keyof typeof counts]++;
+      }
+    });
+    return [
+      { id: "lead", label: t("dashboard.pipeline.lead"), value: counts.lead },
+      { id: "qualified", label: t("dashboard.pipeline.qualified"), value: counts.qualified },
+      { id: "showing", label: t("dashboard.pipeline.showing"), value: counts.showing },
+      { id: "negotiation", label: t("dashboard.pipeline.negotiation"), value: counts.negotiation },
+      { id: "closed", label: t("dashboard.pipeline.closed"), value: counts.closed },
+    ];
+  }, [deals, t]);
 
   const quickActions = useMemo(
     () => [

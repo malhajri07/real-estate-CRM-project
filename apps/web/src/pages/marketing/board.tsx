@@ -287,7 +287,7 @@ export default function MarketingRequestsBoardPage() {
                     <div>
                       <dt className="font-medium text-slate-700">الميزانية</dt>
                       <dd>
-                        {selectedRequest.budgetMin?.toLocaleString()} - {selectedRequest.budgetMax?.toLocaleString() || "غير محدد"} ر.س
+                        {selectedRequest.budgetMin?.toLocaleString("en-US")} - {selectedRequest.budgetMax?.toLocaleString("en-US") || "غير محدد"} ر.س
                       </dd>
                     </div>
                   )}

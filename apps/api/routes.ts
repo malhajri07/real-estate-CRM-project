@@ -190,7 +190,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Pages affected: Buyer pool search, lead management, claims workflow
    */
   app.use("/api/pool", buyerPoolRoutes);
-  app.use("/api/pool", buyerPoolRoutes);
   app.use("/api/community", communityRoutes);
   app.use("/api/knowledge", knowledgeBaseRoutes);
 
