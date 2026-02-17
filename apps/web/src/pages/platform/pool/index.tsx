@@ -88,8 +88,24 @@ export default function PoolPage() {
             setSmsTargetId(null);
         },
         onError: (err: any) => {
-            const msg = err?.message || String(err);
-            toast.error(msg.includes("not configured") ? "SMS is not configured. Contact admin." : "Failed to send SMS.");
+            const raw = err?.message || String(err);
+            console.error("[Send SMS] API error:", raw);
+            let msg = "Failed to send SMS.";
+            if (raw.includes("not configured")) msg = "SMS is not configured. Contact admin.";
+            else if (raw.includes("Only agents or admins")) msg = "You don't have permission to send SMS.";
+            else {
+                try {
+                    const jsonStart = raw.indexOf("{");
+                    if (jsonStart >= 0) {
+                        const obj = JSON.parse(raw.slice(jsonStart));
+                        if (obj?.message) msg = obj.message;
+                    }
+                } catch {
+                    const m = raw.match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+                    if (m) msg = m[1].replace(/\\"/g, '"');
+                }
+            }
+            toast.error(msg);
         }
     });
 

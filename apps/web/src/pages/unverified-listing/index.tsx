@@ -704,10 +704,6 @@ export default function UnverifiedListingPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-4 mb-12"
           >
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-medium">
-              <Home className="w-4 h-4" />
-              <span>إدراج عقار للبيع</span>
-            </span>
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
               أدرج <span className="text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-teal-600">عقارك للبيع</span>
             </h1>

@@ -1,11 +1,11 @@
 import type { Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
 
-const fontSans = ["Inter", "IBM Plex Sans Arabic", "system-ui", "sans-serif"];
+const fontSans = ["Noto Kufi Arabic", "IBM Plex Sans Arabic", "Inter", "system-ui", "sans-serif"];
 const fontSerif = ["IBM Plex Serif", "serif"];
 const fontMono = ["JetBrains Mono", "monospace"];
-const fontDisplay = ["Plus Jakarta Sans", "IBM Plex Sans Arabic", "sans-serif"];
-const fontArabic = ["IBM Plex Sans Arabic", "Inter", "sans-serif"];
+const fontDisplay = ["Noto Kufi Arabic", "IBM Plex Sans Arabic", "Plus Jakarta Sans", "sans-serif"];
+const fontArabic = ["Noto Kufi Arabic", "IBM Plex Sans Arabic", "Inter", "sans-serif"];
 const fontPassword = ["JetBrains Mono", "monospace"];
 
 const config: Config = {

@@ -55,7 +55,7 @@ export default function PlatformShell({
       {/* Global Background with Clean Apple Style */}
       <div className="absolute inset-0 bg-[#F5F5F7] z-0" />
 
-      {/* Sidebar Overlay - Only on mobile when sidebar is open */}
+      {/* Sidebar Overlay - Only on mobile when sidebar is open (z-[60] below sidebar z-[65] so sidebar stays tappable) */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-[60] lg:hidden"
@@ -78,7 +78,7 @@ export default function PlatformShell({
         {/* Sidebar - Fixed on Desktop */}
         <aside
           className={cn(
-            "w-72 flex-shrink-0 z-[40]",
+            "w-72 flex-shrink-0 z-[65]",
             "fixed inset-y-0 start-0 lg:top-20", 
             "transition-transform duration-300 ease-in-out",
             dir === "rtl"

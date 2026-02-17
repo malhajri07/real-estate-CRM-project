@@ -60,6 +60,22 @@ const HOUSE_DIRECTIONS = [
   { value: "corner", label: "زاوية" },
 ];
 
+/** Format mobile input to +966xxxxxxxxx as user types */
+function formatMobileInput(value: string): string {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 0) return "";
+  if (digits.startsWith("966")) {
+    return `+${digits.slice(0, 12)}`;
+  }
+  if (digits.startsWith("0") && digits.length >= 10) {
+    return `+966${digits.slice(1, 10)}`;
+  }
+  if (digits.length <= 9) {
+    return `+966${digits}`;
+  }
+  return `+966${digits.slice(-9)}`;
+}
+
 export default function RealEstateRequestsPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -421,7 +437,17 @@ export default function RealEstateRequestsPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">رقم الجوال <span className="text-red-500">*</span></label>
-                    <Input className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end" dir="ltr" placeholder="05xxxxxxxx" value={form.mobileNumber} onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })} required />
+                    <Input
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end font-mono tracking-wide"
+                      dir="ltr"
+                      placeholder="+966 5xxxxxxxx"
+                      value={form.mobileNumber}
+                      onChange={(e) => setForm({ ...form, mobileNumber: formatMobileInput(e.target.value) })}
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">البريد الإلكتروني <span className="text-red-500">*</span></label>

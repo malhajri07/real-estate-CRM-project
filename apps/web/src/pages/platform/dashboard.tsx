@@ -298,13 +298,15 @@ export default function Dashboard() {
       <div className="grid gap-8 lg:grid-cols-3 relative z-10" aria-label={t("dashboard.details_section")}>
         {/* Left Column - Main Content */}
         <div className="space-y-8 lg:col-span-2">
-          {/* Clean Pipeline Flow */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
-            <PipelineFlow stages={pipelineStages} dateFormatter={dateFormatter} />
-          </div>
+          {/* Pipeline Flow + Revenue Chart - side by side on large screens */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Clean Pipeline Flow */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
+              <PipelineFlow stages={pipelineStages} dateFormatter={dateFormatter} />
+            </div>
 
-          {/* Revenue Chart with Clean Background */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
+            {/* Revenue Chart with Clean Background */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm">
             <Card className="bg-transparent border-0 shadow-none p-0">
               <CardHeader className="pb-4 px-0 pt-0">
                   <div className="flex items-center gap-2 mb-2">
@@ -323,6 +325,7 @@ export default function Dashboard() {
                 <RevenueChart />
               </CardContent>
             </Card>
+          </div>
           </div>
 
           {/* Clean Recent Leads */}

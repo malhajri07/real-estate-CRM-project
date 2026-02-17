@@ -26,6 +26,7 @@ import { z } from 'zod';
 import { BuyerRequestStatus, ClaimStatus } from '@prisma/client';
 import { prisma } from '../prismaClient';
 import { basePrisma } from '../prismaClient';
+import { normalizeSaudiPhone } from '../utils/phone';
 import { requireRole, isAgent, isWebsiteAdmin, isCorpOwner, canClaimBuyerRequest, canReleaseClaim, maskContact, CLAIM_RATE_LIMITS, UserRole } from '../rbac';
 import { authenticateToken } from '../auth';
 import twilio from 'twilio';
@@ -240,20 +241,23 @@ router.get('/search', authenticateToken, async (req, res) => {
 router.post('/customer-requests/:id/send-sms', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const { message } = sendSmsSchema.parse(req.body);
+    const { message } = sendSmsSchema.parse(req.body || {});
 
-    if (!isAgent(req.user!.roles)) {
-      return res.status(403).json({ message: 'Only agents can send SMS' });
+    const canSendSms = isAgent(req.user!.roles) || isWebsiteAdmin(req.user!.roles) || isCorpOwner(req.user!.roles);
+    if (!canSendSms) {
+      return res.status(403).json({ message: 'Only agents or admins can send SMS' });
     }
 
+    const isNumericId = /^\d+$/.test(id);
     const seeker = await basePrisma.properties_seeker.findFirst({
-      where: {
-        OR: [
-          { seeker_id: id },
-          { seeker_num: id },
-          { seeker_num: BigInt(Number(id)) }
-        ]
-      }
+      where: isNumericId
+        ? {
+            OR: [
+              { seeker_id: id },
+              { seeker_num: BigInt(id) }
+            ]
+          }
+        : { seeker_id: id }
     });
 
     if (!seeker || !seeker.mobile_number) {
@@ -271,8 +275,18 @@ router.post('/customer-requests/:id/send-sms', authenticateToken, async (req, re
     }
 
     const client = twilio(accountSid, authToken);
-    const digits = seeker.mobile_number.replace(/\D/g, '');
-    const to = digits.startsWith('966') ? `+${digits}` : digits.startsWith('0') ? `+966${digits.slice(1)}` : `+966${digits}`;
+    let to = normalizeSaudiPhone(seeker.mobile_number);
+    if (!to || to.length < 12) {
+      const d = (seeker.mobile_number || '').replace(/\D/g, '');
+      if (d.length >= 9) {
+        to = d.startsWith('966') ? `+${d.slice(0, 12)}` : d.startsWith('0') ? `+966${d.slice(1, 10)}` : `+966${d.slice(-9)}`;
+      }
+    }
+    if (!to || !/^\+9665\d{8}$/.test(to)) {
+      return res.status(400).json({
+        message: `Invalid phone number for SMS: ${(seeker.mobile_number || '').slice(0, 20)}... Must be a valid Saudi mobile (e.g. +966501234567).`
+      });
+    }
 
     await client.messages.create({
       body: message,
@@ -281,12 +295,34 @@ router.post('/customer-requests/:id/send-sms', authenticateToken, async (req, re
     });
 
     res.json({ success: true, message: 'SMS sent successfully' });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ message: 'Invalid input', errors: error.errors });
     }
-    console.error('Send SMS error:', error);
-    res.status(500).json({ message: 'Failed to send SMS' });
+    // Log full error in development for debugging
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Send SMS] Full error:', {
+        message: error?.message,
+        code: error?.code,
+        status: error?.status,
+        moreInfo: error?.moreInfo,
+        name: error?.name
+      });
+    } else {
+      console.error('Send SMS error:', error?.message || error);
+    }
+    let userMessage = 'Failed to send SMS.';
+    try {
+      const twilioMsg = (error?.message ?? error?.status ?? String(error ?? '')).toString();
+      const twilioCode = error?.code ?? error?.status;
+      const isTrialRestriction = /verified|trial|21608|21614|21211/i.test(twilioMsg) || [21608, 21614, 21211].includes(Number(twilioCode));
+      userMessage = isTrialRestriction
+        ? 'SMS failed: Twilio trial accounts can only send to verified numbers. Add the recipient in Twilio Console under Phone Numbers → Manage → Verified Caller IDs, or upgrade your account.'
+        : `SMS failed: ${twilioMsg}`;
+    } catch (_) { /* fallback to default */ }
+    if (!res.headersSent) {
+      res.status(500).json({ message: userMessage });
+    }
   }
 });
 
@@ -321,7 +357,7 @@ router.post('/customer-requests/:id/claim', authenticateToken, async (req, res) 
 
     const fullContact = JSON.stringify({
       name: `${seeker.first_name} ${seeker.last_name}`,
-      phone: seeker.mobile_number,
+      phone: normalizeSaudiPhone(seeker.mobile_number) || seeker.mobile_number,
       email: seeker.email
     });
 
@@ -336,7 +372,7 @@ router.post('/customer-requests/:id/claim', authenticateToken, async (req, res) 
         maxPrice: seeker.budget_size,
         contactPreferences: 'PHONE',
         status: BuyerRequestStatus.OPEN,
-        maskedContact: `+966 *** ${String(seeker.mobile_number).slice(-4)}`,
+        maskedContact: `+966 *** ${String(normalizeSaudiPhone(seeker.mobile_number) || seeker.mobile_number).slice(-4)}`,
         fullContactJson: fullContact,
         multiAgentAllowed: false,
         notes: seeker.other_comments || `From customer request ${seeker.seeker_id || seeker.seeker_num}`

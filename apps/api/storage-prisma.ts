@@ -23,6 +23,7 @@
  */
 
 import { prisma, basePrisma } from './prismaClient';
+import { normalizeSaudiPhone } from './utils/phone';
 
 /**
  * PrismaStorageSimple Class - Simplified storage implementation
@@ -729,7 +730,7 @@ class PrismaStorageSimple {
         data: {
           first_name: data.firstName,
           last_name: data.lastName,
-          mobile_number: data.mobileNumber,
+          mobile_number: normalizeSaudiPhone(data.mobileNumber) || data.mobileNumber,
           email: data.email,
           nationality: data.nationality,
           age: data.age,
@@ -851,7 +852,7 @@ class PrismaStorageSimple {
       const updateData: any = {};
       if (data.firstName !== undefined) updateData.first_name = data.firstName;
       if (data.lastName !== undefined) updateData.last_name = data.lastName;
-      if (data.mobileNumber !== undefined) updateData.mobile_number = data.mobileNumber;
+      if (data.mobileNumber !== undefined) updateData.mobile_number = normalizeSaudiPhone(data.mobileNumber) || data.mobileNumber;
       if (data.email !== undefined) updateData.email = data.email;
       if (data.nationality !== undefined) updateData.nationality = data.nationality;
       if (data.age !== undefined) updateData.age = data.age;
@@ -969,7 +970,7 @@ class PrismaStorageSimple {
             : [],
           video_clip_url: data.videoClipUrl || data.video_clip_url || null,
           contact_name: data.contactName || data.contact_name || null,
-          mobile_number: data.mobileNumber || data.mobile_number,
+          mobile_number: normalizeSaudiPhone(data.mobileNumber || data.mobile_number) || data.mobileNumber || data.mobile_number,
           is_verified: data.isVerified ?? data.is_verified ?? false,
           is_active: data.isActive ?? data.is_active ?? true,
           status: data.status || "Pending",

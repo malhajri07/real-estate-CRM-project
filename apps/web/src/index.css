@@ -30,9 +30,14 @@
     --radius: 0.75rem;
   }
 
+  html,
+  body {
+    font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", Inter, system-ui, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
   body {
     @apply bg-slate-50/50 text-slate-900 antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
@@ -90,4 +95,17 @@
 
 [dir="ltr"] {
   --dir-factor: -20px;
+}
+
+/* Noto Kufi Arabic - applied after Tailwind so it overrides preflight and utilities */
+#root,
+#root * {
+  font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", Inter, system-ui, sans-serif !important;
+}
+
+/* Preserve mono font for code/numeric inputs - higher specificity to override #root * */
+#root .font-mono,
+#root input[type="password"],
+#root input[inputmode="numeric"] {
+  font-family: "JetBrains Mono", monospace !important;
 }
