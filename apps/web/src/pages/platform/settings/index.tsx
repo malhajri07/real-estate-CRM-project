@@ -112,7 +112,7 @@ export default function Settings() {
   };
 
   return (
-    <main className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-8">
         <div className={cn(CARD_STYLES.container, "px-6 py-5 flex flex-col gap-4")}>
         <div>
@@ -554,6 +554,6 @@ export default function Settings() {
           </Card>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

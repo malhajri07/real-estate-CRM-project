@@ -21,9 +21,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, FileEdit, Home, ArrowRight, Loader2 } from "lucide-react";
+import { CheckCircle2, FileEdit, Home, ArrowRight, Loader2, ChevronsUpDown, Check } from "lucide-react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { cn } from "@/lib/utils";
 
@@ -125,6 +128,10 @@ export default function RealEstateRequestsPage() {
     }
   };
 
+  const [regionOpen, setRegionOpen] = useState(false);
+  const [cityOpen, setCityOpen] = useState(false);
+  const [districtOpen, setDistrictOpen] = useState(false);
+
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -146,11 +153,44 @@ export default function RealEstateRequestsPage() {
     kitchenInstalled: false,
     hasElevator: false,
     parkingAvailable: false,
+    regionId: "",
+    cityId: "",
     city: "",
     district: "",
     region: "",
     sqm: "",
     notes: "",
+  });
+
+  const { data: regions } = useQuery<any[]>({
+    queryKey: ["/api/locations/regions"],
+    queryFn: async () => {
+      const res = await fetch("/api/locations/regions");
+      if (!res.ok) throw new Error("Failed to fetch regions");
+      return res.json();
+    },
+  });
+
+  const { data: cities } = useQuery<any[]>({
+    queryKey: ["/api/locations/cities", form.regionId],
+    queryFn: async () => {
+      if (!form.regionId) return [];
+      const res = await fetch(`/api/locations/cities?regionId=${form.regionId}`);
+      if (!res.ok) throw new Error("Failed to fetch cities");
+      return res.json();
+    },
+    enabled: !!form.regionId,
+  });
+
+  const { data: districts } = useQuery<any[]>({
+    queryKey: ["/api/locations/districts", form.cityId],
+    queryFn: async () => {
+      if (!form.cityId) return [];
+      const res = await fetch(`/api/locations/districts?cityId=${form.cityId}`);
+      if (!res.ok) throw new Error("Failed to fetch districts");
+      return res.json();
+    },
+    enabled: !!form.cityId,
   });
 
   const validateRequiredFields = () => {
@@ -303,6 +343,8 @@ export default function RealEstateRequestsPage() {
         kitchenInstalled: false,
         hasElevator: false,
         parkingAvailable: false,
+        regionId: "",
+        cityId: "",
         city: "",
         district: "",
         region: "",
@@ -550,16 +592,106 @@ export default function RealEstateRequestsPage() {
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">المنطقة</label>
+                    <Popover open={regionOpen} onOpenChange={setRegionOpen}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" role="combobox" aria-expanded={regionOpen} className={cn("w-full justify-between h-12 rounded-xl", !form.region && "text-muted-foreground")}>
+                          {form.region || "اختر المنطقة"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="ابحث عن المنطقة..." />
+                          <CommandList>
+                            <CommandEmpty>لم يتم العثور على المنطقة.</CommandEmpty>
+                            <CommandGroup>
+                              {(regions || []).map((r: any) => (
+                                <CommandItem
+                                  key={r.id}
+                                  value={`${r.id} ${r.nameAr || ""} ${r.nameEn || ""}`}
+                                  onSelect={() => {
+                                    setForm({ ...form, region: r.nameAr || r.nameEn, regionId: String(r.id), city: "", cityId: "", district: "" });
+                                    setRegionOpen(false);
+                                  }}
+                                >
+                                  <Check className={cn("ml-2 h-4 w-4", form.regionId === String(r.id) ? "opacity-100" : "opacity-0")} />
+                                  {r.nameAr || r.nameEn}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">المدينة <span className="text-red-500">*</span></label>
-                    <Input className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} required />
+                    <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" role="combobox" aria-expanded={cityOpen} disabled={!form.regionId} className={cn("w-full justify-between h-12 rounded-xl", !form.city && "text-muted-foreground")}>
+                          {form.city || "اختر المدينة"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="ابحث عن المدينة..." />
+                          <CommandList>
+                            <CommandEmpty>لم يتم العثور على المدينة.</CommandEmpty>
+                            <CommandGroup>
+                              {(cities || []).map((c: any) => (
+                                <CommandItem
+                                  key={c.id}
+                                  value={`${c.id} ${c.nameAr || ""} ${c.nameEn || ""}`}
+                                  onSelect={() => {
+                                    setForm({ ...form, city: c.nameAr || c.nameEn, cityId: String(c.id), district: "" });
+                                    setCityOpen(false);
+                                  }}
+                                >
+                                  <Check className={cn("ml-2 h-4 w-4", form.cityId === String(c.id) ? "opacity-100" : "opacity-0")} />
+                                  {c.nameAr || c.nameEn}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">الحي</label>
-                    <Input className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">المنطقة</label>
-                    <Input className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.region} onChange={(e) => setForm({ ...form, region: e.target.value })} />
+                    <Popover open={districtOpen} onOpenChange={setDistrictOpen}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" role="combobox" aria-expanded={districtOpen} disabled={!form.cityId} className={cn("w-full justify-between h-12 rounded-xl", !form.district && "text-muted-foreground")}>
+                          {form.district || "اختر الحي"}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                        <Command>
+                          <CommandInput placeholder="ابحث عن الحي..." />
+                          <CommandList>
+                            <CommandEmpty>لم يتم العثور على الحي.</CommandEmpty>
+                            <CommandGroup>
+                              {(districts || []).map((d: any) => (
+                                <CommandItem
+                                  key={d.id}
+                                  value={`${d.id} ${d.nameAr || ""} ${d.nameEn || ""}`}
+                                  onSelect={() => {
+                                    setForm({ ...form, district: d.nameAr || d.nameEn });
+                                    setDistrictOpen(false);
+                                  }}
+                                >
+                                  <Check className={cn("ml-2 h-4 w-4", form.district === (d.nameAr || d.nameEn) ? "opacity-100" : "opacity-0")} />
+                                  {d.nameAr || d.nameEn}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">المساحة المطلوبة (م²)</label>

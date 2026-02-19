@@ -90,7 +90,7 @@ export default function Properties() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
       toast({ title: "نجح", description: "تم حذف العقار بنجاح" });
     },
     onError: () => {
@@ -261,9 +261,8 @@ export default function Properties() {
   }
 
   return (
-    <>
-      <main className={PAGE_WRAPPER} dir={dir}>
-        <Card className={CARD_STYLES.container}>
+    <div className={PAGE_WRAPPER} dir={dir}>
+      <Card className={CARD_STYLES.container}>
           <CardHeader className={CARD_STYLES.header}>
             <div className="flex items-center justify-between mb-4">
               <CardTitle className={TYPOGRAPHY.cardTitle}>
@@ -908,9 +907,8 @@ export default function Properties() {
             )}
           </CardContent>
         </Card>
-      </main>
 
       <AddPropertyModal open={addPropertyModalOpen} onOpenChange={setAddPropertyModalOpen} />
-    </>
+    </div>
   );
 }

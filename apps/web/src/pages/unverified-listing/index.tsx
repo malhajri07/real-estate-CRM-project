@@ -66,49 +66,6 @@ export default function UnverifiedListingPage() {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [typeOpen, setTypeOpen] = useState(false);
 
-  // Fetch regions, cities, districts
-  const { data: regions } = useQuery<any[]>({
-    queryKey: ["/api/regions"],
-    queryFn: async () => {
-      const response = await fetch("/api/locations/regions");
-      if (!response.ok) throw new Error("Failed to fetch regions");
-      return response.json();
-    },
-  });
-
-  const { data: cities } = useQuery<any[]>({
-    queryKey: ["/api/locations/saudi-cities"],
-    queryFn: async () => {
-      try {
-        const response = await fetch("/api/locations/saudi-cities");
-        if (!response.ok) {
-          console.error("Failed to fetch cities:", response.status, response.statusText);
-          throw new Error("Failed to fetch cities");
-        }
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error("Error fetching cities:", error);
-        throw error;
-      }
-    },
-  });
-
-  const fetchWithTimeout = async (
-    input: RequestInfo | URL,
-    init: (RequestInit & { timeout?: number }) = {}
-  ) => {
-    const { timeout = 30000, ...rest } = init;
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeout);
-
-    try {
-      return await fetch(input, { ...rest, signal: controller.signal });
-    } finally {
-      clearTimeout(timer);
-    }
-  };
-
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -145,9 +102,49 @@ export default function UnverifiedListingPage() {
     videoClipUrl: "",
   });
 
-  // Fetch districts based on selected city (must be after form state is defined)
+  // Fetch regions, cities, districts
+  const { data: regions } = useQuery<any[]>({
+    queryKey: ["/api/regions"],
+    queryFn: async () => {
+      const response = await fetch("/api/locations/regions");
+      if (!response.ok) throw new Error("Failed to fetch regions");
+      return response.json();
+    },
+  });
+
+  const { data: cities } = useQuery<any[]>({
+    queryKey: ["/api/locations/cities", form.region],
+    queryFn: async () => {
+      if (!form.region) return [];
+      const response = await fetch(`/api/locations/cities?regionId=${form.region}`);
+      if (!response.ok) {
+        console.error("Failed to fetch cities:", response.status, response.statusText);
+        throw new Error("Failed to fetch cities");
+      }
+      return response.json();
+    },
+    enabled: !!form.region,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const fetchWithTimeout = async (
+    input: RequestInfo | URL,
+    init: (RequestInit & { timeout?: number }) = {}
+  ) => {
+    const { timeout = 30000, ...rest } = init;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      return await fetch(input, { ...rest, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  // Fetch districts based on selected city
   const { data: districts, isLoading: districtsLoading, error: districtsError } = useQuery<any[]>({
-    queryKey: ["/api/districts", form.city],
+    queryKey: ["/api/locations/districts", form.city],
     queryFn: async () => {
       if (!form.city) return [];
       const response = await fetch(`/api/locations/districts?cityId=${form.city}`);
@@ -553,6 +550,9 @@ export default function UnverifiedListingPage() {
 
       if (!response.ok) {
         let errorMessage = responseData?.message || "تعذر إنشاء الإعلان";
+        if (import.meta.env.DEV && responseData?.debug) {
+          console.error("[Unverified listing error]", responseData);
+        }
         const relevantErrors = (responseData?.errors || []).filter((e: any) => {
           const pathStr = Array.isArray(e.path) ? e.path.join('.') : String(e.path || '').toLowerCase();
           return !pathStr.includes('propertycategory') &&

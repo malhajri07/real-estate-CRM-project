@@ -7,10 +7,9 @@ import { AdminTable, type AdminTableColumn } from "@/components/admin";
 import { MetricCard } from "@/components/admin";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, XCircle, AlertCircle, Eye, ShieldCheck, Clock, Check, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { CheckCircle2, XCircle, Eye, ShieldCheck, Clock, Check, X } from "lucide-react";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, BADGE_STYLES, TABLE_STYLES, LOADING_STYLES, EMPTY_STYLES, METRICS_CARD_STYLES } from "@/config/platform-theme";
 
 export default function ModerationQueuePage() {
   const queryClient = useQueryClient();
@@ -152,17 +151,16 @@ export default function ModerationQueuePage() {
   ], [processingId]);
 
   return (
-    <div className="space-y-8 animate-in-start" dir="rtl">
-      <Card className="glass border-0 rounded-[2rem] p-8 shadow-none group relative overflow-hidden">
-        <div className="absolute top-0 end-0 w-[30%] h-[30%] bg-blue-600/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+    <main className={PAGE_WRAPPER} dir="rtl">
+      <Card className={CARD_STYLES.container}>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6">
           <div className="flex items-center gap-6">
-            <div className="h-16 w-16 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-600/20 group-hover:scale-110 transition-transform duration-500">
+            <div className="h-16 w-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
               <ShieldCheck className="h-8 w-8" />
             </div>
             <div className="text-center md:text-end">
-              <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة المحتوى</h1>
-              <p className="text-slate-500 font-medium text-lg">مراجعة واعتماد الإعلانات الجديدة</p>
+              <h1 className={TYPOGRAPHY.pageTitle}>إدارة المحتوى</h1>
+              <p className={TYPOGRAPHY.pageSubtitle}>مراجعة واعتماد الإعلانات الجديدة</p>
             </div>
           </div>
         </div>
@@ -192,21 +190,25 @@ export default function ModerationQueuePage() {
         />
       </div>
 
-      <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
-        <div className="mb-6">
-          <h2 className="text-xl font-black text-slate-900 tracking-tight">طابور المراجعة</h2>
-          <p className="text-slate-500 font-medium">قائمة الإعلانات التي تتطلب اتخاذ إجراء</p>
-        </div>
+      <Card className={CARD_STYLES.container}>
+        <CardContent className="p-0">
+          <div className={CARD_STYLES.header}>
+            <h2 className={TYPOGRAPHY.sectionTitle}>طابور المراجعة</h2>
+            <p className={TYPOGRAPHY.cardDescription}>قائمة الإعلانات التي تتطلب اتخاذ إجراء</p>
+          </div>
 
-        <AdminTable
-          columns={columns}
-          data={items}
-          keyExtractor={(item) => item.id}
-          loading={isLoading}
-          pageSize={10}
-          emptyMessage="لا توجد إعلانات بانتظار المراجعة حالياً"
-        />
+          <div className="p-6">
+            <AdminTable
+              columns={columns}
+              data={items}
+              keyExtractor={(item) => item.id}
+              loading={isLoading}
+              pageSize={10}
+              emptyMessage="لا توجد إعلانات بانتظار المراجعة حالياً"
+            />
+          </div>
+        </CardContent>
       </Card>
-    </div>
+    </main>
   );
 }

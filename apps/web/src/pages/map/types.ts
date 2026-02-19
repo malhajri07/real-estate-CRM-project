@@ -106,6 +106,7 @@ export interface RegionPayload {
   id: number;
   nameAr?: string | null;
   nameEn?: string | null;
+  boundary?: unknown;
 }
 
 export interface CityPayload {
@@ -181,6 +182,7 @@ export interface PropertiesMapProps {
   onNavigate: (propertyId: string) => void;
   isClient: boolean;
   districtPolygon: DistrictPolygonShape | null;
+  regionPolygons: RegionPolygonShape[];
 }
 
 export interface PropertiesListProps {

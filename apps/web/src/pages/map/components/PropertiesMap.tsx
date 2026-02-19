@@ -37,6 +37,7 @@ export function PropertiesMap({
   onNavigate,
   isClient,
   districtPolygon,
+  regionPolygons = [],
 }: PropertiesMapProps) {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -141,6 +142,14 @@ export function PropertiesMap({
       hasPoints = true;
     });
 
+    regionPolygons.forEach((poly) => {
+      poly.paths.forEach((ring) => {
+        ring.forEach((point) => {
+          bounds.extend(point);
+          hasPoints = true;
+        });
+      });
+    });
     if (districtPolygon?.paths?.length) {
       districtPolygon.paths.forEach((ring) => {
         ring.forEach((point) => {
@@ -164,7 +173,7 @@ export function PropertiesMap({
 
     const padding: google.maps.Padding = { top: 56, right: 56, bottom: 56, left: 56 };
     map.fitBounds(bounds, padding);
-  }, [markers, districtPolygon]);
+  }, [markers, districtPolygon, regionPolygons]);
 
   // Cache the Google Map instance once it loads so we can imperatively adjust it later
   const handleMapLoad = useCallback(
@@ -288,6 +297,20 @@ export function PropertiesMap({
                 </>
               )}
             </MarkerClusterer>
+            {regionPolygons.map((poly) => (
+              <Polygon
+                key={poly.regionId}
+                paths={poly.paths}
+                options={{
+                  strokeColor: poly.isFilterMatch ? "#1d4ed8" : "#94a3b8",
+                  strokeOpacity: 0.7,
+                  strokeWeight: 1.5,
+                  fillColor: poly.isFilterMatch ? "rgba(37,99,235,0.15)" : "rgba(148,163,184,0.08)",
+                  fillOpacity: poly.isFilterMatch ? 0.25 : 0.08,
+                  clickable: false,
+                }}
+              />
+            ))}
             {districtPolygon?.paths?.length ? (
               <Polygon
                 paths={districtPolygon.paths}

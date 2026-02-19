@@ -141,17 +141,17 @@ export default function Notifications() {
 
   if (isLoading) {
     return (
-      <main className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-slate-500">جار تحميل إشعارات العملاء...</div>
         </div>
-      </main>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <>
-      <main className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
         <section className="space-y-6">
           <Tabs defaultValue="customers" className="space-y-6">
             <TabsList className="grid w-full grid-cols-3">
@@ -366,7 +366,7 @@ export default function Notifications() {
           </TabsContent>
           </Tabs>
         </section>
-      </main>
+      </div>
 
       {selectedLeadForWhatsApp && (
         <SendWhatsAppModal

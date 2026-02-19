@@ -51,7 +51,6 @@ import unverifiedListingsRoutes from "./routes/unverified-listings"; // Public u
 import marketingRequestRoutes from "./routes/marketing-requests"; // Marketing request marketplace
 import locationsRoutes from "./routes/locations";     // Geographic data
 import favoritesRoutes from "./routes/favorites";     // User favorites
-import inquiriesRoutes from "./routes/inquiries";     // Property inquiries
 import searchRoutes from "./routes/search";           // Search functionality
 import moderationRoutes from "./routes/moderation";   // Content moderation
 import reportsRoutes from "./routes/reports";         // Analytics reports
@@ -61,7 +60,6 @@ import populateRoutes from "./routes/populate";       // Data population
 import sitemapRoutes from "./routes/sitemap";         // SEO sitemap
 import authRoutes from "./routes/auth";               // Authentication routes (Prisma-backed)
 import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
-import knowledgeBaseRoutes from "./routes/knowledge-base"; // Agent Knowledge Base
 
 import rbacAdminRoutes from "./routes/rbac-admin";    // RBAC admin dashboard
 import propertyCategoriesRoutes from "./routes/property-categories"; // Property categories dimension table
@@ -84,7 +82,6 @@ import csvRoutes from "./routes/csv";
 import billingRoutes from "./routes/billing";
 import supportRoutes from "./routes/support";
 import appointmentsRoutes from "./routes/appointments";
-import auditLogsRoutes from "./routes/audit-logs";
 import { JWT_SECRET as getJwtSecret } from "./config/env";
 import { localeMiddleware } from "./src/middleware/locale";
 
@@ -191,7 +188,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
    */
   app.use("/api/pool", buyerPoolRoutes);
   app.use("/api/community", communityRoutes);
-  app.use("/api/knowledge", knowledgeBaseRoutes);
 
   // CMS Routes
   app.use("/api/cms", cmsLandingRoutes);
@@ -268,19 +264,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/favorites", favoritesRoutes);
 
   /**
-   * Property Inquiries Routes - /api/inquiries/*
-   * 
-   * Handles property inquiries and messages:
-   * - GET /api/inquiries - Get user inquiries
-   * - POST /api/inquiries - Create new inquiry
-   * - PUT /api/inquiries/:id - Update inquiry
-   * 
-   * Dependencies: inquiriesRoutes from ./routes/inquiries.ts
-   * Pages affected: Property detail page, inquiries management, messaging
-   */
-  app.use("/api/inquiries", inquiriesRoutes);
-
-  /**
    * Search Routes - /api/search/*
    * 
    * Handles search functionality:
@@ -345,6 +328,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
    */
   app.use("/api/requests", requestsRoutes);
 
+  /**
+   * Leads Routes - /api/leads/*
+   */
+  app.use("/api/leads", leadsRoutes);
 
   /**
    * Data Population Routes - /api/*
@@ -402,12 +389,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Appointments Routes - /api/appointments/*
    */
   app.use("/api/appointments", appointmentsRoutes);
-
-  /**
-   * Audit Logs Routes - /api/audit-logs/*
-   */
-  app.use("/api/audit-logs", auditLogsRoutes);
-
 
   /**
    * Public Landing Page Routes - /api/landing/*

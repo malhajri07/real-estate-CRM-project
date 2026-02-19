@@ -120,7 +120,7 @@ const vendorChunkMatchers: Array<{ name: string; test: (id: string) => boolean }
   { name: "vendor-react-query", test: (id) => id.includes("/node_modules/@tanstack/react-query") },
   { name: "vendor-recharts", test: (id) => id.includes("/node_modules/recharts") },
   { name: "vendor-tremor", test: (id) => id.includes("/node_modules/@tremor") },
-  { name: "vendor-dnd", test: (id) => id.includes("/node_modules/@hello-pangea/dnd") || id.includes("/node_modules/react-beautiful-dnd") },
+  { name: "vendor-dnd", test: (id) => id.includes("/node_modules/@hello-pangea/dnd") },
   { name: "vendor-framer-motion", test: (id) => id.includes("/node_modules/framer-motion") },
 ];
 

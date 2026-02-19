@@ -84,8 +84,7 @@ export default function Clients() {
   }
 
   return (
-    <>
-      <main className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card className={METRICS_CARD_STYLES.container}>
             <div className="flex items-center justify-between">
@@ -331,8 +330,7 @@ export default function Clients() {
               </div>
             )}
           </div>
-        </div>
-      </main>
-    </>
+      </div>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 # Real Estate CRM - File Structure Tree Map
 
-**Last Updated**: January 2025  
+**Last Updated**: February 2026  
 **Application**: Real Estate CRM Platform  
 **Structure**: Monorepo with API backend and Web frontend
 
@@ -410,8 +410,6 @@ apps/web/
 │   │   │   └── unified-page-layout.tsx       # Unified page layout
 │   │   │
 │   │   ├── Feature Components
-│   │   │   ├── buyer-pool/
-│   │   │   │   └── BuyerPoolSearch.tsx        # Buyer pool search
 │   │   │   ├── dashboard/
 │   │   │   │   └── RoleBasedDashboard.tsx     # Role-based dashboard
 │   │   │   ├── listings/

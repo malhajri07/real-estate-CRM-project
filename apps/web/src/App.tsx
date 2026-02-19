@@ -189,10 +189,6 @@ function Router() {
     UserRole.CORP_AGENT,
     UserRole.INDIV_AGENT,
   ];
-  const CORPORATE_MANAGEMENT_ROLES: readonly UserRole[] = [
-    UserRole.WEBSITE_ADMIN,
-    UserRole.CORP_OWNER,
-  ];
   const ADMIN_ONLY_ROLES: readonly UserRole[] = [UserRole.WEBSITE_ADMIN];
   const EXTENDED_PLATFORM_ROLES: readonly UserRole[] = [
     UserRole.WEBSITE_ADMIN,
@@ -339,9 +335,9 @@ function Router() {
       { path: '/home/platform/reports', component: Reports, aliases: ['/reports'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/notifications', component: Notifications, aliases: ['/notifications'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/settings', component: Settings, aliases: ['/settings'], allowedRoles: PLATFORM_CORE_ROLES },
-      { path: '/home/platform/agencies', component: AgenciesPage, aliases: ['/agencies'], allowedRoles: CORPORATE_MANAGEMENT_ROLES },
-      { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: ADMIN_ONLY_ROLES },
-      { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms', '/cms-admin'], allowedRoles: ADMIN_ONLY_ROLES },
+      { path: '/home/platform/agencies', component: AgenciesPage, aliases: ['/agencies'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms', '/cms-admin'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/marketing-requests', component: LazyMarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/unverified-listings', component: SuspendedUnverifiedListingsManagementPage, allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/pool', component: withSuspense(PoolPage), aliases: ['/pool'], allowedRoles: PLATFORM_CORE_ROLES },
@@ -355,7 +351,7 @@ function Router() {
     aliases?: string[];
     allowedRoles?: readonly UserRole[];
   }> = [
-      { path: '/home/platform/agency/:id', component: AgencyPage, aliases: ['/agency/:id'], allowedRoles: CORPORATE_MANAGEMENT_ROLES },
+      { path: '/home/platform/agency/:id', component: AgencyPage, aliases: ['/agency/:id'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/agent/:id', component: AgentPage, aliases: ['/agent/:id'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/properties/:id', component: PropertyDetail, aliases: ['/properties/:id'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/listing/:id', component: PublicListingPage, aliases: ['/listing/:id'] },
@@ -369,8 +365,8 @@ function Router() {
     allowedRoles?: readonly UserRole[];
     requiredPermission?: string;
   }> = [
-      { path: '/home/platform/customer-requests', component: CustomerRequestsPage, aliases: ['/customer-requests'], allowedRoles: CORPORATE_MANAGEMENT_ROLES },
-      { path: '/home/platform/admin-requests', component: AdminRequestsPage, aliases: ['/admin/requests'], allowedRoles: ADMIN_ONLY_ROLES },
+      { path: '/home/platform/customer-requests', component: CustomerRequestsPage, aliases: ['/customer-requests'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/admin-requests', component: AdminRequestsPage, aliases: ['/admin/requests'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/favorites', component: FavoritesPage, aliases: ['/favorites'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/compare', component: ComparePage, aliases: ['/compare'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/post-listing', component: PostListingPage, aliases: ['/post-listing'], allowedRoles: EXTENDED_PLATFORM_ROLES },

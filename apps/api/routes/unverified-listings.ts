@@ -424,8 +424,11 @@ router.post("/", async (req, res) => {
       });
     }
     console.error("Error creating unverified listing:", error);
+    const errMsg = error instanceof Error ? error.message : "تعذر معالجة الطلب حالياً";
+    const errStack = error instanceof Error ? error.stack : undefined;
     res.status(500).json({ 
-      message: error instanceof Error ? error.message : "تعذر معالجة الطلب حالياً" 
+      message: errMsg,
+      ...(process.env.NODE_ENV === "development" && { debug: errStack, errorName: error instanceof Error ? error.name : undefined }),
     });
   }
 });

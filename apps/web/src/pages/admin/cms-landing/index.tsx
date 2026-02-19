@@ -39,6 +39,7 @@ import { defaultCardDraft } from "./utils/defaults";
 import { SectionEditor, CardEditor } from "./components";
 import { useCMSLandingSections } from "./hooks";
 import { apiRequest } from "@/lib/queryClient";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, BADGE_STYLES } from "@/config/platform-theme";
 
 interface CMSLandingPageProps {
   embedded?: boolean;
@@ -55,6 +56,9 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
 
   // Use extracted hook for section data
   const { sections, loading, updateSection, updateSectionsOrder, setSections } = useCMSLandingSections(viewMode);
+  
+  // Get direction from context or default to rtl
+  const dir = "rtl";
 
   // Helper to update sections with a function
   const updateSections = useCallback((updater: (prev: LandingSection[]) => LandingSection[]) => {
@@ -347,28 +351,27 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     );
   }
 
-  const outerClasses = embedded ? "bg-transparent" : "min-h-screen animate-in-start";
+  const outerClasses = embedded ? "bg-transparent" : cn(PAGE_WRAPPER, "min-h-screen", dir === "rtl" ? "rtl" : "ltr");
   const innerClasses = embedded ? "space-y-8" : "space-y-8 p-0";
 
   return (
     <div className={outerClasses} dir="rtl">
       <div className={innerClasses}>
-        <div className="px-8 pt-8 flex flex-col gap-6">
-          <Card className="glass border-0 rounded-[2rem] p-8 shadow-none group relative overflow-hidden">
-            <div className="absolute top-0 end-0 w-[30%] h-[30%] bg-blue-600/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+        <div className="flex flex-col gap-6">
+          <Card className={CARD_STYLES.container}>
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6">
               <div className="flex items-center gap-6">
-                <div className="h-16 w-16 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-600/20 group-hover:scale-110 transition-transform duration-500">
+                <div className="h-16 w-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
                   <Sparkles className="h-8 w-8" />
                 </div>
                 <div className="text-center md:text-end">
-                  <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة محتوى صفحة الهبوط</h1>
-                  <p className="text-slate-500 font-medium text-lg">قم بتحديث النصوص والأيقونات والعناصر المرئية بكل سهولة</p>
+                  <h1 className={TYPOGRAPHY.pageTitle}>إدارة محتوى صفحة الهبوط</h1>
+                  <p className={TYPOGRAPHY.pageSubtitle}>قم بتحديث النصوص والأيقونات والعناصر المرئية بكل سهولة</p>
                 </div>
               </div>
               <Button
                 variant="outline"
-                className="h-12 px-8 rounded-2xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-3"
+                className="h-12 px-8 rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-3"
                 onClick={() => window.open("/", "_blank")}
               >
                 <LinkIcon className="h-4 w-4" />
@@ -399,9 +402,9 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                   {...provided.droppableProps}
                   className="space-y-4"
                 >
-                  <Card className="glass border-0 rounded-[2.5rem] p-6 shadow-none sticky top-8">
-                    <div className="mb-6 px-2">
-                      <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                  <Card className={cn(CARD_STYLES.container, "sticky top-8")}>
+                    <div className="mb-6 px-2 pt-4">
+                      <h3 className={TYPOGRAPHY.sectionTitle + " flex items-center gap-2"}>
                         <Menu className="h-4 w-4" />
                         أقسام الصفحة
                       </h3>

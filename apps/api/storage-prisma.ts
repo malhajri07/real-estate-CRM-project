@@ -464,6 +464,82 @@ class PrismaStorageSimple {
     return { id: 'stub', ...activityData };
   }
 
+  // Agency/Organization methods
+  async listAgencies(): Promise<any[]> {
+    try {
+      return await prisma.organizations.findMany({
+        include: { agent_profiles: true },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (error) {
+      console.error('Error listing agencies:', error);
+      return [];
+    }
+  }
+
+  async getAgency(id: string): Promise<any | undefined> {
+    try {
+      const org = await prisma.organizations.findUnique({
+        where: { id },
+        include: { agent_profiles: true },
+      });
+      return org || undefined;
+    } catch (error) {
+      console.error('Error fetching agency:', error);
+      return undefined;
+    }
+  }
+
+  async listAgencyAgents(agencyId: string): Promise<any[]> {
+    try {
+      return await prisma.users.findMany({
+        where: { organizationId: agencyId },
+        include: { agent_profiles: true },
+      });
+    } catch (error) {
+      console.error('Error listing agency agents:', error);
+      return [];
+    }
+  }
+
+  async getAgencyListings(agencyId: string): Promise<any[]> {
+    try {
+      return await prisma.listings.findMany({
+        where: { organizationId: agencyId },
+        include: { properties: true },
+      });
+    } catch (error) {
+      console.error('Error fetching agency listings:', error);
+      return [];
+    }
+  }
+
+  // Saved searches (stub - no table in schema)
+  async getSavedSearches(userId: string): Promise<any[]> {
+    return [];
+  }
+
+  async createSavedSearch(data: any): Promise<any> {
+    return { id: 'stub', ...data };
+  }
+
+  async deleteSavedSearch(id: string, userId: string): Promise<boolean> {
+    return true;
+  }
+
+  // Reports (stub - no table in schema)
+  async createReport(data: any, userId?: string | null): Promise<any> {
+    return { id: 'stub', ...data };
+  }
+
+  async listReports(status?: string): Promise<any[]> {
+    return [];
+  }
+
+  async resolveReport(id: string, note?: string): Promise<any | null> {
+    return null;
+  }
+
   // Message management methods (stub implementations)
   async getAllMessages(): Promise<any[]> {
     return [];
@@ -539,6 +615,42 @@ class PrismaStorageSimple {
     } catch (error) {
       console.error('Error fetching cities by region:', error);
       return [];
+    }
+  }
+
+  async seedSaudiDistricts(data: any[]): Promise<any[]> {
+    try {
+      console.log('Seeding districts:', data.length);
+      const results = [];
+      for (const district of data) {
+        const id = BigInt(district.id);
+        const regionId = parseInt(String(district.regionId), 10);
+        const cityId = parseInt(String(district.cityId), 10);
+        if (Number.isNaN(regionId) || Number.isNaN(cityId)) continue;
+        const result = await prisma.districts.upsert({
+          where: { id },
+          create: {
+            id,
+            regionId,
+            cityId,
+            nameAr: district.nameAr,
+            nameEn: district.nameEn,
+            boundary: district.boundary ?? null,
+          },
+          update: {
+            regionId,
+            cityId,
+            nameAr: district.nameAr,
+            nameEn: district.nameEn,
+            boundary: district.boundary ?? undefined,
+          },
+        });
+        results.push(result);
+      }
+      return results;
+    } catch (error) {
+      console.error('Error seeding districts:', error);
+      throw error;
     }
   }
 

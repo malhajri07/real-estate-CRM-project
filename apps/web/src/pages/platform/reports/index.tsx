@@ -412,8 +412,7 @@ export default function Reports() {
   const hasAnyError = leadsError || propertiesError || dealsError;
 
   return (
-    <>
-      <main className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
         {isInitialLoading && (
           <div className={cn(LOADING_STYLES.container, "flex-col gap-4 mb-6")} dir={dir}>
             <div className={LOADING_STYLES.spinner} />
@@ -922,8 +921,7 @@ export default function Reports() {
               </Card>
             </div>
           </TabsContent>
-        </Tabs>
-      </main>
-    </>
+      </Tabs>
+    </div>
   );
 }

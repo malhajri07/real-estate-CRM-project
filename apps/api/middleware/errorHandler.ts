@@ -64,6 +64,16 @@ export const errorHandler = (
     return res.status(400).json(errorResponse);
   }
 
+  // Handle payload too large (body-parser limit exceeded, e.g. base64 images)
+  const statusCode = (err as any).statusCode ?? (err as any).status;
+  if (statusCode === 413) {
+    return res.status(413).json({
+      error: 'PAYLOAD_TOO_LARGE',
+      message: 'حجم الطلب كبير جداً. قلّل عدد الصور أو حجمها.',
+      messageEn: 'Request payload too large. Reduce the number or size of images.',
+    });
+  }
+
   // Handle unknown errors
   const errorResponse = getErrorResponse(
     'SERVER_ERROR',

@@ -31,28 +31,28 @@ export default function FavoritesPage() {
 
   if (isLoading) {
     return (
-      <main className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
         <div className={LOADING_STYLES.container}>
           <div className={LOADING_STYLES.text}>...جار التحميل</div>
         </div>
-      </main>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <main className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
         <Card className={CARD_STYLES.container}>
           <CardContent className="p-6">
             <div className={cn(EMPTY_STYLES.description, "text-red-600 text-center")}>حدث خطأ في جلب المفضلة</div>
           </CardContent>
         </Card>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
         <Card className={CARD_STYLES.container}>
           <CardHeader className={CARD_STYLES.header}>
@@ -76,6 +76,6 @@ export default function FavoritesPage() {
           </div>
         )}
       </section>
-    </main>
+    </div>
   );
 }

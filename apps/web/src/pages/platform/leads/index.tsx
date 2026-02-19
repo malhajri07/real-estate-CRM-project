@@ -13,19 +13,17 @@
  * Route: /home/platform/leads or /leads
  * 
  * Related Files:
- * - apps/web/src/components/modals/add-lead-modal.tsx - Add lead modal
  * - apps/web/src/components/modals/send-whatsapp-modal.tsx - WhatsApp modal
  * - apps/web/src/components/CSVUploader.tsx - CSV upload component
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2, Edit, Eye, Plus, MessageCircle, Upload } from "lucide-react";
+import { Trash2, Edit, Eye, MessageCircle, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import AddLeadModal from "@/components/modals/add-lead-modal";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { CSVUploader } from "@/components/admin/data-display/CSVUploader";
 import { apiRequest } from "@/lib/queryClient";
@@ -37,7 +35,6 @@ import type { UploadResult } from "@uppy/core";
 import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES, getLeadStatusBadge, getIconSpacing } from "@/config/platform-theme";
 
 export default function Leads() {
-  const [addLeadModalOpen, setAddLeadModalOpen] = useState(false);
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -67,7 +64,7 @@ export default function Leads() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
       toast({ title: t("message.success"), description: t("leads.delete_success") });
     },
     onError: () => {
@@ -98,7 +95,7 @@ export default function Leads() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
 
       if (data.results.errors.length > 0) {
         toast({
@@ -239,10 +236,6 @@ export default function Leads() {
               <Button variant="outline" onClick={exportLeads}>
                 {t("leads.export_csv")}
               </Button>
-              <Button onClick={() => setAddLeadModalOpen(true)} className={BUTTON_PRIMARY_CLASSES}>
-                <Plus className={iconSpacing} size={16} />
-                {t("leads.add_lead")}
-              </Button>
             </div>
           </div>
         </CardHeader>
@@ -257,15 +250,9 @@ export default function Leads() {
 
           {!displayLeads || displayLeads.length === 0 ? (
             <div className={cn(EMPTY_STYLES.container, "text-end")}>
-              <div className={cn(EMPTY_STYLES.description, "mb-4 text-slate-600")}>
+              <div className={cn(EMPTY_STYLES.description, "text-slate-600")}>
                 {searchQuery ? t("leads.no_results") : t("leads.no_leads")}
               </div>
-              {!searchQuery && (
-                <Button onClick={() => setAddLeadModalOpen(true)} className={BUTTON_PRIMARY_CLASSES}>
-                  <Plus className={iconSpacing} size={16} />
-                  {t("leads.add_first_lead")}
-                </Button>
-              )}
             </div>
           ) : (
             <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -338,7 +325,6 @@ export default function Leads() {
         </CardContent>
       </Card>
 
-      <AddLeadModal open={addLeadModalOpen} onOpenChange={setAddLeadModalOpen} />
       {selectedLead && (
         <SendWhatsAppModal
           open={whatsappModalOpen}

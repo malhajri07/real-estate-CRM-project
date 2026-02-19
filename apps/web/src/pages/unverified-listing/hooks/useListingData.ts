@@ -36,9 +36,9 @@ export function useListingData(form: ListingFormData) {
 
   // Fetch cities
   const { data: cities } = useQuery<any[]>({
-    queryKey: ["/api/saudi-cities"],
+    queryKey: ["/api/locations/saudi-cities"],
     queryFn: async () => {
-      const response = await fetch("/api/saudi-cities");
+      const response = await fetch("/api/locations/saudi-cities");
       if (!response.ok) throw new Error("Failed to fetch cities");
       return response.json();
     },
@@ -46,7 +46,7 @@ export function useListingData(form: ListingFormData) {
 
   // Fetch districts based on selected city
   const { data: districts, isLoading: districtsLoading, error: districtsError } = useQuery<any[]>({
-    queryKey: ["/api/districts", form.city],
+    queryKey: ["/api/locations/districts", form.city],
     queryFn: async () => {
       if (!form.city) return [];
       const response = await fetch(`/api/locations/districts?cityId=${form.city}`);

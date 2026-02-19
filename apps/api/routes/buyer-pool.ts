@@ -16,7 +16,7 @@
  * - POST /api/pool/buyers/:id/release - Release a claim
  * 
  * Related Files:
- * - apps/web/src/components/buyer-pool/BuyerPoolSearch.tsx - Buyer pool search component
+ * - apps/web/src/pages/platform/pool - Pool page (customer requests, claims)
  * - apps/api/rbac.ts - RBAC system for permissions
  */
 

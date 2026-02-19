@@ -74,11 +74,6 @@ const PLATFORM_CORE_ROLES = [
   UserRole.INDIV_AGENT,
 ];
 
-const CORPORATE_MANAGEMENT_ROLES = [
-  UserRole.WEBSITE_ADMIN,
-  UserRole.CORP_OWNER,
-];
-
 const EXTENDED_PLATFORM_ROLES = [
   UserRole.WEBSITE_ADMIN,
   UserRole.CORP_OWNER,
@@ -87,8 +82,6 @@ const EXTENDED_PLATFORM_ROLES = [
   UserRole.SELLER,
   UserRole.BUYER,
 ];
-
-const ADMIN_ONLY_ROLES = [UserRole.WEBSITE_ADMIN];
 
 export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
   {
@@ -210,7 +203,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         icon: Building2,
         matchPaths: ["/agencies"],
         matchPrefixes: ["/home/platform/agency/", "/agency/"],
-        allowedRoles: CORPORATE_MANAGEMENT_ROLES,
+        allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
         id: "customer-requests",
@@ -218,7 +211,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/customer-requests",
         icon: Inbox,
         matchPaths: ["/customer-requests"],
-        allowedRoles: CORPORATE_MANAGEMENT_ROLES,
+        allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
         id: "favorites",
@@ -266,7 +259,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/moderation",
         icon: ShieldCheck,
         matchPaths: ["/moderation"],
-        allowedRoles: ADMIN_ONLY_ROLES,
+        allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
         id: "cms",
@@ -274,7 +267,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/cms",
         icon: FileText,
         matchPaths: ["/cms", "/cms-admin"],
-        allowedRoles: ADMIN_ONLY_ROLES,
+        allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
         id: "admin-requests",
@@ -282,7 +275,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/admin-requests",
         icon: Inbox,
         matchPaths: ["/admin/requests"],
-        allowedRoles: ADMIN_ONLY_ROLES,
+        allowedRoles: PLATFORM_CORE_ROLES,
       },
     ],
   },

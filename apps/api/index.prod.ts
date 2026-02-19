@@ -18,8 +18,6 @@ import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import { BACKEND_PORT } from "./config/env";
 import "./types/express-session";
-import path from "path";
-import { createServer as createNetServer } from "node:net";
 import { registerRoutes } from "./routes";
 import { log } from "./logger";
 import {
@@ -31,9 +29,9 @@ import {
 // Create Express application instance
 const app = express();
 
-// Configure Express middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// Configure Express middleware - 12MB limit for unverified listings with base64 images
+app.use(express.json({ limit: "12mb" }));
+app.use(express.urlencoded({ extended: false, limit: "12mb" }));
 
 // Wire up cookie-based sessions
 const PgSessionStore = connectPgSimple(session);
@@ -77,110 +75,47 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS middleware
+// CORS - use CORS_ORIGINS (same as index.ts)
+const allowedOrigins = (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN || "http://localhost:3000")
+  .split(",")
+  .map((o) => o.trim());
+
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'];
-  
   if (origin && allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader("Access-Control-Allow-Origin", origin);
   }
-  
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  
-  if (req.method === 'OPTIONS') {
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  if (req.method === "OPTIONS") {
     res.sendStatus(200);
     return;
   }
-  
   next();
 });
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-// Register API routes
-registerRoutes(app);
-
-// Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  log(`[ERROR] ${err.message}`);
-  res.status(500).json({ error: 'Internal Server Error' });
-});
-
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Not Found' });
-});
-
-// Server startup
 (async () => {
-  const server = createNetServer();
-  
-  // Production static file serving
+  // Register API routes and get HTTP server
+  const httpServer = await registerRoutes(app);
+
+  // Production static file serving (SPA + assets)
   const { serveStatic } = await import("./serve-static");
   serveStatic(app);
-  
-  // Find available port
-  const findAvailablePort = async (preferredPort: number): Promise<number> => {
-    const testPort = (port: number) => new Promise<number | null>((resolve, reject) => {
-      const tester = createNetServer()
-        .once("error", (err: NodeJS.ErrnoException) => {
-          if (err.code === "EADDRINUSE" || err.code === "EACCES") {
-            resolve(null);
-          } else {
-            reject(err);
-          }
-        })
-        .once("listening", () => {
-          tester.close(() => resolve(port));
-        });
 
-      tester.listen({
-        port,
-        host: "0.0.0.0",
-      });
-    });
+  // Error handling middleware
+  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    log(`[ERROR] ${err.message}`);
+    res.status(500).json({ error: "Internal Server Error" });
+  });
 
-    for (let port = preferredPort; port < preferredPort + 20; port += 1) {
-      const availablePort = await testPort(port);
-      if (availablePort) {
-        return availablePort;
-      }
-    }
-
-    return new Promise((resolve, reject) => {
-      const tester = createNetServer();
-      tester
-        .once("error", reject)
-        .once("listening", () => {
-          const address = tester.address();
-          tester.close(() => {
-            if (!address || typeof address === "string") {
-              reject(new Error("Unable to determine available port"));
-              return;
-            }
-            resolve(address.port);
-          });
-        })
-        .listen({ port: 0, host: "0.0.0.0" });
-    });
-  };
+  // 404 handler
+  app.use((_req, res) => {
+    res.status(404).json({ error: "Not Found" });
+  });
 
   const preferredPort = BACKEND_PORT();
-  const port = await findAvailablePort(preferredPort);
-  if (port !== preferredPort) {
-    log(`[startup] Port ${preferredPort} in use, switching to ${port}`);
-  }
-  process.env.PORT = String(port);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-  }, () => {
-    log(`serving on port ${port}`);
+  httpServer.listen(preferredPort, "0.0.0.0", () => {
+    log(`serving on port ${preferredPort}`);
   });
 })();

@@ -54,13 +54,11 @@ import {
   Download,
   Filter,
   Home,
-  Plus,
   Users,
   Phone,
   Zap,
   ListTodo,
 } from "lucide-react";
-import AddLeadDrawer from "@/components/modals/add-lead-drawer";
 import AddPropertyDrawer from "@/components/modals/add-property-drawer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -81,7 +79,6 @@ type MetricResponse = {
 };
 
 export default function Dashboard() {
-  const [addLeadDrawerOpen, setAddLeadDrawerOpen] = useState(false);
   const [addPropertyDrawerOpen, setAddPropertyDrawerOpen] = useState(false);
   const [completedactivities, setCompletedActivities] = useState<string[]>([]);
   const { dir, language, t } = useLanguage();
@@ -97,7 +94,7 @@ export default function Dashboard() {
     data: metrics,
     isLoading: metricsLoading,
   } = useQuery<MetricResponse>({
-    queryKey: ["/api/dashboard/metrics"],
+    queryKey: ["/api/reports/dashboard/metrics"],
   });
 
   const { data: leads, isLoading: leadsLoading } = useQuery<Lead[]>({
@@ -134,11 +131,6 @@ export default function Dashboard() {
         maximumFractionDigits: 0,
       }),
     [numericLocale]
-  );
-
-  const dateFormatter = useMemo(
-    () => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }),
-    [locale]
   );
 
   const formatCurrency = (value: number) => currencyFormatter.format(value);
@@ -205,13 +197,6 @@ export default function Dashboard() {
   const quickActions = useMemo(
     () => [
       {
-        id: "add-lead",
-        label: t("dashboard.quick_actions.add_lead"),
-        icon: Plus,
-        onClick: () => setAddLeadDrawerOpen(true),
-        variant: "primary" as const,
-      },
-      {
         id: "add-property",
         label: t("dashboard.quick_actions.add_property"),
         icon: Home,
@@ -248,7 +233,6 @@ export default function Dashboard() {
     return (
       <>
         <DashboardSkeleton />
-        <AddLeadDrawer open={addLeadDrawerOpen} onOpenChange={setAddLeadDrawerOpen} />
         <AddPropertyDrawer open={addPropertyDrawerOpen} onOpenChange={setAddPropertyDrawerOpen} />
       </>
     );
@@ -302,24 +286,26 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Clean Pipeline Flow */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <PipelineFlow stages={pipelineStages} dateFormatter={dateFormatter} />
+              <PipelineFlow stages={pipelineStages} />
             </div>
 
             {/* Revenue Chart with Clean Background */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
             <Card className="bg-transparent border-0 shadow-none p-0">
               <CardHeader className="pb-4 px-0 pt-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
-                      <Banknote className="h-6 w-6" />
-                    </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                    <Banknote className="h-6 w-6" />
                   </div>
-                <CardTitle className="text-2xl font-bold text-slate-900 tracking-tight">
-                  {t("dashboard.monthly_revenue") || "إيرادات الشهر"}
-                </CardTitle>
-                <CardDescription className="text-slate-500 mt-2 font-medium" style={{ lineHeight: '1.6' }}>
-                  {t("dashboard.revenue_description") || t("dashboard.pipeline_description") || "نظرة عامة على الإيرادات الشهرية"}
-                </CardDescription>
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-slate-900 tracking-tight">
+                      {t("dashboard.monthly_revenue") || "إيرادات الشهر"}
+                    </CardTitle>
+                    <CardDescription className="text-slate-500 mt-2 font-medium" style={{ lineHeight: '1.6' }}>
+                      {t("dashboard.revenue_description") || t("dashboard.pipeline_description") || "نظرة عامة على الإيرادات الشهرية"}
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="px-0 pb-0">
                 <RevenueChart />
@@ -332,18 +318,18 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl p-6 shadow-sm">
             <Card className="bg-transparent border-0 shadow-none p-0">
               <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between pb-6 px-0 pt-0">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
                     <Users className="h-6 w-6" />
                   </div>
+                  <div>
+                    <CardTitle className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">
+                      {t("dashboard.recent_leads")}
+                    </CardTitle>
+                    <CardDescription className="text-slate-500 font-medium" style={{ lineHeight: '1.6' }}>
+                      {t("dashboard.recent_leads_description")}
+                    </CardDescription>
                   </div>
-                  <CardTitle className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">
-                    {t("dashboard.recent_leads")}
-                  </CardTitle>
-                  <CardDescription className="text-slate-500 font-medium" style={{ lineHeight: '1.6' }}>
-                    {t("dashboard.recent_leads_description")}
-                  </CardDescription>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -365,7 +351,6 @@ export default function Dashboard() {
                 <EmptyState
                   title={t("dashboard.no_recent_leads")}
                   description={t("dashboard.no_recent_leads_description")}
-                  action={<Button onClick={() => setAddLeadDrawerOpen(true)}>{t("leads.add_lead")}</Button>}
                 />
               ) : (
                 <ul className="space-y-4" aria-live="polite">
@@ -398,17 +383,19 @@ export default function Dashboard() {
           {/* Enhanced Quick Actions */}
           <Card className={CARD_STYLES.container}>
             <CardHeader className={CARD_STYLES.header}>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
                   <Zap className="h-6 w-6" />
                 </div>
+                <div>
+                  <CardTitle className={TYPOGRAPHY.cardTitle}>
+                    {t("dashboard.quick_actions")}
+                  </CardTitle>
+                  <CardDescription className={TYPOGRAPHY.cardDescription}>
+                    {t("dashboard.quick_actions_description")}
+                  </CardDescription>
+                </div>
               </div>
-              <CardTitle className={TYPOGRAPHY.cardTitle}>
-                {t("dashboard.quick_actions")}
-              </CardTitle>
-              <CardDescription className={TYPOGRAPHY.cardDescription}>
-                {t("dashboard.quick_actions_description")}
-              </CardDescription>
             </CardHeader>
             <CardContent className={cn(CARD_STYLES.content, "space-y-3")}>
               {quickActions.map((action, index) => (
@@ -429,17 +416,19 @@ export default function Dashboard() {
           {/* Enhanced Today's Tasks */}
           <Card className={CARD_STYLES.container}>
             <CardHeader className={CARD_STYLES.header}>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
                   <ListTodo className="h-6 w-6" />
                 </div>
+                <div>
+                  <CardTitle className={TYPOGRAPHY.cardTitle}>
+                    {t("dashboard.tasks_title")}
+                  </CardTitle>
+                  <CardDescription className={TYPOGRAPHY.cardDescription}>
+                    {t("dashboard.tasks_description")}
+                  </CardDescription>
+                </div>
               </div>
-              <CardTitle className={TYPOGRAPHY.cardTitle}>
-                {t("dashboard.tasks_title")}
-              </CardTitle>
-              <CardDescription className={TYPOGRAPHY.cardDescription}>
-                {t("dashboard.tasks_description")}
-              </CardDescription>
             </CardHeader>
             <CardContent className={CARD_STYLES.content}>
               {activitiesLoading ? (
@@ -473,7 +462,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <AddLeadDrawer open={addLeadDrawerOpen} onOpenChange={setAddLeadDrawerOpen} />
       <AddPropertyDrawer open={addPropertyDrawerOpen} onOpenChange={setAddPropertyDrawerOpen} />
     </div>
   );

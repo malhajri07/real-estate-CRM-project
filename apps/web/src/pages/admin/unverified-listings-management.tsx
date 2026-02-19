@@ -108,7 +108,7 @@ export default function UnverifiedListingsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/unverified-listings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
       toast({
         title: "نجح",
         description: "تم قبول الإعلان بنجاح وأصبح جزءاً من المجموعة",
@@ -133,7 +133,7 @@ export default function UnverifiedListingsManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/unverified-listings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
       toast({
         title: "نجح",
         description: "تم رفض الإعلان بنجاح",

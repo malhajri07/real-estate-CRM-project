@@ -35,8 +35,8 @@ router.get("/", async (_req, res) => {
         const listings = await storage.getAgencyListings(a.id);
         return {
           id: a.id,
-          name: a.companyName || `${a.firstName || ''} ${a.lastName || ''}`.trim(),
-          verified: !!a.isVerified,
+          name: a.tradeName || a.legalName || a.id,
+          verified: a.status === 'ACTIVE',
           agentsCount: agents.length,
           listingsCount: listings.length,
         };

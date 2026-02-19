@@ -45,8 +45,9 @@ import {
 const app = express();
 
 // Configure Express middleware
-app.use(express.json()); // Parse JSON request bodies
-app.use(express.urlencoded({ extended: false })); // Parse URL-encoded request bodies
+// JSON limit 12MB to support unverified listings with base64 images (up to 10 images × ~1MB)
+app.use(express.json({ limit: "12mb" }));
+app.use(express.urlencoded({ extended: false, limit: "12mb" }));
 
 // Security headers with helmet
 app.use(helmet({

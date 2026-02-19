@@ -176,7 +176,7 @@ export default function CustomerRequestsPage() {
   }, [seekers]);
 
   return (
-    <main className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
         <Card className={CARD_STYLES.container}>
           <CardHeader className={cn(CARD_STYLES.header, "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between")}>
@@ -385,6 +385,6 @@ export default function CustomerRequestsPage() {
           </CardContent>
         </Card>
       </section>
-    </main>
+    </div>
   );
 }

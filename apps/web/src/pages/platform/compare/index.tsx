@@ -58,7 +58,7 @@ export default function ComparePage() {
   }, [ids]);
 
   return (
-    <main className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
         <Card className={CARD_STYLES.container}>
           <CardHeader className={CARD_STYLES.header}>
@@ -92,6 +92,6 @@ export default function ComparePage() {
           </div>
         )}
       </section>
-    </main>
+    </div>
   );
 }

@@ -17,9 +17,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, TABLE_STYLES, INPUT_STYLES, BADGE_STYLES } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Search, Download, RefreshCw } from "lucide-react";
 
 type RequestItem = {
   id: string;
@@ -101,73 +106,166 @@ export default function AdminRequestsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold">إدارة الطلبات العقارية</h1>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={onExport}>تصدير CSV</Button>
-          <Button variant="secondary" onClick={fetchData} disabled={loading}>{loading ? '...' : 'تحديث'}</Button>
-        </div>
-      </div>
+    <main className={PAGE_WRAPPER} dir="rtl">
+      <Card className={CARD_STYLES.container}>
+        <CardHeader className={CARD_STYLES.header}>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <CardTitle className={TYPOGRAPHY.pageTitle}>إدارة الطلبات العقارية</CardTitle>
+              <p className={TYPOGRAPHY.pageSubtitle}>عرض وإدارة طلبات العملاء العقارية</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" onClick={onExport} className="gap-2">
+                <Download className="h-4 w-4" />
+                تصدير CSV
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={fetchData} 
+                disabled={loading}
+                className="gap-2"
+              >
+                <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+                {loading ? 'جاري التحديث...' : 'تحديث'}
+              </Button>
+            </div>
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-        <Input placeholder="بحث بالاسم/البريد/المدينة" value={query} onChange={(e) => setQuery(e.target.value)} />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger><SelectValue placeholder="حالة الطلب" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">الكل</SelectItem>
-            <SelectItem value="new">جديد</SelectItem>
-            <SelectItem value="contacted">تم التواصل</SelectItem>
-            <SelectItem value="closed">مغلق</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="relative">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input 
+                placeholder="بحث بالاسم/البريد/المدينة" 
+                value={query} 
+                onChange={(e) => setQuery(e.target.value)} 
+                className={cn(INPUT_STYLES.search, "pr-10")}
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="bg-white border-slate-200">
+                <SelectValue placeholder="حالة الطلب" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">الكل</SelectItem>
+                <SelectItem value="new">جديد</SelectItem>
+                <SelectItem value="contacted">تم التواصل</SelectItem>
+                <SelectItem value="closed">مغلق</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
 
-      <div className="overflow-auto border rounded-md">
-        <table className="min-w-full text-sm">
-          <thead className="bg-slate-100">
-            <tr>
-              <th className="px-3 py-2 text-end">التاريخ</th>
-              <th className="px-3 py-2 text-end">العميل</th>
-              <th className="px-3 py-2 text-end">النوع</th>
-              <th className="px-3 py-2 text-end">المدن</th>
-              <th className="px-3 py-2 text-end">الأنواع</th>
-              <th className="px-3 py-2 text-end">السعر</th>
-              <th className="px-3 py-2 text-end">الغرف/حمامات</th>
-              <th className="px-3 py-2 text-end">المساحة</th>
-              <th className="px-3 py-2 text-end">الحالة</th>
-              <th className="px-3 py-2 text-end">إجراء</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((r) => (
-              <tr key={r.id} className="border-t">
-                <td className="px-3 py-2 whitespace-nowrap">{new Date(r.requestDate || r.createdAt).toLocaleString("ar-SA")}</td>
-                <td className="px-3 py-2">
-                  <div className="font-medium">{r.customerName}</div>
-                  <div className="text-xs text-gray-500">{r.customerEmail}{r.customerPhone ? ` • ${r.customerPhone}` : ''}</div>
-                </td>
-                <td className="px-3 py-2 whitespace-nowrap">{r.requestType === 'rent' ? `إيجار${r.pricePeriod ? ` (${r.pricePeriod === 'monthly' ? 'شهري' : 'سنوي'})` : ''}` : 'شراء'}</td>
-                <td className="px-3 py-2">{r.cities?.join(', ')}</td>
-                <td className="px-3 py-2">{r.propertyTypes?.join(', ')}</td>
-                <td className="px-3 py-2 whitespace-nowrap">{r.minPrice || r.maxPrice ? `${r.minPrice || ''} - ${r.maxPrice || ''}` : '-'}</td>
-                <td className="px-3 py-2 whitespace-nowrap">{r.minBedrooms || r.minBathrooms ? `${r.minBedrooms || 0} • ${r.minBathrooms || 0}` : '-'}</td>
-                <td className="px-3 py-2 whitespace-nowrap">{r.minArea || r.maxArea ? `${r.minArea || ''} - ${r.maxArea || ''}` : '-'}</td>
-                <td className="px-3 py-2 whitespace-nowrap">{r.status === 'new' ? 'جديد' : r.status === 'contacted' ? 'تم التواصل' : 'مغلق'}</td>
-                <td className="px-3 py-2 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" onClick={() => updateStatus(r.id, 'contacted')}>تم التواصل</Button>
-                    <Button size="sm" variant="destructive" onClick={() => updateStatus(r.id, 'closed')}>إغلاق</Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {filtered.length === 0 && (
-              <tr><td className="px-3 py-6 text-center text-gray-500" colSpan={10}>لا توجد طلبات</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className={TABLE_STYLES.container}>
+              <thead className={TABLE_STYLES.header}>
+                <tr>
+                  <th className={TABLE_STYLES.headerCell}>التاريخ</th>
+                  <th className={TABLE_STYLES.headerCell}>العميل</th>
+                  <th className={TABLE_STYLES.headerCell}>النوع</th>
+                  <th className={TABLE_STYLES.headerCell}>المدن</th>
+                  <th className={TABLE_STYLES.headerCell}>الأنواع</th>
+                  <th className={TABLE_STYLES.headerCell}>السعر</th>
+                  <th className={TABLE_STYLES.headerCell}>الغرف/حمامات</th>
+                  <th className={TABLE_STYLES.headerCell}>المساحة</th>
+                  <th className={TABLE_STYLES.headerCell}>الحالة</th>
+                  <th className={TABLE_STYLES.headerCell}>إجراء</th>
+                </tr>
+              </thead>
+              <tbody className={TABLE_STYLES.body}>
+                {filtered.map((r) => (
+                  <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className={TABLE_STYLES.cell}>
+                      <span className="whitespace-nowrap text-slate-500">
+                        {new Date(r.requestDate || r.createdAt).toLocaleDateString("ar-SA")}
+                      </span>
+                    </td>
+                    <td className={TABLE_STYLES.cell}>
+                      <div className="font-semibold text-slate-900">{r.customerName}</div>
+                      <div className="text-xs text-slate-500 mt-0.5">
+                        {r.customerEmail}
+                        {r.customerPhone && <span className="block">{r.customerPhone}</span>}
+                      </div>
+                    </td>
+                    <td className={TABLE_STYLES.cell}>
+                      <Badge variant="outline" className="bg-slate-50">
+                        {r.requestType === 'rent' ? `إيجار${r.pricePeriod ? ` (${r.pricePeriod === 'monthly' ? 'شهري' : 'سنوي'})` : ''}` : 'شراء'}
+                      </Badge>
+                    </td>
+                    <td className={TABLE_STYLES.cell}>
+                      <div className="max-w-[150px] truncate" title={r.cities?.join(', ')}>
+                        {r.cities?.join(', ') || '-'}
+                      </div>
+                    </td>
+                    <td className={TABLE_STYLES.cell}>
+                      <div className="max-w-[150px] truncate" title={r.propertyTypes?.join(', ')}>
+                        {r.propertyTypes?.join(', ') || '-'}
+                      </div>
+                    </td>
+                    <td className={TABLE_STYLES.cell}>
+                      <span className="font-medium text-emerald-600 whitespace-nowrap">
+                        {r.minPrice || r.maxPrice ? `${Number(r.minPrice || 0).toLocaleString()} - ${Number(r.maxPrice || 0).toLocaleString()}` : '-'}
+                      </span>
+                    </td>
+                    <td className={TABLE_STYLES.cell}>
+                      <span className="text-slate-600 whitespace-nowrap">
+                        {r.minBedrooms || r.minBathrooms ? `${r.minBedrooms || 0} غرف • ${r.minBathrooms || 0} حمام` : '-'}
+                      </span>
+                    </td>
+                    <td className={TABLE_STYLES.cell}>
+                      <span className="text-slate-600 whitespace-nowrap">
+                        {r.minArea || r.maxArea ? `${r.minArea || 0} - ${r.maxArea || 0} م²` : '-'}
+                      </span>
+                    </td>
+                    <td className={TABLE_STYLES.cell}>
+                      <Badge className={cn(
+                        BADGE_STYLES.base,
+                        r.status === 'new' ? BADGE_STYLES.warning :
+                        r.status === 'contacted' ? BADGE_STYLES.info :
+                        BADGE_STYLES.secondary
+                      )}>
+                        {r.status === 'new' ? 'جديد' : r.status === 'contacted' ? 'تم التواصل' : 'مغلق'}
+                      </Badge>
+                    </td>
+                    <td className={TABLE_STYLES.cell}>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          onClick={() => updateStatus(r.id, 'contacted')}
+                          disabled={r.status === 'contacted'}
+                          className="h-8 text-xs"
+                        >
+                          تواصل
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost" 
+                          onClick={() => updateStatus(r.id, 'closed')}
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          title="إغلاق الطلب"
+                        >
+                          ✕
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td className="px-6 py-12 text-center text-slate-500" colSpan={10}>
+                      <div className="flex flex-col items-center gap-2">
+                        <Search className="h-8 w-8 opacity-20" />
+                        <p>لا توجد طلبات مطابقة للبحث</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </main>
   );
 }

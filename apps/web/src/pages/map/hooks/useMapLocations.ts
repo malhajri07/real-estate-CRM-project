@@ -25,6 +25,20 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { RegionPayload, CityPayload, DistrictPayload, Option, CityOption, DistrictOption } from "../types";
 
+/**
+ * Hook for fetching regions with boundaries (for map polygon display)
+ */
+export function useMapRegionsWithBoundaries() {
+  return useQuery<RegionPayload[]>({
+    queryKey: ["locations", "regions", "withBoundary"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/locations/regions?includeBoundary=true");
+      return (await response.json()) as RegionPayload[];
+    },
+    staleTime: 60 * 60 * 1000, // 1 hour
+  });
+}
+
 export function useMapLocations(selectedRegion: string) {
   // Fetch regions
   const regionsQuery = useQuery<RegionPayload[]>({

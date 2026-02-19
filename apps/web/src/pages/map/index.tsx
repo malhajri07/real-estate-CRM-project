@@ -39,7 +39,7 @@ import { cn } from "@/lib/utils";
 import { formatCurrency } from "./utils/formatters";
 import { normalizeBoundaryToPolygon } from "./utils/map-helpers";
 import { DEFAULT_FILTERS } from "./utils/constants";
-import type { FilterState, CityQuickFilterOption, DistrictPolygonShape } from "./types";
+import type { FilterState, CityQuickFilterOption, DistrictPolygonShape, RegionPolygonShape } from "./types";
 import {
   PropertiesMapErrorBoundary,
   FilterContent,
@@ -49,6 +49,7 @@ import {
 import {
   useMapLocations,
   useMapDistricts,
+  useMapRegionsWithBoundaries,
   useMapProperties,
   useMapFilters,
   useMapView,
@@ -128,6 +129,9 @@ export default function MapPage() {
   // Fetch districts for the selected city
   const { districtsQuery, districtOptions } = useMapDistricts(boundaryCityId);
 
+  // Fetch regions with boundaries for map polygons
+  const { data: regionsWithBoundaries } = useMapRegionsWithBoundaries();
+
   // Filter city options by selected region
   const filteredCityOptions = useMemo(() => {
     if (filters.region === "all") return cityOptions;
@@ -173,6 +177,25 @@ export default function MapPage() {
       isFilterMatch: filters.district !== "all",
     };
   }, [districtsQuery.data, selectedDistrictId, filters.district]);
+
+  // Build region polygons for map display
+  const regionPolygons = useMemo<RegionPolygonShape[]>(() => {
+    if (!regionsWithBoundaries?.length) return [];
+    const selectedRegionId = filters.region !== "all" ? filters.region : null;
+    return regionsWithBoundaries
+      .filter((r) => r.boundary != null)
+      .filter((r) => !selectedRegionId || String(r.id) === selectedRegionId)
+      .map((region) => {
+        const paths = normalizeBoundaryToPolygon(region.boundary);
+        if (!paths.length) return null;
+        return {
+          paths,
+          regionId: region.id,
+          isFilterMatch: selectedRegionId !== null && String(region.id) === selectedRegionId,
+        };
+      })
+      .filter((p): p is RegionPolygonShape => p !== null);
+  }, [regionsWithBoundaries, filters.region]);
 
   // Get favorite properties
   const favoriteProperties = useMemo(
@@ -572,6 +595,7 @@ export default function MapPage() {
                         onNavigate={handleNavigate}
                         isClient={isClient}
                         districtPolygon={districtPolygon}
+                        regionPolygons={regionPolygons}
                       />
                     </PropertiesMapErrorBoundary>
                   )}

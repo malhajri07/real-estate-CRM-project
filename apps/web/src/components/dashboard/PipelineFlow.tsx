@@ -7,7 +7,6 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DateRangeFilter } from "./DateRangeFilter";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, TrendingUp } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -20,31 +19,27 @@ interface PipelineStage {
 
 interface PipelineFlowProps {
   stages: PipelineStage[];
-  dateFormatter: Intl.DateTimeFormat;
 }
 
-export function PipelineFlow({ stages, dateFormatter }: PipelineFlowProps) {
+export function PipelineFlow({ stages }: PipelineFlowProps) {
   const { t, dir } = useLanguage();
   const total = stages.reduce((sum, stage) => sum + stage.value, 0);
 
   return (
     <Card className="bg-transparent border-0 shadow-none overflow-hidden">
-      <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between pb-6">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
-              <TrendingUp className="h-6 w-6" />
-            </div>
+      <CardHeader className="pb-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+            <TrendingUp className="h-6 w-6" />
           </div>
-          <CardTitle className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">
-            {t("dashboard.pipeline_stages")}
-          </CardTitle>
-          <CardDescription className="text-slate-600" style={{ lineHeight: '1.8' }}>
-            {t("dashboard.pipeline_description")}
-          </CardDescription>
-        </div>
-        <div className="flex items-center gap-2">
-          <DateRangeFilter />
+          <div>
+            <CardTitle className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">
+              {t("dashboard.pipeline_stages")}
+            </CardTitle>
+            <CardDescription className="text-slate-600" style={{ lineHeight: '1.8' }}>
+              {t("dashboard.pipeline_description")}
+            </CardDescription>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -60,7 +55,6 @@ export function PipelineFlow({ stages, dateFormatter }: PipelineFlowProps) {
             {stages.map((stage, index) => {
               const percentage = total > 0 ? (stage.value / total) * 100 : 0;
               const isRTL = dir === "rtl";
-              const flowDirection = isRTL ? -1 : 1;
 
               return (
                 <motion.div
@@ -71,8 +65,8 @@ export function PipelineFlow({ stages, dateFormatter }: PipelineFlowProps) {
                   whileHover={{ scale: 1.05, y: -4 }}
                   className="group relative"
                 >
-                  {/* Stage Card */}
-                  <div className="rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white text-center cursor-pointer">
+                  {/* Stage Card - fixed height for consistent layout */}
+                  <div className="rounded-2xl p-5 min-h-[140px] flex flex-col items-center justify-center border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white text-center cursor-pointer">
                     {/* Progress Bar */}
                     <div className="absolute bottom-0 start-0 end-0 h-1 bg-emerald-500 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{ height: `${Math.max(percentage / 10, 2)}px` }}
@@ -104,15 +98,15 @@ export function PipelineFlow({ stages, dateFormatter }: PipelineFlowProps) {
                     )}
                   </div>
 
-                  {/* Flow Arrow (between stages) */}
+                  {/* Flow Arrow (between stages) - RTL: point left; LTR: point right */}
                   {index < stages.length - 1 && (
                     <div className="hidden sm:block absolute top-1/2 -end-2 z-20"
                       style={{ transform: 'translateY(-50%)' }}
                     >
                       {isRTL ? (
-                        <ArrowRight className="h-5 w-5 text-slate-400 opacity-50" />
-                      ) : (
                         <ArrowLeft className="h-5 w-5 text-slate-400 opacity-50" />
+                      ) : (
+                        <ArrowRight className="h-5 w-5 text-slate-400 opacity-50" />
                       )}
                     </div>
                   )}

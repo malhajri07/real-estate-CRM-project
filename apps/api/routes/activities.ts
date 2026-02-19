@@ -26,6 +26,16 @@ function decodeAuth(req: any): { id?: string; roles: string[]; organizationId?: 
     } catch { return { roles: [] }; }
 }
 
+// GET / - List activities (today's by default, supports activities page)
+router.get("/", async (req, res) => {
+    try {
+        const activities = await storage.getTodaysActivities();
+        res.json(activities);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch activities" });
+    }
+});
+
 router.get("/lead/:leadId", async (req, res) => {
     try {
         const activities = await storage.getActivitiesByLead(req.params.leadId);

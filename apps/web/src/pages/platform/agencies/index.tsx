@@ -30,11 +30,11 @@ export default function AgenciesPage() {
   
   if (isLoading) {
     return (
-      <main className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
         <div className={LOADING_STYLES.container}>
           <div className={LOADING_STYLES.text}>...جار التحميل</div>
         </div>
-      </main>
+      </div>
     );
   }
   
@@ -51,7 +51,7 @@ export default function AgenciesPage() {
   }
 
   return (
-    <main className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {data.map((a) => (
@@ -75,6 +75,6 @@ export default function AgenciesPage() {
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

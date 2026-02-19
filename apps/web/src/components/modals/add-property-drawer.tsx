@@ -51,17 +51,12 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
 
   // Fetch regions, cities and districts from the database
   const { data: regions, isLoading: regionsLoading } = useQuery({
-    queryKey: ["/api/regions"],
+    queryKey: ["/api/locations/regions"],
     enabled: open,
   });
 
   const { data: cities, isLoading: citiesLoading } = useQuery({
-    queryKey: ["/api/saudi-cities"],
-    enabled: open,
-  });
-
-  const { data: districts, isLoading: districtsLoading } = useQuery({
-    queryKey: ["/api/districts"],
+    queryKey: ["/api/locations/saudi-cities"],
     enabled: open,
   });
 
@@ -84,6 +79,18 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
       features: [],
       status: "active",
     },
+  });
+
+  const cityId = form.watch("city");
+  const { data: districts, isLoading: districtsLoading } = useQuery({
+    queryKey: ["/api/locations/districts", cityId],
+    queryFn: async () => {
+      if (!cityId) return [];
+      const res = await fetch(`/api/locations/districts?cityId=${cityId}`);
+      if (!res.ok) throw new Error("Failed to fetch districts");
+      return res.json();
+    },
+    enabled: open && !!cityId,
   });
 
   // Image handling functions
@@ -159,7 +166,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
       toast({ title: "نجح", description: "تم إنشاء العقار بنجاح" });
       onOpenChange(false);
       form.reset();

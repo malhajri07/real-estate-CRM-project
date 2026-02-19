@@ -36,7 +36,11 @@ export const toBoundaryLatLngLiteral = (point: unknown): LatLngLiteral | null =>
 };
 
 /**
- * Builds polygon rings from coordinate arrays
+ * Builds polygon rings from coordinate arrays.
+ * Supports:
+ * - Homaily format: [[[lat, lon], [lat, lon], ...]] (Lat, Lon per homaily README)
+ * - GeoJSON format: [[[lon, lat], [lon, lat], ...]]
+ * - Flat array: [lng, lat, lng, lat, ...]
  */
 export const buildRingsFromCoordinates = (coords: unknown): LatLngLiteral[][] => {
   if (!Array.isArray(coords) || coords.length === 0) return [];
@@ -44,8 +48,8 @@ export const buildRingsFromCoordinates = (coords: unknown): LatLngLiteral[][] =>
   const first = coords[0];
 
   if (typeof first === "number") {
-    // Assume [lng, lat, lng, lat, ...] flat array
-    const ring: google.maps.LatLngLiteral[] = [];
+    // Flat array: [lng, lat, lng, lat, ...] (GeoJSON)
+    const ring: LatLngLiteral[] = [];
     for (let i = 0; i < coords.length; i += 2) {
       const lng = coords[i];
       const lat = coords[i + 1];
@@ -54,13 +58,38 @@ export const buildRingsFromCoordinates = (coords: unknown): LatLngLiteral[][] =>
       }
     }
     if (ring.length >= 3) {
-      // Reverse to ensure correct polygon orientation
       return [[...ring].reverse()];
     }
     return [];
   }
 
   if (Array.isArray(first)) {
+    // Nested: [[a,b],[a,b],...] or [[[a,b],...],[[a,b],...]]
+    const firstLen = first.length;
+    const firstEl = first[0];
+
+    if (firstLen === 2 && typeof firstEl === "number") {
+      // Homaily format: [[lat, lon], [lat, lon], ...] - array of [lat, lon] pairs
+      const ring: LatLngLiteral[] = [];
+      for (const pair of coords as unknown[]) {
+        if (Array.isArray(pair) && pair.length >= 2) {
+          const lat = pair[0];
+          const lng = pair[1];
+          if (typeof lat === "number" && typeof lng === "number" && Number.isFinite(lat) && Number.isFinite(lng)) {
+            ring.push({ lat, lng });
+          }
+        }
+      }
+      if (ring.length >= 3) return [ring];
+      return [];
+    }
+
+    if (Array.isArray(firstEl) && firstEl.length === 2) {
+      // [[[lat,lon],[lat,lon],...], [[lat,lon],...]] - array of rings
+      return (coords as unknown[]).flatMap((ring) => buildRingsFromCoordinates(ring));
+    }
+
+    // GeoJSON: [[[lon,lat],[lon,lat],...]] - ring of [lon,lat]
     return (coords as unknown[]).flatMap((ring) => buildRingsFromCoordinates(ring));
   }
 

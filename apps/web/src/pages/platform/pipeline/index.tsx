@@ -18,7 +18,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -103,7 +103,7 @@ export default function Pipeline() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/deals"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
       toast({ title: "نجح", description: "تم تحديث مرحلة الصفقة بنجاح" });
     },
     onError: () => {
@@ -243,7 +243,7 @@ export default function Pipeline() {
   }
 
   return (
-    <main className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
       <div className={cn(CARD_STYLES.container, "p-6")}>
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-1 text-end">
@@ -424,6 +424,6 @@ export default function Pipeline() {
           </aside>
         </>
       )}
-    </main>
+    </div>
   );
 }

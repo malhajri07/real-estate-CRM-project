@@ -65,23 +65,6 @@ router.get("/:id", authenticateToken, async (req, res) => {
   }
 });
 
-router.post("/", authenticateToken, requireAnyPerm(['requests:manage:all', 'requests:manage:corporate', 'requests:pool:pickup']), async (req, res) => {
-  try {
-    const validatedData = leadSchemas.create.parse(req.body);
-    const user = (req as any).user;
-
-    // const tenantId = auth.organizationId ?? "default-tenant"; // unused
-    const lead = await storage.createLead(validatedData, user.id);
-    res.status(201).json(lead);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json(getErrorResponse('VALIDATION_ERROR', (req as any).locale, error.errors));
-    }
-    const message = error instanceof Error ? error.message : "Failed to create lead";
-    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale, { originalError: message }));
-  }
-});
-
 router.put("/:id", authenticateToken, requireAnyPerm(['requests:manage:all', 'requests:manage:corporate', 'requests:pool:pickup']), async (req, res) => {
   try {
     const validatedData = leadSchemas.update.parse(req.body);

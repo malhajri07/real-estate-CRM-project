@@ -18,7 +18,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2, Edit, Plus, Phone, Mail, Filter, SlidersHorizontal, Search, AlertTriangle } from "lucide-react";
+import { Trash2, Edit, Phone, Mail, Filter, SlidersHorizontal, Search, AlertTriangle } from "lucide-react";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,6 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import AddLeadDrawer from "@/components/modals/add-lead-drawer";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Lead } from "@shared/types";
@@ -38,7 +37,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Customers() {
   const { dir } = useLanguage();
-  const [addLeadDrawerOpen, setAddLeadDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -69,7 +67,7 @@ export default function Customers() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
       toast({ title: "نجح", description: "تم حذف العميل المحتمل بنجاح" });
     },
     onError: () => {
@@ -294,9 +292,8 @@ export default function Customers() {
   }
 
   return (
-    <>
-      <main className={PAGE_WRAPPER} dir={dir}>
-        <Card className={CARD_STYLES.container}>
+    <div className={PAGE_WRAPPER} dir={dir}>
+      <Card className={CARD_STYLES.container}>
           <CardHeader className={CARD_STYLES.header}>
             <div className="flex items-center justify-between mb-4">
               <CardTitle className={TYPOGRAPHY.cardTitle}>
@@ -312,13 +309,6 @@ export default function Customers() {
                 >
                   <SlidersHorizontal size={16} className="ml-2" />
                   الفلاتر
-                </Button>
-                <Button 
-                  onClick={() => setAddLeadDrawerOpen(true)}
-                  className={BUTTON_PRIMARY_CLASSES}
-                >
-                  <Plus className="ml-2" size={16} />
-                  إضافة عميل محتمل
                 </Button>
               </div>
             </div>
@@ -591,12 +581,7 @@ export default function Customers() {
             )}
           </CardContent>
         </Card>
-      </main>
-
-      <AddLeadDrawer 
-        open={addLeadDrawerOpen} 
-        onOpenChange={setAddLeadDrawerOpen}
-      />
+      </Card>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -654,6 +639,6 @@ export default function Customers() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

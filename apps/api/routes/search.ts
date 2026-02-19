@@ -85,8 +85,6 @@ router.delete("/saved/:id", async (req, res) => {
   }
 });
 
-export default router;
-
 // Simulate running saved search alerts (dev helper)
 router.post("/run-alerts", async (req, res) => {
   try {
@@ -107,3 +105,5 @@ router.post("/run-alerts", async (req, res) => {
     res.status(500).json({ message: "Failed to run alerts" });
   }
 });
+
+export default router;

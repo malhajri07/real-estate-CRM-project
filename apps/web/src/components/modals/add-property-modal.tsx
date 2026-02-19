@@ -66,7 +66,7 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/metrics"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
       toast({ title: "Success", description: "Property created successfully" });
       onOpenChange(false);
       form.reset();
