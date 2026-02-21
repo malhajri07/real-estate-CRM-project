@@ -1,0 +1,56 @@
+---
+description: Only call APIs and functions when needed - avoid over-fetching and redundant calls
+globs: apps/web/**/*.{ts,tsx},apps/api/routes/**/*.ts,apps/api/**/*.ts
+alwaysApply: false
+---
+
+# Call Only What You Need
+
+When adding or modifying API calls or function invocations, call **only what is necessary** for the current use case.
+
+## API Calls
+
+### React Query / Data Fetching
+
+```tsx
+// ❌ BAD - Fetches even when drawer is closed
+const { data } = useQuery({ queryKey: ["/api/requests"] });
+
+// ✅ GOOD - Fetch only when needed
+const { data } = useQuery({
+  queryKey: ["/api/requests"],
+  enabled: showRequestDrawer,
+});
+```
+
+### Use the Right Endpoint
+
+- Prefer specific endpoints over generic ones when you only need a subset (e.g. `/api/activities/today` instead of `/api/activities` when you only need today's data).
+- Don't fetch full objects when you only need IDs or counts unless required.
+
+### Avoid Redundant Fetches
+
+- Don't call the same API twice in parallel for the same data; share via query keys or context.
+- Invalidate or refetch only when the underlying data has changed.
+
+## Function Calls
+
+### Call Functions Only When Needed
+
+```tsx
+// ❌ BAD - Calls formatCurrency on every render even when value is null
+const display = formatCurrency(deal.dealValue);
+
+// ✅ GOOD - Call only when value exists and is displayed
+const display = deal.dealValue != null ? formatCurrency(deal.dealValue) : "—";
+```
+
+### Avoid Unnecessary Computations
+
+- Don't call heavy helpers in render loops if the result isn't used.
+- Use `useMemo` for derived data that depends on props/state; compute only when inputs change.
+
+## API Routes (Backend)
+
+- Only query the database fields needed for the response; avoid `SELECT *` when a subset suffices.
+- Don't join tables or run extra queries if the client doesn't need that data.
