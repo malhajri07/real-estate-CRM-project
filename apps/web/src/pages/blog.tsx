@@ -183,10 +183,10 @@ export default function BlogPage() {
     // Single article view
     if (isLoadingArticle) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white" dir="rtl">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white" dir="rtl">
           <PublicHeader />
           <div className="max-w-4xl mx-auto px-4 py-16">
-            <div className="text-center text-gray-600">جار التحميل...</div>
+            <div className="text-center text-slate-600">جار التحميل...</div>
           </div>
         </div>
       );
@@ -194,13 +194,13 @@ export default function BlogPage() {
 
     if (!article) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white" dir="rtl">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white" dir="rtl">
           <PublicHeader />
           <div className="max-w-4xl mx-auto px-4 py-16">
             <Card>
               <CardContent className="p-8 text-center">
                 <h1 className="text-2xl font-bold mb-4">المقال غير موجود</h1>
-                <p className="text-gray-600 mb-6">عذراً، لم يتم العثور على المقال المطلوب.</p>
+                <p className="text-slate-600 mb-6">عذراً، لم يتم العثور على المقال المطلوب.</p>
                 <Button onClick={() => setLocation("/blog")} className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
                   العودة إلى المدونة
@@ -213,7 +213,7 @@ export default function BlogPage() {
     }
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white" dir="rtl">
         <PublicHeader />
         <article className="max-w-4xl mx-auto px-4 py-8">
           <div className="mb-6">
@@ -235,8 +235,8 @@ export default function BlogPage() {
               </div>
             )}
             <CardContent className="p-6 md:p-8">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">{article.title}</h1>
-              <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-600">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">{article.title}</h1>
+              <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-slate-600">
                 {article.publishedAt && (
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
@@ -258,27 +258,27 @@ export default function BlogPage() {
                 )}
               </div>
               {article.excerpt && (
-                <p className="text-lg text-gray-700 mb-8 leading-relaxed">{article.excerpt}</p>
+                <p className="text-lg text-slate-700 mb-8 leading-relaxed">{article.excerpt}</p>
               )}
               <div
-                className="prose prose-lg max-w-none mb-8 prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-emerald-600 prose-strong:text-gray-900"
+                className="prose prose-lg max-w-none mb-8 prose-headings:text-slate-900 prose-p:text-slate-700 prose-a:text-emerald-600 prose-strong:text-slate-900"
                 dangerouslySetInnerHTML={{ __html: article.content }}
               />
               {article.tags.length > 0 && (
-                <div className="mb-8 pt-6 border-t border-gray-200">
+                <div className="mb-8 pt-6 border-t border-slate-200">
                   <div className="flex flex-wrap gap-2">
-                    <span className="text-sm text-gray-600 font-medium">الوسوم:</span>
+                    <span className="text-sm text-slate-600 font-medium">الوسوم:</span>
                     {article.tags.map((tag) => (
-                      <Badge key={tag.id} variant="secondary" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
+                      <Badge key={tag.id} variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200">
                         {tag.name}
                       </Badge>
                     ))}
                   </div>
                 </div>
               )}
-              <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="mt-8 pt-6 border-t border-slate-200">
                 <div className="flex flex-wrap items-center gap-4">
-                  <span className="text-sm font-medium text-gray-700">شارك المقال:</span>
+                  <span className="text-sm font-medium text-slate-700">شارك المقال:</span>
                   <div className="flex flex-wrap gap-2">
                     <Button
                       variant="outline"
@@ -328,18 +328,18 @@ export default function BlogPage() {
 
   // Article list view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white" dir="rtl">
       <PublicHeader />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Header Section */}
         <div className="mb-8 md:mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">المدونة</h1>
-          <p className="text-lg text-gray-600 mb-6">اقرأ آخر المقالات والأخبار في عالم العقارات</p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900">المدونة</h1>
+          <p className="text-lg text-slate-600 mb-6">اقرأ آخر المقالات والأخبار في عالم العقارات</p>
           
           {/* Search Bar */}
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute end-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
               <Input
                 placeholder="بحث في المقالات..."
                 value={searchTerm}
@@ -372,7 +372,7 @@ export default function BlogPage() {
                   className={cn(
                     selectedCategory === null
                       ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : "bg-white hover:bg-gray-50"
+                      : "bg-white hover:bg-slate-50"
                   )}
                 >
                   الكل
@@ -389,7 +389,7 @@ export default function BlogPage() {
                     className={cn(
                       selectedCategory === category.id
                         ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                        : "bg-white hover:bg-gray-50"
+                        : "bg-white hover:bg-slate-50"
                     )}
                   >
                     {category.name}
@@ -429,12 +429,12 @@ export default function BlogPage() {
         {/* Articles Grid */}
         {isLoading ? (
           <div className="text-center py-16">
-            <div className="text-gray-600">جار التحميل...</div>
+            <div className="text-slate-600">جار التحميل...</div>
           </div>
         ) : !data?.items.length ? (
           <Card>
             <CardContent className="p-12 text-center">
-              <div className="text-gray-500 text-lg mb-4">لا توجد مقالات</div>
+              <div className="text-slate-500 text-lg mb-4">لا توجد مقالات</div>
               {hasActiveFilters && (
                 <Button variant="outline" onClick={clearFilters} className="gap-2">
                   <X className="h-4 w-4" />
@@ -458,7 +458,7 @@ export default function BlogPage() {
                     </div>
                   )}
                   <CardContent className="p-6 flex-1 flex flex-col">
-                    <div className="flex flex-wrap items-center gap-2 mb-3 text-xs text-gray-500">
+                    <div className="flex flex-wrap items-center gap-2 mb-3 text-xs text-slate-500">
                       {article.publishedAt && (
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
@@ -472,12 +472,12 @@ export default function BlogPage() {
                       )}
                     </div>
                     <Link href={`/blog/${article.slug}`}>
-                      <h2 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-emerald-600 transition-colors cursor-pointer line-clamp-2">
+                      <h2 className="text-xl font-bold mb-3 text-slate-900 group-hover:text-emerald-600 transition-colors cursor-pointer line-clamp-2">
                         {article.title}
                       </h2>
                     </Link>
                     {article.excerpt && (
-                      <p className="text-gray-600 mb-4 line-clamp-3 flex-1">{article.excerpt}</p>
+                      <p className="text-slate-600 mb-4 line-clamp-3 flex-1">{article.excerpt}</p>
                     )}
                     <Link href={`/blog/${article.slug}`}>
                       <Button variant="outline" className="w-full mt-auto">
@@ -501,7 +501,7 @@ export default function BlogPage() {
                   <ArrowLeft className="h-4 w-4" />
                   السابق
                 </Button>
-                <span className="px-4 py-2 text-gray-700">
+                <span className="px-4 py-2 text-slate-700">
                   صفحة {page} من {data.totalPages}
                 </span>
                 <Button

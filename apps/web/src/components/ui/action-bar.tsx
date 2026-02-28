@@ -15,7 +15,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { COMPONENT_STYLES } from '@/config/theme';
+import { ACTION_BAR_STYLES } from '@/config/platform-theme';
 
 interface ActionBarProps {
   title?: string;
@@ -40,23 +40,23 @@ export default function ActionBar({
   className 
 }: ActionBarProps) {
   return (
-    <div className={cn(COMPONENT_STYLES.actionBar, className)}>
+    <div className={cn(ACTION_BAR_STYLES.container, className)}>
       {(title || subtitle) && (
         <div className="flex-1 min-w-0">
           {title && (
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-slate-900">
               {title}
             </h2>
           )}
           {subtitle && (
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-slate-600 mt-1">
               {subtitle}
             </p>
           )}
         </div>
       )}
       {children && (
-        <div className={COMPONENT_STYLES.actionButtons}>
+        <div className={ACTION_BAR_STYLES.buttons}>
           {children}
         </div>
       )}

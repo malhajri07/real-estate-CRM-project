@@ -16,7 +16,7 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { COMPONENT_STYLES } from '@/config/theme';
+import { LOADING_STYLES } from '@/config/platform-theme';
 
 interface LoadingStateProps {
   message?: string;
@@ -46,8 +46,8 @@ export default function LoadingState({
 
   return (
     <div className={cn('flex flex-col items-center justify-center py-8', className)}>
-      <Loader2 className={cn('animate-spin text-blue-600', sizeClasses[size])} />
-      <p className={cn(COMPONENT_STYLES.loadingText, 'mt-2')}>
+      <Loader2 className={cn('animate-spin rounded-full border-b-2 border-emerald-600', sizeClasses[size])} />
+      <p className={cn(LOADING_STYLES.text, 'mt-2')}>
         {message}
       </p>
     </div>

@@ -15,7 +15,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { COMPONENT_STYLES } from '@/config/theme';
+import { TYPOGRAPHY } from '@/config/platform-theme';
 
 interface PageHeaderProps {
   title: string;
@@ -40,13 +40,13 @@ export default function PageHeader({
   className 
 }: PageHeaderProps) {
   return (
-    <div className={cn(COMPONENT_STYLES.pageHeader, className)}>
+    <div className={cn("mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4", className)}>
       <div className="flex-1 min-w-0">
-        <h1 className={COMPONENT_STYLES.pageTitle}>
+        <h1 className={TYPOGRAPHY.pageTitle}>
           {title}
         </h1>
         {subtitle && (
-          <p className={COMPONENT_STYLES.pageSubtitle}>
+          <p className={TYPOGRAPHY.pageSubtitle}>
             {subtitle}
           </p>
         )}
