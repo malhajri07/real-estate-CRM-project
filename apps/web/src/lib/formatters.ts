@@ -50,3 +50,23 @@ export const formatAdminDateTime = (
   value?: string | null,
   options: Intl.DateTimeFormatOptions = DEFAULT_DATETIME_OPTIONS,
 ): string => formatAdminDate(value, options);
+
+/** Format number with en-US locale (Western digits 0-9) */
+export const formatNumber = (value?: number | null): string =>
+  (value ?? 0).toLocaleString(NUMERIC_LOCALE);
+
+/** Format price/currency with en-US locale */
+export const formatPrice = (
+  value?: number | null,
+  currency: string = "SAR",
+  options?: Intl.NumberFormatOptions
+): string => {
+  if (value == null || Number.isNaN(value)) return "—";
+  return new Intl.NumberFormat(NUMERIC_LOCALE, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+    ...options,
+  }).format(value);
+};

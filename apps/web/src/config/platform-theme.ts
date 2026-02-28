@@ -59,11 +59,11 @@ export const CARD_STYLES = {
   content: 'px-6 pb-6 pt-2',
 } as const;
 
-// Accent card variants (for section emphasis) - simplified
+// Accent card variants (for section emphasis) - simplified (border-s for RTL)
 export const CARD_ACCENTS = {
-  emerald: 'bg-white border-l-4 border-emerald-500',
-  indigo: 'bg-white border-l-4 border-indigo-500',
-  blue: 'bg-white border-l-4 border-blue-500',
+  emerald: 'bg-white border-s-4 border-emerald-500',
+  indigo: 'bg-white border-s-4 border-indigo-500',
+  blue: 'bg-white border-s-4 border-blue-500',
 } as const;
 
 // Table styles - logical text-start, slate palette

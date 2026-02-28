@@ -25,13 +25,16 @@ import { Badge } from "@/components/ui/badge";
 // import { PropertyMap } from "@/components/ui/property-map"; // Map component removed
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 import { useToast } from "@/hooks/use-toast";
-import { getPropertyStatusBadge } from "@/config/platform-theme";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getPropertyStatusBadge, getIconSpacing } from "@/config/platform-theme";
 import type { Property } from "@shared/types";
 
 export default function PropertyDetail() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { dir, language } = useLanguage();
+  const locale = language === "ar" ? "ar-SA" : "en-US";
 
   const { data: property, isLoading, error } = useQuery<Property>({
     queryKey: ["/api/listings", id],
@@ -139,12 +142,12 @@ export default function PropertyDetail() {
             {/* Share Dropdown */}
             <div className="relative group">
               <Button variant="outline" size="sm" className="rounded-xl">
-                <Share2 size={16} className="ml-2" />
+                <Share2 size={16} className={getIconSpacing(dir)} />
                 مشاركة
               </Button>
 
               {/* Share Dropdown Menu */}
-              <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-[140px]">
+              <div className="absolute top-full start-0 mt-2 bg-white rounded-lg shadow-lg border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-[140px]">
                 <div className="p-2 space-y-1">
                   <button
                     onClick={() => shareProperty(property, 'whatsapp')}
@@ -169,7 +172,7 @@ export default function PropertyDetail() {
             </div>
 
             <Button variant="outline" size="sm" className="rounded-xl">
-              <Edit size={16} className="ml-2" />
+              <Edit size={16} className={getIconSpacing(dir)} />
               تعديل
             </Button>
           </div>
@@ -263,11 +266,11 @@ export default function PropertyDetail() {
 
                       <div className="flex justify-between">
                         <span className="text-slate-500">تاريخ الإضافة</span>
-                        <span>{new Date(property.createdAt).toLocaleDateString('en-US')}</span>
+                        <span>{new Date(property.createdAt).toLocaleDateString(locale)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-500">آخر تحديث</span>
-                        <span>{new Date(property.updatedAt).toLocaleDateString('en-US')}</span>
+                        <span>{new Date(property.updatedAt).toLocaleDateString(locale)}</span>
                       </div>
                     </div>
                   </div>

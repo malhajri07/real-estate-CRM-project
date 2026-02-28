@@ -26,7 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, User, Save, Upload, Shield, Bell, Users, CheckCircle, TrendingUp, ChevronDown } from "lucide-react";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES } from "@/config/platform-theme";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -124,7 +124,7 @@ export default function Settings() {
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
           <Button variant="outline" size="sm" className={cn("rounded-xl", BUTTON_PRIMARY_CLASSES)} onClick={handleAccountSave}>
-            <Save size={16} className="ml-2" /> حفظ التغييرات
+            <Save size={16} className={getIconSpacing(dir)} /> حفظ التغييرات
           </Button>
         </div>
         </div>
@@ -521,8 +521,8 @@ export default function Settings() {
           </CardHeader>
           <CardContent className={`space-y-4 pt-6 ${notificationsOpen ? "" : "hidden"}`}>
             <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-              <input type="checkbox" defaultChecked className="toggle ml-4" data-testid="toggle-new-leads" />
-              <div className="flex-1 pr-4">
+              <input type="checkbox" defaultChecked className="toggle ms-4" data-testid="toggle-new-leads" />
+              <div className="flex-1 pe-4">
                 <div className="font-medium text-slate-900 mb-1">عملاء محتملين جدد</div>
                 <div className="text-sm text-slate-500">إشعار عند إضافة عملاء محتملين جدد</div>
               </div>
@@ -531,8 +531,8 @@ export default function Settings() {
               </div>
             </div>
             <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-              <input type="checkbox" defaultChecked className="toggle ml-4" data-testid="toggle-task-updates" />
-              <div className="flex-1 pr-4">
+              <input type="checkbox" defaultChecked className="toggle ms-4" data-testid="toggle-task-updates" />
+              <div className="flex-1 pe-4">
                 <div className="font-medium text-slate-900 mb-1">تحديثات المهام</div>
                 <div className="text-sm text-slate-500">إشعار عند اكتمال أو تحديث المهام</div>
               </div>
@@ -541,8 +541,8 @@ export default function Settings() {
               </div>
             </div>
             <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-              <input type="checkbox" defaultChecked className="toggle ml-4" data-testid="toggle-new-deals" />
-              <div className="flex-1 pr-4">
+              <input type="checkbox" defaultChecked className="toggle ms-4" data-testid="toggle-new-deals" />
+              <div className="flex-1 pe-4">
                 <div className="font-medium text-slate-900 mb-1">صفقات جديدة</div>
                 <div className="text-sm text-slate-500">إشعار عند إنشاء صفقات جديدة</div>
               </div>

@@ -31,12 +31,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Lead } from "@shared/types";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, INPUT_STYLES, EMPTY_STYLES, LOADING_STYLES, BADGE_STYLES, getLeadStatusBadge } from "@/config/platform-theme";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, INPUT_STYLES, EMPTY_STYLES, LOADING_STYLES, BADGE_STYLES, getLeadStatusBadge, getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Customers() {
-  const { dir } = useLanguage();
+  const { dir, language } = useLanguage();
+  const locale = language === "ar" ? "ar-SA" : "en-US";
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -307,7 +308,7 @@ export default function Customers() {
                   onClick={() => setShowFilters(!showFilters)}
                   className="ui-transition"
                 >
-                  <SlidersHorizontal size={16} className="ml-2" />
+                  <SlidersHorizontal size={16} className={getIconSpacing(dir)} />
                   الفلاتر
                 </Button>
               </div>
@@ -491,7 +492,7 @@ export default function Customers() {
                           </span>
                         </td>
                         <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                          {new Date(lead.createdAt).toLocaleDateString('en-GB')}
+                          {new Date(lead.createdAt).toLocaleDateString(locale)}
                         </td>
                         <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                           <div className="flex items-center justify-end gap-1">
@@ -581,7 +582,6 @@ export default function Customers() {
             )}
           </CardContent>
         </Card>
-      </Card>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

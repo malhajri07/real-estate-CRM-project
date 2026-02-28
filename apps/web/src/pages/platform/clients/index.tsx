@@ -27,12 +27,13 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { Lead, Activity } from "@shared/types";
 import { cn } from "@/lib/utils";
 import { interactiveCard, subduedText } from "@/lib/design-system";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, METRICS_CARD_STYLES, BADGE_STYLES, LOADING_STYLES, getLeadStatusBadge, ICON_CONTAINER_SM } from "@/config/platform-theme";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, METRICS_CARD_STYLES, BADGE_STYLES, LOADING_STYLES, getLeadStatusBadge, ICON_CONTAINER_SM, getIconSpacing } from "@/config/platform-theme";
 
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const { t, dir } = useLanguage();
+  const { t, dir, language } = useLanguage();
+  const locale = language === "ar" ? "ar-SA" : "en-US";
 
   const { data: leads, isLoading } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
@@ -128,7 +129,7 @@ export default function Clients() {
                 <div className="flex items-center justify-between">
                   <CardTitle className={cn(TYPOGRAPHY.cardTitle, "text-end")}>العملاء ({filteredLeads.length})</CardTitle>
                   <Button size="sm" className={BUTTON_PRIMARY_CLASSES}>
-                    <UserPlus className="ml-2" size={16} />
+                    <UserPlus className={getIconSpacing(dir)} size={16} />
                     إضافة عميل
                   </Button>
                 </div>
@@ -171,7 +172,7 @@ export default function Clients() {
                             {lead.budgetRange}
                           </span>
                           <span className={cn(TYPOGRAPHY.caption, "text-slate-500 text-end")}>
-                            {new Date(lead.createdAt).toLocaleDateString()}
+                            {new Date(lead.createdAt).toLocaleDateString(locale)}
                           </span>
                         </div>
                       </div>
@@ -243,15 +244,15 @@ export default function Clients() {
 
                     <div className="flex flex-wrap items-center gap-2">
                       <Button size="sm" className={BUTTON_PRIMARY_CLASSES}>
-                        <Phone className="ml-2" size={16} />
+                        <Phone className={getIconSpacing(dir)} size={16} />
                         اتصال
                       </Button>
                       <Button size="sm" variant="outline">
-                        <Mail className="ml-2" size={16} />
+                        <Mail className={getIconSpacing(dir)} size={16} />
                         بريد
                       </Button>
                       <Button size="sm" variant="outline">
-                        <Calendar className="ml-2" size={16} />
+                        <Calendar className={getIconSpacing(dir)} size={16} />
                         جدولة
                       </Button>
                     </div>
@@ -272,7 +273,7 @@ export default function Clients() {
                       <div className="mb-4 flex items-center justify-between">
                         <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-slate-900 text-end")}>سجل الأنشطة</h3>
                       <Button size="sm" className={BUTTON_PRIMARY_CLASSES}>
-                        <Plus className="ml-2" size={16} />
+                        <Plus className={getIconSpacing(dir)} size={16} />
                           إضافة نشاط
                         </Button>
                       </div>
@@ -304,11 +305,11 @@ export default function Clients() {
                                 <div className={cn("flex items-center gap-4", TYPOGRAPHY.caption, "text-slate-500 text-end rtl:space-x-reverse")}>
                                   {activity.scheduledDate && (
                                     <span>
-                                      مجدول: {new Date(activity.scheduledDate).toLocaleString('ar-SA')}
+                                      مجدول: {new Date(activity.scheduledDate).toLocaleString(locale)}
                                     </span>
                                   )}
                                   <span>
-                                    أُنشئ: {new Date(activity.createdAt).toLocaleDateString('ar-SA')}
+                                    أُنشئ: {new Date(activity.createdAt).toLocaleDateString(locale)}
                                   </span>
                                 </div>
                               </div>

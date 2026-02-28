@@ -47,7 +47,8 @@ export default function Pipeline() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showRequestDrawer, setShowRequestDrawer] = useState(false);
-  const { dir } = useLanguage();
+  const { dir, language } = useLanguage();
+  const locale = language === "ar" ? "ar-SA" : "en-US";
 
   const { data: deals, isLoading } = useQuery<Deal[]>({ queryKey: ["/api/deals"] });
   const { data: leads } = useQuery<Lead[]>({ queryKey: ["/api/leads"] });
@@ -317,7 +318,7 @@ export default function Pipeline() {
 
                                 {deal.expectedCloseDate && (
                                   <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>
-                                    متوقع في {new Date(deal.expectedCloseDate).toLocaleDateString()}
+                                    متوقع في {new Date(deal.expectedCloseDate).toLocaleDateString(locale)}
                                   </div>
                                 )}
 
@@ -326,7 +327,7 @@ export default function Pipeline() {
                                 )}
 
                                 <div className="text-xs text-slate-400">
-                                  أُنشئت في {new Date(deal.createdAt).toLocaleDateString()}
+                                  أُنشئت في {new Date(deal.createdAt).toLocaleDateString(locale)}
                                 </div>
                               </div>
                             </div>
@@ -355,7 +356,7 @@ export default function Pipeline() {
             className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden"
             onClick={closeRequestDrawer}
           />
-          <aside className="fixed inset-y-0 left-0 z-50 w-full max-w-md border-r border-slate-200 bg-white shadow-xl flex flex-col">
+          <aside className="fixed inset-y-0 start-0 z-50 w-full max-w-md border-e border-slate-200 bg-white shadow-xl flex flex-col">
             <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
               <div className="text-end">
                 <h2 className="text-base font-semibold text-slate-900">طلبات العملاء</h2>

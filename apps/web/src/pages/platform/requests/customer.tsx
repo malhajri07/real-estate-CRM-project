@@ -25,7 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { apiRequest } from "@/lib/queryClient";
 import { Download, Mail, Phone, RefreshCcw } from "lucide-react";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY } from "@/config/platform-theme";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -200,7 +200,7 @@ export default function CustomerRequestsPage() {
               </Button>
               <Button variant="outline" asChild>
                 <a href="/api/requests/export" target="_blank" rel="noreferrer">
-                  <Download className="ml-2 h-4 w-4" />
+                  <Download className={cn(getIconSpacing(dir), "h-4 w-4")} />
                   تحميل CSV
                 </a>
               </Button>

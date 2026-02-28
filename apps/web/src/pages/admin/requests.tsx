@@ -204,7 +204,7 @@ export default function AdminRequestsPage() {
                     </td>
                     <td className={TABLE_STYLES.cell}>
                       <span className="font-medium text-emerald-600 whitespace-nowrap">
-                        {r.minPrice || r.maxPrice ? `${Number(r.minPrice || 0).toLocaleString()} - ${Number(r.maxPrice || 0).toLocaleString()}` : '-'}
+                        {r.minPrice || r.maxPrice ? `${Number(r.minPrice || 0).toLocaleString("en-US")} - ${Number(r.maxPrice || 0).toLocaleString("en-US")}` : '-'}
                       </span>
                     </td>
                     <td className={TABLE_STYLES.cell}>

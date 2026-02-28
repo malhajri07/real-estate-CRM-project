@@ -61,7 +61,7 @@ export default function AgenciesPage() {
                   <div className="flex justify-between items-center">
                     <div>
                       <div className={cn(TYPOGRAPHY.body, "font-semibold text-slate-900")}>
-                        {a.name}{a.verified && <span className="ml-2 text-green-600">✓</span>}
+                        {a.name}{a.verified && <span className="ms-2 text-green-600">✓</span>}
                       </div>
                       <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>
                         عدد الوسطاء: {a.agentsCount} — عدد الإعلانات: {a.listingsCount}

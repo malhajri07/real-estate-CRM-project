@@ -180,8 +180,8 @@ export const COMPONENT_STYLES = {
   
   // Search Bar
   searchBar: 'relative',
-  searchInput: 'w-full pl-11 pr-4 py-2.5 border border-slate-200 rounded-xl bg-white/80 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200',
-  searchIcon: 'absolute left-3.5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400',
+  searchInput: 'w-full ps-11 pe-4 py-2.5 border border-slate-200 rounded-xl bg-white/80 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all duration-200',
+  searchIcon: 'absolute start-3.5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400',
   
   // Action Bar
   actionBar: 'flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 bg-white/40 backdrop-blur-sm p-4 rounded-2xl border border-white/40',
@@ -196,23 +196,24 @@ export const COMPONENT_STYLES = {
   statsChangeNegative: 'text-red-600 bg-red-50 px-2 py-0.5 rounded-full',
 } as const;
 
-// RTL Support Classes
+// RTL Support - Use logical properties (ms/me/ps/pe/start/end) for proper RTL mirroring
+// Prefer: text-start, text-end, ms-*, me-*, ps-*, pe-*, border-s-*, border-e-*
 export const RTL_CLASSES = {
   textAlign: {
-    left: 'text-left',
-    right: 'text-right',
+    start: 'text-start',
+    end: 'text-end',
   },
   margin: {
-    left: 'ml-',
-    right: 'mr-',
+    start: 'ms-',
+    end: 'me-',
   },
   padding: {
-    left: 'pl-',
-    right: 'pr-',
+    start: 'ps-',
+    end: 'pe-',
   },
   border: {
-    left: 'border-l',
-    right: 'border-r',
+    start: 'border-s',
+    end: 'border-e',
   }
 } as const;
 

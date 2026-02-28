@@ -47,8 +47,8 @@ export default function FilterBar({
     <div className={cn(COMPONENT_STYLES.filterBar, className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-600" />
-          <span className="text-sm font-medium text-gray-700">الفلاتر</span>
+          <Filter className="h-4 w-4 text-slate-600" />
+          <span className="text-sm font-medium text-slate-700">الفلاتر</span>
         </div>
         <div className="flex items-center gap-2">
           {onClear && (
@@ -56,9 +56,9 @@ export default function FilterBar({
               variant="outline"
               size="sm"
               onClick={onClear}
-              className="text-gray-600 hover:text-gray-800"
+              className="text-slate-600 hover:text-slate-800"
             >
-              <X className="h-4 w-4 mr-1" />
+              <X className="h-4 w-4 me-1" />
               مسح الكل
             </Button>
           )}
@@ -66,7 +66,7 @@ export default function FilterBar({
             variant="outline"
             size="sm"
             onClick={onToggle}
-            className="text-gray-600 hover:text-gray-800"
+            className="text-slate-600 hover:text-slate-800"
           >
             {isOpen ? 'إخفاء الفلاتر' : 'إظهار الفلاتر'}
           </Button>

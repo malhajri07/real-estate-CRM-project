@@ -149,7 +149,7 @@ function Router() {
 
   const fullScreenSuspenseFallback = (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="text-sm text-gray-600">جار التحميل...</div>
+      <div className="text-sm text-slate-600">جار التحميل...</div>
     </div>
   );
 
@@ -268,7 +268,7 @@ function Router() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-gray-700 text-sm">جار تهيئة الرابط...</p>
+          <p className="text-slate-700 text-sm">جار تهيئة الرابط...</p>
         </div>
       </div>
     );
@@ -431,7 +431,7 @@ function Router() {
     setLocation(target, { replace: true });
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-sm text-gray-600">{message}</div>
+        <div className="text-sm text-slate-600">{message}</div>
       </div>
     );
   };
@@ -609,7 +609,7 @@ function Router() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <p className="text-lg font-medium text-gray-700">جار التحميل...</p>
+            <p className="text-lg font-medium text-slate-700">جار التحميل...</p>
           </div>
         </div>
       </PlatformShell>
@@ -732,7 +732,7 @@ function Router() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-lg font-medium text-gray-700">جار التحميل...</p>
+        <p className="text-lg font-medium text-slate-700">جار التحميل...</p>
       </div>
     </div>
   );

@@ -29,12 +29,13 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Lead } from "@shared/types";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BADGE_STYLES, getNotificationStatusBadge } from "@/config/platform-theme";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BADGE_STYLES, getNotificationStatusBadge, getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Notifications() {
-  const { dir } = useLanguage();
+  const { dir, language } = useLanguage();
+  const locale = language === "ar" ? "ar-SA" : "en-US";
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [campaignTitle, setCampaignTitle] = useState("");
@@ -227,7 +228,7 @@ export default function Notifications() {
                                 <div className="flex items-center space-x-4 rtl:space-x-reverse text-xs text-slate-500">
                                   <span>{lead.interestType || 'غير محدد'}</span>
                                   <span>{lead.budgetRange || 'غير محدد'}</span>
-                                  <span>تاريخ الإنشاء: {new Date(lead.createdAt).toLocaleDateString('en-US')}</span>
+                                  <span>تاريخ الإنشاء: {new Date(lead.createdAt).toLocaleDateString(locale)}</span>
                                 </div>
                               </div>
                             </div>
@@ -241,12 +242,12 @@ export default function Notifications() {
                                 onClick={() => handleWhatsAppClick(lead)}
                                 className="text-green-600 border-green-200 hover:bg-green-50"
                               >
-                                <MessageCircle size={14} className="ml-1" />
+                                <MessageCircle size={14} className={getIconSpacing(dir)} />
                                 واتساب
                               </Button>
                             )}
                             <Button variant="ghost" size="sm">
-                              <Bell size={14} className="ml-1" />
+                              <Bell size={14} className={getIconSpacing(dir)} />
                               إشعار
                             </Button>
                           </div>
@@ -336,7 +337,7 @@ export default function Notifications() {
                     onClick={handleSendCampaign}
                     disabled={sendCampaignMutation.isPending}
                   >
-                    <Send className="ml-2" size={16} />
+                    <Send className={getIconSpacing(dir)} size={16} />
                     {sendCampaignMutation.isPending ? "جار الإرسال..." : "إرسال الحملة"}
                   </Button>
                 </div>

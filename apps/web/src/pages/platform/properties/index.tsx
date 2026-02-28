@@ -35,7 +35,7 @@ import AddPropertyModal from "@/components/modals/add-property-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Property } from "@shared/types";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES, getPropertyStatusBadge } from "@/config/platform-theme";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES, getPropertyStatusBadge, getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -276,7 +276,7 @@ export default function Properties() {
                     variant={viewMode === 'cards' ? "default" : "outline"}
                     size="sm"
                     onClick={() => setViewMode('cards')}
-                    className="rounded-r-none border-r-0"
+                    className="rounded-e-none border-e-0"
                     title="عرض البطاقات"
                   >
                     <LayoutGrid size={16} />
@@ -285,7 +285,7 @@ export default function Properties() {
                     variant={viewMode === 'table' ? "default" : "outline"}
                     size="sm"
                     onClick={() => setViewMode('table')}
-                    className="rounded-l-none"
+                    className="rounded-s-none"
                     title="عرض الجدول"
                   >
                     <List size={16} />
@@ -298,11 +298,11 @@ export default function Properties() {
                   onClick={() => setShowFilters(!showFilters)}
                   className="ui-transition"
                 >
-                  <SlidersHorizontal size={16} className="ml-2" />
+                  <SlidersHorizontal size={16} className={getIconSpacing(dir)} />
                   الفلاتر
                 </Button>
                 <Button onClick={() => setAddPropertyModalOpen(true)} className={BUTTON_PRIMARY_CLASSES}>
-                  <Plus className="ml-2" size={16} />
+                  <Plus className={getIconSpacing(dir)} size={16} />
                   إضافة عقار
                 </Button>
               </div>
@@ -527,7 +527,7 @@ export default function Properties() {
                 </div>
                 {!searchQuery && (
                   <Button onClick={() => setAddPropertyModalOpen(true)} className={BUTTON_PRIMARY_CLASSES}>
-                    <Plus className="ml-2" size={16} />
+                    <Plus className={getIconSpacing(dir)} size={16} />
                     إضافة أول عقار
                   </Button>
                 )}
@@ -646,7 +646,7 @@ export default function Properties() {
                                 </Button>
 
                                 {/* Share Dropdown Menu */}
-                                <div className="absolute bottom-full left-0 mb-2 bg-white rounded-lg shadow-lg border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-[120px]">
+                                <div className="absolute bottom-full start-0 mb-2 bg-white rounded-lg shadow-lg border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-[120px]">
                                   <div className="p-2 space-y-1">
                                     <button
                                       onClick={(e) => {

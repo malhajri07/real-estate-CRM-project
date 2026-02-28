@@ -2,6 +2,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 import { Button } from './button';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DrawerProps {
   open: boolean;
@@ -16,8 +17,8 @@ interface DrawerProps {
 /**
  * Drawer Component
  * 
- * A slide-out panel that appears from the left or right side of the screen.
- * Perfect for forms and detailed content that needs more space than a modal.
+ * A slide-out panel that appears from the start or end side of the screen.
+ * Uses logical properties for RTL support.
  */
 export default function Drawer({ 
   open, 
@@ -28,7 +29,13 @@ export default function Drawer({
   className,
   side = 'left'
 }: DrawerProps) {
+  const { dir } = useLanguage();
   if (!open) return null;
+
+  const isStart = side === 'left';
+  const closedTransform = isStart
+    ? (dir === 'rtl' ? 'translate-x-full' : '-translate-x-full')
+    : (dir === 'rtl' ? '-translate-x-full' : 'translate-x-full');
 
   return (
     <>
@@ -42,23 +49,23 @@ export default function Drawer({
       <div 
         className={cn(
           "fixed top-0 h-full w-full max-w-2xl bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out",
-          side === 'left' ? 'left-0' : 'right-0',
-          open ? 'translate-x-0' : side === 'left' ? '-translate-x-full' : 'translate-x-full',
+          isStart ? 'start-0' : 'end-0',
+          open ? 'translate-x-0' : closedTransform,
           className
         )}
-        dir="rtl"
+        dir={dir}
       >
         {/* Header */}
         {(title || description) && (
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between p-6 border-b border-slate-200">
             <div className="flex-1">
               {title && (
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-slate-900">
                   {title}
                 </h2>
               )}
               {description && (
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-slate-600 mt-1">
                   {description}
                 </p>
               )}
@@ -67,7 +74,7 @@ export default function Drawer({
               variant="ghost"
               size="sm"
               onClick={() => onOpenChange(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-slate-400 hover:text-slate-600"
             >
               <X className="h-4 w-4" />
             </Button>

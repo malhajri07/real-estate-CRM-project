@@ -201,12 +201,12 @@ export default function AppointmentsManager() {
                                             </h3>
                                             <div className="flex items-center text-sm text-slate-500 mt-1 space-x-3 rtl:space-x-reverse">
                                                 <span className="flex items-center">
-                                                    <Clock className="w-3 h-3 mr-1 ml-1" />
+                                                    <Clock className="w-3 h-3 ms-1" />
                                                     {formatDate(appointment.scheduledAt)}
                                                 </span>
                                                 {appointment.property && (
                                                     <span className="flex items-center">
-                                                        <MapPin className="w-3 h-3 mr-1 ml-1" />
+                                                        <MapPin className="w-3 h-3 ms-1" />
                                                         {appointment.property.title}
                                                     </span>
                                                 )}
