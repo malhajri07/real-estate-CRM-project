@@ -13,7 +13,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./data/schema/db/policies:/docker-entrypoint-initdb.d
+      - ./data/schema/db/init:/docker-entrypoint-initdb.d
     networks:
       - real-estate-network
     restart: unless-stopped

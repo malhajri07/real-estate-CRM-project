@@ -6,14 +6,14 @@ services:
     image: postgres:15-alpine
     container_name: real-estate-crm-db-dev
     environment:
-      POSTGRES_DB: real_estate_crm_dev
+      POSTGRES_DB: real_estate_crm
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
-      - ./data/schema/db/policies:/docker-entrypoint-initdb.d
+      - ./data/schema/db/init:/docker-entrypoint-initdb.d
     networks:
       - real-estate-dev-network
     restart: unless-stopped
@@ -23,7 +23,7 @@ services:
     image: redis:7-alpine
     container_name: real-estate-crm-redis-dev
     ports:
-      - "6380:6379"
+      - "6379:6379"
     volumes:
       - redis_dev_data:/data
     networks:
@@ -38,7 +38,7 @@ services:
     container_name: real-estate-crm-app-dev
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres-dev:5432/real_estate_crm_dev?schema=public
+      - DATABASE_URL=postgresql://postgres:postgres@postgres-dev:5432/real_estate_crm?schema=real_estate_crm
       - REDIS_URL=redis://redis-dev:6379
       - JWT_SECRET=dev-jwt-secret-key
       - SESSION_SECRET=dev-session-secret-key
