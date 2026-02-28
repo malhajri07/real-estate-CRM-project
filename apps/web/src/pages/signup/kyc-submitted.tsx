@@ -16,16 +16,20 @@ import { Clock, ArrowRight, Mail, Phone, Home } from "lucide-react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import PublicHeader from "@/components/layout/PublicHeader";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getIconSpacing } from "@/config/platform-theme";
+import { cn } from "@/lib/utils";
 
 export default function KYCSubmitted() {
   const [, setLocation] = useLocation();
+  const { dir } = useLanguage();
 
   const handleBackToLanding = () => {
     setLocation("/");
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir="rtl">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
@@ -106,14 +110,14 @@ export default function KYCSubmitted() {
                   onClick={() => setLocation('/login')}
                 >
                   الذهاب لصفحة الدخول
-                  <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
+                  <ArrowRight className={cn(getIconSpacing(dir), "h-4 w-4 rotate-180")} />
                 </Button>
                 <Button
                   variant="outline"
                   className="rounded-xl h-12 px-8 border-slate-200 hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200 w-full sm:w-auto"
                   onClick={handleBackToLanding}
                 >
-                  <Home className="ml-2 h-4 w-4" />
+                  <Home className={cn(getIconSpacing(dir), "h-4 w-4")} />
                   العودة للرئيسية
                 </Button>
               </div>

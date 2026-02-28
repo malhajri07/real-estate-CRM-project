@@ -89,7 +89,7 @@ export default function SignupSelection() {
                   onClick={handleIndividualSignup}
                   className="glass rounded-[32px] p-8 md:p-10 h-full cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-white/40"
                 >
-                  <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute top-0 start-0 w-1 h-full bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   <div className="flex flex-col h-full gap-6">
                     <div className="flex items-start justify-between">
@@ -122,7 +122,7 @@ export default function SignupSelection() {
                   onClick={handleCorporateSignup}
                   className="glass rounded-[32px] p-8 md:p-10 h-full cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-white/40"
                 >
-                  <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute top-0 start-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   <div className="flex flex-col h-full gap-6">
                     <div className="flex items-start justify-between">

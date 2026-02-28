@@ -28,6 +28,8 @@ import { CheckCircle2, FileEdit, Home, ArrowRight, Loader2, ChevronsUpDown, Chec
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import PublicHeader from "@/components/layout/PublicHeader";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 
 const PROPERTY_TYPES = [
@@ -82,6 +84,7 @@ function formatMobileInput(value: string): string {
 export default function RealEstateRequestsPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const { dir } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [seekerId, setSeekerId] = useState<string | null>(null);
@@ -364,7 +367,7 @@ export default function RealEstateRequestsPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir="rtl">
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
         <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
         <PublicHeader />
 
@@ -406,7 +409,7 @@ export default function RealEstateRequestsPage() {
                   className="rounded-xl h-12 px-8 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
                   onClick={() => setSubmitted(false)}
                 >
-                  <FileEdit className="ml-2 h-4 w-4" />
+                  <FileEdit className={cn(getIconSpacing(dir), "h-4 w-4")} />
                   تقديم طلب جديد
                 </Button>
                 <Button
@@ -414,7 +417,7 @@ export default function RealEstateRequestsPage() {
                   className="rounded-xl h-12 px-8 border-slate-200 hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200"
                   onClick={() => setLocation("/")}
                 >
-                  <Home className="ml-2 h-4 w-4" />
+                  <Home className={cn(getIconSpacing(dir), "h-4 w-4")} />
                   العودة للرئيسية
                 </Button>
               </div>
@@ -426,7 +429,7 @@ export default function RealEstateRequestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir="rtl">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
@@ -597,7 +600,7 @@ export default function RealEstateRequestsPage() {
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" aria-expanded={regionOpen} className={cn("w-full justify-between h-12 rounded-xl", !form.region && "text-muted-foreground")}>
                           {form.region || "اختر المنطقة"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
@@ -615,7 +618,7 @@ export default function RealEstateRequestsPage() {
                                     setRegionOpen(false);
                                   }}
                                 >
-                                  <Check className={cn("ml-2 h-4 w-4", form.regionId === String(r.id) ? "opacity-100" : "opacity-0")} />
+                                  <Check className={cn(getIconSpacing(dir), "h-4 w-4", form.regionId === String(r.id) ? "opacity-100" : "opacity-0")} />
                                   {r.nameAr || r.nameEn}
                                 </CommandItem>
                               ))}
@@ -631,7 +634,7 @@ export default function RealEstateRequestsPage() {
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" aria-expanded={cityOpen} disabled={!form.regionId} className={cn("w-full justify-between h-12 rounded-xl", !form.city && "text-muted-foreground")}>
                           {form.city || "اختر المدينة"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
@@ -649,7 +652,7 @@ export default function RealEstateRequestsPage() {
                                     setCityOpen(false);
                                   }}
                                 >
-                                  <Check className={cn("ml-2 h-4 w-4", form.cityId === String(c.id) ? "opacity-100" : "opacity-0")} />
+                                  <Check className={cn(getIconSpacing(dir), "h-4 w-4", form.cityId === String(c.id) ? "opacity-100" : "opacity-0")} />
                                   {c.nameAr || c.nameEn}
                                 </CommandItem>
                               ))}
@@ -665,7 +668,7 @@ export default function RealEstateRequestsPage() {
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" aria-expanded={districtOpen} disabled={!form.cityId} className={cn("w-full justify-between h-12 rounded-xl", !form.district && "text-muted-foreground")}>
                           {form.district || "اختر الحي"}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
@@ -683,7 +686,7 @@ export default function RealEstateRequestsPage() {
                                     setDistrictOpen(false);
                                   }}
                                 >
-                                  <Check className={cn("ml-2 h-4 w-4", form.district === (d.nameAr || d.nameEn) ? "opacity-100" : "opacity-0")} />
+                                  <Check className={cn(getIconSpacing(dir), "h-4 w-4", form.district === (d.nameAr || d.nameEn) ? "opacity-100" : "opacity-0")} />
                                   {d.nameAr || d.nameEn}
                                 </CommandItem>
                               ))}
@@ -742,13 +745,13 @@ export default function RealEstateRequestsPage() {
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      <Loader2 className={cn(getIconSpacing(dir), "h-5 w-5 animate-spin")} />
                       جاري الإرسال...
                     </>
                   ) : (
                     <>
                       إرسال الطلب
-                      <ArrowRight className="mr-2 h-5 w-5 transform rotate-180" />
+                      <ArrowRight className={cn(getIconSpacing(dir), "h-5 w-5 transform rotate-180")} />
                     </>
                   )}
                 </Button>
