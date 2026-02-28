@@ -34,7 +34,7 @@ export default function AgencyPage() {
         <div className={LOADING_STYLES.container}>
           <div className={LOADING_STYLES.text}>...جار التحميل</div>
         </div>
-      </main>
+      </div>
     );
   }
   
@@ -46,7 +46,7 @@ export default function AgencyPage() {
             <div className={cn(EMPTY_STYLES.description, "text-red-600 text-center")}>تعذر تحميل الوكالة</div>
           </CardContent>
         </Card>
-      </main>
+      </div>
     );
   }
 
