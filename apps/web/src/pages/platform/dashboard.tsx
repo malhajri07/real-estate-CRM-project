@@ -226,7 +226,7 @@ export default function Dashboard() {
   };
 
   const handleLeadMessage = (leadId: string) => {
-    setLocation(`/home/platform/leads/${leadId}`);
+    setLocation('/home/platform/leads');
   };
 
   if (metricsLoading) {

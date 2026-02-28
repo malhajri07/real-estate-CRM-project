@@ -41,7 +41,7 @@ export function LeadCard({
       whileHover={{ y: -4, scale: 1.01 }}
       className="group"
     >
-      <Link to={`/home/platform/leads/${lead.id}`}>
+      <Link to="/home/platform/leads">
         <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden group">
           
           <div className="relative z-10 flex items-start gap-4">

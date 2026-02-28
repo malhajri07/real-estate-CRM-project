@@ -47,7 +47,7 @@ export function AdminLayout({
     }, [setLocation]);
 
     const handleBack = useCallback(() => {
-        setLocation('/platform/dashboard');
+        setLocation('/admin/overview/main-dashboard');
     }, [setLocation]);
 
     const handleRefresh = useCallback(() => {

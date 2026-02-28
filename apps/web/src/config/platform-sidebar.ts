@@ -149,6 +149,14 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
+        id: "customers",
+        labelKey: "nav.customers",
+        path: "/home/platform/customers",
+        icon: Users,
+        matchPaths: ["/customers"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
         id: "reports",
         labelKey: "nav.reports",
         path: "/home/platform/reports",

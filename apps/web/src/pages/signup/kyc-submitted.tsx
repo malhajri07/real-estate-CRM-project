@@ -107,7 +107,7 @@ export default function KYCSubmitted() {
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                 <Button
                   className="rounded-xl h-12 px-8 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 w-full sm:w-auto"
-                  onClick={() => setLocation('/login')}
+                  onClick={() => setLocation('/rbac-login')}
                 >
                   الذهاب لصفحة الدخول
                   <ArrowRight className={cn(getIconSpacing(dir), "h-4 w-4 rotate-180")} />
