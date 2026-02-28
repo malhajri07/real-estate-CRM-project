@@ -31,6 +31,8 @@ import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import PublicHeader from "@/components/layout/PublicHeader";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { getIconSpacing } from "@/config/platform-theme";
 
 const LISTING_TYPES = [
   { value: "بيع", label: "بيع" },
@@ -53,6 +55,7 @@ const STEPS = [
 export default function UnverifiedListingPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const { dir } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [propertyId, setPropertyId] = useState<string | null>(null);
@@ -586,7 +589,7 @@ export default function UnverifiedListingPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir="rtl">
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
         <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
         <PublicHeader />
 
@@ -669,7 +672,7 @@ export default function UnverifiedListingPage() {
                     setImagePreviews([]);
                   }}
                 >
-                  <UploadCloud className="ml-2 h-4 w-4" />
+                  <UploadCloud className={cn(getIconSpacing(dir), "h-4 w-4")} />
                   إرسال إعلان جديد
                 </Button>
                 <Button
@@ -677,7 +680,7 @@ export default function UnverifiedListingPage() {
                   className="rounded-xl h-12 px-8 border-slate-200 hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200"
                   onClick={() => setLocation("/")}
                 >
-                  <Home className="ml-2 h-4 w-4" />
+                  <Home className={cn(getIconSpacing(dir), "h-4 w-4")} />
                   العودة للرئيسية
                 </Button>
               </div>
@@ -689,7 +692,7 @@ export default function UnverifiedListingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir="rtl">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
@@ -743,7 +746,7 @@ export default function UnverifiedListingPage() {
                               ? "bg-emerald-600 text-white border-emerald-600"
                               : isCurrent
                                 ? "bg-emerald-100 text-emerald-600 border-emerald-300"
-                                : "bg-gray-100 text-gray-500 border-gray-300"
+                                : "bg-slate-100 text-slate-500 border-slate-300"
                           )}
                         >
                           {isCompleted ? (
@@ -756,21 +759,21 @@ export default function UnverifiedListingPage() {
                           <div
                             className={cn(
                               "text-sm font-semibold",
-                              isCurrent || isCompleted ? "text-emerald-600" : "text-gray-500"
+                              isCurrent || isCompleted ? "text-emerald-600" : "text-slate-500"
                             )}
                           >
                             {step.title}
                           </div>
-                          <div className="text-xs text-gray-400">{step.description}</div>
+                          <div className="text-xs text-slate-400">{step.description}</div>
                         </div>
                         {index < STEPS.length - 1 && (
-                          <div className="hidden lg:block absolute right-[23px] top-[48px] h-8 w-0.5 bg-gray-200 -z-10" />
+                          <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-slate-200 -z-10" />
                         )}
                         {index < STEPS.length - 1 && (
                           <ChevronRight
                             className={cn(
                               "h-5 w-5 flex-shrink-0 mx-2 lg:hidden",
-                              isCompleted ? "text-emerald-600" : "text-gray-300"
+                              isCompleted ? "text-emerald-600" : "text-slate-300"
                             )}
                           />
                         )}
@@ -794,7 +797,7 @@ export default function UnverifiedListingPage() {
                 {/* Step 1: Basic Information */}
                 {currentStep === 1 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 1: البيانات الأساسية</h2>
                         <p className="text-sm text-slate-500 mt-1">أدخل المعلومات الأساسية عن العقار</p>
@@ -820,7 +823,7 @@ export default function UnverifiedListingPage() {
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                           <div className="space-y-2">
-                            <label className="text-xs text-gray-600">الخطوة 1: اختر الفئة</label>
+                            <label className="text-xs text-slate-600">الخطوة 1: اختر الفئة</label>
                             <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
                               <PopoverTrigger asChild>
                                 <Button
@@ -842,7 +845,7 @@ export default function UnverifiedListingPage() {
                                         form.propertyCategory
                                         : "اختر فئة العقار"}
                                   </span>
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="w-full p-0" align="start">
@@ -879,7 +882,7 @@ export default function UnverifiedListingPage() {
                                             >
                                               <Check
                                                 className={cn(
-                                                  "ml-2 h-4 w-4",
+                                                  cn(getIconSpacing(dir), "h-4 w-4"),
                                                   form.propertyCategory === (category.code || String(category.id)) ? "opacity-100" : "opacity-0"
                                                 )}
                                               />
@@ -889,7 +892,7 @@ export default function UnverifiedListingPage() {
                                         })
                                       ) : (
                                         <CommandItem disabled>
-                                          <div className="text-gray-500 text-xs py-2">لا توجد فئات متاحة</div>
+                                          <div className="text-slate-500 text-xs py-2">لا توجد فئات متاحة</div>
                                         </CommandItem>
                                       )}
                                     </CommandGroup>
@@ -900,10 +903,10 @@ export default function UnverifiedListingPage() {
                           </div>
 
                           <div className="space-y-2">
-                            <label className="text-xs text-gray-600">
+                            <label className="text-xs text-slate-600">
                               الخطوة 2: اختر النوع
                               {!form.propertyCategory && (
-                                <span className="text-red-500 mr-1">(اختر الفئة أولاً)</span>
+                                <span className="text-red-500 me-1">(اختر الفئة أولاً)</span>
                               )}
                             </label>
                             <Popover open={typeOpen} onOpenChange={setTypeOpen}>
@@ -914,7 +917,7 @@ export default function UnverifiedListingPage() {
                                   aria-expanded={typeOpen}
                                   className={cn(
                                     "w-full justify-between transition-all",
-                                    !form.propertyCategory && "bg-gray-100 cursor-not-allowed",
+                                    !form.propertyCategory && "bg-slate-100 cursor-not-allowed",
                                     form.propertyType && "border-emerald-300 bg-emerald-50"
                                   )}
                                   disabled={!form.propertyCategory || typesLoading}
@@ -930,7 +933,7 @@ export default function UnverifiedListingPage() {
                                           form.propertyType
                                           : "اختر نوع العقار"}
                                   </span>
-                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="w-full p-0" align="start">
@@ -943,7 +946,7 @@ export default function UnverifiedListingPage() {
                                     <CommandGroup>
                                       {!form.propertyCategory ? (
                                         <CommandItem disabled>
-                                          <div className="flex items-center gap-2 text-gray-400 py-2">
+                                          <div className="flex items-center gap-2 text-slate-400 py-2">
                                             <span>←</span>
                                             <span>يرجى اختيار فئة العقار أولاً</span>
                                           </div>
@@ -970,7 +973,7 @@ export default function UnverifiedListingPage() {
                                             >
                                               <Check
                                                 className={cn(
-                                                  "ml-2 h-4 w-4",
+                                                  cn(getIconSpacing(dir), "h-4 w-4"),
                                                   form.propertyType === (type.code || String(type.id)) ? "opacity-100" : "opacity-0"
                                                 )}
                                               />
@@ -980,7 +983,7 @@ export default function UnverifiedListingPage() {
                                         })
                                       ) : (
                                         <CommandItem disabled>
-                                          <div className="text-gray-500 text-xs py-2">لا توجد أنواع متاحة لهذه الفئة</div>
+                                          <div className="text-slate-500 text-xs py-2">لا توجد أنواع متاحة لهذه الفئة</div>
                                         </CommandItem>
                                       )}
                                     </CommandGroup>
@@ -1037,7 +1040,7 @@ export default function UnverifiedListingPage() {
                 {/* Step 2: Location */}
                 {currentStep === 2 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 2: الموقع</h2>
                         <p className="text-sm text-slate-500 mt-1">حدد موقع العقار</p>
@@ -1063,7 +1066,7 @@ export default function UnverifiedListingPage() {
                                 (regions || []).find((region: any) => String(region.id) === form.region)?.nameEn ||
                                 "اختر المنطقة"
                                 : "اختر المنطقة"}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-full p-0" align="start">
@@ -1075,7 +1078,7 @@ export default function UnverifiedListingPage() {
                                   {!regions ? (
                                     <CommandItem disabled>
                                       <div className="flex items-center justify-center p-2">
-                                        <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                                        <Loader2 className={cn(getIconSpacing(dir), "h-4 w-4 animate-spin")} />
                                         <span>جار التحميل...</span>
                                       </div>
                                     </CommandItem>
@@ -1099,7 +1102,7 @@ export default function UnverifiedListingPage() {
                                         >
                                           <Check
                                             className={cn(
-                                              "ml-2 h-4 w-4",
+                                              cn(getIconSpacing(dir), "h-4 w-4"),
                                               form.region === String(region.id) ? "opacity-100" : "opacity-0"
                                             )}
                                           />
@@ -1136,7 +1139,7 @@ export default function UnverifiedListingPage() {
                                 (filteredCities || []).find((city: any) => String(city.id) === form.city)?.nameEn ||
                                 "اختر المدينة"
                                 : "اختر المدينة"}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-full p-0" align="start">
@@ -1168,7 +1171,7 @@ export default function UnverifiedListingPage() {
                                         >
                                           <Check
                                             className={cn(
-                                              "ml-2 h-4 w-4",
+                                              cn(getIconSpacing(dir), "h-4 w-4"),
                                               form.city === String(city.id) ? "opacity-100" : "opacity-0"
                                             )}
                                           />
@@ -1203,7 +1206,7 @@ export default function UnverifiedListingPage() {
                                 (filteredDistricts || []).find((district: any) => String(district.id) === form.district)?.nameEn ||
                                 "اختر الحي"
                                 : "اختر الحي"}
-                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-full p-0" align="start">
@@ -1240,7 +1243,7 @@ export default function UnverifiedListingPage() {
                                     </CommandItem>
                                   ) : filteredDistricts.length === 0 ? (
                                     <CommandItem disabled>
-                                      <div className="text-gray-500 text-xs py-2">لا توجد أحياء متاحة لهذه المدينة</div>
+                                      <div className="text-slate-500 text-xs py-2">لا توجد أحياء متاحة لهذه المدينة</div>
                                     </CommandItem>
                                   ) : (
                                     filteredDistricts.map((district: any) => {
@@ -1260,7 +1263,7 @@ export default function UnverifiedListingPage() {
                                         >
                                           <Check
                                             className={cn(
-                                              "ml-2 h-4 w-4",
+                                              cn(getIconSpacing(dir), "h-4 w-4"),
                                               form.district === String(district.id) ? "opacity-100" : "opacity-0"
                                             )}
                                           />
@@ -1313,7 +1316,7 @@ export default function UnverifiedListingPage() {
                 {/* Step 3: Specifications */}
                 {currentStep === 3 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 3: المواصفات</h2>
                         <p className="text-sm text-slate-500 mt-1">تفاصيل العقار والمواصفات</p>
@@ -1416,7 +1419,7 @@ export default function UnverifiedListingPage() {
                 {/* Step 4: Amenities */}
                 {currentStep === 4 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 4: المرافق</h2>
                         <p className="text-sm text-slate-500 mt-1">اختر المرافق والخدمات المتاحة</p>
@@ -1424,56 +1427,56 @@ export default function UnverifiedListingPage() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.hasParking}
                           onCheckedChange={(value) => setForm({ ...form, hasParking: Boolean(value) })}
                         />
                         يوجد موقف سيارة
                       </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.hasElevator}
                           onCheckedChange={(value) => setForm({ ...form, hasElevator: Boolean(value) })}
                         />
                         يوجد مصعد
                       </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.hasMaidsRoom}
                           onCheckedChange={(value) => setForm({ ...form, hasMaidsRoom: Boolean(value) })}
                         />
                         يحتوي على غرفة خادمة
                       </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.hasDriverRoom}
                           onCheckedChange={(value) => setForm({ ...form, hasDriverRoom: Boolean(value) })}
                         />
                         يحتوي على غرفة سائق
                       </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.furnished}
                           onCheckedChange={(value) => setForm({ ...form, furnished: Boolean(value) })}
                         />
                         مفروش
                       </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.balcony}
                           onCheckedChange={(value) => setForm({ ...form, balcony: Boolean(value) })}
                         />
                         يحتوي على شرفة
                       </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.swimmingPool}
                           onCheckedChange={(value) => setForm({ ...form, swimmingPool: Boolean(value) })}
                         />
                         يحتوي على مسبح
                       </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.centralAc}
                           onCheckedChange={(value) => setForm({ ...form, centralAc: Boolean(value) })}
@@ -1487,7 +1490,7 @@ export default function UnverifiedListingPage() {
                 {/* Step 5: Media */}
                 {currentStep === 5 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 5: الصور</h2>
                         <p className="text-sm text-slate-500 mt-1">أضف صور العقار</p>
@@ -1522,7 +1525,7 @@ export default function UnverifiedListingPage() {
                               <button
                                 type="button"
                                 onClick={() => removeImage(index)}
-                                className="absolute top-2 left-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                                className="absolute top-2 start-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
                                 aria-label="إزالة الصورة"
                               >
                                 <X className="w-4 h-4" />
@@ -1540,7 +1543,7 @@ export default function UnverifiedListingPage() {
                 {/* Step 6: Contact Information */}
                 {currentStep === 6 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 6: معلومات التواصل</h2>
                         <p className="text-sm text-slate-500 mt-1">بيانات الاتصال</p>
@@ -1572,7 +1575,7 @@ export default function UnverifiedListingPage() {
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-between pt-6 border-t border-slate-200">
                   <Button
                     type="button"
                     variant="outline"
@@ -1580,7 +1583,7 @@ export default function UnverifiedListingPage() {
                     disabled={currentStep === 1}
                     className="rounded-2xl"
                   >
-                    <ChevronRight className="ml-2 h-4 w-4" />
+                    <ChevronRight className={cn(getIconSpacing(dir), "h-4 w-4")} />
                     السابق
                   </Button>
 
@@ -1591,7 +1594,7 @@ export default function UnverifiedListingPage() {
                       className="rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700"
                     >
                       التالي
-                      <ChevronLeft className="mr-2 h-4 w-4" />
+                      <ChevronLeft className={cn(getIconSpacing(dir), "h-4 w-4")} />
                     </Button>
                   ) : (
                     <Button
@@ -1601,7 +1604,7 @@ export default function UnverifiedListingPage() {
                     >
                       {loading ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <Loader2 className={cn(getIconSpacing(dir), "h-4 w-4 animate-spin")} />
                           جاري الإرسال...
                         </>
                       ) : (
