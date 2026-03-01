@@ -87,44 +87,6 @@ export const BADGE_STYLES = {
   purple: 'bg-purple-50 text-purple-700 border border-purple-100',
 } as const;
 
-/** Lead/Client status badge mapping */
-export const getLeadStatusBadge = (status: string) => {
-  switch (status) {
-    case 'new': return BADGE_STYLES.warning;
-    case 'qualified': return BADGE_STYLES.info;
-    case 'showing': return BADGE_STYLES.orange;
-    case 'negotiating': return BADGE_STYLES.purple;
-    case 'negotiation': return BADGE_STYLES.purple;
-    case 'closed': return BADGE_STYLES.success;
-    case 'lost': return BADGE_STYLES.error;
-    case 'contacted': return BADGE_STYLES.warning;
-    default: return BADGE_STYLES.secondary;
-  }
-};
-
-/** Property status badge mapping */
-export const getPropertyStatusBadge = (status: string) => {
-  switch (status) {
-    case 'available': return BADGE_STYLES.success;
-    case 'active': return BADGE_STYLES.warning;
-    case 'sold': return BADGE_STYLES.error;
-    case 'withdrawn': return BADGE_STYLES.secondary;
-    case 'pending': return BADGE_STYLES.info;
-    default: return BADGE_STYLES.secondary;
-  }
-};
-
-/** Notification/campaign lead status badge mapping */
-export const getNotificationStatusBadge = (status: string) => {
-  switch (status) {
-    case 'new': return BADGE_STYLES.info;
-    case 'contacted': return BADGE_STYLES.warning;
-    case 'qualified': return BADGE_STYLES.success;
-    case 'lost': return BADGE_STYLES.error;
-    default: return BADGE_STYLES.secondary;
-  }
-};
-
 /** Shadcn Badge variant names for lead/client status */
 export type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'orange' | 'purple';
 

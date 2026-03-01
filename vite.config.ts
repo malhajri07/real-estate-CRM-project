@@ -42,24 +42,21 @@ const adminManualChunkGroups: Array<{ name: string; patterns: string[] }> = [
     ],
   },
   {
-    name: "admin-sales",
+    name: "platform-sales",
     patterns: [
-      "/apps/web/src/pages/leads",
-      "/apps/web/src/pages/customers",
-      "/apps/web/src/pages/clients",
-      "/apps/web/src/pages/pipeline",
+      "/apps/web/src/pages/platform/leads",
+      "/apps/web/src/pages/platform/customers",
+      "/apps/web/src/pages/platform/clients",
+      "/apps/web/src/pages/platform/pipeline",
     ],
   },
   {
-    name: "admin-properties",
+    name: "platform-properties",
     patterns: [
-      "/apps/web/src/pages/properties",
-      "/apps/web/src/pages/property-detail",
+      "/apps/web/src/pages/platform/properties",
       "/apps/web/src/pages/listing",
-      "/apps/web/src/pages/agencies",
-      "/apps/web/src/pages/agency",
-      "/apps/web/src/pages/agent",
-      "/apps/web/src/pages/compare",
+      "/apps/web/src/pages/platform/agencies",
+      "/apps/web/src/pages/platform/compare",
     ],
   },
   {

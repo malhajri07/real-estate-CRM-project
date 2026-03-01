@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import type { Lead } from "@shared/types";
 import type { UploadResult } from "@uppy/core";
 import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, LOADING_STYLES, EMPTY_STYLES, getLeadStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 
 export default function Leads() {
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
@@ -43,7 +44,7 @@ export default function Leads() {
   const locale = language === "ar" ? "ar-SA" : "en-US";
   const queryClient = useQueryClient();
 
-  const { data: leads, isLoading } = useQuery<Lead[]>({
+  const { data: leads, isLoading, isError, refetch } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
   });
 
@@ -207,6 +208,14 @@ export default function Leads() {
 
     toast({ title: t("message.success"), description: t("leads.export_success") });
   };
+
+  if (isError) {
+    return (
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <QueryErrorFallback message={t("leads.load_error") || "Failed to load leads."} onRetry={() => refetch()} />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

@@ -43,6 +43,7 @@ import { Button } from "@/components/ui/button";
 import { logger } from "@/lib/logger";
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
 import { RouteGuard } from "@/components/auth/RouteGuard";
+import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 
 // Core page imports - loaded immediately for critical public routes
 import Landing from "@/pages/landing";
@@ -759,16 +760,18 @@ function Router() {
  */
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </QueryClientProvider>
+    <AppErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <LanguageProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </QueryClientProvider>
+    </AppErrorBoundary>
   );
 }
 
