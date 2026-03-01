@@ -161,5 +161,15 @@
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "better-sqlite3",
+      "bufferutil",
+      "esbuild",
+      "prisma"
+    ]
   }
 }
