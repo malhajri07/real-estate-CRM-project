@@ -18,23 +18,21 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Trash2, Edit, Phone, Mail, Filter, SlidersHorizontal, Search, AlertTriangle } from "lucide-react";
-import { useLocation } from "wouter";
+import { Trash2, Edit, Phone, SlidersHorizontal, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Lead } from "@shared/types";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, INPUT_STYLES, EMPTY_STYLES, LOADING_STYLES, getLeadStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { PAGE_WRAPPER, getLeadStatusVariant } from "@/config/platform-theme";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
-import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Customers() {
@@ -297,7 +295,7 @@ export default function Customers() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className={cn(LOADING_STYLES.text, "mb-4")}>جار تحميل العملاء...</div>
+        <p className="text-sm text-muted-foreground mb-4">جار تحميل العملاء...</p>
         <TableSkeleton rows={6} cols={8} />
       </div>
     );
@@ -305,10 +303,10 @@ export default function Customers() {
 
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
-      <Card className={CARD_STYLES.container}>
-          <CardHeader className={CARD_STYLES.header}>
+      <Card>
+          <CardHeader>
             <div className="flex items-center justify-between mb-4">
-              <CardTitle className={TYPOGRAPHY.cardTitle}>
+              <CardTitle>
                 جميع العملاء المحتملين ({totalItems})
                 {totalPages > 1 && ` - صفحة ${currentPage} من ${totalPages}`}
               </CardTitle>
@@ -317,9 +315,8 @@ export default function Customers() {
                   variant="outline"
                   size="sm"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="ui-transition"
                 >
-                  <SlidersHorizontal size={16} className={getIconSpacing(dir)} />
+                  <SlidersHorizontal size={16} className="me-2" />
                   الفلاتر
                 </Button>
               </div>
@@ -327,217 +324,219 @@ export default function Customers() {
 
             {/* Filters Panel */}
             {showFilters && (
-              <div className="rounded-2xl p-5 space-y-4 border border-slate-200/60 shadow-sm ui-stable backdrop-blur-xl bg-white/90 ring-1 ring-emerald-200/40">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-slate-800">فلاتر البحث</h3>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={resetFilters} 
-                    className={BUTTON_PRIMARY_CLASSES}
-                  >
-                    إعادة تعيين
-                  </Button>
-                </div>
+              <Card>
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium">فلاتر البحث</h3>
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      onClick={resetFilters}
+                    >
+                      إعادة تعيين
+                    </Button>
+                  </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 transform-none">
-                  {/* Status Filter */}
-                  <div className="space-y-2">
-                    <Label className="text-slate-700 font-medium">الحالة</Label>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="bg-white border-slate-300 shadow-sm hover:border-primary/50 transition-colors">
-                        <SelectValue placeholder="اختر الحالة" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border-slate-200 shadow-lg">
-                        <SelectItem value="all" className="hover:bg-slate-100">جميع الحالات</SelectItem>
-                        {uniqueStatuses.map(status => (
-                          <SelectItem key={status} value={status} className="hover:bg-slate-100">
-                            {getStatusLabel(status)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                    {/* Status Filter */}
+                    <div className="space-y-2">
+                      <Label>الحالة</Label>
+                      <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر الحالة" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">جميع الحالات</SelectItem>
+                          {uniqueStatuses.map(status => (
+                            <SelectItem key={status} value={status}>
+                              {getStatusLabel(status)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* City Filter */}
-                  <div className="space-y-2">
-                    <Label className="text-slate-700 font-medium">المدينة</Label>
-                    <Select value={cityFilter} onValueChange={setCityFilter}>
-                      <SelectTrigger className="bg-white border-slate-300 shadow-sm hover:border-primary/50 transition-colors">
-                        <SelectValue placeholder="اختر المدينة" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border-slate-200 shadow-lg">
-                        <SelectItem value="all" className="hover:bg-slate-100">جميع المدن</SelectItem>
-                        {uniqueCities.map(city => (
-                          <SelectItem key={city} value={city} className="hover:bg-slate-100">{city}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    {/* City Filter */}
+                    <div className="space-y-2">
+                      <Label>المدينة</Label>
+                      <Select value={cityFilter} onValueChange={setCityFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر المدينة" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">جميع المدن</SelectItem>
+                          {uniqueCities.map(city => (
+                            <SelectItem key={city} value={city}>{city}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Age Range Filter */}
-                  <div className="space-y-2">
-                    <Label className="text-slate-700 font-medium">العمر</Label>
-                    <Select value={ageRangeFilter} onValueChange={setAgeRangeFilter}>
-                      <SelectTrigger className="bg-white border-slate-300 shadow-sm hover:border-primary/50 transition-colors">
-                        <SelectValue placeholder="اختر الفئة العمرية" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border-slate-200 shadow-lg">
-                        <SelectItem value="all" className="hover:bg-slate-100">جميع الأعمار</SelectItem>
-                        <SelectItem value="20-30" className="hover:bg-slate-100">20-30 سنة</SelectItem>
-                        <SelectItem value="31-40" className="hover:bg-slate-100">31-40 سنة</SelectItem>
-                        <SelectItem value="41-50" className="hover:bg-slate-100">41-50 سنة</SelectItem>
-                        <SelectItem value="51+" className="hover:bg-slate-100">51+ سنة</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    {/* Age Range Filter */}
+                    <div className="space-y-2">
+                      <Label>العمر</Label>
+                      <Select value={ageRangeFilter} onValueChange={setAgeRangeFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر الفئة العمرية" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">جميع الأعمار</SelectItem>
+                          <SelectItem value="20-30">20-30 سنة</SelectItem>
+                          <SelectItem value="31-40">31-40 سنة</SelectItem>
+                          <SelectItem value="41-50">41-50 سنة</SelectItem>
+                          <SelectItem value="51+">51+ سنة</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Marital Status Filter */}
-                  <div className="space-y-2">
-                    <Label className="text-slate-700 font-medium">الحالة الاجتماعية</Label>
-                    <Select value={maritalStatusFilter} onValueChange={setMaritalStatusFilter}>
-                      <SelectTrigger className="bg-white border-slate-300 shadow-sm hover:border-primary/50 transition-colors">
-                        <SelectValue placeholder="اختر الحالة" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border-slate-200 shadow-lg">
-                        <SelectItem value="all" className="hover:bg-slate-100">جميع الحالات</SelectItem>
-                        {uniqueMaritalStatuses.map(status => (
-                          <SelectItem key={status} value={status} className="hover:bg-slate-100">{status}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    {/* Marital Status Filter */}
+                    <div className="space-y-2">
+                      <Label>الحالة الاجتماعية</Label>
+                      <Select value={maritalStatusFilter} onValueChange={setMaritalStatusFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر الحالة" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">جميع الحالات</SelectItem>
+                          {uniqueMaritalStatuses.map(status => (
+                            <SelectItem key={status} value={status}>{status}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Interest Type Filter */}
-                  <div className="space-y-2">
-                    <Label className="text-slate-700 font-medium">نوع الاهتمام</Label>
-                    <Select value={interestTypeFilter} onValueChange={setInterestTypeFilter}>
-                      <SelectTrigger className="bg-white border-slate-300 shadow-sm hover:border-primary/50 transition-colors">
-                        <SelectValue placeholder="اختر النوع" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border-slate-200 shadow-lg">
-                        <SelectItem value="all" className="hover:bg-slate-100">جميع الأنواع</SelectItem>
-                        {uniqueInterestTypes.map(type => (
-                          <SelectItem key={type} value={type} className="hover:bg-slate-100">{type}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                    {/* Interest Type Filter */}
+                    <div className="space-y-2">
+                      <Label>نوع الاهتمام</Label>
+                      <Select value={interestTypeFilter} onValueChange={setInterestTypeFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر النوع" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">جميع الأنواع</SelectItem>
+                          {uniqueInterestTypes.map(type => (
+                            <SelectItem key={type} value={type}>{type}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                  {/* Dependents Filter */}
-                  <div className="space-y-2">
-                    <Label className="text-slate-700 font-medium">عدد المُعالين</Label>
-                    <Select value={dependentsFilter} onValueChange={setDependentsFilter}>
-                      <SelectTrigger className="bg-white border-slate-300 shadow-sm hover:border-primary/50 transition-colors">
-                        <SelectValue placeholder="اختر العدد" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border-slate-200 shadow-lg">
-                        <SelectItem value="all" className="hover:bg-slate-100">جميع الأعداد</SelectItem>
-                        <SelectItem value="0" className="hover:bg-slate-100">لا يوجد</SelectItem>
-                        <SelectItem value="1-2" className="hover:bg-slate-100">1-2</SelectItem>
-                        <SelectItem value="3+" className="hover:bg-slate-100">3 أو أكثر</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    {/* Dependents Filter */}
+                    <div className="space-y-2">
+                      <Label>عدد المُعالين</Label>
+                      <Select value={dependentsFilter} onValueChange={setDependentsFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر العدد" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">جميع الأعداد</SelectItem>
+                          <SelectItem value="0">لا يوجد</SelectItem>
+                          <SelectItem value="1-2">1-2</SelectItem>
+                          <SelectItem value="3+">3 أو أكثر</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             )}
           </CardHeader>
           
           <CardContent className="p-0">
             {totalItems === 0 ? (
               <div className="text-center py-12">
-                <div className="text-slate-500 mb-4">
+                <div className="text-muted-foreground mb-4">
                   {searchQuery || showFilters ? "لا توجد عملاء يطابقون الفلاتر المحددة." : "لا توجد عملاء محتملين. أضف أول عميل للبدء."}
                 </div>
               </div>
             ) : (
               <>
-                <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-                  <table className={cn(TABLE_STYLES.container, "min-w-[900px] w-full text-end")}>
-                    <thead className={cn(TABLE_STYLES.header, "bg-slate-50 border-b border-slate-200")}>
-                      <tr className={cn(TABLE_STYLES.headerCell, "text-xs font-medium text-slate-700 uppercase tracking-wider")}>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>العميل</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>المدينة</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>العمر</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الحالة الاجتماعية</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>المُعالين</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>نوع الاهتمام</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>نطاق الميزانية</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الحالة</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>تاريخ الانضمام</th>
-                        <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الإجراءات</th>
-                      </tr>
-                    </thead>
-                    <tbody className={cn(TABLE_STYLES.body, "divide-y divide-slate-200")}>
-                      {currentPageLeads.map((lead) => (
-                      <tr key={lead.id} className={cn(TABLE_STYLES.body, "transition-colors hover:bg-slate-50")}>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4")}>
-                          <div className={cn(TYPOGRAPHY.body, "font-semibold text-slate-900")}>{lead.firstName} {lead.lastName}</div>
-                          <div className="mt-1 flex items-center gap-2 text-slate-500">
-                            <Phone size={12} />
-                            <span>{lead.phone}</span>
-                          </div>
-                        </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                          {lead.city || "غير محدد"}
-                        </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                          {lead.age || "غير محدد"}
-                        </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                          {getMaritalStatusLabel(lead.maritalStatus || "")}
-                        </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                          {lead.numberOfDependents || 0}
-                        </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                          {getInterestTypeLabel(lead.interestType || "")}
-                        </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                          {formatBudgetRange(lead.budgetRange)}
-                        </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                          <Badge variant={getLeadStatusVariant(lead.status)}>
-                            {getStatusLabel(lead.status)}
-                          </Badge>
-                        </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                          {new Date(lead.createdAt).toLocaleDateString(locale)}
-                        </td>
-                        <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                          <div className="flex items-center justify-end gap-1">
-                            <button 
-                              className="p-2 rounded-md text-emerald-600 transition-colors duration-150 hover:text-emerald-800 hover:bg-emerald-50"
-                              title="اتصال"
-                            >
-                              <Phone size={16} />
-                            </button>
-                            <button 
-                              className="p-2 rounded-md text-blue-600 transition-colors duration-150 hover:text-blue-800 hover:bg-blue-50"
-                              title="تعديل"
-                            >
-                              <Edit size={16} />
-                            </button>
-                            <button 
-                              className="p-2 rounded-md text-red-600 transition-colors duration-150 hover:text-red-800 hover:bg-red-50"
-                              onClick={() => handleDelete(lead)}
-                              title="حذف"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <Table className="min-w-[900px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-end">العميل</TableHead>
+                      <TableHead className="text-end">المدينة</TableHead>
+                      <TableHead className="text-end">العمر</TableHead>
+                      <TableHead className="text-end">الحالة الاجتماعية</TableHead>
+                      <TableHead className="text-end">المُعالين</TableHead>
+                      <TableHead className="text-end">نوع الاهتمام</TableHead>
+                      <TableHead className="text-end">نطاق الميزانية</TableHead>
+                      <TableHead className="text-end">الحالة</TableHead>
+                      <TableHead className="text-end">تاريخ الانضمام</TableHead>
+                      <TableHead className="text-end">الإجراءات</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentPageLeads.map((lead) => (
+                    <TableRow key={lead.id}>
+                      <TableCell>
+                        <div className="font-semibold">{lead.firstName} {lead.lastName}</div>
+                        <div className="mt-1 flex items-center gap-2 text-muted-foreground">
+                          <Phone size={12} />
+                          <span>{lead.phone}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-end">
+                        {lead.city || "غير محدد"}
+                      </TableCell>
+                      <TableCell className="text-end">
+                        {lead.age || "غير محدد"}
+                      </TableCell>
+                      <TableCell className="text-end">
+                        {getMaritalStatusLabel(lead.maritalStatus || "")}
+                      </TableCell>
+                      <TableCell className="text-end">
+                        {lead.numberOfDependents || 0}
+                      </TableCell>
+                      <TableCell className="text-end">
+                        {getInterestTypeLabel(lead.interestType || "")}
+                      </TableCell>
+                      <TableCell className="text-end">
+                        {formatBudgetRange(lead.budgetRange)}
+                      </TableCell>
+                      <TableCell className="text-end">
+                        <Badge variant={getLeadStatusVariant(lead.status)}>
+                          {getStatusLabel(lead.status)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-end">
+                        {new Date(lead.createdAt).toLocaleDateString(locale)}
+                      </TableCell>
+                      <TableCell className="text-end">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button 
+                            variant="ghost"
+                            size="icon"
+                            title="اتصال"
+                          >
+                            <Phone size={16} />
+                          </Button>
+                          <Button 
+                            variant="ghost"
+                            size="icon"
+                            title="تعديل"
+                          >
+                            <Edit size={16} />
+                          </Button>
+                          <Button 
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(lead)}
+                            title="حذف"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
                 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50/30">
-                    <div className="text-sm text-slate-600">
+                  <div className="flex items-center justify-between px-6 py-4 border-t">
+                    <div className="text-sm text-muted-foreground">
                       عرض {startIndex + 1} إلى {Math.min(endIndex, totalItems)} من {totalItems} عميل
                     </div>
                     <div className="flex items-center gap-2">
@@ -604,30 +603,32 @@ export default function Customers() {
             </DialogTitle>
             <DialogDescription className="text-end pt-2">
               <div className="space-y-3">
-                <p className="text-slate-600">
+                <p className="text-muted-foreground">
                   هل أنت متأكد من حذف العميل التالي؟
                 </p>
                 {leadToDelete && (
-                  <div className="bg-slate-50 rounded-lg p-3 text-sm">
-                    <div className="font-medium text-slate-900">
-                      {leadToDelete.firstName} {leadToDelete.lastName}
-                    </div>
-                    <div className="text-slate-600 mt-1">
-                      {leadToDelete.phone}
-                    </div>
-                    <div className="text-slate-600">
-                      {leadToDelete.city || "غير محدد"}
-                    </div>
-                  </div>
+                  <Card>
+                    <CardContent className="p-3 text-sm">
+                      <div className="font-medium">
+                        {leadToDelete.firstName} {leadToDelete.lastName}
+                      </div>
+                      <div className="text-muted-foreground mt-1">
+                        {leadToDelete.phone}
+                      </div>
+                      <div className="text-muted-foreground">
+                        {leadToDelete.city || "غير محدد"}
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <p className="text-red-800 text-sm font-medium">
+                <Alert variant="destructive">
+                  <AlertTitle>
                     ⚠️ تحذير: هذا الإجراء لا يمكن التراجع عنه
-                  </p>
-                  <p className="text-red-700 text-sm mt-1">
+                  </AlertTitle>
+                  <AlertDescription>
                     سيتم حذف جميع بيانات العميل نهائياً من النظام
-                  </p>
-                </div>
+                  </AlertDescription>
+                </Alert>
               </div>
             </DialogDescription>
           </DialogHeader>

@@ -24,15 +24,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import EmptyState from "@/components/ui/empty-state";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { CSVUploader } from "@/components/admin/data-display/CSVUploader";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
 import type { Lead } from "@shared/types";
 import type { UploadResult } from "@uppy/core";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, LOADING_STYLES, EMPTY_STYLES, getLeadStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { PAGE_WRAPPER, getLeadStatusVariant } from "@/config/platform-theme";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 
@@ -153,7 +154,6 @@ export default function Leads() {
   };
 
   const displayLeads = searchQuery.trim() ? searchResults : leads;
-  const iconSpacing = getIconSpacing(dir);
 
   const handleDelete = (id: string) => {
     if (confirm(t("leads.confirm_delete"))) {
@@ -221,7 +221,7 @@ export default function Leads() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className={cn(LOADING_STYLES.text, "mb-4")}>{t("leads.loading")}</div>
+        <p className="text-sm text-muted-foreground mb-4">{t("leads.loading")}</p>
         <TableSkeleton rows={6} cols={9} />
       </div>
     );
@@ -229,10 +229,10 @@ export default function Leads() {
 
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
-      <Card className={CARD_STYLES.container}>
-        <CardHeader className={CARD_STYLES.header}>
+      <Card>
+        <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className={TYPOGRAPHY.cardTitle}>
+            <CardTitle>
               {t("leads.all_leads")} ({displayLeads?.length || 0})
             </CardTitle>
             <div className="flex items-center gap-2">
@@ -241,7 +241,7 @@ export default function Leads() {
                 onComplete={handleCSVUploadComplete}
                 buttonClassName="bg-emerald-600 hover:bg-emerald-700"
               >
-                <Upload className={iconSpacing} size={16} />
+                <Upload className="me-2" size={16} />
                 {t("leads.upload_csv")}
               </CSVUploader>
               <Button variant="outline" onClick={exportLeads}>
@@ -251,87 +251,84 @@ export default function Leads() {
           </div>
         </CardHeader>
 
-        <CardContent className={CARD_STYLES.content}>
+        <CardContent>
           {csvProcessMutation.isPending && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex items-center gap-3 text-blue-700 mb-4">
-              <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700", getIconSpacing(dir))}></div>
-              {t("leads.csv_processing")}
-            </div>
+            <Alert className="mb-4">
+              <AlertDescription className="flex items-center gap-3">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary me-2"></div>
+                {t("leads.csv_processing")}
+              </AlertDescription>
+            </Alert>
           )}
 
           {!displayLeads || displayLeads.length === 0 ? (
-            <div className={cn(EMPTY_STYLES.container, "text-end")}>
-              <div className={cn(EMPTY_STYLES.description, "text-slate-600")}>
-                {searchQuery ? t("leads.no_results") : t("leads.no_leads")}
-              </div>
-            </div>
+            <EmptyState
+              title={searchQuery ? t("leads.no_results") : t("leads.no_leads")}
+            />
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-              <Table className={TABLE_STYLES.container}>
-                <TableHeader className={cn(TABLE_STYLES.header, "bg-slate-50")}>
-                  <TableRow>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.name")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.email")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.phone")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.status")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.source")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.interest")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.budget")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end")}>{t("leads.table.created_at")}</TableHead>
-                    <TableHead className={cn(TABLE_STYLES.headerCell, "text-end w-[160px]")}>{t("leads.table.actions")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody className={TABLE_STYLES.body}>
-                  {displayLeads.map((lead) => (
-                    <TableRow key={lead.id} className="divide-y divide-slate-200">
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-end font-medium")}>
-                        {lead.firstName} {lead.lastName}
-                      </TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.email}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.phone || '-'}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>
-                        <Badge variant={getLeadStatusVariant(lead.status)}>
-                          {t(`status.${lead.status}`) || lead.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.leadSource || '-'}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.interestType ? (t(`interest.${lead.interestType}`) || lead.interestType) : '-'}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.budgetRange || '-'}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{new Date(lead.createdAt).toLocaleDateString(locale)}</TableCell>
-                      <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>
-                        <div className="flex items-center gap-2">
-                          {lead.phone && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleSendWhatsApp(lead)}
-                              className="text-emerald-600 hover:text-emerald-700"
-                              title={t("whatsapp.send_message")}
-                            >
-                              <MessageCircle size={16} />
-                            </Button>
-                          )}
-                          <Button variant="ghost" size="sm">
-                            <Eye size={16} />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Edit size={16} />
-                          </Button>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-end">{t("leads.table.name")}</TableHead>
+                  <TableHead className="text-end">{t("leads.table.email")}</TableHead>
+                  <TableHead className="text-end">{t("leads.table.phone")}</TableHead>
+                  <TableHead className="text-end">{t("leads.table.status")}</TableHead>
+                  <TableHead className="text-end">{t("leads.table.source")}</TableHead>
+                  <TableHead className="text-end">{t("leads.table.interest")}</TableHead>
+                  <TableHead className="text-end">{t("leads.table.budget")}</TableHead>
+                  <TableHead className="text-end">{t("leads.table.created_at")}</TableHead>
+                  <TableHead className="text-end w-[160px]">{t("leads.table.actions")}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {displayLeads.map((lead) => (
+                  <TableRow key={lead.id}>
+                    <TableCell className="text-end font-medium">
+                      {lead.firstName} {lead.lastName}
+                    </TableCell>
+                    <TableCell className="text-end">{lead.email}</TableCell>
+                    <TableCell className="text-end">{lead.phone || '-'}</TableCell>
+                    <TableCell className="text-end">
+                      <Badge variant={getLeadStatusVariant(lead.status)}>
+                        {t(`status.${lead.status}`) || lead.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-end">{lead.leadSource || '-'}</TableCell>
+                    <TableCell className="text-end">{lead.interestType ? (t(`interest.${lead.interestType}`) || lead.interestType) : '-'}</TableCell>
+                    <TableCell className="text-end">{lead.budgetRange || '-'}</TableCell>
+                    <TableCell className="text-end">{new Date(lead.createdAt).toLocaleDateString(locale)}</TableCell>
+                    <TableCell className="text-end">
+                      <div className="flex items-center gap-2">
+                        {lead.phone && (
                           <Button
                             variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(lead.id)}
-                            disabled={deleteLeadMutation.isPending}
+                            size="icon"
+                            onClick={() => handleSendWhatsApp(lead)}
+                            title={t("whatsapp.send_message")}
                           >
-                            <Trash2 size={16} />
+                            <MessageCircle size={16} />
                           </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                        )}
+                        <Button variant="ghost" size="icon">
+                          <Eye size={16} />
+                        </Button>
+                        <Button variant="ghost" size="icon">
+                          <Edit size={16} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(lead.id)}
+                          disabled={deleteLeadMutation.isPending}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </CardContent>
       </Card>
