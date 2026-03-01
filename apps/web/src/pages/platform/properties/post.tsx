@@ -18,8 +18,7 @@
 
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES } from "@/config/platform-theme";
-import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,9 +72,9 @@ export default function PostListingPage() {
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
-        <Card className={CARD_STYLES.container}>
-          <CardHeader className={CARD_STYLES.header}>
-            <CardTitle className={TYPOGRAPHY.pageTitle}>إضافة إعلان جديد</CardTitle>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">إضافة إعلان جديد</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={onSubmit} className="space-y-4">
@@ -125,10 +124,10 @@ export default function PostListingPage() {
                   <Input id="longitude" name="longitude" value={form.longitude} onChange={onChange} placeholder="Longitude" />
                 </div>
               </div>
-              <Button className={BUTTON_PRIMARY_CLASSES} disabled={submitting}>
+              <Button disabled={submitting}>
                 {submitting ? '...جاري الإرسال' : 'إرسال للمراجعة'}
               </Button>
-              {message && <div className={cn(TYPOGRAPHY.caption, "mt-2")}>{message}</div>}
+              {message && <div className="text-xs text-muted-foreground mt-2">{message}</div>}
             </form>
           </CardContent>
         </Card>

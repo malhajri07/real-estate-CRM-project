@@ -19,9 +19,10 @@
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, LOADING_STYLES, EMPTY_STYLES } from "@/config/platform-theme";
-import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function AgencyPage() {
   const { t, dir } = useLanguage();
@@ -31,8 +32,8 @@ export default function AgencyPage() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className={LOADING_STYLES.container}>
-          <div className={LOADING_STYLES.text}>...جار التحميل</div>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Skeleton className="h-4 w-48" />
         </div>
       </div>
     );
@@ -41,11 +42,9 @@ export default function AgencyPage() {
   if (error || !data) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <Card className={CARD_STYLES.container}>
-          <CardContent className="p-6">
-            <div className={cn(EMPTY_STYLES.description, "text-red-600 text-center")}>تعذر تحميل الوكالة</div>
-          </CardContent>
-        </Card>
+        <Alert variant="destructive">
+          <AlertDescription className="text-center">تعذر تحميل الوكالة</AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -53,23 +52,23 @@ export default function AgencyPage() {
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
-        <Card className={CARD_STYLES.container}>
+        <Card>
           <CardContent className="p-6">
-            <div className={cn(TYPOGRAPHY.body, "text-slate-600 mb-6")}>وسطاء: {data.agents.length} — إعلانات: {data.listings.length}</div>
+            <div className="text-sm text-slate-600 mb-6">وسطاء: {data.agents.length} — إعلانات: {data.listings.length}</div>
           </CardContent>
         </Card>
 
-        <Card className={CARD_STYLES.container}>
-          <CardHeader className={CARD_STYLES.header}>
-            <CardTitle className={TYPOGRAPHY.sectionTitle}>الوسطاء</CardTitle>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-bold">الوسطاء</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {data.agents.map((u) => (
-                <Card key={u.id} className={cn(CARD_STYLES.container, "hover:shadow-md transition cursor-pointer")}>
+                <Card key={u.id} className="hover:shadow-md transition cursor-pointer">
                   <CardContent className="p-4">
                     <a href={`/home/platform/agent/${u.id}`} className="block">
-                      <div className={cn(TYPOGRAPHY.body, "font-semibold")}>{u.firstName} {u.lastName}</div>
+                      <div className="text-sm font-semibold">{u.firstName} {u.lastName}</div>
                     </a>
                   </CardContent>
                 </Card>
@@ -78,18 +77,18 @@ export default function AgencyPage() {
           </CardContent>
         </Card>
 
-        <Card className={CARD_STYLES.container}>
-          <CardHeader className={CARD_STYLES.header}>
-            <CardTitle className={TYPOGRAPHY.sectionTitle}>الإعلانات</CardTitle>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-bold">الإعلانات</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {data.listings.map((p) => (
-                <Card key={p.id} className={CARD_STYLES.container}>
+                <Card key={p.id}>
                   <CardContent className="p-5">
-                    <div className={cn(TYPOGRAPHY.body, "font-semibold")}>{p.title}</div>
-                    <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>{p.address}، {p.city}</div>
-                    <div className={cn(TYPOGRAPHY.sectionTitle, "text-emerald-600 font-bold")}>{p.price} ﷼</div>
+                    <div className="text-sm font-semibold">{p.title}</div>
+                    <div className="text-xs text-muted-foreground">{p.address}، {p.city}</div>
+                    <div className="text-lg text-emerald-600 font-bold">{p.price} ﷼</div>
                   </CardContent>
                 </Card>
               ))}

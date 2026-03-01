@@ -30,7 +30,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type { Lead, Property, Deal } from "@shared/types";
-import { BUTTON_PRIMARY_CLASSES, PAGE_WRAPPER, LOADING_STYLES, getIconSpacing } from "@/config/platform-theme";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
@@ -416,9 +417,9 @@ export default function Reports() {
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
         {isInitialLoading && (
-          <div className={cn(LOADING_STYLES.container, "flex-col gap-4 mb-6")} dir={dir}>
-            <div className={LOADING_STYLES.spinner} />
-            <div className={LOADING_STYLES.text}>جار تحميل التقارير...</div>
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 mb-6 min-h-[400px]" dir={dir}>
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <Skeleton className="h-4 w-48" />
           </div>
         )}
         {hasAnyError && (
@@ -448,8 +449,8 @@ export default function Reports() {
             </div>
           </div>
 
-          <Button onClick={exportReport} className={BUTTON_PRIMARY_CLASSES}>
-            <Download className={getIconSpacing(dir)} size={16} />
+          <Button onClick={exportReport}>
+            <Download className="me-2" size={16} />
             تصدير التقرير
           </Button>
         </div>
