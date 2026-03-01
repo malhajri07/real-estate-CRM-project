@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type { Activity } from "@shared/types";
-import { BUTTON_PRIMARY_CLASSES, PAGE_WRAPPER, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES, CARD_STYLES, TYPOGRAPHY, INPUT_STYLES, getIconSpacing } from "@/config/platform-theme";
+import { BUTTON_PRIMARY_CLASSES, PAGE_WRAPPER, TABLE_STYLES, LOADING_STYLES, EMPTY_STYLES, CARD_STYLES, TYPOGRAPHY, INPUT_STYLES, getIconSpacing } from "@/config/platform-theme";
 
 export default function Activities() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -26,10 +26,6 @@ export default function Activities() {
         a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         a.type.toLowerCase().includes(searchQuery.toLowerCase())
     );
-
-    const getStatusBadgeColor = (completed: boolean) => {
-        return completed ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-700";
-    };
 
     if (isLoading) {
         return (
@@ -114,7 +110,7 @@ export default function Activities() {
                                                 </div>
                                             </TableCell>
                                             <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>
-                                                <Badge className={cn(BADGE_STYLES.base, getStatusBadgeColor(!!activity.completed))}>
+                                                <Badge variant={activity.completed ? "success" : "secondary"}>
                                                     {activity.completed ? t("status.completed") : t("status.pending")}
                                                 </Badge>
                                             </TableCell>

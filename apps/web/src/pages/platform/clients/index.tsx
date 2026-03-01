@@ -27,7 +27,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { Lead, Activity } from "@shared/types";
 import { cn } from "@/lib/utils";
 import { interactiveCard, subduedText } from "@/lib/design-system";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, METRICS_CARD_STYLES, BADGE_STYLES, LOADING_STYLES, getLeadStatusBadge, ICON_CONTAINER_SM, getIconSpacing } from "@/config/platform-theme";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, METRICS_CARD_STYLES, LOADING_STYLES, getLeadStatusVariant, ICON_CONTAINER_SM, getIconSpacing } from "@/config/platform-theme";
 
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -156,7 +156,7 @@ export default function Clients() {
                           <h4 className={cn(TYPOGRAPHY.body, "font-medium text-slate-900 text-end")}>
                             {lead.firstName} {lead.lastName}
                           </h4>
-                          <Badge className={cn(BADGE_STYLES.base, getLeadStatusBadge(lead.status))}>
+                          <Badge variant={getLeadStatusVariant(lead.status)}>
                             {t(`status.${lead.status}`) || lead.status}
                           </Badge>
                         </div>
@@ -209,7 +209,7 @@ export default function Clients() {
                           <p className={cn(TYPOGRAPHY.body, "text-slate-600 text-end")}>{selectedLead.phone}</p>
                         )}
                       </div>
-                      <Badge className={cn(BADGE_STYLES.base, getLeadStatusBadge(selectedLead.status))}>
+                      <Badge variant={getLeadStatusVariant(selectedLead.status)}>
                         {selectedLead.status}
                       </Badge>
                     </div>
@@ -290,11 +290,11 @@ export default function Clients() {
                               <div className="flex-1">
                                 <div className="mb-1 flex items-center gap-2 rtl:space-x-reverse">
                                   <h4 className={cn(TYPOGRAPHY.body, "font-medium text-slate-900 text-end")}>{activity.title}</h4>
-                                  <Badge variant="outline" className={cn(BADGE_STYLES.base, TYPOGRAPHY.caption)}>
+                                  <Badge variant="outline" className={TYPOGRAPHY.caption}>
                                     {activity.activityType}
                                   </Badge>
                                   {activity.completed && (
-                                    <Badge className={cn(BADGE_STYLES.base, BADGE_STYLES.success, TYPOGRAPHY.caption)}>
+                                    <Badge variant="success" className={TYPOGRAPHY.caption}>
                                       مكتمل
                                     </Badge>
                                   )}

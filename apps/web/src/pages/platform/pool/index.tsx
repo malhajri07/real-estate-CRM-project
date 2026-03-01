@@ -9,7 +9,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import { toast } from "sonner";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, LOADING_STYLES, BADGE_STYLES, TABLE_STYLES } from "@/config/platform-theme";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, LOADING_STYLES, TABLE_STYLES } from "@/config/platform-theme";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import {
@@ -220,7 +220,7 @@ export default function PoolPage() {
                                 requests.map((req: any, idx: number) => (
                                     <TableRow key={req?.id ?? `row-${idx}`} className="border-b border-slate-100">
                                         <TableCell>
-                                            <Badge className={cn(BADGE_STYLES.base, req.type === "Buy" || req.type === "شراء" ? BADGE_STYLES.info : BADGE_STYLES.purple)}>
+                                            <Badge variant={req.type === "Buy" || req.type === "شراء" ? "info" : "purple"}>
                                                 {req.type || "—"}
                                             </Badge>
                                         </TableCell>

@@ -32,7 +32,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type { Lead } from "@shared/types";
 import type { UploadResult } from "@uppy/core";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES, getLeadStatusBadge, getIconSpacing } from "@/config/platform-theme";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, LOADING_STYLES, EMPTY_STYLES, getLeadStatusVariant, getIconSpacing } from "@/config/platform-theme";
 
 export default function Leads() {
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
@@ -279,7 +279,7 @@ export default function Leads() {
                       <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.email}</TableCell>
                       <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>{lead.phone || '-'}</TableCell>
                       <TableCell className={cn(TABLE_STYLES.cell, "text-end")}>
-                        <Badge className={cn(BADGE_STYLES.base, getLeadStatusBadge(lead.status))}>
+                        <Badge variant={getLeadStatusVariant(lead.status)}>
                           {t(`status.${lead.status}`) || lead.status}
                         </Badge>
                       </TableCell>

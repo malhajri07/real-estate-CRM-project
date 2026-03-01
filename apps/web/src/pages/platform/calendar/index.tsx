@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER, BUTTON_PRIMARY_CLASSES, CARD_STYLES, TYPOGRAPHY, BADGE_STYLES, METRICS_CARD_STYLES, ICON_CONTAINER_SM, getIconSpacing } from "@/config/platform-theme";
+import { PAGE_WRAPPER, BUTTON_PRIMARY_CLASSES, CARD_STYLES, TYPOGRAPHY, METRICS_CARD_STYLES, ICON_CONTAINER_SM, getIconSpacing, getCalendarStatusVariant } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -78,16 +78,6 @@ export default function AppointmentsManager() {
             toast({ title: t("common.success"), description: "Status updated" });
         }
     });
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'SCHEDULED': return BADGE_STYLES.info;
-            case 'COMPLETED': return BADGE_STYLES.success;
-            case 'CANCELLED': return BADGE_STYLES.error;
-            case 'RESCHEDULED': return BADGE_STYLES.warning;
-            default: return BADGE_STYLES.secondary;
-        }
-    };
 
     const formatDate = (dateString: string) => {
         return format(new Date(dateString), "PPP p", { locale: language === 'ar' ? ar : enUS });
@@ -218,7 +208,7 @@ export default function AppointmentsManager() {
                                     </div>
 
                                     <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                                        <Badge className={`${getStatusColor(appointment.status)} border-0`}>
+                                        <Badge variant={getCalendarStatusVariant(appointment.status)}>
                                             {appointment.status}
                                         </Badge>
 

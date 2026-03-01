@@ -26,7 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getPropertyStatusBadge, getIconSpacing } from "@/config/platform-theme";
+import { getPropertyStatusVariant, getIconSpacing } from "@/config/platform-theme";
 import type { Property } from "@shared/types";
 
 export default function PropertyDetail() {
@@ -62,16 +62,6 @@ export default function PropertyDetail() {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(numAmount) + ' ﷼';
-  };
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case "available": return "bg-green-100 text-green-800";
-      case "sold": return "bg-red-100 text-red-800";
-      case "withdrawn": return "bg-slate-100 text-slate-700";
-      case "pending": return "bg-yellow-100 text-yellow-800";
-      default: return "bg-slate-100 text-slate-700";
-    }
   };
 
   const shareProperty = (property: Property, platform: 'whatsapp' | 'twitter') => {
@@ -212,7 +202,7 @@ export default function PropertyDetail() {
                       <span>{property.address}, {property.city}, {property.state}</span>
                     </div>
                   </div>
-                  <Badge className={`${getPropertyStatusBadge(property.status)} rounded-full px-4 py-2`}>
+                  <Badge variant={getPropertyStatusVariant(property.status)} className="rounded-full px-4 py-2">
                     {property.status}
                   </Badge>
                 </div>

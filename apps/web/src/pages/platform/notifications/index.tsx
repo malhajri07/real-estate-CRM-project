@@ -29,7 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Lead } from "@shared/types";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BADGE_STYLES, getNotificationStatusBadge, getIconSpacing } from "@/config/platform-theme";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, getNotificationStatusVariant, getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -209,7 +209,7 @@ export default function Notifications() {
                                 <h4 className="font-semibold text-slate-900">
                                   {lead.firstName} {lead.lastName}
                                 </h4>
-                                <Badge className={cn(BADGE_STYLES.base, getNotificationStatusBadge(lead.status))}>
+                                <Badge variant={getNotificationStatusVariant(lead.status)}>
                                   {lead.status}
                                 </Badge>
                               </div>

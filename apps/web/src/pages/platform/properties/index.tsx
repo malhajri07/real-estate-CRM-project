@@ -35,7 +35,7 @@ import AddPropertyModal from "@/components/modals/add-property-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Property } from "@shared/types";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES, getPropertyStatusBadge, getIconSpacing } from "@/config/platform-theme";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, LOADING_STYLES, EMPTY_STYLES, getPropertyStatusVariant, getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -578,9 +578,9 @@ export default function Properties() {
                             <h3 className="font-semibold text-lg text-foreground line-clamp-1 tracking-tight">
                               {property.title}
                             </h3>
-                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${getPropertyStatusBadge(property.status)}`}>
+                            <Badge variant={getPropertyStatusVariant(property.status)}>
                               {property.status}
-                            </span>
+                            </Badge>
                           </div>
 
                           <p className="text-slate-500 text-sm mb-4">
@@ -765,9 +765,9 @@ export default function Properties() {
                               <div className={cn(TYPOGRAPHY.body, "text-slate-900 text-end")}>{property.propertyType}</div>
                             </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                              <span className={cn(BADGE_STYLES.base, getPropertyStatusBadge(property.status))}>
+                              <Badge variant={getPropertyStatusVariant(property.status)}>
                                 {property.status}
-                              </span>
+                              </Badge>
                             </td>
                             <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                               <div className={cn(TYPOGRAPHY.body, "font-semibold text-emerald-600 text-end")}>

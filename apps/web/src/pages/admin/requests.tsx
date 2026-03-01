@@ -21,7 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, TABLE_STYLES, INPUT_STYLES, BADGE_STYLES } from "@/config/platform-theme";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, TABLE_STYLES, INPUT_STYLES } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Search, Download, RefreshCw } from "lucide-react";
@@ -218,12 +218,11 @@ export default function AdminRequestsPage() {
                       </span>
                     </td>
                     <td className={TABLE_STYLES.cell}>
-                      <Badge className={cn(
-                        BADGE_STYLES.base,
-                        r.status === 'new' ? BADGE_STYLES.warning :
-                        r.status === 'contacted' ? BADGE_STYLES.info :
-                        BADGE_STYLES.secondary
-                      )}>
+                      <Badge variant={
+                        r.status === 'new' ? 'warning' :
+                        r.status === 'contacted' ? 'info' :
+                        'secondary'
+                      }>
                         {r.status === 'new' ? 'جديد' : r.status === 'contacted' ? 'تم التواصل' : 'مغلق'}
                       </Badge>
                     </td>

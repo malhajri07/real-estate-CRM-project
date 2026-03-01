@@ -31,7 +31,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Lead } from "@shared/types";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, INPUT_STYLES, EMPTY_STYLES, LOADING_STYLES, BADGE_STYLES, getLeadStatusBadge, getIconSpacing } from "@/config/platform-theme";
+import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, INPUT_STYLES, EMPTY_STYLES, LOADING_STYLES, getLeadStatusVariant, getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -487,9 +487,9 @@ export default function Customers() {
                           {formatBudgetRange(lead.budgetRange)}
                         </td>
                         <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                          <span className={cn(BADGE_STYLES.base, getLeadStatusBadge(lead.status))}>
+                          <Badge variant={getLeadStatusVariant(lead.status)}>
                             {getStatusLabel(lead.status)}
-                          </span>
+                          </Badge>
                         </td>
                         <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                           {new Date(lead.createdAt).toLocaleDateString(locale)}
