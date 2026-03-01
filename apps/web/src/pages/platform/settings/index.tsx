@@ -26,8 +26,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, User, Save, Upload, Shield, Bell, Users, CheckCircle, TrendingUp, ChevronDown } from "lucide-react";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, getIconSpacing } from "@/config/platform-theme";
-import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER, getIconSpacing } from "@/config/platform-theme";
+import { Switch } from "@/components/ui/switch";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AccountDetails {
@@ -114,41 +115,46 @@ export default function Settings() {
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-8">
-        <div className={cn(CARD_STYLES.container, "px-6 py-5 flex flex-col gap-4")}>
-        <div>
-          <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 px-3 py-1 rounded-full text-xs">
-            إعدادات المنصة والملف الشخصي
-          </Badge>
-          <h1 className={cn(TYPOGRAPHY.pageTitle, "mt-3 text-slate-900")}>الإعدادات</h1>
-          <p className={cn(TYPOGRAPHY.body, "text-slate-500 mt-2")}>إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد</p>
-        </div>
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <Button variant="outline" size="sm" className={cn("rounded-xl", BUTTON_PRIMARY_CLASSES)} onClick={handleAccountSave}>
-            <Save size={16} className={getIconSpacing(dir)} /> حفظ التغييرات
-          </Button>
-        </div>
-        </div>
+        <Card className="px-6 py-5">
+          <div className="flex flex-col gap-4">
+            <div>
+              <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 px-3 py-1 rounded-full text-xs">
+                إعدادات المنصة والملف الشخصي
+              </Badge>
+              <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mt-3">الإعدادات</h1>
+              <p className="text-sm font-medium text-slate-500 leading-relaxed mt-2">إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد</p>
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Button size="sm" onClick={handleAccountSave}>
+                <Save size={16} className={getIconSpacing(dir)} /> حفظ التغييرات
+              </Button>
+            </div>
+          </div>
+        </Card>
 
         <div className="grid gap-6">
-          <Card className={CARD_STYLES.container}>
-            <CardHeader className={cn(CARD_STYLES.header, "pb-5 flex items-center justify-between")}>
+          <Collapsible open={companyOpen} onOpenChange={setCompanyOpen}>
+          <Card>
+            <CardHeader className="pb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Building2 size={18} /></span>
               <div className="text-end">
-                <CardTitle className={cn(TYPOGRAPHY.cardTitle, "text-slate-900")}>معلومات الشركة</CardTitle>
-                <CardDescription className={cn(TYPOGRAPHY.body, "text-slate-500")}>تفاصيل النشاط التجاري وقنوات التواصل الرسمية</CardDescription>
+                <CardTitle>معلومات الشركة</CardTitle>
+                <CardDescription>تفاصيل النشاط التجاري وقنوات التواصل الرسمية</CardDescription>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setCompanyOpen((prev) => !prev)}
-              className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
-              aria-label="تبديل عرض معلومات الشركة"
-            >
-              <ChevronDown className={`h-4 w-4 transition-transform ${companyOpen ? "rotate-180" : ""}`} />
-            </button>
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
+                aria-label="تبديل عرض معلومات الشركة"
+              >
+                <ChevronDown className={`h-4 w-4 transition-transform ${companyOpen ? "rotate-180" : ""}`} />
+              </button>
+            </CollapsibleTrigger>
           </CardHeader>
-          <CardContent className={`space-y-6 pt-6 ${companyOpen ? "" : "hidden"}`}>
+          <CollapsibleContent>
+          <CardContent className="space-y-6 pt-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -288,14 +294,17 @@ export default function Settings() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-100 bg-white/70 p-6 shadow-sm">
-              <div className="flex items-center gap-3 pb-4 border-b border-dashed border-slate-200">
-                <span className="rounded-full bg-primary/10 p-2 text-primary"><User size={18} /></span>
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">جهة الاتصال الرئيسية</h3>
-                  <p className="text-sm text-slate-500">بيانات الشخص المسؤول عن إدارة الحساب</p>
+            <Card>
+              <CardHeader className="pb-4 border-b border-dashed border-slate-200">
+                <div className="flex items-center gap-3">
+                  <span className="rounded-full bg-primary/10 p-2 text-primary"><User size={18} /></span>
+                  <div>
+                    <CardTitle>جهة الاتصال الرئيسية</CardTitle>
+                    <CardDescription>بيانات الشخص المسؤول عن إدارة الحساب</CardDescription>
+                  </div>
                 </div>
-              </div>
+              </CardHeader>
+              <CardContent className="pt-6">
               <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="contactPerson" className="block text-sm font-medium text-slate-700">الاسم الكامل</Label>
@@ -346,29 +355,35 @@ export default function Settings() {
                   حفظ تفاصيل الحساب
                 </Button>
               </div>
-            </div>
+              </CardContent>
+            </Card>
           </CardContent>
+          </CollapsibleContent>
         </Card>
+        </Collapsible>
 
-        <Card className="ui-surface">
+        <Collapsible open={profileOpen} onOpenChange={setProfileOpen}>
+        <Card>
           <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Users size={18} /></span>
               <div className="text-end">
-                <CardTitle className="text-xl font-semibold text-slate-900">الملف الشخصي للفريق</CardTitle>
-                <CardDescription className="text-sm text-slate-500">تحكم ببياناتك الشخصية وصورتك الظاهرة في المنصة</CardDescription>
+                <CardTitle>الملف الشخصي للفريق</CardTitle>
+                <CardDescription>تحكم ببياناتك الشخصية وصورتك الظاهرة في المنصة</CardDescription>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setProfileOpen((prev) => !prev)}
-              className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
-              aria-label="تبديل عرض الملف الشخصي"
-            >
-              <ChevronDown className={`h-4 w-4 transition-transform ${profileOpen ? "rotate-180" : ""}`} />
-            </button>
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
+                aria-label="تبديل عرض الملف الشخصي"
+              >
+                <ChevronDown className={`h-4 w-4 transition-transform ${profileOpen ? "rotate-180" : ""}`} />
+              </button>
+            </CollapsibleTrigger>
           </CardHeader>
-          <CardContent className={`space-y-6 pt-6 ${profileOpen ? "" : "hidden"}`}>
+          <CollapsibleContent>
+          <CardContent className="space-y-6 pt-6">
             <div className="flex items-center gap-6">
               <Avatar className="h-24 w-24">
                 <AvatarImage src={userProfile.avatar} />
@@ -461,27 +476,32 @@ export default function Settings() {
               </Button>
             </div>
           </CardContent>
+          </CollapsibleContent>
         </Card>
+        </Collapsible>
 
-        <Card className="ui-surface">
+        <Collapsible open={securityOpen} onOpenChange={setSecurityOpen}>
+        <Card>
           <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Shield size={18} /></span>
               <div className="text-end">
-                <CardTitle className="text-xl font-semibold text-slate-900">الأمان وكلمة المرور</CardTitle>
-                <CardDescription className="text-sm text-slate-500">قم بتحديث كلمة المرور الخاصة بك بانتظام لحماية الحساب</CardDescription>
+                <CardTitle>الأمان وكلمة المرور</CardTitle>
+                <CardDescription>قم بتحديث كلمة المرور الخاصة بك بانتظام لحماية الحساب</CardDescription>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setSecurityOpen((prev) => !prev)}
-              className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
-              aria-label="تبديل عرض إعدادات الأمان"
-            >
-              <ChevronDown className={`h-4 w-4 transition-transform ${securityOpen ? "rotate-180" : ""}`} />
-            </button>
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
+                aria-label="تبديل عرض إعدادات الأمان"
+              >
+                <ChevronDown className={`h-4 w-4 transition-transform ${securityOpen ? "rotate-180" : ""}`} />
+              </button>
+            </CollapsibleTrigger>
           </CardHeader>
-          <CardContent className={`space-y-4 pt-6 ${securityOpen ? "" : "hidden"}`}>
+          <CollapsibleContent>
+          <CardContent className="space-y-4 pt-6">
             <div className="space-y-2">
               <Label htmlFor="currentPassword" className="block text-sm font-medium text-slate-700">كلمة المرور الحالية</Label>
               <Input id="currentPassword" type="password" className="text-subtle" data-testid="input-current-password" />
@@ -499,59 +519,72 @@ export default function Settings() {
               تغيير كلمة المرور
             </Button>
           </CardContent>
+          </CollapsibleContent>
         </Card>
+        </Collapsible>
 
-        <Card className="ui-surface">
+        <Collapsible open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+        <Card>
           <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-primary/10 p-2 text-primary"><Bell size={18} /></span>
               <div className="text-end">
-                <CardTitle className="text-xl font-semibold text-slate-900">إعدادات الإشعارات</CardTitle>
-                <CardDescription className="text-sm text-slate-500">حدد الإشعارات التي ترغب باستلامها عن نشاط المنصة</CardDescription>
+                <CardTitle>إعدادات الإشعارات</CardTitle>
+                <CardDescription>حدد الإشعارات التي ترغب باستلامها عن نشاط المنصة</CardDescription>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setNotificationsOpen((prev) => !prev)}
-              className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
-              aria-label="تبديل عرض إعدادات الإشعارات"
-            >
-              <ChevronDown className={`h-4 w-4 transition-transform ${notificationsOpen ? "rotate-180" : ""}`} />
-            </button>
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
+                aria-label="تبديل عرض إعدادات الإشعارات"
+              >
+                <ChevronDown className={`h-4 w-4 transition-transform ${notificationsOpen ? "rotate-180" : ""}`} />
+              </button>
+            </CollapsibleTrigger>
           </CardHeader>
-          <CardContent className={`space-y-4 pt-6 ${notificationsOpen ? "" : "hidden"}`}>
-            <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-              <input type="checkbox" defaultChecked className="toggle ms-4" data-testid="toggle-new-leads" />
-              <div className="flex-1 pe-4">
-                <div className="font-medium text-slate-900 mb-1">عملاء محتملين جدد</div>
-                <div className="text-sm text-slate-500">إشعار عند إضافة عملاء محتملين جدد</div>
+          <CollapsibleContent>
+          <CardContent className="space-y-4 pt-6">
+            <Card className="rounded-2xl bg-slate-50/60 p-4">
+              <div className="flex items-center justify-between">
+                <Switch defaultChecked data-testid="toggle-new-leads" />
+                <div className="flex-1 pe-4 ps-4">
+                  <div className="font-medium text-slate-900 mb-1">عملاء محتملين جدد</div>
+                  <div className="text-sm text-slate-500">إشعار عند إضافة عملاء محتملين جدد</div>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                  <Users size={18} />
+                </div>
               </div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-                <Users size={18} />
+            </Card>
+            <Card className="rounded-2xl bg-slate-50/60 p-4">
+              <div className="flex items-center justify-between">
+                <Switch defaultChecked data-testid="toggle-task-updates" />
+                <div className="flex-1 pe-4 ps-4">
+                  <div className="font-medium text-slate-900 mb-1">تحديثات المهام</div>
+                  <div className="text-sm text-slate-500">إشعار عند اكتمال أو تحديث المهام</div>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                  <CheckCircle size={18} />
+                </div>
               </div>
-            </div>
-            <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-              <input type="checkbox" defaultChecked className="toggle ms-4" data-testid="toggle-task-updates" />
-              <div className="flex-1 pe-4">
-                <div className="font-medium text-slate-900 mb-1">تحديثات المهام</div>
-                <div className="text-sm text-slate-500">إشعار عند اكتمال أو تحديث المهام</div>
+            </Card>
+            <Card className="rounded-2xl bg-slate-50/60 p-4">
+              <div className="flex items-center justify-between">
+                <Switch defaultChecked data-testid="toggle-new-deals" />
+                <div className="flex-1 pe-4 ps-4">
+                  <div className="font-medium text-slate-900 mb-1">صفقات جديدة</div>
+                  <div className="text-sm text-slate-500">إشعار عند إنشاء صفقات جديدة</div>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-orange-600">
+                  <TrendingUp size={18} />
+                </div>
               </div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                <CheckCircle size={18} />
-              </div>
-            </div>
-            <div className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
-              <input type="checkbox" defaultChecked className="toggle ms-4" data-testid="toggle-new-deals" />
-              <div className="flex-1 pe-4">
-                <div className="font-medium text-slate-900 mb-1">صفقات جديدة</div>
-                <div className="text-sm text-slate-500">إشعار عند إنشاء صفقات جديدة</div>
-              </div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-orange-600">
-                <TrendingUp size={18} />
-              </div>
-            </div>
+            </Card>
           </CardContent>
+          </CollapsibleContent>
           </Card>
+        </Collapsible>
         </div>
       </section>
     </div>

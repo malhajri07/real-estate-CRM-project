@@ -17,7 +17,7 @@
  * - apps/web/src/hooks/useDashboardData.ts - Dashboard data hook
  */
 
-import { ReactNode, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
@@ -61,8 +61,7 @@ import {
 } from "lucide-react";
 import AddPropertyDrawer from "@/components/modals/add-property-drawer";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { cn } from "@/lib/utils";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, LOADING_STYLES } from "@/config/platform-theme";
+import EmptyState from "@/components/ui/empty-state";
 
 type MetricResponse = {
   totalLeads: number;
@@ -285,13 +284,14 @@ export default function Dashboard() {
           {/* Pipeline Flow + Revenue Chart - side by side on large screens */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Clean Pipeline Flow */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <PipelineFlow stages={pipelineStages} />
-            </div>
+            <Card className="rounded-2xl">
+              <CardContent className="p-6">
+                <PipelineFlow stages={pipelineStages} />
+              </CardContent>
+            </Card>
 
-            {/* Revenue Chart with Clean Background */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-            <Card className="bg-transparent border-0 shadow-none p-0">
+            {/* Revenue Chart */}
+            <Card className="rounded-2xl p-6">
               <CardHeader className="pb-4 px-0 pt-0">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
@@ -312,11 +312,9 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
-          </div>
 
-          {/* Clean Recent Leads */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
-            <Card className="bg-transparent border-0 shadow-none p-0">
+          {/* Recent Leads */}
+          <Card className="rounded-2xl p-6">
               <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between pb-6 px-0 pt-0">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
@@ -376,28 +374,27 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
-        </div>
 
         {/* Right Column - Sidebar */}
         <div className="space-y-8">
-          {/* Enhanced Quick Actions */}
-          <Card className={CARD_STYLES.container}>
-            <CardHeader className={CARD_STYLES.header}>
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
                   <Zap className="h-6 w-6" />
                 </div>
                 <div>
-                  <CardTitle className={TYPOGRAPHY.cardTitle}>
+                  <CardTitle>
                     {t("dashboard.quick_actions")}
                   </CardTitle>
-                  <CardDescription className={TYPOGRAPHY.cardDescription}>
+                  <CardDescription>
                     {t("dashboard.quick_actions_description")}
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className={cn(CARD_STYLES.content, "space-y-3")}>
+            <CardContent className="space-y-3">
               {quickActions.map((action, index) => (
                 <ActionCard
                   key={action.id}
@@ -413,24 +410,24 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Enhanced Today's Tasks */}
-          <Card className={CARD_STYLES.container}>
-            <CardHeader className={CARD_STYLES.header}>
+          {/* Today's Tasks */}
+          <Card>
+            <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
                   <ListTodo className="h-6 w-6" />
                 </div>
                 <div>
-                  <CardTitle className={TYPOGRAPHY.cardTitle}>
+                  <CardTitle>
                     {t("dashboard.tasks_title")}
                   </CardTitle>
-                  <CardDescription className={TYPOGRAPHY.cardDescription}>
+                  <CardDescription>
                     {t("dashboard.tasks_description")}
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className={CARD_STYLES.content}>
+            <CardContent>
               {activitiesLoading ? (
                 <div className="space-y-4">
                   {Array.from({ length: 3 }).map((_, index) => (
@@ -463,24 +460,6 @@ export default function Dashboard() {
       </div>
 
       <AddPropertyDrawer open={addPropertyDrawerOpen} onOpenChange={setAddPropertyDrawerOpen} />
-    </div>
-  );
-}
-
-
-
-interface EmptyStateProps {
-  title: string;
-  description: string;
-  action?: ReactNode;
-}
-
-function EmptyState({ title, description, action }: EmptyStateProps) {
-  return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center">
-      <p className="text-base font-semibold text-slate-900">{title}</p>
-      <p className="text-sm text-slate-500">{description}</p>
-      {action}
     </div>
   );
 }
