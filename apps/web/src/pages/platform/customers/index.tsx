@@ -581,7 +581,6 @@ export default function Customers() {
             )}
           </CardContent>
         </Card>
-      </Card>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
