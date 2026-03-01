@@ -29,12 +29,13 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Lead } from "@shared/types";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, getNotificationStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, LOADING_STYLES, getNotificationStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Notifications() {
-  const { dir, language } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const locale = language === "ar" ? "ar-SA" : "en-US";
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
@@ -46,7 +47,7 @@ export default function Notifications() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: leads, isLoading } = useQuery<Lead[]>({
+  const { data: leads, isLoading, isError, refetch } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
   });
 
@@ -140,15 +141,23 @@ export default function Notifications() {
     setWhatsappModalOpen(true);
   };
 
+  if (isError) {
+    return (
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <QueryErrorFallback message={t("notifications.load_error") || "Failed to load notifications."} onRetry={() => refetch()} />
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-slate-500">جار تحميل إشعارات العملاء...</div>
+        <div className="flex-1 flex items-center justify-center min-h-[200px]">
+          <div className={LOADING_STYLES.text}>جار تحميل إشعارات العملاء...</div>
         </div>
-    </div>
-  );
-}
+      </div>
+    );
+  }
 
   return (
     <>

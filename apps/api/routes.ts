@@ -82,6 +82,9 @@ import csvRoutes from "./routes/csv";
 import billingRoutes from "./routes/billing";
 import supportRoutes from "./routes/support";
 import appointmentsRoutes from "./routes/appointments";
+import inquiriesRoutes from "./routes/inquiries";
+import auditLogsRoutes from "./routes/audit-logs";
+import knowledgeBaseRoutes from "./routes/knowledge-base";
 import { JWT_SECRET as getJwtSecret } from "./config/env";
 import { localeMiddleware } from "./src/middleware/locale";
 
@@ -162,6 +165,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.path.startsWith('/api/rbac-admin/')) return true; // Admin dashboard needs more requests
       return false;
     },
+  });
+
+  // Health check - before rate limiter so it's always available for load balancers
+  app.get("/api/health", (_req, res) => {
+    res.status(200).json({ ok: true, timestamp: new Date().toISOString() });
   });
 
   // Apply general rate limiting to all API routes
@@ -397,6 +405,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Preview route for landing page
   app.use("/preview/landing", landingRoutes);
+
+  app.use("/api/inquiries", inquiriesRoutes);
+  app.use("/api/audit-logs", auditLogsRoutes);
+  app.use("/api/knowledge-base", knowledgeBaseRoutes);
 
   /**
    * Health Check Endpoint - /health

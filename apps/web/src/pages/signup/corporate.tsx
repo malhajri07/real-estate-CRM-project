@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, ArrowRight, Building2, Loader2, Check, ChevronRight, ChevronLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getIconSpacing } from "@/config/platform-theme";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { cn } from "@/lib/utils";
 
@@ -67,6 +68,7 @@ export default function SignupCorporate() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { dir } = useLanguage();
+  const iconSpacing = getIconSpacing(dir);
 
   // Wizard State
   const [currentStep, setCurrentStep] = useState(1);
@@ -362,7 +364,7 @@ export default function SignupCorporate() {
                           <div className="text-xs text-gray-400">{step.description}</div>
                         </div>
                         {index < STEPS.length - 1 && (
-                          <div className="hidden lg:block absolute right-[23px] top-[48px] h-8 w-0.5 bg-gray-200 -z-10" />
+                          <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-slate-200 -z-10" />
                         )}
                       </div>
                     );
@@ -668,7 +670,7 @@ export default function SignupCorporate() {
                             onChange={(e) => setCommercialRegDoc(e.target.files)}
                             className="h-12 rounded-xl border-slate-200 bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
                           />
-                          <Upload className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
                         </div>
                       </div>
 
@@ -682,7 +684,7 @@ export default function SignupCorporate() {
                             onChange={(e) => setVatCertificate(e.target.files)}
                             className="h-12 rounded-xl border-slate-200 bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
                           />
-                          <Upload className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
                         </div>
                       </div>
 
@@ -696,7 +698,7 @@ export default function SignupCorporate() {
                             onChange={(e) => setCompanyProfile(e.target.files)}
                             className="h-12 rounded-xl border-slate-200 bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
                           />
-                          <Upload className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
                         </div>
                       </div>
                     </div>
@@ -760,7 +762,7 @@ export default function SignupCorporate() {
                     disabled={currentStep === 1}
                     className="h-12 rounded-2xl border-slate-200 px-8 text-slate-600 transition-colors hover:bg-slate-100"
                   >
-                    <ChevronRight className="ml-2 h-4 w-4" />
+                    <ChevronRight className={cn(iconSpacing, "h-4 w-4")} />
                     السابق
                   </Button>
 
@@ -771,7 +773,7 @@ export default function SignupCorporate() {
                       className="h-12 rounded-2xl bg-emerald-600 px-8 text-white hover:bg-emerald-700"
                     >
                       التالي
-                      <ChevronLeft className="mr-2 h-4 w-4" />
+                      <ChevronLeft className={cn(dir === "rtl" ? "me-2" : "ms-2", "h-4 w-4")} />
                     </Button>
                   ) : (
                     <Button
@@ -781,7 +783,7 @@ export default function SignupCorporate() {
                     >
                       {isLoading ? (
                         <>
-                          <Loader2 className="ml-2 h-5 w-5 animate-spin" />
+                          <Loader2 className={cn(iconSpacing, "h-5 w-5 animate-spin")} />
                           جاري الإرسال...
                         </>
                       ) : (

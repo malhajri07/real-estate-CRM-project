@@ -16,6 +16,7 @@
 
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -39,10 +40,28 @@ const routeMatches = (item: PlatformSidebarChildConfig, currentLocation: string)
   return false;
 };
 
+const PATH_PREFETCH_KEYS: Record<string, unknown[][]> = {
+  "/home/platform/leads": [["/api/leads"]],
+  "/home/platform/customers": [["/api/leads"]],
+  "/home/platform/properties": [["/api/listings?pageSize=all"]],
+  "/home/platform/notifications": [["/api/leads"]],
+  "/home/platform/clients": [["/api/leads"]],
+  "/home/platform/dashboard": [["/api/reports/dashboard/metrics"]],
+};
+
 export default function Sidebar({ onLogout }: SidebarProps) {
   const [location] = useLocation();
   const { t, dir } = useLanguage();
   const { hasRole } = useAuth();
+  const queryClient = useQueryClient();
+
+  const prefetchOnHover = (path: string) => {
+    const keys = PATH_PREFETCH_KEYS[path];
+    if (!keys) return;
+    keys.forEach((queryKey) => {
+      queryClient.prefetchQuery({ queryKey });
+    });
+  };
 
   const isItemVisible = (item: PlatformSidebarChildConfig): boolean => {
     if (!item.allowedRoles) return true;
@@ -109,6 +128,7 @@ export default function Sidebar({ onLogout }: SidebarProps) {
         <li key={item.id}>
           <Link
             href={item.path}
+            onMouseEnter={() => prefetchOnHover(item.path)}
             className={cn(
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group relative",
               dir === "rtl" ? "text-end" : "text-start",

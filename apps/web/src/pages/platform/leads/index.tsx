@@ -34,6 +34,7 @@ import type { Lead } from "@shared/types";
 import type { UploadResult } from "@uppy/core";
 import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, LOADING_STYLES, EMPTY_STYLES, getLeadStatusVariant, getIconSpacing } from "@/config/platform-theme";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 
 export default function Leads() {
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
@@ -219,8 +220,9 @@ export default function Leads() {
 
   if (isLoading) {
     return (
-      <div className={LOADING_STYLES.container} dir={dir}>
-        <div className={LOADING_STYLES.text}>{t("leads.loading")}</div>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <div className={cn(LOADING_STYLES.text, "mb-4")}>{t("leads.loading")}</div>
+        <TableSkeleton rows={6} cols={9} />
       </div>
     );
   }

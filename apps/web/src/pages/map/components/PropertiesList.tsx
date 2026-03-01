@@ -23,9 +23,10 @@
 import { MapPin, Bed, Bath, Heart, Eye, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logger } from "@/lib/logger";
-import { TABLE_STYLES, TYPOGRAPHY, BADGE_STYLES } from "@/config/platform-theme";
+import { TABLE_STYLES, TYPOGRAPHY, getMapPropertyStatusVariant } from "@/config/platform-theme";
 import type { PropertiesListProps, PropertySummary } from "../types";
-import { formatCurrency, getStatusBadgeClasses } from "../utils/formatters";
+import { formatCurrency } from "../utils/formatters";
+import { Badge } from "@/components/ui/badge";
 
 export function PropertiesList({
   properties,
@@ -150,9 +151,9 @@ export function PropertiesList({
                 {/* Status */}
                 <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
                   {property.status && (
-                    <span className={cn(BADGE_STYLES.base, getStatusBadgeClasses(property.status))}>
+                    <Badge variant={getMapPropertyStatusVariant(property.status)}>
                       {property.status}
-                    </span>
+                    </Badge>
                   )}
                 </td>
 

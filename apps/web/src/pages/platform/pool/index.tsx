@@ -9,7 +9,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import { toast } from "sonner";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, LOADING_STYLES, TABLE_STYLES } from "@/config/platform-theme";
+import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, TABLE_STYLES } from "@/config/platform-theme";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import {
@@ -170,9 +171,7 @@ export default function PoolPage() {
             {/* Pool Table */}
             <div className={cn(CARD_STYLES.container, "overflow-hidden")}>
                 {isLoading ? (
-                    <div className="flex items-center justify-center py-20">
-                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
-                    </div>
+                    <TableSkeleton rows={6} cols={11} />
                 ) : (
                     <div dir={dir} className="w-full overflow-x-auto">
                         <Table className={cn(TABLE_STYLES.container, "min-w-[850px]")}>

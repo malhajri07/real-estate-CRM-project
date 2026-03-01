@@ -128,6 +128,17 @@ export const getNotificationStatusVariant = (status: string): BadgeVariant => {
   }
 };
 
+/** Map page property status → Shadcn Badge variant (map-specific: sold=success, withdrawn=destructive) */
+export const getMapPropertyStatusVariant = (status: string): BadgeVariant => {
+  switch (status) {
+    case 'active': return 'warning';
+    case 'pending': return 'info';
+    case 'sold': return 'success';
+    case 'withdrawn': return 'destructive';
+    default: return 'secondary';
+  }
+};
+
 /** Calendar/appointment status → Shadcn Badge variant */
 export const getCalendarStatusVariant = (status: string): BadgeVariant => {
   switch (status) {

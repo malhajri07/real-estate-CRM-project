@@ -22,6 +22,7 @@ import { Upload, ArrowRight, UserRound, Loader2, Check, ChevronRight, ChevronLef
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { getIconSpacing } from "@/config/platform-theme";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,7 @@ export default function SignupIndividual() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { dir } = useLanguage();
+  const iconSpacing = getIconSpacing(dir);
 
   // Wizard State
   const [currentStep, setCurrentStep] = useState(1);
@@ -351,7 +353,7 @@ export default function SignupIndividual() {
                           <div className="text-xs text-gray-400">{step.description}</div>
                         </div>
                         {index < STEPS.length - 1 && (
-                          <div className="hidden lg:block absolute right-[23px] top-[48px] h-8 w-0.5 bg-gray-200 -z-10" />
+                          <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-slate-200 -z-10" />
                         )}
                       </div>
                     );
@@ -570,7 +572,7 @@ export default function SignupIndividual() {
                           required
                           className="h-14 rounded-xl border-slate-200 bg-white/50 text-end focus:ring-emerald-500 file:mr-10 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-emerald-50 file:px-6 file:py-0 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100 pl-10 cursor-pointer transition-all"
                         />
-                        <Upload className="w-5 h-5 text-emerald-600 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Upload className="w-5 h-5 text-emerald-600 absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
                       <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">
                         <span className="flex items-center justify-center w-4 h-4 rounded-full bg-emerald-100 text-emerald-600">
@@ -651,7 +653,7 @@ export default function SignupIndividual() {
                     disabled={currentStep === 1}
                     className="h-12 rounded-2xl border-slate-200 px-8 text-slate-600 transition-colors hover:bg-slate-100"
                   >
-                    <ChevronRight className="ml-2 h-4 w-4" />
+                    <ChevronRight className={cn(iconSpacing, "h-4 w-4")} />
                     السابق
                   </Button>
 
@@ -662,7 +664,7 @@ export default function SignupIndividual() {
                       className="h-12 rounded-2xl bg-emerald-600 px-8 text-white hover:bg-emerald-700"
                     >
                       التالي
-                      <ChevronLeft className="mr-2 h-4 w-4" />
+                      <ChevronLeft className={cn(dir === "rtl" ? "me-2" : "ms-2", "h-4 w-4")} />
                     </Button>
                   ) : (
                     <Button
@@ -672,7 +674,7 @@ export default function SignupIndividual() {
                     >
                       {isLoading ? (
                         <>
-                          <Loader2 className="ml-2 h-5 w-5 animate-spin" />
+                          <Loader2 className={cn(iconSpacing, "h-5 w-5 animate-spin")} />
                           جاري الإنشاء...
                         </>
                       ) : (

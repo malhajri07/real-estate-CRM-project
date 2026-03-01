@@ -1,28 +1,25 @@
-// Install `@playwright/test` locally before running these visual tests:
-//   npm install --save-dev @playwright/test
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  testDir: './apps/web/tests',
-  timeout: 60_000,
-  expect: {
-    toHaveScreenshot: {
-      maxDiffPixelRatio: 0.02,
-    },
-  },
-  workers: 1,
+  testDir: "./e2e",
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: "html",
   use: {
-    baseURL: 'http://127.0.0.1:5173',
-    viewport: { width: 1280, height: 720 },
-    browserName: 'chromium',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000",
+    trace: "on-first-retry",
   },
-  webServer: {
-    command: 'npm run dev:client',
-    url: 'http://127.0.0.1:5173',
-    reuseExistingServer: !process.env.CI,
-    stdout: 'pipe',
-    stderr: 'pipe',
-    timeout: 120_000,
-  },
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+  ],
+  webServer: process.env.CI
+    ? undefined
+    : {
+        command: "pnpm run dev",
+        url: "http://localhost:3000",
+        reuseExistingServer: !process.env.CI,
+        timeout: 120000,
+      },
 });
-

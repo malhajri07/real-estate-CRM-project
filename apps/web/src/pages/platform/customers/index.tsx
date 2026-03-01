@@ -32,11 +32,13 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Lead } from "@shared/types";
 import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, INPUT_STYLES, EMPTY_STYLES, LOADING_STYLES, getLeadStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Customers() {
-  const { dir, language } = useLanguage();
+  const { t, dir, language } = useLanguage();
   const locale = language === "ar" ? "ar-SA" : "en-US";
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -58,7 +60,7 @@ export default function Customers() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: leads, isLoading } = useQuery<Lead[]>({
+  const { data: leads, isLoading, isError, refetch } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
   });
 
@@ -284,10 +286,19 @@ export default function Customers() {
     setLeadToDelete(null);
   };
 
+  if (isError) {
+    return (
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <QueryErrorFallback message={t("customers.load_error") || "Failed to load customers."} onRetry={() => refetch()} />
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
-      <div className={LOADING_STYLES.container} dir={dir}>
-        <div className={LOADING_STYLES.text}>جار تحميل العملاء...</div>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <div className={cn(LOADING_STYLES.text, "mb-4")}>جار تحميل العملاء...</div>
+        <TableSkeleton rows={6} cols={8} />
       </div>
     );
   }

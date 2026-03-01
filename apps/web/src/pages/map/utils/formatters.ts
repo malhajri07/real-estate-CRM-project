@@ -57,24 +57,6 @@ export const sqmFromSquareFeet = (squareFeet: number | null | undefined) =>
   squareFeet && squareFeet > 0 ? Math.round(squareFeet * 0.092903) : null;
 
 /**
- * Map property status to Tailwind badge classes
- */
-export const getStatusBadgeClasses = (status: string) => {
-  switch (status) {
-    case "active":
-      return "bg-yellow-100 text-yellow-800 border border-yellow-200";
-    case "pending":
-      return "bg-blue-100 text-blue-800 border border-blue-200";
-    case "sold":
-      return "bg-green-100 text-green-800 border border-green-200";
-    case "withdrawn":
-      return "bg-red-100 text-red-800 border border-red-200";
-    default:
-      return "bg-slate-100 text-slate-700 border border-slate-200";
-  }
-};
-
-/**
  * Attempts to sanitize and parse numeric values from different sources
  */
 export const asNumber = (value: unknown): number | null => {

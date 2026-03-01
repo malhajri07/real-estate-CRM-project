@@ -19,7 +19,10 @@
     "db:seed-saudi-geography": "tsx apps/api/scripts/seed-saudi-geography.ts",
     "db:seed-saudi-boundaries": "tsx apps/api/scripts/seed-saudi-boundaries.ts",
     "db:agent1": "tsx scripts/create-agent1.ts",
-    "delete-legacy-agents": "tsx apps/api/scripts/delete-legacy-agent-users.ts"
+    "delete-legacy-agents": "tsx apps/api/scripts/delete-legacy-agent-users.ts",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "build:analyze": "ANALYZE_BUNDLE=true pnpm run build"
   },
   "prisma": {
     "schema": "data/schema/prisma/schema.prisma",
@@ -154,6 +157,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "postcss": "^8.4.47",
+    "@playwright/test": "^1.49.0",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.1",
     "typescript": "5.6.3",

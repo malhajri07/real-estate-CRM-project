@@ -36,11 +36,13 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Property } from "@shared/types";
 import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, LOADING_STYLES, EMPTY_STYLES, getPropertyStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Properties() {
-  const { dir } = useLanguage();
+  const { t, dir } = useLanguage();
   const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,7 +65,7 @@ export default function Properties() {
 
   const PROPERTIES_PER_PAGE = 12;
 
-  const { data: propertiesData, isLoading } = useQuery<{ items: Property[] } | Property[]>({
+  const { data: propertiesData, isLoading, isError, refetch } = useQuery<{ items: Property[] } | Property[]>({
     queryKey: ["/api/listings?pageSize=all"],
   });
 
@@ -252,10 +254,19 @@ export default function Properties() {
     });
   };
 
+  if (isError) {
+    return (
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <QueryErrorFallback message={t("properties.load_error") || "Failed to load properties."} onRetry={() => refetch()} />
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
-      <div className={LOADING_STYLES.container} dir={dir}>
-        <div className={LOADING_STYLES.text}>جار تحميل العقارات...</div>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <div className={cn(LOADING_STYLES.text, "mb-4")}>جار تحميل العقارات...</div>
+        <TableSkeleton rows={6} cols={5} />
       </div>
     );
   }
