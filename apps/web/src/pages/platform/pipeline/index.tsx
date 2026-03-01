@@ -20,19 +20,25 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import EmptyState from "@/components/ui/empty-state";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Deal, Lead } from "@shared/types";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, LOADING_STYLES } from "@/config/platform-theme";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import type { BadgeVariant } from "@/config/platform-theme";
 
-const STAGES = [
-  { id: "lead", title: "عميل محتمل", badge: "bg-slate-100 text-slate-700", accent: "text-slate-600" },
-  { id: "qualified", title: "مؤهل", badge: "bg-sky-100 text-sky-700", accent: "text-sky-600" },
-  { id: "showing", title: "معاينة", badge: "bg-amber-100 text-amber-700", accent: "text-amber-600" },
-  { id: "negotiation", title: "تفاوض", badge: "bg-orange-100 text-orange-700", accent: "text-orange-600" },
-  { id: "closed", title: "مكتملة", badge: "bg-emerald-100 text-emerald-700", accent: "text-emerald-600" },
+const STAGES: { id: string; title: string; badgeVariant: BadgeVariant; accent: string }[] = [
+  { id: "lead", title: "عميل محتمل", badgeVariant: "secondary", accent: "text-slate-600" },
+  { id: "qualified", title: "مؤهل", badgeVariant: "info", accent: "text-sky-600" },
+  { id: "showing", title: "معاينة", badgeVariant: "warning", accent: "text-amber-600" },
+  { id: "negotiation", title: "تفاوض", badgeVariant: "orange", accent: "text-orange-600" },
+  { id: "closed", title: "مكتملة", badgeVariant: "success", accent: "text-emerald-600" },
 ];
 
 const STAGE_LABELS: Record<string, string> = {
@@ -176,8 +182,6 @@ export default function Pipeline() {
 
   const getDealsByStage = (stage: string) => deals?.filter((deal) => deal.stage === stage) || [];
 
-  const closeRequestDrawer = () => setShowRequestDrawer(false);
-
   const maskPhoneNumber = (value: string | null | undefined) => {
     if (!value) return "غير متوفر";
     const digits = value.replace(/\D/g, "");
@@ -237,32 +241,39 @@ export default function Pipeline() {
 
   if (isLoading) {
     return (
-      <div className={LOADING_STYLES.container} dir={dir}>
-        <div className={LOADING_STYLES.text}>جارٍ تحميل مسار الصفقات...</div>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="space-y-4 w-full max-w-md">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-full" />
+            <div className="grid grid-cols-5 gap-4 mt-8">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-64 w-full" />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
-      <div className={cn(CARD_STYLES.container, "p-6")}>
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-1 text-end">
-            <h1 className={cn(TYPOGRAPHY.pageTitle, "text-slate-900")}>لوحة مسار الصفقات</h1>
-            <p className={cn(TYPOGRAPHY.body, "max-w-xl text-slate-600")}>
-              تابع تقدم الفرص البيعية عبر مراحل المسار المختلفة واسحب البطاقات لتحديث حالة الصفقة فوراً.
-            </p>
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-1 text-end">
+              <CardTitle>لوحة مسار الصفقات</CardTitle>
+              <CardDescription className="max-w-xl">
+                تابع تقدم الفرص البيعية عبر مراحل المسار المختلفة واسحب البطاقات لتحديث حالة الصفقة فوراً.
+              </CardDescription>
+            </div>
+            <Button onClick={() => setShowRequestDrawer(true)}>
+              إضافة صفقة جديدة
+            </Button>
           </div>
-          <Button
-            variant="outline"
-            className={BUTTON_PRIMARY_CLASSES}
-            onClick={() => setShowRequestDrawer(true)}
-          >
-            إضافة صفقة جديدة
-          </Button>
-        </div>
-
-      </div>
+        </CardHeader>
+      </Card>
 
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
@@ -274,133 +285,124 @@ export default function Pipeline() {
             }, 0);
 
             return (
-              <div
-                key={stage.id}
-                className="flex h-full flex-col rounded-[28px] border border-slate-200 bg-white/95 shadow-[0_20px_70px_rgba(148,163,184,0.12)] backdrop-blur"
-              >
-                <div className="rounded-t-[28px] border-b border-slate-200 bg-gradient-to-br from-slate-50 to-white px-4 py-5 text-end">
+              <Card key={stage.id} className="flex h-full flex-col">
+                <CardHeader className="text-end">
                   <div className="flex items-center justify-between">
-                    <div className={cn(TYPOGRAPHY.label, "font-semibold", stage.accent, "text-end")}>{stage.title}</div>
-                    <span className={cn("rounded-full px-3 py-1", TYPOGRAPHY.caption, "font-medium", stage.badge)}>
+                    <div className={cn("text-sm font-semibold", stage.accent)}>{stage.title}</div>
+                    <Badge variant={stage.badgeVariant}>
                       {stageDeals.length} صفقة
-                    </span>
+                    </Badge>
                   </div>
-                  <div className={cn("mt-2", TYPOGRAPHY.caption, "text-slate-500 text-end")}>{formatCurrency(stageValue)}</div>
-                </div>
+                  <div className="mt-2 text-xs text-muted-foreground">{formatCurrency(stageValue)}</div>
+                </CardHeader>
 
-                <Droppable droppableId={stage.id}>
-                  {(provided) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className="flex flex-1 flex-col gap-4 overflow-auto px-4 py-4"
-                    >
-                      {stageDeals.map((deal, index) => (
-                        <Draggable key={deal.id} draggableId={deal.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={`rounded-2xl border border-slate-200 bg-white p-4 text-end shadow-sm transition-shadow ${
-                                snapshot.isDragging ? "shadow-lg" : ""
-                              }`}
-                            >
-                              <div className="space-y-2 text-end">
-                                <div className="flex items-center justify-between">
-                                  <h4 className={cn(TYPOGRAPHY.body, "font-semibold text-slate-900")}>{getLeadName(deal.leadId)}</h4>
-                                  {deal.dealValue && (
-                                    <span className={cn(TYPOGRAPHY.body, "font-semibold text-emerald-600")}>
-                                      {formatCurrency(deal.dealValue)}
-                                    </span>
-                                  )}
-                                </div>
-
-                                {deal.expectedCloseDate && (
-                                  <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>
-                                    متوقع في {new Date(deal.expectedCloseDate).toLocaleDateString(locale)}
+                <CardContent className="flex-1 p-0">
+                  <Droppable droppableId={stage.id}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className="flex flex-1 flex-col gap-4 overflow-auto px-4 py-4"
+                      >
+                        {stageDeals.map((deal, index) => (
+                          <Draggable key={deal.id} draggableId={deal.id} index={index}>
+                            {(provided, snapshot) => (
+                              <Card
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={cn(
+                                  "text-end transition-shadow",
+                                  snapshot.isDragging && "shadow-lg"
+                                )}
+                              >
+                                <CardContent className="p-4 space-y-2 text-end">
+                                  <div className="flex items-center justify-between">
+                                    <h4 className="text-sm font-semibold">{getLeadName(deal.leadId)}</h4>
+                                    {deal.dealValue && (
+                                      <span className="text-sm font-semibold text-emerald-600">
+                                        {formatCurrency(deal.dealValue)}
+                                      </span>
+                                    )}
                                   </div>
-                                )}
 
-                                {deal.notes && (
-                                  <p className="text-sm text-slate-600 line-clamp-3">{deal.notes}</p>
-                                )}
+                                  {deal.expectedCloseDate && (
+                                    <div className="text-xs text-muted-foreground">
+                                      متوقع في {new Date(deal.expectedCloseDate).toLocaleDateString(locale)}
+                                    </div>
+                                  )}
 
-                                <div className="text-xs text-slate-400">
-                                  أُنشئت في {new Date(deal.createdAt).toLocaleDateString(locale)}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
+                                  {deal.notes && (
+                                    <p className="text-sm text-muted-foreground line-clamp-3">{deal.notes}</p>
+                                  )}
 
-                      {stageDeals.length === 0 && (
-                        <div className="rounded-2xl border border-dashed border-slate-200 py-10 text-center text-sm text-slate-400">
-                          لا توجد صفقات في هذه المرحلة حالياً
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    أُنشئت في {new Date(deal.createdAt).toLocaleDateString(locale)}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+
+                        {stageDeals.length === 0 && (
+                          <EmptyState
+                            title="لا توجد صفقات في هذه المرحلة حالياً"
+                            className="py-6"
+                          />
+                        )}
+                      </div>
+                    )}
+                  </Droppable>
+                </CardContent>
+              </Card>
             );
           })}
         </div>
       </DragDropContext>
 
-      {showRequestDrawer && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden"
-            onClick={closeRequestDrawer}
-          />
-          <aside className="fixed inset-y-0 start-0 z-50 w-full max-w-md border-e border-slate-200 bg-white shadow-xl flex flex-col">
-            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-              <div className="text-end">
-                <h2 className="text-base font-semibold text-slate-900">طلبات العملاء</h2>
-                <p className="text-xs text-slate-500">عرض مختصر لأحدث الطلبات المسجلة</p>
-              </div>
-              <Button variant="ghost" size="icon" onClick={closeRequestDrawer} className="rounded-full">
-                ✕
-              </Button>
-            </div>
+      <Sheet open={showRequestDrawer} onOpenChange={setShowRequestDrawer}>
+        <SheetContent side="right" className="w-full max-w-md flex flex-col">
+          <SheetHeader className="text-end">
+            <SheetTitle>طلبات العملاء</SheetTitle>
+            <SheetDescription>عرض مختصر لأحدث الطلبات المسجلة</SheetDescription>
+          </SheetHeader>
 
-            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1.5">
-              {requestsLoading ? (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-sm text-slate-500">
-                  جارٍ تحميل طلبات العملاء...
-                </div>
-              ) : requestsError ? (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm text-red-600">
+          <div className="flex-1 overflow-y-auto space-y-1.5 mt-4">
+            {requestsLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+              </div>
+            ) : requestsError ? (
+              <Card className="border-destructive">
+                <CardContent className="p-4 text-center text-sm text-destructive">
                   تعذر تحميل طلبات العملاء
-                </div>
-              ) : propertyRequests.length === 0 ? (
-                <div className="rounded-xl border border-slate-200 border-dashed px-4 py-6 text-center text-sm text-slate-400">
-                  لا توجد طلبات متاحة حالياً
-                </div>
-              ) : (
-                propertyRequests.map((request, index) => {
-                  const firstName = request.firstName?.trim() || 'عميل';
-                  const key = request.seekerId ?? `${request.mobileNumber ?? 'unknown'}-${index}`;
-                  return (
-                    <div
-                      key={key}
-                      className="rounded-lg border border-slate-200 bg-[radial-gradient(circle_at_top,_#f5f5f7,_#eef1f5)] px-3 py-1.5 text-end shadow-sm space-y-1.5"
-                    >
+                </CardContent>
+              </Card>
+            ) : propertyRequests.length === 0 ? (
+              <EmptyState title="لا توجد طلبات متاحة حالياً" className="py-6" />
+            ) : (
+              propertyRequests.map((request, index) => {
+                const firstName = request.firstName?.trim() || 'عميل';
+                const key = request.seekerId ?? `${request.mobileNumber ?? 'unknown'}-${index}`;
+                return (
+                  <Card key={key} className="text-end">
+                    <CardContent className="p-3 space-y-1.5">
                       <div className="flex items-start justify-between gap-1">
                         <div className="space-y-0.5">
-                          <h3 className="text-[12px] font-semibold text-slate-900">{firstName}</h3>
-                          <span className="block text-[10px] text-slate-500">{maskPhoneNumber(request.mobileNumber)}</span>
+                          <h3 className="text-[12px] font-semibold">{firstName}</h3>
+                          <span className="block text-[10px] text-muted-foreground">{maskPhoneNumber(request.mobileNumber)}</span>
                         </div>
                         {request.typeOfProperty && (
-                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+                          <Badge variant="secondary" className="text-[10px]">
                             {request.typeOfProperty}
-                          </span>
+                          </Badge>
                         )}
                       </div>
-                      <div className="flex items-center justify-between text-[10px] text-slate-500">
+                      <div className="flex items-center justify-between text-[10px] text-muted-foreground">
                         <span>{request.region ?? 'غير محدد'}</span>
                         <span>{request.city ?? ''}</span>
                       </div>
@@ -417,14 +419,14 @@ export default function Pipeline() {
                           نقل إلى عميل محتمل
                         </Button>
                       </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </aside>
-        </>
-      )}
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
