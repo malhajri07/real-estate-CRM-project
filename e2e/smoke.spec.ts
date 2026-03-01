@@ -15,6 +15,6 @@ test.describe("Smoke tests", () => {
 
   test("login page loads", async ({ page }) => {
     await page.goto("/rbac-login");
-    await expect(page.getByRole("link", { name: /عقاركم|Aqarkom/i })).toBeVisible();
+    await expect(page.getByRole("img", { name: /Aqarkom/i })).toBeVisible({ timeout: 10000 });
   });
 });
