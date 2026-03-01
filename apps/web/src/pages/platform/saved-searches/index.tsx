@@ -18,8 +18,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, LOADING_STYLES, EMPTY_STYLES } from '@/config/platform-theme';
-import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import EmptyState from '@/components/ui/empty-state';
+import { PAGE_WRAPPER } from '@/config/platform-theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function SavedSearchesPage() {
@@ -52,17 +53,17 @@ export default function SavedSearchesPage() {
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
-        <Card className={CARD_STYLES.container}>
-          <CardHeader className={CARD_STYLES.header}>
-            <CardTitle className={TYPOGRAPHY.pageTitle}>عمليات البحث المحفوظة</CardTitle>
-            <p className={cn(TYPOGRAPHY.body, "text-slate-600 mt-2")}>إدارة التنبيهات والبحث السريع</p>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">عمليات البحث المحفوظة</CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">إدارة التنبيهات والبحث السريع</p>
           </CardHeader>
         </Card>
 
-        <Card className={CARD_STYLES.container}>
+        <Card>
           <CardContent className="p-6">
             <div className="flex gap-4">
-              <Button onClick={() => create.mutate()} className={BUTTON_PRIMARY_CLASSES}>
+              <Button onClick={() => create.mutate()}>
                 إضافة بحث
               </Button>
               <Button variant="outline" onClick={() => run.mutate()}>
@@ -73,23 +74,23 @@ export default function SavedSearchesPage() {
         </Card>
 
         {isLoading ? (
-          <Card className={CARD_STYLES.container}>
-            <CardContent className={LOADING_STYLES.container}>
-              <div className={LOADING_STYLES.text}>...جار التحميل</div>
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-lg" />
+            ))}
+          </div>
         ) : (
           <div className="space-y-4">
             {data.map((s: any) => (
-              <Card key={s.id} className={CARD_STYLES.container}>
+              <Card key={s.id}>
                 <CardContent className="p-6">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className={cn(TYPOGRAPHY.cardTitle, "text-slate-900")}>{s.alertName}</div>
-                      <div className={cn(TYPOGRAPHY.caption, "text-slate-600 mt-1")}>
+                      <div className="font-semibold">{s.alertName}</div>
+                      <div className="text-xs text-muted-foreground mt-1">
                         المدن: {(s.cities||[]).join(', ') || 'الكل'}
                       </div>
-                      <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>
+                      <div className="text-xs text-muted-foreground">
                         الأنواع: {(s.propertyTypes||[]).join(', ') || 'الكل'}
                       </div>
                     </div>
@@ -101,12 +102,10 @@ export default function SavedSearchesPage() {
               </Card>
             ))}
             {data.length === 0 && (
-              <Card className={CARD_STYLES.container}>
-                <CardContent className={cn(EMPTY_STYLES.container, "p-8")}>
-                  <div className={cn(EMPTY_STYLES.title, "text-slate-600")}>لا توجد عمليات بحث محفوظة</div>
-                  <p className={cn(EMPTY_STYLES.description, "text-slate-500 mt-2")}>ابدأ بإنشاء بحث محفوظ جديد</p>
-                </CardContent>
-              </Card>
+              <EmptyState
+                title="لا توجد عمليات بحث محفوظة"
+                description="ابدأ بإنشاء بحث محفوظ جديد"
+              />
             )}
           </div>
         )}
@@ -114,4 +113,3 @@ export default function SavedSearchesPage() {
     </div>
   );
 }
-

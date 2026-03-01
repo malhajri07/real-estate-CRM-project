@@ -22,12 +22,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Lead, Activity } from "@shared/types";
 import { cn } from "@/lib/utils";
-import { interactiveCard, subduedText } from "@/lib/design-system";
-import { BUTTON_PRIMARY_CLASSES, TYPOGRAPHY, PAGE_WRAPPER, CARD_STYLES, METRICS_CARD_STYLES, LOADING_STYLES, getLeadStatusVariant, ICON_CONTAINER_SM, getIconSpacing } from "@/config/platform-theme";
+import { PAGE_WRAPPER, getLeadStatusVariant, getIconSpacing } from "@/config/platform-theme";
 
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,8 +77,14 @@ export default function Clients() {
 
   if (isLoading) {
     return (
-      <div className={LOADING_STYLES.container} dir={dir}>
-        <div className={LOADING_STYLES.text}>جار تحميل العملاء...</div>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="w-full max-w-md space-y-4">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-8 w-1/2" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -87,48 +92,48 @@ export default function Clients() {
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Card className={METRICS_CARD_STYLES.container}>
-            <div className="flex items-center justify-between">
+          <Card>
+            <CardContent className="flex items-center justify-between p-6">
               <div className="space-y-1">
-                <span className={METRICS_CARD_STYLES.label}>إجمالي العملاء</span>
-                <span className={METRICS_CARD_STYLES.value}>{total}</span>
+                <span className="text-xs font-medium text-muted-foreground">إجمالي العملاء</span>
+                <span className="block text-3xl font-bold">{total}</span>
               </div>
-              <div className={METRICS_CARD_STYLES.icon}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
                 <UsersIcon className="h-6 w-6" />
               </div>
-            </div>
+            </CardContent>
           </Card>
-          <Card className={METRICS_CARD_STYLES.container}>
-            <div className="flex items-center justify-between">
+          <Card>
+            <CardContent className="flex items-center justify-between p-6">
               <div className="space-y-1">
-                <span className={METRICS_CARD_STYLES.label}>المؤهلون</span>
-                <span className={METRICS_CARD_STYLES.value}>{qualified}</span>
+                <span className="text-xs font-medium text-muted-foreground">المؤهلون</span>
+                <span className="block text-3xl font-bold">{qualified}</span>
               </div>
-              <div className={METRICS_CARD_STYLES.icon}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
                 <ListChecks className="h-6 w-6" />
               </div>
-            </div>
+            </CardContent>
           </Card>
-          <Card className={METRICS_CARD_STYLES.container}>
-            <div className="flex items-center justify-between">
+          <Card>
+            <CardContent className="flex items-center justify-between p-6">
               <div className="space-y-1">
-                <span className={METRICS_CARD_STYLES.label}>المغلقون</span>
-                <span className={METRICS_CARD_STYLES.value}>{closed}</span>
+                <span className="text-xs font-medium text-muted-foreground">المغلقون</span>
+                <span className="block text-3xl font-bold">{closed}</span>
               </div>
-              <div className={METRICS_CARD_STYLES.icon}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
                 <CheckCircle2 className="h-6 w-6" />
               </div>
-            </div>
+            </CardContent>
           </Card>
         </div>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Client List */}
           <div className="lg:col-span-1">
-            <Card className={cn("h-full", CARD_STYLES.container)}>
-              <CardHeader className={cn(CARD_STYLES.header, "sticky top-0 z-10 border-b border-slate-200/60 bg-white/90 backdrop-blur")}>
+            <Card className="h-full">
+              <CardHeader className="sticky top-0 z-10 border-b bg-background/90 backdrop-blur">
                 <div className="flex items-center justify-between">
-                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "text-end")}>العملاء ({filteredLeads.length})</CardTitle>
-                  <Button size="sm" className={BUTTON_PRIMARY_CLASSES}>
+                  <CardTitle className="text-end">العملاء ({filteredLeads.length})</CardTitle>
+                  <Button size="sm">
                     <UserPlus className={getIconSpacing(dir)} size={16} />
                     إضافة عميل
                   </Button>
@@ -136,7 +141,7 @@ export default function Clients() {
               </CardHeader>
               <CardContent className="max-h-[calc(100vh-260px)] overflow-y-auto p-0">
                 {filteredLeads.length === 0 ? (
-                  <div className="py-8 text-center text-slate-500">
+                  <div className="py-8 text-center text-muted-foreground">
                     {searchQuery ? "لا توجد عملاء تطابق بحثك." : "لا توجد عملاء."}
                   </div>
                 ) : (
@@ -148,12 +153,12 @@ export default function Clients() {
                           "cursor-pointer p-4 transition-colors",
                           selectedLeadId === lead.id
                             ? "bg-primary/10 ring-1 ring-primary/50"
-                            : "hover:bg-slate-50"
+                            : "hover:bg-muted/50"
                         )}
                         onClick={() => setSelectedLeadId(lead.id)}
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className={cn(TYPOGRAPHY.body, "font-medium text-slate-900 text-end")}>
+                          <h4 className="text-sm font-medium text-end">
                             {lead.firstName} {lead.lastName}
                           </h4>
                           <Badge variant={getLeadStatusVariant(lead.status)}>
@@ -161,17 +166,17 @@ export default function Clients() {
                           </Badge>
                         </div>
 
-                        <p className={cn("mb-1", TYPOGRAPHY.body, "text-slate-600 text-end")}>{lead.email}</p>
+                        <p className="mb-1 text-sm text-muted-foreground text-end">{lead.email}</p>
                         {lead.phone && (
-                          <p className={cn(TYPOGRAPHY.body, "text-slate-600 text-end")}>{lead.phone}</p>
+                          <p className="text-sm text-muted-foreground text-end">{lead.phone}</p>
                         )}
 
                         <div className="flex items-center justify-between mt-2">
-                          <span className={cn(TYPOGRAPHY.caption, "text-slate-500 text-end")}>
+                          <span className="text-xs text-muted-foreground text-end">
                             {lead.interestType && `${t(`interest.${lead.interestType}`) || lead.interestType} • `}
                             {lead.budgetRange}
                           </span>
-                          <span className={cn(TYPOGRAPHY.caption, "text-slate-500 text-end")}>
+                          <span className="text-xs text-muted-foreground text-end">
                             {new Date(lead.createdAt).toLocaleDateString(locale)}
                           </span>
                         </div>
@@ -186,27 +191,27 @@ export default function Clients() {
           {/* Client Details */}
           <div className="lg:col-span-2">
             {!selectedLead ? (
-              <Card className={CARD_STYLES.container}>
+              <Card>
                 <CardContent className="flex h-96 items-center justify-center">
-                  <div className="space-y-2 text-center text-slate-500">
-                    <MessageCircle size={48} className="mx-auto text-slate-400/60" />
-                    <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-slate-900 text-end")}>اختر عميلاً</h3>
-                    <p className={cn(TYPOGRAPHY.body, "text-slate-600 text-end")}>اختر عميلاً من القائمة لعرض تفاصيله وتاريخ نشاطه.</p>
+                  <div className="space-y-2 text-center text-muted-foreground">
+                    <MessageCircle size={48} className="mx-auto opacity-40" />
+                    <h3 className="text-lg font-semibold text-foreground text-end">اختر عميلاً</h3>
+                    <p className="text-sm text-end">اختر عميلاً من القائمة لعرض تفاصيله وتاريخ نشاطه.</p>
                   </div>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-6">
-                <Card className={CARD_STYLES.container}>
+                <Card>
                   <CardContent className="space-y-6 p-6">
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div className="space-y-1">
-                        <h2 className={cn(TYPOGRAPHY.pageTitle, "text-slate-900 text-end")}>
+                        <h2 className="text-2xl font-bold text-end">
                           {selectedLead.firstName} {selectedLead.lastName}
                         </h2>
-                        <p className={cn(TYPOGRAPHY.body, "text-slate-600 text-end")}>{selectedLead.email}</p>
+                        <p className="text-sm text-muted-foreground text-end">{selectedLead.email}</p>
                         {selectedLead.phone && (
-                          <p className={cn(TYPOGRAPHY.body, "text-slate-600 text-end")}>{selectedLead.phone}</p>
+                          <p className="text-sm text-muted-foreground text-end">{selectedLead.phone}</p>
                         )}
                       </div>
                       <Badge variant={getLeadStatusVariant(selectedLead.status)}>
@@ -215,35 +220,43 @@ export default function Clients() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                      <div className="rounded-2xl bg-slate-50 p-4">
-                        <span className={cn(TYPOGRAPHY.label, "text-slate-600 text-end")}>مصدر العميل</span>
-                        <p className={cn("mt-1", TYPOGRAPHY.body, "font-medium text-slate-900 text-end")}>
-                          {selectedLead.leadSource || "غير محدد"}
-                        </p>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 p-4 text-end">
-                        <span className={cn(TYPOGRAPHY.label, "text-slate-600 text-end")}>نوع الاهتمام</span>
-                        <p className={cn("mt-1", TYPOGRAPHY.body, "font-medium text-slate-900 text-end")}>
-                          {selectedLead.interestType || "غير محدد"}
-                        </p>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 p-4 text-end">
-                        <span className={cn(TYPOGRAPHY.label, "text-slate-600 text-end")}>نطاق الميزانية</span>
-                        <p className={cn("mt-1", TYPOGRAPHY.body, "font-medium text-slate-900 text-end")}>
-                          {selectedLead.budgetRange || "غير محدد"}
-                        </p>
-                      </div>
+                      <Card>
+                        <CardContent className="p-4">
+                          <span className="text-xs font-medium text-muted-foreground text-end">مصدر العميل</span>
+                          <p className="mt-1 text-sm font-medium text-end">
+                            {selectedLead.leadSource || "غير محدد"}
+                          </p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="p-4 text-end">
+                          <span className="text-xs font-medium text-muted-foreground text-end">نوع الاهتمام</span>
+                          <p className="mt-1 text-sm font-medium text-end">
+                            {selectedLead.interestType || "غير محدد"}
+                          </p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="p-4 text-end">
+                          <span className="text-xs font-medium text-muted-foreground text-end">نطاق الميزانية</span>
+                          <p className="mt-1 text-sm font-medium text-end">
+                            {selectedLead.budgetRange || "غير محدد"}
+                          </p>
+                        </CardContent>
+                      </Card>
                     </div>
 
                     {selectedLead.notes && (
-                      <div className="rounded-2xl border border-border/50 bg-card/60 p-4">
-                        <span className={cn(TYPOGRAPHY.label, "text-slate-600 text-end")}>ملاحظات</span>
-                        <p className={cn("mt-2", TYPOGRAPHY.body, "text-slate-700 text-end")}>{selectedLead.notes}</p>
-                      </div>
+                      <Card>
+                        <CardContent className="p-4">
+                          <span className="text-xs font-medium text-muted-foreground text-end">ملاحظات</span>
+                          <p className="mt-2 text-sm text-end">{selectedLead.notes}</p>
+                        </CardContent>
+                      </Card>
                     )}
 
                     <div className="flex flex-wrap items-center gap-2">
-                      <Button size="sm" className={BUTTON_PRIMARY_CLASSES}>
+                      <Button size="sm">
                         <Phone className={getIconSpacing(dir)} size={16} />
                         اتصال
                       </Button>
@@ -259,10 +272,10 @@ export default function Clients() {
                   </CardContent>
                 </Card>
 
-                <Card className={CARD_STYLES.container}>
+                <Card>
                   <Tabs defaultValue="activities" className="w-full">
-                    <CardHeader className={cn(CARD_STYLES.header, "border-b border-slate-200/60")}>
-                      <TabsList className="grid w-full grid-cols-3 bg-slate-100">
+                    <CardHeader className="border-b">
+                      <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="activities">الأنشطة</TabsTrigger>
                         <TabsTrigger value="notes">الملاحظات</TabsTrigger>
                         <TabsTrigger value="timeline">الخط الزمني</TabsTrigger>
@@ -271,60 +284,62 @@ export default function Clients() {
 
                     <TabsContent value="activities" className="p-6">
                       <div className="mb-4 flex items-center justify-between">
-                        <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-slate-900 text-end")}>سجل الأنشطة</h3>
-                      <Button size="sm" className={BUTTON_PRIMARY_CLASSES}>
+                        <h3 className="text-lg font-semibold text-end">سجل الأنشطة</h3>
+                      <Button size="sm">
                         <Plus className={getIconSpacing(dir)} size={16} />
                           إضافة نشاط
                         </Button>
                       </div>
 
                       {!activities || activities.length === 0 ? (
-                        <div className="py-8 text-center text-slate-500">لا توجد أنشطة مسجلة لهذا العميل.</div>
+                        <div className="py-8 text-center text-muted-foreground">لا توجد أنشطة مسجلة لهذا العميل.</div>
                       ) : (
                         <div className="space-y-4">
                           {activities.map((activity) => (
-                            <div key={activity.id} className="flex items-start gap-3 rounded-2xl border border-border/40 bg-card/70 p-4 backdrop-blur">
-                              <div className={cn(ICON_CONTAINER_SM, "flex-shrink-0 mt-1")}>
-                                {getActivityIcon(activity.activityType)}
-                              </div>
-                              <div className="flex-1">
-                                <div className="mb-1 flex items-center gap-2 rtl:space-x-reverse">
-                                  <h4 className={cn(TYPOGRAPHY.body, "font-medium text-slate-900 text-end")}>{activity.title}</h4>
-                                  <Badge variant="outline" className={TYPOGRAPHY.caption}>
-                                    {activity.activityType}
-                                  </Badge>
-                                  {activity.completed && (
-                                    <Badge variant="success" className={TYPOGRAPHY.caption}>
-                                      مكتمل
+                            <Card key={activity.id}>
+                              <CardContent className="flex items-start gap-3 p-4">
+                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-muted mt-1">
+                                  {getActivityIcon(activity.activityType)}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="mb-1 flex items-center gap-2 rtl:space-x-reverse">
+                                    <h4 className="text-sm font-medium text-end">{activity.title}</h4>
+                                    <Badge variant="outline">
+                                      {activity.activityType}
                                     </Badge>
+                                    {activity.completed && (
+                                      <Badge variant="success">
+                                        مكتمل
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  {activity.description && (
+                                    <p className="mb-2 text-sm text-muted-foreground text-end">{activity.description}</p>
                                   )}
-                                </div>
-                                {activity.description && (
-                                  <p className={cn("mb-2", TYPOGRAPHY.body, "text-slate-600 text-end")}>{activity.description}</p>
-                                )}
-                                <div className={cn("flex items-center gap-4", TYPOGRAPHY.caption, "text-slate-500 text-end rtl:space-x-reverse")}>
-                                  {activity.scheduledDate && (
+                                  <div className="flex items-center gap-4 text-xs text-muted-foreground text-end rtl:space-x-reverse">
+                                    {activity.scheduledDate && (
+                                      <span>
+                                        مجدول: {new Date(activity.scheduledDate).toLocaleString(locale)}
+                                      </span>
+                                    )}
                                     <span>
-                                      مجدول: {new Date(activity.scheduledDate).toLocaleString(locale)}
+                                      أُنشئ: {new Date(activity.createdAt).toLocaleDateString(locale)}
                                     </span>
-                                  )}
-                                  <span>
-                                    أُنشئ: {new Date(activity.createdAt).toLocaleDateString(locale)}
-                                  </span>
+                                  </div>
                                 </div>
-                              </div>
-                            </div>
+                              </CardContent>
+                            </Card>
                           ))}
                         </div>
                       )}
                     </TabsContent>
 
                     <TabsContent value="notes" className="p-6">
-                      <div className="py-8 text-center text-slate-500">ميزة الملاحظات ستتوفر قريبًا…</div>
+                      <div className="py-8 text-center text-muted-foreground">ميزة الملاحظات ستتوفر قريبًا…</div>
                     </TabsContent>
 
                     <TabsContent value="timeline" className="p-6">
-                      <div className="py-8 text-center text-slate-500">عرض الخط الزمني قريبًا…</div>
+                      <div className="py-8 text-center text-muted-foreground">عرض الخط الزمني قريبًا…</div>
                     </TabsContent>
                   </Tabs>
                 </Card>

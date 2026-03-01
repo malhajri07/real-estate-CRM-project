@@ -22,14 +22,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Lead } from "@shared/types";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, LOADING_STYLES, getNotificationStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { PAGE_WRAPPER, getNotificationStatusVariant, getIconSpacing } from "@/config/platform-theme";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -152,8 +155,12 @@ export default function Notifications() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className="flex-1 flex items-center justify-center min-h-[200px]">
-          <div className={LOADING_STYLES.text}>جار تحميل إشعارات العملاء...</div>
+        <div className="flex items-center justify-center min-h-[200px]">
+          <div className="w-full max-w-md space-y-4">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-8 w-1/2" />
+          </div>
         </div>
       </div>
     );
@@ -172,10 +179,10 @@ export default function Notifications() {
 
             {/* Customer Details Tab */}
             <TabsContent value="customers">
-              <Card className={CARD_STYLES.container}>
-                <CardHeader className={CARD_STYLES.header}>
+              <Card>
+                <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
+                    <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                       <Users size={20} />
                       <span>تفاصيل العملاء ({filteredLeads.length})</span>
                     </CardTitle>
@@ -196,26 +203,25 @@ export default function Notifications() {
               <CardContent className="p-0">
                 {filteredLeads.length === 0 ? (
                   <div className="text-center py-12">
-                    <Users className="mx-auto mb-4 text-slate-300" size={48} />
-                    <div className="text-slate-500 mb-4">
+                    <Users className="mx-auto mb-4 text-muted-foreground/40" size={48} />
+                    <div className="text-muted-foreground mb-4">
                       {searchQuery ? "لا توجد عملاء تطابق بحثك." : "لا توجد عملاء."}
                     </div>
                   </div>
                 ) : (
-                  <div className="divide-y divide-slate-200">
+                  <div className="divide-y">
                     {filteredLeads.map((lead) => (
-                      <div key={lead.id} className="p-4 hover:bg-slate-50">
+                      <div key={lead.id} className="p-4 hover:bg-muted/50">
                         <div className="flex items-start justify-between">
                           <div className="flex items-start space-x-3">
-                            <input
-                              type="checkbox"
+                            <Checkbox
                               checked={selectedLeads.includes(lead.id)}
-                              onChange={() => handleLeadSelection(lead.id)}
+                              onCheckedChange={() => handleLeadSelection(lead.id)}
                               className="mt-1"
                             />
                             <div className="flex-1">
                               <div className="flex items-center space-x-3 mb-2">
-                                <h4 className="font-semibold text-slate-900">
+                                <h4 className="font-semibold">
                                   {lead.firstName} {lead.lastName}
                                 </h4>
                                 <Badge variant={getNotificationStatusVariant(lead.status)}>
@@ -224,17 +230,17 @@ export default function Notifications() {
                               </div>
                               
                               <div className="space-y-1 text-sm">
-                                <div className="flex items-center space-x-2 rtl:space-x-reverse text-slate-600">
+                                <div className="flex items-center space-x-2 rtl:space-x-reverse text-muted-foreground">
                                   <Mail size={14} />
                                   <span>{lead.email}</span>
                                 </div>
                                 {lead.phone && (
-                                  <div className="flex items-center space-x-2 rtl:space-x-reverse text-slate-600">
+                                  <div className="flex items-center space-x-2 rtl:space-x-reverse text-muted-foreground">
                                     <MessageCircle size={14} />
                                     <span>{lead.phone}</span>
                                   </div>
                                 )}
-                                <div className="flex items-center space-x-4 rtl:space-x-reverse text-xs text-slate-500">
+                                <div className="flex items-center space-x-4 rtl:space-x-reverse text-xs text-muted-foreground">
                                   <span>{lead.interestType || 'غير محدد'}</span>
                                   <span>{lead.budgetRange || 'غير محدد'}</span>
                                   <span>تاريخ الإنشاء: {new Date(lead.createdAt).toLocaleDateString(locale)}</span>
@@ -271,20 +277,18 @@ export default function Notifications() {
 
           {/* Campaign Creation Tab */}
           <TabsContent value="campaign">
-            <Card className={CARD_STYLES.container}>
-              <CardHeader className={CARD_STYLES.header}>
-                <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                   <Send size={20} />
                   <span>إنشاء حملة جديدة</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className={cn(CARD_STYLES.content, "space-y-6")}>
+              <CardContent className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        عنوان الحملة
-                      </label>
+                    <div className="space-y-2">
+                      <Label>عنوان الحملة</Label>
                       <Input
                         value={campaignTitle}
                         onChange={(e) => setCampaignTitle(e.target.value)}
@@ -292,10 +296,8 @@ export default function Notifications() {
                       />
                     </div>
                     
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        نوع الحملة
-                      </label>
+                    <div className="space-y-2">
+                      <Label>نوع الحملة</Label>
                       <Select value={campaignType} onValueChange={setCampaignType}>
                         <SelectTrigger>
                           <SelectValue />
@@ -308,11 +310,9 @@ export default function Notifications() {
                       </Select>
                     </div>
                     
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        العملاء المحددين ({selectedLeads.length})
-                      </label>
-                      <div className="text-sm text-slate-600">
+                    <div className="space-y-2">
+                      <Label>العملاء المحددين ({selectedLeads.length})</Label>
+                      <div className="text-sm text-muted-foreground">
                         {selectedLeads.length === 0 
                           ? "لم يتم تحديد عملاء. انتقل إلى تبويب 'تفاصيل العملاء' لتحديد المستلمين."
                           : `تم تحديد ${selectedLeads.length} عميل للحملة.`
@@ -321,10 +321,8 @@ export default function Notifications() {
                     </div>
                   </div>
                   
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      محتوى الرسالة
-                    </label>
+                  <div className="space-y-2">
+                    <Label>محتوى الرسالة</Label>
                     <Textarea
                       value={campaignMessage}
                       onChange={(e) => setCampaignMessage(e.target.value)}
@@ -356,18 +354,18 @@ export default function Notifications() {
 
             {/* Campaign History Tab */}
             <TabsContent value="history">
-              <Card className={CARD_STYLES.container}>
-                <CardHeader className={CARD_STYLES.header}>
-                  <CardTitle className={cn(TYPOGRAPHY.cardTitle, "flex items-center space-x-2 rtl:space-x-reverse")}>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
                   <Calendar size={20} />
                   <span>تاريخ الحملات</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12">
-                  <Calendar className="mx-auto mb-4 text-slate-300" size={48} />
-                  <div className="text-slate-500 mb-4">لا توجد حملات سابقة</div>
-                  <div className="text-sm text-slate-400">
+                  <Calendar className="mx-auto mb-4 text-muted-foreground/40" size={48} />
+                  <div className="text-muted-foreground mb-4">لا توجد حملات سابقة</div>
+                  <div className="text-sm text-muted-foreground">
                     ستظهر هنا الحملات التي تم إرسالها مع إحصائياتها
                   </div>
                 </div>

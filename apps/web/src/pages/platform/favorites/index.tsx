@@ -19,9 +19,11 @@ import { useQuery } from "@tanstack/react-query";
 import type { Property } from "@shared/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import EmptyState from "@/components/ui/empty-state";
 import ListingCard from "@/components/listings/ListingCard";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, LOADING_STYLES, EMPTY_STYLES } from "@/config/platform-theme";
-import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 export default function FavoritesPage() {
   const { t, dir } = useLanguage();
@@ -32,8 +34,10 @@ export default function FavoritesPage() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className={LOADING_STYLES.container}>
-          <div className={LOADING_STYLES.text}>...جار التحميل</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-64 w-full rounded-lg" />
+          ))}
         </div>
       </div>
     );
@@ -42,11 +46,9 @@ export default function FavoritesPage() {
   if (error) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <Card className={CARD_STYLES.container}>
-          <CardContent className="p-6">
-            <div className={cn(EMPTY_STYLES.description, "text-red-600 text-center")}>حدث خطأ في جلب المفضلة</div>
-          </CardContent>
-        </Card>
+        <Alert variant="destructive">
+          <AlertDescription className="text-center">حدث خطأ في جلب المفضلة</AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -54,20 +56,18 @@ export default function FavoritesPage() {
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
-        <Card className={CARD_STYLES.container}>
-          <CardHeader className={CARD_STYLES.header}>
-            <CardTitle className={TYPOGRAPHY.pageTitle}>العقارات المفضلة</CardTitle>
-            <p className={cn(TYPOGRAPHY.body, "text-slate-600 mt-2")}>العقارات التي قمت بحفظها</p>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">العقارات المفضلة</CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">العقارات التي قمت بحفظها</p>
           </CardHeader>
         </Card>
 
         {items.length === 0 ? (
-          <Card className={CARD_STYLES.container}>
-            <CardContent className={cn(EMPTY_STYLES.container, "p-8")}>
-              <div className={cn(EMPTY_STYLES.title, "text-slate-600")}>لا توجد عناصر محفوظة</div>
-              <p className={cn(EMPTY_STYLES.description, "text-slate-500 mt-2")}>ابدأ بحفظ العقارات التي تعجبك</p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            title="لا توجد عناصر محفوظة"
+            description="ابدأ بحفظ العقارات التي تعجبك"
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map((p) => (

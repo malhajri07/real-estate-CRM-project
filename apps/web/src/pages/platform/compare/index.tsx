@@ -18,8 +18,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, EMPTY_STYLES } from "@/config/platform-theme";
-import { cn } from "@/lib/utils";
+import EmptyState from "@/components/ui/empty-state";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 type Listing = {
   id: string;
@@ -51,7 +51,7 @@ export default function ComparePage() {
       const res = await fetch(`/api/listings?ids=${ids.join(',')}`);
       if (!res.ok) return setItems([]);
       const data = await res.json();
-      const list = Array.isArray(data.items) ? data.items : data; // supports both array and paged
+      const list = Array.isArray(data.items) ? data.items : data;
       setItems(list);
     }
     load();
@@ -60,32 +60,30 @@ export default function ComparePage() {
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
-        <Card className={CARD_STYLES.container}>
-          <CardHeader className={CARD_STYLES.header}>
-            <CardTitle className={TYPOGRAPHY.pageTitle}>مقارنة العقارات</CardTitle>
-            <p className={cn(TYPOGRAPHY.body, "text-slate-600 mt-2")}>قارن بين العقارات المختلفة</p>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">مقارنة العقارات</CardTitle>
+            <p className="text-sm text-muted-foreground mt-2">قارن بين العقارات المختلفة</p>
           </CardHeader>
         </Card>
 
         {items.length === 0 ? (
-          <Card className={CARD_STYLES.container}>
-            <CardContent className={cn(EMPTY_STYLES.container, "p-8")}>
-              <div className={cn(EMPTY_STYLES.title, "text-slate-600")}>لا يوجد عناصر للمقارنة</div>
-              <p className={cn(EMPTY_STYLES.description, "text-slate-500 mt-2")}>أضف عقارات للمقارنة من صفحة البحث</p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            title="لا يوجد عناصر للمقارنة"
+            description="أضف عقارات للمقارنة من صفحة البحث"
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {items.map((p) => (
-              <Card key={p.id} className={CARD_STYLES.container}>
+              <Card key={p.id}>
                 <CardContent className="p-5 space-y-2">
-                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-slate-900")}>{p.title}</div>
-                  <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>{p.address}، {p.city}</div>
-                  <div className={cn(TYPOGRAPHY.sectionTitle, "text-emerald-600 font-bold")}>{p.price} ﷼</div>
-                  <div className={cn(TYPOGRAPHY.caption, "text-sm")}>النوع: {p.propertyType || '-'}</div>
-                  <div className={cn(TYPOGRAPHY.caption, "text-sm")}>الغرف: {p.bedrooms ?? '-'}</div>
-                  <div className={cn(TYPOGRAPHY.caption, "text-sm")}>الحمامات: {typeof p.bathrooms === 'string' ? p.bathrooms : (p.bathrooms ?? '-')}</div>
-                  <div className={cn(TYPOGRAPHY.caption, "text-sm")}>المساحة: {(p as any).areaSqm ?? '-'} متر²</div>
+                  <div className="text-sm font-semibold">{p.title}</div>
+                  <div className="text-xs text-muted-foreground">{p.address}، {p.city}</div>
+                  <div className="text-lg font-bold text-emerald-600">{p.price} ﷼</div>
+                  <div className="text-xs text-muted-foreground">النوع: {p.propertyType || '-'}</div>
+                  <div className="text-xs text-muted-foreground">الغرف: {p.bedrooms ?? '-'}</div>
+                  <div className="text-xs text-muted-foreground">الحمامات: {typeof p.bathrooms === 'string' ? p.bathrooms : (p.bathrooms ?? '-')}</div>
+                  <div className="text-xs text-muted-foreground">المساحة: {(p as any).areaSqm ?? '-'} متر²</div>
                 </CardContent>
               </Card>
             ))}

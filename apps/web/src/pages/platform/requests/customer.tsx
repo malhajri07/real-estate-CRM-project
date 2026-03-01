@@ -23,9 +23,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import EmptyState from "@/components/ui/empty-state";
 import { apiRequest } from "@/lib/queryClient";
 import { Download, Mail, Phone, RefreshCcw } from "lucide-react";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, getIconSpacing } from "@/config/platform-theme";
+import { PAGE_WRAPPER, getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -178,13 +180,13 @@ export default function CustomerRequestsPage() {
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
-        <Card className={CARD_STYLES.container}>
-          <CardHeader className={cn(CARD_STYLES.header, "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between")}>
+        <Card>
+          <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2 text-end">
-              <CardTitle className={cn(TYPOGRAPHY.pageTitle, "text-slate-900")}>
+              <CardTitle className="text-2xl font-bold">
                 قاعدة بيانات العملاء الباحثين عن العقار
               </CardTitle>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-muted-foreground">
                 {`إجمالي ${seekers.length} طلب مسجل`} • {`شراء: ${contractSummary.buy}`} • {`إيجار: ${contractSummary.rent}`}
               </p>
             </div>
@@ -208,7 +210,7 @@ export default function CustomerRequestsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="text-sm text-slate-500">
+              <div className="text-sm text-muted-foreground">
                 {filteredSeekers.length === seekers.length
                   ? `يعرض جميع الطلبات`
                   : `يعرض ${filteredSeekers.length} من ${seekers.length} طلب`}
@@ -230,21 +232,22 @@ export default function CustomerRequestsPage() {
                 ))}
               </div>
             ) : isError ? (
-              <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-end">
-                <p className="text-base font-semibold text-destructive">تعذر تحميل قائمة الطلبات</p>
-                <p className="mt-2 text-sm text-slate-500">
+              <Alert variant="destructive">
+                <AlertTitle>تعذر تحميل قائمة الطلبات</AlertTitle>
+                <AlertDescription>
                   {error?.message || "حدث خطأ غير متوقع"}
-                </p>
+                </AlertDescription>
                 <Button variant="outline" className="mt-4" onClick={() => refetch()}>
                   إعادة المحاولة
                 </Button>
-              </div>
+              </Alert>
             ) : filteredSeekers.length === 0 ? (
-              <div className="rounded-lg border border-dashed p-10 text-center text-slate-500">
-                لا توجد طلبات مطابقة لخيارات البحث الحالية.
-              </div>
+              <EmptyState
+                title="لا توجد طلبات مطابقة"
+                description="لا توجد طلبات مطابقة لخيارات البحث الحالية."
+              />
             ) : (
-              <div className="overflow-hidden rounded-xl border border-border/60 bg-white">
+              <Card>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -274,15 +277,15 @@ export default function CustomerRequestsPage() {
                         <TableRow key={rowKey}>
                           <TableCell>
                             <div className="flex flex-col items-end gap-1 text-end">
-                              <span className="font-semibold text-slate-900">{fullName}</span>
+                              <span className="font-semibold">{fullName}</span>
                               {seeker.seekerId && (
-                                <span className="text-xs text-slate-500">معرف: {seeker.seekerId}</span>
+                                <span className="text-xs text-muted-foreground">معرف: {seeker.seekerId}</span>
                               )}
                               {genderLabel && (
-                                <span className="text-xs text-slate-500">الجنس: {genderLabel}</span>
+                                <span className="text-xs text-muted-foreground">الجنس: {genderLabel}</span>
                               )}
                               {seeker.age && (
-                                <span className="text-xs text-slate-500">العمر: {seeker.age}</span>
+                                <span className="text-xs text-muted-foreground">العمر: {seeker.age}</span>
                               )}
                             </div>
                           </TableCell>
@@ -291,17 +294,17 @@ export default function CustomerRequestsPage() {
                               {seeker.mobileNumber && (
                                 <div className="flex items-center justify-end gap-2">
                                   <span>{seeker.mobileNumber}</span>
-                                  <Phone className="h-4 w-4 text-slate-500" />
+                                  <Phone className="h-4 w-4 text-muted-foreground" />
                                 </div>
                               )}
                               {seeker.email && (
-                                <div className="flex items-center justify-end gap-2 text-xs text-slate-500">
+                                <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
                                   <span className="max-w-[220px] truncate ltr:text-start rtl:text-end">{seeker.email}</span>
                                   <Mail className="h-3.5 w-3.5" />
                                 </div>
                               )}
                               {seeker.nationality && (
-                                <div className="text-xs text-slate-500">الجنسية: {seeker.nationality}</div>
+                                <div className="text-xs text-muted-foreground">الجنسية: {seeker.nationality}</div>
                               )}
                             </div>
                           </TableCell>
@@ -317,18 +320,18 @@ export default function CustomerRequestsPage() {
                                   {contractLabel}
                                 </Badge>
                               )}
-                              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                                 <span>غرف: {seeker.numberOfRooms ?? "—"}</span>
                                 <span>حمامات: {seeker.numberOfBathrooms ?? "—"}</span>
                                 <span>صالات: {seeker.numberOfLivingRooms ?? "—"}</span>
                               </div>
                               {seeker.houseDirection && (
-                                <span className="text-xs text-slate-500">
+                                <span className="text-xs text-muted-foreground">
                                   اتجاه: {seeker.houseDirection}
                                 </span>
                               )}
                               {(seeker.otherComments || seeker.notes) && (
-                                <span className="text-xs text-slate-500 max-w-xs truncate">
+                                <span className="text-xs text-muted-foreground max-w-xs truncate">
                                   ملاحظات: {(seeker.otherComments || seeker.notes) ?? ""}
                                 </span>
                               )}
@@ -339,11 +342,11 @@ export default function CustomerRequestsPage() {
                               <span className="font-semibold text-emerald-600">
                                 {formatCurrency(seeker.budgetSize)}
                               </span>
-                              <span className="text-xs text-slate-500">
+                              <span className="text-xs text-muted-foreground">
                                 الدخل الشهري: {formatCurrency(seeker.monthlyIncome)}
                               </span>
                               {seeker.sqm && (
-                                <span className="text-xs text-slate-500">
+                                <span className="text-xs text-muted-foreground">
                                   المساحة: {formatNumber(seeker.sqm)} م²
                                 </span>
                               )}
@@ -355,13 +358,13 @@ export default function CustomerRequestsPage() {
                                 {[seeker.city, seeker.district].filter(Boolean).join("، ") || "—"}
                               </span>
                               {seeker.region && (
-                                <span className="text-xs text-slate-500">المنطقة: {seeker.region}</span>
+                                <span className="text-xs text-muted-foreground">المنطقة: {seeker.region}</span>
                               )}
                               {seeker.hasMaidRoom && (
-                                <span className="text-xs text-slate-500">غرفة خادمة</span>
+                                <span className="text-xs text-muted-foreground">غرفة خادمة</span>
                               )}
                               {seeker.hasDriverRoom && (
-                                <span className="text-xs text-slate-500">غرفة سائق</span>
+                                <span className="text-xs text-muted-foreground">غرفة سائق</span>
                               )}
                             </div>
                           </TableCell>
@@ -369,7 +372,7 @@ export default function CustomerRequestsPage() {
                             <div className="flex flex-col items-end gap-1 text-end text-sm">
                               <span>{createdLabel}</span>
                               {seeker.updatedAt && updatedLabel !== createdLabel && (
-                                <span className="text-xs text-slate-500">
+                                <span className="text-xs text-muted-foreground">
                                   آخر تحديث: {updatedLabel}
                                 </span>
                               )}
@@ -380,7 +383,7 @@ export default function CustomerRequestsPage() {
                     })}
             </TableBody>
           </Table>
-        </div>
+        </Card>
             )}
           </CardContent>
         </Card>

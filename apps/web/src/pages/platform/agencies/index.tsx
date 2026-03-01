@@ -18,9 +18,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, LOADING_STYLES } from "@/config/platform-theme";
-import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type AgencyRow = { id: string; name: string; verified: boolean; agentsCount: number; listingsCount: number };
 
@@ -31,8 +32,10 @@ export default function AgenciesPage() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className={LOADING_STYLES.container}>
-          <div className={LOADING_STYLES.text}>...جار التحميل</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-lg" />
+          ))}
         </div>
       </div>
     );
@@ -41,11 +44,9 @@ export default function AgenciesPage() {
   if (error) {
     return (
       <main className={PAGE_WRAPPER} dir={dir}>
-        <Card className={CARD_STYLES.container}>
-          <CardContent className="p-6">
-            <div className="text-red-600 text-center">تعذر تحميل الوكالات</div>
-          </CardContent>
-        </Card>
+        <Alert variant="destructive">
+          <AlertDescription className="text-center">تعذر تحميل الوكالات</AlertDescription>
+        </Alert>
       </main>
     );
   }
@@ -55,15 +56,15 @@ export default function AgenciesPage() {
       <section className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {data.map((a) => (
-            <Card key={a.id} className={cn(CARD_STYLES.container, "hover:shadow-lg transition cursor-pointer")}>
+            <Card key={a.id} className="hover:shadow-lg transition cursor-pointer">
               <CardContent className="p-5">
                 <a href={`/home/platform/agency/${a.id}`} className="block">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className={cn(TYPOGRAPHY.body, "font-semibold text-slate-900")}>
+                      <div className="text-sm font-semibold">
                         {a.name}{a.verified && <span className="ms-2 text-green-600">✓</span>}
                       </div>
-                      <div className={cn(TYPOGRAPHY.caption, "text-slate-600")}>
+                      <div className="text-xs text-muted-foreground">
                         عدد الوسطاء: {a.agentsCount} — عدد الإعلانات: {a.listingsCount}
                       </div>
                     </div>
