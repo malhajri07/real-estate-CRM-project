@@ -29,6 +29,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Upload, Trash2, Search, Grid, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
@@ -202,16 +209,17 @@ export default function MediaLibrary() {
                 }}
                 className="max-w-sm"
               />
-              <select
-                value={mimeTypeFilter}
-                onChange={(e) => setMimeTypeFilter(e.target.value)}
-                className="px-3 py-2 border rounded-md"
-              >
-                <option value="all">جميع الأنواع</option>
-                <option value="image">صور</option>
-                <option value="video">فيديو</option>
-                <option value="application/pdf">PDF</option>
-              </select>
+              <Select value={mimeTypeFilter} onValueChange={setMimeTypeFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="جميع الأنواع" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">جميع الأنواع</SelectItem>
+                  <SelectItem value="image">صور</SelectItem>
+                  <SelectItem value="video">فيديو</SelectItem>
+                  <SelectItem value="application/pdf">PDF</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {isLoading ? (
