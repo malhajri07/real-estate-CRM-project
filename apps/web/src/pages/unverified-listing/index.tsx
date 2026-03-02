@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Home, UploadCloud, X, ChevronsUpDown, Check, Loader2, ChevronRight, ChevronLeft } from "lucide-react";
 import { useLocation } from "wouter";
@@ -806,9 +807,9 @@ export default function UnverifiedListingPage() {
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div>
-                        <label className="mb-1 block text-sm font-medium">
+                        <Label className="mb-1 block text-sm font-medium">
                           عنوان الإعلان <span className="text-red-500">*</span>
-                        </label>
+                        </Label>
                         <Input
                           value={form.title}
                           onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -818,11 +819,11 @@ export default function UnverifiedListingPage() {
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="mb-3 block text-sm font-medium">تصنيف العقار <span className="text-red-500">*</span></label>
+                        <Label className="mb-3 block text-sm font-medium">تصنيف العقار <span className="text-red-500">*</span></Label>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                           <div className="space-y-2">
-                            <label className="text-xs text-slate-600">الخطوة 1: اختر الفئة</label>
+                            <Label className="text-xs text-slate-600">الخطوة 1: اختر الفئة</Label>
                             <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
                               <PopoverTrigger asChild>
                                 <Button
@@ -902,12 +903,12 @@ export default function UnverifiedListingPage() {
                           </div>
 
                           <div className="space-y-2">
-                            <label className="text-xs text-slate-600">
+                            <Label className="text-xs text-slate-600">
                               الخطوة 2: اختر النوع
                               {!form.propertyCategory && (
                                 <span className="text-red-500 me-1">(اختر الفئة أولاً)</span>
                               )}
-                            </label>
+                            </Label>
                             <Popover open={typeOpen} onOpenChange={setTypeOpen}>
                               <PopoverTrigger asChild>
                                 <Button
@@ -995,9 +996,9 @@ export default function UnverifiedListingPage() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-medium">
+                        <Label className="mb-1 block text-sm font-medium">
                           نوع العرض <span className="text-red-500">*</span>
-                        </label>
+                        </Label>
                         <Select value={form.listingType} onValueChange={(value) => setForm({ ...form, listingType: value })}>
                           <SelectTrigger><SelectValue placeholder="بيع أم إيجار؟" /></SelectTrigger>
                           <SelectContent>
@@ -1009,9 +1010,9 @@ export default function UnverifiedListingPage() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-medium">
+                        <Label className="mb-1 block text-sm font-medium">
                           السعر (﷼) <span className="text-red-500">*</span>
-                        </label>
+                        </Label>
                         <Input
                           type="number"
                           min={0}
@@ -1023,7 +1024,7 @@ export default function UnverifiedListingPage() {
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="mb-1 block text-sm font-medium">الوصف</label>
+                        <Label className="mb-1 block text-sm font-medium">الوصف</Label>
                         <Textarea
                           rows={4}
                           value={form.description}
@@ -1048,7 +1049,7 @@ export default function UnverifiedListingPage() {
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div>
-                        <label className="mb-1 block text-sm font-medium">المنطقة</label>
+                        <Label className="mb-1 block text-sm font-medium">المنطقة</Label>
                         <Popover open={regionOpen} onOpenChange={setRegionOpen}>
                           <PopoverTrigger asChild>
                             <Button
@@ -1118,9 +1119,9 @@ export default function UnverifiedListingPage() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-medium">
+                        <Label className="mb-1 block text-sm font-medium">
                           المدينة <span className="text-red-500">*</span>
-                        </label>
+                        </Label>
                         <Popover open={cityOpen} onOpenChange={setCityOpen}>
                           <PopoverTrigger asChild>
                             <Button
@@ -1187,7 +1188,7 @@ export default function UnverifiedListingPage() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-medium">الحي</label>
+                        <Label className="mb-1 block text-sm font-medium">الحي</Label>
                         <Popover open={districtOpen} onOpenChange={setDistrictOpen}>
                           <PopoverTrigger asChild>
                             <Button
@@ -1279,7 +1280,7 @@ export default function UnverifiedListingPage() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-medium">العنوان التفصيلي</label>
+                        <Label className="mb-1 block text-sm font-medium">العنوان التفصيلي</Label>
                         <Input
                           value={form.streetAddress}
                           onChange={(e) => setForm({ ...form, streetAddress: e.target.value })}
@@ -1288,7 +1289,7 @@ export default function UnverifiedListingPage() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-medium">خط العرض</label>
+                        <Label className="mb-1 block text-sm font-medium">خط العرض</Label>
                         <Input
                           type="number"
                           step="any"
@@ -1299,7 +1300,7 @@ export default function UnverifiedListingPage() {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-medium">خط الطول</label>
+                        <Label className="mb-1 block text-sm font-medium">خط الطول</Label>
                         <Input
                           type="number"
                           step="any"
@@ -1324,7 +1325,7 @@ export default function UnverifiedListingPage() {
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                       <div>
-                        <label className="mb-1 block text-sm font-medium">عدد الغرف</label>
+                        <Label className="mb-1 block text-sm font-medium">عدد الغرف</Label>
                         <Input
                           type="number"
                           min={0}
@@ -1334,7 +1335,7 @@ export default function UnverifiedListingPage() {
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium">عدد الحمامات</label>
+                        <Label className="mb-1 block text-sm font-medium">عدد الحمامات</Label>
                         <Input
                           type="number"
                           min={0}
@@ -1344,7 +1345,7 @@ export default function UnverifiedListingPage() {
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium">عدد صالات المعيشة</label>
+                        <Label className="mb-1 block text-sm font-medium">عدد صالات المعيشة</Label>
                         <Input
                           type="number"
                           min={0}
@@ -1354,7 +1355,7 @@ export default function UnverifiedListingPage() {
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium">عدد المطابخ</label>
+                        <Label className="mb-1 block text-sm font-medium">عدد المطابخ</Label>
                         <Input
                           type="number"
                           min={0}
@@ -1364,7 +1365,7 @@ export default function UnverifiedListingPage() {
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium">رقم الطابق</label>
+                        <Label className="mb-1 block text-sm font-medium">رقم الطابق</Label>
                         <Input
                           type="number"
                           value={form.floorNumber}
@@ -1373,7 +1374,7 @@ export default function UnverifiedListingPage() {
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium">عدد الطوابق الكلي</label>
+                        <Label className="mb-1 block text-sm font-medium">عدد الطوابق الكلي</Label>
                         <Input
                           type="number"
                           min={0}
@@ -1383,7 +1384,7 @@ export default function UnverifiedListingPage() {
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium">المساحة (م²)</label>
+                        <Label className="mb-1 block text-sm font-medium">المساحة (م²)</Label>
                         <Input
                           type="number"
                           min={0}
@@ -1393,7 +1394,7 @@ export default function UnverifiedListingPage() {
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium">سنة البناء</label>
+                        <Label className="mb-1 block text-sm font-medium">سنة البناء</Label>
                         <Input
                           type="number"
                           min={1900}
@@ -1404,7 +1405,7 @@ export default function UnverifiedListingPage() {
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium">تكرار الدفع</label>
+                        <Label className="mb-1 block text-sm font-medium">تكرار الدفع</Label>
                         <Input
                           value={form.paymentFrequency}
                           onChange={(e) => setForm({ ...form, paymentFrequency: e.target.value })}
@@ -1426,62 +1427,62 @@ export default function UnverifiedListingPage() {
                     </div>
 
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.hasParking}
                           onCheckedChange={(value) => setForm({ ...form, hasParking: Boolean(value) })}
                         />
                         يوجد موقف سيارة
-                      </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      </Label>
+                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.hasElevator}
                           onCheckedChange={(value) => setForm({ ...form, hasElevator: Boolean(value) })}
                         />
                         يوجد مصعد
-                      </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      </Label>
+                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.hasMaidsRoom}
                           onCheckedChange={(value) => setForm({ ...form, hasMaidsRoom: Boolean(value) })}
                         />
                         يحتوي على غرفة خادمة
-                      </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      </Label>
+                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.hasDriverRoom}
                           onCheckedChange={(value) => setForm({ ...form, hasDriverRoom: Boolean(value) })}
                         />
                         يحتوي على غرفة سائق
-                      </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      </Label>
+                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.furnished}
                           onCheckedChange={(value) => setForm({ ...form, furnished: Boolean(value) })}
                         />
                         مفروش
-                      </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      </Label>
+                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.balcony}
                           onCheckedChange={(value) => setForm({ ...form, balcony: Boolean(value) })}
                         />
                         يحتوي على شرفة
-                      </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      </Label>
+                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.swimmingPool}
                           onCheckedChange={(value) => setForm({ ...form, swimmingPool: Boolean(value) })}
                         />
                         يحتوي على مسبح
-                      </label>
-                      <label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      </Label>
+                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
                         <Checkbox
                           checked={form.centralAc}
                           onCheckedChange={(value) => setForm({ ...form, centralAc: Boolean(value) })}
                         />
                         تكييف مركزي
-                      </label>
+                      </Label>
                     </div>
                   </section>
                 )}
@@ -1507,10 +1508,10 @@ export default function UnverifiedListingPage() {
                             الصور المرفوعة: {selectedImages.length} / {MAX_IMAGE_COUNT}
                           </p>
                         </div>
-                        <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50 cursor-pointer transition">
+                        <Label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50 cursor-pointer transition">
                           <UploadCloud className="w-4 h-4" /> رفع صور
-                          <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
-                        </label>
+                          <Input type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
+                        </Label>
                       </div>
                       {imagePreviews.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -1521,14 +1522,14 @@ export default function UnverifiedListingPage() {
                                 alt={`Preview ${index + 1}`}
                                 className="w-full h-28 object-cover rounded-xl border border-slate-200"
                               />
-                              <button
+                              <Button
                                 type="button"
                                 onClick={() => removeImage(index)}
                                 className="absolute top-2 start-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
                                 aria-label="إزالة الصورة"
                               >
                                 <X className="w-4 h-4" />
-                              </button>
+                              </Button>
                             </div>
                           ))}
                         </div>
@@ -1551,7 +1552,7 @@ export default function UnverifiedListingPage() {
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div>
-                        <label className="mb-1 block text-sm font-medium">اسم جهة الاتصال</label>
+                        <Label className="mb-1 block text-sm font-medium">اسم جهة الاتصال</Label>
                         <Input
                           value={form.contactName}
                           onChange={(e) => setForm({ ...form, contactName: e.target.value })}
@@ -1559,9 +1560,9 @@ export default function UnverifiedListingPage() {
                         />
                       </div>
                       <div>
-                        <label className="mb-1 block text-sm font-medium">
+                        <Label className="mb-1 block text-sm font-medium">
                           رقم الجوال <span className="text-red-500">*</span>
-                        </label>
+                        </Label>
                         <Input
                           value={form.mobileNumber}
                           onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}

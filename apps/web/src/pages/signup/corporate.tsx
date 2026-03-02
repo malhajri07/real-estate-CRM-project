@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Upload, ArrowRight, Building2, Loader2, Check, ChevronRight, ChevronLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -735,19 +736,18 @@ export default function SignupCorporate() {
                       </div>
                     </div>
 
-                    <label className="flex items-start gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group">
+                    <Label className="flex items-start gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group">
                       <div className="relative flex items-center mt-1">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={agreedToTerms}
-                          onChange={(e) => setAgreedToTerms(e.target.checked)}
-                          className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                          onCheckedChange={(checked) => setAgreedToTerms(Boolean(checked))}
+                          className="h-5 w-5"
                         />
                       </div>
                       <span className="text-sm font-medium text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors">
                         أوافق على جميع الشروط والأحكام المذكورة أعلاه وأؤكد صحة البيانات التجارية المقدمة.
                       </span>
-                    </label>
+                    </Label>
                   </section>
                 )}
 

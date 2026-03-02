@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, FileEdit, Home, ArrowRight, Loader2, ChevronsUpDown, Check } from "lucide-react";
 import { useLocation } from "wouter";
@@ -472,15 +473,15 @@ export default function RealEstateRequestsPage() {
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">الاسم الأول <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">الاسم الأول <span className="text-red-500">*</span></Label>
                     <Input className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">اسم العائلة <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">اسم العائلة <span className="text-red-500">*</span></Label>
                     <Input className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">رقم الجوال <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">رقم الجوال <span className="text-red-500">*</span></Label>
                     <Input
                       type="tel"
                       inputMode="numeric"
@@ -494,23 +495,23 @@ export default function RealEstateRequestsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">البريد الإلكتروني <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">البريد الإلكتروني <span className="text-red-500">*</span></Label>
                     <Input type="email" className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end" dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">الجنسية <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">الجنسية <span className="text-red-500">*</span></Label>
                     <Input className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.nationality} onChange={(e) => setForm({ ...form, nationality: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">العمر <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">العمر <span className="text-red-500">*</span></Label>
                     <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">الدخل الشهري (﷼) <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">الدخل الشهري (﷼) <span className="text-red-500">*</span></Label>
                     <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.monthlyIncome} onChange={(e) => setForm({ ...form, monthlyIncome: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">الجنس <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">الجنس <span className="text-red-500">*</span></Label>
                     <Select value={form.gender} onValueChange={(value) => setForm({ ...form, gender: value })}>
                       <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"><SelectValue placeholder="اختر" /></SelectTrigger>
                       <SelectContent>
@@ -531,7 +532,7 @@ export default function RealEstateRequestsPage() {
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">نوع العقار <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">نوع العقار <span className="text-red-500">*</span></Label>
                     <Select value={form.typeOfProperty} onValueChange={(value) => setForm({ ...form, typeOfProperty: value })}>
                       <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"><SelectValue placeholder="اختر نوع العقار" /></SelectTrigger>
                       <SelectContent>
@@ -542,7 +543,7 @@ export default function RealEstateRequestsPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">نوع العقد <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">نوع العقد <span className="text-red-500">*</span></Label>
                     <Select value={form.typeOfContract} onValueChange={(value) => setForm({ ...form, typeOfContract: value })}>
                       <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"><SelectValue placeholder="شراء أم إيجار؟" /></SelectTrigger>
                       <SelectContent>
@@ -555,21 +556,21 @@ export default function RealEstateRequestsPage() {
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">عدد الغرف <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">عدد الغرف <span className="text-red-500">*</span></Label>
                     <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.numberOfRooms} onChange={(e) => setForm({ ...form, numberOfRooms: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">عدد الحمامات <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">عدد الحمامات <span className="text-red-500">*</span></Label>
                     <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.numberOfBathrooms} onChange={(e) => setForm({ ...form, numberOfBathrooms: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">عدد صالات المعيشة <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">عدد صالات المعيشة <span className="text-red-500">*</span></Label>
                     <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.numberOfLivingRooms} onChange={(e) => setForm({ ...form, numberOfLivingRooms: e.target.value })} required />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">اتجاه المنزل</label>
+                    <Label className="text-sm font-medium text-slate-700">اتجاه المنزل</Label>
                     <Select value={form.houseDirection} onValueChange={(value) => setForm({ ...form, houseDirection: value })}>
                       <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"><SelectValue placeholder="غير محدد" /></SelectTrigger>
                       <SelectContent>
@@ -580,7 +581,7 @@ export default function RealEstateRequestsPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">الميزانية المتاحة (﷼) <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">الميزانية المتاحة (﷼) <span className="text-red-500">*</span></Label>
                     <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.budgetSize} onChange={(e) => setForm({ ...form, budgetSize: e.target.value })} required />
                   </div>
                 </div>
@@ -594,7 +595,7 @@ export default function RealEstateRequestsPage() {
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">المنطقة</label>
+                    <Label className="text-sm font-medium text-slate-700">المنطقة</Label>
                     <Popover open={regionOpen} onOpenChange={setRegionOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" aria-expanded={regionOpen} className={cn("w-full justify-between h-12 rounded-xl", !form.region && "text-muted-foreground")}>
@@ -628,7 +629,7 @@ export default function RealEstateRequestsPage() {
                     </Popover>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">المدينة <span className="text-red-500">*</span></label>
+                    <Label className="text-sm font-medium text-slate-700">المدينة <span className="text-red-500">*</span></Label>
                     <Popover open={cityOpen} onOpenChange={setCityOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" aria-expanded={cityOpen} disabled={!form.regionId} className={cn("w-full justify-between h-12 rounded-xl", !form.city && "text-muted-foreground")}>
@@ -662,7 +663,7 @@ export default function RealEstateRequestsPage() {
                     </Popover>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">الحي</label>
+                    <Label className="text-sm font-medium text-slate-700">الحي</Label>
                     <Popover open={districtOpen} onOpenChange={setDistrictOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" aria-expanded={districtOpen} disabled={!form.cityId} className={cn("w-full justify-between h-12 rounded-xl", !form.district && "text-muted-foreground")}>
@@ -696,36 +697,36 @@ export default function RealEstateRequestsPage() {
                     </Popover>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-slate-700">المساحة المطلوبة (م²)</label>
+                    <Label className="text-sm font-medium text-slate-700">المساحة المطلوبة (م²)</Label>
                     <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.sqm} onChange={(e) => setForm({ ...form, sqm: e.target.value })} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3 pt-2">
-                  <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
+                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
                     <Checkbox checked={form.hasMaidRoom} onCheckedChange={(value) => setForm({ ...form, hasMaidRoom: Boolean(value) })} />
                     <span className="text-slate-700 font-medium">غرفة خادمة</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
+                  </Label>
+                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
                     <Checkbox checked={form.hasDriverRoom} onCheckedChange={(value) => setForm({ ...form, hasDriverRoom: Boolean(value) })} />
                     <span className="text-slate-700 font-medium">غرفة سائق</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
+                  </Label>
+                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
                     <Checkbox checked={form.kitchenInstalled} onCheckedChange={(value) => setForm({ ...form, kitchenInstalled: Boolean(value) })} />
                     <span className="text-slate-700 font-medium">مطبخ مركب</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
+                  </Label>
+                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
                     <Checkbox checked={form.hasElevator} onCheckedChange={(value) => setForm({ ...form, hasElevator: Boolean(value) })} />
                     <span className="text-slate-700 font-medium">يوجد مصعد</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
+                  </Label>
+                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
                     <Checkbox checked={form.parkingAvailable} onCheckedChange={(value) => setForm({ ...form, parkingAvailable: Boolean(value) })} />
                     <span className="text-slate-700 font-medium">موقف سيارة</span>
-                  </label>
+                  </Label>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">ملاحظات إضافية</label>
+                  <Label className="text-sm font-medium text-slate-700">ملاحظات إضافية</Label>
                   <Textarea
                     rows={4}
                     value={form.notes}

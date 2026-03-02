@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Upload, ArrowRight, UserRound, Loader2, Check, ChevronRight, ChevronLeft } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocation } from "wouter";
@@ -626,19 +627,18 @@ export default function SignupIndividual() {
                       </div>
                     </div>
 
-                    <label className="flex items-start gap-4 p-4 rounded-xl border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer group">
+                    <Label className="flex items-start gap-4 p-4 rounded-xl border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer group">
                       <div className="relative flex items-center mt-1">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           checked={agreedToTerms}
-                          onChange={(e) => setAgreedToTerms(e.target.checked)}
-                          className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                          onCheckedChange={(checked) => setAgreedToTerms(Boolean(checked))}
+                          className="h-5 w-5"
                         />
                       </div>
                       <span className="text-sm font-medium text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors">
                         أوافق على جميع الشروط والأحكام المذكورة أعلاه وأقر بأنني قد قرأتها وفهمتها بالكامل. كما أتعهد بالالتزام بأخلاقيات المهنة وقواعد السلوك للوسطاء العقاريين وأؤكد صحة جميع البيانات المقدمة.
                       </span>
-                    </label>
+                    </Label>
                   </section>
                 )}
 

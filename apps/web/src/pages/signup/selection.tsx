@@ -14,6 +14,7 @@
 import { motion } from "framer-motion";
 import { useLocation } from "wouter";
 import { UserRound, Building2, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import PublicHeader from "@/components/layout/PublicHeader";
@@ -154,12 +155,13 @@ export default function SignupSelection() {
             <motion.div variants={itemVariants} className="text-center pt-8">
               <p className="text-slate-500 text-sm">
                 لديك حساب بالفعل؟{' '}
-                <button
+                <Button
+                  variant="link"
                   onClick={() => setLocation('/rbac-login')}
-                  className="font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors"
+                  className="font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors p-0 h-auto"
                 >
                   تسجيل الدخول
-                </button>
+                </Button>
               </p>
             </motion.div>
           </motion.div>

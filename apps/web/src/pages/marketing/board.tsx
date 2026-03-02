@@ -23,6 +23,10 @@ import { format } from "date-fns";
 import { Megaphone, Sparkles, ShieldCheck } from "lucide-react";
 import type { MarketingProposal, MarketingRequest, MarketingRequestStatus, MarketingRequestTier } from "@shared/types";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface RequestWithExtras extends MarketingRequest {
   proposals?: MarketingProposal[];
@@ -178,29 +182,31 @@ export default function MarketingRequestsBoardPage() {
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
-          <select
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value as any)}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
-          >
-            {statusFilterOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={tierFilter}
-            onChange={(event) => setTierFilter(event.target.value as any)}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
-          >
-            {tierFilterOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <input
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as any)}>
+            <SelectTrigger className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {statusFilterOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={tierFilter} onValueChange={(value) => setTierFilter(value as any)}>
+            <SelectTrigger className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {tierFilterOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
@@ -306,7 +312,7 @@ export default function MarketingRequestsBoardPage() {
 
               <form onSubmit={handleSubmitProposal} className="border-t border-slate-200 pt-4 space-y-3">
                 <h4 className="text-sm font-semibold text-slate-900">قدّم عرضك التسويقي</h4>
-                <textarea
+                <Textarea
                   value={proposalMessage}
                   onChange={(event) => setProposalMessage(event.target.value)}
                   className="w-full min-h-[120px] rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
@@ -314,7 +320,7 @@ export default function MarketingRequestsBoardPage() {
                   required
                 />
                 <div className="grid grid-cols-2 gap-3">
-                  <input
+                  <Input
                     value={commissionRate}
                     onChange={(event) => setCommissionRate(event.target.value)}
                     type="number"
@@ -323,7 +329,7 @@ export default function MarketingRequestsBoardPage() {
                     className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                     placeholder="نسبة السعي %"
                   />
-                  <input
+                  <Input
                     value={marketingBudget}
                     onChange={(event) => setMarketingBudget(event.target.value)}
                     type="number"
@@ -332,7 +338,7 @@ export default function MarketingRequestsBoardPage() {
                     placeholder="ميزانية التسويق"
                   />
                 </div>
-                <input
+                <Input
                   value={estimatedTimeline}
                   onChange={(event) => setEstimatedTimeline(event.target.value)}
                   className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
@@ -349,13 +355,13 @@ export default function MarketingRequestsBoardPage() {
                     {proposalFeedback}
                   </div>
                 )}
-                <button
+                <Button
                   type="submit"
                   disabled={mutation.isPending}
                   className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow shadow-emerald-200 transition hover:bg-emerald-700 disabled:opacity-60"
                 >
                   {mutation.isPending ? "جاري الإرسال..." : "إرسال العرض"}
-                </button>
+                </Button>
               </form>
             </div>
           ) : (

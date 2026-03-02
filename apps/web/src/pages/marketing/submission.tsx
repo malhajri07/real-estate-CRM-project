@@ -18,6 +18,11 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface FormState {
   title: string;
@@ -187,9 +192,9 @@ export default function MarketingRequestSubmissionPage() {
           )}
 
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <label className="block">
+            <Label className="block">
               <span className="text-sm text-slate-600">عنوان الطلب *</span>
-              <input
+              <Input
                 name="title"
                 value={form.title}
                 onChange={handleChange}
@@ -197,10 +202,10 @@ export default function MarketingRequestSubmissionPage() {
                 placeholder="مثال: حملة تسويق لفيلا في حي الياسمين"
                 required
               />
-            </label>
-            <label className="block">
+            </Label>
+            <Label className="block">
               <span className="text-sm text-slate-600">نوع العقار *</span>
-              <input
+              <Input
                 name="propertyType"
                 value={form.propertyType}
                 onChange={handleChange}
@@ -208,20 +213,20 @@ export default function MarketingRequestSubmissionPage() {
                 placeholder="مثال: فيلا، شقة، أرض"
                 required
               />
-            </label>
-            <label className="block">
+            </Label>
+            <Label className="block">
               <span className="text-sm text-slate-600">نوع العرض</span>
-              <input
+              <Input
                 name="listingType"
                 value={form.listingType}
                 onChange={handleChange}
                 className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="بيع، إيجار، استثمار"
               />
-            </label>
-            <label className="block">
+            </Label>
+            <Label className="block">
               <span className="text-sm text-slate-600">المدينة *</span>
-              <input
+              <Input
                 name="city"
                 value={form.city}
                 onChange={handleChange}
@@ -229,33 +234,33 @@ export default function MarketingRequestSubmissionPage() {
                 placeholder="مثال: الرياض"
                 required
               />
-            </label>
-            <label className="block">
+            </Label>
+            <Label className="block">
               <span className="text-sm text-slate-600">الحي</span>
-              <input
+              <Input
                 name="district"
                 value={form.district}
                 onChange={handleChange}
                 className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="مثال: حي الياسمين"
               />
-            </label>
-            <label className="block">
+            </Label>
+            <Label className="block">
               <span className="text-sm text-slate-600">المنطقة</span>
-              <input
+              <Input
                 name="region"
                 value={form.region}
                 onChange={handleChange}
                 className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="مثال: منطقة الرياض"
               />
-            </label>
+            </Label>
           </section>
 
           <section className="space-y-4">
-            <label className="block">
+            <Label className="block">
               <span className="text-sm text-slate-600">وصف مختصر للحملة *</span>
-              <textarea
+              <Textarea
                 name="summary"
                 value={form.summary}
                 onChange={handleChange}
@@ -263,24 +268,24 @@ export default function MarketingRequestSubmissionPage() {
                 placeholder="عرّفنا بالعقار وأهداف الحملة التسويقية والنتيجة المتوقعة"
                 required
               />
-            </label>
-            <label className="block">
+            </Label>
+            <Label className="block">
               <span className="text-sm text-slate-600">تفاصيل إضافية (اختياري)</span>
-              <textarea
+              <Textarea
                 name="requirements"
                 value={form.requirements}
                 onChange={handleChange}
                 className="mt-1 w-full min-h-[120px] rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="اذكر المتطلبات الخاصة أو المستندات المساندة"
               />
-            </label>
+            </Label>
           </section>
 
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <span className="text-sm text-slate-600">الميزانية التقديرية للحملة</span>
               <div className="grid grid-cols-2 gap-4 mt-2">
-                <input
+                <Input
                   name="budgetMin"
                   value={form.budgetMin}
                   onChange={handleChange}
@@ -289,7 +294,7 @@ export default function MarketingRequestSubmissionPage() {
                   className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                   placeholder="الحد الأدنى"
                 />
-                <input
+                <Input
                   name="budgetMax"
                   value={form.budgetMax}
                   onChange={handleChange}
@@ -302,7 +307,7 @@ export default function MarketingRequestSubmissionPage() {
             </div>
             <div>
               <span className="text-sm text-slate-600">نسبة السعي المتوقعة</span>
-              <input
+              <Input
                 name="commissionExpectation"
                 value={form.commissionExpectation}
                 onChange={handleChange}
@@ -315,7 +320,7 @@ export default function MarketingRequestSubmissionPage() {
             </div>
             <div>
               <span className="text-sm text-slate-600">تاريخ البدء المفضل</span>
-              <input
+              <Input
                 name="preferredStartDate"
                 value={form.preferredStartDate}
                 onChange={handleChange}
@@ -325,7 +330,7 @@ export default function MarketingRequestSubmissionPage() {
             </div>
             <div>
               <span className="text-sm text-slate-600">تاريخ الانتهاء المتوقع</span>
-              <input
+              <Input
                 name="preferredEndDate"
                 value={form.preferredEndDate}
                 onChange={handleChange}
@@ -336,35 +341,35 @@ export default function MarketingRequestSubmissionPage() {
           </section>
 
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <label className="block">
-              <span className="text-sm text-slate-600">فئة الطلب</span>
-              <select
-                name="seriousnessTier"
-                value={form.seriousnessTier}
-                onChange={handleChange}
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="STANDARD">أساسي</option>
-                <option value="SERIOUS">جاد (أولوية وسرعة أعلى)</option>
-                <option value="ENTERPRISE">مؤسسي (متطلبات متقدمة)</option>
-              </select>
-            </label>
-            <label className="block">
+            <div className="block">
+              <Label className="text-sm text-slate-600">فئة الطلب</Label>
+              <Select value={form.seriousnessTier} onValueChange={(value) => setForm((prev) => ({ ...prev, seriousnessTier: value as FormState["seriousnessTier"] }))}>
+                <SelectTrigger className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="STANDARD">أساسي</SelectItem>
+                  <SelectItem value="SERIOUS">جاد (أولوية وسرعة أعلى)</SelectItem>
+                  <SelectItem value="ENTERPRISE">مؤسسي (متطلبات متقدمة)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Label className="block">
               <span className="text-sm text-slate-600">معرف العقار (اختياري)</span>
-              <input
+              <Input
                 name="propertyId"
                 value={form.propertyId}
                 onChange={handleChange}
                 className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="اربط الطلب بعقار مسجل في النظام"
               />
-            </label>
+            </Label>
           </section>
 
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <label className="block">
+            <Label className="block">
               <span className="text-sm text-slate-600">اسم جهة التواصل *</span>
-              <input
+              <Input
                 name="contactName"
                 value={form.contactName}
                 onChange={handleChange}
@@ -372,20 +377,20 @@ export default function MarketingRequestSubmissionPage() {
                 placeholder="مثال: أحمد العتيبي"
                 required
               />
-            </label>
-            <label className="block">
+            </Label>
+            <Label className="block">
               <span className="text-sm text-slate-600">رقم التواصل</span>
-              <input
+              <Input
                 name="contactPhone"
                 value={form.contactPhone}
                 onChange={handleChange}
                 className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="05XXXXXXXX"
               />
-            </label>
-            <label className="block">
+            </Label>
+            <Label className="block">
               <span className="text-sm text-slate-600">البريد الإلكتروني</span>
-              <input
+              <Input
                 name="contactEmail"
                 value={form.contactEmail}
                 onChange={handleChange}
@@ -393,17 +398,17 @@ export default function MarketingRequestSubmissionPage() {
                 placeholder="example@email.com"
                 type="email"
               />
-            </label>
+            </Label>
           </section>
 
           <div className="pt-6 border-t border-slate-100">
-            <button
+            <Button
               type="submit"
               disabled={submitting}
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 text-white font-semibold shadow-lg shadow-emerald-200 transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {submitting ? "جاري إرسال الطلب..." : "إرسال الطلب للمراجعة"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
