@@ -35,7 +35,6 @@ import {
 } from "@/components/admin";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 
 interface UnverifiedListing {
@@ -197,7 +196,7 @@ export default function UnverifiedListingsManagement() {
   };
 
   return (
-    <div className={PAGE_WRAPPER} dir="rtl">
+    <div className="w-full space-y-6" dir="rtl">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

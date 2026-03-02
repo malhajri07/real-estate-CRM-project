@@ -23,7 +23,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import EmptyState from "@/components/ui/empty-state";
 import ListingCard from "@/components/listings/ListingCard";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 export default function FavoritesPage() {
   const { t, dir } = useLanguage();
@@ -33,7 +32,7 @@ export default function FavoritesPage() {
 
   if (isLoading) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-64 w-full rounded-lg" />
@@ -45,7 +44,7 @@ export default function FavoritesPage() {
 
   if (error) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <Alert variant="destructive">
           <AlertDescription className="text-center">حدث خطأ في جلب المفضلة</AlertDescription>
         </Alert>
@@ -54,7 +53,7 @@ export default function FavoritesPage() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
       <section className="space-y-6">
         <Card>
           <CardHeader>

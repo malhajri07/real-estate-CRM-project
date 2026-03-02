@@ -27,7 +27,6 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import EmptyState from "@/components/ui/empty-state";
 import { apiRequest } from "@/lib/queryClient";
 import { Download, Mail, Phone, RefreshCcw } from "lucide-react";
-import { PAGE_WRAPPER, getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -178,7 +177,7 @@ export default function CustomerRequestsPage() {
   }, [seekers]);
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
       <section className="space-y-6">
         <Card>
           <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -202,7 +201,7 @@ export default function CustomerRequestsPage() {
               </Button>
               <Button variant="outline" asChild>
                 <a href="/api/requests/export" target="_blank" rel="noreferrer">
-                  <Download className={cn(getIconSpacing(dir), "h-4 w-4")} />
+                  <Download className={cn("me-2", "h-4 w-4")} />
                   تحميل CSV
                 </a>
               </Button>

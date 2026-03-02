@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER, getCalendarStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { getCalendarStatusVariant } from "@/lib/status-variants";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -79,13 +79,13 @@ export default function AppointmentsManager() {
     };
 
     return (
-        <div className={PAGE_WRAPPER} dir={dir}>
+        <div className="w-full space-y-6" dir={dir}>
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold">{t("nav.calendar")} & {t("common.appointments") || "Appointments"}</h1>
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                     <DialogTrigger asChild>
                         <Button>
-                            <Plus className={cn(getIconSpacing(dir), "h-4 w-4")} />
+                            <Plus className={cn("me-2", "h-4 w-4")} />
                             {t("common.create") || "New Appointment"}
                         </Button>
                     </DialogTrigger>

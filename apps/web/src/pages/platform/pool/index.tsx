@@ -11,7 +11,6 @@ import { apiRequest } from "@/lib/queryClient";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import { toast } from "sonner";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
@@ -110,7 +109,7 @@ export default function PoolPage() {
     const requests = Array.isArray(data?.data) ? data.data : [];
 
     return (
-        <div className={cn(PAGE_WRAPPER, "pb-20")} dir={dir}>
+        <div className={cn("w-full space-y-6", "pb-20")} dir={dir}>
             {/* Header Section */}
             <div className="mb-8">
                 <motion.div

@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, XCircle, Eye, ShieldCheck, Clock, Check, X } from "lucide-react";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 export default function ModerationQueuePage() {
   const queryClient = useQueryClient();
@@ -151,7 +150,7 @@ export default function ModerationQueuePage() {
   ], [processingId]);
 
   return (
-    <main className={PAGE_WRAPPER} dir="rtl">
+    <main className="w-full space-y-6" dir="rtl">
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">

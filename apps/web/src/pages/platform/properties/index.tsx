@@ -37,7 +37,7 @@ import AddPropertyModal from "@/components/modals/add-property-modal";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Property } from "@shared/types";
-import { PAGE_WRAPPER, getPropertyStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { getPropertyStatusVariant } from "@/lib/status-variants";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { cn } from "@/lib/utils";
@@ -258,7 +258,7 @@ export default function Properties() {
 
   if (isError) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <QueryErrorFallback message={t("properties.load_error") || "Failed to load properties."} onRetry={() => refetch()} />
       </div>
     );
@@ -266,7 +266,7 @@ export default function Properties() {
 
   if (isLoading) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <div className="text-sm font-medium text-muted-foreground mb-4">جار تحميل العقارات...</div>
         <TableSkeleton rows={6} cols={5} />
       </div>
@@ -274,7 +274,7 @@ export default function Properties() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
       <Card>
           <CardHeader>
             <div className="flex items-center justify-between mb-4">
@@ -304,11 +304,11 @@ export default function Properties() {
                   size="sm"
                   onClick={() => setShowFilters(!showFilters)}
                 >
-                  <SlidersHorizontal size={16} className={getIconSpacing(dir)} />
+                  <SlidersHorizontal size={16} className={"me-2"} />
                   الفلاتر
                 </Button>
                 <Button onClick={() => setAddPropertyModalOpen(true)}>
-                  <Plus className={getIconSpacing(dir)} size={16} />
+                  <Plus className={"me-2"} size={16} />
                   إضافة عقار
                 </Button>
               </div>
@@ -484,7 +484,7 @@ export default function Properties() {
                 description={searchQuery ? undefined : "أضف أول عقار للبدء."}
                 action={!searchQuery ? (
                   <Button onClick={() => setAddPropertyModalOpen(true)}>
-                    <Plus className={getIconSpacing(dir)} size={16} />
+                    <Plus className={"me-2"} size={16} />
                     إضافة أول عقار
                   </Button>
                 ) : undefined}

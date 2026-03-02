@@ -30,7 +30,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Lead } from "@shared/types";
-import { PAGE_WRAPPER, getLeadStatusVariant } from "@/config/platform-theme";
+import { getLeadStatusVariant } from "@/lib/status-variants";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -286,7 +286,7 @@ export default function Customers() {
 
   if (isError) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <QueryErrorFallback message={t("customers.load_error") || "Failed to load customers."} onRetry={() => refetch()} />
       </div>
     );
@@ -294,7 +294,7 @@ export default function Customers() {
 
   if (isLoading) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <p className="text-sm text-muted-foreground mb-4">جار تحميل العملاء...</p>
         <TableSkeleton rows={6} cols={8} />
       </div>
@@ -302,7 +302,7 @@ export default function Customers() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
       <Card>
           <CardHeader>
             <div className="flex items-center justify-between mb-4">

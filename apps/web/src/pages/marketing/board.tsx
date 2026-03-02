@@ -23,7 +23,6 @@ import { format } from "date-fns";
 import { Megaphone, Sparkles, ShieldCheck } from "lucide-react";
 import type { MarketingProposal, MarketingRequest, MarketingRequestStatus, MarketingRequestTier } from "@shared/types";
 import { useToast } from "@/hooks/use-toast";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 interface RequestWithExtras extends MarketingRequest {
   proposals?: MarketingProposal[];
@@ -166,7 +165,7 @@ export default function MarketingRequestsBoardPage() {
   };
 
   return (
-    <main className={PAGE_WRAPPER} dir="rtl">
+    <main className="w-full space-y-6" dir="rtl">
       <section className="space-y-6">
         <header className="bg-white border-0 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">

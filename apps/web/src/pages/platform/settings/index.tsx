@@ -26,7 +26,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, User, Save, Upload, Shield, Bell, Users, CheckCircle, TrendingUp, ChevronDown } from "lucide-react";
-import { PAGE_WRAPPER, getIconSpacing } from "@/config/platform-theme";
 import { Switch } from "@/components/ui/switch";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -113,7 +112,7 @@ export default function Settings() {
   };
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
       <section className="space-y-8">
         <Card className="px-6 py-5">
           <div className="flex flex-col gap-4">
@@ -126,7 +125,7 @@ export default function Settings() {
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
               <Button size="sm" onClick={handleAccountSave}>
-                <Save size={16} className={getIconSpacing(dir)} /> حفظ التغييرات
+                <Save size={16} className="me-2" /> حفظ التغييرات
               </Button>
             </div>
           </div>

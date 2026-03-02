@@ -30,7 +30,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type { Lead, Property, Deal } from "@shared/types";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
@@ -415,7 +414,7 @@ export default function Reports() {
   const hasAnyError = leadsError || propertiesError || dealsError;
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
         {isInitialLoading && (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 mb-6 min-h-[400px]" dir={dir}>
             <Skeleton className="h-10 w-10 rounded-full" />

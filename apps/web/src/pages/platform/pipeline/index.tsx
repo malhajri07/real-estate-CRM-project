@@ -28,10 +28,9 @@ import EmptyState from "@/components/ui/empty-state";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Deal, Lead } from "@shared/types";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
-import type { BadgeVariant } from "@/config/platform-theme";
+import type { BadgeVariant } from "@/lib/status-variants";
 
 const STAGES: { id: string; title: string; badgeVariant: BadgeVariant; accent: string }[] = [
   { id: "lead", title: "عميل محتمل", badgeVariant: "secondary", accent: "text-slate-600" },
@@ -241,7 +240,7 @@ export default function Pipeline() {
 
   if (isLoading) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="space-y-4 w-full max-w-md">
             <Skeleton className="h-8 w-48" />
@@ -258,7 +257,7 @@ export default function Pipeline() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
       <Card>
         <CardHeader>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">

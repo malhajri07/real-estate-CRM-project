@@ -26,7 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getPropertyStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { getPropertyStatusVariant } from "@/lib/status-variants";
 import type { Property } from "@shared/types";
 
 export default function PropertyDetail() {
@@ -132,7 +132,7 @@ export default function PropertyDetail() {
             {/* Share Dropdown */}
             <div className="relative group">
               <Button variant="outline" size="sm" className="rounded-xl">
-                <Share2 size={16} className={getIconSpacing(dir)} />
+                <Share2 size={16} className={"me-2"} />
                 مشاركة
               </Button>
 
@@ -162,7 +162,7 @@ export default function PropertyDetail() {
             </div>
 
             <Button variant="outline" size="sm" className="rounded-xl">
-              <Edit size={16} className={getIconSpacing(dir)} />
+              <Edit size={16} className={"me-2"} />
               تعديل
             </Button>
           </div>

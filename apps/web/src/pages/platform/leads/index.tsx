@@ -33,7 +33,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Lead } from "@shared/types";
 import type { UploadResult } from "@uppy/core";
-import { PAGE_WRAPPER, getLeadStatusVariant } from "@/config/platform-theme";
+import { getLeadStatusVariant } from "@/lib/status-variants";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 
@@ -212,7 +212,7 @@ export default function Leads() {
 
   if (isError) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <QueryErrorFallback message={t("leads.load_error") || "Failed to load leads."} onRetry={() => refetch()} />
       </div>
     );
@@ -220,7 +220,7 @@ export default function Leads() {
 
   if (isLoading) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <p className="text-sm text-muted-foreground mb-4">{t("leads.loading")}</p>
         <TableSkeleton rows={6} cols={9} />
       </div>
@@ -228,7 +228,7 @@ export default function Leads() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

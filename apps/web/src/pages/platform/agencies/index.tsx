@@ -18,7 +18,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -31,7 +30,7 @@ export default function AgenciesPage() {
   
   if (isLoading) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-24 w-full rounded-lg" />
@@ -43,7 +42,7 @@ export default function AgenciesPage() {
   
   if (error) {
     return (
-      <main className={PAGE_WRAPPER} dir={dir}>
+      <main className="w-full space-y-6" dir={dir}>
         <Alert variant="destructive">
           <AlertDescription className="text-center">تعذر تحميل الوكالات</AlertDescription>
         </Alert>
@@ -52,7 +51,7 @@ export default function AgenciesPage() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
       <section className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {data.map((a) => (

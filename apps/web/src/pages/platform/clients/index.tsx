@@ -26,7 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Lead, Activity } from "@shared/types";
 import { cn } from "@/lib/utils";
-import { PAGE_WRAPPER, getLeadStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { getLeadStatusVariant } from "@/lib/status-variants";
 
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,7 +77,7 @@ export default function Clients() {
 
   if (isLoading) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="w-full max-w-md space-y-4">
             <Skeleton className="h-8 w-full" />
@@ -90,7 +90,7 @@ export default function Clients() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card>
             <CardContent className="flex items-center justify-between p-6">
@@ -134,7 +134,7 @@ export default function Clients() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-end">العملاء ({filteredLeads.length})</CardTitle>
                   <Button size="sm">
-                    <UserPlus className={getIconSpacing(dir)} size={16} />
+                    <UserPlus className={"me-2"} size={16} />
                     إضافة عميل
                   </Button>
                 </div>
@@ -257,15 +257,15 @@ export default function Clients() {
 
                     <div className="flex flex-wrap items-center gap-2">
                       <Button size="sm">
-                        <Phone className={getIconSpacing(dir)} size={16} />
+                        <Phone className={"me-2"} size={16} />
                         اتصال
                       </Button>
                       <Button size="sm" variant="outline">
-                        <Mail className={getIconSpacing(dir)} size={16} />
+                        <Mail className={"me-2"} size={16} />
                         بريد
                       </Button>
                       <Button size="sm" variant="outline">
-                        <Calendar className={getIconSpacing(dir)} size={16} />
+                        <Calendar className={"me-2"} size={16} />
                         جدولة
                       </Button>
                     </div>
@@ -286,7 +286,7 @@ export default function Clients() {
                       <div className="mb-4 flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-end">سجل الأنشطة</h3>
                       <Button size="sm">
-                        <Plus className={getIconSpacing(dir)} size={16} />
+                        <Plus className={"me-2"} size={16} />
                           إضافة نشاط
                         </Button>
                       </div>

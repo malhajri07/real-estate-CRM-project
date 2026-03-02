@@ -32,7 +32,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { Lead } from "@shared/types";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
-import { PAGE_WRAPPER, getNotificationStatusVariant, getIconSpacing } from "@/config/platform-theme";
+import { getNotificationStatusVariant } from "@/lib/status-variants";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -146,7 +146,7 @@ export default function Notifications() {
 
   if (isError) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <QueryErrorFallback message={t("notifications.load_error") || "Failed to load notifications."} onRetry={() => refetch()} />
       </div>
     );
@@ -154,7 +154,7 @@ export default function Notifications() {
 
   if (isLoading) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <div className="flex items-center justify-center min-h-[200px]">
           <div className="w-full max-w-md space-y-4">
             <Skeleton className="h-8 w-full" />
@@ -168,7 +168,7 @@ export default function Notifications() {
 
   return (
     <>
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <section className="space-y-6">
           <Tabs defaultValue="customers" className="space-y-6">
             <TabsList className="grid w-full grid-cols-3">
@@ -257,12 +257,12 @@ export default function Notifications() {
                                 onClick={() => handleWhatsAppClick(lead)}
                                 className="text-green-600 border-green-200 hover:bg-green-50"
                               >
-                                <MessageCircle size={14} className={getIconSpacing(dir)} />
+                                <MessageCircle size={14} className={"me-2"} />
                                 واتساب
                               </Button>
                             )}
                             <Button variant="ghost" size="sm">
-                              <Bell size={14} className={getIconSpacing(dir)} />
+                              <Bell size={14} className={"me-2"} />
                               إشعار
                             </Button>
                           </div>
@@ -344,7 +344,7 @@ export default function Notifications() {
                     onClick={handleSendCampaign}
                     disabled={sendCampaignMutation.isPending}
                   >
-                    <Send className={getIconSpacing(dir)} size={16} />
+                    <Send className={"me-2"} size={16} />
                     {sendCampaignMutation.isPending ? "جار الإرسال..." : "إرسال الحملة"}
                   </Button>
                 </div>

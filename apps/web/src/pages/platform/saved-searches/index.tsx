@@ -20,7 +20,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import EmptyState from '@/components/ui/empty-state';
-import { PAGE_WRAPPER } from '@/config/platform-theme';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function SavedSearchesPage() {
@@ -51,7 +50,7 @@ export default function SavedSearchesPage() {
   });
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
       <section className="space-y-6">
         <Card>
           <CardHeader>

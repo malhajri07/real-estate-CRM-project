@@ -19,7 +19,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import EmptyState from "@/components/ui/empty-state";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 type Listing = {
   id: string;
@@ -58,7 +57,7 @@ export default function ComparePage() {
   }, [ids]);
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
       <section className="space-y-6">
         <Card>
           <CardHeader>

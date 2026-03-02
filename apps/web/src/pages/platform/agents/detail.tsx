@@ -19,7 +19,6 @@
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -31,7 +30,7 @@ export default function AgentPage() {
   
   if (isLoading) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <div className="flex items-center justify-center min-h-[400px]">
           <Skeleton className="h-4 w-48" />
         </div>
@@ -41,7 +40,7 @@ export default function AgentPage() {
   
   if (error || !data) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className="w-full space-y-6" dir={dir}>
         <Alert variant="destructive">
           <AlertDescription className="text-center">تعذر تحميل الوسيط</AlertDescription>
         </Alert>
@@ -51,7 +50,7 @@ export default function AgentPage() {
 
   const a = data.agent;
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className="w-full space-y-6" dir={dir}>
       <section className="space-y-6">
         <Card>
           <CardContent className="p-6">

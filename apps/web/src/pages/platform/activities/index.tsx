@@ -12,13 +12,12 @@ import EmptyState from "@/components/ui/empty-state";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import type { Activity } from "@shared/types";
-import { PAGE_WRAPPER, getIconSpacing } from "@/config/platform-theme";
 
 export default function Activities() {
     const [searchQuery, setSearchQuery] = useState("");
     const { t, dir, language } = useLanguage();
     const locale = language === "ar" ? "ar-SA" : "en-US";
-    const iconSpacing = getIconSpacing(dir);
+    const iconSpacing = "me-2";
 
     const { data: activities, isLoading } = useQuery<Activity[]>({
         queryKey: ["/api/activities"],
@@ -31,7 +30,7 @@ export default function Activities() {
 
     if (isLoading) {
         return (
-            <div className={PAGE_WRAPPER} dir={dir}>
+            <div className="w-full space-y-6" dir={dir}>
                 <div className="flex items-center justify-center min-h-[400px]">
                     <div className="w-full max-w-md space-y-4">
                         <Skeleton className="h-8 w-full" />
@@ -44,7 +43,7 @@ export default function Activities() {
     }
 
     return (
-        <div className={PAGE_WRAPPER} dir={dir}>
+        <div className="w-full space-y-6" dir={dir}>
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">

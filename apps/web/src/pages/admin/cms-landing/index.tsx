@@ -39,7 +39,6 @@ import { defaultCardDraft } from "./utils/defaults";
 import { SectionEditor, CardEditor } from "./components";
 import { useCMSLandingSections } from "./hooks";
 import { apiRequest } from "@/lib/queryClient";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 interface CMSLandingPageProps {
   embedded?: boolean;
@@ -351,7 +350,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     );
   }
 
-  const outerClasses = embedded ? "bg-transparent" : cn(PAGE_WRAPPER, "min-h-screen", dir === "rtl" ? "rtl" : "ltr");
+  const outerClasses = embedded ? "bg-transparent" : cn("w-full space-y-6", "min-h-screen", dir === "rtl" ? "rtl" : "ltr");
   const innerClasses = embedded ? "space-y-8" : "space-y-8 p-0";
 
   return (
