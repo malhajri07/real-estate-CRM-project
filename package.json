@@ -19,6 +19,7 @@
     "db:seed-saudi-geography": "tsx apps/api/scripts/seed-saudi-geography.ts",
     "db:seed-saudi-boundaries": "tsx apps/api/scripts/seed-saudi-boundaries.ts",
     "db:agent1": "tsx scripts/create-agent1.ts",
+    "db:seed-demo": "tsx apps/api/scripts/seed-properties-customers.ts",
     "delete-legacy-agents": "tsx apps/api/scripts/delete-legacy-agent-users.ts",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
@@ -65,6 +66,7 @@
     "@radix-ui/react-tooltip": "^1.2.0",
     "@react-google-maps/api": "^2.20.7",
     "@tanstack/react-query": "^5.60.5",
+    "@tanstack/react-table": "^8.21.3",
     "@tremor/react": "^3.18.7",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
@@ -134,6 +136,7 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.0",
     "@replit/vite-plugin-cartographer": "^0.2.8",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@tailwindcss/typography": "^0.5.15",
@@ -157,7 +160,6 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "postcss": "^8.4.47",
-    "@playwright/test": "^1.49.0",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.1",
     "typescript": "5.6.3",
