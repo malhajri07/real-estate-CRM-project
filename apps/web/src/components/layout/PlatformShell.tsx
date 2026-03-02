@@ -4,24 +4,28 @@
  * Location: apps/web/src/ → Components/ → Layout Components → PlatformShell.tsx
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
  * 
- * Platform shell layout wrapper for authenticated pages. Provides:
- * - Header and sidebar layout
- * - Navigation structure
- * - Responsive layout management
+ * Platform shell layout wrapper for authenticated pages. Uses shadcn
+ * SidebarProvider for layout context and SidebarInset for main content.
+ * Mobile sidebar is handled automatically via Sheet in the shadcn system.
  * 
  * Related Files:
  * - apps/web/src/components/layout/header.tsx - Header component
  * - apps/web/src/components/layout/sidebar.tsx - Sidebar component
+ * - apps/web/src/components/ui/sidebar.tsx - shadcn sidebar primitives
  */
 
-import { PropsWithChildren, type ReactNode, useState } from "react";
+import { PropsWithChildren, type ReactNode } from "react";
 import { useLocation } from "wouter";
-import { motion } from "framer-motion";
 import Header from "@/components/layout/header";
 import PlatformSidebar from "@/components/layout/sidebar";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { getHeaderConfigForPath } from "@/config/platform-header-config";
-import { cn } from "@/lib/utils";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
 
 type PlatformShellProps = PropsWithChildren<{
   onLogout?: () => void;
@@ -30,7 +34,7 @@ type PlatformShellProps = PropsWithChildren<{
   headerExtraContent?: ReactNode;
 }>;
 
-export default function PlatformShell({
+function PlatformShellContent({
   children,
   onLogout,
   title: titleOverride,
@@ -39,68 +43,43 @@ export default function PlatformShell({
 }: PlatformShellProps) {
   const { dir, t } = useLanguage();
   const [location] = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { toggleSidebar, openMobile } = useSidebar();
 
   const headerConfig = getHeaderConfigForPath(location);
   const title = titleOverride ?? t(headerConfig.titleKey);
-  const searchPlaceholder = searchPlaceholderOverride ?? (headerConfig.searchPlaceholderKey ? t(headerConfig.searchPlaceholderKey) : t("nav.search"));
+  const searchPlaceholder =
+    searchPlaceholderOverride ??
+    (headerConfig.searchPlaceholderKey ? t(headerConfig.searchPlaceholderKey) : t("nav.search"));
   const showSearch = headerConfig.showSearch ?? true;
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col relative overflow-hidden" dir={dir}>
-      {/* Global Background with Clean Apple Style */}
-      <div className="absolute inset-0 bg-[#F5F5F7] z-0" />
-
-      {/* Sidebar Overlay - Only on mobile when sidebar is open (z-[60] below sidebar z-[65] so sidebar stays tappable) */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-[60] lg:hidden"
-          onClick={toggleSidebar}
-          aria-hidden="true"
+    <>
+      <PlatformSidebar onLogout={onLogout} />
+      <SidebarInset>
+        <Header
+          searchPlaceholder={searchPlaceholder}
+          title={title}
+          showSearch={showSearch}
+          extraContent={headerExtraContent}
+          onToggleSidebar={toggleSidebar}
+          isSidebarOpen={openMobile}
         />
-      )}
-
-      {/* Header - Fixed at Top */}
-      <Header
-        searchPlaceholder={searchPlaceholder}
-        title={title}
-        showSearch={showSearch}
-        extraContent={headerExtraContent}
-        onToggleSidebar={toggleSidebar}
-        isSidebarOpen={isSidebarOpen}
-      />
-
-      <div className="flex flex-1 pt-20 relative z-10">
-        {/* Sidebar - Fixed on Desktop */}
-        <aside
-          className={cn(
-            "w-72 flex-shrink-0 z-[65]",
-            "fixed inset-y-0 start-0 lg:top-20", 
-            "transition-transform duration-300 ease-in-out",
-            dir === "rtl"
-              ? isSidebarOpen 
-                ? "translate-x-0" 
-                : "translate-x-full lg:translate-x-0"
-              : isSidebarOpen 
-                ? "translate-x-0" 
-                : "-translate-x-full lg:translate-x-0",
-             dir === "rtl" ? "right-0 lg:right-auto lg:left-auto" : "left-0 lg:left-auto"
-          )}
-        >
-          <PlatformSidebar onLogout={onLogout} />
-        </aside>
-
-        {/* Main Content - centered with max-width */}
-        <main className="flex-1 lg:ms-72 p-4 sm:p-6 lg:p-8 w-full flex flex-col items-center min-w-0 transition-all duration-300">
-          <div className="w-full max-w-7xl">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 pt-24">
+          <div className="w-full max-w-7xl mx-auto">
             {children}
           </div>
-        </main>
-      </div>
-    </div>
+        </div>
+      </SidebarInset>
+    </>
+  );
+}
+
+export default function PlatformShell(props: PlatformShellProps) {
+  const { dir } = useLanguage();
+
+  return (
+    <SidebarProvider dir={dir}>
+      <PlatformShellContent {...props} />
+    </SidebarProvider>
   );
 }
