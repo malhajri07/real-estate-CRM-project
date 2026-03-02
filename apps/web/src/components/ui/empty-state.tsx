@@ -16,7 +16,6 @@
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { EMPTY_STYLES } from '@/config/platform-theme';
 
 interface EmptyStateProps {
   icon?: LucideIcon | React.ComponentType<{ className?: string }>;
@@ -43,15 +42,15 @@ export default function EmptyState({
   className 
 }: EmptyStateProps) {
   return (
-    <div className={cn(EMPTY_STYLES.container, "flex flex-col items-center justify-center gap-3", className)}>
+    <div className={cn("text-center py-16 px-4 bg-slate-50 rounded-3xl border border-dashed border-slate-200 flex flex-col items-center justify-center gap-3", className)}>
       {Icon && (
         <Icon className="h-16 w-16 text-slate-300 mb-4" />
       )}
-      <h3 className={EMPTY_STYLES.title}>
+      <h3 className="text-xl font-bold text-slate-900 mb-2">
         {title}
       </h3>
       {description && (
-        <p className={EMPTY_STYLES.description}>
+        <p className="text-base text-slate-500 max-w-sm mx-auto leading-relaxed">
           {description}
         </p>
       )}

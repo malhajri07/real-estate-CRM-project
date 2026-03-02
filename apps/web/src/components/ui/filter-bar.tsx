@@ -16,7 +16,6 @@
 import React from 'react';
 import { Filter, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { COMPONENT_STYLES } from '@/config/theme';
 import { Button } from './button';
 
 interface FilterBarProps {
@@ -44,7 +43,7 @@ export default function FilterBar({
   className 
 }: FilterBarProps) {
   return (
-    <div className={cn(COMPONENT_STYLES.filterBar, className)}>
+    <div className={cn("bg-white/60 backdrop-blur-md border border-white/60 rounded-2xl p-5 mb-8 shadow-sm", className)}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-slate-600" />
@@ -74,7 +73,7 @@ export default function FilterBar({
       </div>
       
       {isOpen && (
-        <div className={COMPONENT_STYLES.filterGrid}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {children}
         </div>
       )}

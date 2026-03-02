@@ -15,7 +15,6 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { ACTION_BAR_STYLES } from '@/config/platform-theme';
 
 interface ActionBarProps {
   title?: string;
@@ -40,7 +39,7 @@ export default function ActionBar({
   className 
 }: ActionBarProps) {
   return (
-    <div className={cn(ACTION_BAR_STYLES.container, className)}>
+    <div className={cn("flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 bg-white/40 backdrop-blur-sm p-4 rounded-2xl border border-white/40", className)}>
       {(title || subtitle) && (
         <div className="flex-1 min-w-0">
           {title && (
@@ -56,7 +55,7 @@ export default function ActionBar({
         </div>
       )}
       {children && (
-        <div className={ACTION_BAR_STYLES.buttons}>
+        <div className="flex flex-wrap gap-3">
           {children}
         </div>
       )}

@@ -15,7 +15,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
-import { METRICS_CARD_STYLES } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 
 interface MetricsCardProps {
@@ -48,11 +47,11 @@ export default function MetricsCard({
   };
 
   return (
-    <Card className={METRICS_CARD_STYLES.container}>
+    <Card className="border-0 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6">
       <div className="flex items-center justify-between pb-2">
         <div>
-          <p className={METRICS_CARD_STYLES.label}>{title}</p>
-          <p className={METRICS_CARD_STYLES.value}>{value}</p>
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{title}</p>
+          <p className="text-3xl font-bold text-slate-900">{value}</p>
           {change && (
             <p className={cn("text-xs font-bold mt-1 flex items-center gap-1", changeColorMap[changeType])}>
               <span>{changeIconMap[changeType]}</span>
@@ -60,7 +59,7 @@ export default function MetricsCard({
             </p>
           )}
         </div>
-        <div className={cn(METRICS_CARD_STYLES.icon, iconColor)}>
+        <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600", iconColor)}>
           <Icon size={24} />
         </div>
       </div>

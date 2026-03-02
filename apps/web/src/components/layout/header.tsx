@@ -23,7 +23,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { HEADER_STYLES } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
