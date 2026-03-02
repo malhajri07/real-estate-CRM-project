@@ -17,7 +17,6 @@ import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 
 export default function KYCSubmitted() {
@@ -110,14 +109,14 @@ export default function KYCSubmitted() {
                   onClick={() => setLocation('/rbac-login')}
                 >
                   الذهاب لصفحة الدخول
-                  <ArrowRight className={cn(getIconSpacing(dir), "h-4 w-4 rotate-180")} />
+                  <ArrowRight className={cn("me-2", "h-4 w-4 rotate-180")} />
                 </Button>
                 <Button
                   variant="outline"
                   className="rounded-xl h-12 px-8 border-slate-200 hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200 w-full sm:w-auto"
                   onClick={handleBackToLanding}
                 >
-                  <Home className={cn(getIconSpacing(dir), "h-4 w-4")} />
+                  <Home className={cn("me-2", "h-4 w-4")} />
                   العودة للرئيسية
                 </Button>
               </div>

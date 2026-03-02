@@ -23,7 +23,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, ArrowRight, Building2, Loader2, Check, ChevronRight, ChevronLeft } from "lucide-react";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getIconSpacing } from "@/config/platform-theme";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { cn } from "@/lib/utils";
 
@@ -68,7 +67,6 @@ export default function SignupCorporate() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const { dir } = useLanguage();
-  const iconSpacing = getIconSpacing(dir);
 
   // Wizard State
   const [currentStep, setCurrentStep] = useState(1);
@@ -762,7 +760,7 @@ export default function SignupCorporate() {
                     disabled={currentStep === 1}
                     className="h-12 rounded-2xl border-slate-200 px-8 text-slate-600 transition-colors hover:bg-slate-100"
                   >
-                    <ChevronRight className={cn(iconSpacing, "h-4 w-4")} />
+                    <ChevronRight className={cn("me-2", "h-4 w-4")} />
                     السابق
                   </Button>
 
@@ -783,7 +781,7 @@ export default function SignupCorporate() {
                     >
                       {isLoading ? (
                         <>
-                          <Loader2 className={cn(iconSpacing, "h-5 w-5 animate-spin")} />
+                          <Loader2 className={cn("me-2", "h-5 w-5 animate-spin")} />
                           جاري الإرسال...
                         </>
                       ) : (

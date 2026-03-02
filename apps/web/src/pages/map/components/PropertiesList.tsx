@@ -23,10 +23,21 @@
 import { MapPin, Bed, Bath, Heart, Eye, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logger } from "@/lib/logger";
-import { TABLE_STYLES, TYPOGRAPHY, getMapPropertyStatusVariant } from "@/config/platform-theme";
 import type { PropertiesListProps, PropertySummary } from "../types";
 import { formatCurrency } from "../utils/formatters";
 import { Badge } from "@/components/ui/badge";
+
+type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'orange' | 'purple';
+
+function getMapPropertyStatusVariant(status: string): BadgeVariant {
+  switch (status) {
+    case 'active': return 'warning';
+    case 'pending': return 'info';
+    case 'sold': return 'success';
+    case 'withdrawn': return 'destructive';
+    default: return 'secondary';
+  }
+}
 
 export function PropertiesList({
   properties,
@@ -65,21 +76,21 @@ export function PropertiesList({
 
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm relative z-50">
-      <table className={cn(TABLE_STYLES.container, "min-w-[900px] w-full text-end")}>
-        <thead className={cn(TABLE_STYLES.header, "bg-gray-50 border-b border-gray-200")}>
-          <tr className={cn(TABLE_STYLES.headerCell, "text-xs font-medium text-gray-700 uppercase tracking-wider")}>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الصورة</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>العقار</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الموقع</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>النوع</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الحالة</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>السعر</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>المساحة</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الغرف</th>
-            <th className={cn(TABLE_STYLES.headerCell, "px-6 py-3 text-end")}>الإجراءات</th>
+      <table className="w-full border-collapse min-w-[900px] text-end">
+        <thead className="bg-gray-50 border-b border-gray-200">
+          <tr className="text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <th className="px-6 py-3 text-end">الصورة</th>
+            <th className="px-6 py-3 text-end">العقار</th>
+            <th className="px-6 py-3 text-end">الموقع</th>
+            <th className="px-6 py-3 text-end">النوع</th>
+            <th className="px-6 py-3 text-end">الحالة</th>
+            <th className="px-6 py-3 text-end">السعر</th>
+            <th className="px-6 py-3 text-end">المساحة</th>
+            <th className="px-6 py-3 text-end">الغرف</th>
+            <th className="px-6 py-3 text-end">الإجراءات</th>
           </tr>
         </thead>
-        <tbody className={cn(TABLE_STYLES.body, "divide-y divide-gray-200")}>
+        <tbody className="divide-y divide-gray-200">
           {properties.map((property) => {
             const isFavourite = favoriteIds.includes(property.id);
             const isActive = highlightedId === property.id;
@@ -96,7 +107,7 @@ export function PropertiesList({
                 onClick={() => onNavigate(property.id)}
               >
                 {/* Image */}
-                <td className={cn(TABLE_STYLES.cell, "p-0 w-20 align-middle")}>
+                <td className="p-0 w-20 align-middle text-sm text-slate-700">
                   <div className="relative w-20 h-20 min-h-[80px]">
                     {property.photoUrls && property.photoUrls.length > 0 ? (
                       <img 
@@ -128,28 +139,28 @@ export function PropertiesList({
                 </td>
 
                 {/* Property */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-gray-900 text-end")}>{property.title}</div>
+                <td className="px-6 py-4 text-end text-sm">
+                  <div className="font-semibold text-gray-900">{property.title}</div>
                 </td>
 
                 {/* Location */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                  <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-end")}>
+                <td className="px-6 py-4 text-end text-sm">
+                  <div className="text-gray-900">
                     {property.city}
                     {property.district && `, ${property.district}`}
                   </div>
-                  <div className={cn("mt-1", TYPOGRAPHY.caption, "text-gray-600 text-end")}>{property.address}</div>
+                  <div className="mt-1 text-[10px] font-bold text-gray-600">{property.address}</div>
                 </td>
 
                 {/* Type */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                  <div className={cn(TYPOGRAPHY.body, "text-gray-900 text-end")}>
+                <td className="px-6 py-4 text-end text-sm">
+                  <div className="text-gray-900">
                     {property.propertyType || property.transactionType || '-'}
                   </div>
                 </td>
 
                 {/* Status */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
+                <td className="px-6 py-4 text-end text-sm">
                   {property.status && (
                     <Badge variant={getMapPropertyStatusVariant(property.status)}>
                       {property.status}
@@ -158,20 +169,20 @@ export function PropertiesList({
                 </td>
 
                 {/* Price */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                  <div className={cn(TYPOGRAPHY.body, "font-semibold text-[rgb(128_193_165)] text-end")}>
+                <td className="px-6 py-4 text-end text-sm">
+                  <div className="font-semibold text-[rgb(128_193_165)]">
                     {formatCurrency(property.price)}
                   </div>
                 </td>
 
                 {/* Area */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
+                <td className="px-6 py-4 text-end text-sm">
                   {property.areaSqm ? `${property.areaSqm.toLocaleString("en-US")} متر²` : '-'}
                 </td>
 
                 {/* Rooms */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
-                  <div className={cn("flex items-center gap-2", TYPOGRAPHY.body, "text-gray-900 text-end")}>
+                <td className="px-6 py-4 text-end text-sm">
+                  <div className="flex items-center gap-2 text-gray-900">
                     {property.bedrooms && (
                       <span className="flex items-center gap-1">
                         <Bed size={12} />
@@ -188,7 +199,7 @@ export function PropertiesList({
                 </td>
 
                 {/* Actions */}
-                <td className={cn(TABLE_STYLES.cell, "px-6 py-4 text-end")}>
+                <td className="px-6 py-4 text-end text-sm">
                   <div className="flex items-center justify-end gap-1 relative z-50" onClick={(e) => e.stopPropagation()}>
                     <button 
                       className={cn(

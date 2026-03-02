@@ -32,7 +32,6 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { getIconSpacing } from "@/config/platform-theme";
 
 const LISTING_TYPES = [
   { value: "بيع", label: "بيع" },
@@ -672,7 +671,7 @@ export default function UnverifiedListingPage() {
                     setImagePreviews([]);
                   }}
                 >
-                  <UploadCloud className={cn(getIconSpacing(dir), "h-4 w-4")} />
+                  <UploadCloud className={cn("me-2", "h-4 w-4")} />
                   إرسال إعلان جديد
                 </Button>
                 <Button
@@ -680,7 +679,7 @@ export default function UnverifiedListingPage() {
                   className="rounded-xl h-12 px-8 border-slate-200 hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200"
                   onClick={() => setLocation("/")}
                 >
-                  <Home className={cn(getIconSpacing(dir), "h-4 w-4")} />
+                  <Home className={cn("me-2", "h-4 w-4")} />
                   العودة للرئيسية
                 </Button>
               </div>
@@ -845,7 +844,7 @@ export default function UnverifiedListingPage() {
                                         form.propertyCategory
                                         : "اختر فئة العقار"}
                                   </span>
-                                  <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
+                                  <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="w-full p-0" align="start">
@@ -882,7 +881,7 @@ export default function UnverifiedListingPage() {
                                             >
                                               <Check
                                                 className={cn(
-                                                  cn(getIconSpacing(dir), "h-4 w-4"),
+                                                  cn("me-2", "h-4 w-4"),
                                                   form.propertyCategory === (category.code || String(category.id)) ? "opacity-100" : "opacity-0"
                                                 )}
                                               />
@@ -933,7 +932,7 @@ export default function UnverifiedListingPage() {
                                           form.propertyType
                                           : "اختر نوع العقار"}
                                   </span>
-                                  <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
+                                  <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
                                 </Button>
                               </PopoverTrigger>
                               <PopoverContent className="w-full p-0" align="start">
@@ -973,7 +972,7 @@ export default function UnverifiedListingPage() {
                                             >
                                               <Check
                                                 className={cn(
-                                                  cn(getIconSpacing(dir), "h-4 w-4"),
+                                                  cn("me-2", "h-4 w-4"),
                                                   form.propertyType === (type.code || String(type.id)) ? "opacity-100" : "opacity-0"
                                                 )}
                                               />
@@ -1066,7 +1065,7 @@ export default function UnverifiedListingPage() {
                                 (regions || []).find((region: any) => String(region.id) === form.region)?.nameEn ||
                                 "اختر المنطقة"
                                 : "اختر المنطقة"}
-                              <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
+                              <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-full p-0" align="start">
@@ -1078,7 +1077,7 @@ export default function UnverifiedListingPage() {
                                   {!regions ? (
                                     <CommandItem disabled>
                                       <div className="flex items-center justify-center p-2">
-                                        <Loader2 className={cn(getIconSpacing(dir), "h-4 w-4 animate-spin")} />
+                                        <Loader2 className={cn("me-2", "h-4 w-4 animate-spin")} />
                                         <span>جار التحميل...</span>
                                       </div>
                                     </CommandItem>
@@ -1102,7 +1101,7 @@ export default function UnverifiedListingPage() {
                                         >
                                           <Check
                                             className={cn(
-                                              cn(getIconSpacing(dir), "h-4 w-4"),
+                                              cn("me-2", "h-4 w-4"),
                                               form.region === String(region.id) ? "opacity-100" : "opacity-0"
                                             )}
                                           />
@@ -1139,7 +1138,7 @@ export default function UnverifiedListingPage() {
                                 (filteredCities || []).find((city: any) => String(city.id) === form.city)?.nameEn ||
                                 "اختر المدينة"
                                 : "اختر المدينة"}
-                              <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
+                              <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-full p-0" align="start">
@@ -1171,7 +1170,7 @@ export default function UnverifiedListingPage() {
                                         >
                                           <Check
                                             className={cn(
-                                              cn(getIconSpacing(dir), "h-4 w-4"),
+                                              cn("me-2", "h-4 w-4"),
                                               form.city === String(city.id) ? "opacity-100" : "opacity-0"
                                             )}
                                           />
@@ -1206,7 +1205,7 @@ export default function UnverifiedListingPage() {
                                 (filteredDistricts || []).find((district: any) => String(district.id) === form.district)?.nameEn ||
                                 "اختر الحي"
                                 : "اختر الحي"}
-                              <ChevronsUpDown className={cn(getIconSpacing(dir), "h-4 w-4 shrink-0 opacity-50")} />
+                              <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-full p-0" align="start">
@@ -1263,7 +1262,7 @@ export default function UnverifiedListingPage() {
                                         >
                                           <Check
                                             className={cn(
-                                              cn(getIconSpacing(dir), "h-4 w-4"),
+                                              cn("me-2", "h-4 w-4"),
                                               form.district === String(district.id) ? "opacity-100" : "opacity-0"
                                             )}
                                           />
@@ -1583,7 +1582,7 @@ export default function UnverifiedListingPage() {
                     disabled={currentStep === 1}
                     className="rounded-2xl"
                   >
-                    <ChevronRight className={cn(getIconSpacing(dir), "h-4 w-4")} />
+                    <ChevronRight className={cn("me-2", "h-4 w-4")} />
                     السابق
                   </Button>
 
@@ -1594,7 +1593,7 @@ export default function UnverifiedListingPage() {
                       className="rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700"
                     >
                       التالي
-                      <ChevronLeft className={cn(getIconSpacing(dir), "h-4 w-4")} />
+                      <ChevronLeft className={cn("me-2", "h-4 w-4")} />
                     </Button>
                   ) : (
                     <Button
@@ -1604,7 +1603,7 @@ export default function UnverifiedListingPage() {
                     >
                       {loading ? (
                         <>
-                          <Loader2 className={cn(getIconSpacing(dir), "h-4 w-4 animate-spin")} />
+                          <Loader2 className={cn("me-2", "h-4 w-4 animate-spin")} />
                           جاري الإرسال...
                         </>
                       ) : (

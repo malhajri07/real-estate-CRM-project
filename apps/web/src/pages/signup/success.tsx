@@ -18,13 +18,10 @@
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight } from "lucide-react";
 import { useLocation } from "wouter";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { getIconSpacing } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 
 export default function SignupSuccess() {
   const [, setLocation] = useLocation();
-  const { dir } = useLanguage();
 
   const handleBackToLanding = () => {
     setLocation("/");
@@ -75,7 +72,7 @@ export default function SignupSuccess() {
               className="rounded-2xl border-slate-300 text-slate-600 hover:bg-slate-100"
               onClick={handleBackToLanding}
             >
-              <ArrowRight className={cn(getIconSpacing(dir), "h-4 w-4 rotate-180")} />
+              <ArrowRight className={cn("me-2", "h-4 w-4 rotate-180")} />
               العودة إلى الصفحة الرئيسية
             </Button>
             <Button
