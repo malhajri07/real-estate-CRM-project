@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
-import { useLocation, useRoute } from 'wouter';
+import { useLocation } from 'wouter';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { AdminHeader } from './AdminHeader';
 import { AdminSidebar } from './AdminSidebar';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { adminSidebarConfig } from '@/config/admin-sidebar';
 import { mapConfigToSidebarItems, getActiveItemFromRoute, getExpandedItemsFromRoute } from '@/components/admin/utilities/sidebar-utils';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
 type AdminLayoutProps = {
     children: React.ReactNode;
@@ -28,7 +29,6 @@ export function AdminLayout({
     const { user, logout } = useAuth();
     const [location, setLocation] = useLocation();
 
-    // Sidebar State
     const [expandedItems, setExpandedItems] = useState<string[]>(() =>
         getExpandedItemsFromRoute(location, adminSidebarConfig)
     );
@@ -59,41 +59,30 @@ export function AdminLayout({
     }, [onRefresh]);
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex flex-col relative overflow-hidden" dir={dir}>
-            {/* Subtle background decorative elements */}
-            <div className="absolute top-[-10%] start-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-[-10%] end-[-10%] w-[30%] h-[30%] bg-indigo-500/5 rounded-full blur-[100px] pointer-events-none" />
-
-            {/* Header */}
-            <AdminHeader
-                title={title}
-                subtitle={subtitle}
-                onLogout={logout}
-                onBack={handleBack}
-                onRefresh={handleRefresh}
-                loading={isLoading}
-                userName={user?.name || user?.email}
+        <SidebarProvider>
+            <AdminSidebar
+                dir={dir}
+                items={sidebarItems}
+                activeItem={activeItem}
+                expandedItems={expandedItems}
+                onToggleItem={handleToggleItem}
+                activeRoute={location}
+                onSelectSubPage={handleSelectSubPage}
             />
-
-            <div className="flex flex-1 pt-20 relative z-10">
-                {/* Sidebar */}
-                <aside className="hidden md:block w-72 fixed inset-y-0 start-0 top-20 bottom-0 z-40 transition-all duration-300">
-                    <AdminSidebar
-                        dir={dir}
-                        items={sidebarItems}
-                        activeItem={activeItem}
-                        expandedItems={expandedItems}
-                        onToggleItem={handleToggleItem}
-                        activeRoute={location}
-                        onSelectSubPage={handleSelectSubPage}
-                    />
-                </aside>
-
-                {/* Main Content - centered with max-width */}
-                <main className="flex-1 md:ms-72 p-6 md:p-10 w-full flex flex-col items-center min-w-0 transition-all duration-300 animate-in-start">
-                    <div className="w-full max-w-7xl">
+            <SidebarInset>
+                <AdminHeader
+                    title={title}
+                    subtitle={subtitle}
+                    onLogout={logout}
+                    onBack={handleBack}
+                    onRefresh={handleRefresh}
+                    loading={isLoading}
+                    userName={user?.name || user?.email}
+                />
+                <div className="flex-1 p-6 md:p-10" dir={dir}>
+                    <div className="mx-auto w-full max-w-7xl">
                         {actions && (
-                            <div className="mb-8 flex justify-end gap-3 flex-wrap">
+                            <div className="mb-8 flex flex-wrap justify-end gap-3">
                                 {actions}
                             </div>
                         )}
@@ -101,8 +90,8 @@ export function AdminLayout({
                             {children}
                         </div>
                     </div>
-                </main>
-            </div>
-        </div>
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
     );
 }
