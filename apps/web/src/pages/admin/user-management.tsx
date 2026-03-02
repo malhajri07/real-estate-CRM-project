@@ -18,7 +18,8 @@
  */
 
 import { useMemo, useState } from "react";
-import { Building2, Edit, Eye, Shield, Trash2, UserPlus, Users, CheckCircle, XCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Building2, Edit, Eye, Shield, Trash2, UserPlus, Users, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { ROLE_DISPLAY_TRANSLATIONS, USER_ROLES, UserRole } from "@shared/rbac";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -700,7 +701,7 @@ export default function UserManagement() {
               disabled={disableSubmit || isSubmitting}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
-              {isSubmitting && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+              {isSubmitting && <Spinner size="sm" className="me-2" />}
               {dialogMode === "create" ? "إنشاء" : "حفظ"}
             </Button>
           </AdminSheetFooter>

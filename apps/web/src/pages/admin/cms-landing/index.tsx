@@ -414,8 +414,9 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                       {sections.map((section, index) => (
                         <Draggable key={section.id} draggableId={section.id} index={index}>
                           {(dragProvided, snapshot) => (
-                            <button
+                            <Button
                               type="button"
+                              variant="ghost"
                               ref={dragProvided.innerRef}
                               {...dragProvided.draggableProps}
                               {...dragProvided.dragHandleProps}
@@ -452,7 +453,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                                   {section.status === "published" ? "منشور" : "مسودة"}
                                 </Badge>
                               </div>
-                            </button>
+                            </Button>
                           )}
                         </Draggable>
                       ))}

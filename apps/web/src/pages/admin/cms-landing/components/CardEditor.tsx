@@ -75,7 +75,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
       <div className="space-y-6">
         {section.slug !== "hero" && section.slug !== "stats" && section.slug !== "navigation" && (
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">العنوان</label>
+            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">العنوان</Label>
             <Input
               value={formState.title ?? ""}
               onChange={(event) => setField("title", event.target.value)}
@@ -87,7 +87,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
         {section.slug === "hero" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">القيمة (Value)</label>
+              <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">القيمة (Value)</Label>
               <Input
                 value={formState.value ?? ""}
                 onChange={(event) => setField("value", event.target.value)}
@@ -96,7 +96,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">الوصف</label>
+              <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">الوصف</Label>
               <Input
                 value={formState.label ?? ""}
                 onChange={(event) => setField("label", event.target.value)}
@@ -109,7 +109,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
 
         {["features", "solutions", "pricing", "contact"].includes(section.slug) && (
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">المحتوى</label>
+            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">المحتوى</Label>
             <Textarea
               value={formState.body ?? ""}
               onChange={(event) => setField("body", event.target.value)}
@@ -124,7 +124,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
           <div className="p-6 bg-blue-50/30 rounded-[1.5rem] border border-blue-100/30 space-y-6">
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">السعر</label>
+                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">السعر</Label>
                 <Input
                   type="number"
                   value={formState.price ?? ""}
@@ -133,7 +133,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">المنشور</label>
+                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">المنشور</Label>
                 <Select
                   value={formState.period ?? "monthly"}
                   onValueChange={(value: "monthly" | "yearly") => setField("period", value)}
@@ -163,7 +163,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
 
         {["features", "solutions", "contact"].includes(section.slug) && (
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">أيقونة العنصر</label>
+            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">أيقونة العنصر</Label>
             <Select
               value={formState.icon ?? ""}
               onValueChange={(value) => setField("icon", value)}

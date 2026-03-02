@@ -53,7 +53,7 @@ import {
   AdminSheetDescription,
   AdminSheetFooter,
 } from "@/components/admin";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit, Trash2, Eye, Search, Image as ImageIcon, CheckSquare, Square, MoreVertical, History, RotateCcw } from "lucide-react";
@@ -839,7 +839,7 @@ function ArticleDialog({
                     إلغاء
                   </Button>
                   <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 min-w-[100px]">
-                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : article ? "تحديث" : "إنشاء"}
+                    {isLoading ? <Spinner size="sm" /> : article ? "تحديث" : "إنشاء"}
                   </Button>
                 </AdminSheetFooter>
               </form>

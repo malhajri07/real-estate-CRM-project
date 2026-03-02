@@ -21,7 +21,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Upload, ArrowRight, Building2, Loader2, Check, ChevronRight, ChevronLeft } from "lucide-react";
+import { Upload, ArrowRight, Building2, Check, ChevronRight, ChevronLeft } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PublicHeader from "@/components/layout/PublicHeader";
@@ -781,7 +782,7 @@ export default function SignupCorporate() {
                     >
                       {isLoading ? (
                         <>
-                          <Loader2 className={cn("me-2", "h-5 w-5 animate-spin")} />
+                          <Spinner size="sm" className="me-2" />
                           جاري الإرسال...
                         </>
                       ) : (

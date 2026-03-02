@@ -184,7 +184,7 @@ export default function MediaLibrary() {
                 رفع ملفات
               </span>
             </Button>
-            <input
+            <Input
               type="file"
               multiple
               className="hidden"

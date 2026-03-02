@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
 
 // --- Sub-components ---
 
@@ -58,20 +59,20 @@ function WhatsAppTab() {
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">معرف الحساب (Account ID)</label>
+                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">معرف الحساب (Account ID)</Label>
                                 <div className="relative group">
                                     <Input value="act_982347239487" readOnly className="h-12 rounded-xl bg-slate-50 border-slate-100 font-mono text-xs" />
                                     <Button size="icon" variant="ghost" className="absolute left-1 top-1 h-10 w-10 text-slate-400 hover:text-blue-600"><Copy className="h-4 w-4" /></Button>
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">رقم الهاتف المرتبط</label>
+                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">رقم الهاتف المرتبط</Label>
                                 <Input value="+966 50 123 4567" readOnly className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold text-slate-700" />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">مفتاح الوصول (Access Token)</label>
+                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">مفتاح الوصول (Access Token)</Label>
                             <div className="relative group">
                                 <Input type="password" value="••••••••••••••••••••••••••••••" readOnly className="h-12 rounded-xl bg-slate-50 border-slate-100" />
                                 <div className="absolute left-1 top-1 flex gap-1">
@@ -145,16 +146,16 @@ function EmailTab() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">خادم SMTP</label>
+                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">خادم SMTP</Label>
                             <Input placeholder="smtp.sendgrid.net" className="h-12 rounded-xl bg-slate-50 border-slate-100" />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">المنفذ (Port)</label>
+                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">المنفذ (Port)</Label>
                                 <Input placeholder="587" className="h-12 rounded-xl bg-slate-50 border-slate-100" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">التشفير</label>
+                                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">التشفير</Label>
                                 <Select defaultValue="tls">
                                     <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold text-slate-700">
                                         <SelectValue />
@@ -171,11 +172,11 @@ function EmailTab() {
 
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">اسم المستخدم</label>
+                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">اسم المستخدم</Label>
                             <Input placeholder="apikey" className="h-12 rounded-xl bg-slate-50 border-slate-100" />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">كلمة المرور</label>
+                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">كلمة المرور</Label>
                             <Input type="password" placeholder="••••••••••••••••" className="h-12 rounded-xl bg-slate-50 border-slate-100" />
                         </div>
                     </div>

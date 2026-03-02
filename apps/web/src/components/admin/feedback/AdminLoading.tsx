@@ -14,6 +14,7 @@
  */
 
 import { cn } from '@/lib/utils';
+import { Spinner } from '@/components/ui/spinner';
 
 interface AdminLoadingProps {
     text?: string;
@@ -26,7 +27,7 @@ export function AdminLoading({ text = 'جار التحميل...', fullScreen = f
         return (
             <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4" />
+                    <Spinner size="xl" className="text-primary mx-auto mb-4" />
                     <p className="text-sm text-muted-foreground">{text}</p>
                 </div>
             </div>
@@ -36,7 +37,7 @@ export function AdminLoading({ text = 'جار التحميل...', fullScreen = f
     return (
         <div className={cn('flex items-center justify-center py-8', className)}>
             <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2" />
+                <Spinner size="lg" className="text-primary mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">{text}</p>
             </div>
         </div>

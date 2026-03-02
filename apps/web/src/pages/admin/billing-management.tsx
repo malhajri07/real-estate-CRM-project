@@ -30,6 +30,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Label } from "@/components/ui/label";
 
 type Invoice = {
     id: string;
@@ -284,11 +285,11 @@ export default function BillingManagement() {
                             <div className="space-y-6">
                                 <h3 className="text-lg font-black text-slate-900 tracking-tight">إعدادات الفاتورة</h3>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">ضريبة القيمة المضافة (٪)</label>
+                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">ضريبة القيمة المضافة (٪)</Label>
                                     <Input defaultValue="١٥" className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold" />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">بادئة رقم الفاتورة</label>
+                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">بادئة رقم الفاتورة</Label>
                                     <Input defaultValue="INV-" className="h-12 rounded-xl bg-slate-50 border-slate-100 font-mono" />
                                 </div>
                             </div>

@@ -111,7 +111,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
 
         <div className="grid gap-8">
           <div className="space-y-3">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">العنوان الرئيسي للقسم</label>
+            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">العنوان الرئيسي للقسم</Label>
             <Input
               value={formState.title ?? ""}
               onChange={(event) => setField("title", event.target.value)}
@@ -122,7 +122,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
 
           {section.slug !== "footer" && section.slug !== "navigation" && (
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">العنوان الفرعي</label>
+              <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">العنوان الفرعي</Label>
               <Input
                 value={formState.subtitle ?? ""}
                 onChange={(event) => setField("subtitle", event.target.value)}
@@ -135,7 +135,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
           {section.slug === "hero" && (
             <>
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">نص الشارة العلوية (Badge)</label>
+                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">نص الشارة العلوية (Badge)</Label>
                 <Input
                   value={formState.badge ?? ""}
                   onChange={(event) => setField("badge", event.target.value)}
@@ -144,7 +144,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">وصف الفقرة الرئيسية</label>
+                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">وصف الفقرة الرئيسية</Label>
                 <Textarea
                   value={formState.body ?? ""}
                   onChange={(event) => setField("body", event.target.value)}
@@ -155,7 +155,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50/50 rounded-3xl border border-slate-100">
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">الزر الرئيسي - النص</label>
+                  <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">الزر الرئيسي - النص</Label>
                   <Input
                     value={formState.primaryCtaLabel ?? ""}
                     onChange={(event) =>
@@ -166,7 +166,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                   />
                 </div>
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">الزر الرئيسي - الرابط (URL)</label>
+                  <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">الزر الرئيسي - الرابط (URL)</Label>
                   <Input
                     value={formState.primaryCtaHref ?? ""}
                     onChange={(event) =>
@@ -184,7 +184,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
           {["features", "solutions", "pricing", "contact"].includes(section.slug) && (
             <>
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">نص الشارة العلوية (Badge)</label>
+                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">نص الشارة العلوية (Badge)</Label>
                 <Input
                   value={formState.badge ?? ""}
                   onChange={(event) => setField("badge", event.target.value)}
@@ -194,7 +194,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                 <p className="text-xs text-slate-400 px-1">نص صغير يظهر أعلى العنوان الرئيسي للقسم</p>
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">وصف القسم التفصيلي</label>
+                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">وصف القسم التفصيلي</Label>
                 <Textarea
                   value={formState.description ?? ""}
                   onChange={(event) =>
@@ -211,7 +211,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
           {section.slug === "footer" && (
             <div className="space-y-6">
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">رسالة التذييل</label>
+                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">رسالة التذييل</Label>
                 <Textarea
                   value={formState.body ?? ""}
                   onChange={(event) => setField("body", event.target.value)}
@@ -221,7 +221,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">حقوق النشر والملكية (Copyright)</label>
+                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">حقوق النشر والملكية (Copyright)</Label>
                 <Input
                   value={formState.copyright ?? ""}
                   onChange={(event) => setField("copyright", event.target.value)}

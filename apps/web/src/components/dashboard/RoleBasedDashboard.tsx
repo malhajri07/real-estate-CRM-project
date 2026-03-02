@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { UserRole, ROLE_DISPLAY_TRANSLATIONS } from '@shared/rbac';
+import { Label } from '@/components/ui/label';
 
 export default function RoleBasedDashboard() {
   const { user, hasRole, hasPermission } = useAuth();
@@ -300,11 +301,11 @@ export default function RoleBasedDashboard() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-600">رقم الترخيص</label>
+                <Label className="text-sm font-medium text-gray-600">رقم الترخيص</Label>
                 <p className="text-lg font-semibold">{user.agentProfile.licenseNo}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600">المناطق المغطاة</label>
+                <Label className="text-sm font-medium text-gray-600">المناطق المغطاة</Label>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {user.agentProfile.territories.map((territory) => (
                     <Badge key={territory} variant="secondary">
@@ -314,7 +315,7 @@ export default function RoleBasedDashboard() {
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600">التخصصات</label>
+                <Label className="text-sm font-medium text-gray-600">التخصصات</Label>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {user.agentProfile.specialties.map((specialty) => (
                     <Badge key={specialty} variant="outline">
@@ -337,11 +338,11 @@ export default function RoleBasedDashboard() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-gray-600">الاسم التجاري</label>
+                <Label className="text-sm font-medium text-gray-600">الاسم التجاري</Label>
                 <p className="text-lg font-semibold">{user.organization.tradeName}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-600">الاسم القانوني</label>
+                <Label className="text-sm font-medium text-gray-600">الاسم القانوني</Label>
                 <p className="text-lg font-semibold">{user.organization.legalName}</p>
               </div>
             </div>

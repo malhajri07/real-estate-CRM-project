@@ -22,6 +22,7 @@
 
 import { Component, type ReactNode } from "react";
 import { logger } from "@/lib/logger";
+import { Button } from "@/components/ui/button";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -58,12 +59,13 @@ export class PropertiesMapErrorBoundary extends Component<ErrorBoundaryProps, Er
             <p className="text-sm text-red-600 mt-2">
               حدث خطأ أثناء تحميل خريطة العقارات. يرجى إعادة تحميل الصفحة.
             </p>
-            <button
+            <Button
+              variant="destructive"
               onClick={() => window.location.reload()}
-              className="mt-4 rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+              className="mt-4"
             >
               إعادة تحميل الصفحة
-            </button>
+            </Button>
           </div>
         </div>
       );

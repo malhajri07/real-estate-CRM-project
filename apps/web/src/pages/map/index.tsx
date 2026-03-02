@@ -26,6 +26,7 @@ import {
 import { motion } from "framer-motion";
 
 import PublicHeader from "@/components/layout/PublicHeader";
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -467,7 +468,7 @@ export default function MapPage() {
                 <div className="p-6 md:p-8 pt-0">
                   {listingsQuery.isLoading ? (
                     <div className="flex h-64 items-center justify-center flex-col gap-4 text-slate-500">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                      <Spinner size="lg" className="text-emerald-600" />
                       <p>جار تحميل بيانات العقارات...</p>
                     </div>
                   ) : listingsQuery.isError ? (
@@ -577,7 +578,7 @@ export default function MapPage() {
                 <div className="h-[600px] w-full bg-slate-50 relative">
                   {listingsQuery.isLoading ? (
                     <div className="absolute inset-0 flex items-center justify-center flex-col gap-4 text-slate-500 bg-white/50 backdrop-blur-sm z-10">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+                      <Spinner size="lg" className="text-emerald-600" />
                       <p>جار تحميل الخريطة...</p>
                     </div>
                   ) : listingsQuery.isError ? (

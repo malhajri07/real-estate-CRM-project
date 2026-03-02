@@ -19,11 +19,11 @@ import {
   TrendingUp,
   Settings,
   Eye,
-  Loader2,
   AlertCircle,
   ShieldCheck,
   CreditCard
 } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import {
   useAdminOrganizations,
   useCreateAdminOrganization,
@@ -143,7 +143,7 @@ export default function OrganizationManagement() {
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <Spinner size="lg" className="text-blue-600" />
         <span className="mr-2 text-lg text-slate-600">جاري تحميل المنظمات...</span>
       </div>
     );
@@ -465,7 +465,7 @@ export default function OrganizationManagement() {
               onClick={handleCreateOrganization}
               disabled={createMutation.isPending || !newOrganization.name}
             >
-              {createMutation.isPending && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+              {createMutation.isPending && <Spinner size="sm" className="ml-2" />}
               إضافة المنظمة
             </Button>
           </DialogFooter>
@@ -490,7 +490,7 @@ export default function OrganizationManagement() {
               onClick={handleDeleteOrganization}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+              {deleteMutation.isPending && <Spinner size="sm" className="ml-2" />}
               حذف المنظمة
             </Button>
           </DialogFooter>

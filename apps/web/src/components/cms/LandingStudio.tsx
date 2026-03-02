@@ -25,8 +25,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Save, Send, Eye, EyeOff } from 'lucide-react';
+import { Save, Send, Eye, EyeOff } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 import { apiRequest } from '@/lib/queryClient';
 
 // Types
@@ -190,7 +192,7 @@ export function LandingStudio() {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <Spinner className="text-primary" />
       </div>
     );
   }
@@ -261,7 +263,7 @@ export function LandingStudio() {
               onClick={() => saveSectionMutation.mutate()}
               disabled={saveSectionMutation.isPending}
             >
-              {saveSectionMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              {saveSectionMutation.isPending && <Spinner size="sm" />}
               <Save className="h-4 w-4" />
               حفظ المسودة
             </Button>
@@ -303,7 +305,7 @@ export function LandingStudio() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">العنوان</label>
+                      <Label className="text-sm font-medium text-gray-700">العنوان</Label>
                     <Input
                       value={sectionDraft.title ?? ""}
                       onChange={(event) =>
@@ -313,7 +315,7 @@ export function LandingStudio() {
                     />
                   </div>
                   <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-700">الوصف المختصر</label>
+                      <Label className="text-sm font-medium text-gray-700">الوصف المختصر</Label>
                     <Input
                       value={sectionDraft.subtitle ?? ""}
                       onChange={(event) =>
@@ -324,7 +326,7 @@ export function LandingStudio() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">النص الرئيسي</label>
+                    <Label className="text-sm font-medium text-gray-700">النص الرئيسي</Label>
                   <Textarea
                     value={sectionDraft.body ?? ""}
                     onChange={(event) =>

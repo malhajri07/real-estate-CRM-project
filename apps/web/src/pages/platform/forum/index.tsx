@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, PenLine, Heart, MessageCircle, Share2, MoreHorizontal, User, Award, TrendingUp, Loader2 } from "lucide-react";
+import { Search, PenLine, Heart, MessageCircle, Share2, MoreHorizontal, User, Award, TrendingUp } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -147,7 +148,7 @@ export default function ForumPage() {
 
                     {isLoading ? (
                         <div className="flex justify-center py-20">
-                            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+                            <Spinner size="lg" className="text-emerald-600" />
                         </div>
                     ) : (
                         <AnimatePresence>

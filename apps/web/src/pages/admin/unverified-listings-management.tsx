@@ -18,9 +18,11 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { CheckCircle2, XCircle, Eye, Phone, Mail, MapPin, Bed, Bath, Square, Loader2 } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Phone, Mail, MapPin, Bed, Bath, Square } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
@@ -297,7 +299,7 @@ export default function UnverifiedListingsManagement() {
                                 className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                               >
                                 {acceptMutation.isPending ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <Spinner size="sm" />
                                 ) : (
                                   <CheckCircle2 className="h-4 w-4" />
                                 )}
@@ -310,7 +312,7 @@ export default function UnverifiedListingsManagement() {
                                 className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                               >
                                 {rejectMutation.isPending ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <Spinner size="sm" />
                                 ) : (
                                   <XCircle className="h-4 w-4" />
                                 )}
@@ -357,20 +359,20 @@ export default function UnverifiedListingsManagement() {
               {/* Basic Info */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 block mb-1">نوع العقار</label>
+                  <Label className="text-sm font-medium text-gray-500 block mb-1">نوع العقار</Label>
                   <p className="text-base font-semibold text-gray-900">{selectedListing.propertyType}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 block mb-1">نوع العرض</label>
+                  <Label className="text-sm font-medium text-gray-500 block mb-1">نوع العرض</Label>
                   <Badge variant="outline" className="text-base font-normal">{selectedListing.listingType}</Badge>
                 </div>
                 <div className="col-span-2 sm:col-span-1">
-                  <label className="text-sm font-medium text-gray-500 block mb-1">السعر</label>
+                  <Label className="text-sm font-medium text-gray-500 block mb-1">السعر</Label>
                   <p className="text-xl font-bold text-emerald-600">{formatPrice(selectedListing.price, selectedListing.currency)}</p>
                 </div>
                 {selectedListing.paymentFrequency && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500 block mb-1">تكرار الدفع</label>
+                    <Label className="text-sm font-medium text-gray-500 block mb-1">تكرار الدفع</Label>
                     <p className="text-base font-medium text-gray-900">{selectedListing.paymentFrequency}</p>
                   </div>
                 )}
@@ -385,25 +387,25 @@ export default function UnverifiedListingsManagement() {
                 <div className="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-slate-100">
                   {selectedListing.region && (
                     <div>
-                      <label className="text-sm font-medium text-gray-500">المنطقة</label>
+                      <Label className="text-sm font-medium text-gray-500">المنطقة</Label>
                       <p className="text-base">{selectedListing.region}</p>
                     </div>
                   )}
                   {selectedListing.city && (
                     <div>
-                      <label className="text-sm font-medium text-gray-500">المدينة</label>
+                      <Label className="text-sm font-medium text-gray-500">المدينة</Label>
                       <p className="text-base">{selectedListing.city}</p>
                     </div>
                   )}
                   {selectedListing.district && (
                     <div>
-                      <label className="text-sm font-medium text-gray-500">الحي</label>
+                      <Label className="text-sm font-medium text-gray-500">الحي</Label>
                       <p className="text-base">{selectedListing.district}</p>
                     </div>
                   )}
                   {selectedListing.streetAddress && (
                     <div>
-                      <label className="text-sm font-medium text-gray-500">العنوان التفصيلي</label>
+                      <Label className="text-sm font-medium text-gray-500">العنوان التفصيلي</Label>
                       <p className="text-base">{selectedListing.streetAddress}</p>
                     </div>
                   )}
@@ -481,15 +483,15 @@ export default function UnverifiedListingsManagement() {
                 <div className="grid grid-cols-2 gap-6 bg-slate-900 text-white p-6 rounded-2xl shadow-lg">
                   {selectedListing.contactName && (
                     <div>
-                      <label className="text-sm font-medium text-slate-400 mb-1 block">الاسم</label>
+                      <Label className="text-sm font-medium text-slate-400 mb-1 block">الاسم</Label>
                       <p className="text-lg font-semibold">{selectedListing.contactName}</p>
                     </div>
                   )}
                   <div>
-                    <label className="text-sm font-medium text-slate-400 mb-1 flex items-center gap-2">
+                    <Label className="text-sm font-medium text-slate-400 mb-1 flex items-center gap-2">
                       <Phone className="h-4 w-4" />
                       رقم الجوال
-                    </label>
+                    </Label>
                     <p className="text-lg font-semibold font-mono dir-ltr text-right">{selectedListing.mobileNumber}</p>
                   </div>
                 </div>
@@ -506,7 +508,7 @@ export default function UnverifiedListingsManagement() {
                   >
                     {rejectMutation.isPending ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Spinner size="sm" className="mr-2" />
                         جاري الرفض...
                       </>
                     ) : (
@@ -523,7 +525,7 @@ export default function UnverifiedListingsManagement() {
                   >
                     {acceptMutation.isPending ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Spinner size="sm" className="mr-2" />
                         جاري القبول...
                       </>
                     ) : (

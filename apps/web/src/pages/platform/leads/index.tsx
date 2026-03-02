@@ -28,6 +28,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import EmptyState from "@/components/ui/empty-state";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { CSVUploader } from "@/components/admin/data-display/CSVUploader";
+import { Spinner } from "@/components/ui/spinner";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -255,7 +256,7 @@ export default function Leads() {
           {csvProcessMutation.isPending && (
             <Alert className="mb-4">
               <AlertDescription className="flex items-center gap-3">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary me-2"></div>
+                <Spinner size="sm" className="me-2" />
                 {t("leads.csv_processing")}
               </AlertDescription>
             </Alert>

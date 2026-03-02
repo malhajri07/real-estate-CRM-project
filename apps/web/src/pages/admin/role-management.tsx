@@ -417,7 +417,7 @@ export default function RoleManagement() {
                           {categoryPermissions.map((permission) => {
                             const checked = formState.permissions.includes(permission.key);
                             return (
-                              <label
+                              <Label
                                 key={permission.key}
                                 className={cn(
                                   "flex items-start space-x-3 rtl:space-x-reverse rounded-xl border p-3 cursor-pointer transition-all duration-200 group",
@@ -439,7 +439,7 @@ export default function RoleManagement() {
                                   </div>
                                   <div className="text-xs text-slate-500 mt-0.5 leading-snug">{permission.description || "—"}</div>
                                 </span>
-                              </label>
+                              </Label>
                             );
                           })}
                         </div>

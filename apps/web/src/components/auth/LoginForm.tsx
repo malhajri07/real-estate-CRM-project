@@ -20,7 +20,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -151,7 +152,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
           >
             {isLoading ? (
               <>
-                <Loader2 className="ml-2 h-5 w-5 animate-spin" />
+                <Spinner size="sm" className="ml-2" />
                 جاري الدخول...
               </>
             ) : (

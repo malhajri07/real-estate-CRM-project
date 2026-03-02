@@ -228,14 +228,14 @@ export function FilterContent({
       </div>
 
       <div className="flex items-center justify-between gap-4 rounded-2xl border border-border/60 bg-muted/20 px-4 py-3">
-        <label htmlFor="favorites-toggle" className="flex items-center gap-3">
+        <Label htmlFor="favorites-toggle" className="flex items-center gap-3">
           <Checkbox
             id="favorites-toggle"
             checked={filters.favoritesOnly}
             onCheckedChange={(checked) => onFavoritesToggle(checked === true)}
           />
           <span className="text-sm font-medium text-foreground">إظهار المفضلة فقط</span>
-        </label>
+        </Label>
         <Heart className="h-4 w-4 text-rose-500" />
       </div>
 

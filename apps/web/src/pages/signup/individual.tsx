@@ -19,7 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Upload, ArrowRight, UserRound, Loader2, Check, ChevronRight, ChevronLeft } from "lucide-react";
+import { Upload, ArrowRight, UserRound, Check, ChevronRight, ChevronLeft } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -672,7 +673,7 @@ export default function SignupIndividual() {
                     >
                       {isLoading ? (
                         <>
-                          <Loader2 className={cn("me-2", "h-5 w-5 animate-spin")} />
+                          <Spinner size="sm" className="me-2" />
                           جاري الإنشاء...
                         </>
                       ) : (

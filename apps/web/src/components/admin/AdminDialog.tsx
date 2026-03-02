@@ -8,7 +8,7 @@ import {
     AdminDialogDescription,
 } from "./ui/AdminDialog";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 interface AdminDialogProps {
     open: boolean;
@@ -77,7 +77,7 @@ export function AdminDialog({
                                 onClick={onConfirm}
                                 disabled={confirmDisabled || confirmLoading}
                             >
-                                {confirmLoading && <Loader2 className="h-4 w-4 animate-spin me-2" />}
+                                {confirmLoading && <Spinner size="sm" className="me-2" />}
                                 {confirmLabel}
                             </Button>
                         )}

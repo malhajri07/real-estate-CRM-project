@@ -26,6 +26,8 @@ import { logger } from "@/lib/logger";
 import type { PropertiesListProps, PropertySummary } from "../types";
 import { formatCurrency } from "../utils/formatters";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
 type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'orange' | 'purple';
 
@@ -76,27 +78,27 @@ export function PropertiesList({
 
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm relative z-50">
-      <table className="w-full border-collapse min-w-[900px] text-end">
-        <thead className="bg-gray-50 border-b border-gray-200">
-          <tr className="text-xs font-medium text-gray-700 uppercase tracking-wider">
-            <th className="px-6 py-3 text-end">الصورة</th>
-            <th className="px-6 py-3 text-end">العقار</th>
-            <th className="px-6 py-3 text-end">الموقع</th>
-            <th className="px-6 py-3 text-end">النوع</th>
-            <th className="px-6 py-3 text-end">الحالة</th>
-            <th className="px-6 py-3 text-end">السعر</th>
-            <th className="px-6 py-3 text-end">المساحة</th>
-            <th className="px-6 py-3 text-end">الغرف</th>
-            <th className="px-6 py-3 text-end">الإجراءات</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
+      <Table className="min-w-[900px] text-end">
+        <TableHeader className="bg-gray-50 border-b border-gray-200">
+          <TableRow className="text-xs font-medium text-gray-700 uppercase tracking-wider">
+            <TableHead className="px-6 py-3 text-end">الصورة</TableHead>
+            <TableHead className="px-6 py-3 text-end">العقار</TableHead>
+            <TableHead className="px-6 py-3 text-end">الموقع</TableHead>
+            <TableHead className="px-6 py-3 text-end">النوع</TableHead>
+            <TableHead className="px-6 py-3 text-end">الحالة</TableHead>
+            <TableHead className="px-6 py-3 text-end">السعر</TableHead>
+            <TableHead className="px-6 py-3 text-end">المساحة</TableHead>
+            <TableHead className="px-6 py-3 text-end">الغرف</TableHead>
+            <TableHead className="px-6 py-3 text-end">الإجراءات</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody className="divide-y divide-gray-200">
           {properties.map((property) => {
             const isFavourite = favoriteIds.includes(property.id);
             const isActive = highlightedId === property.id;
 
             return (
-              <tr
+              <TableRow
                 key={property.id}
                 className={cn(
                   "cursor-pointer transition-colors hover:bg-slate-50/50",
@@ -107,7 +109,7 @@ export function PropertiesList({
                 onClick={() => onNavigate(property.id)}
               >
                 {/* Image */}
-                <td className="p-0 w-20 align-middle text-sm text-slate-700">
+                <TableCell className="p-0 w-20 align-middle text-sm text-slate-700">
                   <div className="relative w-20 h-20 min-h-[80px]">
                     {property.photoUrls && property.photoUrls.length > 0 ? (
                       <img 
@@ -136,52 +138,52 @@ export function PropertiesList({
                       </div>
                     )}
                   </div>
-                </td>
+                </TableCell>
 
                 {/* Property */}
-                <td className="px-6 py-4 text-end text-sm">
+                <TableCell className="px-6 py-4 text-end text-sm">
                   <div className="font-semibold text-gray-900">{property.title}</div>
-                </td>
+                </TableCell>
 
                 {/* Location */}
-                <td className="px-6 py-4 text-end text-sm">
+                <TableCell className="px-6 py-4 text-end text-sm">
                   <div className="text-gray-900">
                     {property.city}
                     {property.district && `, ${property.district}`}
                   </div>
                   <div className="mt-1 text-[10px] font-bold text-gray-600">{property.address}</div>
-                </td>
+                </TableCell>
 
                 {/* Type */}
-                <td className="px-6 py-4 text-end text-sm">
+                <TableCell className="px-6 py-4 text-end text-sm">
                   <div className="text-gray-900">
                     {property.propertyType || property.transactionType || '-'}
                   </div>
-                </td>
+                </TableCell>
 
                 {/* Status */}
-                <td className="px-6 py-4 text-end text-sm">
+                <TableCell className="px-6 py-4 text-end text-sm">
                   {property.status && (
                     <Badge variant={getMapPropertyStatusVariant(property.status)}>
                       {property.status}
                     </Badge>
                   )}
-                </td>
+                </TableCell>
 
                 {/* Price */}
-                <td className="px-6 py-4 text-end text-sm">
+                <TableCell className="px-6 py-4 text-end text-sm">
                   <div className="font-semibold text-[rgb(128_193_165)]">
                     {formatCurrency(property.price)}
                   </div>
-                </td>
+                </TableCell>
 
                 {/* Area */}
-                <td className="px-6 py-4 text-end text-sm">
+                <TableCell className="px-6 py-4 text-end text-sm">
                   {property.areaSqm ? `${property.areaSqm.toLocaleString("en-US")} متر²` : '-'}
-                </td>
+                </TableCell>
 
                 {/* Rooms */}
-                <td className="px-6 py-4 text-end text-sm">
+                <TableCell className="px-6 py-4 text-end text-sm">
                   <div className="flex items-center gap-2 text-gray-900">
                     {property.bedrooms && (
                       <span className="flex items-center gap-1">
@@ -196,14 +198,16 @@ export function PropertiesList({
                       </span>
                     )}
                   </div>
-                </td>
+                </TableCell>
 
                 {/* Actions */}
-                <td className="px-6 py-4 text-end text-sm">
+                <TableCell className="px-6 py-4 text-end text-sm">
                   <div className="flex items-center justify-end gap-1 relative z-50" onClick={(e) => e.stopPropagation()}>
-                    <button 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className={cn(
-                        "p-2 rounded-md transition-colors duration-150 relative z-50",
+                        "h-8 w-8 rounded-md transition-colors duration-150 relative z-50",
                         isFavourite 
                           ? "text-red-600 hover:text-red-800 hover:bg-red-50" 
                           : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
@@ -215,9 +219,11 @@ export function PropertiesList({
                       title={isFavourite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
                     >
                       <Heart size={14} className={isFavourite ? "fill-current" : ""} />
-                    </button>
-                    <button 
-                      className="p-2 rounded-md text-slate-600 transition-colors duration-150 hover:text-slate-800 hover:bg-slate-50 relative z-50"
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-md text-slate-600 transition-colors duration-150 hover:text-slate-800 hover:bg-slate-50 relative z-50"
                       onClick={(e) => {
                         e.stopPropagation();
                         onNavigate(property.id);
@@ -225,9 +231,11 @@ export function PropertiesList({
                       title="عرض التفاصيل"
                     >
                       <Eye size={14} />
-                    </button>
-                    <button 
-                      className="p-2 rounded-md text-purple-600 transition-colors duration-150 hover:text-purple-800 hover:bg-purple-50 relative z-50"
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-md text-purple-600 transition-colors duration-150 hover:text-purple-800 hover:bg-purple-50 relative z-50"
                       onClick={(e) => {
                         e.stopPropagation();
                         shareProperty(property, 'whatsapp');
@@ -235,14 +243,14 @@ export function PropertiesList({
                       title="مشاركة العقار"
                     >
                       <Share2 size={14} />
-                    </button>
+                    </Button>
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

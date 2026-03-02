@@ -40,6 +40,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 import { UserRole } from "@shared/rbac";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { logger } from "@/lib/logger";
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
 import { RouteGuard } from "@/components/auth/RouteGuard";
@@ -268,7 +269,7 @@ function Router() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+          <Spinner size="xl" className="text-emerald-600 mx-auto mb-4" />
           <p className="text-slate-700 text-sm">جار تهيئة الرابط...</p>
         </div>
       </div>
@@ -394,7 +395,7 @@ function Router() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <Spinner size="xl" className="text-blue-600" />
       </div>
     );
   }
@@ -609,7 +610,7 @@ function Router() {
       <PlatformShell onLogout={handleLogout}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto mb-4"></div>
+            <Spinner size="xl" className="text-green-600 mx-auto mb-4" />
             <p className="text-lg font-medium text-slate-700">جار التحميل...</p>
           </div>
         </div>
@@ -732,7 +733,7 @@ function Router() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <Spinner size="xl" className="text-blue-600 mx-auto mb-4" />
         <p className="text-lg font-medium text-slate-700">جار التحميل...</p>
       </div>
     </div>

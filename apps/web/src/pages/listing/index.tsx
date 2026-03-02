@@ -21,6 +21,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PhotoCarousel } from '@/components/ui/photo-carousel';
 import ListingCard from '@/components/listings/ListingCard';
+import { Button } from '@/components/ui/button';
 
 export default function ListingPage() {
   const { t } = useLanguage();
@@ -62,11 +63,11 @@ export default function ListingPage() {
           </div>
           <div className="ui-surface p-5">
             <a className="block w-full text-center bg-green-600 text-white px-4 py-2 rounded" href={`https://wa.me/?text=${encodeURIComponent(window.location.href)}`}>تواصل عبر واتساب</a>
-            <button className="block w-full mt-2 border rounded px-4 py-2" onClick={() => window.history.back()}>رجوع</button>
-            <button className="block w-full mt-2 border rounded px-4 py-2" onClick={async ()=>{
+            <Button variant="outline" className="block w-full mt-2" onClick={() => window.history.back()}>رجوع</Button>
+            <Button variant="outline" className="block w-full mt-2" onClick={async ()=>{
               await fetch('/api/reports', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ listingId: id, reason: 'محتوى غير مناسب' })});
               alert('تم إرسال البلاغ');
-            }}>الإبلاغ عن إعلان</button>
+            }}>الإبلاغ عن إعلان</Button>
           </div>
         </div>
       </div>

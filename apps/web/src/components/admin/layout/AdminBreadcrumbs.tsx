@@ -23,6 +23,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
 
 interface BreadcrumbItemData {
     label: string;
@@ -44,9 +45,9 @@ export function AdminBreadcrumbs({ items, className }: AdminBreadcrumbsProps) {
                     <BreadcrumbLink
                         asChild
                     >
-                        <button onClick={() => setLocation('/admin/overview/main-dashboard')}>
+                        <Button variant="ghost" size="icon" className="h-auto w-auto p-0" onClick={() => setLocation('/admin/overview/main-dashboard')}>
                             <Home className="h-4 w-4" />
-                        </button>
+                        </Button>
                     </BreadcrumbLink>
                 </BreadcrumbItem>
 
@@ -55,9 +56,9 @@ export function AdminBreadcrumbs({ items, className }: AdminBreadcrumbsProps) {
                         <BreadcrumbSeparator />
                         {item.href ? (
                             <BreadcrumbLink asChild>
-                                <button onClick={() => setLocation(item.href!)}>
+                                <Button variant="ghost" className="h-auto p-0 font-normal" onClick={() => setLocation(item.href!)}>
                                     {item.label}
-                                </button>
+                                </Button>
                             </BreadcrumbLink>
                         ) : (
                             <BreadcrumbPage>{item.label}</BreadcrumbPage>

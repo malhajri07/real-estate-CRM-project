@@ -143,13 +143,15 @@ export default function Settings() {
               </div>
             </div>
             <CollapsibleTrigger asChild>
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="icon"
                 className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
                 aria-label="تبديل عرض معلومات الشركة"
               >
                 <ChevronDown className={`h-4 w-4 transition-transform ${companyOpen ? "rotate-180" : ""}`} />
-              </button>
+              </Button>
             </CollapsibleTrigger>
           </CardHeader>
           <CollapsibleContent>
@@ -372,13 +374,15 @@ export default function Settings() {
               </div>
             </div>
             <CollapsibleTrigger asChild>
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="icon"
                 className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
                 aria-label="تبديل عرض الملف الشخصي"
               >
                 <ChevronDown className={`h-4 w-4 transition-transform ${profileOpen ? "rotate-180" : ""}`} />
-              </button>
+              </Button>
             </CollapsibleTrigger>
           </CardHeader>
           <CollapsibleContent>
@@ -490,13 +494,15 @@ export default function Settings() {
               </div>
             </div>
             <CollapsibleTrigger asChild>
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="icon"
                 className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
                 aria-label="تبديل عرض إعدادات الأمان"
               >
                 <ChevronDown className={`h-4 w-4 transition-transform ${securityOpen ? "rotate-180" : ""}`} />
-              </button>
+              </Button>
             </CollapsibleTrigger>
           </CardHeader>
           <CollapsibleContent>
@@ -533,13 +539,15 @@ export default function Settings() {
               </div>
             </div>
             <CollapsibleTrigger asChild>
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="icon"
                 className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
                 aria-label="تبديل عرض إعدادات الإشعارات"
               >
                 <ChevronDown className={`h-4 w-4 transition-transform ${notificationsOpen ? "rotate-180" : ""}`} />
-              </button>
+              </Button>
             </CollapsibleTrigger>
           </CardHeader>
           <CollapsibleContent>

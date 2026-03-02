@@ -15,13 +15,13 @@ import {
     Activity,
     CheckCircle2,
     FileText,
-    Loader2,
     Calendar,
     ArrowUpRight,
     Wallet,
     ShieldCheck,
     Plus
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import {
     useAdminBillingAnalytics,
     useAdminSubscriptions,
@@ -38,7 +38,7 @@ function OverviewTab() {
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center p-20 space-y-4">
-                <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+                <Spinner size="xl" className="text-blue-600" />
                 <p className="text-slate-500 font-bold animate-pulse">جاري تحليل البيانات المالية...</p>
             </div>
         );
@@ -270,7 +270,7 @@ function ActiveSubscriptionsTab() {
     ];
 
     if (isLoading) {
-        return <div className="flex justify-center p-20"><Loader2 className="h-10 w-10 animate-spin text-blue-600" /></div>;
+        return <div className="flex justify-center p-20"><Spinner size="xl" className="text-blue-600" /></div>;
     }
 
     if (error) {
@@ -363,7 +363,7 @@ function PlansTab() {
     const { data: plans, isLoading, error } = useAdminPlans();
 
     if (isLoading) {
-        return <div className="flex justify-center p-20"><Loader2 className="h-10 w-10 animate-spin text-blue-600" /></div>;
+        return <div className="flex justify-center p-20"><Spinner size="xl" className="text-blue-600" /></div>;
     }
 
     if (error) {
@@ -454,7 +454,7 @@ export default function RevenueManagement() {
                         onClick={() => seedMutation.mutate()}
                         disabled={seedMutation.isPending}
                     >
-                        {seedMutation.isPending ? <Loader2 className="h-5 w-5 animate-spin me-2" /> : <Activity className="h-5 w-5 me-2 text-blue-500" />}
+                        {seedMutation.isPending ? <Spinner size="sm" className="me-2" /> : <Activity className="h-5 w-5 me-2 text-blue-500" />}
                         إعادة تعيين بيانات تجريبية
                     </Button>
                 </div>

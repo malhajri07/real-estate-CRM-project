@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
 interface TableSkeletonProps {
   rows?: number;
@@ -9,30 +10,30 @@ interface TableSkeletonProps {
 export function TableSkeleton({ rows = 8, cols = 6, showHeader = true }: TableSkeletonProps) {
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm animate-pulse">
-      <table className="w-full border-collapse">
+      <Table>
         {showHeader && (
-          <thead className="bg-slate-50/80">
-            <tr>
+          <TableHeader className="bg-slate-50/80">
+            <TableRow>
               {Array.from({ length: cols }).map((_, i) => (
-                <th key={i} className="px-6 py-4 text-start">
+                <TableHead key={i} className="px-6 py-4 text-start">
                   <Skeleton className="h-4 w-20 rounded" />
-                </th>
+                </TableHead>
               ))}
-            </tr>
-          </thead>
+            </TableRow>
+          </TableHeader>
         )}
-        <tbody className="divide-y divide-slate-100">
+        <TableBody className="divide-y divide-slate-100">
           {Array.from({ length: rows }).map((_, rowIdx) => (
-            <tr key={rowIdx}>
+            <TableRow key={rowIdx}>
               {Array.from({ length: cols }).map((_, colIdx) => (
-                <td key={colIdx} className="px-6 py-4">
+                <TableCell key={colIdx} className="px-6 py-4">
                   <Skeleton className="h-4 w-full max-w-[120px] rounded" />
-                </td>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

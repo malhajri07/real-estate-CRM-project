@@ -26,7 +26,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, Home, UploadCloud, X, ChevronsUpDown, Check, Loader2, ChevronRight, ChevronLeft } from "lucide-react";
+import { CheckCircle2, Home, UploadCloud, X, ChevronsUpDown, Check, ChevronRight, ChevronLeft } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -857,7 +858,7 @@ export default function UnverifiedListingPage() {
                                       {categoriesLoading ? (
                                         <CommandItem disabled>
                                           <div className="flex items-center gap-2 w-full justify-center py-4">
-                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            <Spinner size="sm" />
                                             <span>جار التحميل...</span>
                                           </div>
                                         </CommandItem>
@@ -954,7 +955,7 @@ export default function UnverifiedListingPage() {
                                       ) : typesLoading ? (
                                         <CommandItem disabled>
                                           <div className="flex items-center gap-2 w-full justify-center py-4">
-                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            <Spinner size="sm" />
                                             <span>جار التحميل...</span>
                                           </div>
                                         </CommandItem>
@@ -1078,7 +1079,7 @@ export default function UnverifiedListingPage() {
                                   {!regions ? (
                                     <CommandItem disabled>
                                       <div className="flex items-center justify-center p-2">
-                                        <Loader2 className={cn("me-2", "h-4 w-4 animate-spin")} />
+                                        <Spinner size="sm" className="me-2" />
                                         <span>جار التحميل...</span>
                                       </div>
                                     </CommandItem>
@@ -1230,7 +1231,7 @@ export default function UnverifiedListingPage() {
                                   ) : districtsLoading ? (
                                     <CommandItem disabled>
                                       <div className="flex items-center gap-2 w-full justify-center py-4">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        <Spinner size="sm" />
                                         <span>جار التحميل...</span>
                                       </div>
                                     </CommandItem>
@@ -1604,7 +1605,7 @@ export default function UnverifiedListingPage() {
                     >
                       {loading ? (
                         <>
-                          <Loader2 className={cn("me-2", "h-4 w-4 animate-spin")} />
+                          <Spinner size="sm" className="me-2" />
                           جاري الإرسال...
                         </>
                       ) : (
@@ -1617,7 +1618,7 @@ export default function UnverifiedListingPage() {
                 {loading && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[32px] bg-white/70 backdrop-blur-md">
                     <div className="flex flex-col items-center gap-3 text-slate-600">
-                      <span className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
+                      <Spinner size="xl" className="text-emerald-500" />
                       <p className="text-sm font-medium">جارٍ إرسال إعلانك، يرجى الانتظار...</p>
                     </div>
                   </div>

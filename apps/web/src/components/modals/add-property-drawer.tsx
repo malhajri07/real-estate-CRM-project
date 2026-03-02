@@ -29,7 +29,8 @@ import { insertPropertySchema, type InsertProperty } from "@shared/types";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Check, ChevronsUpDown, Home, MapPin, Upload, X, Image as ImageIcon } from "lucide-react";
+import { Check, ChevronsUpDown, Home, MapPin, Upload, X, Image as ImageIcon } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { useState, useRef } from "react";
 import Drawer from "@/components/ui/drawer";
@@ -417,7 +418,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                   {regionsLoading ? (
                                     <CommandItem disabled>
                                       <div className="flex items-center justify-center p-2">
-                                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                        <Spinner size="sm" className="mr-2" />
                                         <span>جار التحميل...</span>
                                       </div>
                                     </CommandItem>
@@ -487,7 +488,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                   {citiesLoading ? (
                                     <CommandItem disabled>
                                       <div className="flex items-center justify-center p-2">
-                                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                        <Spinner size="sm" className="mr-2" />
                                         <span>جار التحميل...</span>
                                       </div>
                                     </CommandItem>
@@ -554,7 +555,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                   {districtsLoading ? (
                                     <CommandItem disabled>
                                       <div className="flex items-center justify-center p-2">
-                                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                        <Spinner size="sm" className="mr-2" />
                                         <span>جار التحميل...</span>
                                       </div>
                                     </CommandItem>
@@ -671,7 +672,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                         PNG, JPG, JPEG حتى 10 ميجابايت (حد أقصى 10 صور)
                       </p>
                     </div>
-                    <input
+                    <Input
                       id="image-upload"
                       ref={fileInputRef}
                       type="file"
@@ -693,13 +694,15 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                           alt={`Preview ${index + 1}`}
                           className="w-full h-24 object-cover rounded-lg border border-gray-200"
                         />
-                        <button
+                        <Button
                           type="button"
+                          variant="destructive"
+                          size="icon"
                           onClick={() => removeImage(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-4 h-4" />
-                        </button>
+                        </Button>
                       </div>
                     ))}
                   </div>
@@ -737,7 +740,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                 >
                   {createPropertyMutation.isPending ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      <Spinner size="sm" className="mr-2" />
                       جار الحفظ...
                     </>
                   ) : (

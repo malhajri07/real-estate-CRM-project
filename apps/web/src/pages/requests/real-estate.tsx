@@ -25,7 +25,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle2, FileEdit, Home, ArrowRight, Loader2, ChevronsUpDown, Check } from "lucide-react";
+import { CheckCircle2, FileEdit, Home, ArrowRight, ChevronsUpDown, Check } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import PublicHeader from "@/components/layout/PublicHeader";
@@ -745,7 +746,7 @@ export default function RealEstateRequestsPage() {
                 >
                   {loading ? (
                     <>
-                      <Loader2 className={cn("me-2", "h-5 w-5 animate-spin")} />
+                      <Spinner size="sm" className="me-2" />
                       جاري الإرسال...
                     </>
                   ) : (
