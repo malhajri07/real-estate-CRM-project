@@ -1,23 +1,28 @@
-import { useState } from "react";
+import { Fragment } from "react";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import {
     Layers,
     Check,
-    X,
     Plus,
     Settings,
     Shield,
     Zap,
     Crown,
     CheckCircle2,
-    PlusCircle,
     MinusCircle,
     BarChart3,
-    ArrowUpRight,
     Search,
     Filter
 } from "lucide-react";
@@ -54,61 +59,59 @@ const FEATURE_CATEGORIES = [
 function ComparisonMatrix() {
     return (
         <Card className="glass border-0 rounded-[2.5rem] overflow-hidden shadow-none">
-            <div className="overflow-x-auto">
-                <table className="w-full text-end border-collapse">
-                    <thead>
-                        <tr className="bg-slate-50/50">
-                            <th className="p-8 w-[40%]">
-                                <div className="space-y-1">
-                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">مصفوفة المزايا</h3>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">مقارنة الخصائص بين الخطط</p>
-                                </div>
-                            </th>
-                            {PLANS.map((plan, i) => {
-                                const Icon = PLAN_ICONS[i];
-                                return (
-                                    <th key={plan} className="p-8 text-center border-r border-slate-100">
-                                        <div className="flex flex-col items-center gap-3">
-                                            <div className={cn("h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center transition-transform hover:scale-110 duration-300", PLAN_COLORS[i])}>
-                                                <Icon className="h-6 w-6" />
-                                            </div>
-                                            <span className="text-sm font-black text-slate-900">{plan}</span>
+            <Table className="text-end">
+                <TableHeader>
+                    <TableRow className="bg-slate-50/50 border-slate-100">
+                        <TableHead className="p-8 w-[40%]">
+                            <div className="space-y-1">
+                                <h3 className="text-xl font-black text-slate-900 tracking-tight">مصفوفة المزايا</h3>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">مقارنة الخصائص بين الخطط</p>
+                            </div>
+                        </TableHead>
+                        {PLANS.map((plan, i) => {
+                            const Icon = PLAN_ICONS[i];
+                            return (
+                                <TableHead key={plan} className="p-8 text-center border-r border-slate-100">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className={cn("h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center transition-transform hover:scale-110 duration-300", PLAN_COLORS[i])}>
+                                            <Icon className="h-6 w-6" />
                                         </div>
-                                    </th>
-                                );
-                            })}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {FEATURE_CATEGORIES.map((category) => (
-                            <React.Fragment key={category.name}>
-                                <tr className="bg-blue-50/30">
-                                    <td colSpan={4} className="p-4 px-8">
-                                        <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">{category.name}</span>
-                                    </td>
-                                </tr>
-                                {category.features.map((feature) => (
-                                    <tr key={feature.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group">
-                                        <td className="p-6 px-8 flex items-center gap-3">
-                                            <div className="w-2 h-2 rounded-full bg-slate-200 group-hover:bg-blue-400 transition-colors" />
-                                            <span className="text-sm font-bold text-slate-700">{feature.name}</span>
-                                        </td>
-                                        <td className="p-6 text-center border-r border-slate-100">
-                                            <StatusIcon enabled={feature.basic} />
-                                        </td>
-                                        <td className="p-6 text-center border-r border-slate-100">
-                                            <StatusIcon enabled={feature.pro} />
-                                        </td>
-                                        <td className="p-6 text-center border-r border-slate-100">
-                                            <StatusIcon enabled={feature.enterprise} />
-                                        </td>
-                                    </tr>
-                                ))}
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                                        <span className="text-sm font-black text-slate-900">{plan}</span>
+                                    </div>
+                                </TableHead>
+                            );
+                        })}
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {FEATURE_CATEGORIES.map((category) => (
+                        <Fragment key={category.name}>
+                            <TableRow className="bg-blue-50/30 border-0">
+                                <TableCell colSpan={4} className="p-4 px-8">
+                                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">{category.name}</span>
+                                </TableCell>
+                            </TableRow>
+                            {category.features.map((feature) => (
+                                <TableRow key={feature.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group">
+                                    <TableCell className="p-6 px-8 flex items-center gap-3">
+                                        <div className="w-2 h-2 rounded-full bg-slate-200 group-hover:bg-blue-400 transition-colors" />
+                                        <span className="text-sm font-bold text-slate-700">{feature.name}</span>
+                                    </TableCell>
+                                    <TableCell className="p-6 text-center border-r border-slate-100">
+                                        <StatusIcon enabled={feature.basic} />
+                                    </TableCell>
+                                    <TableCell className="p-6 text-center border-r border-slate-100">
+                                        <StatusIcon enabled={feature.pro} />
+                                    </TableCell>
+                                    <TableCell className="p-6 text-center border-r border-slate-100">
+                                        <StatusIcon enabled={feature.enterprise} />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </Fragment>
+                    ))}
+                </TableBody>
+            </Table>
             <div className="p-8 bg-slate-50/50 flex justify-between items-center">
                 <p className="text-xs font-bold text-slate-400">آخر تحديث للمصفوفة: منذ ساعتين</p>
                 <div className="flex gap-3">
@@ -181,8 +184,8 @@ function FeaturesList() {
                         <div className="flex items-center justify-between text-xs font-bold text-slate-400 border-t border-slate-50 pt-4 mt-2">
                             <span>{feature.users} مستخدم نشط</span>
                             <div className="flex gap-2">
-                                <button className="p-2 bg-slate-50 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"><Settings className="h-4 w-4" /></button>
-                                <button className="p-2 bg-slate-50 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"><BarChart3 className="h-4 w-4" /></button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"><Settings className="h-4 w-4" /></Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all"><BarChart3 className="h-4 w-4" /></Button>
                             </div>
                         </div>
                     </Card>

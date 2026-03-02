@@ -1,28 +1,17 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Settings,
     Globe,
-    Palette,
-    Code,
     Save,
     RefreshCcw,
-    Sparkles,
-    Shield,
     Database,
-    Cloud,
-    Mail,
-    Smartphone,
-    Languages,
     Image as ImageIcon,
-    Layout,
     CheckCircle2,
-    Activity,
-    Server,
     Zap
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -196,7 +185,7 @@ export default function SystemSettings() {
                                     <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">اللون الرئيسي (Primary Color)</Label>
                                     <div className="grid grid-cols-5 gap-3">
                                         {["#3b82f6", "#10b981", "#8b5cf6", "#f43f5e", "#f59e0b"].map((color) => (
-                                            <button key={color} className={cn("h-10 rounded-xl transition-all hover:scale-110 active:scale-95", color === "#3b82f6" ? "ring-4 ring-slate-100" : "")} style={{ backgroundColor: color }} />
+                                            <Button key={color} variant="ghost" className={cn("h-10 rounded-xl transition-all hover:scale-110 active:scale-95 p-0", color === "#3b82f6" ? "ring-4 ring-slate-100" : "")} style={{ backgroundColor: color }} />
                                         ))}
                                     </div>
                                 </div>

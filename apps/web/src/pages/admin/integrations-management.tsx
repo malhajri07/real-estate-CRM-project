@@ -1,25 +1,33 @@
-import { useState } from "react";
 import { useLocation } from "wouter";
-import { AdminCard, MetricCard } from "@/components/admin";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { MetricCard } from "@/components/admin";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-    Plug,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
     MessageSquare,
     Mail,
     Smartphone,
-    Globe,
-    Shield,
     CheckCircle2,
-    AlertCircle,
     Settings,
     Copy,
-    ExternalLink,
     RefreshCw,
     Plus,
-    Loader2,
     Activity,
     ShieldCheck,
     Lock
@@ -147,11 +155,16 @@ function EmailTab() {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">التشفير</label>
-                                <select className="w-full h-12 rounded-xl bg-slate-50 border-slate-100 px-4 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20">
-                                    <option>TLS</option>
-                                    <option>SSL</option>
-                                    <option>بلا تشفير</option>
-                                </select>
+                                <Select defaultValue="tls">
+                                    <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold text-slate-700">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl border-slate-100">
+                                        <SelectItem value="tls">TLS</SelectItem>
+                                        <SelectItem value="ssl">SSL</SelectItem>
+                                        <SelectItem value="none">بلا تشفير</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
                     </div>
@@ -223,38 +236,38 @@ function APITab() {
                 </div>
 
                 <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white/40">
-                    <table className="w-full text-end">
-                        <thead className="bg-slate-50/50">
-                            <tr>
-                                <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">اسم المفتاح</th>
-                                <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">المفتاح</th>
-                                <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">تاريخ الإنشاء</th>
-                                <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">آخر استخدام</th>
-                                <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">الحالة</th>
-                                <th className="p-4 w-[50px]"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
+                    <Table className="text-end">
+                        <TableHeader className="bg-slate-50/50">
+                            <TableRow className="border-slate-100">
+                                <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">اسم المفتاح</TableHead>
+                                <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المفتاح</TableHead>
+                                <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">تاريخ الإنشاء</TableHead>
+                                <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">آخر استخدام</TableHead>
+                                <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
+                                <TableHead className="w-[50px]"></TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
                             {[
                                 { name: "Production App", key: "sk_live_••••8932", created: "2024/01/15", lastUsed: "منذ ساعة", status: "ACTIVE" },
                                 { name: "Staging Testing", key: "sk_test_••••1245", created: "2024/02/10", lastUsed: "منذ ٣ أيام", status: "ACTIVE" },
                                 { name: "Mobile App API", key: "sk_live_••••5567", created: "2023/11/20", lastUsed: "الآن", status: "ACTIVE" },
                             ].map((api, i) => (
-                                <tr key={i} className="hover:bg-blue-50/30 transition-colors group">
-                                    <td className="p-4"><span className="font-bold text-slate-700">{api.name}</span></td>
-                                    <td className="p-4"><code className="bg-slate-100 p-1 rounded text-xs text-slate-500 font-mono">{api.key}</code></td>
-                                    <td className="p-4"><span className="text-xs font-bold text-slate-400">{api.created}</span></td>
-                                    <td className="p-4"><span className="text-xs font-bold text-slate-400">{api.lastUsed}</span></td>
-                                    <td className="p-4">
+                                <TableRow key={i} className="hover:bg-blue-50/30 transition-colors group border-slate-50">
+                                    <TableCell className="py-4"><span className="font-bold text-slate-700">{api.name}</span></TableCell>
+                                    <TableCell className="py-4"><code className="bg-slate-100 p-1 rounded text-xs text-slate-500 font-mono">{api.key}</code></TableCell>
+                                    <TableCell className="py-4"><span className="text-xs font-bold text-slate-400">{api.created}</span></TableCell>
+                                    <TableCell className="py-4"><span className="text-xs font-bold text-slate-400">{api.lastUsed}</span></TableCell>
+                                    <TableCell className="py-4">
                                         <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px] font-black">نشط</Badge>
-                                    </td>
-                                    <td className="p-4">
+                                    </TableCell>
+                                    <TableCell className="py-4">
                                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg outline-none"><Settings className="h-4 w-4 text-slate-300 group-hover:text-blue-600 transition-colors" /></Button>
-                                    </td>
-                                </tr>
+                                    </TableCell>
+                                </TableRow>
                             ))}
-                        </tbody>
-                    </table>
+                        </TableBody>
+                    </Table>
                 </div>
             </Card>
         </div>
@@ -272,7 +285,6 @@ const Timer = ({ className }: { className?: string }) => (
 export default function IntegrationsManagement() {
     const [location, setLocation] = useLocation();
 
-    // Determine active tab based on URL
     const activeTab = location.split('/').pop() || 'whatsapp';
 
     const handleTabChange = (value: string) => {

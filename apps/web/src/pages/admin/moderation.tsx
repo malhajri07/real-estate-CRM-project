@@ -2,14 +2,14 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { Property } from "@shared/types";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import { AdminTable, type AdminTableColumn } from "@/components/admin";
 import { MetricCard } from "@/components/admin";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, XCircle, Eye, ShieldCheck, Clock, Check, X } from "lucide-react";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, BADGE_STYLES, TABLE_STYLES, LOADING_STYLES, EMPTY_STYLES, METRICS_CARD_STYLES } from "@/config/platform-theme";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 export default function ModerationQueuePage() {
   const queryClient = useQueryClient();
@@ -152,18 +152,20 @@ export default function ModerationQueuePage() {
 
   return (
     <main className={PAGE_WRAPPER} dir="rtl">
-      <Card className={CARD_STYLES.container}>
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6">
-          <div className="flex items-center gap-6">
-            <div className="h-16 w-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
-              <ShieldCheck className="h-8 w-8" />
-            </div>
-            <div className="text-center md:text-end">
-              <h1 className={TYPOGRAPHY.pageTitle}>إدارة المحتوى</h1>
-              <p className={TYPOGRAPHY.pageSubtitle}>مراجعة واعتماد الإعلانات الجديدة</p>
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-6">
+              <div className="h-16 w-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+                <ShieldCheck className="h-8 w-8" />
+              </div>
+              <div className="text-center md:text-end">
+                <CardTitle className="text-2xl font-bold tracking-tight">إدارة المحتوى</CardTitle>
+                <CardDescription>مراجعة واعتماد الإعلانات الجديدة</CardDescription>
+              </div>
             </div>
           </div>
-        </div>
+        </CardHeader>
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -190,12 +192,12 @@ export default function ModerationQueuePage() {
         />
       </div>
 
-      <Card className={CARD_STYLES.container}>
+      <Card>
         <CardContent className="p-0">
-          <div className={CARD_STYLES.header}>
-            <h2 className={TYPOGRAPHY.sectionTitle}>طابور المراجعة</h2>
-            <p className={TYPOGRAPHY.cardDescription}>قائمة الإعلانات التي تتطلب اتخاذ إجراء</p>
-          </div>
+          <CardHeader>
+            <CardTitle>طابور المراجعة</CardTitle>
+            <CardDescription>قائمة الإعلانات التي تتطلب اتخاذ إجراء</CardDescription>
+          </CardHeader>
 
           <div className="p-6">
             <AdminTable

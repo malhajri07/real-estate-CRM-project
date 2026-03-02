@@ -1,30 +1,28 @@
-import { useState } from "react";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import {
     Shield,
-    Lock,
     Key,
     ShieldCheck,
     AlertTriangle,
     History,
-    Users,
     Fingerprint,
     Eye,
     ShieldAlert,
-    CheckCircle2,
     Search,
-    Filter,
-    ArrowUpRight,
     Terminal,
-    Globe,
     Smartphone,
-    MoreHorizontal,
-    Plus,
-    RefreshCcw,
     Zap
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -67,67 +65,65 @@ function SecurityAuditLogs() {
                     </Button>
                 </div>
             </div>
-            <div className="overflow-x-auto">
-                <table className="w-full text-end">
-                    <thead className="bg-slate-50/50">
-                        <tr>
-                            <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">المستخدم</th>
-                            <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">الإجراء</th>
-                            <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">الوقت</th>
-                            <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">الخطر</th>
-                            <th className="p-4 w-[100px]"></th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                        {isLoading ? (
-                            <tr>
-                                <td colSpan={5} className="p-8 text-center text-slate-500">جاري تحميل السجلات...</td>
-                            </tr>
-                        ) : isError ? (
-                            <tr>
-                                <td colSpan={5} className="p-8 text-center text-red-500">فشل تحميل السجلات</td>
-                            </tr>
-                        ) : logs.length === 0 ? (
-                            <tr>
-                                <td colSpan={5} className="p-8 text-center text-slate-500">لا توجد سجلات نشاط</td>
-                            </tr>
-                        ) : (
-                            logs.map((log) => (
-                                <tr key={log.id} className="hover:bg-blue-50/30 transition-colors group">
-                                    <td className="p-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">{log.user[0]}</div>
-                                            <span className="text-sm font-bold text-slate-700">{log.user}</span>
-                                        </div>
-                                    </td>
-                                    <td className="p-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm font-black text-slate-900">{log.action}</span>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{log.target}</span>
-                                        </div>
-                                    </td>
-                                    <td className="p-4"><span className="text-xs font-bold text-slate-500">{new Date(log.time).toLocaleString('ar-SA')}</span></td>
-                                    <td className="p-4">
-                                        <Badge className={cn(
-                                            "text-[10px] font-black border-0 px-3 py-1 rounded-lg",
-                                            log.risk === "Low" ? "bg-emerald-50 text-emerald-700" :
-                                                log.risk === "Medium" ? "bg-amber-50 text-amber-700" :
-                                                    "bg-rose-50 text-rose-700"
-                                        )}>
-                                            {log.risk === "Low" ? "منخفض" : log.risk === "Medium" ? "متوسط" : "مرتفع"}
-                                        </Badge>
-                                    </td>
-                                    <td className="p-4">
-                                        <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 opacity-0 group-hover:opacity-100 transition-all">
-                                            <Eye className="h-4 w-4" />
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+            <Table className="text-end">
+                <TableHeader className="bg-slate-50/50">
+                    <TableRow className="border-slate-100">
+                        <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المستخدم</TableHead>
+                        <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الإجراء</TableHead>
+                        <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الوقت</TableHead>
+                        <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الخطر</TableHead>
+                        <TableHead className="w-[100px]"></TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {isLoading ? (
+                        <TableRow>
+                            <TableCell colSpan={5} className="p-8 text-center text-slate-500">جاري تحميل السجلات...</TableCell>
+                        </TableRow>
+                    ) : isError ? (
+                        <TableRow>
+                            <TableCell colSpan={5} className="p-8 text-center text-red-500">فشل تحميل السجلات</TableCell>
+                        </TableRow>
+                    ) : logs.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={5} className="p-8 text-center text-slate-500">لا توجد سجلات نشاط</TableCell>
+                        </TableRow>
+                    ) : (
+                        logs.map((log) => (
+                            <TableRow key={log.id} className="hover:bg-blue-50/30 transition-colors group border-slate-50">
+                                <TableCell className="py-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">{log.user[0]}</div>
+                                        <span className="text-sm font-bold text-slate-700">{log.user}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="py-4">
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-black text-slate-900">{log.action}</span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{log.target}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="py-4"><span className="text-xs font-bold text-slate-500">{new Date(log.time).toLocaleString('ar-SA')}</span></TableCell>
+                                <TableCell className="py-4">
+                                    <Badge className={cn(
+                                        "text-[10px] font-black border-0 px-3 py-1 rounded-lg",
+                                        log.risk === "Low" ? "bg-emerald-50 text-emerald-700" :
+                                            log.risk === "Medium" ? "bg-amber-50 text-amber-700" :
+                                                "bg-rose-50 text-rose-700"
+                                    )}>
+                                        {log.risk === "Low" ? "منخفض" : log.risk === "Medium" ? "متوسط" : "مرتفع"}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell className="py-4">
+                                    <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 opacity-0 group-hover:opacity-100 transition-all">
+                                        <Eye className="h-4 w-4" />
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    )}
+                </TableBody>
+            </Table>
         </Card>
     );
 }

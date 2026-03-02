@@ -1,15 +1,11 @@
-import { useState } from "react";
 import { useLocation } from "wouter";
-import { AdminCard, MetricCard } from "@/components/admin";
-import { AdminTable, type AdminTableColumn } from "@/components/admin";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { MetricCard } from "@/components/admin";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-    AlertCircle,
     CheckCircle2,
-    Clock,
     Filter,
     Inbox,
     MessageSquare,
@@ -40,8 +36,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-
-import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 import {

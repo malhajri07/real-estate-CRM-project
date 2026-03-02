@@ -23,6 +23,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import EmptyState from "@/components/ui/empty-state";
 import {
   AdminSheet,
   AdminSheetContent,
@@ -32,8 +35,7 @@ import {
 } from "@/components/admin";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, BADGE_STYLES, LOADING_STYLES, EMPTY_STYLES } from "@/config/platform-theme";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 
 interface UnverifiedListing {
@@ -199,37 +201,43 @@ export default function UnverifiedListingsManagement() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className={TYPOGRAPHY.pageTitle}>إعلانات غير موثقة</h1>
-            <p className={TYPOGRAPHY.pageSubtitle}>مراجعة وقبول أو رفض الإعلانات المقدمة</p>
+            <h1 className="text-2xl font-bold tracking-tight">إعلانات غير موثقة</h1>
+            <p className="text-sm text-muted-foreground">مراجعة وقبول أو رفض الإعلانات المقدمة</p>
           </div>
           <div className="flex items-center gap-2">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm"
-            >
-              <option value="Pending">قيد المراجعة</option>
-              <option value="Approved">موافق عليها</option>
-              <option value="Rejected">مرفوضة</option>
-              <option value="">الكل</option>
-            </select>
+            <Select value={statusFilter || "all"} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="حالة الطلب" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Pending">قيد المراجعة</SelectItem>
+                <SelectItem value="Approved">موافق عليها</SelectItem>
+                <SelectItem value="Rejected">مرفوضة</SelectItem>
+                <SelectItem value="all">الكل</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         {isLoading ? (
-          <div className={cn(LOADING_STYLES.container, "flex-col gap-3")}>
-            <Loader2 className={LOADING_STYLES.spinner} />
-            <p className={TYPOGRAPHY.pageSubtitle}>جار التحميل...</p>
-          </div>
-        ) : !listings || listings.length === 0 ? (
-          <Card className={CARD_STYLES.container}>
-            <CardContent className={EMPTY_STYLES.container}>
-              <p className={TYPOGRAPHY.pageSubtitle}>لا توجد إعلانات {statusFilter ? `بحالة ${statusFilter}` : ""}</p>
+          <Card>
+            <CardContent className="p-6 space-y-4">
+              <Skeleton className="h-8 w-1/3" />
+              <Skeleton className="h-4 w-1/2" />
+              <div className="space-y-3">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+              </div>
             </CardContent>
           </Card>
+        ) : !listings || listings.length === 0 ? (
+          <EmptyState
+            title={`لا توجد إعلانات${statusFilter ? ` بحالة ${statusFilter}` : ""}`}
+          />
         ) : (
-          <Card className={CARD_STYLES.container}>
-            <CardContent className={cn(CARD_STYLES.content, "p-0")}>
+          <Card>
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
                   <TableRow>

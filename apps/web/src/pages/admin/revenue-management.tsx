@@ -1,9 +1,8 @@
-import { useState } from "react";
 import { useLocation } from "wouter";
-import { AdminCard, MetricCard } from "@/components/admin";
+import { MetricCard } from "@/components/admin";
 import { AdminTable, type AdminTableColumn } from "@/components/admin";
 import { AdminLineChart, AdminPieChart } from "@/components/admin/data-display/AdminChart";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,7 +19,8 @@ import {
     Calendar,
     ArrowUpRight,
     Wallet,
-    ShieldCheck
+    ShieldCheck,
+    Plus
 } from "lucide-react";
 import {
     useAdminBillingAnalytics,

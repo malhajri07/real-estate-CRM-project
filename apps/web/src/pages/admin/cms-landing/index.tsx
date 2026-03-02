@@ -22,7 +22,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Menu, Type, Sparkles, Link as LinkIcon } from "lucide-react";
@@ -39,7 +39,7 @@ import { defaultCardDraft } from "./utils/defaults";
 import { SectionEditor, CardEditor } from "./components";
 import { useCMSLandingSections } from "./hooks";
 import { apiRequest } from "@/lib/queryClient";
-import { PAGE_WRAPPER, CARD_STYLES, TYPOGRAPHY, BUTTON_PRIMARY_CLASSES, BADGE_STYLES } from "@/config/platform-theme";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 interface CMSLandingPageProps {
   embedded?: boolean;
@@ -358,26 +358,28 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     <div className={outerClasses} dir="rtl">
       <div className={innerClasses}>
         <div className="flex flex-col gap-6">
-          <Card className={CARD_STYLES.container}>
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6">
-              <div className="flex items-center gap-6">
-                <div className="h-16 w-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
-                  <Sparkles className="h-8 w-8" />
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-6">
+                  <div className="h-16 w-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+                    <Sparkles className="h-8 w-8" />
+                  </div>
+                  <div className="text-center md:text-end">
+                    <CardTitle className="text-2xl font-bold tracking-tight">إدارة محتوى صفحة الهبوط</CardTitle>
+                    <CardDescription>قم بتحديث النصوص والأيقونات والعناصر المرئية بكل سهولة</CardDescription>
+                  </div>
                 </div>
-                <div className="text-center md:text-end">
-                  <h1 className={TYPOGRAPHY.pageTitle}>إدارة محتوى صفحة الهبوط</h1>
-                  <p className={TYPOGRAPHY.pageSubtitle}>قم بتحديث النصوص والأيقونات والعناصر المرئية بكل سهولة</p>
-                </div>
+                <Button
+                  variant="outline"
+                  className="h-12 px-8 rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-3"
+                  onClick={() => window.open("/", "_blank")}
+                >
+                  <LinkIcon className="h-4 w-4" />
+                  عرض الموقع المباشر
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                className="h-12 px-8 rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-3"
-                onClick={() => window.open("/", "_blank")}
-              >
-                <LinkIcon className="h-4 w-4" />
-                عرض الموقع المباشر
-              </Button>
-            </div>
+            </CardHeader>
           </Card>
 
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
@@ -402,9 +404,9 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                   {...provided.droppableProps}
                   className="space-y-4"
                 >
-                  <Card className={cn(CARD_STYLES.container, "sticky top-8")}>
+                    <Card className="sticky top-8">
                     <div className="mb-6 px-2 pt-4">
-                      <h3 className={TYPOGRAPHY.sectionTitle + " flex items-center gap-2"}>
+                      <h3 className="text-lg font-semibold tracking-tight flex items-center gap-2">
                         <Menu className="h-4 w-4" />
                         أقسام الصفحة
                       </h3>

@@ -17,12 +17,10 @@
  * - apps/web/src/config/admin-sidebar.ts - Admin sidebar configuration
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { AdminHeader } from "@/components/admin/layout/AdminHeader";
-import { AdminSidebar, type SidebarItem } from "@/components/admin/layout/AdminSidebar";
 import { adminSidebarConfig, type AdminSidebarContentSection } from "@/config/admin-sidebar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";

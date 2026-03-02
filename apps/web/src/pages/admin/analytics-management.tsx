@@ -1,27 +1,26 @@
-import { useState, useMemo } from "react";
-import { useLocation } from "wouter";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+import {
     BarChart3,
-    TrendingUp,
     Users,
-    MousePointer2,
-    Globe,
     Clock,
     ArrowUpRight,
-    ArrowDownRight,
-    Calendar,
-    Filter,
     Download,
     Eye,
-    Zap,
-    Layout,
-    Activity
+    Zap
 } from "lucide-react";
 import {
     AreaChart,
@@ -31,8 +30,6 @@ import {
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    BarChart,
-    Bar,
     PieChart,
     Pie,
     Cell
@@ -269,53 +266,53 @@ export default function AnalyticsManagement() {
                     </Button>
                 </div>
                 <div className="overflow-hidden rounded-2xl border border-slate-100">
-                    <table className="w-full text-end">
-                        <thead className="bg-slate-50/50">
-                            <tr>
-                                <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">المسار (Path)</th>
-                                <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">الإجمالي</th>
-                                <th className="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest">التغيير</th>
-                                <th className="p-4 w-[100px]"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
+                    <Table className="text-end">
+                        <TableHeader className="bg-slate-50/50">
+                            <TableRow className="border-slate-100">
+                                <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المسار (Path)</TableHead>
+                                <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الإجمالي</TableHead>
+                                <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">التغيير</TableHead>
+                                <TableHead className="w-[100px]"></TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
                             {isLoading ? (
                                 Array.from({ length: 4 }).map((_, i) => (
-                                    <tr key={i}>
-                                        <td colSpan={4} className="p-4">
+                                    <TableRow key={i}>
+                                        <TableCell colSpan={4} className="p-4">
                                             <Skeleton className="h-12 w-full" />
-                                        </td>
-                                    </tr>
+                                        </TableCell>
+                                    </TableRow>
                                 ))
                             ) : pageViews.length === 0 ? (
-                                <tr>
-                                    <td colSpan={4} className="p-8 text-center">
+                                <TableRow>
+                                    <TableCell colSpan={4} className="p-8 text-center">
                                         <p className="text-slate-500 font-medium">لا توجد بيانات</p>
-                                    </td>
-                                </tr>
+                                    </TableCell>
+                                </TableRow>
                             ) : (
                                 pageViews.map((page, i) => (
-                                <tr key={i} className="hover:bg-blue-50/30 transition-colors group">
-                                    <td className="p-4"><span className="text-sm font-bold text-slate-700">{page.page}</span></td>
-                                    <td className="p-4"><span className="text-sm font-black text-slate-900">{page.views}</span></td>
-                                    <td className="p-4">
+                                <TableRow key={i} className="hover:bg-blue-50/30 transition-colors group border-slate-50">
+                                    <TableCell className="py-4"><span className="text-sm font-bold text-slate-700">{page.page}</span></TableCell>
+                                    <TableCell className="py-4"><span className="text-sm font-black text-slate-900">{page.views}</span></TableCell>
+                                    <TableCell className="py-4">
                                         <Badge className={cn(
                                             "text-[10px] font-bold border-0 px-2 py-0.5 rounded-lg",
                                             page.status === "up" ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
                                         )}>
                                             {page.change}
                                         </Badge>
-                                    </td>
-                                    <td className="p-4">
+                                    </TableCell>
+                                    <TableCell className="py-4">
                                         <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                                             <div className="bg-blue-600 h-full w-[70%]" />
                                         </div>
-                                    </td>
-                                </tr>
+                                    </TableCell>
+                                </TableRow>
                                 ))
                             )}
-                        </tbody>
-                    </table>
+                        </TableBody>
+                    </Table>
                 </div>
             </Card>
         </div>
