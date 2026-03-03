@@ -78,7 +78,7 @@ export default function Header({
       initial="hidden"
       animate="visible"
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="glass fixed inset-x-0 top-0 z-50 h-20 transition-all duration-300 border-b-0 shadow-none"
+      className="sticky top-0 z-30 h-16 bg-background/80 backdrop-blur-lg border-b transition-all duration-300"
       aria-label={title || "الشريط العلوي"}
     >
       <div className="w-full px-6 sm:px-8 lg:px-12 h-full" dir={dir}>
