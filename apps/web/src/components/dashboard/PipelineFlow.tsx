@@ -74,7 +74,7 @@ export function PipelineFlow({ stages }: PipelineFlowProps) {
                     
                     {/* Value */}
                     <motion.p 
-                      className="text-3xl font-black text-slate-900 mb-2"
+                      className="text-3xl font-bold text-slate-900 mb-2"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ delay: index * 0.1 + 0.3, type: "spring", stiffness: 200 }}
@@ -117,12 +117,12 @@ export function PipelineFlow({ stages }: PipelineFlowProps) {
         </div>
 
         {/* Summary Stats */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200/50">
+        <div className="flex items-center justify-between pt-4 border-t border-border/50">
           <div>
             <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">
               {t("dashboard.total_deals") || t("dashboard.deals_in_pipeline") || "إجمالي الصفقات"}
             </p>
-            <p className="text-2xl font-black text-slate-900 mt-1">
+            <p className="text-2xl font-bold text-slate-900 mt-1">
               {total}
             </p>
           </div>
@@ -130,7 +130,7 @@ export function PipelineFlow({ stages }: PipelineFlowProps) {
             <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">
               {t("dashboard.active_stages") || "المراحل النشطة"}
             </p>
-            <p className="text-2xl font-black text-slate-900 mt-1">
+            <p className="text-2xl font-bold text-slate-900 mt-1">
               {stages.filter(s => s.value > 0).length}
             </p>
           </div>

@@ -339,7 +339,7 @@ export default function Reports() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-slate-200 rounded-xl shadow-lg text-end">
+        <div className="bg-white p-3 border border-border rounded-xl shadow-lg text-end">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p
@@ -471,7 +471,7 @@ export default function Reports() {
             change={`${filteredProperties.length > 0 ? '+' : ''}${formatNumber(filteredProperties.length)} في ${selectedPeriod} أيام`}
             changeType="positive"
             icon={Building}
-            iconColor="bg-green-100 text-green-600"
+            iconColor="bg-emerald-100 text-emerald-600"
           />
 
           <MetricsCard
@@ -836,7 +836,7 @@ export default function Reports() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-slate-600">الصفقات المكتملة</span>
-                      <span className="font-semibold text-green-600">
+                      <span className="font-semibold text-emerald-600">
                         {formatNumber(filteredDeals.filter(d => d.stage === 'closed').length)}
                       </span>
                     </div>
@@ -872,7 +872,7 @@ export default function Reports() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-slate-600">العقارات المباعة</span>
-                      <span className="font-semibold text-green-600">
+                      <span className="font-semibold text-emerald-600">
                         {formatNumber(filteredProperties.filter(p => p.status === 'sold').length)}
                       </span>
                     </div>

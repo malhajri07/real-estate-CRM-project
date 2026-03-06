@@ -147,7 +147,7 @@ export default function Settings() {
                 type="button"
                 variant="outline"
                 size="icon"
-                className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
+                className="rounded-full border border-border bg-white p-2 text-slate-500 transition hover:text-slate-700"
                 aria-label="تبديل عرض معلومات الشركة"
               >
                 <ChevronDown className={`h-4 w-4 transition-transform ${companyOpen ? "rotate-180" : ""}`} />
@@ -296,7 +296,7 @@ export default function Settings() {
             </div>
 
             <Card>
-              <CardHeader className="pb-4 border-b border-dashed border-slate-200">
+              <CardHeader className="pb-4 border-b border-dashed border-border">
                 <div className="flex items-center gap-3">
                   <span className="rounded-full bg-primary/10 p-2 text-primary"><User size={18} /></span>
                   <div>
@@ -378,7 +378,7 @@ export default function Settings() {
                 type="button"
                 variant="outline"
                 size="icon"
-                className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
+                className="rounded-full border border-border bg-white p-2 text-slate-500 transition hover:text-slate-700"
                 aria-label="تبديل عرض الملف الشخصي"
               >
                 <ChevronDown className={`h-4 w-4 transition-transform ${profileOpen ? "rotate-180" : ""}`} />
@@ -498,7 +498,7 @@ export default function Settings() {
                 type="button"
                 variant="outline"
                 size="icon"
-                className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
+                className="rounded-full border border-border bg-white p-2 text-slate-500 transition hover:text-slate-700"
                 aria-label="تبديل عرض إعدادات الأمان"
               >
                 <ChevronDown className={`h-4 w-4 transition-transform ${securityOpen ? "rotate-180" : ""}`} />
@@ -543,7 +543,7 @@ export default function Settings() {
                 type="button"
                 variant="outline"
                 size="icon"
-                className="rounded-full border border-slate-200 bg-white p-2 text-slate-500 transition hover:text-slate-700"
+                className="rounded-full border border-border bg-white p-2 text-slate-500 transition hover:text-slate-700"
                 aria-label="تبديل عرض إعدادات الإشعارات"
               >
                 <ChevronDown className={`h-4 w-4 transition-transform ${notificationsOpen ? "rotate-180" : ""}`} />

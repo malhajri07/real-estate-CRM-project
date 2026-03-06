@@ -205,7 +205,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Basic Property Information */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-900 border-b border-gray-200 pb-2">
+              <h3 className="text-sm font-semibold text-slate-900 border-b border-border pb-2">
                 المعلومات الأساسية للعقار
               </h3>
               <div className="grid grid-cols-1 gap-4">
@@ -324,7 +324,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
 
             {/* Property Type and Location */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-900 border-b border-gray-200 pb-2">
+              <h3 className="text-sm font-semibold text-slate-900 border-b border-border pb-2">
                 نوع العقار والموقع
               </h3>
               <div className="grid grid-cols-1 gap-4">
@@ -653,7 +653,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
 
             {/* Image Upload Section */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-900 border-b border-gray-200 pb-2">
+              <h3 className="text-sm font-semibold text-slate-900 border-b border-border pb-2">
                 صور العقار
               </h3>
               <div className="space-y-4">
@@ -661,14 +661,14 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                 <div className="flex items-center justify-center w-full">
                   <label
                     htmlFor="image-upload"
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100"
                   >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-8 h-8 mb-4 text-gray-500" />
-                      <p className="mb-2 text-sm text-gray-500">
+                      <Upload className="w-8 h-8 mb-4 text-slate-500" />
+                      <p className="mb-2 text-sm text-slate-500">
                         <span className="font-semibold">اضغط لرفع الصور</span> أو اسحبها هنا
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-slate-500">
                         PNG, JPG, JPEG حتى 10 ميجابايت (حد أقصى 10 صور)
                       </p>
                     </div>
@@ -692,7 +692,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                         <img
                           src={preview}
                           alt={`Preview ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                          className="w-full h-24 object-cover rounded-lg border border-border"
                         />
                         <Button
                           type="button"
@@ -710,7 +710,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
 
                 {/* Image Count and Size Info */}
                 {selectedImages.length > 0 && (
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-slate-600">
                     <p>
                       تم رفع {selectedImages.length} من 10 صور
                     </p>
@@ -723,7 +723,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
             </div>
 
             {/* Action Buttons - Sticky at bottom */}
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 -mx-6 -mb-6 mt-6">
+            <div className="sticky bottom-0 bg-white border-t border-border p-6 -mx-6 -mb-6 mt-6">
               <div className="flex justify-end space-x-3 space-x-reverse">
                 <Button
                   type="button"

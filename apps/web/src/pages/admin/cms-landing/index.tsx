@@ -371,7 +371,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                 </div>
                 <Button
                   variant="outline"
-                  className="h-12 px-8 rounded-xl border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-3"
+                  className="h-12 px-8 rounded-xl border-border font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-3"
                   onClick={() => window.open("/", "_blank")}
                 >
                   <LinkIcon className="h-4 w-4" />
@@ -389,7 +389,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
               </TabsList>
             </Tabs>
             <div className="flex items-center gap-3">
-              <Badge className="bg-blue-50 text-blue-700 border-0 text-[10px] font-black uppercase px-3 py-1 rounded-lg">إصدار ٢.٤.٠</Badge>
+              <Badge className="bg-blue-50 text-blue-700 border-0 text-xs font-bold uppercase px-3 py-1 rounded-lg">إصدار ٢.٤.٠</Badge>
             </div>
           </div>
         </div>
@@ -432,20 +432,20 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                               <div className="flex items-center justify-between relative z-10">
                                 <div className="flex flex-col items-start gap-1">
                                   <span className={cn(
-                                    "text-sm font-black tracking-tight transition-colors",
+                                    "text-sm font-bold tracking-tight transition-colors",
                                     selectedSectionId === section.id ? "text-white" : "text-slate-900 group-hover:text-blue-600"
                                   )}>
                                     {SECTION_LABELS[section.slug] ?? section.title}
                                   </span>
                                   <span className={cn(
-                                    "text-[10px] font-bold uppercase tracking-tighter opacity-70",
+                                    "text-xs font-bold uppercase tracking-tighter opacity-70",
                                     selectedSectionId === section.id ? "text-slate-300" : "text-slate-400"
                                   )}>
                                     {section.slug.replace(/-/g, ' ')}
                                   </span>
                                 </div>
                                 <Badge className={cn(
-                                  "text-[9px] font-black uppercase px-2 py-0.5 rounded-md border-0 shrink-0",
+                                  "text-xs font-bold uppercase px-2 py-0.5 rounded-md border-0 shrink-0",
                                   section.status === "published"
                                     ? (selectedSectionId === section.id ? "bg-emerald-500/20 text-emerald-300" : "bg-emerald-50 text-emerald-700")
                                     : (selectedSectionId === section.id ? "bg-white/10 text-slate-300" : "bg-slate-100 text-slate-500")

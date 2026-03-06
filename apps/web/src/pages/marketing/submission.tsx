@@ -198,7 +198,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="مثال: حملة تسويق لفيلا في حي الياسمين"
                 required
               />
@@ -209,7 +209,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="propertyType"
                 value={form.propertyType}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="مثال: فيلا، شقة، أرض"
                 required
               />
@@ -220,7 +220,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="listingType"
                 value={form.listingType}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="بيع، إيجار، استثمار"
               />
             </Label>
@@ -230,7 +230,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="مثال: الرياض"
                 required
               />
@@ -241,7 +241,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="district"
                 value={form.district}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="مثال: حي الياسمين"
               />
             </Label>
@@ -251,7 +251,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="region"
                 value={form.region}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="مثال: منطقة الرياض"
               />
             </Label>
@@ -264,7 +264,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="summary"
                 value={form.summary}
                 onChange={handleChange}
-                className="mt-1 w-full min-h-[140px] rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full min-h-[140px] rounded-2xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="عرّفنا بالعقار وأهداف الحملة التسويقية والنتيجة المتوقعة"
                 required
               />
@@ -275,7 +275,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="requirements"
                 value={form.requirements}
                 onChange={handleChange}
-                className="mt-1 w-full min-h-[120px] rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full min-h-[120px] rounded-2xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="اذكر المتطلبات الخاصة أو المستندات المساندة"
               />
             </Label>
@@ -291,7 +291,7 @@ export default function MarketingRequestSubmissionPage() {
                   onChange={handleChange}
                   type="number"
                   min="0"
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                  className="rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                   placeholder="الحد الأدنى"
                 />
                 <Input
@@ -300,7 +300,7 @@ export default function MarketingRequestSubmissionPage() {
                   onChange={handleChange}
                   type="number"
                   min="0"
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                  className="rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                   placeholder="الحد الأعلى"
                 />
               </div>
@@ -314,7 +314,7 @@ export default function MarketingRequestSubmissionPage() {
                 type="number"
                 min="0"
                 step="0.1"
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="مثال: 2.5"
               />
             </div>
@@ -325,7 +325,7 @@ export default function MarketingRequestSubmissionPage() {
                 value={form.preferredStartDate}
                 onChange={handleChange}
                 type="date"
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
               />
             </div>
             <div>
@@ -335,7 +335,7 @@ export default function MarketingRequestSubmissionPage() {
                 value={form.preferredEndDate}
                 onChange={handleChange}
                 type="date"
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
               />
             </div>
           </section>
@@ -344,7 +344,7 @@ export default function MarketingRequestSubmissionPage() {
             <div className="block">
               <Label className="text-sm text-slate-600">فئة الطلب</Label>
               <Select value={form.seriousnessTier} onValueChange={(value) => setForm((prev) => ({ ...prev, seriousnessTier: value as FormState["seriousnessTier"] }))}>
-                <SelectTrigger className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none">
+                <SelectTrigger className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -360,7 +360,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="propertyId"
                 value={form.propertyId}
                 onChange={handleChange}
-                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="اربط الطلب بعقار مسجل في النظام"
               />
             </Label>
@@ -373,7 +373,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="contactName"
                 value={form.contactName}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="مثال: أحمد العتيبي"
                 required
               />
@@ -384,7 +384,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="contactPhone"
                 value={form.contactPhone}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="05XXXXXXXX"
               />
             </Label>
@@ -394,7 +394,7 @@ export default function MarketingRequestSubmissionPage() {
                 name="contactEmail"
                 value={form.contactEmail}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                 placeholder="example@email.com"
                 type="email"
               />

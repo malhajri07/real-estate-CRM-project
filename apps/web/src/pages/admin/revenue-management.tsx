@@ -46,7 +46,7 @@ function OverviewTab() {
 
     if (error) {
         return (
-            <Card className="border-red-100 bg-red-50/50 p-8 text-center rounded-[2rem]">
+            <Card className="border-red-100 bg-red-50/50 p-8 text-center rounded-2xl">
                 <p className="text-red-600 font-bold">تعذر تحميل البيانات المالية: {error.message}</p>
             </Card>
         );
@@ -67,7 +67,7 @@ function OverviewTab() {
             render: (trx) => (
                 <div className="flex flex-col">
                     <span className="font-bold text-slate-900">#{trx.id.slice(0, 8)}</span>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{trx.date}</span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{trx.date}</span>
                 </div>
             )
         },
@@ -77,7 +77,7 @@ function OverviewTab() {
             render: (trx) => (
                 <div className="flex flex-col">
                     <span className="font-bold text-slate-700">{trx.user}</span>
-                    <span className="text-[10px] font-bold text-slate-400">{trx.plan}</span>
+                    <span className="text-xs font-bold text-slate-400">{trx.plan}</span>
                 </div>
             )
         },
@@ -85,7 +85,7 @@ function OverviewTab() {
             key: 'amount',
             label: 'المبلغ',
             render: (trx) => (
-                <span className="font-black text-slate-900">{trx.amount}</span>
+                <span className="font-bold text-slate-900">{trx.amount}</span>
             )
         },
         {
@@ -98,7 +98,7 @@ function OverviewTab() {
                 return (
                     <Badge
                         className={cn(
-                            "border-0 text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase",
+                            "border-0 text-xs font-bold px-2.5 py-0.5 rounded-md uppercase",
                             isPaid && "bg-emerald-50 text-emerald-700",
                             isPending && "bg-amber-50 text-amber-700",
                             (!isPaid && !isPending) && "bg-slate-100 text-slate-500"
@@ -147,9 +147,9 @@ function OverviewTab() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Card className="glass border-0 rounded-[2rem] p-8 shadow-none group">
+                <Card className="glass border-0 rounded-2xl p-8 shadow-none group">
                     <div className="mb-8">
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <h3 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
                             <Activity className="w-5 h-5 text-blue-600" />
                             تحليل نمو الإيرادات
                         </h3>
@@ -164,9 +164,9 @@ function OverviewTab() {
                     </div>
                 </Card>
 
-                <Card className="glass border-0 rounded-[2rem] p-8 shadow-none group">
+                <Card className="glass border-0 rounded-2xl p-8 shadow-none group">
                     <div className="mb-8">
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <h3 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
                             <ShieldCheck className="w-5 h-5 text-emerald-600" />
                             توزيع الاشتراكات
                         </h3>
@@ -182,13 +182,13 @@ function OverviewTab() {
                 </Card>
             </div>
 
-            <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+            <Card className="glass border-0 rounded-2xl p-8 shadow-none">
                 <div className="mb-6 flex items-center justify-between">
                     <div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight">آخر العمليات المالية</h3>
+                        <h3 className="text-xl font-bold text-slate-900 tracking-tight">آخر العمليات المالية</h3>
                         <p className="text-slate-500 font-medium text-sm">سجل التحويلات والمدفوعات الأخيرة</p>
                     </div>
-                    <Button variant="outline" className="h-10 rounded-xl border-slate-200 text-slate-600 font-bold hover:bg-slate-50">
+                    <Button variant="outline" className="h-10 rounded-xl border-border text-slate-600 font-bold hover:bg-slate-50">
                         <Calendar className="w-4 h-4 me-2" />
                         عرض الكل
                     </Button>
@@ -208,7 +208,7 @@ function OverviewTab() {
 
 const PlanFeature = ({ feature }: { feature: string }) => (
     <li className="flex items-center gap-2">
-        <CheckCircle2 className="h-4 w-4 text-green-500" />
+        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
         {feature}
     </li>
 );
@@ -223,7 +223,7 @@ function ActiveSubscriptionsTab() {
             render: (sub) => (
                 <div className="flex flex-col">
                     <span className="font-bold text-slate-900">#{sub.id.substring(0, 8)}</span>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">ID: {sub.id.substring(0, 4)}</span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter mt-0.5">ID: {sub.id.substring(0, 4)}</span>
                 </div>
             )
         },
@@ -235,7 +235,7 @@ function ActiveSubscriptionsTab() {
                     <span className="font-bold text-slate-700">
                         {sub.user ? `${sub.user.firstName ?? ''} ${sub.user.lastName ?? ''}`.trim() || sub.user.username : "غير معروف"}
                     </span>
-                    <span className="text-[10px] font-bold text-slate-400 italic">نشط منذ {new Date(sub.startDate).getFullYear()}</span>
+                    <span className="text-xs font-bold text-slate-400 italic">نشط منذ {new Date(sub.startDate).getFullYear()}</span>
                 </div>
             )
         },
@@ -243,7 +243,7 @@ function ActiveSubscriptionsTab() {
             key: 'plan',
             label: 'الخطة',
             render: (sub) => (
-                <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-0 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">
+                <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-0 text-xs font-bold uppercase px-2 py-0.5 rounded-md">
                     {sub.plan?.nameAr || sub.plan?.nameEn || 'Basic'}
                 </Badge>
             )
@@ -254,7 +254,7 @@ function ActiveSubscriptionsTab() {
             render: (sub) => (
                 <div className="flex flex-col">
                     <span className="text-sm font-medium text-slate-600">{new Date(sub.startDate).toLocaleDateString()}</span>
-                    <span className="text-[10px] font-bold text-slate-400">إلى {new Date(sub.endDate).toLocaleDateString()}</span>
+                    <span className="text-xs font-bold text-slate-400">إلى {new Date(sub.endDate).toLocaleDateString()}</span>
                 </div>
             )
         },
@@ -262,7 +262,7 @@ function ActiveSubscriptionsTab() {
             key: 'status',
             label: 'الحالة',
             render: (sub) => (
-                <Badge className={cn("border-0 text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase", sub.status === 'ACTIVE' ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-400")}>
+                <Badge className={cn("border-0 text-xs font-bold px-2.5 py-0.5 rounded-md uppercase", sub.status === 'ACTIVE' ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-400")}>
                     {sub.status === 'ACTIVE' ? 'نشط' : sub.status}
                 </Badge>
             )
@@ -278,10 +278,10 @@ function ActiveSubscriptionsTab() {
     }
 
     return (
-        <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+        <Card className="glass border-0 rounded-2xl p-8 shadow-none">
             <div className="mb-8 flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">قائمة المشتركين</h2>
+                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight">قائمة المشتركين</h2>
                     <p className="text-slate-500 font-medium">إدارة اشتراكات العملاء الحالية وتفاصيل الوصول</p>
                 </div>
             </div>
@@ -301,14 +301,14 @@ function PaymentMethodsTab() {
     return (
         <div className="space-y-8">
             <div className="px-4">
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">طرق الدفع وبوابات الدفع</h2>
+                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">طرق الدفع وبوابات الدفع</h2>
                 <p className="text-slate-500 font-medium text-sm">إدارة الاتصال بمزودي خدمات الدفع العالمية</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <Card className="glass border-0 rounded-[2.5rem] p-8 shadow-none group relative overflow-hidden">
+                <Card className="glass border-0 rounded-3xl p-8 shadow-none group relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-8">
-                        <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">متصل (محاكاة)</Badge>
+                        <Badge className="bg-emerald-50 text-emerald-700 border-0 text-xs font-bold uppercase px-2.5 py-1 rounded-lg">متصل (محاكاة)</Badge>
                     </div>
 
                     <div className="flex flex-col h-full">
@@ -316,14 +316,14 @@ function PaymentMethodsTab() {
                             <div className="h-14 w-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                 <Activity className="h-8 w-8" />
                             </div>
-                            <h3 className="text-2xl font-black text-slate-900 mb-1">Stripe</h3>
+                            <h3 className="text-2xl font-bold text-slate-900 mb-1">Stripe</h3>
                             <p className="text-slate-500 font-medium text-sm">بوابة الدفع العالمية رقم ١ للمؤسسات</p>
                         </div>
 
                         <div className="space-y-6 mt-auto">
                             <div className="p-4 bg-white/50 border border-slate-100 rounded-2xl flex items-center justify-between">
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">الرصيد المتاح</span>
-                                <span className="text-xl font-black text-slate-900">12,450.00 USD</span>
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">الرصيد المتاح</span>
+                                <span className="text-xl font-bold text-slate-900">12,450.00 USD</span>
                             </div>
                             <Button className="w-full h-12 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all shadow-xl shadow-slate-900/10">
                                 إدارة الإعدادات
@@ -332,9 +332,9 @@ function PaymentMethodsTab() {
                     </div>
                 </Card>
 
-                <Card className="glass border-0 rounded-[2.5rem] p-8 shadow-none group relative overflow-hidden bg-slate-50/50">
+                <Card className="glass border-0 rounded-3xl p-8 shadow-none group relative overflow-hidden bg-slate-50/50">
                     <div className="absolute top-0 right-0 p-8">
-                        <Badge variant="secondary" className="bg-slate-200 text-slate-500 border-0 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg">غير نشط</Badge>
+                        <Badge variant="secondary" className="bg-slate-200 text-slate-500 border-0 text-xs font-bold uppercase px-2.5 py-1 rounded-lg">غير نشط</Badge>
                     </div>
 
                     <div className="flex flex-col h-full opacity-60 grayscale-[0.5]">
@@ -342,7 +342,7 @@ function PaymentMethodsTab() {
                             <div className="h-14 w-14 rounded-2xl bg-slate-200 text-slate-500 flex items-center justify-center mb-4">
                                 <DollarSign className="h-8 w-8" />
                             </div>
-                            <h3 className="text-2xl font-black text-slate-900 mb-1">PayPal</h3>
+                            <h3 className="text-2xl font-bold text-slate-900 mb-1">PayPal</h3>
                             <p className="text-slate-500 font-medium text-sm">نظام الدفع عبر الإنترنت الموثوق</p>
                         </div>
 
@@ -374,7 +374,7 @@ function PlansTab() {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4">
                 <div>
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">خطط الاشتراك</h2>
+                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight">خطط الاشتراك</h2>
                     <p className="text-slate-500 font-medium">إدارة الباقات والميزات والأسعار</p>
                 </div>
                 <Button className="premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 h-12 px-8 rounded-2xl font-bold">
@@ -385,7 +385,7 @@ function PlansTab() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {(plans || []).map(plan => (
-                    <Card key={plan.id} className="glass border-0 rounded-[2.5rem] p-8 shadow-none flex flex-col hover:shadow-2xl hover:shadow-blue-500/5 transition-all group overflow-hidden relative">
+                    <Card key={plan.id} className="glass border-0 rounded-3xl p-8 shadow-none flex flex-col hover:shadow-2xl hover:shadow-blue-500/5 transition-all group overflow-hidden relative">
                         <div className="absolute top-0 right-0 p-8">
                             <div className="h-12 w-12 rounded-2xl bg-blue-50/50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
                                 <ShieldCheck className="w-6 h-6" />
@@ -393,15 +393,15 @@ function PlansTab() {
                         </div>
 
                         <div className="mb-8">
-                            <h3 className="text-xl font-black text-slate-900 mb-2 truncate max-w-[180px]">{plan.nameAr || plan.nameEn}</h3>
+                            <h3 className="text-xl font-bold text-slate-900 mb-2 truncate max-w-[180px]">{plan.nameAr || plan.nameEn}</h3>
                             <div className="flex items-baseline gap-1">
-                                <span className="text-3xl font-black text-slate-900">{plan.price}</span>
+                                <span className="text-3xl font-bold text-slate-900">{plan.price}</span>
                                 <span className="text-slate-400 font-bold text-sm uppercase">{plan.currency} / {plan.billingPeriod === 'MONTHLY' ? 'شهري' : plan.billingPeriod}</span>
                             </div>
                         </div>
 
                         <div className="flex-1 space-y-4 mb-10">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">الميزات المشمولة</p>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">الميزات المشمولة</p>
                             <ul className="space-y-3">
                                 {(plan.pricing_plan_features || []).map((feature) => (
                                     <li key={feature.id} className="flex items-start gap-3">
@@ -442,15 +442,15 @@ export default function RevenueManagement() {
 
     return (
         <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+            <Card className="glass border-0 rounded-2xl p-8 shadow-none">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="space-y-2 text-center md:text-end">
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة الإيرادات</h1>
+                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">إدارة الإيرادات</h1>
                         <p className="text-slate-500 font-medium text-lg">نظرة شاملة على الأداء المالي، الاشتراكات، وخطط الأسعار</p>
                     </div>
                     <Button
                         variant="outline"
-                        className="h-12 px-6 rounded-2xl border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all shadow-sm"
+                        className="h-12 px-6 rounded-2xl border-border text-slate-600 font-bold hover:bg-slate-50 transition-all shadow-sm"
                         onClick={() => seedMutation.mutate()}
                         disabled={seedMutation.isPending}
                     >
@@ -486,9 +486,9 @@ export default function RevenueManagement() {
                 </TabsContent>
 
                 <TabsContent value="reports">
-                    <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+                    <Card className="glass border-0 rounded-2xl p-8 shadow-none">
                         <div className="mb-8">
-                            <h2 className="text-2xl font-black text-slate-900 tracking-tight tracking-tight">التقارير المالية</h2>
+                            <h2 className="text-2xl font-bold text-slate-900 tracking-tight tracking-tight">التقارير المالية</h2>
                             <p className="text-slate-500 font-medium">قم بتحميل التقارير المالية الشهرية والسنوية</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -502,7 +502,7 @@ export default function RevenueManagement() {
                                         <FileText className="h-6 w-6" />
                                     </div>
                                     <span className="font-bold text-slate-900 mb-1">{report.name}</span>
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">{report.type}</span>
+                                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">{report.type}</span>
                                     <Button variant="outline" className="mt-auto h-10 w-full rounded-xl border-slate-100 font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-all">
                                         <Download className="h-4 w-4 me-2" />
                                         تحميل التقرير

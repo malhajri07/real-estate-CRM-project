@@ -24,12 +24,12 @@ interface AdminStatusBadgeProps {
 }
 
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  active: { label: "نشط", className: "bg-green-100 text-green-800 border-green-200" },
-  inactive: { label: "غير نشط", className: "bg-slate-100 text-slate-800 border-slate-200" },
+  active: { label: "نشط", className: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+  inactive: { label: "غير نشط", className: "bg-slate-100 text-slate-800 border-border" },
   pending: { label: "قيد المراجعة", className: "bg-yellow-100 text-yellow-800 border-yellow-200" },
   needsInfo: { label: "مطلوب معلومات", className: "bg-orange-100 text-orange-800 border-orange-200" },
   rejected: { label: "مرفوض", className: "bg-red-100 text-red-800 border-red-200" },
-  unknown: { label: "غير محدد", className: "bg-slate-100 text-slate-800 border-slate-200" },
+  unknown: { label: "غير محدد", className: "bg-slate-100 text-slate-800 border-border" },
 };
 
 const resolveStatusKey = (

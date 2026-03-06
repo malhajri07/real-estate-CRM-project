@@ -42,7 +42,7 @@ export default function KYCSubmitted() {
           animate={{ opacity: 1, scale: 1 }}
           className="w-full max-w-3xl"
         >
-          <div className="glass rounded-[32px] p-8 md:p-12 text-center shadow-2xl relative overflow-hidden">
+          <div className="glass rounded-2xl p-8 md:p-12 text-center shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-emerald-500 to-teal-500" />
 
             <div className="flex flex-col items-center">
@@ -86,14 +86,14 @@ export default function KYCSubmitted() {
                 </div>
 
                 <div className="flex flex-col gap-4">
-                  <div className="flex-1 rounded-2xl border border-slate-200 bg-white/50 p-6 hover:border-emerald-200 transition-colors">
+                  <div className="flex-1 rounded-2xl border border-border bg-white/50 p-6 hover:border-emerald-200 transition-colors">
                     <div className="mb-2 flex items-center gap-3 text-emerald-600">
                       <Mail className="h-5 w-5" />
                       <span className="font-semibold">للاستفسارات العاجلة</span>
                     </div>
                     <p className="text-slate-600 text-sm">info@aqaraty.sa</p>
                   </div>
-                  <div className="flex-1 rounded-2xl border border-slate-200 bg-white/50 p-6 hover:border-emerald-200 transition-colors">
+                  <div className="flex-1 rounded-2xl border border-border bg-white/50 p-6 hover:border-emerald-200 transition-colors">
                     <div className="mb-2 flex items-center gap-3 text-emerald-600">
                       <Phone className="h-5 w-5" />
                       <span className="font-semibold">الدعم المباشر</span>
@@ -113,7 +113,7 @@ export default function KYCSubmitted() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-xl h-12 px-8 border-slate-200 hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200 w-full sm:w-auto"
+                  className="rounded-xl h-12 px-8 border-border hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200 w-full sm:w-auto"
                   onClick={handleBackToLanding}
                 >
                   <Home className={cn("me-2", "h-4 w-4")} />

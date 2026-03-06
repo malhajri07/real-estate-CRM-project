@@ -77,10 +77,10 @@ export function PropertiesList({
   };
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm relative z-50">
+    <div className="overflow-x-auto rounded-lg border border-border bg-white shadow-sm relative z-50">
       <Table className="min-w-[900px] text-end">
-        <TableHeader className="bg-gray-50 border-b border-gray-200">
-          <TableRow className="text-xs font-medium text-gray-700 uppercase tracking-wider">
+        <TableHeader className="bg-slate-50 border-b border-border">
+          <TableRow className="text-xs font-medium text-slate-700 uppercase tracking-wider">
             <TableHead className="px-6 py-3 text-end">الصورة</TableHead>
             <TableHead className="px-6 py-3 text-end">العقار</TableHead>
             <TableHead className="px-6 py-3 text-end">الموقع</TableHead>
@@ -92,7 +92,7 @@ export function PropertiesList({
             <TableHead className="px-6 py-3 text-end">الإجراءات</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody className="divide-y divide-gray-200">
+        <TableBody className="divide-y divide-slate-200">
           {properties.map((property) => {
             const isFavourite = favoriteIds.includes(property.id);
             const isActive = highlightedId === property.id;
@@ -129,8 +129,8 @@ export function PropertiesList({
                         }}
                       />
                     ) : (
-                      <div className="absolute inset-0 w-full h-full bg-gray-100 flex items-center justify-center">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
+                      <div className="absolute inset-0 w-full h-full bg-slate-100 flex items-center justify-center">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400">
                           <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
                           <circle cx="9" cy="9" r="2"/>
                           <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
@@ -142,21 +142,21 @@ export function PropertiesList({
 
                 {/* Property */}
                 <TableCell className="px-6 py-4 text-end text-sm">
-                  <div className="font-semibold text-gray-900">{property.title}</div>
+                  <div className="font-semibold text-slate-900">{property.title}</div>
                 </TableCell>
 
                 {/* Location */}
                 <TableCell className="px-6 py-4 text-end text-sm">
-                  <div className="text-gray-900">
+                  <div className="text-slate-900">
                     {property.city}
                     {property.district && `, ${property.district}`}
                   </div>
-                  <div className="mt-1 text-[10px] font-bold text-gray-600">{property.address}</div>
+                  <div className="mt-1 text-xs font-bold text-slate-600">{property.address}</div>
                 </TableCell>
 
                 {/* Type */}
                 <TableCell className="px-6 py-4 text-end text-sm">
-                  <div className="text-gray-900">
+                  <div className="text-slate-900">
                     {property.propertyType || property.transactionType || '-'}
                   </div>
                 </TableCell>
@@ -184,7 +184,7 @@ export function PropertiesList({
 
                 {/* Rooms */}
                 <TableCell className="px-6 py-4 text-end text-sm">
-                  <div className="flex items-center gap-2 text-gray-900">
+                  <div className="flex items-center gap-2 text-slate-900">
                     {property.bedrooms && (
                       <span className="flex items-center gap-1">
                         <Bed size={12} />
@@ -210,7 +210,7 @@ export function PropertiesList({
                         "h-8 w-8 rounded-md transition-colors duration-150 relative z-50",
                         isFavourite 
                           ? "text-red-600 hover:text-red-800 hover:bg-red-50" 
-                          : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                          : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                       )}
                       onClick={(e) => {
                         e.stopPropagation();

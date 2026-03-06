@@ -77,7 +77,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
               autoComplete="username"
               required
               disabled={isLoading}
-              className="h-11 border-slate-200 rounded-xl bg-white/80 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-start"
+              className="h-11 border-border rounded-xl bg-white/80 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-start"
             />
           </div>
 
@@ -107,7 +107,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
                 autoComplete="current-password"
                 required
                 disabled={isLoading}
-                className={cn("h-11 border-slate-200 rounded-xl bg-white/80 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-start", dir === 'rtl' ? "pl-10" : "pr-10")}
+                className={cn("h-11 border-border rounded-xl bg-white/80 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-start", dir === 'rtl' ? "pl-10" : "pr-10")}
               />
               <Button
                 type="button"

@@ -265,7 +265,7 @@ export default function BlogPage() {
                 dangerouslySetInnerHTML={{ __html: article.content }}
               />
               {article.tags.length > 0 && (
-                <div className="mb-8 pt-6 border-t border-slate-200">
+                <div className="mb-8 pt-6 border-t border-border">
                   <div className="flex flex-wrap gap-2">
                     <span className="text-sm text-slate-600 font-medium">الوسوم:</span>
                     {article.tags.map((tag) => (
@@ -276,7 +276,7 @@ export default function BlogPage() {
                   </div>
                 </div>
               )}
-              <div className="mt-8 pt-6 border-t border-slate-200">
+              <div className="mt-8 pt-6 border-t border-border">
                 <div className="flex flex-wrap items-center gap-4">
                   <span className="text-sm font-medium text-slate-700">شارك المقال:</span>
                   <div className="flex flex-wrap gap-2">

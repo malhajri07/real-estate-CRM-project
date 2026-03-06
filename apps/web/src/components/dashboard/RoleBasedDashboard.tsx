@@ -43,7 +43,7 @@ export default function RoleBasedDashboard() {
     return (
       <Card>
         <CardContent className="text-center py-8">
-          <p className="text-gray-500">يرجى تسجيل الدخول لعرض لوحة التحكم</p>
+          <p className="text-slate-500">يرجى تسجيل الدخول لعرض لوحة التحكم</p>
         </CardContent>
       </Card>
     );
@@ -55,13 +55,13 @@ export default function RoleBasedDashboard() {
     const roleColors = {
       WEBSITE_ADMIN: 'bg-red-100 text-red-800',
       CORP_OWNER: 'bg-blue-100 text-blue-800',
-      CORP_AGENT: 'bg-green-100 text-green-800',
+      CORP_AGENT: 'bg-emerald-100 text-emerald-800',
       INDIV_AGENT: 'bg-yellow-100 text-yellow-800',
       SELLER: 'bg-purple-100 text-purple-800',
       BUYER: 'bg-indigo-100 text-indigo-800',
       AGENT: 'bg-teal-100 text-teal-800'
     };
-    return roleColors[role] || 'bg-gray-100 text-gray-800';
+    return roleColors[role] || 'bg-slate-100 text-slate-800';
   };
 
   return (
@@ -77,7 +77,7 @@ export default function RoleBasedDashboard() {
               <CardDescription className="mt-2">
                 {user.email}
                 {user.organization && (
-                  <span className="block text-sm text-gray-600">
+                  <span className="block text-sm text-slate-600">
                     {user.organization.tradeName}
                   </span>
                 )}
@@ -301,11 +301,11 @@ export default function RoleBasedDashboard() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm font-medium text-gray-600">رقم الترخيص</Label>
+                <Label className="text-sm font-medium text-slate-600">رقم الترخيص</Label>
                 <p className="text-lg font-semibold">{user.agentProfile.licenseNo}</p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-600">المناطق المغطاة</Label>
+                <Label className="text-sm font-medium text-slate-600">المناطق المغطاة</Label>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {user.agentProfile.territories.map((territory) => (
                     <Badge key={territory} variant="secondary">
@@ -315,7 +315,7 @@ export default function RoleBasedDashboard() {
                 </div>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-600">التخصصات</Label>
+                <Label className="text-sm font-medium text-slate-600">التخصصات</Label>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {user.agentProfile.specialties.map((specialty) => (
                     <Badge key={specialty} variant="outline">
@@ -338,11 +338,11 @@ export default function RoleBasedDashboard() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm font-medium text-gray-600">الاسم التجاري</Label>
+                <Label className="text-sm font-medium text-slate-600">الاسم التجاري</Label>
                 <p className="text-lg font-semibold">{user.organization.tradeName}</p>
               </div>
               <div>
-                <Label className="text-sm font-medium text-gray-600">الاسم القانوني</Label>
+                <Label className="text-sm font-medium text-slate-600">الاسم القانوني</Label>
                 <p className="text-lg font-semibold">{user.organization.legalName}</p>
               </div>
             </div>

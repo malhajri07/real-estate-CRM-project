@@ -111,11 +111,11 @@ export default function SendWhatsAppModal({
       case 'sending':
         return <Clock className="h-5 w-5 text-blue-500 animate-spin" />;
       case 'sent':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-emerald-500" />;
       case 'failed':
         return <XCircle className="h-5 w-5 text-red-500" />;
       default:
-        return <MessageCircle className="h-5 w-5 text-green-500" />;
+        return <MessageCircle className="h-5 w-5 text-emerald-500" />;
     }
   };
 
@@ -183,7 +183,7 @@ export default function SendWhatsAppModal({
               <Button
                 type="submit"
                 disabled={messageStatus === 'sending' || messageStatus === 'sent'}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-emerald-600 hover:bg-emerald-700"
               >
                 {getStatusText()}
               </Button>

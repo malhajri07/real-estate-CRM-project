@@ -604,7 +604,7 @@ export default function UnverifiedListingPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="w-full max-w-2xl"
           >
-            <div className="glass rounded-[32px] p-12 text-center shadow-2xl relative overflow-hidden">
+            <div className="glass rounded-2xl p-12 text-center shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-emerald-500 to-teal-500" />
 
               <motion.div
@@ -678,7 +678,7 @@ export default function UnverifiedListingPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-xl h-12 px-8 border-slate-200 hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200"
+                  className="rounded-xl h-12 px-8 border-border hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200"
                   onClick={() => setLocation("/")}
                 >
                   <Home className={cn("me-2", "h-4 w-4")} />
@@ -724,7 +724,7 @@ export default function UnverifiedListingPage() {
               transition={{ delay: 0.1 }}
               className="lg:col-span-3 lg:sticky lg:top-32"
             >
-              <div className="glass rounded-[32px] p-6 shadow-xl">
+              <div className="glass rounded-2xl p-6 shadow-xl">
                 <div className="flex flex-row lg:flex-col items-start gap-4 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
                   {STEPS.map((step, index) => {
                     const isCompleted = completedSteps.includes(step.id);
@@ -793,12 +793,12 @@ export default function UnverifiedListingPage() {
             >
               <form
                 onSubmit={handleSubmit}
-                className="glass rounded-[32px] p-8 md:p-12 shadow-2xl space-y-10"
+                className="glass rounded-2xl p-8 md:p-12 shadow-2xl space-y-10"
               >
                 {/* Step 1: Basic Information */}
                 {currentStep === 1 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 1: البيانات الأساسية</h2>
                         <p className="text-sm text-slate-500 mt-1">أدخل المعلومات الأساسية عن العقار</p>
@@ -1041,7 +1041,7 @@ export default function UnverifiedListingPage() {
                 {/* Step 2: Location */}
                 {currentStep === 2 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 2: الموقع</h2>
                         <p className="text-sm text-slate-500 mt-1">حدد موقع العقار</p>
@@ -1317,7 +1317,7 @@ export default function UnverifiedListingPage() {
                 {/* Step 3: Specifications */}
                 {currentStep === 3 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 3: المواصفات</h2>
                         <p className="text-sm text-slate-500 mt-1">تفاصيل العقار والمواصفات</p>
@@ -1420,7 +1420,7 @@ export default function UnverifiedListingPage() {
                 {/* Step 4: Amenities */}
                 {currentStep === 4 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 4: المرافق</h2>
                         <p className="text-sm text-slate-500 mt-1">اختر المرافق والخدمات المتاحة</p>
@@ -1491,14 +1491,14 @@ export default function UnverifiedListingPage() {
                 {/* Step 5: Media */}
                 {currentStep === 5 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 5: الصور</h2>
                         <p className="text-sm text-slate-500 mt-1">أضف صور العقار</p>
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 p-6">
+                    <div className="rounded-2xl border-2 border-dashed border-border bg-slate-50/60 p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div>
                           <h4 className="font-semibold text-slate-800">صور العقار</h4>
@@ -1521,7 +1521,7 @@ export default function UnverifiedListingPage() {
                               <img
                                 src={preview}
                                 alt={`Preview ${index + 1}`}
-                                className="w-full h-28 object-cover rounded-xl border border-slate-200"
+                                className="w-full h-28 object-cover rounded-xl border border-border"
                               />
                               <Button
                                 type="button"
@@ -1544,7 +1544,7 @@ export default function UnverifiedListingPage() {
                 {/* Step 6: Contact Information */}
                 {currentStep === 6 && (
                   <section className="space-y-6">
-                    <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+                    <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
                         <h2 className="text-2xl font-bold text-slate-900">الخطوة 6: معلومات التواصل</h2>
                         <p className="text-sm text-slate-500 mt-1">بيانات الاتصال</p>
@@ -1576,7 +1576,7 @@ export default function UnverifiedListingPage() {
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="flex items-center justify-between pt-6 border-t border-slate-200">
+                <div className="flex items-center justify-between pt-6 border-t border-border">
                   <Button
                     type="button"
                     variant="outline"
@@ -1616,7 +1616,7 @@ export default function UnverifiedListingPage() {
                 </div>
 
                 {loading && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-[32px] bg-white/70 backdrop-blur-md">
+                  <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md">
                     <div className="flex flex-col items-center gap-3 text-slate-600">
                       <Spinner size="xl" className="text-emerald-500" />
                       <p className="text-sm font-medium">جارٍ إرسال إعلانك، يرجى الانتظار...</p>

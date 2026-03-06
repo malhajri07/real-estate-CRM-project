@@ -88,7 +88,7 @@ export default function SignupSelection() {
               <motion.div variants={itemVariants}>
                 <div 
                   onClick={handleIndividualSignup}
-                  className="glass rounded-[32px] p-8 md:p-10 h-full cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-white/40"
+                  className="glass rounded-2xl p-8 md:p-10 h-full cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-white/40"
                 >
                   <div className="absolute top-0 start-0 w-1 h-full bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
@@ -121,7 +121,7 @@ export default function SignupSelection() {
               <motion.div variants={itemVariants}>
                 <div 
                   onClick={handleCorporateSignup}
-                  className="glass rounded-[32px] p-8 md:p-10 h-full cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-white/40"
+                  className="glass rounded-2xl p-8 md:p-10 h-full cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-white/40"
                 >
                   <div className="absolute top-0 start-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   

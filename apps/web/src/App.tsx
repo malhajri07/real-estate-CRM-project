@@ -610,7 +610,7 @@ function Router() {
       <PlatformShell onLogout={handleLogout}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <Spinner size="xl" className="text-green-600 mx-auto mb-4" />
+            <Spinner size="xl" className="text-emerald-600 mx-auto mb-4" />
             <p className="text-lg font-medium text-slate-700">جار التحميل...</p>
           </div>
         </div>

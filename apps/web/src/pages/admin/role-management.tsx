@@ -121,7 +121,7 @@ export default function RoleManagement() {
           <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
             {role.displayName || role.name}
           </span>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{role.name}</span>
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{role.name}</span>
         </div>
       ),
     },
@@ -135,10 +135,10 @@ export default function RoleManagement() {
       label: "النطاق",
       render: (role) => (
         <div className="flex flex-col gap-1">
-          <Badge className={cn("w-fit text-[9px] font-black uppercase px-2 py-0.5 rounded-md border-0", role.isSystem ? "bg-blue-50 text-blue-700" : "bg-purple-50 text-purple-700")}>
+          <Badge className={cn("w-fit text-xs font-bold uppercase px-2 py-0.5 rounded-md border-0", role.isSystem ? "bg-blue-50 text-blue-700" : "bg-purple-50 text-purple-700")}>
             {role.isSystem ? "نظام" : "مخصص"}
           </Badge>
-          <span className="text-[10px] font-bold text-slate-400">
+          <span className="text-xs font-bold text-slate-400">
             {role.scope === "ORGANIZATION" ? "منظمة" : "شامل"}
           </span>
         </div>
@@ -150,12 +150,12 @@ export default function RoleManagement() {
       render: (role) => (
         <div className="flex flex-wrap gap-1">
           {role.permissions.slice(0, 3).map((permission) => (
-            <Badge key={permission} variant="secondary" className="bg-slate-50 text-slate-500 border-0 text-[9px] font-bold px-2 py-0.5 rounded-md">
+            <Badge key={permission} variant="secondary" className="bg-slate-50 text-slate-500 border-0 text-xs font-bold px-2 py-0.5 rounded-md">
               {permission}
             </Badge>
           ))}
           {role.permissions.length > 3 ? (
-            <Badge className="bg-slate-100 text-slate-400 border-0 text-[9px] font-bold px-2 py-0.5 rounded-md">+{role.permissions.length - 3}</Badge>
+            <Badge className="bg-slate-100 text-slate-400 border-0 text-xs font-bold px-2 py-0.5 rounded-md">+{role.permissions.length - 3}</Badge>
           ) : null}
         </div>
       )
@@ -291,10 +291,10 @@ export default function RoleManagement() {
 
   return (
     <div className="space-y-8 animate-in-start" dir="rtl">
-      <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+      <Card className="glass border-0 rounded-2xl p-8 shadow-none">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-end">
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة الأدوار</h1>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">إدارة الأدوار</h1>
             <p className="text-slate-500 font-medium text-lg">تحكم في الصلاحيات والوصول لمختلف مجموعات المستخدمين</p>
           </div>
           <Button className="premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 h-12 px-8 rounded-2xl font-bold w-full md:w-auto" onClick={handleOpenCreateDialog}>
@@ -342,9 +342,9 @@ export default function RoleManagement() {
         </Alert>
       ) : null}
 
-      <Card className="glass border-0 rounded-[2rem] p-8 shadow-none mt-8">
+      <Card className="glass border-0 rounded-2xl p-8 shadow-none mt-8">
         <div className="mb-6">
-          <h2 className="text-xl font-black text-slate-900 tracking-tight">قائمة الأدوار</h2>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">قائمة الأدوار</h2>
           <p className="text-slate-500 font-medium">عرض وإدارة الصلاحيات لكل دور وظيفي</p>
         </div>
         <AdminTable
@@ -377,7 +377,7 @@ export default function RoleManagement() {
                     id="role-name"
                     value={formState.name}
                     onChange={(event) => setFormState((prev) => ({ ...prev, name: event.target.value }))}
-                    className="bg-white/50 border-slate-200 focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
+                    className="bg-white/50 border-border focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
                     placeholder="اسم الدور (مثلاً: مدير النظام)"
                   />
                 </div>
@@ -389,7 +389,7 @@ export default function RoleManagement() {
                   value={formState.description}
                   onChange={(event) => setFormState((prev) => ({ ...prev, description: event.target.value }))}
                   placeholder="صف الاستخدام الأساسي لهذا الدور"
-                  className="bg-white/50 border-slate-200 focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
+                  className="bg-white/50 border-border focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
                 />
               </div>
             </div>
@@ -404,7 +404,7 @@ export default function RoleManagement() {
 
               <div className="space-y-3">
                 {isLoadingRoles ? (
-                  <div className="text-sm text-gray-500 mt-2">جاري تحميل الصلاحيات...</div>
+                  <div className="text-sm text-slate-500 mt-2">جاري تحميل الصلاحيات...</div>
                 ) : (
                   <div className="mt-2 space-y-6 overflow-y-auto pr-1">
                     {Object.entries(permissionCategories).map(([category, categoryPermissions]) => (
@@ -423,7 +423,7 @@ export default function RoleManagement() {
                                   "flex items-start space-x-3 rtl:space-x-reverse rounded-xl border p-3 cursor-pointer transition-all duration-200 group",
                                   checked
                                     ? "bg-blue-50/50 border-blue-200 shadow-sm"
-                                    : "bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50/50"
+                                    : "bg-white border-slate-100 hover:border-border hover:bg-slate-50/50"
                                 )}
                               >
                                 <Checkbox

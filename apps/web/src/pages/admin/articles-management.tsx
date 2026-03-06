@@ -159,12 +159,12 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
   }
 
   if (versions.length === 0) {
-    return <div className="text-center py-8 text-gray-500">لا توجد إصدارات سابقة</div>;
+    return <div className="text-center py-8 text-slate-500">لا توجد إصدارات سابقة</div>;
   }
 
   return (
     <div className="space-y-4">
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-slate-600">
         تم العثور على {versions.length} إصدار
       </div>
       <div className="space-y-3">
@@ -177,11 +177,11 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant="outline">الإصدار {version.version}</Badge>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-slate-500">
                         {new Date(version.createdAt).toLocaleString("ar-SA")}
                       </span>
                       {version.createdBy && (
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-slate-500">
                           بواسطة: {version.createdBy}
                         </span>
                       )}
@@ -189,7 +189,7 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
                     <div className="space-y-1">
                       <div className="font-medium">{snapshot.title || "بدون عنوان"}</div>
                       {snapshot.excerpt && (
-                        <div className="text-sm text-gray-600 line-clamp-2">
+                        <div className="text-sm text-slate-600 line-clamp-2">
                           {snapshot.excerpt}
                         </div>
                       )}
@@ -395,8 +395,8 @@ export default function ArticlesManagement() {
     <div className="space-y-6" dir="rtl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">إدارة المقالات</h1>
-          <p className="text-gray-600">إدارة ونشر المحتوى والمقالات</p>
+          <h1 className="text-2xl font-bold text-slate-900">إدارة المقالات</h1>
+          <p className="text-slate-600">إدارة ونشر المحتوى والمقالات</p>
         </div>
         <Button onClick={handleCreate}>
           <Plus className="ml-2 h-4 w-4" />
@@ -439,7 +439,7 @@ export default function ArticlesManagement() {
             ) : error ? (
               <div className="text-center py-8 text-red-600">
                 <div>حدث خطأ في تحميل المقالات</div>
-                <div className="text-sm mt-2 text-gray-500">
+                <div className="text-sm mt-2 text-slate-500">
                   {error instanceof Error ? error.message : "خطأ غير معروف"}
                 </div>
                 <Button
@@ -455,7 +455,7 @@ export default function ArticlesManagement() {
             ) : (
               <>
                 {selectedArticles.size > 0 && (
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-4">
+                  <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg mb-4">
                     <span className="text-sm font-medium">
                       تم اختيار {selectedArticles.size} مقال
                     </span>
@@ -691,7 +691,7 @@ function ArticleDialog({
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         required
-                        className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all"
+                        className="h-11 bg-white/50 border-border focus:bg-white transition-all"
                       />
                     </div>
                     <div className="space-y-2">
@@ -701,7 +701,7 @@ function ArticleDialog({
                         value={slug}
                         onChange={(e) => setSlug(e.target.value)}
                         placeholder="سيتم إنشاؤه تلقائياً من العنوان"
-                        className="h-11 bg-white/50 border-slate-200 focus:bg-white transition-all font-mono text-sm"
+                        className="h-11 bg-white/50 border-border focus:bg-white transition-all font-mono text-sm"
                         dir="ltr"
                       />
                     </div>
@@ -713,7 +713,7 @@ function ArticleDialog({
                       value={excerpt}
                       onChange={(e) => setExcerpt(e.target.value)}
                       rows={5}
-                      className="bg-white/50 border-slate-200 focus:bg-white transition-all resize-none"
+                      className="bg-white/50 border-border focus:bg-white transition-all resize-none"
                     />
                   </div>
                 </div>
@@ -748,7 +748,7 @@ function ArticleDialog({
                               "cursor-pointer px-3 py-1.5 rounded-full text-sm transition-all border select-none",
                               selectedCategories.includes(cat.id)
                                 ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-600/20"
-                                : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                                : "bg-white border-border text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                             )}
                           >
                             {cat.name}
@@ -773,7 +773,7 @@ function ArticleDialog({
                               "cursor-pointer px-3 py-1.5 rounded-full text-sm transition-all border select-none",
                               selectedTags.includes(tag.id)
                                 ? "bg-slate-800 border-slate-800 text-white shadow-md"
-                                : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                                : "bg-white border-border text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                             )}
                           >
                             {tag.name}
@@ -787,7 +787,7 @@ function ArticleDialog({
                     <Label>الصورة المميزة</Label>
                     <div className="mt-2 space-y-3">
                       {featuredImageUrl ? (
-                        <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-slate-200 shadow-sm group">
+                        <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-border shadow-sm group">
                           <img
                             src={featuredImageUrl}
                             alt="Featured"
@@ -819,7 +819,7 @@ function ArticleDialog({
                       ) : (
                         <div
                           onClick={() => setIsMediaSelectorOpen(true)}
-                          className="w-full aspect-video rounded-xl border-2 border-dashed border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 transition-all flex flex-col items-center justify-center cursor-pointer gap-2 text-slate-400 hover:text-blue-500"
+                          className="w-full aspect-video rounded-xl border-2 border-dashed border-border hover:border-blue-400 hover:bg-blue-50/50 transition-all flex flex-col items-center justify-center cursor-pointer gap-2 text-slate-400 hover:text-blue-500"
                         >
                           <ImageIcon className="h-8 w-8" />
                           <span className="text-sm font-medium">اضغط لاختيار صورة</span>
@@ -862,11 +862,11 @@ function ArticleDialog({
                       return cat ? <Badge key={catId} variant="secondary">{cat.name}</Badge> : null;
                     })}
                   </div>
-                  <h1 className="text-3xl font-bold tracking-tight text-gray-900 leading-tight">
+                  <h1 className="text-3xl font-bold tracking-tight text-slate-900 leading-tight">
                     {title || "عنوان المقال"}
                   </h1>
                   {excerpt && (
-                    <p className="text-xl text-gray-600 leading-relaxed font-light">
+                    <p className="text-xl text-slate-600 leading-relaxed font-light">
                       {excerpt}
                     </p>
                   )}
@@ -874,14 +874,14 @@ function ArticleDialog({
 
                 <div
                   className="prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:leading-relaxed prose-img:rounded-xl prose-img:shadow-md"
-                  dangerouslySetInnerHTML={{ __html: content || "<p class='text-gray-400 italic'>لا يوجد محتوى...</p>" }}
+                  dangerouslySetInnerHTML={{ __html: content || "<p class='text-slate-400 italic'>لا يوجد محتوى...</p>" }}
                 />
               </div>
             </TabsContent>
             {article && (
               <TabsContent value="versions" dir="rtl" className="pt-6">
                 {/* Pending implementation */}
-                <div className="text-center py-12 text-gray-400 bg-slate-50 rounded-xl border border-dashed text-sm">
+                <div className="text-center py-12 text-slate-400 bg-slate-50 rounded-xl border border-dashed text-sm">
                   سجل الإصدارات سيكون متاحاً قريباً
                 </div>
               </TabsContent>

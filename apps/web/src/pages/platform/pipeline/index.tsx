@@ -392,27 +392,27 @@ export default function Pipeline() {
                     <CardContent className="p-3 space-y-1.5">
                       <div className="flex items-start justify-between gap-1">
                         <div className="space-y-0.5">
-                          <h3 className="text-[12px] font-semibold">{firstName}</h3>
-                          <span className="block text-[10px] text-muted-foreground">{maskPhoneNumber(request.mobileNumber)}</span>
+                          <h3 className="text-xs font-semibold">{firstName}</h3>
+                          <span className="block text-xs text-muted-foreground">{maskPhoneNumber(request.mobileNumber)}</span>
                         </div>
                         {request.typeOfProperty && (
-                          <Badge variant="secondary" className="text-[10px]">
+                          <Badge variant="secondary" className="text-xs">
                             {request.typeOfProperty}
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>{request.region ?? 'غير محدد'}</span>
                         <span>{request.city ?? ''}</span>
                       </div>
-                      <div className="flex items-center justify-between text-[10px]">
-                        <span className="font-semibold text-emerald-600 text-[12px]">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-semibold text-emerald-600 text-xs">
                           {formatBudget(request.budgetSize)}
                         </span>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-6 rounded-md border-emerald-200 px-2 text-[10px] text-emerald-600 hover:bg-emerald-50"
+                          className="h-6 rounded-md border-emerald-200 px-2 text-xs text-emerald-600 hover:bg-emerald-50"
                           onClick={() => handleConvertToPipeline(request, key)}
                         >
                           نقل إلى عميل محتمل

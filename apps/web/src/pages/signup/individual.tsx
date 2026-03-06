@@ -309,7 +309,7 @@ export default function SignupIndividual() {
               transition={{ delay: 0.1 }}
               className="lg:col-span-3 lg:sticky lg:top-32"
             >
-              <div className="glass rounded-[32px] p-6 shadow-xl">
+              <div className="glass rounded-2xl p-6 shadow-xl">
                 <div className="flex flex-row lg:flex-col items-start gap-4 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
                   {STEPS.map((step, index) => {
                     const isCompleted = completedSteps.includes(step.id);
@@ -332,7 +332,7 @@ export default function SignupIndividual() {
                               ? "bg-emerald-600 text-white border-emerald-600"
                               : isCurrent
                                 ? "bg-emerald-100 text-emerald-600 border-emerald-300"
-                                : "bg-gray-100 text-gray-500 border-gray-300"
+                                : "bg-slate-100 text-slate-500 border-slate-300"
                           )}
                         >
                           {isCompleted ? (
@@ -345,12 +345,12 @@ export default function SignupIndividual() {
                           <div
                             className={cn(
                               "text-sm font-semibold",
-                              isCurrent || isCompleted ? "text-emerald-600" : "text-gray-500"
+                              isCurrent || isCompleted ? "text-emerald-600" : "text-slate-500"
                             )}
                           >
                             {step.title}
                           </div>
-                          <div className="text-xs text-gray-400">{step.description}</div>
+                          <div className="text-xs text-slate-400">{step.description}</div>
                         </div>
                         {index < STEPS.length - 1 && (
                           <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-slate-200 -z-10" />
@@ -370,7 +370,7 @@ export default function SignupIndividual() {
             >
               <form
                 onSubmit={handleSubmit}
-                className="glass rounded-[32px] p-8 md:p-12 shadow-2xl space-y-8"
+                className="glass rounded-2xl p-8 md:p-12 shadow-2xl space-y-8"
               >
                 {/* Step 1: Account Credentials */}
                 {currentStep === 1 && (
@@ -393,7 +393,7 @@ export default function SignupIndividual() {
                           onChange={(e) => setUsername(e.target.value)}
                           required
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start"
                         />
                       </div>
 
@@ -407,7 +407,7 @@ export default function SignupIndividual() {
                           placeholder="••••••••"
                           required
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start font-password"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start font-password"
                         />
                       </div>
 
@@ -421,7 +421,7 @@ export default function SignupIndividual() {
                           placeholder="••••••••"
                           required
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start font-password"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start font-password"
                         />
                       </div>
                     </div>
@@ -450,7 +450,7 @@ export default function SignupIndividual() {
                         required
                         maxLength={10}
                         dir="ltr"
-                        className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end"
+                        className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
                       />
                     </div>
 
@@ -463,7 +463,7 @@ export default function SignupIndividual() {
                           value={firstName}
                           onChange={(e) => setFirstName(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
                         />
                       </div>
 
@@ -475,7 +475,7 @@ export default function SignupIndividual() {
                           value={lastName}
                           onChange={(e) => setLastName(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
                         />
                       </div>
                     </div>
@@ -484,7 +484,7 @@ export default function SignupIndividual() {
                       <div className="space-y-2">
                         <Label htmlFor="gender" className="text-sm font-medium text-slate-700">النوع <span className="text-red-500">*</span></Label>
                         <Select value={gender} onValueChange={setGender} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start">
+                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start">
                             <SelectValue placeholder="اختر النوع" />
                           </SelectTrigger>
                           <SelectContent position="popper" sideOffset={4} className="z-[100]">
@@ -497,7 +497,7 @@ export default function SignupIndividual() {
                       <div className="space-y-2">
                         <Label htmlFor="city" className="text-sm font-medium text-slate-700">المنطقة <span className="text-red-500">*</span></Label>
                         <Select value={city} onValueChange={setCity} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start">
+                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start">
                             <SelectValue placeholder="اختر المنطقة" />
                           </SelectTrigger>
                           <SelectContent position="popper" sideOffset={4} className="z-[100]">
@@ -520,7 +520,7 @@ export default function SignupIndividual() {
                         required
                         maxLength={10}
                         dir="ltr"
-                        className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end"
+                        className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
                       />
                     </div>
                   </section>
@@ -545,7 +545,7 @@ export default function SignupIndividual() {
                         value={certificationNumber}
                         onChange={(e) => setCertificationNumber(e.target.value)}
                         required
-                        className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"
+                        className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
                       />
                     </div>
 
@@ -557,7 +557,7 @@ export default function SignupIndividual() {
                         value={certificationStartDate}
                         onChange={(e) => setCertificationStartDate(e.target.value)}
                         required
-                        className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end"
+                        className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
                       />
                     </div>
 
@@ -570,7 +570,7 @@ export default function SignupIndividual() {
                           accept="application/pdf"
                           onChange={handleFileChange}
                           required
-                          className="h-14 rounded-xl border-slate-200 bg-white/50 text-end focus:ring-emerald-500 file:mr-10 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-emerald-50 file:px-6 file:py-0 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100 pl-10 cursor-pointer transition-all"
+                          className="h-14 rounded-xl border-border bg-white/50 text-end focus:ring-emerald-500 file:mr-10 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-emerald-50 file:px-6 file:py-0 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100 pl-10 cursor-pointer transition-all"
                         />
                         <Upload className="w-5 h-5 text-emerald-600 absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
@@ -595,7 +595,7 @@ export default function SignupIndividual() {
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200 bg-white/50 p-6 shadow-inner">
+                    <div className="rounded-2xl border border-border bg-white/50 p-6 shadow-inner">
                       <div className="space-y-4 text-sm leading-7 text-slate-600 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
                         <h3 className="text-base font-bold text-slate-900 mb-2">شروط استخدام منصة عقاراتي للوسطاء العقاريين:</h3>
                         
@@ -628,7 +628,7 @@ export default function SignupIndividual() {
                       </div>
                     </div>
 
-                    <Label className="flex items-start gap-4 p-4 rounded-xl border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer group">
+                    <Label className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer group">
                       <div className="relative flex items-center mt-1">
                         <Checkbox
                           checked={agreedToTerms}
@@ -650,7 +650,7 @@ export default function SignupIndividual() {
                     variant="outline"
                     onClick={handlePrevious}
                     disabled={currentStep === 1}
-                    className="h-12 rounded-2xl border-slate-200 px-8 text-slate-600 transition-colors hover:bg-slate-100"
+                    className="h-12 rounded-2xl border-border px-8 text-slate-600 transition-colors hover:bg-slate-100"
                   >
                     <ChevronRight className={cn("me-2", "h-4 w-4")} />
                     السابق

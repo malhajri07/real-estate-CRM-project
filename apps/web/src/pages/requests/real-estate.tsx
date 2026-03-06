@@ -382,7 +382,7 @@ export default function RealEstateRequestsPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="w-full max-w-2xl"
           >
-            <div className="glass rounded-[32px] p-12 text-center shadow-2xl relative overflow-hidden">
+            <div className="glass rounded-2xl p-12 text-center shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-emerald-500 to-teal-500" />
 
               <motion.div
@@ -415,7 +415,7 @@ export default function RealEstateRequestsPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-xl h-12 px-8 border-slate-200 hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200"
+                  className="rounded-xl h-12 px-8 border-border hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200"
                   onClick={() => setLocation("/")}
                 >
                   <Home className={cn("me-2", "h-4 w-4")} />
@@ -464,7 +464,7 @@ export default function RealEstateRequestsPage() {
           >
             <form
               onSubmit={handleSubmit}
-              className="glass rounded-[32px] p-8 md:p-12 shadow-2xl"
+              className="glass rounded-2xl p-8 md:p-12 shadow-2xl"
             >
               <section className="space-y-8 mb-12">
                 <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
@@ -475,11 +475,11 @@ export default function RealEstateRequestsPage() {
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">الاسم الأول <span className="text-red-500">*</span></Label>
-                    <Input className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} required />
+                    <Input className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">اسم العائلة <span className="text-red-500">*</span></Label>
-                    <Input className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} required />
+                    <Input className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">رقم الجوال <span className="text-red-500">*</span></Label>
@@ -487,7 +487,7 @@ export default function RealEstateRequestsPage() {
                       type="tel"
                       inputMode="numeric"
                       autoComplete="tel"
-                      className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end font-mono tracking-wide"
+                      className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end font-mono tracking-wide"
                       dir="ltr"
                       placeholder="+966 5xxxxxxxx"
                       value={form.mobileNumber}
@@ -497,24 +497,24 @@ export default function RealEstateRequestsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">البريد الإلكتروني <span className="text-red-500">*</span></Label>
-                    <Input type="email" className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end" dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+                    <Input type="email" className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end" dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">الجنسية <span className="text-red-500">*</span></Label>
-                    <Input className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.nationality} onChange={(e) => setForm({ ...form, nationality: e.target.value })} required />
+                    <Input className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.nationality} onChange={(e) => setForm({ ...form, nationality: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">العمر <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} required />
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">الدخل الشهري (﷼) <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.monthlyIncome} onChange={(e) => setForm({ ...form, monthlyIncome: e.target.value })} required />
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.monthlyIncome} onChange={(e) => setForm({ ...form, monthlyIncome: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">الجنس <span className="text-red-500">*</span></Label>
                     <Select value={form.gender} onValueChange={(value) => setForm({ ...form, gender: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"><SelectValue placeholder="اختر" /></SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"><SelectValue placeholder="اختر" /></SelectTrigger>
                       <SelectContent>
                         {GENDER_OPTIONS.map((option) => (
                           <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
@@ -535,7 +535,7 @@ export default function RealEstateRequestsPage() {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">نوع العقار <span className="text-red-500">*</span></Label>
                     <Select value={form.typeOfProperty} onValueChange={(value) => setForm({ ...form, typeOfProperty: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"><SelectValue placeholder="اختر نوع العقار" /></SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"><SelectValue placeholder="اختر نوع العقار" /></SelectTrigger>
                       <SelectContent>
                         {PROPERTY_TYPES.map((type) => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
@@ -546,7 +546,7 @@ export default function RealEstateRequestsPage() {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">نوع العقد <span className="text-red-500">*</span></Label>
                     <Select value={form.typeOfContract} onValueChange={(value) => setForm({ ...form, typeOfContract: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"><SelectValue placeholder="شراء أم إيجار؟" /></SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"><SelectValue placeholder="شراء أم إيجار؟" /></SelectTrigger>
                       <SelectContent>
                         {CONTRACT_TYPES.map((type) => (
                           <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
@@ -558,22 +558,22 @@ export default function RealEstateRequestsPage() {
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">عدد الغرف <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.numberOfRooms} onChange={(e) => setForm({ ...form, numberOfRooms: e.target.value })} required />
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.numberOfRooms} onChange={(e) => setForm({ ...form, numberOfRooms: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">عدد الحمامات <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.numberOfBathrooms} onChange={(e) => setForm({ ...form, numberOfBathrooms: e.target.value })} required />
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.numberOfBathrooms} onChange={(e) => setForm({ ...form, numberOfBathrooms: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">عدد صالات المعيشة <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.numberOfLivingRooms} onChange={(e) => setForm({ ...form, numberOfLivingRooms: e.target.value })} required />
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.numberOfLivingRooms} onChange={(e) => setForm({ ...form, numberOfLivingRooms: e.target.value })} required />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">اتجاه المنزل</Label>
                     <Select value={form.houseDirection} onValueChange={(value) => setForm({ ...form, houseDirection: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"><SelectValue placeholder="غير محدد" /></SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"><SelectValue placeholder="غير محدد" /></SelectTrigger>
                       <SelectContent>
                         {HOUSE_DIRECTIONS.map((direction) => (
                           <SelectItem key={direction.value} value={direction.value}>{direction.label}</SelectItem>
@@ -583,7 +583,7 @@ export default function RealEstateRequestsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">الميزانية المتاحة (﷼) <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.budgetSize} onChange={(e) => setForm({ ...form, budgetSize: e.target.value })} required />
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.budgetSize} onChange={(e) => setForm({ ...form, budgetSize: e.target.value })} required />
                   </div>
                 </div>
               </section>
@@ -699,7 +699,7 @@ export default function RealEstateRequestsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">المساحة المطلوبة (م²)</Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500" value={form.sqm} onChange={(e) => setForm({ ...form, sqm: e.target.value })} />
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.sqm} onChange={(e) => setForm({ ...form, sqm: e.target.value })} />
                   </div>
                 </div>
 
@@ -732,7 +732,7 @@ export default function RealEstateRequestsPage() {
                     rows={4}
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    className="rounded-2xl bg-white/50 border-slate-200 focus:ring-emerald-500"
+                    className="rounded-2xl bg-white/50 border-border focus:ring-emerald-500"
                     placeholder="أي تفاصيل أخرى تود إضافتها..."
                   />
                 </div>
@@ -759,7 +759,7 @@ export default function RealEstateRequestsPage() {
               </div>
 
               {loading && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-[32px] bg-white/80 backdrop-blur-sm">
+                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-sm">
                   {/* Loader overlay handled by button state mainly, but keep if user wants generic block */}
                 </div>
               )}

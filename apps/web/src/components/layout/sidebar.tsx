@@ -161,7 +161,7 @@ export default function PlatformSidebar({ onLogout }: SidebarProps) {
     <Sidebar side={dir === "rtl" ? "right" : "left"} collapsible="icon" dir={dir}>
       <SidebarHeader>
         <div className="flex items-center gap-3 px-2">
-          <span className="text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 truncate">
+          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 truncate">
             {t("app.name") || "عقاركم"}
           </span>
         </div>
@@ -207,7 +207,7 @@ export default function PlatformSidebar({ onLogout }: SidebarProps) {
                           return (
                             <div key={subgroup.id}>
                               {subgroupLabel && (
-                                <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/50">
+                                <div className="px-2 py-1.5 text-xs font-bold uppercase tracking-wider text-sidebar-foreground/50">
                                   {subgroupLabel}
                                 </div>
                               )}

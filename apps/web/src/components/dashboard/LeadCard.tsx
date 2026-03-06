@@ -48,7 +48,7 @@ export function LeadCard({
             {/* Avatar */}
             <div className="flex-shrink-0">
               <div className="h-12 w-12 rounded-xl bg-slate-50 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300">
-                <span className="text-lg font-black text-slate-700">
+                <span className="text-lg font-bold text-slate-700">
                   {initials || "?"}
                 </span>
               </div>
@@ -59,7 +59,7 @@ export function LeadCard({
               {/* Name and Status */}
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-black text-slate-900 mb-1 group-hover:text-emerald-600 transition-colors" style={{ lineHeight: '1.4' }}>
+                  <h3 className="text-base font-bold text-slate-900 mb-1 group-hover:text-emerald-600 transition-colors" style={{ lineHeight: '1.4' }}>
                     {lead.firstName} {lead.lastName}
                   </h3>
                   <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">

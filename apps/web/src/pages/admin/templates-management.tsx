@@ -175,8 +175,8 @@ export default function TemplatesManagement() {
     <div className="space-y-6" dir="rtl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">إدارة القوالب</h1>
-          <p className="text-gray-600">قوالب البريد الإلكتروني والمقالات وصفحات الهبوط</p>
+          <h1 className="text-2xl font-bold text-slate-900">إدارة القوالب</h1>
+          <p className="text-slate-600">قوالب البريد الإلكتروني والمقالات وصفحات الهبوط</p>
         </div>
         <Button onClick={handleCreate}>
           <Plus className="ml-2 h-4 w-4" />
@@ -225,12 +225,12 @@ export default function TemplatesManagement() {
                   <Card key={template.id}>
                     <CardHeader>
                       <CardTitle className="text-lg">{template.name}</CardTitle>
-                      <p className="text-sm text-gray-500">{template.description}</p>
+                      <p className="text-sm text-slate-500">{template.description}</p>
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center justify-between mb-4">
                         <Badge variant="outline">{template.type}</Badge>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-slate-500">
                           {template.versionCount} إصدار
                         </span>
                       </div>
@@ -352,7 +352,7 @@ function TemplateDialog({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="bg-white/50 border-slate-200 focus:bg-white transition-all h-11"
+                  className="bg-white/50 border-border focus:bg-white transition-all h-11"
                 />
               </div>
               <div className="space-y-2">
@@ -362,7 +362,7 @@ function TemplateDialog({
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
                   placeholder="سيتم إنشاؤه تلقائياً من الاسم"
-                  className="bg-white/50 border-slate-200 focus:bg-white transition-all h-11 font-mono text-sm"
+                  className="bg-white/50 border-border focus:bg-white transition-all h-11 font-mono text-sm"
                   dir="ltr"
                 />
               </div>
@@ -371,7 +371,7 @@ function TemplateDialog({
               <div className="space-y-2">
                 <Label htmlFor="type">النوع</Label>
                 <Select value={type} onValueChange={setType}>
-                  <SelectTrigger className="h-11 bg-white/50 border-slate-200">
+                  <SelectTrigger className="h-11 bg-white/50 border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -388,7 +388,7 @@ function TemplateDialog({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={2}
-                  className="bg-white/50 border-slate-200 focus:bg-white transition-all resize-none"
+                  className="bg-white/50 border-border focus:bg-white transition-all resize-none"
                 />
               </div>
             </div>

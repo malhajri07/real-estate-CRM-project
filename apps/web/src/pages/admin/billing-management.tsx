@@ -67,14 +67,14 @@ type BillingStats = {
 
 function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading: boolean }) {
     return (
-        <Card className="glass border-0 rounded-[2.5rem] overflow-hidden shadow-none">
+        <Card className="glass border-0 rounded-3xl overflow-hidden shadow-none">
             <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
                 <div className="relative w-full md:w-96 group">
                     <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                     <Input placeholder="البحث عن فاتورة أو عميل..." className="h-12 pr-11 rounded-2xl bg-white border-slate-100 focus:ring-blue-500/20" />
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
-                    <Button variant="outline" className="h-12 px-6 rounded-2xl border-slate-200 font-bold text-slate-600">
+                    <Button variant="outline" className="h-12 px-6 rounded-2xl border-border font-bold text-slate-600">
                         <Filter className="h-4 w-4 me-2" />
                         تصفية
                     </Button>
@@ -87,11 +87,11 @@ function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading:
             <Table className="text-end">
                 <TableHeader className="bg-slate-50/50">
                     <TableRow className="border-slate-100">
-                        <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">رقم الفاتورة</TableHead>
-                        <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">العميل</TableHead>
-                        <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المبلغ</TableHead>
-                        <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">التاريخ</TableHead>
-                        <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
+                        <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">رقم الفاتورة</TableHead>
+                        <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">العميل</TableHead>
+                        <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">المبلغ</TableHead>
+                        <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">التاريخ</TableHead>
+                        <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
                         <TableHead className="w-[120px]"></TableHead>
                     </TableRow>
                 </TableHeader>
@@ -133,17 +133,17 @@ function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading:
 
                             return (
                                 <TableRow key={inv.id} className="hover:bg-blue-50/30 transition-colors group border-slate-50">
-                                    <TableCell className="py-4"><span className="text-sm font-black text-slate-900">{inv.number}</span></TableCell>
+                                    <TableCell className="py-4"><span className="text-sm font-bold text-slate-900">{inv.number}</span></TableCell>
                                     <TableCell className="py-4">
                                         <div className="flex flex-col">
                                             <span className="text-sm font-bold text-slate-700">{clientName}</span>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{invoiceType}</span>
+                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter">{invoiceType}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="py-4"><span className="text-sm font-black text-blue-600">{formattedAmount} {inv.currency || 'ر.س'}</span></TableCell>
+                                    <TableCell className="py-4"><span className="text-sm font-bold text-blue-600">{formattedAmount} {inv.currency || 'ر.س'}</span></TableCell>
                                     <TableCell className="py-4"><span className="text-xs font-bold text-slate-500">{issueDate}</span></TableCell>
                                     <TableCell className="py-4">
-                                        <Badge className={cn("text-[10px] font-black border-0 px-3 py-1 rounded-lg", statusInfo.className)}>
+                                        <Badge className={cn("text-xs font-bold border-0 px-3 py-1 rounded-lg", statusInfo.className)}>
                                             {statusInfo.label}
                                         </Badge>
                                     </TableCell>
@@ -195,15 +195,15 @@ export default function BillingManagement() {
 
     return (
         <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-[2rem] p-8 shadow-none group relative overflow-hidden">
+            <Card className="glass border-0 rounded-2xl p-8 shadow-none group relative overflow-hidden">
                 <div className="absolute top-0 end-0 w-[30%] h-[30%] bg-blue-600/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                     <div className="flex items-center gap-6">
-                        <div className="h-16 w-16 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-600/20">
+                        <div className="h-16 w-16 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-xl shadow-blue-600/20">
                             <CreditCard className="h-8 w-8" />
                         </div>
                         <div className="text-center md:text-end">
-                            <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة الفواتير والاشتراكات</h1>
+                            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">إدارة الفواتير والاشتراكات</h1>
                             <p className="text-slate-500 font-medium text-lg">متابعة العمليات المالية وإصدار الفواتير للعملاء</p>
                         </div>
                     </div>
@@ -213,7 +213,7 @@ export default function BillingManagement() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {statsLoading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                        <Card key={i} className="glass border-0 rounded-[2rem] p-6 shadow-none">
+                        <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none">
                             <Skeleton className="h-20 w-full" />
                         </Card>
                     ))
@@ -241,14 +241,14 @@ export default function BillingManagement() {
                             bg: "bg-emerald-50" 
                         },
                     ].map((stat, i) => (
-                        <Card key={i} className="glass border-0 rounded-[2rem] p-6 shadow-none hover:bg-white hover:shadow-xl transition-all">
+                        <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none hover:bg-white hover:shadow-xl transition-all">
                             <div className="flex items-center gap-4">
                                 <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", stat.bg, stat.color)}>
                                     <stat.icon className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.title}</p>
-                                    <h3 className="text-xl font-black text-slate-900">{stat.value}</h3>
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{stat.title}</p>
+                                    <h3 className="text-xl font-bold text-slate-900">{stat.value}</h3>
                                 </div>
                             </div>
                         </Card>
@@ -268,11 +268,11 @@ export default function BillingManagement() {
                 </TabsContent>
 
                 <TabsContent value="subscriptions" className="space-y-4">
-                    <Card className="glass border-0 rounded-[2.5rem] p-20 text-center bg-slate-50/50 border-2 border-dashed border-slate-200/50 flex flex-col items-center">
-                        <div className="h-20 w-20 bg-white rounded-[2rem] shadow-xl shadow-slate-500/10 flex items-center justify-center text-slate-400 mb-6 group-hover:scale-110 transition-transform">
+                    <Card className="glass border-0 rounded-3xl p-20 text-center bg-slate-50/50 border-2 border-dashed border-border/50 flex flex-col items-center">
+                        <div className="h-20 w-20 bg-white rounded-2xl shadow-xl shadow-slate-500/10 flex items-center justify-center text-slate-400 mb-6 group-hover:scale-110 transition-transform">
                             <FileText className="h-10 w-10 text-blue-600 opacity-20" />
                         </div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight">إدارة الاشتراكات</h3>
+                        <h3 className="text-xl font-bold text-slate-900 tracking-tight">إدارة الاشتراكات</h3>
                         <p className="text-sm font-medium text-slate-500 max-w-xs mx-auto leading-relaxed mt-2">
                             سيتم توفير قائمة بكافة اشتراكات العملاء وتفاصيل تجديدها قريباً.
                         </p>
@@ -280,21 +280,21 @@ export default function BillingManagement() {
                 </TabsContent>
 
                 <TabsContent value="settings" className="space-y-4">
-                    <Card className="glass border-0 rounded-[2.5rem] p-10 shadow-none">
+                    <Card className="glass border-0 rounded-3xl p-10 shadow-none">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-6">
-                                <h3 className="text-lg font-black text-slate-900 tracking-tight">إعدادات الفاتورة</h3>
+                                <h3 className="text-lg font-bold text-slate-900 tracking-tight">إعدادات الفاتورة</h3>
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">ضريبة القيمة المضافة (٪)</Label>
+                                    <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">ضريبة القيمة المضافة (٪)</Label>
                                     <Input defaultValue="١٥" className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold" />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">بادئة رقم الفاتورة</Label>
+                                    <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">بادئة رقم الفاتورة</Label>
                                     <Input defaultValue="INV-" className="h-12 rounded-xl bg-slate-50 border-slate-100 font-mono" />
                                 </div>
                             </div>
                             <div className="space-y-6">
-                                <h3 className="text-lg font-black text-slate-900 tracking-tight">بوابة الدفع</h3>
+                                <h3 className="text-lg font-bold text-slate-900 tracking-tight">بوابة الدفع</h3>
                                 <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm">
@@ -302,7 +302,7 @@ export default function BillingManagement() {
                                         </div>
                                         <span className="text-sm font-bold text-emerald-700">بوابة Moyasar متصلة</span>
                                     </div>
-                                    <Button variant="ghost" className="text-xs font-black text-emerald-700 underline">تعديل</Button>
+                                    <Button variant="ghost" className="text-xs font-bold text-emerald-700 underline">تعديل</Button>
                                 </div>
                             </div>
                         </div>

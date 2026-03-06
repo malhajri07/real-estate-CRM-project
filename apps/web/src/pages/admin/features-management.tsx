@@ -58,13 +58,13 @@ const FEATURE_CATEGORIES = [
 
 function ComparisonMatrix() {
     return (
-        <Card className="glass border-0 rounded-[2.5rem] overflow-hidden shadow-none">
+        <Card className="glass border-0 rounded-3xl overflow-hidden shadow-none">
             <Table className="text-end">
                 <TableHeader>
                     <TableRow className="bg-slate-50/50 border-slate-100">
                         <TableHead className="p-8 w-[40%]">
                             <div className="space-y-1">
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">مصفوفة المزايا</h3>
+                                <h3 className="text-xl font-bold text-slate-900 tracking-tight">مصفوفة المزايا</h3>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">مقارنة الخصائص بين الخطط</p>
                             </div>
                         </TableHead>
@@ -76,7 +76,7 @@ function ComparisonMatrix() {
                                         <div className={cn("h-12 w-12 rounded-2xl bg-white shadow-sm flex items-center justify-center transition-transform hover:scale-110 duration-300", PLAN_COLORS[i])}>
                                             <Icon className="h-6 w-6" />
                                         </div>
-                                        <span className="text-sm font-black text-slate-900">{plan}</span>
+                                        <span className="text-sm font-bold text-slate-900">{plan}</span>
                                     </div>
                                 </TableHead>
                             );
@@ -88,7 +88,7 @@ function ComparisonMatrix() {
                         <Fragment key={category.name}>
                             <TableRow className="bg-blue-50/30 border-0">
                                 <TableCell colSpan={4} className="p-4 px-8">
-                                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">{category.name}</span>
+                                    <span className="text-xs font-bold text-blue-600 uppercase tracking-[0.2em]">{category.name}</span>
                                 </TableCell>
                             </TableRow>
                             {category.features.map((feature) => (
@@ -115,7 +115,7 @@ function ComparisonMatrix() {
             <div className="p-8 bg-slate-50/50 flex justify-between items-center">
                 <p className="text-xs font-bold text-slate-400">آخر تحديث للمصفوفة: منذ ساعتين</p>
                 <div className="flex gap-3">
-                    <Button variant="outline" className="h-10 rounded-xl border-slate-200 font-bold text-slate-600">إلغاء</Button>
+                    <Button variant="outline" className="h-10 rounded-xl border-border font-bold text-slate-600">إلغاء</Button>
                     <Button className="h-10 px-8 rounded-xl bg-slate-900 text-white font-bold shadow-xl shadow-slate-900/10">حفظ التغييرات</Button>
                 </div>
             </div>
@@ -152,14 +152,14 @@ function FeaturesList() {
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="relative w-full md:w-96 group">
                     <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                    <Input placeholder="البحث عن ميزة..." className="h-12 pr-11 rounded-[1.25rem] bg-white border-slate-200 focus:ring-blue-500/20" />
+                    <Input placeholder="البحث عن ميزة..." className="h-12 pr-11 rounded-xl bg-white border-border focus:ring-blue-500/20" />
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
-                    <Button variant="outline" className="h-12 px-6 rounded-[1.25rem] gap-2 font-bold text-slate-600 border-slate-200">
+                    <Button variant="outline" className="h-12 px-6 rounded-xl gap-2 font-bold text-slate-600 border-border">
                         <Filter className="h-4 w-4" />
                         تصفية
                     </Button>
-                    <Button className="h-12 px-8 rounded-[1.25rem] premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 font-bold gap-2 flex-1 md:flex-none">
+                    <Button className="h-12 px-8 rounded-xl premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 font-bold gap-2 flex-1 md:flex-none">
                         <Plus className="h-5 w-5" />
                         إضافة ميزة جديدة
                     </Button>
@@ -168,19 +168,19 @@ function FeaturesList() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {FEATURE_LIST.map((feature) => (
-                    <Card key={feature.id} className="glass border-0 rounded-[2rem] p-6 shadow-none group transition-all hover:bg-white hover:shadow-2xl hover:-translate-y-1 duration-300">
+                    <Card key={feature.id} className="glass border-0 rounded-2xl p-6 shadow-none group transition-all hover:bg-white hover:shadow-2xl hover:-translate-y-1 duration-300">
                         <div className="flex items-start justify-between mb-4">
                             <div className="h-12 w-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <Zap className="h-6 w-6" />
                             </div>
                             <Badge className={cn(
-                                "text-[9px] font-black uppercase px-2 py-0.5 rounded-md border-0",
+                                "text-xs font-bold uppercase px-2 py-0.5 rounded-md border-0",
                                 feature.status === "Active" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"
                             )}>
                                 {feature.status === "Active" ? "نشط" : "مسودة"}
                             </Badge>
                         </div>
-                        <h4 className="text-lg font-black text-slate-900 mb-2">{feature.name}</h4>
+                        <h4 className="text-lg font-bold text-slate-900 mb-2">{feature.name}</h4>
                         <div className="flex items-center justify-between text-xs font-bold text-slate-400 border-t border-slate-50 pt-4 mt-2">
                             <span>{feature.users} مستخدم نشط</span>
                             <div className="flex gap-2">
@@ -207,15 +207,15 @@ export default function FeaturesManagement() {
 
     return (
         <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-[2rem] p-8 shadow-none group relative overflow-hidden">
+            <Card className="glass border-0 rounded-2xl p-8 shadow-none group relative overflow-hidden">
                 <div className="absolute top-0 end-0 w-[30%] h-[30%] bg-blue-600/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                     <div className="flex items-center gap-6">
-                        <div className="h-16 w-16 bg-blue-600 text-white rounded-[1.5rem] flex items-center justify-center shadow-xl shadow-blue-600/20">
+                        <div className="h-16 w-16 bg-blue-600 text-white rounded-xl flex items-center justify-center shadow-xl shadow-blue-600/20">
                             <Layers className="h-8 w-8" />
                         </div>
                         <div className="text-center md:text-end">
-                            <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة ميزات النظام</h1>
+                            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">إدارة ميزات النظام</h1>
                             <p className="text-slate-500 font-medium text-lg">تحكم في توافر المزايا وربطها بخطط الاشتراك المختلفة</p>
                         </div>
                     </div>
@@ -238,11 +238,11 @@ export default function FeaturesManagement() {
                 </TabsContent>
 
                 <TabsContent value="pricing" className="space-y-4">
-                    <Card className="glass border-0 rounded-[2.5rem] p-20 text-center bg-slate-50/50 border-2 border-dashed border-slate-200/50 flex flex-col items-center">
-                        <div className="h-20 w-20 bg-white rounded-[2rem] shadow-xl shadow-slate-500/10 flex items-center justify-center text-slate-400 mb-6 group-hover:scale-110 transition-transform">
+                    <Card className="glass border-0 rounded-3xl p-20 text-center bg-slate-50/50 border-2 border-dashed border-border/50 flex flex-col items-center">
+                        <div className="h-20 w-20 bg-white rounded-2xl shadow-xl shadow-slate-500/10 flex items-center justify-center text-slate-400 mb-6 group-hover:scale-110 transition-transform">
                             <Crown className="h-10 w-10 text-amber-500" />
                         </div>
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight">قريباً: إدارة خطط التسعير</h3>
+                        <h3 className="text-xl font-bold text-slate-900 tracking-tight">قريباً: إدارة خطط التسعير</h3>
                         <p className="text-sm font-medium text-slate-500 max-w-xs mx-auto leading-relaxed mt-2">
                             ستمكنك هذه الواجهة قريباً من تعديل أسعار الخطط وفترات الاشتراك بشكل مرن.
                         </p>

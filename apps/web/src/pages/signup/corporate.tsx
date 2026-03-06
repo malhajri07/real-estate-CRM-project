@@ -320,7 +320,7 @@ export default function SignupCorporate() {
               transition={{ delay: 0.1 }}
               className="lg:col-span-3 lg:sticky lg:top-32"
             >
-              <div className="glass rounded-[32px] p-6 shadow-xl">
+              <div className="glass rounded-2xl p-6 shadow-xl">
                 <div className="flex flex-row lg:flex-col items-start gap-4 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
                   {STEPS.map((step, index) => {
                     const isCompleted = completedSteps.includes(step.id);
@@ -343,7 +343,7 @@ export default function SignupCorporate() {
                               ? "bg-blue-600 text-white border-blue-600"
                               : isCurrent
                                 ? "bg-blue-100 text-blue-600 border-blue-300"
-                                : "bg-gray-100 text-gray-500 border-gray-300"
+                                : "bg-slate-100 text-slate-500 border-slate-300"
                           )}
                         >
                           {isCompleted ? (
@@ -356,12 +356,12 @@ export default function SignupCorporate() {
                           <div
                             className={cn(
                               "text-sm font-semibold",
-                              isCurrent || isCompleted ? "text-blue-600" : "text-gray-500"
+                              isCurrent || isCompleted ? "text-blue-600" : "text-slate-500"
                             )}
                           >
                             {step.title}
                           </div>
-                          <div className="text-xs text-gray-400">{step.description}</div>
+                          <div className="text-xs text-slate-400">{step.description}</div>
                         </div>
                         {index < STEPS.length - 1 && (
                           <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-slate-200 -z-10" />
@@ -381,7 +381,7 @@ export default function SignupCorporate() {
             >
               <form
                 onSubmit={handleSubmit}
-                className="glass rounded-[32px] p-8 md:p-12 shadow-2xl space-y-8"
+                className="glass rounded-2xl p-8 md:p-12 shadow-2xl space-y-8"
               >
                 {/* Step 1: Account Credentials */}
                 {currentStep === 1 && (
@@ -404,7 +404,7 @@ export default function SignupCorporate() {
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start"
                         />
                       </div>
 
@@ -418,7 +418,7 @@ export default function SignupCorporate() {
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••"
                           required
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start font-password"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start font-password"
                         />
                       </div>
 
@@ -432,7 +432,7 @@ export default function SignupCorporate() {
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           placeholder="••••••••"
                           required
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start font-password"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start font-password"
                         />
                       </div>
                     </div>
@@ -459,13 +459,13 @@ export default function SignupCorporate() {
                           value={companyName}
                           onChange={(e) => setCompanyName(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="companyType" className="text-sm font-medium text-slate-700">نوع الشركة <span className="text-red-500">*</span></Label>
                         <Select value={companyType} onValueChange={setCompanyType} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start">
+                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start">
                             <SelectValue placeholder="اختر نوع الشركة" />
                           </SelectTrigger>
                           <SelectContent position="popper" sideOffset={4} className="z-[100]">
@@ -489,7 +489,7 @@ export default function SignupCorporate() {
                           onChange={(e) => handleNumericInput(e.target.value, setCommercialRegistration)}
                           placeholder="10 أرقام"
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
                         />
                       </div>
                       <div className="space-y-2">
@@ -500,7 +500,7 @@ export default function SignupCorporate() {
                           value={taxNumber}
                           onChange={(e) => handleNumericInput(e.target.value, setTaxNumber)}
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
                         />
                       </div>
                       <div className="space-y-2">
@@ -510,7 +510,7 @@ export default function SignupCorporate() {
                           type="date"
                           value={establishmentDate}
                           onChange={(e) => setEstablishmentDate(e.target.value)}
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
                         />
                       </div>
                     </div>
@@ -523,13 +523,13 @@ export default function SignupCorporate() {
                           type="text"
                           value={employeesCount}
                           onChange={(e) => handleNumericInput(e.target.value, setEmployeesCount)}
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="companyCity" className="text-sm font-medium text-slate-700">المدينة الرئيسية <span className="text-red-500">*</span></Label>
                         <Select value={companyCity} onValueChange={setCompanyCity} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start">
+                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start">
                             <SelectValue placeholder="اختر المدينة" />
                           </SelectTrigger>
                           <SelectContent position="popper" sideOffset={4} className="z-[100]">
@@ -552,7 +552,7 @@ export default function SignupCorporate() {
                           value={companyAddress}
                           onChange={(e) => setCompanyAddress(e.target.value)}
                           placeholder="المدينة، الحي، الشارع"
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
                         />
                       </div>
                       <div className="space-y-2">
@@ -564,7 +564,7 @@ export default function SignupCorporate() {
                           value={companyWebsite}
                           onChange={(e) => setCompanyWebsite(e.target.value)}
                           placeholder="https://company.sa"
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start"
                         />
                       </div>
                     </div>
@@ -576,7 +576,7 @@ export default function SignupCorporate() {
                         value={companyDescription}
                         onChange={(e) => setCompanyDescription(e.target.value)}
                         placeholder="صف مجالات عمل الشركة والخدمات التي تقدمها..."
-                        className="min-h-[120px] rounded-2xl bg-white/50 border-slate-200 focus:ring-emerald-500"
+                        className="min-h-[120px] rounded-2xl bg-white/50 border-border focus:ring-emerald-500"
                       />
                     </div>
                   </section>
@@ -602,7 +602,7 @@ export default function SignupCorporate() {
                           value={contactName}
                           onChange={(e) => setContactName(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
                         />
                       </div>
                       <div className="space-y-2">
@@ -612,7 +612,7 @@ export default function SignupCorporate() {
                           type="text"
                           value={contactPosition}
                           onChange={(e) => setContactPosition(e.target.value)}
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
                         />
                       </div>
                     </div>
@@ -627,7 +627,7 @@ export default function SignupCorporate() {
                           value={contactEmail}
                           onChange={(e) => setContactEmail(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-start"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start"
                         />
                       </div>
                       <div className="space-y-2">
@@ -641,7 +641,7 @@ export default function SignupCorporate() {
                           required
                           maxLength={10}
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-slate-200 focus:ring-emerald-500 text-end"
+                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
                         />
                       </div>
                     </div>
@@ -668,7 +668,7 @@ export default function SignupCorporate() {
                             type="file"
                             accept="application/pdf"
                             onChange={(e) => setCommercialRegDoc(e.target.files)}
-                            className="h-12 rounded-xl border-slate-200 bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
+                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
                           />
                           <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
                         </div>
@@ -682,7 +682,7 @@ export default function SignupCorporate() {
                             type="file"
                             accept="application/pdf"
                             onChange={(e) => setVatCertificate(e.target.files)}
-                            className="h-12 rounded-xl border-slate-200 bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
+                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
                           />
                           <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
                         </div>
@@ -696,7 +696,7 @@ export default function SignupCorporate() {
                             type="file"
                             accept="application/pdf"
                             onChange={(e) => setCompanyProfile(e.target.files)}
-                            className="h-12 rounded-xl border-slate-200 bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
+                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
                           />
                           <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
                         </div>
@@ -723,7 +723,7 @@ export default function SignupCorporate() {
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200 bg-white/50 p-6 shadow-inner">
+                    <div className="rounded-2xl border border-border bg-white/50 p-6 shadow-inner">
                       <div className="space-y-4 text-sm leading-7 text-slate-600 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
                         <h3 className="text-base font-bold text-slate-900 mb-2">شروط استخدام المنصة للمنشآت:</h3>
                         
@@ -737,7 +737,7 @@ export default function SignupCorporate() {
                       </div>
                     </div>
 
-                    <Label className="flex items-start gap-4 p-4 rounded-xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group">
+                    <Label className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group">
                       <div className="relative flex items-center mt-1">
                         <Checkbox
                           checked={agreedToTerms}
@@ -759,7 +759,7 @@ export default function SignupCorporate() {
                     variant="outline"
                     onClick={handlePrevious}
                     disabled={currentStep === 1}
-                    className="h-12 rounded-2xl border-slate-200 px-8 text-slate-600 transition-colors hover:bg-slate-100"
+                    className="h-12 rounded-2xl border-border px-8 text-slate-600 transition-colors hover:bg-slate-100"
                   >
                     <ChevronRight className={cn("me-2", "h-4 w-4")} />
                     السابق

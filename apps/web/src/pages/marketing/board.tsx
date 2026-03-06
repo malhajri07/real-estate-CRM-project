@@ -183,7 +183,7 @@ export default function MarketingRequestsBoardPage() {
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
           <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as any)}>
-            <SelectTrigger className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none">
+            <SelectTrigger className="rounded-xl border border-border bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -195,7 +195,7 @@ export default function MarketingRequestsBoardPage() {
             </SelectContent>
           </Select>
           <Select value={tierFilter} onValueChange={(value) => setTierFilter(value as any)}>
-            <SelectTrigger className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none">
+            <SelectTrigger className="rounded-xl border border-border bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -209,7 +209,7 @@ export default function MarketingRequestsBoardPage() {
           <Input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+            className="rounded-xl border border-border bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
             placeholder="ابحث حسب العنوان أو المدينة"
           />
         </div>
@@ -218,11 +218,11 @@ export default function MarketingRequestsBoardPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <section className="xl:col-span-2 space-y-4">
           {isLoading || isFetching ? (
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 text-center text-slate-500">
+            <div className="bg-white border border-border rounded-3xl p-6 text-center text-slate-500">
               جاري تحميل الطلبات...
             </div>
           ) : filteredRequests.length === 0 ? (
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 text-center text-slate-500">
+            <div className="bg-white border border-border rounded-3xl p-6 text-center text-slate-500">
               لا توجد طلبات مطابقة للمرشحات الحالية.
             </div>
           ) : (
@@ -232,7 +232,7 @@ export default function MarketingRequestsBoardPage() {
               return (
                 <article
                   key={request.id}
-                  className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm hover:shadow-md transition cursor-pointer"
+                  className="bg-white border border-border rounded-3xl p-5 shadow-sm hover:shadow-md transition cursor-pointer"
                   onClick={() => handleSelectRequest(request)}
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -260,7 +260,7 @@ export default function MarketingRequestsBoardPage() {
           )}
         </section>
 
-        <aside className="bg-white border border-slate-200 rounded-3xl shadow-sm p-6 space-y-4">
+        <aside className="bg-white border border-border rounded-3xl shadow-sm p-6 space-y-4">
           {selectedRequest ? (
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-slate-700">
@@ -310,12 +310,12 @@ export default function MarketingRequestsBoardPage() {
                 </dl>
               </div>
 
-              <form onSubmit={handleSubmitProposal} className="border-t border-slate-200 pt-4 space-y-3">
+              <form onSubmit={handleSubmitProposal} className="border-t border-border pt-4 space-y-3">
                 <h4 className="text-sm font-semibold text-slate-900">قدّم عرضك التسويقي</h4>
                 <Textarea
                   value={proposalMessage}
                   onChange={(event) => setProposalMessage(event.target.value)}
-                  className="w-full min-h-[120px] rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                  className="w-full min-h-[120px] rounded-2xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                   placeholder="اشرح استراتيجيتك التسويقية والقنوات المقترحة"
                   required
                 />
@@ -326,7 +326,7 @@ export default function MarketingRequestsBoardPage() {
                     type="number"
                     min="0"
                     step="0.1"
-                    className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                    className="rounded-xl border border-border bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                     placeholder="نسبة السعي %"
                   />
                   <Input
@@ -334,14 +334,14 @@ export default function MarketingRequestsBoardPage() {
                     onChange={(event) => setMarketingBudget(event.target.value)}
                     type="number"
                     min="0"
-                    className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                    className="rounded-xl border border-border bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                     placeholder="ميزانية التسويق"
                   />
                 </div>
                 <Input
                   value={estimatedTimeline}
                   onChange={(event) => setEstimatedTimeline(event.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-white px-4 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
                   placeholder="المدة المتوقعة للتنفيذ"
                 />
                 {proposalFeedback && (

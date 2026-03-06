@@ -169,8 +169,8 @@ export function MediaSelector({
                       className="w-full h-32 object-cover rounded"
                     />
                   ) : (
-                    <div className="w-full h-32 bg-gray-100 rounded flex items-center justify-center">
-                      <ImageIcon className="h-8 w-8 text-gray-400" />
+                    <div className="w-full h-32 bg-slate-100 rounded flex items-center justify-center">
+                      <ImageIcon className="h-8 w-8 text-slate-400" />
                     </div>
                   )}
                   <div className="mt-2 text-xs truncate">{item.originalName}</div>
@@ -182,7 +182,7 @@ export function MediaSelector({
               {data.items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                  className="flex items-center gap-4 p-4 border rounded-lg hover:bg-slate-50 cursor-pointer"
                   onClick={() => handleSelect(item)}
                 >
                   {item.mimeType.startsWith("image/") ? (
@@ -192,13 +192,13 @@ export function MediaSelector({
                       className="w-16 h-16 object-cover rounded"
                     />
                   ) : (
-                    <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
-                      <ImageIcon className="h-8 w-8 text-gray-400" />
+                    <div className="w-16 h-16 bg-slate-100 rounded flex items-center justify-center">
+                      <ImageIcon className="h-8 w-8 text-slate-400" />
                     </div>
                   )}
                   <div className="flex-1">
                     <div className="font-medium">{item.originalName}</div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-slate-500">
                       {item.mimeType}
                     </div>
                   </div>

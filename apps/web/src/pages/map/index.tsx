@@ -294,12 +294,12 @@ export default function MapPage() {
                 "h-8 rounded-full border px-3 text-xs transition-colors",
                 isActive
                   ? "bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700 hover:border-emerald-700"
-                  : "border-slate-200 bg-white/50 text-slate-700 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700"
+                  : "border-border bg-white/50 text-slate-700 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700"
               )}
               onClick={() => handleQuickCityFilter(city)}
             >
               <span className={cn("font-bold", isActive ? "text-white" : "text-slate-900")}>{city.label}</span>
-              <span className={cn("text-[10px] mr-1", isActive ? "text-white/90" : "text-slate-500")}>({city.count})</span>
+              <span className={cn("text-xs mr-1", isActive ? "text-white/90" : "text-slate-500")}>({city.count})</span>
             </Button>
           );
         })}
@@ -324,7 +324,7 @@ export default function MapPage() {
                 "h-8 rounded-full border px-3 text-xs transition-colors",
                 isActive
                   ? "bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700 hover:border-emerald-700"
-                  : "border-slate-200 bg-white/50 text-slate-700 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700"
+                  : "border-border bg-white/50 text-slate-700 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700"
               )}
               onClick={() => {
                 setFilters((prev) => ({
@@ -335,7 +335,7 @@ export default function MapPage() {
               }}
             >
               <span className={cn("font-normal", isActive ? "text-white" : "text-slate-900")}>{type}</span>
-              <span className={cn("text-[10px] mr-1", isActive ? "text-white/90" : "text-slate-500")}>({count})</span>
+              <span className={cn("text-xs mr-1", isActive ? "text-white/90" : "text-slate-500")}>({count})</span>
             </Button>
           );
         })}
@@ -360,7 +360,7 @@ export default function MapPage() {
           >
              
              {/* Controls Bar */}
-             <div className="flex flex-wrap items-center gap-2 p-1 rounded-2xl bg-white/50 backdrop-blur-sm border border-slate-200 shadow-sm">
+             <div className="flex flex-wrap items-center gap-2 p-1 rounded-2xl bg-white/50 backdrop-blur-sm border border-border shadow-sm">
                 <Button
                   type="button"
                   variant="ghost"
@@ -445,7 +445,7 @@ export default function MapPage() {
             className="space-y-6"
           >
             {viewMode === "table" ? (
-              <div className="glass rounded-[32px] border border-white/50 bg-white/60 shadow-xl overflow-hidden">
+              <div className="glass rounded-2xl border border-white/50 bg-white/60 shadow-xl overflow-hidden">
                 <div className="p-6 md:p-8 flex flex-col gap-4 border-b border-slate-100/50">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -500,7 +500,7 @@ export default function MapPage() {
                                 size="sm"
                                 onClick={() => setCurrentPageState(prev => Math.max(1, prev - 1))}
                                 disabled={currentPageState === 1}
-                                className="h-9 px-4 rounded-xl text-xs border-slate-200 hover:bg-slate-50"
+                                className="h-9 px-4 rounded-xl text-xs border-border hover:bg-slate-50"
                               >
                                 السابق
                               </Button>
@@ -546,7 +546,7 @@ export default function MapPage() {
                                 size="sm"
                                 onClick={() => setCurrentPageState(prev => Math.min(totalPagesState, prev + 1))}
                                 disabled={currentPageState === totalPagesState}
-                                className="h-9 px-4 rounded-xl text-xs border-slate-200 hover:bg-slate-50"
+                                className="h-9 px-4 rounded-xl text-xs border-border hover:bg-slate-50"
                               >
                                 التالي
                               </Button>
@@ -559,7 +559,7 @@ export default function MapPage() {
                 </div>
               </div>
             ) : (
-              <div className="glass rounded-[32px] border border-white/50 bg-white/60 shadow-xl overflow-hidden w-full">
+              <div className="glass rounded-2xl border border-white/50 bg-white/60 shadow-xl overflow-hidden w-full">
                 <div className="p-6 border-b border-slate-100/50 flex flex-col md:flex-row md:items-center justify-between gap-2">
                   <div className="space-y-1">
                     <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -685,7 +685,7 @@ export default function MapPage() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="h-8 flex-1 rounded-xl border-slate-200 text-slate-600 hover:bg-slate-50 text-xs"
+                      className="h-8 flex-1 rounded-xl border-border text-slate-600 hover:bg-slate-50 text-xs"
                       onClick={() => {
                         setHighlightedPropertyId(property.id);
                         setIsFavoritesDrawerOpen(false);

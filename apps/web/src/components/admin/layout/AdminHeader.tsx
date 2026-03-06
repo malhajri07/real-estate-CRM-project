@@ -99,7 +99,7 @@ export function AdminHeader({
             >
               <Bell className="h-4 w-4" />
               {notificationCount && notificationCount > 0 && (
-                <span className="absolute end-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground shadow-sm">
+                <span className="absolute end-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-xs font-bold text-destructive-foreground shadow-sm">
                   {notificationCount > 9 ? '9+' : notificationCount}
                 </span>
               )}
@@ -123,7 +123,7 @@ export function AdminHeader({
           {userName && (
             <div className="hidden flex-col items-end px-2 sm:flex">
               <span className="text-xs font-semibold leading-none">{userName}</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Admin</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-primary">Admin</span>
             </div>
           )}
 

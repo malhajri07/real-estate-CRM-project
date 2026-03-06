@@ -82,7 +82,7 @@ export function MetricCard({
           {delta && (
             <Badge 
               variant={delta.tone === "down" ? "warning" : "success"} 
-              className="rounded-full px-2.5 py-1 text-[10px] font-bold shadow-none border-0"
+              className="rounded-full px-2.5 py-1 text-xs font-bold shadow-none border-0"
             >
               {delta.tone === "down" ? (
                 <TrendingDown className="h-3 w-3 ms-1 inline" />

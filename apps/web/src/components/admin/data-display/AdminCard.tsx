@@ -20,7 +20,7 @@ export function AdminCard({
     return (
         <Card
             className={cn(
-                'glass border-0 rounded-[2rem] transition-all duration-300',
+                'glass border-0 rounded-2xl transition-all duration-300',
                 onClick && 'cursor-pointer hover:shadow-2xl hover:-translate-y-1',
                 className
             )}
@@ -66,11 +66,11 @@ export function MetricCard({
     };
 
     return (
-        <Card className={cn("glass border-0 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 rounded-[2rem] group", className)}>
+        <Card className={cn("glass border-0 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 rounded-2xl group", className)}>
             <CardHeader className="flex flex-row items-center justify-between pb-2 px-6 pt-6">
                 <div className="space-y-1">
                     <CardTitle className="text-sm font-bold text-slate-900 tracking-tight">{title}</CardTitle>
-                    <p className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">{subtitle}</p>
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-widest">{subtitle}</p>
                 </div>
                 <div className="p-2.5 bg-slate-50 rounded-2xl group-hover:bg-blue-600 transition-colors duration-300 group-hover:text-white">
                     {icon}
@@ -82,20 +82,20 @@ export function MetricCard({
                 ) : (
                     <div className="grid grid-cols-3 gap-2 mt-2">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-slate-400 mb-1">اليوم</span>
-                            <span className="text-sm font-black text-slate-900">
+                            <span className="text-xs font-bold text-slate-400 mb-1">اليوم</span>
+                            <span className="text-sm font-bold text-slate-900">
                                 {currency ? formatCurrency(metric?.today, currency) : formatNumber(metric?.today)}
                             </span>
                         </div>
                         <div className="flex flex-col border-s border-slate-100 ps-3">
-                            <span className="text-[10px] font-bold text-slate-400 mb-1">٧ أيام</span>
-                            <span className="text-sm font-black text-slate-900">
+                            <span className="text-xs font-bold text-slate-400 mb-1">٧ أيام</span>
+                            <span className="text-sm font-bold text-slate-900">
                                 {currency ? formatCurrency(metric?.last7Days, currency) : formatNumber(metric?.last7Days)}
                             </span>
                         </div>
                         <div className="flex flex-col border-s border-slate-100 ps-3">
-                            <span className="text-[10px] font-bold text-slate-400 mb-1">٣٠ يوم</span>
-                            <span className="text-sm font-black text-slate-900">
+                            <span className="text-xs font-bold text-slate-400 mb-1">٣٠ يوم</span>
+                            <span className="text-sm font-bold text-slate-900">
                                 {currency ? formatCurrency(metric?.last30Days, currency) : formatNumber(metric?.last30Days)}
                             </span>
                         </div>

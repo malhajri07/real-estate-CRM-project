@@ -318,7 +318,7 @@ export default function UserManagement() {
       render: (user) => (
         <div className="flex flex-wrap gap-1">
           {user.roles.map((role) => (
-            <Badge key={role} variant="secondary" className="bg-slate-50 text-slate-700 border-0 text-[10px] font-bold px-2.5 py-0.5 rounded-md">
+            <Badge key={role} variant="secondary" className="bg-slate-50 text-slate-700 border-0 text-xs font-bold px-2.5 py-0.5 rounded-md">
               {(ROLE_DISPLAY_TRANSLATIONS && ROLE_DISPLAY_TRANSLATIONS[role]) ?? role}
             </Badge>
           ))}
@@ -332,11 +332,11 @@ export default function UserManagement() {
       render: (user) => (
         <div className="flex items-center gap-2">
           {user.isActive ? (
-            <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase">
+            <Badge className="bg-emerald-50 text-emerald-700 border-0 text-xs font-bold px-2.5 py-0.5 rounded-md uppercase">
               نشط
             </Badge>
           ) : (
-            <Badge className="bg-slate-100 text-slate-500 border-0 text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase">
+            <Badge className="bg-slate-100 text-slate-500 border-0 text-xs font-bold px-2.5 py-0.5 rounded-md uppercase">
               متوقف
             </Badge>
           )}
@@ -351,7 +351,7 @@ export default function UserManagement() {
       label: "النشاط",
       sortable: true,
       render: (user) => (
-        <span className="text-[11px] font-bold text-slate-400">
+        <span className="text-xs font-bold text-slate-400">
           {user.lastLoginAt ? formatAdminDateTime(user.lastLoginAt) : "—"}
         </span>
       ),
@@ -434,10 +434,10 @@ export default function UserManagement() {
         />
       </div>
 
-      <Card className="glass border-0 rounded-[2rem] p-8 shadow-none mb-6">
+      <Card className="glass border-0 rounded-2xl p-8 shadow-none mb-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة المستخدمين</h1>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">إدارة المستخدمين</h1>
             <p className="text-slate-500 font-medium">تحكم كامل في صلاحيات وحسابات المستخدمين والمنظمات</p>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
@@ -451,13 +451,13 @@ export default function UserManagement() {
       </Card>
 
       {/* Filters & Actions Container */}
-      <Card className="glass border-0 rounded-[2rem] p-6 shadow-none">
+      <Card className="glass border-0 rounded-2xl p-6 shadow-none">
         <div className="flex flex-col lg:flex-row items-end gap-6">
           <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="status-filter" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">الحالة</Label>
               <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
-                <SelectTrigger id="status-filter" className="h-11 bg-white/50 border-slate-200/60 rounded-xl focus:ring-blue-500/20">
+                <SelectTrigger id="status-filter" className="h-11 bg-white/50 border-border/60 rounded-xl focus:ring-blue-500/20">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
@@ -474,7 +474,7 @@ export default function UserManagement() {
             <div className="space-y-2">
               <Label htmlFor="role-filter" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">الدور الوظيفي</Label>
               <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as "all" | UserRole)}>
-                <SelectTrigger id="role-filter" className="h-11 bg-white/50 border-slate-200/60 rounded-xl focus:ring-blue-500/20">
+                <SelectTrigger id="role-filter" className="h-11 bg-white/50 border-border/60 rounded-xl focus:ring-blue-500/20">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
@@ -560,7 +560,7 @@ export default function UserManagement() {
                       id="firstName"
                       value={formState.firstName}
                       onChange={(e) => setFormState({ ...formState, firstName: e.target.value })}
-                      className="pr-10 bg-white/50 border-slate-200 focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
+                      className="pr-10 bg-white/50 border-border focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
                       placeholder="الاسم الأول"
                     />
                   </div>
@@ -573,7 +573,7 @@ export default function UserManagement() {
                       id="lastName"
                       value={formState.lastName}
                       onChange={(e) => setFormState({ ...formState, lastName: e.target.value })}
-                      className="pr-10 bg-white/50 border-slate-200 focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
+                      className="pr-10 bg-white/50 border-border focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
                       placeholder="الاسم الأخير"
                     />
                   </div>
@@ -600,7 +600,7 @@ export default function UserManagement() {
                       type="email"
                       value={formState.email}
                       onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                      className="pr-10 bg-white/50 border-slate-200 focus:bg-white focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all h-11 rounded-xl shadow-sm text-right"
+                      className="pr-10 bg-white/50 border-border focus:bg-white focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all h-11 rounded-xl shadow-sm text-right"
                       placeholder="example@domain.com"
                       dir="ltr"
                     />
@@ -615,7 +615,7 @@ export default function UserManagement() {
                       type="tel"
                       value={formState.phone}
                       onChange={(e) => setFormState({ ...formState, phone: e.target.value })}
-                      className="bg-white/50 border-slate-200 focus:bg-white focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all h-11 rounded-xl shadow-sm text-right"
+                      className="bg-white/50 border-border focus:bg-white focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/10 transition-all h-11 rounded-xl shadow-sm text-right"
                       placeholder="+966 50 000 0000"
                       dir="ltr"
                     />
@@ -632,7 +632,7 @@ export default function UserManagement() {
                       id="username"
                       value={formState.username}
                       onChange={(e) => setFormState({ ...formState, username: e.target.value })}
-                      className="pr-10 bg-white/50 border-slate-200 focus:bg-white focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10 transition-all h-11 rounded-xl shadow-sm"
+                      className="pr-10 bg-white/50 border-border focus:bg-white focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10 transition-all h-11 rounded-xl shadow-sm"
                       placeholder="username"
                       dir="ltr"
                     />
@@ -642,7 +642,7 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="role" className="text-xs font-bold text-slate-500 uppercase tracking-wider">الدور *</Label>
                   <Select value={formState.role} onValueChange={(value) => setFormState({ ...formState, role: value as UserRole })}>
-                    <SelectTrigger id="role" className="h-11 bg-white/50 border-slate-200 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-xl shadow-sm">
+                    <SelectTrigger id="role" className="h-11 bg-white/50 border-border focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-xl shadow-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl border-slate-100 shadow-xl">
@@ -666,7 +666,7 @@ export default function UserManagement() {
                       type="password"
                       value={formState.password}
                       onChange={(e) => setFormState({ ...formState, password: e.target.value })}
-                      className="pr-10 bg-white/50 border-slate-200 focus:bg-white focus:border-red-500/50 focus:ring-4 focus:ring-red-500/10 transition-all h-11 rounded-xl shadow-sm"
+                      className="pr-10 bg-white/50 border-border focus:bg-white focus:border-red-500/50 focus:ring-4 focus:ring-red-500/10 transition-all h-11 rounded-xl shadow-sm"
                     />
                   </div>
                 </div>

@@ -41,7 +41,7 @@ export default function ModerationQueuePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/moderation/queue"] });
-      toast({ title: "تم اعتماد الإعلان بنجاح", className: "bg-green-50 text-green-800 border-green-200" });
+      toast({ title: "تم اعتماد الإعلان بنجاح", className: "bg-emerald-50 text-emerald-800 border-emerald-200" });
       setProcessingId(null);
     },
     onError: () => {
@@ -81,7 +81,7 @@ export default function ModerationQueuePage() {
           <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
             {item.title}
           </span>
-          <span className="text-[10px] font-bold text-slate-400 mt-0.5 max-w-xs truncate">
+          <span className="text-xs font-bold text-slate-400 mt-0.5 max-w-xs truncate">
             {item.address}
           </span>
         </div>
@@ -92,10 +92,10 @@ export default function ModerationQueuePage() {
       label: "النوع",
       render: (item) => (
         <div className="flex gap-1">
-          <Badge variant="secondary" className="bg-slate-50 text-slate-500 border-0 text-[9px] font-bold px-2 py-0.5 rounded-md">
+          <Badge variant="secondary" className="bg-slate-50 text-slate-500 border-0 text-xs font-bold px-2 py-0.5 rounded-md">
             {item.propertyType || "غير محدد"}
           </Badge>
-          <Badge variant="secondary" className="bg-blue-50 text-blue-600 border-0 text-[9px] font-bold px-2 py-0.5 rounded-md">
+          <Badge variant="secondary" className="bg-blue-50 text-blue-600 border-0 text-xs font-bold px-2 py-0.5 rounded-md">
             {item.listingType || "بيع"}
           </Badge>
         </div>
@@ -114,7 +114,7 @@ export default function ModerationQueuePage() {
       key: "status",
       label: "الحالة",
       render: (item) => (
-        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 w-fit">
+        <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 text-xs font-bold px-2 py-0.5 rounded-md flex items-center gap-1 w-fit">
           <Clock className="w-3 h-3" />
           بانتظار المراجعة
         </Badge>
@@ -129,7 +129,7 @@ export default function ModerationQueuePage() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 rounded-lg text-green-600 hover:bg-green-50 hover:text-green-700 transition-all"
+            className="h-8 w-8 p-0 rounded-lg text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-all"
             onClick={() => handleAction(item.id, 'approve')}
             disabled={processingId === item.id}
           >

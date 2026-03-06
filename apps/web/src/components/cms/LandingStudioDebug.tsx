@@ -103,8 +103,8 @@ export function LandingStudioDebug() {
               {data.data.map((section: any, index: number) => (
                 <div key={section.id} className="p-3 border rounded">
                   <h4 className="font-medium">{section.slug}</h4>
-                  <p className="text-sm text-gray-600">{section.title}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm text-slate-600">{section.title}</p>
+                  <p className="text-xs text-slate-500">
                     Status: {section.status} | Cards: {section.cards?.length || 0}
                   </p>
                 </div>
@@ -119,7 +119,7 @@ export function LandingStudioDebug() {
           <CardTitle>Raw Data</CardTitle>
         </CardHeader>
         <CardContent>
-          <pre className="text-xs bg-gray-100 p-2 rounded overflow-auto max-h-64">
+          <pre className="text-xs bg-slate-100 p-2 rounded overflow-auto max-h-64">
             {JSON.stringify(data, null, 2)}
           </pre>
         </CardContent>

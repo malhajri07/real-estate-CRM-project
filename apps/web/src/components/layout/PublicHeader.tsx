@@ -203,7 +203,7 @@ export default function PublicHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden rounded-full border border-slate-200 text-slate-600"
+            className="md:hidden rounded-full border border-border text-slate-600"
             onClick={() => (window.location.href = isAuth ? getDashboardUrl() : "/rbac-login")}
             aria-label="فتح القائمة أو تسجيل الدخول"
           >

@@ -44,7 +44,7 @@ export function ActionCard({
         onClick={onClick}
         disabled={disabled}
         className={cn(
-          "w-full justify-between rounded-2xl px-5 py-4 h-auto font-bold transition-all duration-300 relative overflow-hidden bg-white border border-slate-100 hover:border-slate-200 hover:shadow-md text-slate-700 hover:bg-slate-50",
+          "w-full justify-between rounded-2xl px-5 py-4 h-auto font-bold transition-all duration-300 relative overflow-hidden bg-white border border-slate-100 hover:border-border hover:shadow-md text-slate-700 hover:bg-slate-50",
           disabled && "opacity-50 cursor-not-allowed"
         )}
       >

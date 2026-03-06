@@ -84,7 +84,7 @@ export default function RBACLoginPage() {
 
   if (isAuthenticating) {
     primaryCard = (
-      <Card className="w-full rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <Card className="w-full rounded-3xl border border-border bg-white shadow-sm">
         <CardContent className="py-16 text-center space-y-6">
           <Spinner size="xl" className="mx-auto text-emerald-600" />
           <p className="text-sm font-medium text-slate-600">جاري التحميل...</p>

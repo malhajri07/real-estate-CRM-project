@@ -77,15 +77,15 @@ export default function OrganizationManagement() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
-      active: { label: 'نشط', className: 'bg-green-100 text-green-800 border-green-200' },
-      inactive: { label: 'غير نشط', className: 'bg-gray-100 text-gray-800 border-gray-200' },
+      active: { label: 'نشط', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+      inactive: { label: 'غير نشط', className: 'bg-slate-100 text-slate-800 border-border' },
       pending_verification: { label: 'معلق', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
       suspended: { label: 'معلق', className: 'bg-red-100 text-red-800 border-red-200' }
     };
 
     const config = statusConfig[status.toLowerCase()] || statusConfig['inactive'];
     return (
-      <Badge className={`${config.className} border text-[10px] font-bold px-2 py-0.5 rounded-md`}>
+      <Badge className={`${config.className} border text-xs font-bold px-2 py-0.5 rounded-md`}>
         {config.label}
       </Badge>
     );
@@ -163,10 +163,10 @@ export default function OrganizationManagement() {
 
   return (
     <div className="space-y-8 animate-in-start" dir="rtl">
-      <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+      <Card className="glass border-0 rounded-2xl p-8 shadow-none">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-end">
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة المنظمات</h1>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">إدارة المنظمات</h1>
             <p className="text-slate-500 font-medium text-lg">تحكم في الكيانات والشركات المشتركة في النظام</p>
           </div>
           <Button className="premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 h-12 px-8 rounded-2xl font-bold w-full md:w-auto" onClick={() => setIsCreateDialogOpen(true)}>
@@ -209,7 +209,7 @@ export default function OrganizationManagement() {
       </div>
 
       {/* Filters Container */}
-      <Card className="glass border-0 rounded-[2rem] p-6 shadow-none">
+      <Card className="glass border-0 rounded-2xl p-6 shadow-none">
         <div className="flex flex-col lg:flex-row items-end gap-6">
           <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
@@ -219,14 +219,14 @@ export default function OrganizationManagement() {
                 placeholder="اسم المنظمة، البريد..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-11 bg-white/50 border-slate-200/60 rounded-xl focus:ring-blue-500/20"
+                className="h-11 bg-white/50 border-border/60 rounded-xl focus:ring-blue-500/20"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="status-filter" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">الحالة</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-11 bg-white/50 border-slate-200/60 rounded-xl focus:ring-blue-500/20">
+                <SelectTrigger className="h-11 bg-white/50 border-border/60 rounded-xl focus:ring-blue-500/20">
                   <SelectValue placeholder="الكل" />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
@@ -242,7 +242,7 @@ export default function OrganizationManagement() {
             <div className="space-y-2">
               <Label htmlFor="type-filter" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">نوع الكيان</Label>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="h-11 bg-white/50 border-slate-200/60 rounded-xl focus:ring-blue-500/20">
+                <SelectTrigger className="h-11 bg-white/50 border-border/60 rounded-xl focus:ring-blue-500/20">
                   <SelectValue placeholder="الكل" />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
@@ -264,10 +264,10 @@ export default function OrganizationManagement() {
         </TabsList>
 
         <TabsContent value="organizations">
-          <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+          <Card className="glass border-0 rounded-2xl p-8 shadow-none">
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-black text-slate-900 tracking-tight">قائمة المنظمات</h2>
+                <h2 className="text-xl font-bold text-slate-900 tracking-tight">قائمة المنظمات</h2>
                 <p className="text-slate-500 font-medium text-sm">عرض وتصفية الشركات المشتركة في النظام</p>
               </div>
             </div>
@@ -276,12 +276,12 @@ export default function OrganizationManagement() {
               <Table>
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="border-slate-100">
-                    <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المنظمة</TableHead>
-                    <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">النوع</TableHead>
-                    <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">المستخدمين</TableHead>
-                    <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الاشتراك</TableHead>
-                    <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
-                    <TableHead className="text-center text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">تحكم</TableHead>
+                    <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">المنظمة</TableHead>
+                    <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">النوع</TableHead>
+                    <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">المستخدمين</TableHead>
+                    <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">الاشتراك</TableHead>
+                    <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
+                    <TableHead className="text-center text-xs font-bold uppercase text-slate-400 tracking-widest py-4">تحكم</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -297,26 +297,26 @@ export default function OrganizationManagement() {
                         <TableCell className="py-4">
                           <div className="flex flex-col">
                             <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{organization.name}</span>
-                            <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tight">{organization.contactInfo?.email}</span>
+                            <span className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-tight">{organization.contactInfo?.email}</span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="secondary" className="bg-slate-50 text-slate-500 border-0 text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase">
+                          <Badge variant="secondary" className="bg-slate-50 text-slate-500 border-0 text-xs font-bold px-2.5 py-0.5 rounded-md uppercase">
                             {organization.type}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-black text-xs">
+                            <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs">
                               {organization.userCount}
                             </div>
-                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">مستخدم</span>
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">مستخدم</span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="text-sm font-black text-slate-900">{organization.subscription?.plan ?? 'Basic'}</span>
-                            <span className="text-[10px] font-bold text-slate-400 mt-0.5">
+                            <span className="text-sm font-bold text-slate-900">{organization.subscription?.plan ?? 'Basic'}</span>
+                            <span className="text-xs font-bold text-slate-400 mt-0.5">
                               {organization.subscription?.expiryDate
                                 ? `ينتهي: ${formatDate(organization.subscription.expiryDate)}`
                                 : '-'}
@@ -373,7 +373,7 @@ export default function OrganizationManagement() {
         </TabsContent>
 
         <TabsContent value="types">
-          <div className="p-8 text-center text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-200">
+          <div className="p-8 text-center text-slate-500 bg-slate-50 rounded-lg border border-dashed border-border">
             ميزة أنواع المنظمات قادمة قريباً
           </div>
         </TabsContent>

@@ -164,7 +164,7 @@ export function AdminSidebar({
               <Shield className="h-4 w-4" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 Version
               </span>
               <span className="text-xs font-semibold">v1.2.4-PRO</span>

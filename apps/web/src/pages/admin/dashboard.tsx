@@ -212,7 +212,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
       {/* Charts Section - NEW! */}
       {!isLoading && metrics && (
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <Card className="glass border-0 rounded-[2rem] overflow-hidden p-2 transition-all hover:shadow-2xl">
+          <Card className="glass border-0 rounded-2xl overflow-hidden p-2 transition-all hover:shadow-2xl">
             <CardHeader className="px-6 pt-6 pb-2">
               <CardTitle className="text-lg font-bold text-slate-900 tracking-tight">نشاط المبيعات</CardTitle>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">العملاء المحتملون، الإعلانات، والصفقات</p>
@@ -249,7 +249,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
             </CardContent>
           </Card>
 
-          <Card className="glass border-0 rounded-[2rem] overflow-hidden p-2 transition-all hover:shadow-2xl">
+          <Card className="glass border-0 rounded-2xl overflow-hidden p-2 transition-all hover:shadow-2xl">
             <CardHeader className="px-6 pt-6 pb-2">
               <CardTitle className="text-lg font-bold text-slate-900 tracking-tight">الإيرادات المالية</CardTitle>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">قيمة المبيعات، الفواتير، والتحصيلات</p>
@@ -276,7 +276,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
 
       {/* Bottom Section */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <Card className="glass border-0 rounded-[2rem] xl:col-span-2 overflow-hidden transition-all hover:shadow-2xl">
+        <Card className="glass border-0 rounded-2xl xl:col-span-2 overflow-hidden transition-all hover:shadow-2xl">
           <CardHeader className="p-8 pb-4">
             <CardTitle className="text-xl font-bold text-slate-900 tracking-tight">أفضل الوكلاء</CardTitle>
             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">النشاط خلال آخر ٩٠ يومًا</p>
@@ -284,7 +284,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
           <CardContent className="p-8 pt-2 space-y-4">
             {isLoading && <LoadingRows rows={4} />}
             {!isLoading && (!data?.topAgents || data.topAgents.length === 0) ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-slate-50/50 rounded-[2rem] border border-dashed border-slate-200">
+              <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-slate-50/50 rounded-2xl border border-dashed border-border">
                 <div className="rounded-2xl bg-white p-4 shadow-sm text-3xl">👥</div>
                 <div>
                   <p className="text-base font-bold text-slate-800">لا يوجد وكلاء نشطين</p>
@@ -304,17 +304,17 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-sm font-bold text-slate-900 leading-none mb-1">{agent.name}</span>
-                        <span className="text-[10px] font-bold text-slate-400 truncate max-w-[150px]">{agent.email || "بدون بريد"}</span>
+                        <span className="text-xs font-bold text-slate-400 truncate max-w-[150px]">{agent.email || "بدون بريد"}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between pt-3 border-t border-slate-50">
                       <div className="flex flex-col">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-tighter">الصفقات</span>
-                        <span className="text-xs font-black text-slate-900">{agent.dealsWon}</span>
+                        <span className="text-xs font-extrabold text-slate-400 uppercase tracking-tighter">الصفقات</span>
+                        <span className="text-xs font-bold text-slate-900">{agent.dealsWon}</span>
                       </div>
                       <div className="flex flex-col text-end">
-                        <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-tighter">القيمة الإجمالية</span>
-                        <span className="text-xs font-black text-blue-600">{formatCurrency(agent.gmv, currency)}</span>
+                        <span className="text-xs font-extrabold text-slate-400 uppercase tracking-tighter">القيمة الإجمالية</span>
+                        <span className="text-xs font-bold text-blue-600">{formatCurrency(agent.gmv, currency)}</span>
                       </div>
                     </div>
                   </div>
@@ -324,7 +324,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
           </CardContent>
         </Card>
 
-        <Card className="glass border-0 rounded-[2rem] overflow-hidden transition-all hover:shadow-2xl">
+        <Card className="glass border-0 rounded-2xl overflow-hidden transition-all hover:shadow-2xl">
           <CardHeader className="p-8 pb-4">
             <CardTitle className="text-xl font-bold text-slate-900 tracking-tight">التذاكر الحديثة</CardTitle>
             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">آخر التحديثات</p>
@@ -332,7 +332,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
           <CardContent className="p-8 pt-2 space-y-4">
             {isLoading && <LoadingRows rows={5} />}
             {!isLoading && (!data?.recentTickets || data.recentTickets.length === 0) ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-slate-50/50 rounded-[2rem] border border-dashed border-slate-200">
+              <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-slate-50/50 rounded-2xl border border-dashed border-border">
                 <div className="rounded-2xl bg-white p-4 shadow-sm text-3xl">🎫</div>
                 <div>
                   <p className="text-base font-bold text-slate-800">لا توجد تذاكر</p>
@@ -348,16 +348,16 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                   >
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <p className="text-xs font-bold text-slate-900 group-hover:text-blue-700 transition-colors line-clamp-1">{ticket.subject}</p>
-                      <Badge className={cn("text-[9px] font-black uppercase px-2 py-0.5 rounded-md border-0 shrink-0", ticketStatusColor(ticket.status))}>
+                      <Badge className={cn("text-xs font-bold uppercase px-2 py-0.5 rounded-md border-0 shrink-0", ticketStatusColor(ticket.status))}>
                         {ticketStatusLabel(ticket.status)}
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between mt-auto">
                       <div className="flex items-center gap-2">
                         <div className="w-1 h-1 rounded-full bg-slate-300" />
-                        <span className="text-[10px] font-bold text-slate-500">{ticket.customerName || "عميل"}</span>
+                        <span className="text-xs font-bold text-slate-500">{ticket.customerName || "عميل"}</span>
                       </div>
-                      <span className="text-[10px] font-bold text-slate-400">{new Date(ticket.updatedAt).toLocaleDateString("ar-SA")}</span>
+                      <span className="text-xs font-bold text-slate-400">{new Date(ticket.updatedAt).toLocaleDateString("ar-SA")}</span>
                     </div>
                   </div>
                 ))}
@@ -404,9 +404,9 @@ const ticketStatusColor = (status: string) => {
     case "RESOLVED":
       return "bg-emerald-50 text-emerald-700 border-emerald-200";
     case "CLOSED":
-      return "bg-slate-100 text-slate-600 border-slate-200";
+      return "bg-slate-100 text-slate-600 border-border";
     default:
-      return "bg-slate-100 text-slate-600 border-slate-200";
+      return "bg-slate-100 text-slate-600 border-border";
   }
 };
 
@@ -453,13 +453,13 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
 
   return (
     <div className="space-y-8 animate-in-start">
-      <Card className="glass border-0 rounded-[2.5rem] overflow-hidden relative p-4 lg:p-12">
+      <Card className="glass border-0 rounded-3xl overflow-hidden relative p-4 lg:p-12">
         <div className="absolute top-0 end-0 w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
         <CardHeader className="space-y-6 relative z-10 pt-0 ps-0">
-          <Badge variant="secondary" className="px-3 py-1 bg-blue-600/10 text-blue-700 border-0 rounded-lg text-[10px] font-bold uppercase tracking-widest w-fit">
+          <Badge variant="secondary" className="px-3 py-1 bg-blue-600/10 text-blue-700 border-0 rounded-lg text-xs font-bold uppercase tracking-widest w-fit">
             {groupLabel}
           </Badge>
-          <CardTitle className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">{label}</CardTitle>
+          <CardTitle className="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-tight">{label}</CardTitle>
           <p className="text-lg lg:text-xl text-slate-500 max-w-2xl leading-relaxed">
             المحتوى التفصيلي قيد الإعداد وسيتكامل مع الواجهات قريباً. نحن نعمل على تطوير حلول ذكية ومبتكرة تليق بجودة أعمالكم.
           </p>
@@ -468,7 +468,7 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
           {sections && sections.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
               {sections.map((section) => (
-                <div key={section.title} className="bg-white/40 backdrop-blur-sm p-8 rounded-[2rem] border border-white/40 shadow-sm transition hover:shadow-xl hover:bg-white/60 hover:-translate-y-1 duration-300">
+                <div key={section.title} className="bg-white/40 backdrop-blur-sm p-8 rounded-2xl border border-white/40 shadow-sm transition hover:shadow-xl hover:bg-white/60 hover:-translate-y-1 duration-300">
                   <h3 className="text-lg font-bold text-slate-900 flex items-center gap-3 mb-5">
                     <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.4)]" />
                     {section.title}
@@ -485,7 +485,7 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
               ))}
             </div>
           ) : (
-            <div className="p-20 text-center bg-slate-50/50 rounded-[2.5rem] border-2 border-dashed border-slate-200/50 flex flex-col items-center">
+            <div className="p-20 text-center bg-slate-50/50 rounded-3xl border-2 border-dashed border-border/50 flex flex-col items-center">
               <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-6 text-2xl">⏳</div>
               <p className="text-xl font-bold text-slate-400 italic">لا توجد تفاصيل متاحة لهذا القسم حتى الآن. سيتم التحديث قريباً.</p>
             </div>

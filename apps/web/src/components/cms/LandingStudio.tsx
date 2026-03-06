@@ -214,23 +214,23 @@ export function LandingStudio() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">إدارة المحتوى</h1>
-          <p className="text-gray-600">إدارة أقسام الصفحة الرئيسية والمحتوى</p>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">إدارة المحتوى</h1>
+          <p className="text-slate-600">إدارة أقسام الصفحة الرئيسية والمحتوى</p>
         </div>
 
         {/* Main Content */}
-        <Card className="shadow-sm border border-gray-200">
-          <CardHeader className="bg-white border-b border-gray-200">
+        <Card className="shadow-sm border border-border">
+          <CardHeader className="bg-white border-b border-border">
             <div className="flex items-center justify-between">
           <div>
-                <CardTitle className="text-lg font-semibold text-gray-900">
+                <CardTitle className="text-lg font-semibold text-slate-900">
               {selectedSection.slug}
             </CardTitle>
-                <CardDescription className="text-gray-600">
+                <CardDescription className="text-slate-600">
                   قم بتحديث محتوى القسم واضغط حفظ المسودة قبل النشر
             </CardDescription>
           </div>
@@ -305,7 +305,7 @@ export function LandingStudio() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">العنوان</Label>
+                      <Label className="text-sm font-medium text-slate-700">العنوان</Label>
                     <Input
                       value={sectionDraft.title ?? ""}
                       onChange={(event) =>
@@ -315,7 +315,7 @@ export function LandingStudio() {
                     />
                   </div>
                   <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">الوصف المختصر</Label>
+                      <Label className="text-sm font-medium text-slate-700">الوصف المختصر</Label>
                     <Input
                       value={sectionDraft.subtitle ?? ""}
                       onChange={(event) =>
@@ -326,7 +326,7 @@ export function LandingStudio() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">النص الرئيسي</Label>
+                    <Label className="text-sm font-medium text-slate-700">النص الرئيسي</Label>
                   <Textarea
                     value={sectionDraft.body ?? ""}
                     onChange={(event) =>
@@ -340,18 +340,18 @@ export function LandingStudio() {
 
             <TabsContent value="published">
                 <div className="text-center py-8">
-                  <p className="text-gray-500">محتوى منشور - سيتم عرض المحتوى المنشور هنا</p>
+                  <p className="text-slate-500">محتوى منشور - سيتم عرض المحتوى المنشور هنا</p>
                 </div>
               </TabsContent>
 
               <TabsContent value="publish">
                 <div className="space-y-6">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-gray-900 mb-2">إجراءات النشر</h3>
-                    <p className="text-sm text-gray-600 mb-4">
+                  <div className="bg-slate-50 p-4 rounded-lg">
+                    <h3 className="font-medium text-slate-900 mb-2">إجراءات النشر</h3>
+                    <p className="text-sm text-slate-600 mb-4">
                       اعتمد المحتوى بعد مراجعة الفرق المختصة
                     </p>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-slate-600">
                       <span>الإصدار الحالي:</span>
                       <Badge variant="outline">v{selectedSection.version}</Badge>
                 </div>

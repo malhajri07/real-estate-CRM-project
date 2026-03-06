@@ -66,7 +66,7 @@ export class AppErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundar
               </Button>
             </div>
             {process.env.NODE_ENV === "development" && this.state.error && (
-              <details className="mt-4 text-start bg-white p-4 rounded-lg border border-slate-200">
+              <details className="mt-4 text-start bg-white p-4 rounded-lg border border-border">
                 <summary className="cursor-pointer text-xs font-medium text-slate-600">Error details</summary>
                 <pre className="mt-2 text-xs text-slate-500 overflow-auto max-h-32">{this.state.error.message}</pre>
               </details>

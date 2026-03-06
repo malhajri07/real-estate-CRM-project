@@ -197,10 +197,10 @@ export function AdminTable<T extends Record<string, any>>({
                 </div>
             )}
 
-            <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
                 <Table>
                     <TableHeader className="bg-slate-50/80">
-                        <TableRow className="border-b border-slate-200 hover:bg-transparent">
+                        <TableRow className="border-b border-border hover:bg-transparent">
                             {selectable && (
                                 <TableHead className="w-12 text-center">
                                     <Checkbox

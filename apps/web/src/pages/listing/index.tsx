@@ -33,8 +33,8 @@ export default function ListingPage() {
     return r.json();
   }});
 
-  if (isLoading) return <div className="text-gray-600">...جار التحميل</div>;
-  if (error || !data) return <div className="text-gray-600">غير متوفر</div>;
+  if (isLoading) return <div className="text-slate-600">...جار التحميل</div>;
+  if (error || !data) return <div className="text-slate-600">غير متوفر</div>;
 
   const p = data;
   const photos: string[] = Array.isArray(p.photoUrls) ? p.photoUrls : [];
@@ -48,21 +48,21 @@ export default function ListingPage() {
               <PhotoCarousel photos={photos} alt={p.title} className="aspect-video" showIndicators={true} />
             </div>
           ) : (
-            <div className="ui-surface h-64 flex items-center justify-center text-gray-500">لا توجد صور</div>
+            <div className="ui-surface h-64 flex items-center justify-center text-slate-500">لا توجد صور</div>
           )}
           <div className="ui-surface p-6 mt-6">
             <h2 className="font-semibold mb-3">الوصف</h2>
-            <p className="text-gray-700 leading-7">{p.description || 'بدون وصف'}</p>
+            <p className="text-slate-700 leading-7">{p.description || 'بدون وصف'}</p>
           </div>
         </div>
         <div className="space-y-4">
           <div className="ui-surface p-5">
-            <div className="text-2xl font-bold text-green-700 mb-2">{p.price} ﷼</div>
-            <div className="text-sm text-gray-600">{p.propertyType}</div>
-            <div className="text-sm text-gray-600">الحالة: {p.status}</div>
+            <div className="text-2xl font-bold text-emerald-700 mb-2">{p.price} ﷼</div>
+            <div className="text-sm text-slate-600">{p.propertyType}</div>
+            <div className="text-sm text-slate-600">الحالة: {p.status}</div>
           </div>
           <div className="ui-surface p-5">
-            <a className="block w-full text-center bg-green-600 text-white px-4 py-2 rounded" href={`https://wa.me/?text=${encodeURIComponent(window.location.href)}`}>تواصل عبر واتساب</a>
+            <a className="block w-full text-center bg-emerald-600 text-white px-4 py-2 rounded" href={`https://wa.me/?text=${encodeURIComponent(window.location.href)}`}>تواصل عبر واتساب</a>
             <Button variant="outline" className="block w-full mt-2" onClick={() => window.history.back()}>رجوع</Button>
             <Button variant="outline" className="block w-full mt-2" onClick={async ()=>{
               await fetch('/api/reports', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ listingId: id, reason: 'محتوى غير مناسب' })});

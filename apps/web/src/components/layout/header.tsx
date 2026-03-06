@@ -128,16 +128,16 @@ export default function Header({
                 >
                   <Bell className="h-5 w-5 text-slate-600" />
                   {notificationCount > 0 && (
-                    <span className="absolute top-2.5 end-2.5 h-4 w-4 bg-red-500 border-2 border-white text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                    <span className="absolute top-2.5 end-2.5 h-4 w-4 bg-red-500 border-2 border-white text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
                       {notificationCount > 9 ? '9+' : notificationCount}
                     </span>
                   )}
                 </Button>
                 
-                <div className="flex items-center gap-3 ps-3 border-s border-slate-200/50">
+                <div className="flex items-center gap-3 ps-3 border-s border-border/50">
                   <div className="hidden flex-col items-end sm:flex">
                     <span className="text-xs font-semibold text-slate-900 leading-none mb-1">{username}</span>
-                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider leading-none">{t("auth.loggedIn") || "مرحباً بعودتك"}</span>
+                    <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider leading-none">{t("auth.loggedIn") || "مرحباً بعودتك"}</span>
                   </div>
                   <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
                     <User className="h-5 w-5" />

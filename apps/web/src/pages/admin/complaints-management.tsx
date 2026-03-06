@@ -52,10 +52,10 @@ import {
 
 const getStatusBadge = (status: ComplaintStatus) => {
     switch (status) {
-        case "OPEN": return <Badge className="bg-red-50 text-red-700 border-0 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">مفتوحة</Badge>;
-        case "IN_PROGRESS": return <Badge className="bg-blue-50 text-blue-700 border-0 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">قيد المعالجة</Badge>;
-        case "RESOLVED": return <Badge className="bg-emerald-50 text-emerald-700 border-0 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">تم الحل</Badge>;
-        case "CLOSED": return <Badge className="bg-slate-100 text-slate-500 border-0 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">مغلقة</Badge>;
+        case "OPEN": return <Badge className="bg-red-50 text-red-700 border-0 text-xs font-bold uppercase px-2 py-0.5 rounded-md">مفتوحة</Badge>;
+        case "IN_PROGRESS": return <Badge className="bg-blue-50 text-blue-700 border-0 text-xs font-bold uppercase px-2 py-0.5 rounded-md">قيد المعالجة</Badge>;
+        case "RESOLVED": return <Badge className="bg-emerald-50 text-emerald-700 border-0 text-xs font-bold uppercase px-2 py-0.5 rounded-md">تم الحل</Badge>;
+        case "CLOSED": return <Badge className="bg-slate-100 text-slate-500 border-0 text-xs font-bold uppercase px-2 py-0.5 rounded-md">مغلقة</Badge>;
         default: return <Badge variant="outline">{status}</Badge>;
     }
 };
@@ -130,10 +130,10 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
     };
 
     return (
-        <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+        <Card className="glass border-0 rounded-2xl p-8 shadow-none">
             <div className="mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div>
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">قائمة التذاكر</h2>
+                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight">قائمة التذاكر</h2>
                     <p className="text-slate-500 font-medium">عرض وإدارة تذاكر الدعم الفني والشكاوى</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -149,12 +149,12 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                 <Table>
                     <TableHeader className="bg-slate-50/50">
                         <TableRow className="border-slate-100">
-                            <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">التذكرة</TableHead>
-                            <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الموضوع</TableHead>
-                            <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">العميل</TableHead>
-                            <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الأولوية</TableHead>
-                            <TableHead className="text-end text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
-                            <TableHead className="text-start text-[10px] font-black uppercase text-slate-400 tracking-widest py-4">التاريخ</TableHead>
+                            <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">التذكرة</TableHead>
+                            <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">الموضوع</TableHead>
+                            <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">العميل</TableHead>
+                            <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">الأولوية</TableHead>
+                            <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
+                            <TableHead className="text-start text-xs font-bold uppercase text-slate-400 tracking-widest py-4">التاريخ</TableHead>
                             <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                     </TableHeader>
@@ -169,17 +169,17 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                             filteredData.map((ticket) => (
                                 <TableRow key={ticket.id} className="border-slate-50 hover:bg-blue-50/30 transition-colors group">
                                     <TableCell className="py-4">
-                                        <span className="font-black text-slate-900">#{ticket.id.substring(0, 8)}</span>
+                                        <span className="font-bold text-slate-900">#{ticket.id.substring(0, 8)}</span>
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex flex-col">
                                             <span className="font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{ticket.subject}</span>
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{ticket.channel}</span>
+                                            <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{ticket.channel}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-2">
-                                            <div className="h-8 w-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-black text-xs">
+                                            <div className="h-8 w-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs">
                                                 {ticket.customer?.firstName?.[0] || <User className="h-3 w-3" />}
                                             </div>
                                             <span className="text-sm font-bold text-slate-700">
@@ -188,7 +188,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <span className={cn("text-[10px] font-black uppercase tracking-widest", getPriorityColor(ticket.priority))}>
+                                        <span className={cn("text-xs font-bold uppercase tracking-widest", getPriorityColor(ticket.priority))}>
                                             {ticket.priority === 'URGENT' ? 'عاجل جداً' :
                                                 ticket.priority === 'HIGH' ? 'مرتفع' :
                                                     ticket.priority === 'MEDIUM' ? 'متوسط' : 'منخفض'}
@@ -196,7 +196,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                                     </TableCell>
                                     <TableCell>{getStatusBadge(ticket.status)}</TableCell>
                                     <TableCell className="text-start py-4">
-                                        <span className="text-[11px] font-bold text-slate-400 uppercase">
+                                        <span className="text-xs font-bold text-slate-400 uppercase">
                                             {format(new Date(ticket.createdAt), "dd MMM yyyy", { locale: arSA })}
                                         </span>
                                     </TableCell>
@@ -206,7 +206,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 p-0 rounded-lg hover:bg-blue-50 hover:text-blue-600 outline-none"><MoreHorizontal className="h-4 w-4" /></Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 shadow-2xl">
-                                                <DropdownMenuLabel className="text-[10px] font-black uppercase text-slate-400 tracking-widest pb-1">الإجراءات</DropdownMenuLabel>
+                                                <DropdownMenuLabel className="text-xs font-bold uppercase text-slate-400 tracking-widest pb-1">الإجراءات</DropdownMenuLabel>
                                                 <DropdownMenuItem className="rounded-xl font-bold text-slate-600">عرض التفاصيل</DropdownMenuItem>
                                                 <DropdownMenuItem className="rounded-xl font-bold text-emerald-600" onClick={() => handleStatusChange(ticket.id, "RESOLVED")}>تصنيف كمحلول</DropdownMenuItem>
                                                 <DropdownMenuItem className="rounded-xl font-bold text-red-600" onClick={() => handleStatusChange(ticket.id, "CLOSED")}>إغلاق التذكرة</DropdownMenuItem>
@@ -230,10 +230,10 @@ function CategoriesTab() {
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+            <Card className="glass border-0 rounded-2xl p-8 shadow-none">
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">فئات الشكاوى</h2>
+                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">فئات الشكاوى</h2>
                         <p className="text-slate-500 font-medium">تصنيف ومراقبة أنواع المشاكل الواردة</p>
                     </div>
                 </div>
@@ -246,7 +246,7 @@ function CategoriesTab() {
                                 <span className="font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{cat.name}</span>
                             </div>
                             <div className="flex items-center gap-4">
-                                <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-0 text-[10px] font-black px-2.5 py-1 rounded-lg">
+                                <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-0 text-xs font-bold px-2.5 py-1 rounded-lg">
                                     {cat.ticketCount ?? 0} تذاكر
                                 </Badge>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-slate-50 transition-all outline-none">
@@ -258,20 +258,20 @@ function CategoriesTab() {
                     {categories?.length === 0 && (
                         <div className="text-center py-12 text-slate-400 font-medium italic">لا توجد فئات حالياً</div>
                     )}
-                    <Button variant="outline" className="w-full h-12 border-dashed border-slate-200 mt-6 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-100 transition-all">
+                    <Button variant="outline" className="w-full h-12 border-dashed border-border mt-6 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-100 transition-all">
                         <Plus className="h-4 w-4 me-2" />
                         إضافة فئة جديدة
                     </Button>
                 </div>
             </Card>
 
-            <Card className="glass border-0 rounded-[2rem] p-12 shadow-none flex items-center justify-center bg-blue-50/30">
+            <Card className="glass border-0 rounded-2xl p-12 shadow-none flex items-center justify-center bg-blue-50/30">
                 <div className="text-center space-y-6">
-                    <div className="h-20 w-20 bg-white rounded-[2rem] shadow-xl shadow-blue-500/10 flex items-center justify-center text-blue-600 mx-auto">
+                    <div className="h-20 w-20 bg-white rounded-2xl shadow-xl shadow-blue-500/10 flex items-center justify-center text-blue-600 mx-auto">
                         <Filter className="h-10 w-10" />
                     </div>
                     <div className="space-y-2">
-                        <h3 className="text-xl font-black text-slate-900 tracking-tight">قواعد التوجيه الآلي</h3>
+                        <h3 className="text-xl font-bold text-slate-900 tracking-tight">قواعد التوجيه الآلي</h3>
                         <p className="text-sm font-medium text-slate-500 max-w-xs mx-auto leading-relaxed">
                             يمكنك إعداد قواعد ذكية لتوجيه التذاكر تلقائياً للموظفين بناءً على الفئات المختارة لضمان سرعة الاستجابة.
                         </p>
@@ -292,10 +292,10 @@ function TemplatesTab() {
 
     return (
         <div className="space-y-8">
-            <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+            <Card className="glass border-0 rounded-2xl p-8 shadow-none">
                 <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">قوالب الردود الجاهزة</h2>
+                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">قوالب الردود الجاهزة</h2>
                         <p className="text-slate-500 font-medium">تسريع عملية الرد على العملاء باستخدام نماذج احترافية</p>
                     </div>
                     <Button className="premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 h-12 px-8 rounded-2xl font-bold">
@@ -306,17 +306,17 @@ function TemplatesTab() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {(templates || []).map((tpl) => (
-                        <Card key={tpl.id} className="cursor-pointer bg-white/50 border border-slate-100 rounded-[2rem] p-6 hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group overflow-hidden relative">
+                        <Card key={tpl.id} className="cursor-pointer bg-white/50 border border-slate-100 rounded-2xl p-6 hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group overflow-hidden relative">
                             <div className="mb-6 flex justify-between items-start">
                                 <div className="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center transition-transform group-hover:scale-110">
                                     <MessageSquare className="h-5 w-5" />
                                 </div>
-                                <Badge className="bg-slate-50 text-slate-400 border-0 text-[10px] font-black px-2 py-1 rounded-lg">
+                                <Badge className="bg-slate-50 text-slate-400 border-0 text-xs font-bold px-2 py-1 rounded-lg">
                                     {tpl.usageCount ?? 0} استخدام
                                 </Badge>
                             </div>
                             <div className="space-y-3">
-                                <h3 className="text-lg font-black text-slate-900 group-hover:text-blue-600 transition-colors truncate">{tpl.title}</h3>
+                                <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">{tpl.title}</h3>
                                 <p className="text-sm font-medium text-slate-500 line-clamp-3 leading-relaxed">
                                     {tpl.content}
                                 </p>
@@ -351,10 +351,10 @@ export default function ComplaintsManagement() {
 
     return (
         <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-[2rem] p-8 shadow-none">
+            <Card className="glass border-0 rounded-2xl p-8 shadow-none">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="space-y-2 text-center md:text-end">
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">إدارة الشكاوى والدعم الفني</h1>
+                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">إدارة الشكاوى والدعم الفني</h1>
                         <p className="text-slate-500 font-medium text-lg">متابعة تذاكر الدعم، حل مشاكل العملاء، وإعدادات قسم الشكاوى</p>
                     </div>
                     <Button
