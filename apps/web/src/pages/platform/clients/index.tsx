@@ -27,6 +27,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { Lead, Activity } from "@shared/types";
 import { cn } from "@/lib/utils";
 import { getLeadStatusVariant } from "@/lib/status-variants";
+import EmptyState from "@/components/ui/empty-state";
 
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -91,6 +92,10 @@ export default function Clients() {
 
   return (
     <div className="w-full space-y-6" dir={dir}>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-foreground">العملاء</h1>
+          <p className="text-sm text-muted-foreground mt-1">إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم</p>
+        </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card>
             <CardContent className="flex items-center justify-between p-6">
@@ -141,9 +146,9 @@ export default function Clients() {
               </CardHeader>
               <CardContent className="max-h-[calc(100vh-260px)] overflow-y-auto p-0">
                 {filteredLeads.length === 0 ? (
-                  <div className="py-8 text-center text-muted-foreground">
-                    {searchQuery ? "لا توجد عملاء تطابق بحثك." : "لا توجد عملاء."}
-                  </div>
+                  <EmptyState
+                    title={searchQuery ? "لا توجد عملاء تطابق بحثك" : "لا توجد عملاء"}
+                  />
                 ) : (
                   <div className="ui-data-list">
                     {filteredLeads.map((lead) => (

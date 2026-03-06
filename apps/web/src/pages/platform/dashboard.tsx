@@ -244,7 +244,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="w-full space-y-8 relative min-h-screen" dir={dir}>
+    <div className="w-full space-y-6 relative min-h-screen" dir={dir}>
       {/* Clean Background - Apple Style */}
       <div className="absolute inset-0 bg-[#F5F5F7] pointer-events-none z-0" />
       
@@ -256,7 +256,7 @@ export default function Dashboard() {
         className="relative z-10 px-2"
       >
         <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
             {t("dashboard.welcome") || "مرحباً"} {userName}
           </h1>
           <p className="text-sm font-medium text-slate-500">

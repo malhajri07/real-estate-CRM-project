@@ -50,6 +50,10 @@ export default function AgencyPage() {
 
   return (
     <div className="w-full space-y-6" dir={dir}>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">{data.agency?.name || "تفاصيل الوكالة"}</h1>
+        <p className="text-sm text-muted-foreground mt-1">عرض تفاصيل الوكالة والوسطاء والإعلانات</p>
+      </div>
       <section className="space-y-6">
         <Card>
           <CardContent className="p-6">

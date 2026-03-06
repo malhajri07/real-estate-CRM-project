@@ -33,6 +33,7 @@ import type { Lead } from "@shared/types";
 import { getLeadStatusVariant } from "@/lib/status-variants";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import EmptyState from "@/components/ui/empty-state";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Customers() {
@@ -444,11 +445,10 @@ export default function Customers() {
           
           <CardContent className="p-0">
             {totalItems === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-muted-foreground mb-4">
-                  {searchQuery || showFilters ? "لا توجد عملاء يطابقون الفلاتر المحددة." : "لا توجد عملاء محتملين. أضف أول عميل للبدء."}
-                </div>
-              </div>
+              <EmptyState
+                title={searchQuery || showFilters ? "لا توجد عملاء يطابقون الفلاتر المحددة" : "لا توجد عملاء محتملين"}
+                description={searchQuery || showFilters ? undefined : "أضف أول عميل للبدء."}
+              />
             ) : (
               <>
                 <Table className="min-w-[900px]">

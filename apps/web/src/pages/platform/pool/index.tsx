@@ -13,6 +13,7 @@ import { ar } from "date-fns/locale";
 import { toast } from "sonner";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import EmptyState from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
 import {
     Dialog,
@@ -109,7 +110,7 @@ export default function PoolPage() {
     const requests = Array.isArray(data?.data) ? data.data : [];
 
     return (
-        <div className={cn("w-full space-y-6", "pb-20")} dir={dir}>
+        <div className="w-full space-y-6" dir={dir}>
             {/* Header Section */}
             <div className="mb-8">
                 <motion.div
@@ -174,16 +175,16 @@ export default function PoolPage() {
                         <Table className="min-w-[850px]">
                             <TableHeader>
                                 <TableRow>
-                                <TableHead className="text-start">{t("pool.table.type")}</TableHead>
-                                <TableHead className="text-start">{t("pool.table.city")}</TableHead>
-                                <TableHead className="text-start">{t("pool.table.region")}</TableHead>
-                                <TableHead className="text-start">{t("pool.table.budget")}</TableHead>
-                                <TableHead className="text-start">{t("pool.table.bedrooms")}</TableHead>
-                                <TableHead className="text-start">{t("pool.table.bathrooms")}</TableHead>
-                                <TableHead className="text-start">{t("pool.table.living_rooms")}</TableHead>
-                                <TableHead className="text-start">{t("pool.table.notes")}</TableHead>
-                                <TableHead className="text-start">{t("pool.table.source")}</TableHead>
-                                <TableHead className="text-start">{t("pool.table.date")}</TableHead>
+                                <TableHead className="text-end">{t("pool.table.type")}</TableHead>
+                                <TableHead className="text-end">{t("pool.table.city")}</TableHead>
+                                <TableHead className="text-end">{t("pool.table.region")}</TableHead>
+                                <TableHead className="text-end">{t("pool.table.budget")}</TableHead>
+                                <TableHead className="text-end">{t("pool.table.bedrooms")}</TableHead>
+                                <TableHead className="text-end">{t("pool.table.bathrooms")}</TableHead>
+                                <TableHead className="text-end">{t("pool.table.living_rooms")}</TableHead>
+                                <TableHead className="text-end">{t("pool.table.notes")}</TableHead>
+                                <TableHead className="text-end">{t("pool.table.source")}</TableHead>
+                                <TableHead className="text-end">{t("pool.table.date")}</TableHead>
                                 <TableHead className="text-end">{t("pool.table.actions")}</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -204,12 +205,12 @@ export default function PoolPage() {
                                 </TableRow>
                             ) : requests.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={11} className="h-32 text-center">
-                                        <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                                            <Ticket className="h-10 w-10 opacity-50" />
-                                            <p className="text-sm">{t("pool.no_requests")}</p>
-                                            <p className="text-xs">{t("pool.no_requests_hint")}</p>
-                                        </div>
+                                    <TableCell colSpan={11}>
+                                        <EmptyState
+                                            icon={Ticket}
+                                            title={t("pool.no_requests")}
+                                            description={t("pool.no_requests_hint")}
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ) : (

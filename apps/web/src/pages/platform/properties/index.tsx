@@ -654,15 +654,15 @@ export default function Properties() {
                   <Table className="min-w-[900px]">
                     <TableHeader>
                       <TableRow>
-                        <TableHead>الصورة</TableHead>
-                        <TableHead>العقار</TableHead>
-                        <TableHead>الموقع</TableHead>
-                        <TableHead>النوع</TableHead>
-                        <TableHead>الحالة</TableHead>
-                        <TableHead>السعر</TableHead>
-                        <TableHead>المساحة</TableHead>
-                        <TableHead>الغرف</TableHead>
-                        <TableHead>الإجراءات</TableHead>
+                        <TableHead className="text-end">الصورة</TableHead>
+                        <TableHead className="text-end">العقار</TableHead>
+                        <TableHead className="text-end">الموقع</TableHead>
+                        <TableHead className="text-end">النوع</TableHead>
+                        <TableHead className="text-end">الحالة</TableHead>
+                        <TableHead className="text-end">السعر</TableHead>
+                        <TableHead className="text-end">المساحة</TableHead>
+                        <TableHead className="text-end">الغرف</TableHead>
+                        <TableHead className="text-end">الإجراءات</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

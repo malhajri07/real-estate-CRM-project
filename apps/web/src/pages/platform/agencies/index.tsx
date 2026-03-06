@@ -52,6 +52,10 @@ export default function AgenciesPage() {
 
   return (
     <div className="w-full space-y-6" dir={dir}>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">الوكالات</h1>
+        <p className="text-sm text-muted-foreground mt-1">عرض وإدارة الوكالات العقارية المسجلة</p>
+      </div>
       <section className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {data.map((a) => (

@@ -120,7 +120,7 @@ export default function Settings() {
               <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 px-3 py-1 rounded-full text-xs">
                 إعدادات المنصة والملف الشخصي
               </Badge>
-              <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mt-3">الإعدادات</h1>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight mt-3">الإعدادات</h1>
               <p className="text-sm font-medium text-slate-500 leading-relaxed mt-2">إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد</p>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">

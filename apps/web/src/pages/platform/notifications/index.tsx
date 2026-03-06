@@ -35,6 +35,7 @@ import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { getNotificationStatusVariant } from "@/lib/status-variants";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { cn } from "@/lib/utils";
+import EmptyState from "@/components/ui/empty-state";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Notifications() {
@@ -169,6 +170,10 @@ export default function Notifications() {
   return (
     <>
       <div className="w-full space-y-6" dir={dir}>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-foreground">الإشعارات</h1>
+          <p className="text-sm text-muted-foreground mt-1">إدارة الإشعارات والحملات والتواصل مع العملاء</p>
+        </div>
         <section className="space-y-6">
           <Tabs defaultValue="customers" className="space-y-6">
             <TabsList className="grid w-full grid-cols-3">
@@ -202,12 +207,10 @@ export default function Notifications() {
               </CardHeader>
               <CardContent className="p-0">
                 {filteredLeads.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Users className="mx-auto mb-4 text-muted-foreground/40" size={48} />
-                    <div className="text-muted-foreground mb-4">
-                      {searchQuery ? "لا توجد عملاء تطابق بحثك." : "لا توجد عملاء."}
-                    </div>
-                  </div>
+                  <EmptyState
+                    icon={Users}
+                    title={searchQuery ? "لا توجد عملاء تطابق بحثك" : "لا توجد عملاء"}
+                  />
                 ) : (
                   <div className="divide-y">
                     {filteredLeads.map((lead) => (
@@ -362,13 +365,11 @@ export default function Notifications() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <Calendar className="mx-auto mb-4 text-muted-foreground/40" size={48} />
-                  <div className="text-muted-foreground mb-4">لا توجد حملات سابقة</div>
-                  <div className="text-sm text-muted-foreground">
-                    ستظهر هنا الحملات التي تم إرسالها مع إحصائياتها
-                  </div>
-                </div>
+                <EmptyState
+                  icon={Calendar}
+                  title="لا توجد حملات سابقة"
+                  description="ستظهر هنا الحملات التي تم إرسالها مع إحصائياتها"
+                />
               </CardContent>
             </Card>
           </TabsContent>

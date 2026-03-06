@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import EmptyState from "@/components/ui/empty-state";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
@@ -232,10 +233,11 @@ export default function AppointmentsManager() {
                             ))}
                         </div>
                     ) : (
-                        <div className="text-center py-12 text-muted-foreground">
-                            <CalendarIcon className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                            <p>No appointments found.</p>
-                        </div>
+                        <EmptyState
+                            icon={CalendarIcon}
+                            title="No appointments found"
+                            description="Schedule your first appointment to get started."
+                        />
                     )}
                 </CardContent>
             </Card>

@@ -51,6 +51,10 @@ export default function AgentPage() {
   const a = data.agent;
   return (
     <div className="w-full space-y-6" dir={dir}>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">{a?.firstName} {a?.lastName}</h1>
+        <p className="text-sm text-muted-foreground mt-1">عرض تفاصيل الوسيط وإعلاناته</p>
+      </div>
       <section className="space-y-6">
         <Card>
           <CardContent className="p-6">

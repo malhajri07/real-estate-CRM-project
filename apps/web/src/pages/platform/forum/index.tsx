@@ -20,7 +20,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+
 
 export default function ForumPage() {
     const { t, dir } = useLanguage();
@@ -59,7 +59,7 @@ export default function ForumPage() {
     const posts = feedData?.data || [];
 
     return (
-        <div className={cn("w-full space-y-6", "pb-20")} dir={dir}>
+        <div className="w-full space-y-6" dir={dir}>
             {/* Header */}
             <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <motion.div
