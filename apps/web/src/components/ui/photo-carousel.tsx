@@ -74,7 +74,7 @@ export function PhotoCarousel({
             <Button
               variant="ghost"
               size="sm"
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute start-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={prevPhoto}
             >
               <ChevronLeft size={16} />
@@ -82,7 +82,7 @@ export function PhotoCarousel({
             <Button
               variant="ghost"
               size="sm"
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute end-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 opacity-0 group-hover:opacity-100 transition-opacity"
               onClick={nextPhoto}
             >
               <ChevronRight size={16} />
@@ -92,7 +92,7 @@ export function PhotoCarousel({
         
         {/* Photo Counter */}
         {photos.length > 1 && (
-          <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded-md text-xs font-medium">
+          <div className="absolute top-2 start-2 bg-black/70 text-white px-2 py-1 rounded-md text-xs font-medium">
             {currentIndex + 1} / {photos.length}
           </div>
         )}

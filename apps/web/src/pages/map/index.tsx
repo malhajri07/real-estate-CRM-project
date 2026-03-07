@@ -300,7 +300,7 @@ export default function MapPage() {
               onClick={() => handleQuickCityFilter(city)}
             >
               <span className={cn("font-bold", isActive ? "text-white" : "text-slate-900")}>{city.label}</span>
-              <span className={cn("text-xs mr-1", isActive ? "text-white/90" : "text-slate-500")}>({city.count})</span>
+              <span className={cn("text-xs me-1", isActive ? "text-white/90" : "text-slate-500")}>({city.count})</span>
             </Button>
           );
         })}
@@ -336,7 +336,7 @@ export default function MapPage() {
               }}
             >
               <span className={cn("font-normal", isActive ? "text-white" : "text-slate-900")}>{type}</span>
-              <span className={cn("text-xs mr-1", isActive ? "text-white/90" : "text-slate-500")}>({count})</span>
+              <span className={cn("text-xs me-1", isActive ? "text-white/90" : "text-slate-500")}>({count})</span>
             </Button>
           );
         })}
@@ -384,7 +384,7 @@ export default function MapPage() {
                     )}
                     onClick={() => setViewMode("map")}
                   >
-                    <MapIcon className="h-3.5 w-3.5 ml-1.5" />
+                    <MapIcon className="h-3.5 w-3.5 ms-1.5" />
                     الخريطة
                   </Button>
                   <Button
@@ -399,7 +399,7 @@ export default function MapPage() {
                     )}
                     onClick={() => setViewMode("table")}
                   >
-                    <LayoutGrid className="h-3.5 w-3.5 ml-1.5" />
+                    <LayoutGrid className="h-3.5 w-3.5 ms-1.5" />
                     القائمة
                   </Button>
                 </div>
@@ -564,7 +564,7 @@ export default function MapPage() {
                 <div className="p-6 border-b border-slate-100/50 flex flex-col md:flex-row md:items-center justify-between gap-2">
                   <div className="space-y-1">
                     <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                       <MapIcon className="w-5 h-5 text-emerald-600" />
+                       <MapIcon className="w-5 h-5 text-slate-600" />
                        خريطة العقارات
                     </h2>
                     <p className="text-sm text-slate-500">استكشف العقارات على خريطة تفاعلية</p>
@@ -670,7 +670,7 @@ export default function MapPage() {
                           setViewMode("map");
                         }}
                       >
-                        <MapIcon className="w-3 h-3 ml-1.5" />
+                        <MapIcon className="w-3 h-3 ms-1.5" />
                         على الخريطة
                       </Button>
                       <Button

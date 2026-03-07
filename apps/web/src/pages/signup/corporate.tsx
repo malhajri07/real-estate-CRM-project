@@ -668,9 +668,9 @@ export default function SignupCorporate() {
                             type="file"
                             accept="application/pdf"
                             onChange={(e) => setCommercialRegDoc(e.target.files)}
-                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
+                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer ps-10 transition-all"
                           />
-                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-slate-600 transition-colors pointer-events-none" />
                         </div>
                       </div>
 
@@ -682,9 +682,9 @@ export default function SignupCorporate() {
                             type="file"
                             accept="application/pdf"
                             onChange={(e) => setVatCertificate(e.target.files)}
-                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
+                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer ps-10 transition-all"
                           />
-                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-slate-600 transition-colors pointer-events-none" />
                         </div>
                       </div>
 
@@ -696,9 +696,9 @@ export default function SignupCorporate() {
                             type="file"
                             accept="application/pdf"
                             onChange={(e) => setCompanyProfile(e.target.files)}
-                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ml-3 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer pl-10 transition-all"
+                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer ps-10 transition-all"
                           />
-                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-slate-600 transition-colors pointer-events-none" />
                         </div>
                       </div>
                     </div>

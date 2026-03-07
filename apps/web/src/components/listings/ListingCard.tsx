@@ -75,7 +75,7 @@ export default function ListingCard({ item }: { item: Listing }) {
           <div className="w-full h-full flex items-center justify-center text-slate-400">{t('listing.no_photo')}</div>
         )}
         {item.status && (
-          <span className="absolute top-2 left-2 text-xs bg-white/90 rounded px-2 py-1 text-slate-700">{item.status}</span>
+          <span className="absolute top-2 start-2 text-xs bg-white/90 rounded px-2 py-1 text-slate-700">{item.status}</span>
         )}
       </div>
       <div className="p-4">

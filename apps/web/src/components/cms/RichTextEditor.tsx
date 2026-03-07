@@ -51,17 +51,17 @@ export function RichTextEditor({
         text-align: right;
       }
       .rich-text-editor .ql-toolbar {
-        border-top-right-radius: 0.375rem;
-        border-top-left-radius: 0.375rem;
+        border-start-start-radius: 0.375rem;
+        border-start-end-radius: 0.375rem;
         border-bottom: 1px solid #e5e7eb;
       }
       .rich-text-editor .ql-container {
-        border-bottom-right-radius: 0.375rem;
-        border-bottom-left-radius: 0.375rem;
+        border-end-start-radius: 0.375rem;
+        border-end-end-radius: 0.375rem;
       }
       .rich-text-editor .ql-editor.ql-blank::before {
-        right: 15px;
-        left: auto;
+        inset-inline-end: 15px;
+        inset-inline-start: auto;
         font-style: normal;
         color: #9ca3af;
       }
