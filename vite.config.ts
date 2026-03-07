@@ -32,13 +32,13 @@ const adminManualChunkGroups: Array<{ name: string; patterns: string[] }> = [
   {
     name: "admin-dashboard-core",
     patterns: [
-      "/apps/web/src/pages/dashboard",
+      "/apps/web/src/pages/admin/dashboard",
     ],
   },
   {
     name: "admin-reports",
     patterns: [
-      "/apps/web/src/pages/reports",
+      "/apps/web/src/pages/platform/reports",
     ],
   },
   {
@@ -62,55 +62,56 @@ const adminManualChunkGroups: Array<{ name: string; patterns: string[] }> = [
   {
     name: "admin-operations",
     patterns: [
-      "/apps/web/src/pages/cms-admin",
-      "/apps/web/src/pages/moderation",
-      "/apps/web/src/pages/marketing-requests",
-      "/apps/web/src/pages/admin-requests",
-      "/apps/web/src/pages/customer-requests",
-      "/apps/web/src/pages/real-estate-requests",
-      "/apps/web/src/pages/post-listing",
+      "/apps/web/src/pages/admin/cms-landing",
+      "/apps/web/src/pages/admin/cms",
+      "/apps/web/src/pages/admin/moderation",
+      "/apps/web/src/pages/marketing",
+      "/apps/web/src/pages/admin/requests",
+      "/apps/web/src/pages/platform/requests",
+      "/apps/web/src/pages/requests",
+      "/apps/web/src/pages/platform/properties/post",
     ],
   },
   {
     name: "admin-rbac-dashboard",
     patterns: [
-      "/apps/web/src/pages/rbac-dashboard",
+      "/apps/web/src/pages/admin/dashboard",
     ],
   },
   {
     name: "admin-rbac-login",
     patterns: [
-      "/apps/web/src/pages/rbac-login",
+      "/apps/web/src/pages/auth/login",
     ],
   },
   {
     name: "platform-shell",
     patterns: [
-      "/apps/web/src/pages/app",
+      "/apps/web/src/pages/platform/home",
       "/apps/web/src/pages/unverified-listing",
-      "/apps/web/src/pages/unverified-listings-management",
+      "/apps/web/src/pages/admin/unverified-listings-management",
     ],
   },
   {
     name: "admin-engagement",
     patterns: [
-      "/apps/web/src/pages/favorites",
-      "/apps/web/src/pages/saved-searches",
-      "/apps/web/src/pages/notifications",
-      "/apps/web/src/pages/settings",
+      "/apps/web/src/pages/platform/favorites",
+      "/apps/web/src/pages/platform/saved-searches",
+      "/apps/web/src/pages/platform/notifications",
+      "/apps/web/src/pages/platform/settings",
     ],
   },
 ];
 
 const publicLandingChunkIdentifiers = [
   "/apps/web/src/pages/landing",
-  "/apps/web/src/pages/signup-selection",
-  "/apps/web/src/pages/signup-individual",
-  "/apps/web/src/pages/signup-corporate",
-  "/apps/web/src/pages/signup-success",
-  "/apps/web/src/pages/kyc-submitted",
-  "/apps/web/src/pages/marketing-request",
-  "/apps/web/src/pages/search-properties",
+  "/apps/web/src/pages/signup/selection",
+  "/apps/web/src/pages/signup/individual",
+  "/apps/web/src/pages/signup/corporate",
+  "/apps/web/src/pages/signup/success",
+  "/apps/web/src/pages/signup/kyc-submitted",
+  "/apps/web/src/pages/marketing/submission",
+  "/apps/web/src/pages/map",
 ];
 
 const vendorChunkMatchers: Array<{ name: string; test: (id: string) => boolean }> = [
