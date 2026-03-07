@@ -22,21 +22,28 @@
  * the essential functionality needed for the admin dashboard to work.
  */
 
+import { Prisma, PropertyStatus, ListingType, ClaimStatus } from '@prisma/client';
 import { prisma, basePrisma } from './prismaClient';
 import { normalizeSaudiPhone } from './utils/phone';
+
+/** Properties with listings included - used for paginated results */
+type PropertyWithListings = Prisma.propertiesGetPayload<{ include: { listings: true } }>;
+
+/** User with organization and agent_profiles */
+type UserWithRelations = Prisma.usersGetPayload<{ include: { organization: true; agent_profiles: true } }>;
 
 /**
  * PrismaStorageSimple Class - Simplified storage implementation
  */
 class PrismaStorageSimple {
-  private decimalToNumber(value: any): number | null {
+  private decimalToNumber(value: unknown): number | null {
     if (value === null || value === undefined) {
       return null;
     }
     return Number(value);
   }
 
-  async getUser(id: string): Promise<any | undefined> {
+  async getUser(id: string): Promise<UserWithRelations | undefined> {
     try {
       const user = await prisma.users.findUnique({
         where: { id },
@@ -52,7 +59,7 @@ class PrismaStorageSimple {
     }
   }
 
-  async getUserByEmail(email: string): Promise<any | undefined> {
+  async getUserByEmail(email: string): Promise<UserWithRelations | undefined> {
     try {
       const user = await prisma.users.findUnique({
         where: { email },
@@ -68,7 +75,7 @@ class PrismaStorageSimple {
     }
   }
 
-  async getAllUsers(): Promise<any[]> {
+  async getAllUsers(): Promise<UserWithRelations[]> {
     try {
       const users = await prisma.users.findMany({
         include: {
@@ -86,7 +93,7 @@ class PrismaStorageSimple {
     }
   }
 
-  async getAllProperties(): Promise<any[]> {
+  async getAllProperties(): Promise<PropertyWithListings[]> {
     try {
       const properties = await prisma.properties.findMany({
         include: {
@@ -122,7 +129,7 @@ class PrismaStorageSimple {
     status?: string;
     ids?: string[];
     sort?: string;
-  }): Promise<{ items: any[]; total: number; page: number; pageSize: number; totalPages: number }> {
+  }): Promise<{ items: PropertyWithListings[]; total: number; page: number; pageSize: number; totalPages: number }> {
     try {
       const {
         page = 1,
@@ -143,14 +150,14 @@ class PrismaStorageSimple {
       } = options;
 
       // Build where clause for SQL-level filtering
-      const where: any = {};
+      const where: Prisma.propertiesWhereInput = {};
 
       if (ids && ids.length > 0) {
         where.id = { in: ids };
       }
 
       if (status) {
-        where.status = status;
+        where.status = status as PropertyStatus;
       }
 
       if (city) {
@@ -168,25 +175,25 @@ class PrismaStorageSimple {
       if (listingType) {
         where.listings = {
           some: {
-            listingType: listingType,
+            listingType: listingType as ListingType,
           },
         };
       }
 
       if (minPrice !== undefined) {
-        where.price = { ...where.price, gte: minPrice };
+        where.price = { ...(where.price as object || {}), gte: minPrice };
       }
 
       if (maxPrice !== undefined) {
-        where.price = { ...where.price, lte: maxPrice };
+        where.price = { ...(where.price as object || {}), lte: maxPrice };
       }
 
       if (minBedrooms !== undefined) {
-        where.bedrooms = { ...where.bedrooms, gte: minBedrooms };
+        where.bedrooms = { ...(where.bedrooms as object || {}), gte: minBedrooms };
       }
 
       if (minBathrooms !== undefined) {
-        where.bathrooms = { ...where.bathrooms, gte: minBathrooms };
+        where.bathrooms = { ...(where.bathrooms as object || {}), gte: minBathrooms };
       }
 
       // Text search - use Prisma's contains for SQL-level search
@@ -200,7 +207,7 @@ class PrismaStorageSimple {
       }
 
       // Build orderBy clause
-      let orderBy: any = { createdAt: 'desc' };
+      let orderBy: Prisma.propertiesOrderByWithRelationInput = { createdAt: 'desc' };
       switch (sort) {
         case 'price_asc':
           orderBy = { price: 'asc' };
@@ -392,7 +399,7 @@ class PrismaStorageSimple {
     return this.getAllProperties();
   }
 
-  async getProperty(id: string): Promise<any | undefined> {
+  async getProperty(id: string): Promise<PropertyWithListings | undefined> {
     try {
       const property = await prisma.properties.findUnique({
         where: { id },
@@ -430,7 +437,7 @@ class PrismaStorageSimple {
   async getDealsByStage(stage: string): Promise<any[]> {
     try {
       return await prisma.claims.findMany({
-        where: { status: stage as any },
+        where: { status: stage as ClaimStatus },
         include: { users: true, buyer_requests: true },
       });
     } catch (error) {
