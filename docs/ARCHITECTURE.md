@@ -56,22 +56,9 @@ Standard page wrapper with:
 </PageShell>
 ```
 
-## Feature Structure (Future)
+## Feature Structure
 
-**`apps/web/src/features/`**
-
-Target structure for new features:
-```
-features/
-  contacts/
-    ContactsPage.tsx
-    useContacts.ts
-  dashboard/
-    DashboardPage.tsx
-    useDashboard.ts
-```
-
-Existing pages in `pages/platform/` stay. New features go in `features/`. Migrate gradually.
+The project uses `pages/platform/` for platform pages. A feature-based layout (`features/`) was considered but not adopted; new work stays in `pages/platform/` and shared `components/`/`hooks/`.
 
 ## Migration Checklist
 
