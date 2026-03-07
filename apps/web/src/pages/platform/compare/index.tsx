@@ -29,11 +29,12 @@ type Listing = {
   title: string;
   city: string;
   address: string;
-  price: any;
+  price: number | string | null;
   propertyType?: string;
   bedrooms?: number | null;
   bathrooms?: number | null | string;
   squareFeet?: number | null;
+  areaSqm?: number | null;
 };
 
 export default function ComparePage() {
@@ -114,7 +115,7 @@ export default function ComparePage() {
                   <div className="text-xs text-muted-foreground">النوع: {p.propertyType || '-'}</div>
                   <div className="text-xs text-muted-foreground">الغرف: {p.bedrooms ?? '-'}</div>
                   <div className="text-xs text-muted-foreground">الحمامات: {typeof p.bathrooms === 'string' ? p.bathrooms : (p.bathrooms ?? '-')}</div>
-                  <div className="text-xs text-muted-foreground">المساحة: {(p as any).areaSqm ?? '-'} متر²</div>
+                  <div className="text-xs text-muted-foreground">المساحة: {p.areaSqm != null ? (typeof p.areaSqm === "number" ? p.areaSqm.toLocaleString("en-US") : p.areaSqm) : "-"} متر²</div>
                 </CardContent>
               </Card>
             ))}

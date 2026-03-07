@@ -81,16 +81,16 @@ export default function PropertiesGrid({
                   <span>{property.bathrooms}</span>
                 </div>
               )}
-              {(property as any).livingRooms && (
+              {property.livingRooms != null && property.livingRooms !== 0 && (
                 <div className="flex items-center space-x-1">
                   <Sofa size={14} />
-                  <span>{(property as any).livingRooms}</span>
+                  <span>{property.livingRooms}</span>
                 </div>
               )}
-              {(property as any).areaSqm && (
+              {property.areaSqm != null && (
                 <div className="flex items-center space-x-1">
                   <Square size={14} />
-                  <span>{(property as any).areaSqm?.toLocaleString?.("en-US") ?? (property as any).areaSqm} متر²</span>
+                  <span>{typeof property.areaSqm === "number" ? property.areaSqm.toLocaleString("en-US") : property.areaSqm} متر²</span>
                 </div>
               )}
             </div>

@@ -243,10 +243,10 @@ export default function PropertyDetail() {
                         <span>{property.bathrooms} حمام</span>
                       </div>
                     )}
-                    {(property as any).areaSqm && (
+                    {property.areaSqm != null && (
                       <div className="flex items-center space-x-2 rtl:space-x-reverse text-slate-500">
                         <Square size={20} />
-                        <span>{((property as any).areaSqm?.toLocaleString?.("en-US") ?? (property as any).areaSqm)} متر²</span>
+                        <span>{typeof property.areaSqm === "number" ? property.areaSqm.toLocaleString("en-US") : property.areaSqm} متر²</span>
                       </div>
                     )}
                   </div>

@@ -86,7 +86,7 @@ export default function PropertiesTable({
               </div>
             </TableCell>
             <TableCell>
-              {(property as any).areaSqm ? `${((property as any).areaSqm?.toLocaleString?.("en-US") ?? (property as any).areaSqm)} متر²` : "-"}
+              {property.areaSqm != null ? `${typeof property.areaSqm === "number" ? property.areaSqm.toLocaleString("en-US") : property.areaSqm} متر²` : "-"}
             </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
@@ -102,10 +102,10 @@ export default function PropertiesTable({
                     {property.bathrooms}
                   </span>
                 )}
-                {(property as any).livingRooms && (
+                {property.livingRooms != null && property.livingRooms !== 0 && (
                   <span className="flex items-center gap-1">
                     <Sofa size={12} />
-                    {(property as any).livingRooms}
+                    {property.livingRooms}
                   </span>
                 )}
               </div>
