@@ -1,23 +1,9 @@
-
 import express from 'express';
 import { LandingService } from '../services/landingService';
-import jwt from 'jsonwebtoken';
-import { JWT_SECRET as getJwtSecret } from "../config/env";
+import { decodeAuth } from '../src/middleware/auth-helpers';
 
 const router = express.Router();
 const previewToken = process.env.LANDING_PREVIEW_TOKEN;
-
-// Helper: decode roles/org from Authorization header (simple-auth JWT)
-function decodeAuth(req: any): { id?: string; roles: string[]; organizationId?: string } {
-    try {
-        const token = req.headers.authorization?.replace('Bearer ', '');
-        if (!token) return { roles: [] };
-        const decoded: any = jwt.verify(token, getJwtSecret());
-        let roles: string[] = [];
-        try { roles = JSON.parse(decoded.roles || '[]'); } catch { if (decoded.roles) roles = [decoded.roles]; }
-        return { id: decoded.userId, roles, organizationId: decoded.organizationId };
-    } catch { return { roles: [] }; }
-}
 
 router.get("/", async (req, res) => {
     try {
@@ -46,7 +32,7 @@ router.get("/preview", async (req, res) => {
         }
     } else {
         const auth = decodeAuth(req);
-        const roleSet = new Set(auth.roles.map((r: string) => r.toUpperCase()));
+        const roleSet = new Set(auth.roles.map((r) => r.toUpperCase()));
         if (!roleSet.has("WEBSITE_ADMIN") && !roleSet.has("CMS_ADMIN") && !roleSet.has("EDITOR")) {
             return res.status(403).json({ message: "Preview unavailable" });
         }

@@ -24,6 +24,7 @@
 import express from "express";
 import { z } from "zod";
 import { LandingService } from "../services/landingService";
+import { getAuth } from "../src/middleware/auth-helpers";
 
 const router = express.Router();
 
@@ -81,19 +82,6 @@ const CardReorderSchema = z.object({
     })
   ),
 });
-
-function getAuth(req: any) {
-  const user = req.session?.user || req.user;
-  const roles: string[] = Array.isArray(user?.roles)
-    ? user.roles
-    : typeof user?.roles === "string"
-    ? [user.roles]
-    : [];
-  return {
-    id: user?.id ?? "anonymous",
-    roles,
-  };
-}
 
 function requireRole(roles: string[]) {
   return (req: any, res: any, next: any) => {

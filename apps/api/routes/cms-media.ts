@@ -25,6 +25,7 @@ import express from "express";
 import multer from "multer";
 import { z } from "zod";
 import { MediaService } from "../services/mediaService";
+import { getAuth } from "../src/middleware/auth-helpers";
 import * as path from "path";
 import * as fs from "fs/promises";
 import { v4 as uuidv4 } from "uuid";
@@ -81,19 +82,6 @@ const upload = multer({
     }
   },
 });
-
-function getAuth(req: any) {
-  const user = req.session?.user || req.user;
-  const roles: string[] = Array.isArray(user?.roles)
-    ? user.roles
-    : typeof user?.roles === "string"
-    ? [user.roles]
-    : [];
-  return {
-    id: user?.id ?? "anonymous",
-    roles,
-  };
-}
 
 function requireRole(roles: string[]) {
   return (req: any, res: any, next: any) => {
