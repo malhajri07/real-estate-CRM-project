@@ -20,7 +20,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet, apiDelete } from "@/lib/apiClient";
 import {
   Card,
   CardContent,
@@ -75,8 +75,7 @@ const fetchMedia = async (params: {
 
   if (params.mimeType) queryParams.append("mimeType", params.mimeType);
 
-  const res = await apiRequest("GET", `/api/cms/media?${queryParams.toString()}`);
-  return res.json();
+  return apiGet(`api/cms/media?${queryParams.toString()}`);
 };
 
 export default function MediaLibrary() {
@@ -122,9 +121,7 @@ export default function MediaLibrary() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api/cms/media/${id}`);
-    },
+    mutationFn: async (id: string) => apiDelete(`api/cms/media/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["media"] });
       toast({ title: "تم حذف الملف بنجاح" });

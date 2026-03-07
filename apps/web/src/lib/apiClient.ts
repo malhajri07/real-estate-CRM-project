@@ -79,3 +79,18 @@ export const apiPatch = <T = unknown>(path: string, body?: unknown) =>
 /** DELETE request */
 export const apiDelete = <T = unknown>(path: string) =>
   apiClient<T>(path, { method: "DELETE" });
+
+/** GET request returning response body as text (e.g. XML, plain text) */
+export async function apiGetText(path: string): Promise<string> {
+  const url = path.startsWith("http") ? path : `/${path.replace(/^\//, "")}`;
+  const res = await fetch(url, {
+    method: "GET",
+    headers: getAuthHeaders(),
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const text = (await res.text()) || res.statusText;
+    throw new Error(`${res.status}: ${text}`);
+  }
+  return res.text();
+}

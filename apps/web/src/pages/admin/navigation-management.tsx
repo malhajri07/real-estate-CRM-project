@@ -18,7 +18,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet, apiPost, apiPut } from "@/lib/apiClient";
 import {
   Card,
   CardContent,
@@ -68,10 +68,8 @@ interface NavigationLink {
   icon?: string;
 }
 
-const fetchNavigationLinks = async (): Promise<NavigationLink[]> => {
-  const res = await apiRequest("GET", "/api/cms/navigation/all");
-  return res.json();
-};
+const fetchNavigationLinks = async (): Promise<NavigationLink[]> =>
+  apiGet<NavigationLink[]>("api/cms/navigation/all");
 
 export default function NavigationManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -85,10 +83,8 @@ export default function NavigationManagement() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (updatedLinks: NavigationLink[]) => {
-      const res = await apiRequest("PUT", "/api/cms/navigation", updatedLinks);
-      return res.json();
-    },
+    mutationFn: async (updatedLinks: NavigationLink[]) =>
+      apiPut("api/cms/navigation", updatedLinks),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["navigation-links"] });
       queryClient.invalidateQueries({ queryKey: ["navigation-links-public"] });
@@ -97,10 +93,8 @@ export default function NavigationManagement() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: Partial<NavigationLink>) => {
-      const res = await apiRequest("POST", "/api/cms/navigation", data);
-      return res.json();
-    },
+    mutationFn: async (data: Partial<NavigationLink>) =>
+      apiPost("api/cms/navigation", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["navigation-links"] });
       setIsDialogOpen(false);
@@ -114,8 +108,7 @@ export default function NavigationManagement() {
         ...link,
         order: index,
       }));
-      const res = await apiRequest("PUT", "/api/cms/navigation", updatedLinks);
-      return res.json();
+      return apiPut("api/cms/navigation", updatedLinks);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["navigation-links"] });
@@ -128,8 +121,7 @@ export default function NavigationManagement() {
       const updatedLinks = links.map((link) =>
         link.id === id ? { ...link, visible } : link
       );
-      const res = await apiRequest("PUT", "/api/cms/navigation", updatedLinks);
-      return res.json();
+      return apiPut("api/cms/navigation", updatedLinks);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["navigation-links"] });

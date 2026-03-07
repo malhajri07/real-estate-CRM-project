@@ -27,7 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import EmptyState from "@/components/ui/empty-state";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet, apiPut } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Deal, Lead } from "@shared/types";
 import { cn } from "@/lib/utils";
@@ -76,14 +76,7 @@ export default function Pipeline() {
   const propertyRequestsQuery = useQuery<PropertyRequestSummary[]>({
     queryKey: ["/api/requests"],
     queryFn: async () => {
-      const response = await apiRequest("GET", "/api/requests");
-      const body = await response.json().catch(() => []);
-      if (!response.ok) {
-        const message = body && typeof body === 'object' && body && 'message' in body
-          ? String((body as any).message)
-          : "تعذر تحميل طلبات العملاء";
-        throw new Error(message);
-      }
+      const body = await apiGet<PropertyRequestSummary[] | unknown>("api/requests");
       return Array.isArray(body) ? body : [];
     },
     enabled: showRequestDrawer,
@@ -107,10 +100,8 @@ export default function Pipeline() {
     }
   }, [propertyRequestsError, toast]);
   const updateDealMutation = useMutation({
-    mutationFn: async ({ id, stage }: { id: string; stage: string }) => {
-      const response = await apiRequest("PUT", `/api/deals/${id}`, { stage });
-      return response.json();
-    },
+    mutationFn: async ({ id, stage }: { id: string; stage: string }) =>
+      apiPut(`api/deals/${id}`, { stage }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/deals"] });
       queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });

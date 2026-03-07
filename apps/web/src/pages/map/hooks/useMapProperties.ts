@@ -22,7 +22,7 @@
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet } from "@/lib/apiClient";
 import { logger } from "@/lib/logger";
 import type { ApiListing, ListingsResponse, PropertySummary } from "../types";
 import { asNumber, sqmFromSquareFeet } from "../utils/formatters";
@@ -31,12 +31,8 @@ export function useMapProperties() {
   // Load ALL listing data from the backend. We fetch all records and do client-side filtering/pagination.
   const listingsQuery = useQuery<ListingsResponse>({
     queryKey: ["public-property-search-all"],
-    queryFn: async () => {
-      // Fetch all records from database using pageSize=all
-      const response = await apiRequest("GET", `/api/listings?page=1&pageSize=all`);
-      const payload = (await response.json()) as ListingsResponse;
-      return payload;
-    },
+    queryFn: async () =>
+      apiGet<ListingsResponse>("api/listings?page=1&pageSize=all"),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 

@@ -38,7 +38,7 @@ import { buildSectionPayload, buildCardPayload } from "./utils/builders";
 import { defaultCardDraft } from "./utils/defaults";
 import { SectionEditor, CardEditor } from "./components";
 import { useCMSLandingSections } from "./hooks";
-import { apiRequest } from "@/lib/queryClient";
+import { apiPut, apiPost, apiDelete } from "@/lib/apiClient";
 
 interface CMSLandingPageProps {
   embedded?: boolean;
@@ -110,11 +110,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     setSectionSaving(true);
     try {
       const payload = buildSectionPayload(selectedSection, sectionForm);
-      const response = await apiRequest("PUT", `/api/cms/landing/sections/${selectedSection.id}`, payload);
-      if (!response.ok) {
-        throw new Error("فشل حفظ القسم");
-      }
-      const updatedSection = await response.json();
+      const updatedSection = await apiPut(`api/cms/landing/sections/${selectedSection.id}`, payload);
       updateSectionState(updatedSection);
       toast.success("تم حفظ القسم");
 
@@ -138,15 +134,10 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     if (!selectedSection) return;
     setSectionPublishing(true);
     try {
-      const response = await apiRequest(
-        "POST",
-        `/api/cms/landing/sections/${selectedSection.id}/publish`,
+      const updated = await apiPost(
+        `api/cms/landing/sections/${selectedSection.id}/publish`,
         { publishCards: true }
       );
-      if (!response.ok) {
-        throw new Error("فشل نشر القسم");
-      }
-      const updated = await response.json();
       updateSectionState(updated);
       toast.success("تم نشر القسم بنجاح");
 
@@ -172,11 +163,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     setCardSaving((prev) => ({ ...prev, [card.id]: true }));
     try {
       const payload = buildCardPayload(selectedSection.slug, form, selectedSection);
-      const response = await apiRequest("PUT", `/api/cms/landing/cards/${card.id}`, payload);
-      if (!response.ok) {
-        throw new Error("فشل حفظ البطاقة");
-      }
-      const updatedCard: LandingCard = await response.json();
+      const updatedCard = await apiPut<LandingCard>(`api/cms/landing/cards/${card.id}`, payload);
 
       updateSections((prev) =>
         prev.map((section) => {
@@ -213,10 +200,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
 
   const handleDeleteCard = async (cardId: string) => {
     try {
-      const response = await apiRequest("DELETE", `/api/cms/landing/cards/${cardId}`);
-      if (!response.ok) {
-        throw new Error("فشل حذف البطاقة");
-      }
+      await apiDelete(`api/cms/landing/cards/${cardId}`);
       updateSections((prev) =>
         prev.map((section) => {
           if (section.id !== selectedSectionId) return section;
@@ -245,14 +229,10 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     if (!selectedSection) return;
     try {
       const draft = defaultCardDraft(selectedSection);
-      const response = await apiRequest("POST", "/api/cms/landing/cards", {
+      const newCard = await apiPost<LandingCard>("api/cms/landing/cards", {
         sectionId: selectedSection.id,
         draftJson: draft,
       });
-      if (!response.ok) {
-        throw new Error("فشل إنشاء بطاقة جديدة");
-      }
-      const newCard: LandingCard = await response.json();
 
       updateSections((prev) =>
         prev.map((section) => {
@@ -295,7 +275,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
       }));
 
       try {
-        await apiRequest("PUT", "/api/cms/landing/sections/reorder", { orders });
+        await apiPut("api/cms/landing/sections/reorder", { orders });
         toast.success("تم تحديث ترتيب الأقسام");
       } catch (error) {
         logger.error("Error reordering sections", {
@@ -328,7 +308,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
       }));
 
       try {
-        await apiRequest("PUT", "/api/cms/landing/cards/reorder", { sectionId: selectedSection.id, orders });
+        await apiPut("api/cms/landing/cards/reorder", { sectionId: selectedSection.id, orders });
         toast.success("تم تحديث ترتيب البطاقات");
       } catch (error) {
         logger.error("Error reordering cards", {

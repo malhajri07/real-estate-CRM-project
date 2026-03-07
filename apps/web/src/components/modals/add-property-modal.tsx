@@ -24,7 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { insertPropertySchema, type InsertProperty } from "@shared/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiPost } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface AddPropertyModalProps {
@@ -60,10 +60,7 @@ export default function AddPropertyModal({ open, onOpenChange }: AddPropertyModa
   });
 
   const createPropertyMutation = useMutation({
-    mutationFn: async (data: InsertProperty) => {
-      const response = await apiRequest("POST", "/api/listings", data);
-      return response.json();
-    },
+    mutationFn: async (data: InsertProperty) => apiPost("api/listings", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });

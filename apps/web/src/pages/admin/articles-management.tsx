@@ -19,7 +19,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/apiClient";
 import { cn } from "@/lib/utils";
 import {
   Card,
@@ -106,19 +106,12 @@ const fetchArticles = async (params: {
   if (params.search) queryParams.append("search", params.search);
 
   if (params.search) queryParams.append("search", params.search);
-  const res = await apiRequest("GET", `/api/cms/articles?${queryParams.toString()}`);
-  return res.json();
+  return apiGet(`api/cms/articles?${queryParams.toString()}`);
 };
 
-const fetchCategories = async () => {
-  const res = await apiRequest("GET", "/api/cms/articles/categories");
-  return res.json();
-};
+const fetchCategories = async () => apiGet("api/cms/articles/categories");
 
-const fetchTags = async () => {
-  const res = await apiRequest("GET", "/api/cms/articles/tags");
-  return res.json();
-};
+const fetchTags = async () => apiGet("api/cms/articles/tags");
 
 interface ArticleVersion {
   id: string;
@@ -135,17 +128,12 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
 
   const { data: versions = [], isLoading } = useQuery({
     queryKey: ["article-versions", articleId],
-    queryFn: async () => {
-      const res = await apiRequest("GET", `/api/cms/articles/${articleId}/versions`);
-      return res.json() as Promise<ArticleVersion[]>;
-    },
+    queryFn: async () => apiGet<ArticleVersion[]>(`api/cms/articles/${articleId}/versions`),
   });
 
   const restoreMutation = useMutation({
-    mutationFn: async (version: number) => {
-      const res = await apiRequest("POST", `/api/cms/articles/${articleId}/versions/${version}/restore`);
-      return res.json();
-    },
+    mutationFn: async (version: number) =>
+      apiPost(`api/cms/articles/${articleId}/versions/${version}/restore`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       queryClient.invalidateQueries({ queryKey: ["article-versions", articleId] });
@@ -252,10 +240,7 @@ export default function ArticlesManagement() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const res = await apiRequest("POST", "/api/cms/articles", data);
-      return res.json();
-    },
+    mutationFn: async (data: any) => apiPost("api/cms/articles", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       setIsDialogOpen(false);
@@ -264,10 +249,8 @@ export default function ArticlesManagement() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const res = await apiRequest("PUT", `/api/cms/articles/${id}`, data);
-      return res.json();
-    },
+    mutationFn: async ({ id, data }: { id: string; data: any }) =>
+      apiPut(`api/cms/articles/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       setIsDialogOpen(false);
@@ -277,10 +260,7 @@ export default function ArticlesManagement() {
   });
 
   const publishMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const res = await apiRequest("POST", `/api/cms/articles/${id}/publish`);
-      return res.json();
-    },
+    mutationFn: async (id: string) => apiPost(`api/cms/articles/${id}/publish`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       toast({ title: "تم نشر المقال بنجاح" });
@@ -288,9 +268,7 @@ export default function ArticlesManagement() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api/cms/articles/${id}`);
-    },
+    mutationFn: async (id: string) => apiDelete(`api/cms/articles/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       toast({ title: "تم حذف المقال بنجاح" });
@@ -298,10 +276,8 @@ export default function ArticlesManagement() {
   });
 
   const bulkActionMutation = useMutation({
-    mutationFn: async ({ action, articleIds }: { action: string; articleIds: string[] }) => {
-      const res = await apiRequest("POST", "/api/cms/articles/bulk", { action, articleIds });
-      return res.json();
-    },
+    mutationFn: async ({ action, articleIds }: { action: string; articleIds: string[] }) =>
+      apiPost("api/cms/articles/bulk", { action, articleIds }),
     onSuccess: (data) => {
       const successCount = data.results.filter((r: any) => r.success).length;
       queryClient.invalidateQueries({ queryKey: ["articles"] });

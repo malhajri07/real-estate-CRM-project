@@ -11,7 +11,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "./queryClient";
+import { apiGet, apiPost } from "./apiClient";
 
 // --- Types ---
 
@@ -94,10 +94,7 @@ const ensureSuccess = <T extends { success?: boolean; message?: string }>(payloa
 export const useAdminBillingAnalytics = () => {
     return useQuery<AdminBillingAnalytics, Error>({
         queryKey: BILLING_ANALYTICS_KEY,
-        queryFn: async () => {
-            const res = await apiRequest("GET", "/api/billing/analytics");
-            return await res.json();
-        },
+        queryFn: async () => apiGet<AdminBillingAnalytics>("api/billing/analytics"),
     });
 };
 
@@ -105,9 +102,7 @@ export const useAdminSubscriptions = () => {
     return useQuery<AdminSubscription[], Error>({
         queryKey: BILLING_SUBSCRIPTIONS_KEY,
         queryFn: async () => {
-            const res = await apiRequest("GET", "/api/billing/subscriptions");
-            // Expecting array directly or wrap in object
-            const json = await res.json();
+            const json = await apiGet<AdminSubscription[] | { subscriptions?: AdminSubscription[] }>("api/billing/subscriptions");
             return Array.isArray(json) ? json : (json.subscriptions || []);
         },
     });
@@ -117,8 +112,7 @@ export const useAdminPlans = () => {
     return useQuery<AdminPlan[], Error>({
         queryKey: BILLING_PLANS_KEY,
         queryFn: async () => {
-            const res = await apiRequest("GET", "/api/billing/plans");
-            const json = await res.json();
+            const json = await apiGet<AdminPlan[] | { plans?: AdminPlan[] }>("api/billing/plans");
             return Array.isArray(json) ? json : (json.plans || []);
         },
     });
@@ -129,9 +123,7 @@ export const useAdminPlans = () => {
 export const useSeedBillingData = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async () => {
-            await apiRequest("POST", "/api/billing/seed");
-        },
+        mutationFn: async () => apiPost("api/billing/seed"),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["billing-admin"] });
         },

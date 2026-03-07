@@ -30,7 +30,7 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet } from "@/lib/apiClient";
 
 // --- Types ---
 interface AuditLog {
@@ -45,10 +45,7 @@ interface AuditLog {
 function SecurityAuditLogs() {
     const { data: logs = [], isLoading, isError } = useQuery<AuditLog[]>({
         queryKey: ["admin-activities"],
-        queryFn: async () => {
-            const res = await apiRequest("GET", "/api/rbac-admin/activities");
-            return res.json();
-        }
+        queryFn: async () => apiGet<AuditLog[]>("api/rbac-admin/activities")
     });
 
     return (

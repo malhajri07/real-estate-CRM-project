@@ -18,7 +18,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet, apiGetText, apiPut } from "@/lib/apiClient";
 import {
   Card,
   CardContent,
@@ -51,15 +51,11 @@ interface SEOSettings {
   canonicalUrl?: string;
 }
 
-const fetchSEOSettings = async (): Promise<SEOSettings[]> => {
-  const res = await apiRequest("GET", "/api/cms/seo");
-  return res.json();
-};
+const fetchSEOSettings = async (): Promise<SEOSettings[]> =>
+  apiGet<SEOSettings[]>("api/cms/seo");
 
-const fetchSitemap = async (): Promise<string> => {
-  const res = await apiRequest("GET", "/api/cms/seo/sitemap.xml");
-  return res.text();
-};
+const fetchSitemap = async (): Promise<string> =>
+  apiGetText("api/cms/seo/sitemap.xml");
 
 export default function SEOManagement() {
   const { toast } = useToast();
@@ -75,10 +71,8 @@ export default function SEOManagement() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (data: SEOSettings) => {
-      const res = await apiRequest("PUT", `/api/cms/seo${data.pagePath}`, data);
-      return res.json();
-    },
+    mutationFn: async (data: SEOSettings) =>
+      apiPut(`api/cms/seo${data.pagePath}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["seo-settings"] });
       toast({ title: "تم حفظ إعدادات SEO بنجاح" });
@@ -100,8 +94,7 @@ export default function SEOManagement() {
   });
 
   const fetchRobotsTxt = async (): Promise<string> => {
-    const res = await apiRequest("GET", "/api/cms/seo/robots.txt/content");
-    const data = await res.json();
+    const data = await apiGet<{ content: string }>("api/cms/seo/robots.txt/content");
     return data.content;
   };
 
@@ -119,10 +112,8 @@ export default function SEOManagement() {
   }, [robotsTxtContent]);
 
   const robotsTxtMutation = useMutation({
-    mutationFn: async (content: string) => {
-      const res = await apiRequest("PUT", "/api/cms/seo/robots.txt", { content });
-      return res.json();
-    },
+    mutationFn: async (content: string) =>
+      apiPut("api/cms/seo/robots.txt", { content }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["robots-txt"] });
       toast({ title: "تم حفظ robots.txt بنجاح" });

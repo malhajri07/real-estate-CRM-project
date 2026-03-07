@@ -18,7 +18,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/apiClient";
 import {
   Card,
   CardContent,
@@ -83,8 +83,7 @@ const fetchTemplates = async (params: {
   if (params.pageSize) queryParams.append("pageSize", params.pageSize.toString());
   if (params.search) queryParams.append("search", params.search);
 
-  const res = await apiRequest("GET", `/api/cms/templates?${queryParams.toString()}`);
-  return res.json();
+  return apiGet(`api/cms/templates?${queryParams.toString()}`);
 };
 
 export default function TemplatesManagement() {
@@ -108,10 +107,7 @@ export default function TemplatesManagement() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const res = await apiRequest("POST", "/api/cms/templates", data);
-      return res.json();
-    },
+    mutationFn: async (data: any) => apiPost("api/cms/templates", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
       setIsDialogOpen(false);
@@ -120,10 +116,7 @@ export default function TemplatesManagement() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      const res = await apiRequest("PUT", `/api/cms/templates/${id}`, data);
-      return res.json();
-    },
+    mutationFn: async ({ id, data }: { id: string; data: any }) => apiPut(`api/cms/templates/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
       setIsDialogOpen(false);
@@ -133,10 +126,7 @@ export default function TemplatesManagement() {
   });
 
   const cloneMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const res = await apiRequest("POST", `/api/cms/templates/${id}/clone`);
-      return res.json();
-    },
+    mutationFn: async (id: string) => apiPost(`api/cms/templates/${id}/clone`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
       toast({ title: "تم نسخ القالب بنجاح" });
@@ -144,9 +134,7 @@ export default function TemplatesManagement() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api/cms/templates/${id}`);
-    },
+    mutationFn: async (id: string) => apiDelete(`api/cms/templates/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
       toast({ title: "تم حذف القالب بنجاح" });

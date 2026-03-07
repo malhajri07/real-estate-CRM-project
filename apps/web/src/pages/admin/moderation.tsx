@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet, apiPost } from "@/lib/apiClient";
 import type { Property } from "@shared/types";
 import { AdminTable, type AdminTableColumn } from "@/components/admin";
 import { MetricCard } from "@/components/admin";
@@ -17,10 +17,7 @@ export default function ModerationQueuePage() {
 
   const { data: items = [], isLoading } = useQuery<Property[]>({
     queryKey: ["/api/moderation/queue"],
-    queryFn: async () => {
-      const res = await apiRequest("GET", "/api/moderation/queue");
-      return res.json();
-    }
+    queryFn: async () => apiGet<Property[]>("api/moderation/queue"),
   });
 
   const { data: stats, isLoading: statsLoading } = useQuery<{
@@ -29,16 +26,11 @@ export default function ModerationQueuePage() {
     rejected: { today: number; last7Days: number; last30Days: number };
   }>({
     queryKey: ["/api/moderation/stats"],
-    queryFn: async () => {
-      const res = await apiRequest("GET", "/api/moderation/stats");
-      return res.json();
-    }
+    queryFn: async () => apiGet("api/moderation/stats")
   });
 
   const approveMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest("POST", `/api/moderation/${id}/approve`);
-    },
+    mutationFn: async (id: string) => apiPost(`api/moderation/${id}/approve`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/moderation/queue"] });
       toast({ title: "تم اعتماد الإعلان بنجاح", className: "bg-emerald-50 text-emerald-800 border-emerald-200" });
@@ -51,9 +43,7 @@ export default function ModerationQueuePage() {
   });
 
   const rejectMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await apiRequest("POST", `/api/moderation/${id}/reject`);
-    },
+    mutationFn: async (id: string) => apiPost(`api/moderation/${id}/reject`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/moderation/queue"] });
       toast({ title: "تم رفض الإعلان", variant: "default" });

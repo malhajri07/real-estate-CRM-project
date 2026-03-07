@@ -21,7 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet, apiPatch } from "@/lib/apiClient";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Search, Download, RefreshCw } from "lucide-react";
@@ -64,8 +64,7 @@ export default function AdminRequestsPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await apiRequest("GET", "/api/requests");
-      const json = await res.json();
+      const json = await apiGet<RequestItem[]>("api/requests");
       setData(json);
     } catch (e) {
       toast({ title: "خطأ", description: "تعذر تحميل الطلبات" });
@@ -92,8 +91,7 @@ export default function AdminRequestsPage() {
 
   const updateStatus = async (id: string, status: string) => {
     try {
-      const res = await apiRequest("PATCH", `/api/requests/${id}/status`, { status });
-      if (!res.ok) throw new Error();
+      await apiPatch(`api/requests/${id}/status`, { status });
       toast({ title: "تم التحديث" });
       fetchData();
     } catch {

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet, apiPost } from "@/lib/apiClient";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import { toast } from "sonner";
@@ -137,21 +137,37 @@ export default function Requests() {
 
     useEffect(() => setPoolPage(1), [searchQuery]);
 
+    interface PoolPagination {
+        page: number;
+        pageSize: number;
+        total: number;
+        totalPages: number;
+    }
+
+    interface PoolSearchResponse {
+        success?: boolean;
+        data?: unknown[];
+        pagination?: PoolPagination;
+    }
+
     const {
         data: poolData,
         isLoading: poolLoading,
         error: poolError,
         isError: poolIsError,
         refetch: poolRefetch,
-    } = useQuery({
+    } = useQuery<PoolSearchResponse>({
         queryKey: ["/api/pool/search", searchQuery, poolPage],
         queryFn: async () => {
             const params = new URLSearchParams({ page: String(poolPage), pageSize: String(poolPageSize) });
             if (searchQuery) params.set("city", searchQuery);
-            const res = await apiRequest("GET", `/api/pool/search?${params}`);
-            const json = await res.json();
-            if (!json || typeof json !== "object") return { success: false, data: [], pagination: { page: 1, pageSize: poolPageSize, total: 0, totalPages: 1 } };
-            return { success: json.success, data: json.data ?? [], pagination: json.pagination ?? { page: 1, pageSize: poolPageSize, total: 0, totalPages: 1 } };
+            const json = await apiGet<PoolSearchResponse>(`api/pool/search?${params}`);
+            const defaultPagination: PoolPagination = { page: 1, pageSize: poolPageSize, total: 0, totalPages: 1 };
+            if (!json || typeof json !== "object") return { success: false, data: [], pagination: defaultPagination };
+            const pagination = json.pagination && typeof json.pagination === "object"
+                ? { ...defaultPagination, ...json.pagination } as PoolPagination
+                : defaultPagination;
+            return { success: json.success, data: json.data ?? [], pagination };
         },
         retry: 1,
         staleTime: 0,
@@ -162,11 +178,9 @@ export default function Requests() {
     const claimMutation = useMutation({
         mutationFn: async ({ requestId, source }: { requestId: string; source?: string }) => {
             if (source === "customer_request") {
-                const res = await apiRequest("POST", `/api/pool/customer-requests/${requestId}/claim`, { notes: "Claimed from pool" });
-                return res.json();
+                return apiPost(`api/pool/customer-requests/${requestId}/claim`, { notes: "Claimed from pool" });
             }
-            const res = await apiRequest("POST", `/api/pool/${requestId}/claim`, { notes: "Quick claim via Platform" });
-            return res.json();
+            return apiPost(`api/pool/${requestId}/claim`, { notes: "Quick claim via Platform" });
         },
         onSuccess: () => {
             toast.success("Request claimed successfully! Added to your pipeline.");
@@ -178,10 +192,8 @@ export default function Requests() {
     });
 
     const sendSmsMutation = useMutation({
-        mutationFn: async ({ requestId, message }: { requestId: string; message: string }) => {
-            const res = await apiRequest("POST", `/api/pool/customer-requests/${requestId}/send-sms`, { message });
-            return res.json();
-        },
+        mutationFn: async ({ requestId, message }: { requestId: string; message: string }) =>
+            apiPost(`api/pool/customer-requests/${requestId}/send-sms`, { message }),
         onSuccess: () => {
             toast.success("SMS sent successfully.");
             setSmsMessage("");
@@ -222,15 +234,7 @@ export default function Requests() {
     } = useQuery<PropertySeekerRecord[], Error>({
         queryKey: ["property-seekers"],
         queryFn: async () => {
-            const response = await apiRequest("GET", "/api/requests");
-            const body = await response.json().catch(() => null);
-            if (!response.ok) {
-                const message =
-                    body && typeof body === "object" && "message" in body
-                        ? String((body as any).message)
-                        : "تعذر تحميل الطلبات";
-                throw new Error(message);
-            }
+            const body = await apiGet<PropertySeekerRecord[] | unknown>("api/requests");
             if (!Array.isArray(body)) return [];
             return body as PropertySeekerRecord[];
         },
@@ -454,21 +458,25 @@ export default function Requests() {
                     </Card>
 
                     {/* Pool pagination */}
-                    {!poolLoading && poolData?.pagination && poolData.pagination.totalPages > 1 && (
-                        <div className="flex items-center justify-between">
-                            <p className="text-sm text-muted-foreground">
-                                {t("pool.showing")} {((poolData.pagination.page - 1) * poolData.pagination.pageSize + 1).toLocaleString("en-US")}–{Math.min(poolData.pagination.page * poolData.pagination.pageSize, poolData.pagination.total).toLocaleString("en-US")} {t("pool.pagination_of")} {poolData.pagination.total.toLocaleString("en-US")}
-                            </p>
-                            <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => setPoolPage((p) => Math.max(1, p - 1))} disabled={poolPage <= 1}>
-                                    {t("pool.previous")}
-                                </Button>
-                                <Button variant="outline" size="sm" onClick={() => setPoolPage((p) => Math.min(poolData.pagination.totalPages, p + 1))} disabled={poolPage >= poolData.pagination.totalPages}>
-                                    {t("pool.next")}
-                                </Button>
+                    {!poolLoading && (() => {
+                        const pag = poolData?.pagination;
+                        if (!pag || pag.totalPages <= 1) return null;
+                        return (
+                            <div className="flex items-center justify-between">
+                                <p className="text-sm text-muted-foreground">
+                                    {t("pool.showing")} {((pag.page - 1) * pag.pageSize + 1).toLocaleString("en-US")}–{Math.min(pag.page * pag.pageSize, pag.total).toLocaleString("en-US")} {t("pool.pagination_of")} {pag.total.toLocaleString("en-US")}
+                                </p>
+                                <div className="flex gap-2">
+                                    <Button variant="outline" size="sm" onClick={() => setPoolPage((p) => Math.max(1, p - 1))} disabled={poolPage <= 1}>
+                                        {t("pool.previous")}
+                                    </Button>
+                                    <Button variant="outline" size="sm" onClick={() => setPoolPage((p) => Math.min(pag.totalPages, p + 1))} disabled={poolPage >= pag.totalPages}>
+                                        {t("pool.next")}
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
                 </TabsContent>
 
                 {/* ═══════════ Tab 2 — All Requests ═══════════ */}

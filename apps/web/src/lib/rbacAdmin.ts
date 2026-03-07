@@ -17,7 +17,7 @@
 
 import { useMutation, useQuery, useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { apiRequest } from "./queryClient";
+import { apiGet, apiPost, apiPut, apiDelete } from "./apiClient";
 import type { UserRole } from "@shared/rbac";
 
 export type AdminUserApprovalStatus =
@@ -177,8 +177,7 @@ const toQueryString = (params: Record<string, string | number | undefined>): str
 };
 
 async function getJson<T>(url: string): Promise<T> {
-  const res = await apiRequest("GET", url);
-  return res.json() as Promise<T>;
+  return apiGet<T>(url.replace(/^\//, ""));
 }
 
 const ensureSuccess = <T extends { success: boolean; message?: string }>(payload: T): T => {
@@ -308,12 +307,10 @@ export const useCreateAdminUser = () => {
 
   return useMutation<AdminUserMutationPayload, Error, CreateAdminUserInput, OptimisticContext<AdminUsersResult>>({
     mutationFn: async (payload) => {
-      const res = await apiRequest("POST", "/api/rbac-admin/users", payload);
-      const json = (await res.json()) as AdminUserMutationResponse;
+      const json = await apiPost<AdminUserMutationResponse>("api/rbac-admin/users", payload);
       if (!json.success || !json.user) {
         throw new Error(json.message ?? "فشل إنشاء المستخدم");
       }
-
       return json.user;
     },
     onMutate: async (payload) => {
@@ -370,12 +367,10 @@ export const useUpdateAdminUser = () => {
 
   return useMutation<AdminUserMutationPayload, Error, UpdateAdminUserInput, OptimisticContext<AdminUsersResult>>({
     mutationFn: async ({ id, ...payload }) => {
-      const res = await apiRequest("PUT", `/api/rbac-admin/users/${id}`, payload);
-      const json = (await res.json()) as AdminUserMutationResponse;
+      const json = await apiPut<AdminUserMutationResponse>(`api/rbac-admin/users/${id}`, payload);
       if (!json.success || !json.user) {
         throw new Error(json.message ?? "فشل تحديث المستخدم");
       }
-
       return json.user;
     },
     onMutate: async ({ id, ...payload }) => {
@@ -448,7 +443,7 @@ export const useDeleteAdminUser = () => {
 
   return useMutation<void, Error, { id: string }, OptimisticContext<AdminUsersResult>>({
     mutationFn: async ({ id }) => {
-      await apiRequest("DELETE", `/api/rbac-admin/users/${id}`);
+      await apiDelete(`api/rbac-admin/users/${id}`);
     },
     onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey: RBAC_USERS_KEY });
@@ -488,12 +483,10 @@ export const useCreateAdminRole = () => {
 
   return useMutation<AdminRole, Error, CreateAdminRoleInput, OptimisticContext<AdminRole[]>>({
     mutationFn: async (payload) => {
-      const res = await apiRequest("POST", "/api/rbac-admin/roles", payload);
-      const json = await res.json();
+      const json = await apiPost<{ success?: boolean; role?: AdminRole; message?: string }>("api/rbac-admin/roles", payload);
       if (!json?.success || !json?.role) {
         throw new Error(json?.message ?? "فشل إنشاء الدور");
       }
-
       return json.role as AdminRole;
     },
     onMutate: async (payload) => {
@@ -538,12 +531,10 @@ export const useUpdateAdminRole = () => {
 
   return useMutation<AdminRole, Error, UpdateAdminRoleInput, OptimisticContext<AdminRole[]>>({
     mutationFn: async ({ id, ...payload }) => {
-      const res = await apiRequest("PUT", `/api/rbac-admin/roles/${id}`, payload);
-      const json = await res.json();
+      const json = await apiPut<{ success?: boolean; role?: AdminRole; message?: string }>(`api/rbac-admin/roles/${id}`, payload);
       if (!json?.success || !json?.role) {
         throw new Error(json?.message ?? "فشل تحديث الدور");
       }
-
       return json.role as AdminRole;
     },
     onMutate: async ({ id, ...payload }) => {
@@ -587,7 +578,7 @@ export const useDeleteAdminRole = () => {
 
   return useMutation<void, Error, { id: string }, OptimisticContext<AdminRole[]>>({
     mutationFn: async ({ id }) => {
-      await apiRequest("DELETE", `/api/rbac-admin/roles/${id}`);
+      await apiDelete(`api/rbac-admin/roles/${id}`);
     },
     onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey: RBAC_ROLES_KEY });
@@ -685,8 +676,7 @@ export const useCreateAdminOrganization = () => {
 
   return useMutation<AdminOrganization, Error, CreateAdminOrganizationInput>({
     mutationFn: async (payload) => {
-      const res = await apiRequest("POST", "/api/rbac-admin/organizations", payload);
-      const json = await res.json();
+      const json = await apiPost<{ success?: boolean; organization?: AdminOrganization; message?: string }>("api/rbac-admin/organizations", payload);
       if (!json.success || !json.organization) {
         throw new Error(json.message ?? "فشل إنشاء المنظمة");
       }
@@ -703,8 +693,7 @@ export const useUpdateAdminOrganization = () => {
 
   return useMutation<AdminOrganization, Error, UpdateAdminOrganizationInput>({
     mutationFn: async ({ id, ...payload }) => {
-      const res = await apiRequest("PUT", `/api/rbac-admin/organizations/${id}`, payload);
-      const json = await res.json();
+      const json = await apiPut<{ success?: boolean; organization?: AdminOrganization; message?: string }>(`api/rbac-admin/organizations/${id}`, payload);
       if (!json.success || !json.organization) {
         throw new Error(json.message ?? "فشل تحديث المنظمة");
       }
@@ -721,7 +710,7 @@ export const useDeleteAdminOrganization = () => {
 
   return useMutation<void, Error, { id: string }>({
     mutationFn: async ({ id }) => {
-      await apiRequest("DELETE", `/api/rbac-admin/organizations/${id}`);
+      await apiDelete(`api/rbac-admin/organizations/${id}`);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: RBAC_ORGS_KEY });

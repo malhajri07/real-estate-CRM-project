@@ -10,7 +10,7 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "./queryClient";
+import { apiGet, apiPost, apiPatch } from "./apiClient";
 
 // --- Types ---
 
@@ -60,10 +60,9 @@ export const useSupportTickets = (status?: string) => {
         queryKey: [...SUPPORT_TICKETS_KEY, status],
         queryFn: async () => {
             const url = status && status !== 'ALL'
-                ? `/api/support?status=${status}`
-                : `/api/support`;
-            const res = await apiRequest("GET", url);
-            const json = await res.json();
+                ? `api/support?status=${status}`
+                : "api/support";
+            const json = await apiGet<SupportTicket[] | { tickets?: SupportTicket[] }>(url);
             return Array.isArray(json) ? json : (json.tickets || []);
         },
     });
@@ -76,8 +75,7 @@ export const useSupportCategories = () => {
             // Create endpoint assumption or use mock response if easy
             // For now, let's assume /api/support/categories exists or we augment it
             try {
-                const res = await apiRequest("GET", "/api/support/categories");
-                const json = await res.json();
+                const json = await apiGet<SupportCategory[] | { categories?: SupportCategory[] }>("api/support/categories");
                 return Array.isArray(json) ? json : (json.categories || []);
             } catch (e) {
                 console.warn("Categories API not found, returning empty for now");
@@ -92,8 +90,7 @@ export const useSupportTemplates = () => {
         queryKey: SUPPORT_TEMPLATES_KEY,
         queryFn: async () => {
             try {
-                const res = await apiRequest("GET", "/api/support/templates");
-                const json = await res.json();
+                const json = await apiGet<SupportTemplate[] | { templates?: SupportTemplate[] }>("api/support/templates");
                 return Array.isArray(json) ? json : (json.templates || []);
             } catch (e) {
                 console.warn("Templates API not found, returning empty for now");
@@ -108,10 +105,8 @@ export const useSupportTemplates = () => {
 export const useCreateSupportTicket = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async (payload: Partial<SupportTicket>) => {
-            const res = await apiRequest("POST", "/api/support", payload);
-            return await res.json();
-        },
+        mutationFn: async (payload: Partial<SupportTicket>) =>
+            apiPost("api/support", payload),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: SUPPORT_TICKETS_KEY });
         },
@@ -121,10 +116,8 @@ export const useCreateSupportTicket = () => {
 export const useUpdateTicketStatus = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: async ({ id, status }: { id: string; status: ComplaintStatus }) => {
-            const res = await apiRequest("PATCH", `/api/support/${id}/status`, { status });
-            return await res.json();
-        },
+        mutationFn: async ({ id, status }: { id: string; status: ComplaintStatus }) =>
+            apiPatch(`api/support/${id}/status`, { status }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: SUPPORT_TICKETS_KEY });
         }

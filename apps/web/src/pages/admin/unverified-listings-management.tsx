@@ -35,7 +35,7 @@ import {
   AdminSheetTitle,
   AdminSheetDescription,
 } from "@/components/admin";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet, apiPost } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 
@@ -98,17 +98,11 @@ export default function UnverifiedListingsManagement() {
 
   const { data: listings, isLoading } = useQuery<UnverifiedListing[]>({
     queryKey: ["/api/unverified-listings", statusFilter],
-    queryFn: async () => {
-      const response = await apiRequest("GET", `/api/unverified-listings?status=${statusFilter}`);
-      return response.json();
-    },
+    queryFn: async () => apiGet<UnverifiedListing[]>(`api/unverified-listings?status=${statusFilter}`),
   });
 
   const acceptMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await apiRequest("POST", `/api/unverified-listings/${id}/accept`);
-      return response.json();
-    },
+    mutationFn: async (id: string) => apiPost(`api/unverified-listings/${id}/accept`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/unverified-listings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
@@ -128,12 +122,8 @@ export default function UnverifiedListingsManagement() {
   });
 
   const rejectMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await apiRequest("POST", `/api/unverified-listings/${id}/reject`, {
-        reason: "Rejected by agent",
-      });
-      return response.json();
-    },
+    mutationFn: async (id: string) =>
+      apiPost(`api/unverified-listings/${id}/reject`, { reason: "Rejected by agent" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/unverified-listings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });

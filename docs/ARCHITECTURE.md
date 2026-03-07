@@ -29,7 +29,7 @@ Unified API abstraction:
 - `apiPatch<T>(path, body)` – PATCH
 - `apiDelete<T>(path)` – DELETE
 
-Auth token is attached automatically. Use for new code; existing `apiRequest` remains for compatibility.
+Auth token is attached automatically. Use apiClient for all API requests. `apiRequest` in queryClient.ts is deprecated.
 
 ## Page Template
 

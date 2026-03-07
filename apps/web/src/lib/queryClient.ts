@@ -24,6 +24,9 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+/**
+ * @deprecated Use apiGet, apiPost, apiPut, apiPatch, apiDelete from @/lib/apiClient instead.
+ */
 export async function apiRequest(
   method: string,
   url: string,

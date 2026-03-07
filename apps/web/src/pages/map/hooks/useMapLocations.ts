@@ -22,7 +22,7 @@
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet } from "@/lib/apiClient";
 import type { RegionPayload, CityPayload, DistrictPayload, Option, CityOption, DistrictOption } from "../types";
 
 /**
@@ -31,10 +31,7 @@ import type { RegionPayload, CityPayload, DistrictPayload, Option, CityOption, D
 export function useMapRegionsWithBoundaries() {
   return useQuery<RegionPayload[]>({
     queryKey: ["locations", "regions", "withBoundary"],
-    queryFn: async () => {
-      const response = await apiRequest("GET", "/api/locations/regions?includeBoundary=true");
-      return (await response.json()) as RegionPayload[];
-    },
+    queryFn: async () => apiGet<RegionPayload[]>("api/locations/regions?includeBoundary=true"),
     staleTime: 60 * 60 * 1000, // 1 hour
   });
 }
@@ -43,10 +40,7 @@ export function useMapLocations(selectedRegion: string) {
   // Fetch regions
   const regionsQuery = useQuery<RegionPayload[]>({
     queryKey: ["locations", "regions"],
-    queryFn: async () => {
-      const response = await apiRequest("GET", "/api/locations/regions");
-      return (await response.json()) as RegionPayload[];
-    },
+    queryFn: async () => apiGet<RegionPayload[]>("api/locations/regions"),
     staleTime: 60 * 60 * 1000, // 1 hour
   });
 
@@ -59,11 +53,7 @@ export function useMapLocations(selectedRegion: string) {
         params.set("regionId", selectedRegion);
       }
       const query = params.toString();
-      const response = await apiRequest(
-        "GET",
-        `/api/locations/cities${query ? `?${query}` : ""}`
-      );
-      return (await response.json()) as CityPayload[];
+      return apiGet<CityPayload[]>(`api/locations/cities${query ? `?${query}` : ""}`);
     },
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
@@ -109,11 +99,7 @@ export function useMapDistricts(cityId: number | null) {
       if (typeof cityId !== "number" || Number.isNaN(cityId)) {
         return [];
       }
-      const response = await apiRequest(
-        "GET",
-        `/api/locations/districts?cityId=${cityId}&includeBoundary=true`
-      );
-      return (await response.json()) as DistrictPayload[];
+      return apiGet<DistrictPayload[]>(`api/locations/districts?cityId=${cityId}&includeBoundary=true`);
     },
     enabled: typeof cityId === "number" && Number.isFinite(cityId),
     staleTime: 15 * 60 * 1000, // 15 minutes

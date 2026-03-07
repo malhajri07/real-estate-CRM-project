@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet } from "@/lib/apiClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -176,18 +176,12 @@ export default function BillingManagement() {
 
     const { data: invoicesData, isLoading: invoicesLoading } = useQuery<{ success: boolean; invoices: Invoice[] }>({
         queryKey: ['/api/rbac-admin/billing/invoices'],
-        queryFn: async () => {
-            const res = await apiRequest('GET', '/api/rbac-admin/billing/invoices');
-            return res.json();
-        }
+        queryFn: async () => apiGet('api/rbac-admin/billing/invoices')
     });
 
     const { data: statsData, isLoading: statsLoading } = useQuery<{ success: boolean; stats: BillingStats }>({
         queryKey: ['/api/rbac-admin/billing/stats'],
-        queryFn: async () => {
-            const res = await apiRequest('GET', '/api/rbac-admin/billing/stats');
-            return res.json();
-        }
+        queryFn: async () => apiGet('api/rbac-admin/billing/stats')
     });
 
     const invoices = invoicesData?.invoices || [];

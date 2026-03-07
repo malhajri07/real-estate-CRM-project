@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet } from "@/lib/apiClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -74,10 +74,7 @@ export default function AnalyticsManagement() {
         pageViews: Array<{ page: string; views: string; change: string; status: string }>;
     }>({
         queryKey: ['/api/rbac-admin/analytics/overview', timeRange],
-        queryFn: async () => {
-            const res = await apiRequest('GET', `/api/rbac-admin/analytics/overview?timeRange=${timeRange}`);
-            return res.json();
-        }
+        queryFn: async () => apiGet(`api/rbac-admin/analytics/overview?timeRange=${timeRange}`)
     });
 
     const metrics = analyticsData?.metrics;

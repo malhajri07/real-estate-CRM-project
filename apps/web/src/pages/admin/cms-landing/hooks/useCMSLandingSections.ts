@@ -23,7 +23,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet } from "@/lib/apiClient";
 import type { LandingSection } from "../types";
 
 export function useCMSLandingSections(viewMode: "draft" | "published") {
@@ -33,8 +33,7 @@ export function useCMSLandingSections(viewMode: "draft" | "published") {
   const loadSections = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await apiRequest("GET", `/api/cms/landing/sections?status=${viewMode}`);
-      const payload = await response.json();
+      const payload = await apiGet<{ data?: LandingSection[] }>(`api/cms/landing/sections?status=${viewMode}`);
       const data: LandingSection[] = payload.data ?? [];
       setSections(data);
     } catch (error) {

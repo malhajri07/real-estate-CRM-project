@@ -23,7 +23,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { adminSidebarConfig, type AdminSidebarContentSection } from "@/config/admin-sidebar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet } from "@/lib/apiClient";
 import UserManagement from "@/pages/admin/user-management";
 import RoleManagement from "@/pages/admin/role-management";
 import OrganizationManagement from "@/pages/admin/organization-management";
@@ -105,8 +105,7 @@ type DashboardMetricsResponse = {
 };
 
 const dashboardQuery = async (): Promise<DashboardMetricsResponse> => {
-  const res = await apiRequest("GET", "/api/rbac-admin/dashboard");
-  const payload = (await res.json()) as DashboardMetricsResponse;
+  const payload = await apiGet<DashboardMetricsResponse>("api/rbac-admin/dashboard");
   if (!payload.success) throw new Error("فشل في تحميل لوحة التحكم");
   return payload;
 };

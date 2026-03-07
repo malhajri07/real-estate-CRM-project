@@ -12,7 +12,7 @@ import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet, apiPost } from "@/lib/apiClient";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import {
@@ -34,21 +34,16 @@ export default function ForumPage() {
 
     const { data: feedData, isLoading, isError, refetch } = useQuery({
         queryKey: ["/api/community/feed"],
-        queryFn: async () => {
-            const res = await apiRequest("GET", `/api/community/feed?page=1&limit=50`);
-            return res.json();
-        }
+        queryFn: async () => apiGet<{ data?: unknown[] }>(`api/community/feed?page=1&limit=50`)
     });
 
     const createPostMutation = useMutation({
-        mutationFn: async (content: string) => {
-            const res = await apiRequest("POST", "/api/community/post", {
+        mutationFn: async (content: string) =>
+            apiPost("api/community/post", {
                 content,
                 type: "DISCUSSION",
                 tags: ["General"]
-            });
-            return res.json();
-        },
+            }),
         onSuccess: () => {
             toast.success("Post created successfully!");
             setNewPostContent("");
@@ -60,7 +55,7 @@ export default function ForumPage() {
         }
     });
 
-    const posts = feedData?.data || [];
+    const posts = feedData?.data ?? [];
 
     if (isError) return <QueryErrorFallback message="فشل تحميل المنتدى" onRetry={() => refetch()} />;
 

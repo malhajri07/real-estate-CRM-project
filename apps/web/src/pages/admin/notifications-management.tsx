@@ -1,6 +1,6 @@
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiGet } from "@/lib/apiClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -124,19 +124,13 @@ export default function NotificationsManagement() {
     // Fetch notification templates
     const { data: templatesData, isLoading: templatesLoading } = useQuery<{ success: boolean; templates: NotificationTemplate[] }>({
         queryKey: ['/api/rbac-admin/notifications/templates'],
-        queryFn: async () => {
-            const res = await apiRequest('GET', '/api/rbac-admin/notifications/templates');
-            return res.json();
-        }
+        queryFn: async () => apiGet('api/rbac-admin/notifications/templates')
     });
 
     // Fetch notification stats
     const { data: statsData, isLoading: statsLoading } = useQuery<{ success: boolean; stats: { notificationsToday: string; deliveryRate: string; errors: number; avgDeliveryTime: string } }>({
         queryKey: ['/api/rbac-admin/notifications/stats'],
-        queryFn: async () => {
-            const res = await apiRequest('GET', '/api/rbac-admin/notifications/stats');
-            return res.json();
-        }
+        queryFn: async () => apiGet('api/rbac-admin/notifications/stats')
     });
 
     const templates = templatesData?.templates || [];

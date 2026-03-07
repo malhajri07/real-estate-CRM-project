@@ -29,7 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiPost } from "@/lib/apiClient";
 import type { Lead } from "@shared/types";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { getNotificationStatusVariant } from "@/lib/status-variants";
@@ -67,10 +67,7 @@ export default function Notifications() {
       message: string;
       type: string;
       leadIds: string[];
-    }) => {
-      const response = await apiRequest("POST", "/api/campaigns", campaign);
-      return response.json();
-    },
+    }) => apiPost("api/campaigns", campaign),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
       toast({ title: "نجح", description: "تم إرسال الحملة بنجاح" });

@@ -29,7 +29,7 @@ import { Save, Send, Eye, EyeOff } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
-import { apiRequest } from '@/lib/queryClient';
+import { apiPut } from '@/lib/apiClient';
 
 // Types
 type SectionDraft = {
@@ -170,7 +170,7 @@ export function LandingStudio() {
   const saveSectionMutation = useMutation({
     mutationFn: async () => {
       if (!selectedSection) throw new Error("No section selected");
-      await apiRequest("PUT", `/api/cms/landing/sections/${selectedSection.id}`, {
+      await apiPut(`api/cms/landing/sections/${selectedSection.id}`, {
         draftJson: sectionDraft,
         title: sectionDraft.title,
         subtitle: sectionDraft.subtitle,

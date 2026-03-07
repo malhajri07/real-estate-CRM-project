@@ -21,7 +21,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertMessageSchema, type InsertMessage } from "@shared/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiPost } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import { MessageCircle, CheckCircle, XCircle, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -71,8 +71,7 @@ export default function SendWhatsAppModal({
   const sendMessageMutation = useMutation({
     mutationFn: async (data: InsertMessage) => {
       setMessageStatus('sending');
-      const response = await apiRequest("POST", "/api/messages", data);
-      return response.json();
+      return apiPost("api/messages", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
