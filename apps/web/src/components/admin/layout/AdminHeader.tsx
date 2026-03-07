@@ -106,7 +106,8 @@ export function AdminHeader({
             </Button>
             {notificationMessage && notificationCount && notificationCount > 0 && showNotificationPanel && (
               <div className="absolute end-0 top-12 z-50 w-64 animate-in fade-in slide-in-from-top-2 duration-200">
-                <button
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={() => {
                     setShowNotificationPanel(false);
@@ -115,7 +116,7 @@ export function AdminHeader({
                   className="relative w-full rounded-lg border bg-popover p-4 text-start text-sm text-popover-foreground shadow-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   {notificationMessage}
-                </button>
+                </Button>
               </div>
             )}
           </div>

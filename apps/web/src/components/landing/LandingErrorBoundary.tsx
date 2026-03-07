@@ -5,6 +5,7 @@
  */
 
 import { Component, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import { logger } from "@/lib/logger";
 
 interface ErrorBoundaryState {
@@ -49,7 +50,7 @@ export class LandingErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
                 <pre className="text-xs text-slate-600 overflow-auto">{this.state.error.message}</pre>
               </details>
             )}
-            <button
+            <Button
               onClick={() => {
                 this.setState({ hasError: false, error: undefined });
                 window.location.reload();
@@ -57,7 +58,7 @@ export class LandingErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
               className="mt-6 rounded-2xl bg-emerald-600 px-8 py-3 text-white font-bold hover:bg-emerald-700 transition-colors"
             >
               إعادة تحميل الصفحة
-            </button>
+            </Button>
           </div>
         </div>
       );

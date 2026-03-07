@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 import EmptyState from "@/components/ui/empty-state";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import type { Activity } from "@shared/types";
 
@@ -19,7 +22,7 @@ export default function Activities() {
     const locale = language === "ar" ? "ar-SA" : "en-US";
     const iconSpacing = "me-2";
 
-    const { data: activities, isLoading } = useQuery<Activity[]>({
+    const { data: activities, isLoading, isError, refetch } = useQuery<Activity[]>({
         queryKey: ["/api/activities"],
     });
 
@@ -28,47 +31,46 @@ export default function Activities() {
         a.type.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    if (isError) {
+        return (
+            <div className={PAGE_WRAPPER} dir={dir}>
+                <PageHeader title={t("nav.activities") || "الأنشطة"} />
+                <QueryErrorFallback message={t("activities.load_error") || "فشل تحميل الأنشطة"} onRetry={() => refetch()} />
+            </div>
+        );
+    }
+
     if (isLoading) {
         return (
-            <div className="w-full space-y-6" dir={dir}>
-                <div className="flex items-center justify-center min-h-[400px]">
-                    <div className="w-full max-w-md space-y-4">
-                        <Skeleton className="h-8 w-full" />
-                        <Skeleton className="h-8 w-3/4" />
-                        <Skeleton className="h-8 w-1/2" />
-                    </div>
-                </div>
+            <div className={PAGE_WRAPPER} dir={dir}>
+                <PageHeader title={t("nav.activities") || "الأنشطة"} />
+                <TableSkeleton rows={5} cols={5} />
             </div>
         );
     }
 
     return (
-        <div className="w-full space-y-6" dir={dir}>
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <CardTitle>
-                            {t("nav.activities")} ({filteredActivities?.length || 0})
-                        </CardTitle>
-                        <div className="flex items-center gap-2">
-                            <div className="relative w-64">
-                                <Search className={cn("absolute top-3 h-4 w-4 text-muted-foreground", dir === "rtl" ? "right-3" : "left-3")} />
-                                <Input
-                                    placeholder={t("common.search")}
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className={dir === "rtl" ? "pr-9" : "pl-9"}
-                                />
-                            </div>
-                            <Button>
-                                <Plus className={iconSpacing} size={16} />
-                                {t("activities.add_activity")}
-                            </Button>
-                        </div>
+        <div className={PAGE_WRAPPER} dir={dir}>
+            <PageHeader title={`${t("nav.activities") || "الأنشطة"} (${filteredActivities?.length || 0})`}>
+                <div className="flex items-center gap-2">
+                    <div className="relative w-64">
+                        <Search className={cn("absolute top-3 h-4 w-4 text-muted-foreground", dir === "rtl" ? "right-3" : "left-3")} />
+                        <Input
+                            placeholder={t("common.search")}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className={dir === "rtl" ? "pr-9" : "pl-9"}
+                        />
                     </div>
-                </CardHeader>
+                    <Button>
+                        <Plus className={iconSpacing} size={16} />
+                        {t("activities.add_activity")}
+                    </Button>
+                </div>
+            </PageHeader>
 
-                <CardContent>
+            <Card>
+                <CardContent className="pt-6">
                     {!filteredActivities || filteredActivities.length === 0 ? (
                         <EmptyState
                             title={searchQuery ? t("common.no_results") : t("activities.no_activities")}

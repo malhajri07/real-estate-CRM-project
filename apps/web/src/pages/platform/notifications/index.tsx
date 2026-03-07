@@ -37,6 +37,8 @@ import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { cn } from "@/lib/utils";
 import EmptyState from "@/components/ui/empty-state";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import PageHeader from "@/components/ui/page-header";
 
 export default function Notifications() {
   const { t, dir, language } = useLanguage();
@@ -147,7 +149,7 @@ export default function Notifications() {
 
   if (isError) {
     return (
-      <div className="w-full space-y-6" dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
         <QueryErrorFallback message={t("notifications.load_error") || "Failed to load notifications."} onRetry={() => refetch()} />
       </div>
     );
@@ -155,7 +157,7 @@ export default function Notifications() {
 
   if (isLoading) {
     return (
-      <div className="w-full space-y-6" dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
         <div className="flex items-center justify-center min-h-[200px]">
           <div className="w-full max-w-md space-y-4">
             <Skeleton className="h-8 w-full" />
@@ -168,12 +170,8 @@ export default function Notifications() {
   }
 
   return (
-    <>
-      <div className="w-full space-y-6" dir={dir}>
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">الإشعارات</h1>
-          <p className="text-sm text-muted-foreground mt-1">إدارة الإشعارات والحملات والتواصل مع العملاء</p>
-        </div>
+    <div className={PAGE_WRAPPER} dir={dir}>
+      <PageHeader title={t("nav.notifications") || "الإشعارات"} subtitle="إدارة الإشعارات والحملات والتواصل مع العملاء" />
         <section className="space-y-6">
           <Tabs defaultValue="customers" className="space-y-6">
             <TabsList className="grid w-full grid-cols-3">
@@ -375,8 +373,6 @@ export default function Notifications() {
           </TabsContent>
           </Tabs>
         </section>
-      </div>
-
       {selectedLeadForWhatsApp && (
         <SendWhatsAppModal
           open={whatsappModalOpen}
@@ -386,6 +382,6 @@ export default function Notifications() {
           leadName={`${selectedLeadForWhatsApp.firstName} ${selectedLeadForWhatsApp.lastName}`}
         />
       )}
-    </>
+    </div>
   );
 }

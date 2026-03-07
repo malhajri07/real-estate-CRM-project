@@ -18,19 +18,24 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import EmptyState from "@/components/ui/empty-state";
+import { Building2 } from "lucide-react";
 
 type AgencyRow = { id: string; name: string; verified: boolean; agentsCount: number; listingsCount: number };
 
 export default function AgenciesPage() {
   const { t, dir } = useLanguage();
-  const { data = [], isLoading, error } = useQuery<AgencyRow[]>({ queryKey: ["/api/agencies"] });
+  const { data = [], isLoading, error, refetch } = useQuery<AgencyRow[]>({ queryKey: ["/api/agencies"] });
   
   if (isLoading) {
     return (
-      <div className="w-full space-y-6" dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader title={t("الوكالات")} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-24 w-full rounded-lg" />
@@ -42,42 +47,46 @@ export default function AgenciesPage() {
   
   if (error) {
     return (
-      <main className="w-full space-y-6" dir={dir}>
-        <Alert variant="destructive">
-          <AlertDescription className="text-center">تعذر تحميل الوكالات</AlertDescription>
-        </Alert>
-      </main>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader title={t("الوكالات")} />
+        <QueryErrorFallback message="تعذر تحميل الوكالات" onRetry={() => refetch()} />
+      </div>
     );
   }
 
   return (
-    <div className="w-full space-y-6" dir={dir}>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">الوكالات</h1>
-        <p className="text-sm text-muted-foreground mt-1">عرض وإدارة الوكالات العقارية المسجلة</p>
-      </div>
+    <div className={PAGE_WRAPPER} dir={dir}>
+      <PageHeader title={t("الوكالات")} subtitle={t("عرض وإدارة الوكالات العقارية المسجلة")} />
       <section className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {data.map((a) => (
-            <Card key={a.id} className="hover:shadow-lg transition cursor-pointer">
-              <CardContent className="p-5">
-                <a href={`/home/platform/agency/${a.id}`} className="block">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="text-sm font-semibold">
-                        {a.name}{a.verified && <span className="ms-2 text-emerald-600">✓</span>}
+        {data.length === 0 ? (
+          <EmptyState
+            icon={Building2}
+            title="لا توجد وكالات"
+            description="لم يتم تسجيل أي وكالات عقارية بعد"
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {data.map((a) => (
+              <Card key={a.id} className="hover:shadow-lg transition cursor-pointer">
+                <CardContent className="p-5">
+                  <a href={`/home/platform/agency/${a.id}`} className="block">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="text-sm font-semibold">
+                          {a.name}{a.verified && <span className="ms-2 text-emerald-600">✓</span>}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          عدد الوسطاء: {a.agentsCount} — عدد الإعلانات: {a.listingsCount}
+                        </div>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        عدد الوسطاء: {a.agentsCount} — عدد الإعلانات: {a.listingsCount}
-                      </div>
+                      <div className="text-primary">عرض</div>
                     </div>
-                    <div className="text-primary">عرض</div>
-                  </div>
-                </a>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  </a>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

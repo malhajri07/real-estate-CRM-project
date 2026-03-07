@@ -67,11 +67,12 @@ const config: Config = {
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         sidebar: {
-          DEFAULT: "hsl(var(--background))",
+          DEFAULT: "hsl(0 0% 100%)",
           foreground: "hsl(var(--foreground))",
           muted: "hsl(var(--muted))",
           accent: "hsl(var(--primary))",
           "accent-foreground": "hsl(var(--primary-foreground))",
+          border: "hsl(var(--border))",
         },
         success: "hsl(160 84% 39%)",
         warning: "hsl(35 92% 62%)",

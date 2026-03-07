@@ -18,21 +18,22 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Property } from "@shared/types";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import EmptyState from "@/components/ui/empty-state";
 import ListingCard from "@/components/listings/ListingCard";
 
 export default function FavoritesPage() {
   const { t, dir } = useLanguage();
-  const { data: items = [], isLoading, error } = useQuery<Property[]>({
+  const { data: items = [], isLoading, error, refetch } = useQuery<Property[]>({
     queryKey: ["/api/favorites"],
   });
 
   if (isLoading) {
     return (
-      <div className="w-full space-y-6" dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-64 w-full rounded-lg" />
@@ -44,24 +45,16 @@ export default function FavoritesPage() {
 
   if (error) {
     return (
-      <div className="w-full space-y-6" dir={dir}>
-        <Alert variant="destructive">
-          <AlertDescription className="text-center">حدث خطأ في جلب المفضلة</AlertDescription>
-        </Alert>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <QueryErrorFallback message="حدث خطأ في جلب المفضلة" onRetry={() => refetch()} />
       </div>
     );
   }
 
   return (
-    <div className="w-full space-y-6" dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
+      <PageHeader title={t("العقارات المفضلة")} subtitle={t("العقارات التي قمت بحفظها")} />
       <section className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">العقارات المفضلة</CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">العقارات التي قمت بحفظها</p>
-          </CardHeader>
-        </Card>
-
         {items.length === 0 ? (
           <EmptyState
             title="لا توجد عناصر محفوظة"

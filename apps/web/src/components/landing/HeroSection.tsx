@@ -27,8 +27,8 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                     <h1 className="text-4xl font-black text-slate-900 mb-4">منصة إدارة العقارات الذكية</h1>
                     <p className="text-xl text-slate-600 mb-8">أداة متكاملة لإدارة عملياتك العقارية بكفاءة واحترافية</p>
                     <div className="flex gap-4 justify-center">
-                        <button onClick={onLogin} className="px-8 py-3 rounded-2xl border-2 border-slate-200 font-bold">تسجيل الدخول</button>
-                        <button onClick={onSignUp} className="px-8 py-3 rounded-2xl bg-emerald-600 text-white font-bold">ابدأ الآن</button>
+                        <Button onClick={onLogin} variant="outline" className="px-8 py-3 rounded-2xl border-2 border-slate-200 font-bold">تسجيل الدخول</Button>
+                        <Button onClick={onSignUp} className="px-8 py-3 rounded-2xl bg-emerald-600 text-white font-bold">ابدأ الآن</Button>
                     </div>
                 </div>
             </section>

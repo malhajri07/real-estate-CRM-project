@@ -20,12 +20,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import EmptyState from '@/components/ui/empty-state';
+import PageHeader from '@/components/ui/page-header';
+import { QueryErrorFallback } from '@/components/ui/query-error-fallback';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { PAGE_WRAPPER } from '@/config/platform-theme';
 
 export default function SavedSearchesPage() {
   const { dir } = useLanguage();
   const qc = useQueryClient();
-  const { data = [], isLoading } = useQuery<any[]>({ queryKey: ['/api/search/saved'] });
+  const { data = [], isLoading, isError, refetch } = useQuery<any[]>({ queryKey: ['/api/search/saved'] });
 
   const create = useMutation({
     mutationFn: async () => {
@@ -49,15 +52,19 @@ export default function SavedSearchesPage() {
     }
   });
 
+  if (isError) {
+    return (
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader title="عمليات البحث المحفوظة" />
+        <QueryErrorFallback message="فشل تحميل البحث المحفوظ" onRetry={() => refetch()} />
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full space-y-6" dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
       <section className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">عمليات البحث المحفوظة</CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">إدارة التنبيهات والبحث السريع</p>
-          </CardHeader>
-        </Card>
+        <PageHeader title="عمليات البحث المحفوظة" />
 
         <Card>
           <CardContent className="p-6">

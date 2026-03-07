@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, PenLine, Heart, MessageCircle, Share2, MoreHorizontal, User, Award, TrendingUp } from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import EmptyState from "@/components/ui/empty-state";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { formatDistanceToNow } from "date-fns";
@@ -28,7 +32,7 @@ export default function ForumPage() {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [newPostContent, setNewPostContent] = useState("");
 
-    const { data: feedData, isLoading } = useQuery({
+    const { data: feedData, isLoading, isError, refetch } = useQuery({
         queryKey: ["/api/community/feed"],
         queryFn: async () => {
             const res = await apiRequest("GET", `/api/community/feed?page=1&limit=50`);
@@ -58,21 +62,13 @@ export default function ForumPage() {
 
     const posts = feedData?.data || [];
 
+    if (isError) return <QueryErrorFallback message="فشل تحميل المنتدى" onRetry={() => refetch()} />;
+
     return (
-        <div className="w-full space-y-6" dir={dir}>
+        <div className={PAGE_WRAPPER} dir={dir}>
             {/* Header */}
             <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                >
-                    <h1 className="text-2xl font-bold">
-                        {t("nav.forum") || "Community Forum"}
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                        Connect, share deals, and discuss market trends.
-                    </p>
-                </motion.div>
+                <PageHeader title={t("nav.forum") || "المنتدى العقاري"} />
 
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
@@ -147,9 +143,16 @@ export default function ForumPage() {
                     </Card>
 
                     {isLoading ? (
-                        <div className="flex justify-center py-20">
-                            <Spinner size="lg" className="text-emerald-600" />
+                        <div className="space-y-4">
+                            {Array.from({ length: 3 }).map((_, i) => (
+                                <Skeleton key={i} className="h-40 w-full rounded-lg" />
+                            ))}
                         </div>
+                    ) : posts.length === 0 ? (
+                        <EmptyState
+                            title="لا توجد منشورات"
+                            description="ابدأ بإنشاء أول منشور في المنتدى"
+                        />
                     ) : (
                         <AnimatePresence>
                             {posts.map((post: any, i: number) => (

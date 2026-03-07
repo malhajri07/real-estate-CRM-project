@@ -102,10 +102,12 @@ export function PhotoCarousel({
       {showIndicators && photos.length > 1 && (
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
           {photos.map((_, index) => (
-            <button
+            <Button
               key={index}
+              variant="ghost"
+              size="icon"
               onClick={(e) => goToPhoto(index, e)}
-              className={`w-2 h-2 rounded-full transition-all ${
+              className={`w-2 h-2 rounded-full p-0 min-w-0 min-h-0 transition-all ${
                 index === currentIndex 
                   ? 'bg-white shadow-md' 
                   : 'bg-white/50 hover:bg-white/75'

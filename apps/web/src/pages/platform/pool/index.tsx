@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Ticket, MessageSquare, RefreshCw } from "lucide-react";
+import { Search, Filter, Ticket, MessageSquare, RefreshCw, Download, Mail, Phone, RefreshCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { formatDistanceToNow } from "date-fns";
@@ -26,29 +27,131 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function PoolPage() {
+// --- Customer Requests helpers ---
+
+const CONTRACT_LABELS: Record<string, string> = {
+  buy: "شراء",
+  rent: "إيجار",
+};
+
+const GENDER_LABELS: Record<string, string> = {
+  male: "ذكر",
+  female: "أنثى",
+  other: "أخرى",
+};
+
+interface PropertySeekerRecord {
+  seekerId?: string | null;
+  seekerNum?: number | string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  mobileNumber?: string | null;
+  email?: string | null;
+  nationality?: string | null;
+  age?: number | string | null;
+  monthlyIncome?: number | string | null;
+  gender?: string | null;
+  typeOfProperty?: string | null;
+  typeOfContract?: string | null;
+  numberOfRooms?: number | string | null;
+  numberOfBathrooms?: number | string | null;
+  numberOfLivingRooms?: number | string | null;
+  houseDirection?: string | null;
+  budgetSize?: number | string | null;
+  hasMaidRoom?: boolean | null;
+  hasDriverRoom?: boolean | null;
+  kitchenInstalled?: boolean | null;
+  hasElevator?: boolean | null;
+  parkingAvailable?: boolean | null;
+  city?: string | null;
+  district?: string | null;
+  region?: string | null;
+  otherComments?: string | null;
+  notes?: string | null;
+  sqm?: number | string | null;
+  createdAt?: string | Date | null;
+  updatedAt?: string | Date | null;
+}
+
+const toNumber = (value: unknown): number | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "bigint") return Number(value);
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  if (typeof value === "object" && typeof (value as any).toString === "function") {
+    const parsed = Number((value as any).toString());
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+};
+
+const formatCurrency = (value: unknown): string => {
+  const numeric = toNumber(value);
+  if (numeric === null) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "SAR",
+    minimumFractionDigits: 0,
+  }).format(numeric);
+};
+
+const formatNumber = (value: unknown): string => {
+  const numeric = toNumber(value);
+  if (numeric === null) return "—";
+  return new Intl.NumberFormat("en-US").format(numeric);
+};
+
+const formatDateTime = (value: unknown): string => {
+  if (!value) return "—";
+  const date = value instanceof Date ? value : new Date(value as any);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("ar-SA", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+};
+
+// --- Main Component ---
+
+export default function Requests() {
     const { t, dir } = useLanguage();
     const queryClient = useQueryClient();
+
+    // ── Pool state ──
     const [searchQuery, setSearchQuery] = useState("");
     const [smsMessage, setSmsMessage] = useState("");
     const [smsDialogOpen, setSmsDialogOpen] = useState(false);
     const [smsTargetId, setSmsTargetId] = useState<string | null>(null);
+    const [poolPage, setPoolPage] = useState(1);
+    const poolPageSize = 100;
 
-    const [page, setPage] = useState(1);
-    const pageSize = 100;
+    useEffect(() => setPoolPage(1), [searchQuery]);
 
-    useEffect(() => setPage(1), [searchQuery]);
-
-    const { data, isLoading, error, isError, refetch } = useQuery({
-        queryKey: ["/api/pool/search", searchQuery, page],
+    const {
+        data: poolData,
+        isLoading: poolLoading,
+        error: poolError,
+        isError: poolIsError,
+        refetch: poolRefetch,
+    } = useQuery({
+        queryKey: ["/api/pool/search", searchQuery, poolPage],
         queryFn: async () => {
-            const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+            const params = new URLSearchParams({ page: String(poolPage), pageSize: String(poolPageSize) });
             if (searchQuery) params.set("city", searchQuery);
             const res = await apiRequest("GET", `/api/pool/search?${params}`);
             const json = await res.json();
-            if (!json || typeof json !== "object") return { success: false, data: [], pagination: { page: 1, pageSize, total: 0, totalPages: 1 } };
-            return { success: json.success, data: json.data ?? [], pagination: json.pagination ?? { page: 1, pageSize, total: 0, totalPages: 1 } };
+            if (!json || typeof json !== "object") return { success: false, data: [], pagination: { page: 1, pageSize: poolPageSize, total: 0, totalPages: 1 } };
+            return { success: json.success, data: json.data ?? [], pagination: json.pagination ?? { page: 1, pageSize: poolPageSize, total: 0, totalPages: 1 } };
         },
         retry: 1,
         staleTime: 0,
@@ -71,7 +174,7 @@ export default function PoolPage() {
         },
         onError: () => {
             toast.error("Failed to claim request. Limit reached or already taken.");
-        }
+        },
     });
 
     const sendSmsMutation = useMutation({
@@ -87,7 +190,6 @@ export default function PoolPage() {
         },
         onError: (err: any) => {
             const raw = err?.message || String(err);
-            console.error("[Send SMS] API error:", raw);
             let msg = "Failed to send SMS.";
             if (raw.includes("not configured")) msg = "SMS is not configured. Contact admin.";
             else if (raw.includes("Only agents or admins")) msg = "You don't have permission to send SMS.";
@@ -104,238 +206,477 @@ export default function PoolPage() {
                 }
             }
             toast.error(msg);
-        }
+        },
     });
 
-    const requests = Array.isArray(data?.data) ? data.data : [];
+    const poolRequests = Array.isArray(poolData?.data) ? poolData.data : [];
 
+    // ── Customer Requests state ──
+    const {
+        data: seekerData,
+        isLoading: seekerLoading,
+        isError: seekerIsError,
+        error: seekerError,
+        refetch: seekerRefetch,
+        isFetching: seekerFetching,
+    } = useQuery<PropertySeekerRecord[], Error>({
+        queryKey: ["property-seekers"],
+        queryFn: async () => {
+            const response = await apiRequest("GET", "/api/requests");
+            const body = await response.json().catch(() => null);
+            if (!response.ok) {
+                const message =
+                    body && typeof body === "object" && "message" in body
+                        ? String((body as any).message)
+                        : "تعذر تحميل الطلبات";
+                throw new Error(message);
+            }
+            if (!Array.isArray(body)) return [];
+            return body as PropertySeekerRecord[];
+        },
+        staleTime: 60_000,
+    });
+
+    const [seekerSearchTerm, setSeekerSearchTerm] = useState("");
+    const seekers = seekerData ?? [];
+
+    const filteredSeekers = useMemo(() => {
+        const term = seekerSearchTerm.trim().toLowerCase();
+        if (!term) return seekers;
+        return seekers.filter((item) => {
+            const values = [
+                item.firstName, item.lastName, item.email, item.mobileNumber,
+                item.city, item.district, item.region, item.typeOfProperty,
+                item.typeOfContract, item.nationality, item.seekerId,
+            ]
+                .filter(Boolean)
+                .map((v) => String(v).toLowerCase());
+            return values.some((v) => v.includes(term));
+        });
+    }, [seekers, seekerSearchTerm]);
+
+    const contractSummary = useMemo(() => {
+        return seekers.reduce(
+            (acc, s) => {
+                const v = (s.typeOfContract ?? "").toLowerCase();
+                if (v === "buy") acc.buy += 1;
+                if (v === "rent") acc.rent += 1;
+                return acc;
+            },
+            { buy: 0, rent: 0 },
+        );
+    }, [seekers]);
+
+    // ── Render ──
     return (
-        <div className="w-full space-y-6" dir={dir}>
-            {/* Header Section */}
-            <div className="mb-8">
-                <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-                >
-                    <div>
-                        <h1 className="text-2xl font-bold">
-                            {t("nav.pool")}
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            {t("pool.subtitle")}
-                        </p>
-                    </div>
-                    <div className="flex gap-3">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="gap-2"
-                            onClick={() => void refetch()}
-                            disabled={isLoading}
-                        >
-                            <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
-                            {t("pool.refresh")}
-                        </Button>
-                        <Button variant="outline" className="gap-2">
-                            <Filter className="h-4 w-4" />
-                            <span>{t("pool.filter")}</span>
-                        </Button>
-                    </div>
-                </motion.div>
+        <div className={PAGE_WRAPPER} dir={dir}>
+            <PageHeader
+                title={t("requests.title") || "الطلبات"}
+                subtitle={t("requests.subtitle") || "إدارة طلبات العملاء"}
+            />
 
-                {/* Search Bar */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1 }}
-                >
-                    <Card className="mt-6 flex items-center p-2">
-                        <Search className="ms-4 h-5 w-5 text-muted-foreground" />
-                        <Input
-                            type="text"
-                            placeholder={t("pool.search_placeholder")}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0"
-                        />
-                        <Badge variant="secondary" className="me-2 hidden sm:flex">
-                            {t("pool.all_areas")}
-                        </Badge>
+            <Tabs defaultValue="pool" className="w-full">
+                <TabsList>
+                    <TabsTrigger value="pool">{t("requests.pool") || "طلبات متاحة"}</TabsTrigger>
+                    <TabsTrigger value="all">{t("requests.all") || "جميع الطلبات"}</TabsTrigger>
+                </TabsList>
+
+                {/* ═══════════ Tab 1 — Pool ═══════════ */}
+                <TabsContent value="pool" className="space-y-6">
+                    {/* Pool toolbar */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+                    >
+                        <div className="flex gap-3">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-2"
+                                onClick={() => void poolRefetch()}
+                                disabled={poolLoading}
+                            >
+                                <RefreshCw className={cn("h-4 w-4", poolLoading && "animate-spin")} />
+                                {t("pool.refresh")}
+                            </Button>
+                            <Button variant="outline" className="gap-2">
+                                <Filter className="h-4 w-4" />
+                                <span>{t("pool.filter")}</span>
+                            </Button>
+                        </div>
+                    </motion.div>
+
+                    {/* Pool search */}
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
+                        <Card className="flex items-center p-2">
+                            <Search className="ms-4 h-5 w-5 text-muted-foreground" />
+                            <Input
+                                type="text"
+                                placeholder={t("pool.search_placeholder")}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0"
+                            />
+                            <Badge variant="secondary" className="me-2 hidden sm:flex">
+                                {t("pool.all_areas")}
+                            </Badge>
+                        </Card>
+                    </motion.div>
+
+                    {/* Pool table */}
+                    <Card className="overflow-hidden">
+                        {poolLoading ? (
+                            <TableSkeleton rows={6} cols={11} />
+                        ) : poolIsError ? (
+                            <QueryErrorFallback
+                                message={`${t("pool.failed_load") || "فشل تحميل الطلبات"} ${poolError instanceof Error ? poolError.message : ""}`}
+                                onRetry={() => void poolRefetch()}
+                            />
+                        ) : poolRequests.length === 0 ? (
+                            <EmptyState
+                                icon={Ticket}
+                                title={t("pool.no_requests")}
+                                description={t("pool.no_requests_hint")}
+                            />
+                        ) : (
+                            <div dir={dir} className="w-full overflow-x-auto">
+                                <Table className="min-w-[850px]">
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-end">{t("pool.table.type")}</TableHead>
+                                            <TableHead className="text-end">{t("pool.table.city")}</TableHead>
+                                            <TableHead className="text-end">{t("pool.table.region")}</TableHead>
+                                            <TableHead className="text-end">{t("pool.table.budget")}</TableHead>
+                                            <TableHead className="text-end">{t("pool.table.bedrooms")}</TableHead>
+                                            <TableHead className="text-end">{t("pool.table.bathrooms")}</TableHead>
+                                            <TableHead className="text-end">{t("pool.table.living_rooms")}</TableHead>
+                                            <TableHead className="text-end">{t("pool.table.notes")}</TableHead>
+                                            <TableHead className="text-end">{t("pool.table.source")}</TableHead>
+                                            <TableHead className="text-end">{t("pool.table.date")}</TableHead>
+                                            <TableHead className="text-end">{t("pool.table.actions")}</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {poolRequests.map((req: any, idx: number) => (
+                                            <TableRow key={req?.id ?? `row-${idx}`}>
+                                                <TableCell>
+                                                    <Badge variant={req.type === "Buy" || req.type === "شراء" ? "info" : "purple"}>
+                                                        {req.type || "—"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>{req.city || "—"}</TableCell>
+                                                <TableCell>{req.region || "—"}</TableCell>
+                                                <TableCell className="font-medium text-emerald-600">
+                                                    {req.minPrice != null && req.maxPrice != null
+                                                        ? `${Number(req.minPrice).toLocaleString("en-US")} - ${Number(req.maxPrice).toLocaleString("en-US")}`
+                                                        : req.minPrice != null
+                                                            ? Number(req.minPrice).toLocaleString("en-US")
+                                                            : "—"}
+                                                </TableCell>
+                                                <TableCell>{req.minBedrooms ?? req.maxBedrooms ?? "—"}</TableCell>
+                                                <TableCell>{req.bathrooms ?? "—"}</TableCell>
+                                                <TableCell>{req.livingRooms ?? "—"}</TableCell>
+                                                <TableCell className="max-w-[200px] truncate text-muted-foreground" title={req.notes || ""}>
+                                                    {req.notes || "—"}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className={cn(
+                                                        "text-xs font-medium",
+                                                        req.source === "customer_request" ? "text-amber-600" : "text-muted-foreground",
+                                                    )}>
+                                                        {req.source === "customer_request" ? t("pool.customer_request") : t("pool.buyer_pool")}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground">
+                                                    {req.createdAt
+                                                        ? formatDistanceToNow(new Date(req.createdAt), { addSuffix: true, locale: dir === "rtl" ? ar : undefined })
+                                                        : "—"}
+                                                </TableCell>
+                                                <TableCell className="text-end">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        {req.source === "customer_request" && req.canSendSms && (
+                                                            <Dialog open={smsDialogOpen && smsTargetId === req.id} onOpenChange={(open) => {
+                                                                setSmsDialogOpen(open);
+                                                                if (!open) { setSmsTargetId(null); setSmsMessage(""); }
+                                                            }}>
+                                                                <DialogTrigger asChild>
+                                                                    <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { setSmsTargetId(req.id); setSmsDialogOpen(true); }}>
+                                                                        <MessageSquare className="h-4 w-4" />
+                                                                        {t("pool.send_sms")}
+                                                                    </Button>
+                                                                </DialogTrigger>
+                                                                <DialogContent>
+                                                                    <DialogHeader>
+                                                                        <DialogTitle>{t("pool.sms_title")}</DialogTitle>
+                                                                        <DialogDescription>{t("pool.sms_description")}</DialogDescription>
+                                                                    </DialogHeader>
+                                                                    <div className="grid gap-2 py-2">
+                                                                        <Label htmlFor="sms-body">{t("pool.sms_message")}</Label>
+                                                                        <Textarea
+                                                                            id="sms-body"
+                                                                            placeholder={t("pool.sms_placeholder")}
+                                                                            value={smsMessage}
+                                                                            onChange={(e) => setSmsMessage(e.target.value)}
+                                                                            rows={4}
+                                                                            maxLength={500}
+                                                                        />
+                                                                    </div>
+                                                                    <DialogFooter>
+                                                                        <Button
+                                                                            onClick={() => {
+                                                                                if (!smsMessage.trim() || !smsTargetId) return;
+                                                                                sendSmsMutation.mutate({ requestId: smsTargetId, message: smsMessage });
+                                                                            }}
+                                                                            disabled={sendSmsMutation.isPending || !smsMessage.trim()}
+                                                                        >
+                                                                            {sendSmsMutation.isPending ? "..." : t("pool.send_sms")}
+                                                                        </Button>
+                                                                    </DialogFooter>
+                                                                </DialogContent>
+                                                            </Dialog>
+                                                        )}
+                                                        <Button
+                                                            size="sm"
+                                                            onClick={() => claimMutation.mutate({ requestId: req.id, source: req.source })}
+                                                            disabled={claimMutation.isPending}
+                                                        >
+                                                            {claimMutation.isPending ? t("pool.claiming") : t("pool.claim")}
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
                     </Card>
-                </motion.div>
-            </div>
 
-            {/* Pool Table */}
-            <Card className="overflow-hidden">
-                {isLoading ? (
-                    <TableSkeleton rows={6} cols={11} />
-                ) : (
-                    <div dir={dir} className="w-full overflow-x-auto">
-                        <Table className="min-w-[850px]">
-                            <TableHeader>
-                                <TableRow>
-                                <TableHead className="text-end">{t("pool.table.type")}</TableHead>
-                                <TableHead className="text-end">{t("pool.table.city")}</TableHead>
-                                <TableHead className="text-end">{t("pool.table.region")}</TableHead>
-                                <TableHead className="text-end">{t("pool.table.budget")}</TableHead>
-                                <TableHead className="text-end">{t("pool.table.bedrooms")}</TableHead>
-                                <TableHead className="text-end">{t("pool.table.bathrooms")}</TableHead>
-                                <TableHead className="text-end">{t("pool.table.living_rooms")}</TableHead>
-                                <TableHead className="text-end">{t("pool.table.notes")}</TableHead>
-                                <TableHead className="text-end">{t("pool.table.source")}</TableHead>
-                                <TableHead className="text-end">{t("pool.table.date")}</TableHead>
-                                <TableHead className="text-end">{t("pool.table.actions")}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isError ? (
-                                <TableRow>
-                                    <TableCell colSpan={11} className="py-12 text-center">
-                                        <div className="flex flex-col items-center justify-center gap-3 text-amber-600">
-                                            <Ticket className="h-12 w-12 opacity-60" />
-                                            <p className="text-sm">{t("pool.failed_load")} {error instanceof Error ? error.message : ""}</p>
-                                            <p className="text-sm text-muted-foreground">{t("pool.login_required")}</p>
-                                            <Button variant="outline" size="sm" className="gap-2" onClick={() => void refetch()}>
-                                                <RefreshCw className="h-4 w-4" />
-                                                {t("pool.retry")}
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ) : requests.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={11}>
-                                        <EmptyState
-                                            icon={Ticket}
-                                            title={t("pool.no_requests")}
-                                            description={t("pool.no_requests_hint")}
-                                        />
-                                    </TableCell>
-                                </TableRow>
+                    {/* Pool pagination */}
+                    {!poolLoading && poolData?.pagination && poolData.pagination.totalPages > 1 && (
+                        <div className="flex items-center justify-between">
+                            <p className="text-sm text-muted-foreground">
+                                {t("pool.showing")} {((poolData.pagination.page - 1) * poolData.pagination.pageSize + 1).toLocaleString("en-US")}–{Math.min(poolData.pagination.page * poolData.pagination.pageSize, poolData.pagination.total).toLocaleString("en-US")} {t("pool.pagination_of")} {poolData.pagination.total.toLocaleString("en-US")}
+                            </p>
+                            <div className="flex gap-2">
+                                <Button variant="outline" size="sm" onClick={() => setPoolPage((p) => Math.max(1, p - 1))} disabled={poolPage <= 1}>
+                                    {t("pool.previous")}
+                                </Button>
+                                <Button variant="outline" size="sm" onClick={() => setPoolPage((p) => Math.min(poolData.pagination.totalPages, p + 1))} disabled={poolPage >= poolData.pagination.totalPages}>
+                                    {t("pool.next")}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </TabsContent>
+
+                {/* ═══════════ Tab 2 — All Requests ═══════════ */}
+                <TabsContent value="all" className="space-y-6">
+                    <Card>
+                        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="space-y-2 text-end">
+                                <CardTitle className="text-2xl font-bold">
+                                    {t("requests.seekers_title") || "قاعدة بيانات العملاء الباحثين عن العقار"}
+                                </CardTitle>
+                                <p className="text-sm text-muted-foreground">
+                                    {`إجمالي ${seekers.length} طلب مسجل`} • {`شراء: ${contractSummary.buy}`} • {`إيجار: ${contractSummary.rent}`}
+                                </p>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => seekerRefetch()}
+                                    disabled={seekerFetching}
+                                    aria-label={t("requests.refresh") || "تحديث القائمة"}
+                                >
+                                    <RefreshCcw className={`h-4 w-4 ${seekerFetching ? "animate-spin" : ""}`} />
+                                </Button>
+                                <Button variant="outline" asChild>
+                                    <a href="/api/requests/export" target="_blank" rel="noreferrer">
+                                        <Download className={cn("me-2", "h-4 w-4")} />
+                                        {t("requests.export_csv") || "تحميل CSV"}
+                                    </a>
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="text-sm text-muted-foreground">
+                                    {filteredSeekers.length === seekers.length
+                                        ? t("requests.showing_all") || "يعرض جميع الطلبات"
+                                        : `${t("requests.showing") || "يعرض"} ${filteredSeekers.length} ${t("requests.of") || "من"} ${seekers.length} ${t("requests.request") || "طلب"}`}
+                                </div>
+                                <div className="w-full sm:w-72">
+                                    <Input
+                                        value={seekerSearchTerm}
+                                        onChange={(e) => setSeekerSearchTerm(e.target.value)}
+                                        placeholder={t("requests.search_placeholder") || "بحث بالاسم، المدينة، البريد أو الجوال"}
+                                        className="text-end"
+                                    />
+                                </div>
+                            </div>
+
+                            {seekerLoading ? (
+                                <div className="space-y-2">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <Skeleton key={i} className="h-20 w-full rounded-lg" />
+                                    ))}
+                                </div>
+                            ) : seekerIsError ? (
+                                <QueryErrorFallback
+                                    message={seekerError?.message || t("requests.load_error") || "تعذر تحميل قائمة الطلبات"}
+                                    onRetry={() => seekerRefetch()}
+                                />
+                            ) : filteredSeekers.length === 0 ? (
+                                <EmptyState
+                                    title={t("requests.no_match") || "لا توجد طلبات مطابقة"}
+                                    description={t("requests.no_match_hint") || "لا توجد طلبات مطابقة لخيارات البحث الحالية."}
+                                />
                             ) : (
-                                requests.map((req: any, idx: number) => (
-                                    <TableRow key={req?.id ?? `row-${idx}`}>
-                                        <TableCell>
-                                            <Badge variant={req.type === "Buy" || req.type === "شراء" ? "info" : "purple"}>
-                                                {req.type || "—"}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>{req.city || "—"}</TableCell>
-                                        <TableCell>{req.region || "—"}</TableCell>
-                                        <TableCell className="font-medium text-emerald-600">
-                                            {req.minPrice != null && req.maxPrice != null
-                                                ? `${Number(req.minPrice).toLocaleString("en-US")} - ${Number(req.maxPrice).toLocaleString("en-US")}`
-                                                : req.minPrice != null
-                                                    ? Number(req.minPrice).toLocaleString("en-US")
-                                                    : "—"}
-                                        </TableCell>
-                                        <TableCell>{req.minBedrooms ?? req.maxBedrooms ?? "—"}</TableCell>
-                                        <TableCell>{req.bathrooms ?? "—"}</TableCell>
-                                        <TableCell>{req.livingRooms ?? "—"}</TableCell>
-                                        <TableCell className="max-w-[200px] truncate text-muted-foreground" title={req.notes || ""}>
-                                            {req.notes || "—"}
-                                        </TableCell>
-                                        <TableCell>
-                                            <span className={cn(
-                                                "text-xs font-medium",
-                                                req.source === "customer_request" ? "text-amber-600" : "text-muted-foreground"
-                                            )}>
-                                                {req.source === "customer_request" ? t("pool.customer_request") : t("pool.buyer_pool")}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell className="text-muted-foreground">
-                                            {req.createdAt
-                                                ? formatDistanceToNow(new Date(req.createdAt), { addSuffix: true, locale: dir === "rtl" ? ar : undefined })
-                                                : "—"}
-                                        </TableCell>
-                                        <TableCell className="text-end">
-                                            <div className="flex items-center justify-end gap-2">
-                                                {req.source === "customer_request" && req.canSendSms && (
-                                                    <Dialog open={smsDialogOpen && smsTargetId === req.id} onOpenChange={(open) => {
-                                                        setSmsDialogOpen(open);
-                                                        if (!open) { setSmsTargetId(null); setSmsMessage(""); }
-                                                    }}>
-                                                        <DialogTrigger asChild>
-                                                            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { setSmsTargetId(req.id); setSmsDialogOpen(true); }}>
-                                                                <MessageSquare className="h-4 w-4" />
-                                                                {t("pool.send_sms")}
-                                                            </Button>
-                                                        </DialogTrigger>
-                                                        <DialogContent>
-                                                            <DialogHeader>
-                                                                <DialogTitle>{t("pool.sms_title")}</DialogTitle>
-                                                                <DialogDescription>{t("pool.sms_description")}</DialogDescription>
-                                                            </DialogHeader>
-                                                            <div className="grid gap-2 py-2">
-                                                                <Label htmlFor="sms-body">{t("pool.sms_message")}</Label>
-                                                                <Textarea
-                                                                    id="sms-body"
-                                                                    placeholder={t("pool.sms_placeholder")}
-                                                                    value={smsMessage}
-                                                                    onChange={(e) => setSmsMessage(e.target.value)}
-                                                                    rows={4}
-                                                                    maxLength={500}
-                                                                />
-                                                            </div>
-                                                            <DialogFooter>
-                                                                <Button
-                                                                    onClick={() => {
-                                                                        if (!smsMessage.trim() || !smsTargetId) return;
-                                                                        sendSmsMutation.mutate({ requestId: smsTargetId, message: smsMessage });
-                                                                    }}
-                                                                    disabled={sendSmsMutation.isPending || !smsMessage.trim()}
-                                                                >
-                                                                    {sendSmsMutation.isPending ? "..." : t("pool.send_sms")}
-                                                                </Button>
-                                                            </DialogFooter>
-                                                        </DialogContent>
-                                                    </Dialog>
-                                                )}
-                                                <Button
-                                                    size="sm"
-                                                    onClick={() => claimMutation.mutate({ requestId: req.id, source: req.source })}
-                                                    disabled={claimMutation.isPending}
-                                                >
-                                                    {claimMutation.isPending ? t("pool.claiming") : t("pool.claim")}
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                        </Table>
-                    </div>
-                )}
-            </Card>
+                                <Card>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className="w-[16%]">{t("requests.col_name") || "الاسم"}</TableHead>
+                                                <TableHead className="w-[20%]">{t("requests.col_contact") || "بيانات التواصل"}</TableHead>
+                                                <TableHead className="w-[20%]">{t("requests.col_preferences") || "التفضيلات"}</TableHead>
+                                                <TableHead className="w-[18%]">{t("requests.col_budget") || "الميزانية والدخل"}</TableHead>
+                                                <TableHead className="w-[14%]">{t("requests.col_location") || "الموقع"}</TableHead>
+                                                <TableHead className="w-[12%]">{t("requests.col_date") || "تاريخ التسجيل"}</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {filteredSeekers.map((seeker, index) => {
+                                                const fullName = `${seeker.firstName ?? ""} ${seeker.lastName ?? ""}`.trim() || "—";
+                                                const contractLabel = seeker.typeOfContract
+                                                    ? CONTRACT_LABELS[seeker.typeOfContract] ?? seeker.typeOfContract
+                                                    : null;
+                                                const genderLabel = seeker.gender ? GENDER_LABELS[seeker.gender] ?? seeker.gender : null;
+                                                const createdLabel = formatDateTime(seeker.createdAt);
+                                                const updatedLabel = formatDateTime(seeker.updatedAt);
+                                                const rowKey = seeker.seekerId
+                                                    ?? (seeker.seekerNum !== undefined && seeker.seekerNum !== null
+                                                        ? String(seeker.seekerNum)
+                                                        : `${seeker.email ?? ""}-${seeker.mobileNumber ?? index}`);
 
-            {/* Pagination */}
-            {!isLoading && data?.pagination && data.pagination.totalPages > 1 && (
-                <div className="mt-4 flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                        {t("pool.showing")} {((data.pagination.page - 1) * data.pagination.pageSize + 1).toLocaleString("en-US")}–{Math.min(data.pagination.page * data.pagination.pageSize, data.pagination.total).toLocaleString("en-US")} {t("pool.pagination_of")} {data.pagination.total.toLocaleString("en-US")}
-                    </p>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setPage(p => Math.max(1, p - 1))}
-                            disabled={page <= 1}
-                        >
-                            {t("pool.previous")}
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setPage(p => Math.min(data.pagination.totalPages, p + 1))}
-                            disabled={page >= data.pagination.totalPages}
-                        >
-                            {t("pool.next")}
-                        </Button>
-                    </div>
-                </div>
-            )}
+                                                return (
+                                                    <TableRow key={rowKey}>
+                                                        <TableCell>
+                                                            <div className="flex flex-col items-end gap-1 text-end">
+                                                                <span className="font-semibold">{fullName}</span>
+                                                                {seeker.seekerId && (
+                                                                    <span className="text-xs text-muted-foreground">معرف: {seeker.seekerId}</span>
+                                                                )}
+                                                                {genderLabel && (
+                                                                    <span className="text-xs text-muted-foreground">الجنس: {genderLabel}</span>
+                                                                )}
+                                                                {seeker.age && (
+                                                                    <span className="text-xs text-muted-foreground">العمر: {seeker.age}</span>
+                                                                )}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="space-y-2 text-end text-sm">
+                                                                {seeker.mobileNumber && (
+                                                                    <div className="flex items-center justify-end gap-2">
+                                                                        <span>{seeker.mobileNumber}</span>
+                                                                        <Phone className="h-4 w-4 text-muted-foreground" />
+                                                                    </div>
+                                                                )}
+                                                                {seeker.email && (
+                                                                    <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
+                                                                        <span className="max-w-[220px] truncate ltr:text-start rtl:text-end">{seeker.email}</span>
+                                                                        <Mail className="h-3.5 w-3.5" />
+                                                                    </div>
+                                                                )}
+                                                                {seeker.nationality && (
+                                                                    <div className="text-xs text-muted-foreground">الجنسية: {seeker.nationality}</div>
+                                                                )}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="flex flex-col items-end gap-2 text-end text-sm">
+                                                                {seeker.typeOfProperty && (
+                                                                    <Badge variant="secondary" className="w-fit">
+                                                                        {seeker.typeOfProperty}
+                                                                    </Badge>
+                                                                )}
+                                                                {contractLabel && (
+                                                                    <Badge variant="outline" className="w-fit">
+                                                                        {contractLabel}
+                                                                    </Badge>
+                                                                )}
+                                                                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                                                                    <span>غرف: {seeker.numberOfRooms ?? "—"}</span>
+                                                                    <span>حمامات: {seeker.numberOfBathrooms ?? "—"}</span>
+                                                                    <span>صالات: {seeker.numberOfLivingRooms ?? "—"}</span>
+                                                                </div>
+                                                                {seeker.houseDirection && (
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        اتجاه: {seeker.houseDirection}
+                                                                    </span>
+                                                                )}
+                                                                {(seeker.otherComments || seeker.notes) && (
+                                                                    <span className="text-xs text-muted-foreground max-w-xs truncate">
+                                                                        ملاحظات: {(seeker.otherComments || seeker.notes) ?? ""}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="flex flex-col items-end gap-1 text-end text-sm">
+                                                                <span className="font-semibold text-emerald-600">
+                                                                    {formatCurrency(seeker.budgetSize)}
+                                                                </span>
+                                                                <span className="text-xs text-muted-foreground">
+                                                                    الدخل الشهري: {formatCurrency(seeker.monthlyIncome)}
+                                                                </span>
+                                                                {seeker.sqm && (
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        المساحة: {formatNumber(seeker.sqm)} م²
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="flex flex-col items-end gap-1 text-end text-sm">
+                                                                <span>
+                                                                    {[seeker.city, seeker.district].filter(Boolean).join("، ") || "—"}
+                                                                </span>
+                                                                {seeker.region && (
+                                                                    <span className="text-xs text-muted-foreground">المنطقة: {seeker.region}</span>
+                                                                )}
+                                                                {seeker.hasMaidRoom && (
+                                                                    <span className="text-xs text-muted-foreground">غرفة خادمة</span>
+                                                                )}
+                                                                {seeker.hasDriverRoom && (
+                                                                    <span className="text-xs text-muted-foreground">غرفة سائق</span>
+                                                                )}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="flex flex-col items-end gap-1 text-end text-sm">
+                                                                <span>{createdLabel}</span>
+                                                                {seeker.updatedAt && updatedLabel !== createdLabel && (
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        آخر تحديث: {updatedLabel}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
+                                        </TableBody>
+                                    </Table>
+                                </Card>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }

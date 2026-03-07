@@ -21,15 +21,19 @@ import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import EmptyState from "@/components/ui/empty-state";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Deal, Lead } from "@shared/types";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import type { BadgeVariant } from "@/lib/status-variants";
 
 const STAGES: { id: string; title: string; badgeVariant: BadgeVariant; accent: string }[] = [
@@ -55,7 +59,7 @@ export default function Pipeline() {
   const { dir, language } = useLanguage();
   const locale = language === "ar" ? "ar-SA" : "en-US";
 
-  const { data: deals, isLoading } = useQuery<Deal[]>({ queryKey: ["/api/deals"] });
+  const { data: deals, isLoading, isError, refetch } = useQuery<Deal[]>({ queryKey: ["/api/deals"] });
   const { data: leads } = useQuery<Lead[]>({ queryKey: ["/api/leads"] });
 
   type PropertyRequestSummary = {
@@ -240,7 +244,7 @@ export default function Pipeline() {
 
   if (isLoading) {
     return (
-      <div className="w-full space-y-6" dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="space-y-4 w-full max-w-md">
             <Skeleton className="h-8 w-48" />
@@ -257,22 +261,12 @@ export default function Pipeline() {
   }
 
   return (
-    <div className="w-full space-y-6" dir={dir}>
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-1 text-end">
-              <CardTitle>لوحة مسار الصفقات</CardTitle>
-              <CardDescription className="max-w-xl">
-                تابع تقدم الفرص البيعية عبر مراحل المسار المختلفة واسحب البطاقات لتحديث حالة الصفقة فوراً.
-              </CardDescription>
-            </div>
-            <Button onClick={() => setShowRequestDrawer(true)}>
-              إضافة صفقة جديدة
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
+    <div className={PAGE_WRAPPER} dir={dir}>
+      <PageHeader title="لوحة مسار الصفقات" subtitle="تابع تقدم الفرص البيعية عبر مراحل المسار المختلفة واسحب البطاقات لتحديث حالة الصفقة فوراً.">
+        <Button onClick={() => setShowRequestDrawer(true)}>
+          إضافة صفقة جديدة
+        </Button>
+      </PageHeader>
 
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
@@ -301,56 +295,60 @@ export default function Pipeline() {
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className="flex flex-1 flex-col gap-4 overflow-auto px-4 py-4"
+                        className="flex flex-1 flex-col"
                       >
-                        {stageDeals.map((deal, index) => (
-                          <Draggable key={deal.id} draggableId={deal.id} index={index}>
-                            {(provided, snapshot) => (
-                              <Card
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={cn(
-                                  "text-end transition-shadow",
-                                  snapshot.isDragging && "shadow-lg"
-                                )}
-                              >
-                                <CardContent className="p-4 space-y-2 text-end">
-                                  <div className="flex items-center justify-between">
-                                    <h4 className="text-sm font-semibold">{getLeadName(deal.leadId)}</h4>
-                                    {deal.dealValue && (
-                                      <span className="text-sm font-semibold text-emerald-600">
-                                        {formatCurrency(deal.dealValue)}
-                                      </span>
+                        <ScrollArea className="h-[calc(100vh-320px)]">
+                          <div className="flex flex-col gap-4 px-4 py-4">
+                            {stageDeals.map((deal, index) => (
+                              <Draggable key={deal.id} draggableId={deal.id} index={index}>
+                                {(provided, snapshot) => (
+                                  <Card
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    className={cn(
+                                      "text-end transition-shadow",
+                                      snapshot.isDragging && "shadow-lg"
                                     )}
-                                  </div>
+                                  >
+                                    <CardContent className="p-4 space-y-2 text-end">
+                                      <div className="flex items-center justify-between">
+                                        <h4 className="text-sm font-semibold">{getLeadName(deal.leadId)}</h4>
+                                        {deal.dealValue && (
+                                          <span className="text-sm font-semibold text-emerald-600">
+                                            {formatCurrency(deal.dealValue)}
+                                          </span>
+                                        )}
+                                      </div>
 
-                                  {deal.expectedCloseDate && (
-                                    <div className="text-xs text-muted-foreground">
-                                      متوقع في {new Date(deal.expectedCloseDate).toLocaleDateString(locale)}
-                                    </div>
-                                  )}
+                                      {deal.expectedCloseDate && (
+                                        <div className="text-xs text-muted-foreground">
+                                          متوقع في {new Date(deal.expectedCloseDate).toLocaleDateString(locale)}
+                                        </div>
+                                      )}
 
-                                  {deal.notes && (
-                                    <p className="text-sm text-muted-foreground line-clamp-3">{deal.notes}</p>
-                                  )}
+                                      {deal.notes && (
+                                        <p className="text-sm text-muted-foreground line-clamp-3">{deal.notes}</p>
+                                      )}
 
-                                  <div className="text-xs text-muted-foreground">
-                                    أُنشئت في {new Date(deal.createdAt).toLocaleDateString(locale)}
-                                  </div>
-                                </CardContent>
-                              </Card>
+                                      <div className="text-xs text-muted-foreground">
+                                        أُنشئت في {new Date(deal.createdAt).toLocaleDateString(locale)}
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+
+                            {stageDeals.length === 0 && (
+                              <EmptyState
+                                title="لا توجد صفقات في هذه المرحلة حالياً"
+                                className="py-6"
+                              />
                             )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-
-                        {stageDeals.length === 0 && (
-                          <EmptyState
-                            title="لا توجد صفقات في هذه المرحلة حالياً"
-                            className="py-6"
-                          />
-                        )}
+                          </div>
+                        </ScrollArea>
                       </div>
                     )}
                   </Droppable>

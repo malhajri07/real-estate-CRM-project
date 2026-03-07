@@ -305,7 +305,7 @@ export default function Landing() {
   // Always render content, even during loading
   return (
     <LandingErrorBoundary>
-      <div className="relative min-h-screen bg-white font-sans text-slate-900 antialiased" dir="rtl" style={{ minHeight: '100vh', backgroundColor: '#ffffff' }}>
+      <div className="relative min-h-screen bg-white font-sans text-slate-900 antialiased" dir="rtl">
         {/* Debug: Ensure page is rendering */}
         {process.env.NODE_ENV === 'development' && (
           <div className="fixed bottom-4 start-4 z-[9999] bg-red-500 text-white px-2 py-1 text-xs rounded">
@@ -325,7 +325,7 @@ export default function Landing() {
         {/* Always show header */}
         <PublicHeader />
 
-        <main className="relative" style={{ minHeight: 'calc(100vh - 80px)' }}>
+        <main className="relative min-h-[calc(100vh-80px)]">
           <HeroSection
             content={landingContent}
             onLogin={handleLogin}

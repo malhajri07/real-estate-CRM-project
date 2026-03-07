@@ -18,10 +18,12 @@
 
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import PageHeader from "@/components/ui/page-header";
 
 export default function PostListingPage() {
   const { t, dir } = useLanguage();
@@ -69,13 +71,11 @@ export default function PostListingPage() {
   };
 
   return (
-    <div className="w-full space-y-6" dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
+      <PageHeader title={t("إضافة إعلان جديد")} subtitle={t("أضف إعلان عقاري جديد للمراجعة")} />
       <section className="space-y-6">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">إضافة إعلان جديد</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="title">العنوان</Label>

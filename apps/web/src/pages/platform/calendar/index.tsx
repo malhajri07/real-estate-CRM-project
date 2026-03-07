@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { getCalendarStatusVariant } from "@/lib/status-variants";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import EmptyState from "@/components/ui/empty-state";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
@@ -35,7 +38,7 @@ export default function AppointmentsManager() {
     const queryClient = useQueryClient();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-    const { data: appointments, isLoading } = useQuery<Appointment[]>({
+    const { data: appointments, isLoading, isError, refetch } = useQuery<Appointment[]>({
         queryKey: ["/api/appointments"],
     });
 
@@ -79,10 +82,19 @@ export default function AppointmentsManager() {
         return format(new Date(dateString), "PPP p", { locale: language === 'ar' ? ar : enUS });
     };
 
+    if (isError) {
+        return (
+            <div className={PAGE_WRAPPER} dir={dir}>
+                <PageHeader title={t("nav.calendar") || "المواعيد"} />
+                <QueryErrorFallback message="فشل تحميل المواعيد" onRetry={() => refetch()} />
+            </div>
+        );
+    }
+
     return (
-        <div className="w-full space-y-6" dir={dir}>
+        <div className={PAGE_WRAPPER} dir={dir}>
             <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold">{t("nav.calendar")} & {t("common.appointments") || "Appointments"}</h1>
+                <PageHeader title={t("nav.calendar") || "المواعيد"} />
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                     <DialogTrigger asChild>
                         <Button>

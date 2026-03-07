@@ -22,11 +22,14 @@ import { ArrowRight, Bed, Bath, Square, MapPin, Calendar, Edit, Trash2, Share2 }
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-// import { PropertyMap } from "@/components/ui/property-map"; // Map component removed
+import { Skeleton } from "@/components/ui/skeleton";
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { getPropertyStatusVariant } from "@/lib/status-variants";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import PageHeader from "@/components/ui/page-header";
 import type { Property } from "@shared/types";
 
 export default function PropertyDetail() {
@@ -86,9 +89,18 @@ export default function PropertyDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-slate-500">جار تحميل تفاصيل العقار...</div>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader title="تفاصيل العقار" />
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-4 w-48" />
+        <Skeleton className="h-[400px] w-full rounded-lg" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-4">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+          <Skeleton className="h-48 w-full rounded-lg" />
         </div>
       </div>
     );
@@ -96,13 +108,12 @@ export default function PropertyDetail() {
 
   if (error || !property) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <div className="text-slate-500 mb-4">لم يتم العثور على العقار</div>
-          <Button onClick={() => setLocation('/home/platform/properties')} variant="outline">
-            العودة إلى العقارات
-          </Button>
-        </div>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader title="تفاصيل العقار" />
+        <QueryErrorFallback
+          message="لم يتم العثور على العقار"
+          onRetry={() => setLocation('/home/platform/properties')}
+        />
       </div>
     );
   }
@@ -111,7 +122,7 @@ export default function PropertyDetail() {
   const longitude = toNumber(property.longitude);
 
   return (
-    <div className="min-h-screen bg-background w-full">
+    <div className={PAGE_WRAPPER} dir={dir}>
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
         <div className="flex items-center justify-between p-4 max-w-[1600px] mx-auto">
@@ -125,7 +136,7 @@ export default function PropertyDetail() {
               العودة إلى العقارات
             </Button>
             <div className="h-6 w-px bg-border"></div>
-            <h1 className="text-xl font-semibold">{property.title}</h1>
+            <span className="text-xl font-semibold">{property.title}</span>
           </div>
 
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -172,6 +183,9 @@ export default function PropertyDetail() {
       </div>
 
       <main className="p-8 max-w-full">
+        <div className="max-w-[1600px] mx-auto">
+          <PageHeader title={property.title} subtitle={`${property.address}, ${property.city}`} />
+        </div>
         <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">

@@ -21,14 +21,13 @@ import {
   RefreshCcw,
   Map as MapIcon,
   LayoutGrid,
-  Search
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 import PublicHeader from "@/components/layout/PublicHeader";
-import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import {
   Sheet,
   SheetContent,
@@ -37,6 +36,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { formatCurrency } from "./utils/formatters";
 import { normalizeBoundaryToPolygon } from "./utils/map-helpers";
 import { DEFAULT_FILTERS } from "./utils/constants";
@@ -58,6 +58,7 @@ import {
 
 export default function MapPage() {
   const [, navigate] = useLocation();
+  const { dir } = useLanguage();
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
   // Fetch location data
@@ -344,15 +345,11 @@ export default function MapPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir="rtl">
-      <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
+    <div className="min-h-screen bg-[rgb(245,245,247)] font-sans text-slate-900 overflow-x-hidden" dir={dir}>
       <PublicHeader />
 
-      <main className="relative pt-10 pb-20 px-4 md:px-6 w-full max-w-7xl mx-auto">
-        {/* Background Blobs */}
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-teal-500/10 blur-[100px] rounded-full pointer-events-none" />
-
-        <div className="flex flex-col gap-8 relative z-10">
+      <main className="pt-10 pb-20 px-4 md:px-6 w-full max-w-7xl mx-auto">
+        <div className="flex flex-col gap-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -360,7 +357,7 @@ export default function MapPage() {
           >
              
              {/* Controls Bar */}
-             <div className="flex flex-wrap items-center gap-2 p-1 rounded-2xl bg-white/50 backdrop-blur-sm border border-border shadow-sm">
+             <div className="flex flex-wrap items-center gap-2 p-1 rounded-2xl bg-white border border-border shadow-sm">
                 <Button
                   type="button"
                   variant="ghost"
@@ -445,7 +442,7 @@ export default function MapPage() {
             className="space-y-6"
           >
             {viewMode === "table" ? (
-              <div className="glass rounded-2xl border border-white/50 bg-white/60 shadow-xl overflow-hidden">
+              <div className="rounded-2xl border border-border bg-white shadow-sm overflow-hidden">
                 <div className="p-6 md:p-8 flex flex-col gap-4 border-b border-slate-100/50">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -467,14 +464,18 @@ export default function MapPage() {
 
                 <div className="p-6 md:p-8 pt-0">
                   {listingsQuery.isLoading ? (
-                    <div className="flex h-64 items-center justify-center flex-col gap-4 text-slate-500">
-                      <Spinner size="lg" className="text-emerald-600" />
-                      <p>جار تحميل بيانات العقارات...</p>
+                    <div className="space-y-4">
+                      <Skeleton className="h-12 w-full" />
+                      <Skeleton className="h-24 w-full" />
+                      <Skeleton className="h-24 w-full" />
+                      <Skeleton className="h-24 w-full" />
+                      <Skeleton className="h-24 w-3/4" />
                     </div>
                   ) : listingsQuery.isError ? (
-                    <div className="rounded-2xl border border-red-100 bg-red-50/50 p-8 text-center text-red-600">
-                      حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى لاحقًا.
-                    </div>
+                    <QueryErrorFallback
+                      message="حدث خطأ أثناء تحميل البيانات. يرجى المحاولة مرة أخرى لاحقًا."
+                      onRetry={() => listingsQuery.refetch()}
+                    />
                   ) : (
                     <>
                       <PropertiesList
@@ -559,7 +560,7 @@ export default function MapPage() {
                 </div>
               </div>
             ) : (
-              <div className="glass rounded-2xl border border-white/50 bg-white/60 shadow-xl overflow-hidden w-full">
+              <div className="rounded-2xl border border-border bg-white shadow-sm overflow-hidden w-full">
                 <div className="p-6 border-b border-slate-100/50 flex flex-col md:flex-row md:items-center justify-between gap-2">
                   <div className="space-y-1">
                     <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -575,15 +576,18 @@ export default function MapPage() {
                     }
                   </div>
                 </div>
-                <div className="h-[600px] w-full bg-slate-50 relative">
+                <div className="h-[600px] w-full bg-[rgb(245,245,247)] relative">
                   {listingsQuery.isLoading ? (
-                    <div className="absolute inset-0 flex items-center justify-center flex-col gap-4 text-slate-500 bg-white/50 backdrop-blur-sm z-10">
-                      <Spinner size="lg" className="text-emerald-600" />
-                      <p>جار تحميل الخريطة...</p>
+                    <div className="absolute inset-0 flex flex-col gap-4 p-8">
+                      <Skeleton className="h-8 w-48" />
+                      <Skeleton className="h-[500px] w-full" />
                     </div>
                   ) : listingsQuery.isError ? (
-                    <div className="absolute inset-0 flex items-center justify-center text-red-600 bg-red-50/50">
-                      <p>حدث خطأ أثناء تحميل البيانات</p>
+                    <div className="absolute inset-0 flex items-center justify-center p-8">
+                      <QueryErrorFallback
+                        message="حدث خطأ أثناء تحميل البيانات"
+                        onRetry={() => listingsQuery.refetch()}
+                      />
                     </div>
                   ) : (
                     <PropertiesMapErrorBoundary>
@@ -608,123 +612,98 @@ export default function MapPage() {
       </main>
 
       {/* Favorites Drawer */}
-      <div
-        onClick={() => setIsFavoritesDrawerOpen(false)}
-        className={cn(
-          "fixed inset-0 z-40 bg-slate-900/35 backdrop-blur-sm transition-opacity duration-300",
-          isFavoritesDrawerOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        )}
-        aria-hidden="true"
-      />
+      <Sheet open={isFavoritesDrawerOpen} onOpenChange={setIsFavoritesDrawerOpen}>
+        <SheetContent side="left" className="w-full max-w-sm border-r border-border bg-white shadow-lg p-0">
+          <SheetHeader className="border-b border-border px-5 py-4">
+            <SheetTitle className="text-xs font-semibold text-emerald-600">المفضلة</SheetTitle>
+            <SheetDescription className="text-sm font-bold text-slate-900">{favoriteIds.length} عقار محفوظ</SheetDescription>
+          </SheetHeader>
 
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 w-full max-w-sm transform border-r border-white/20 bg-white/90 backdrop-blur-xl shadow-2xl transition-transform duration-300 ease-in-out md:rounded-r-3xl",
-          isFavoritesDrawerOpen ? "translate-x-0" : "-translate-x-full"
-        )}
-        role="dialog"
-        aria-label="المفضلات"
-      >
-        <div className="flex items-center justify-between border-b border-slate-100 bg-white/50 px-5 py-4">
-          <div>
-            <p className="text-xs font-semibold text-emerald-600">المفضلة</p>
-            <p className="text-sm font-bold text-slate-900">{favoriteIds.length} عقار محفوظ</p>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-slate-500 hover:bg-slate-100 rounded-full h-8 w-8 p-0"
-            onClick={() => setIsFavoritesDrawerOpen(false)}
-          >
-            ✕
-          </Button>
-        </div>
-
-        <div className="flex h-[calc(100%-5rem)] flex-col overflow-hidden">
-          {favoriteProperties.length ? (
-            <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4 scrollbar-thin scrollbar-thumb-slate-200">
-              {favoriteProperties.map((property) => (
-                <div
-                  key={property.id}
-                  className="space-y-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm hover:border-emerald-100 hover:shadow-md transition-all"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1">
-                      <p className="text-sm font-bold text-slate-900 line-clamp-1">{property.title}</p>
-                      <p className="text-xs text-slate-500">
-                        {property.city ? `${property.city}${property.region ? `، ${property.region}` : ""}` : property.region}
-                      </p>
+          <div className="flex h-[calc(100%-5rem)] flex-col overflow-hidden">
+            {favoriteProperties.length ? (
+              <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4 scrollbar-thin scrollbar-thumb-slate-200">
+                {favoriteProperties.map((property) => (
+                  <div
+                    key={property.id}
+                    className="space-y-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm hover:border-emerald-100 hover:shadow-md transition-all"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <p className="text-sm font-bold text-slate-900 line-clamp-1">{property.title}</p>
+                        <p className="text-xs text-slate-500">
+                          {property.city ? `${property.city}${property.region ? `، ${property.region}` : ""}` : property.region}
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-600"
+                        onClick={() => handleFavoritesToggle(property.id)}
+                      >
+                        <Heart className="h-3.5 w-3.5 fill-current" />
+                        <span className="sr-only">إزالة من المفضلة</span>
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-600"
-                      onClick={() => handleFavoritesToggle(property.id)}
-                    >
-                      <Heart className="h-3.5 w-3.5 fill-current" />
-                      <span className="sr-only">إزالة من المفضلة</span>
-                    </Button>
+                    <div className="flex items-center justify-between text-xs font-medium text-slate-700">
+                      <span className="text-emerald-600 font-bold text-sm">
+                        {formatCurrency(property.price)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="text-slate-400">|</span>
+                        {property.areaSqm ? `${property.areaSqm} م²` : "—"}
+                      </span>
+                      <span className="flex items-center gap-1">
+                         <span className="text-slate-400">|</span>
+                         {property.bedrooms ?? "—"} غرف
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 pt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-8 flex-1 rounded-xl border-border text-slate-600 hover:bg-slate-50 text-xs"
+                        onClick={() => {
+                          setHighlightedPropertyId(property.id);
+                          setIsFavoritesDrawerOpen(false);
+                          setViewMode("map");
+                        }}
+                      >
+                        <MapIcon className="w-3 h-3 ml-1.5" />
+                        على الخريطة
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="h-8 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs px-4"
+                        onClick={() => {
+                          navigate(`/properties/${property.id}`);
+                          setIsFavoritesDrawerOpen(false);
+                        }}
+                      >
+                        التفاصيل
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-xs font-medium text-slate-700">
-                    <span className="text-emerald-600 font-bold text-sm">
-                      {formatCurrency(property.price)}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="text-slate-400">|</span>
-                      {property.areaSqm ? `${property.areaSqm} م²` : "—"}
-                    </span>
-                    <span className="flex items-center gap-1">
-                       <span className="text-slate-400">|</span>
-                       {property.bedrooms ?? "—"} غرف
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-2 pt-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="h-8 flex-1 rounded-xl border-border text-slate-600 hover:bg-slate-50 text-xs"
-                      onClick={() => {
-                        setHighlightedPropertyId(property.id);
-                        setIsFavoritesDrawerOpen(false);
-                        setViewMode("map");
-                      }}
-                    >
-                      <MapIcon className="w-3 h-3 ml-1.5" />
-                      على الخريطة
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="h-8 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs px-4"
-                      onClick={() => {
-                        navigate(`/properties/${property.id}`);
-                        setIsFavoritesDrawerOpen(false);
-                      }}
-                    >
-                      التفاصيل
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center text-sm text-slate-500">
-              <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center">
-                <Heart className="h-8 w-8 text-slate-300" />
+                ))}
               </div>
-              <p className="font-medium text-slate-900">قائمة المفضلة فارغة</p>
-              <p className="text-xs max-w-[200px] leading-relaxed">استخدم زر القلب لحفظ العقارات التي تود الرجوع إليها لاحقًا.</p>
-            </div>
-          )}
-        </div>
-      </aside>
+            ) : (
+              <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center text-sm text-slate-500">
+                <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center">
+                  <Heart className="h-8 w-8 text-slate-300" />
+                </div>
+                <p className="font-medium text-slate-900">قائمة المفضلة فارغة</p>
+                <p className="text-xs max-w-[200px] leading-relaxed">استخدم زر القلب لحفظ العقارات التي تود الرجوع إليها لاحقًا.</p>
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Filter Sheet */}
       <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md border-l border-white/20 bg-white/95 backdrop-blur-xl">
+        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md border-l border-border bg-white shadow-lg">
           <SheetHeader className="pb-6">
             <SheetTitle className="text-xl font-bold text-slate-900">تصفية البحث</SheetTitle>
             <SheetDescription className="text-slate-500">قم بتخصيص النتائج حسب تفضيلاتك في أي وقت.</SheetDescription>

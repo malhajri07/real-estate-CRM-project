@@ -84,9 +84,11 @@ const EXTENDED_PLATFORM_ROLES = [
 ];
 
 export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
+  // 1. Dashboard (standalone)
   {
-    id: "nav",
-    labelKey: "sidebar.navigation",
+    id: "dashboard",
+    labelKey: "sidebar.dashboard",
+    label: "لوحة التحكم",
     icon: LayoutDashboard,
     children: [
       {
@@ -97,47 +99,22 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         matchPaths: ["/home/platform", "/"],
         allowedRoles: EXTENDED_PLATFORM_ROLES,
       },
-      {
-        id: "pool",
-        labelKey: "nav.pool",
-        label: "طلبات العملاء (Pool)",
-        path: "/home/platform/pool",
-        icon: Inbox,
-        matchPaths: ["/pool", "/home/platform/pool"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "forum",
-        labelKey: "nav.forum",
-        label: "المنتدى العقاري",
-        path: "/home/platform/forum",
-        icon: Users,
-        matchPaths: ["/forum"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "properties",
-        labelKey: "nav.properties",
-        path: "/home/platform/properties",
-        icon: Building,
-        matchPaths: ["/properties"],
-        matchPrefixes: ["/home/platform/properties/", "/properties/"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
+    ],
+  },
+
+  // 2. Sales
+  {
+    id: "sales",
+    labelKey: "sidebar.sales",
+    label: "المبيعات",
+    icon: Users,
+    children: [
       {
         id: "leads",
         labelKey: "nav.leads",
         path: "/home/platform/leads",
         icon: Users,
         matchPaths: ["/leads"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "pipeline",
-        labelKey: "nav.pipeline",
-        path: "/home/platform/pipeline",
-        icon: ClipboardList,
-        matchPaths: ["/pipeline"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
@@ -149,43 +126,11 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
-        id: "customers",
-        labelKey: "nav.customers",
-        path: "/home/platform/customers",
-        icon: Users,
-        matchPaths: ["/customers"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "reports",
-        labelKey: "nav.reports",
-        path: "/home/platform/reports",
-        icon: BarChart3,
-        matchPaths: ["/reports"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "notifications",
-        labelKey: "nav.notifications",
-        path: "/home/platform/notifications",
-        icon: Bell,
-        matchPaths: ["/notifications"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "settings",
-        labelKey: "nav.workspace_settings",
-        path: "/home/platform/settings",
-        icon: Settings,
-        matchPaths: ["/settings"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "marketing-requests",
-        labelKey: "nav.marketing_requests",
-        path: "/home/platform/marketing-requests",
-        icon: Megaphone,
-        matchPaths: ["/marketing-requests"],
+        id: "pipeline",
+        labelKey: "nav.pipeline",
+        path: "/home/platform/pipeline",
+        icon: ClipboardList,
+        matchPaths: ["/pipeline"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
@@ -204,22 +149,32 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         matchPaths: ["/calendar"],
         allowedRoles: EXTENDED_PLATFORM_ROLES,
       },
+    ],
+  },
+
+  // 3. Properties
+  {
+    id: "properties-group",
+    labelKey: "sidebar.properties",
+    label: "العقارات",
+    icon: Building,
+    children: [
       {
-        id: "agencies",
-        labelKey: "nav.agencies",
-        path: "/home/platform/agencies",
-        icon: Building2,
-        matchPaths: ["/agencies"],
-        matchPrefixes: ["/home/platform/agency/", "/agency/"],
+        id: "properties",
+        labelKey: "nav.properties",
+        path: "/home/platform/properties",
+        icon: Building,
+        matchPaths: ["/properties"],
+        matchPrefixes: ["/home/platform/properties/", "/properties/"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
-        id: "customer-requests",
-        labelKey: "nav.customer_requests",
-        path: "/home/platform/customer-requests",
-        icon: Inbox,
-        matchPaths: ["/customer-requests"],
-        allowedRoles: PLATFORM_CORE_ROLES,
+        id: "post-listing",
+        labelKey: "nav.post_listing",
+        path: "/home/platform/post-listing",
+        icon: Megaphone,
+        matchPaths: ["/post-listing"],
+        allowedRoles: EXTENDED_PLATFORM_ROLES,
       },
       {
         id: "favorites",
@@ -227,14 +182,6 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/favorites",
         icon: Heart,
         matchPaths: ["/favorites"],
-        allowedRoles: EXTENDED_PLATFORM_ROLES,
-      },
-      {
-        id: "saved-searches",
-        labelKey: "nav.saved_searches",
-        path: "/home/platform/saved-searches",
-        icon: Bookmark,
-        matchPaths: ["/saved-searches"],
         allowedRoles: EXTENDED_PLATFORM_ROLES,
       },
       {
@@ -246,12 +193,103 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         allowedRoles: EXTENDED_PLATFORM_ROLES,
       },
       {
-        id: "post-listing",
-        labelKey: "nav.post_listing",
-        path: "/home/platform/post-listing",
-        icon: Megaphone,
-        matchPaths: ["/post-listing"],
+        id: "saved-searches",
+        labelKey: "nav.saved_searches",
+        path: "/home/platform/saved-searches",
+        icon: Bookmark,
+        matchPaths: ["/saved-searches"],
         allowedRoles: EXTENDED_PLATFORM_ROLES,
+      },
+    ],
+  },
+
+  // 4. Requests
+  {
+    id: "requests",
+    labelKey: "sidebar.requests",
+    label: "الطلبات",
+    icon: Inbox,
+    children: [
+      {
+        id: "pool",
+        labelKey: "nav.pool",
+        label: "طلبات العملاء (Pool)",
+        path: "/home/platform/pool",
+        icon: Inbox,
+        matchPaths: ["/pool", "/home/platform/pool"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "admin-requests",
+        labelKey: "nav.admin_requests",
+        path: "/home/platform/admin-requests",
+        icon: Inbox,
+        matchPaths: ["/admin/requests"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+    ],
+  },
+
+  // 5. Community
+  {
+    id: "community",
+    labelKey: "sidebar.community",
+    label: "المجتمع",
+    icon: Globe2,
+    children: [
+      {
+        id: "forum",
+        labelKey: "nav.forum",
+        label: "المنتدى العقاري",
+        path: "/home/platform/forum",
+        icon: Users,
+        matchPaths: ["/forum"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "agencies",
+        labelKey: "nav.agencies",
+        path: "/home/platform/agencies",
+        icon: Building2,
+        matchPaths: ["/agencies"],
+        matchPrefixes: ["/home/platform/agency/", "/agency/"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+    ],
+  },
+
+  // 6. Analytics (standalone)
+  {
+    id: "analytics",
+    labelKey: "sidebar.analytics",
+    label: "التحليلات",
+    icon: BarChart3,
+    children: [
+      {
+        id: "reports",
+        labelKey: "nav.reports",
+        path: "/home/platform/reports",
+        icon: BarChart3,
+        matchPaths: ["/reports"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+    ],
+  },
+
+  // 7. Operations (admin)
+  {
+    id: "operations",
+    labelKey: "sidebar.operations",
+    label: "العمليات",
+    icon: ShieldCheck,
+    children: [
+      {
+        id: "moderation",
+        labelKey: "nav.moderation",
+        path: "/home/platform/moderation",
+        icon: ShieldCheck,
+        matchPaths: ["/moderation"],
+        allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
         id: "unverified-listings",
@@ -259,14 +297,6 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/unverified-listings",
         icon: ShieldCheck,
         matchPaths: ["/unverified-listings", "/home/platform/unverified-listings"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "moderation",
-        labelKey: "nav.moderation",
-        path: "/home/platform/moderation",
-        icon: ShieldCheck,
-        matchPaths: ["/moderation"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
@@ -278,11 +308,37 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
-        id: "admin-requests",
-        labelKey: "nav.admin_requests",
-        path: "/home/platform/admin-requests",
-        icon: Inbox,
-        matchPaths: ["/admin/requests"],
+        id: "marketing-requests",
+        labelKey: "nav.marketing_requests",
+        path: "/home/platform/marketing-requests",
+        icon: Megaphone,
+        matchPaths: ["/marketing-requests"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+    ],
+  },
+
+  // 8. Settings
+  {
+    id: "settings-group",
+    labelKey: "sidebar.settings",
+    label: "الإعدادات",
+    icon: Settings,
+    children: [
+      {
+        id: "settings",
+        labelKey: "nav.workspace_settings",
+        path: "/home/platform/settings",
+        icon: Settings,
+        matchPaths: ["/settings"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "notifications",
+        labelKey: "nav.notifications",
+        path: "/home/platform/notifications",
+        icon: Bell,
+        matchPaths: ["/notifications"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
     ],

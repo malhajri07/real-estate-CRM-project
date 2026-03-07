@@ -19,18 +19,22 @@
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import EmptyState from "@/components/ui/empty-state";
+import { Building } from "lucide-react";
 
 export default function AgentPage() {
   const { t, dir } = useLanguage();
   const { id } = useParams<{ id: string }>();
-  const { data, isLoading, error } = useQuery<{ agent: any; listings: any[] }>({ queryKey: ["/api/agencies/agent", id] });
+  const { data, isLoading, error, refetch } = useQuery<{ agent: any; listings: any[] }>({ queryKey: ["/api/agencies/agent", id] });
   
   if (isLoading) {
     return (
-      <div className="w-full space-y-6" dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
         <div className="flex items-center justify-center min-h-[400px]">
           <Skeleton className="h-4 w-48" />
         </div>
@@ -40,21 +44,19 @@ export default function AgentPage() {
   
   if (error || !data) {
     return (
-      <div className="w-full space-y-6" dir={dir}>
-        <Alert variant="destructive">
-          <AlertDescription className="text-center">تعذر تحميل الوسيط</AlertDescription>
-        </Alert>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <QueryErrorFallback message="تعذر تحميل الوسيط" onRetry={() => refetch()} />
       </div>
     );
   }
 
   const a = data.agent;
   return (
-    <div className="w-full space-y-6" dir={dir}>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">{a?.firstName} {a?.lastName}</h1>
-        <p className="text-sm text-muted-foreground mt-1">عرض تفاصيل الوسيط وإعلاناته</p>
-      </div>
+    <div className={PAGE_WRAPPER} dir={dir}>
+      <PageHeader
+        title={`${a?.firstName ?? ''} ${a?.lastName ?? ''}`.trim() || t("تفاصيل الوسيط")}
+        subtitle={t("عرض تفاصيل الوسيط وإعلاناته")}
+      />
       <section className="space-y-6">
         <Card>
           <CardContent className="p-6">
@@ -67,17 +69,25 @@ export default function AgentPage() {
             <CardTitle className="text-lg font-bold">الإعلانات</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {data.listings.map((p) => (
-                <Card key={p.id}>
-                  <CardContent className="p-5">
-                    <div className="text-sm font-semibold">{p.title}</div>
-                    <div className="text-xs text-muted-foreground">{p.address}، {p.city}</div>
-                    <div className="text-lg text-emerald-600 font-bold">{p.price} ﷼</div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {data.listings.length === 0 ? (
+              <EmptyState
+                icon={Building}
+                title="لا توجد إعلانات"
+                description="لم يتم إضافة أي إعلانات عقارية لهذا الوسيط بعد"
+              />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {data.listings.map((p) => (
+                  <Card key={p.id}>
+                    <CardContent className="p-5">
+                      <div className="text-sm font-semibold">{p.title}</div>
+                      <div className="text-xs text-muted-foreground">{p.address}، {p.city}</div>
+                      <div className="text-lg text-emerald-600 font-bold">{p.price} ﷼</div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </section>

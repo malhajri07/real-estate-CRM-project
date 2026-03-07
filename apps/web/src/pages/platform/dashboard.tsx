@@ -19,7 +19,6 @@
 
 import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
-import { motion } from "framer-motion";
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { MetricCard } from "@/components/dashboard/MetricCard";
@@ -62,6 +61,9 @@ import {
 import AddPropertyDrawer from "@/components/modals/add-property-drawer";
 import { useLanguage } from "@/contexts/LanguageContext";
 import EmptyState from "@/components/ui/empty-state";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 type MetricResponse = {
   totalLeads: number;
@@ -92,6 +94,8 @@ export default function Dashboard() {
   const {
     data: metrics,
     isLoading: metricsLoading,
+    isError: metricsError,
+    refetch: refetchMetrics,
   } = useQuery<MetricResponse>({
     queryKey: ["/api/reports/dashboard/metrics"],
   });
@@ -228,12 +232,31 @@ export default function Dashboard() {
     setLocation('/home/platform/leads');
   };
 
+  if (metricsError) {
+    return (
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader
+          title={`${t("dashboard.welcome") || "مرحباً"} ${userName}`}
+          subtitle={t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
+        />
+        <QueryErrorFallback
+          message={t("dashboard.load_error") || "فشل تحميل بيانات لوحة التحكم"}
+          onRetry={() => refetchMetrics()}
+        />
+      </div>
+    );
+  }
+
   if (metricsLoading) {
     return (
-      <>
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader
+          title={`${t("dashboard.welcome") || "مرحباً"} ${userName}`}
+          subtitle={t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
+        />
         <DashboardSkeleton />
         <AddPropertyDrawer open={addPropertyDrawerOpen} onOpenChange={setAddPropertyDrawerOpen} />
-      </>
+      </div>
     );
   }
 
@@ -244,29 +267,13 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="w-full space-y-6 relative min-h-screen" dir={dir}>
-      {/* Clean Background - Apple Style */}
-      <div className="absolute inset-0 bg-[#F5F5F7] pointer-events-none z-0" />
+    <div className={PAGE_WRAPPER} dir={dir}>
+      <PageHeader
+          title={`${t("dashboard.welcome") || "مرحباً"} ${userName}`}
+          subtitle={t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
+        />
       
-      {/* Welcome Header - Minimal Text */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 px-2"
-      >
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-            {t("dashboard.welcome") || "مرحباً"} {userName}
-          </h1>
-          <p className="text-sm font-medium text-slate-500">
-            {t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
-          </p>
-        </div>
-      </motion.div>
-      
-      {/* Clean Metric Cards */}
-      <section aria-label={t("dashboard.quick_summary")} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 relative z-10">
+      <section aria-label={t("dashboard.quick_summary")} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {metricCards.map((metric, index) => (
           <MetricCard
             key={metric.id}
@@ -278,7 +285,7 @@ export default function Dashboard() {
       </section>
 
       {/* Main Content Grid */}
-      <div className="grid gap-8 lg:grid-cols-3 relative z-10" aria-label={t("dashboard.details_section")}>
+      <div className="grid gap-8 lg:grid-cols-3" aria-label={t("dashboard.details_section")}>
         {/* Left Column - Main Content */}
         <div className="space-y-8 lg:col-span-2">
           {/* Pipeline Flow + Revenue Chart - side by side on large screens */}
@@ -301,7 +308,7 @@ export default function Dashboard() {
                     <CardTitle className="text-2xl font-bold text-slate-900 tracking-tight">
                       {t("dashboard.monthly_revenue") || "إيرادات الشهر"}
                     </CardTitle>
-                    <CardDescription className="text-slate-500 mt-2 font-medium" style={{ lineHeight: '1.6' }}>
+                    <CardDescription className="text-slate-500 mt-2 font-medium leading-relaxed">
                       {t("dashboard.revenue_description") || t("dashboard.pipeline_description") || "نظرة عامة على الإيرادات الشهرية"}
                     </CardDescription>
                   </div>
@@ -324,7 +331,7 @@ export default function Dashboard() {
                     <CardTitle className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">
                       {t("dashboard.recent_leads")}
                     </CardTitle>
-                    <CardDescription className="text-slate-500 font-medium" style={{ lineHeight: '1.6' }}>
+                    <CardDescription className="text-slate-500 font-medium leading-relaxed">
                       {t("dashboard.recent_leads_description")}
                     </CardDescription>
                   </div>

@@ -102,6 +102,12 @@ export interface DistrictPolygonShape {
   isFilterMatch: boolean;
 }
 
+export interface RegionPolygonShape {
+  paths: LatLngLiteral[][];
+  regionId: number;
+  isFilterMatch: boolean;
+}
+
 export interface RegionPayload {
   id: number;
   nameAr?: string | null;

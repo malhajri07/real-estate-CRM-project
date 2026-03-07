@@ -17,7 +17,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import EmptyState from "@/components/ui/empty-state";
 
 type Listing = {
@@ -35,6 +39,8 @@ type Listing = {
 export default function ComparePage() {
   const { t, dir } = useLanguage();
   const [items, setItems] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const ids = useMemo(() => {
     try {
@@ -44,28 +50,54 @@ export default function ComparePage() {
     } catch { return []; }
   }, []);
 
-  useEffect(() => {
-    async function load() {
-      if (!ids.length) return setItems([]);
+  const load = async () => {
+    setIsLoading(true);
+    setError(null);
+    if (!ids.length) {
+      setItems([]);
+      setIsLoading(false);
+      return;
+    }
+    try {
       const res = await fetch(`/api/listings?ids=${ids.join(',')}`);
-      if (!res.ok) return setItems([]);
+      if (!res.ok) throw new Error("Failed to load");
       const data = await res.json();
       const list = Array.isArray(data.items) ? data.items : data;
       setItems(list);
+    } catch {
+      setError("تعذر تحميل العقارات للمقارنة");
+      setItems([]);
+    } finally {
+      setIsLoading(false);
     }
-    load();
-  }, [ids]);
+  };
+
+  useEffect(() => { load(); }, [ids]);
+
+  if (isLoading) {
+    return (
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-48 w-full rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <QueryErrorFallback message={error} onRetry={load} />
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full space-y-6" dir={dir}>
+    <div className={PAGE_WRAPPER} dir={dir}>
+      <PageHeader title={t("مقارنة العقارات")} subtitle={t("قارن بين العقارات المختلفة")} />
       <section className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">مقارنة العقارات</CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">قارن بين العقارات المختلفة</p>
-          </CardHeader>
-        </Card>
-
         {items.length === 0 ? (
           <EmptyState
             title="لا يوجد عناصر للمقارنة"

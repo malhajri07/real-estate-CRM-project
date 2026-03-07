@@ -24,10 +24,14 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import type { Lead, Activity } from "@shared/types";
 import { cn } from "@/lib/utils";
 import { getLeadStatusVariant } from "@/lib/status-variants";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import EmptyState from "@/components/ui/empty-state";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,7 +39,7 @@ export default function Clients() {
   const { t, dir, language } = useLanguage();
   const locale = language === "ar" ? "ar-SA" : "en-US";
 
-  const { data: leads, isLoading } = useQuery<Lead[]>({
+  const { data: leads, isLoading, isError, refetch } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
   });
 
@@ -76,9 +80,24 @@ export default function Clients() {
     }
   };
 
+  if (isError) {
+    return (
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader
+          title={t("nav.clients") || "العملاء"}
+          subtitle={t("clients.subtitle") || "إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم"}
+        />
+        <QueryErrorFallback
+          message={t("clients.load_error") || "فشل تحميل بيانات العملاء"}
+          onRetry={() => refetch()}
+        />
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
-      <div className="w-full space-y-6" dir={dir}>
+      <div className={PAGE_WRAPPER} dir={dir}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="w-full max-w-md space-y-4">
             <Skeleton className="h-8 w-full" />
@@ -91,11 +110,11 @@ export default function Clients() {
   }
 
   return (
-    <div className="w-full space-y-6" dir={dir}>
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">العملاء</h1>
-          <p className="text-sm text-muted-foreground mt-1">إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم</p>
-        </div>
+    <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader
+          title={t("nav.clients") || "العملاء"}
+          subtitle={t("clients.subtitle") || "إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم"}
+        />
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Card>
             <CardContent className="flex items-center justify-between p-6">
@@ -144,51 +163,53 @@ export default function Clients() {
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent className="max-h-[calc(100vh-260px)] overflow-y-auto p-0">
-                {filteredLeads.length === 0 ? (
-                  <EmptyState
-                    title={searchQuery ? "لا توجد عملاء تطابق بحثك" : "لا توجد عملاء"}
-                  />
-                ) : (
-                  <div className="ui-data-list">
-                    {filteredLeads.map((lead) => (
-                      <div
-                        key={lead.id}
-                        className={cn(
-                          "cursor-pointer p-4 transition-colors",
-                          selectedLeadId === lead.id
-                            ? "bg-primary/10 ring-1 ring-primary/50"
-                            : "hover:bg-muted/50"
-                        )}
-                        onClick={() => setSelectedLeadId(lead.id)}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-sm font-medium text-end">
-                            {lead.firstName} {lead.lastName}
-                          </h4>
-                          <Badge variant={getLeadStatusVariant(lead.status)}>
-                            {t(`status.${lead.status}`) || lead.status}
-                          </Badge>
-                        </div>
+              <CardContent className="p-0">
+                <ScrollArea className="h-[calc(100vh-260px)]">
+                  {filteredLeads.length === 0 ? (
+                    <EmptyState
+                      title={searchQuery ? "لا توجد عملاء تطابق بحثك" : "لا توجد عملاء"}
+                    />
+                  ) : (
+                    <div className="ui-data-list">
+                      {filteredLeads.map((lead) => (
+                        <div
+                          key={lead.id}
+                          className={cn(
+                            "cursor-pointer p-4 transition-colors",
+                            selectedLeadId === lead.id
+                              ? "bg-primary/10 ring-1 ring-primary/50"
+                              : "hover:bg-muted/50"
+                          )}
+                          onClick={() => setSelectedLeadId(lead.id)}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-medium text-end">
+                              {lead.firstName} {lead.lastName}
+                            </h4>
+                            <Badge variant={getLeadStatusVariant(lead.status)}>
+                              {t(`status.${lead.status}`) || lead.status}
+                            </Badge>
+                          </div>
 
-                        <p className="mb-1 text-sm text-muted-foreground text-end">{lead.email}</p>
-                        {lead.phone && (
-                          <p className="text-sm text-muted-foreground text-end">{lead.phone}</p>
-                        )}
+                          <p className="mb-1 text-sm text-muted-foreground text-end">{lead.email}</p>
+                          {lead.phone && (
+                            <p className="text-sm text-muted-foreground text-end">{lead.phone}</p>
+                          )}
 
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-muted-foreground text-end">
-                            {lead.interestType && `${t(`interest.${lead.interestType}`) || lead.interestType} • `}
-                            {lead.budgetRange}
-                          </span>
-                          <span className="text-xs text-muted-foreground text-end">
-                            {new Date(lead.createdAt).toLocaleDateString(locale)}
-                          </span>
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-xs text-muted-foreground text-end">
+                              {lead.interestType && `${t(`interest.${lead.interestType}`) || lead.interestType} • `}
+                              {lead.budgetRange}
+                            </span>
+                            <span className="text-xs text-muted-foreground text-end">
+                              {new Date(lead.createdAt).toLocaleDateString(locale)}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </ScrollArea>
               </CardContent>
             </Card>
           </div>

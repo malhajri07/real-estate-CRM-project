@@ -63,7 +63,6 @@ const routeMatches = (item: PlatformSidebarChildConfig, currentLocation: string)
 
 const PATH_PREFETCH_KEYS: Record<string, unknown[][]> = {
   "/home/platform/leads": [["/api/leads"]],
-  "/home/platform/customers": [["/api/leads"]],
   "/home/platform/properties": [["/api/listings?pageSize=all"]],
   "/home/platform/notifications": [["/api/leads"]],
   "/home/platform/clients": [["/api/leads"]],
@@ -169,6 +168,21 @@ export default function PlatformSidebar({ onLogout }: SidebarProps) {
 
       <SidebarContent>
         {visibleGroups.map((group) => {
+          const visibleItems = groupChildren(group);
+          const isStandalone = visibleItems.length === 1 && !group.subgroups?.length;
+
+          if (isStandalone) {
+            return (
+              <SidebarGroup key={group.id}>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {renderNavItem(visibleItems[0])}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          }
+
           const GroupIcon = group.icon;
           const groupLabel = group.label ?? (group.labelKey ? t(group.labelKey) : group.id);
           const isExpanded = expandedGroups.includes(group.id);
