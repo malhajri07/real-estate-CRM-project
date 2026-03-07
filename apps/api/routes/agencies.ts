@@ -27,21 +27,7 @@ const router = express.Router();
 
 router.get("/", async (_req, res) => {
   try {
-    const agencies = await storage.listAgencies();
-    // Enrich with counts (agents, listings)
-    const enriched = await Promise.all(
-      agencies.map(async (a: any) => {
-        const agents = await storage.listAgencyAgents(a.id);
-        const listings = await storage.getAgencyListings(a.id);
-        return {
-          id: a.id,
-          name: a.tradeName || a.legalName || a.id,
-          verified: a.status === 'ACTIVE',
-          agentsCount: agents.length,
-          listingsCount: listings.length,
-        };
-      })
-    );
+    const enriched = await storage.listAgenciesWithCounts();
     res.json(enriched);
   } catch (err) {
     console.error("Error listing agencies:", err);

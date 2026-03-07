@@ -1,5 +1,26 @@
 # Database Change Log
 
+## 2025-03-07 – N+1 Query Review (Task 3.5)
+
+### What Changed
+- **agencies route:** Replaced N+1 pattern with batched queries
+  - Before: 1 query for agencies + 2×N queries (listAgencyAgents + getAgencyListings per agency)
+  - After: 3 queries total (agencies + users.groupBy + listings.groupBy)
+- **New method:** `storage.listAgenciesWithCounts()` — fetches agencies and counts in parallel via Prisma groupBy
+
+### Findings
+| Route / Method | N+1? | Fix |
+|----------------|------|-----|
+| getPropertiesPaginated | No | Uses `include: { listings: true }` — single query |
+| buyer-pool /search | No | Uses `include: { users, claims }` — single query |
+| agencies GET / | Yes | Replaced with listAgenciesWithCounts (3 queries) |
+
+### Impact
+- **Performance:** Agencies list scales O(1) queries instead of O(N)
+- **No schema changes**
+
+---
+
 ## 2026-02-08 – Revenue Chart Data Query Pattern
 
 ### What Changed

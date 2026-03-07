@@ -484,6 +484,51 @@ class PrismaStorageSimple {
     }
   }
 
+  /**
+   * List agencies with agent and listing counts in 3 queries (avoids N+1).
+   * Replaces: listAgencies + N×(listAgencyAgents + getAgencyListings)
+   */
+  async listAgenciesWithCounts(): Promise<Array<{ id: string; name: string; verified: boolean; agentsCount: number; listingsCount: number }>> {
+    try {
+      const [agencies, agentCounts, listingCounts] = await Promise.all([
+        prisma.organizations.findMany({
+          orderBy: { createdAt: 'desc' },
+          select: { id: true, tradeName: true, legalName: true, status: true },
+        }),
+        prisma.users.groupBy({
+          by: ['organizationId'],
+          _count: { id: true },
+          where: { organizationId: { not: null } },
+        }),
+        prisma.listings.groupBy({
+          by: ['organizationId'],
+          _count: { id: true },
+          where: { organizationId: { not: null } },
+        }),
+      ]);
+
+      const agentsByOrg = new Map<string, number>();
+      for (const row of agentCounts) {
+        if (row.organizationId) agentsByOrg.set(row.organizationId, row._count.id);
+      }
+      const listingsByOrg = new Map<string, number>();
+      for (const row of listingCounts) {
+        if (row.organizationId) listingsByOrg.set(row.organizationId, row._count.id);
+      }
+
+      return agencies.map((a) => ({
+        id: a.id,
+        name: a.tradeName || a.legalName || a.id,
+        verified: a.status === 'ACTIVE',
+        agentsCount: agentsByOrg.get(a.id) ?? 0,
+        listingsCount: listingsByOrg.get(a.id) ?? 0,
+      }));
+    } catch (error) {
+      console.error('Error listing agencies with counts:', error);
+      throw error;
+    }
+  }
+
   async getAgency(id: string): Promise<any | undefined> {
     try {
       const org = await prisma.organizations.findUnique({
