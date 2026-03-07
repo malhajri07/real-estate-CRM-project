@@ -144,9 +144,26 @@ export default function Requests() {
         totalPages: number;
     }
 
+    interface PoolRequest {
+        id?: string | number;
+        type?: string;
+        city?: string;
+        region?: string;
+        minPrice?: number;
+        maxPrice?: number;
+        minBedrooms?: number;
+        maxBedrooms?: number;
+        bathrooms?: number | string;
+        livingRooms?: number | string;
+        notes?: string;
+        source?: string;
+        createdAt?: string | Date;
+        canSendSms?: boolean;
+    }
+
     interface PoolSearchResponse {
         success?: boolean;
-        data?: unknown[];
+        data?: PoolRequest[];
         pagination?: PoolPagination;
     }
 
@@ -221,7 +238,7 @@ export default function Requests() {
         },
     });
 
-    const poolRequests = Array.isArray(poolData?.data) ? poolData.data : [];
+    const poolRequests: PoolRequest[] = Array.isArray(poolData?.data) ? poolData.data : [];
 
     // ── Customer Requests state ──
     const {
@@ -362,7 +379,7 @@ export default function Requests() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {poolRequests.map((req: Record<string, unknown>, idx: number) => {
+                                        {poolRequests.map((req, idx) => {
                                             const reqId = req.id != null ? String(req.id) : undefined;
                                             const reqSource = req.source != null ? String(req.source) : undefined;
                                             return (

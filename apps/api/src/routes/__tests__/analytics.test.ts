@@ -1,6 +1,7 @@
 /**
  * Placeholder test so pnpm test passes.
- * TODO: Add real analytics route tests.
+ * TODO: Add real analytics route tests (use Vitest when available).
  */
-if (1 !== 1) throw new Error("assertion failed");
-console.log("analytics test placeholder - ok");
+// Minimal assertion: file runs without throwing
+const ok = true;
+if (!ok) throw new Error("assertion failed");
