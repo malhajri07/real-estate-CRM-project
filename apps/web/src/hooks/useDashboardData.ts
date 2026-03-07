@@ -10,8 +10,8 @@
  * - Performance metrics
  * 
  * Related Files:
- * - apps/web/src/pages/dashboard.tsx - Uses this hook
- * - apps/api/src/routes/analytics.ts - Analytics API routes
+ * - apps/web/src/pages/platform/dashboard.tsx - Uses this hook
+ * - apps/api/routes/rbac-admin.ts - Analytics API routes
  */
 
 import { useQuery } from "@tanstack/react-query";
@@ -60,19 +60,25 @@ const toNumber = (value: unknown, fallback = 0): number => {
 const toString = (value: unknown, fallback = ""): string =>
   typeof value === "string" && value.trim().length > 0 ? value : fallback;
 
+const getSeriesFromPayload = (payload: unknown): unknown[] => {
+  if (!payload || typeof payload !== "object") return [];
+  const obj = payload as Record<string, unknown>;
+  if (Array.isArray(obj.series)) return obj.series;
+  if (Array.isArray(payload)) return payload;
+  return [];
+};
+
 const normalizeLoginsSeries = (payload: unknown): LoginsSeriesData => {
-  const source =
-    payload && typeof payload === "object" && payload !== null
-      ? (Array.isArray((payload as any).series) ? (payload as any).series : Array.isArray(payload) ? payload : [])
-      : [];
+  const source = getSeriesFromPayload(payload);
 
   const series: LoginsSeriesPoint[] = source
-    .map((entry: any): LoginsSeriesPoint | null => {
+    .map((entry: unknown): LoginsSeriesPoint | null => {
       if (!entry || typeof entry !== "object") return null;
-      const dateValue = toString(entry.date ?? entry.day ?? entry.label, "");
+      const e = entry as Record<string, unknown>;
+      const dateValue = toString(e.date ?? e.day ?? e.label, "");
       if (!dateValue) return null;
-      const logins = toNumber(entry.logins ?? entry.count ?? entry.total, 0);
-      const uniqueUsers = toNumber(entry.uniqueUsers ?? entry.unique ?? entry.distinct ?? logins, logins);
+      const logins = toNumber(e.logins ?? e.count ?? e.total, 0);
+      const uniqueUsers = toNumber(e.uniqueUsers ?? e.unique ?? e.distinct ?? logins, logins);
       return { date: dateValue, logins, uniqueUsers };
     })
     .filter((point: LoginsSeriesPoint | null): point is LoginsSeriesPoint => Boolean(point));
@@ -81,18 +87,16 @@ const normalizeLoginsSeries = (payload: unknown): LoginsSeriesData => {
 };
 
 const normalizeRPMSeries = (payload: unknown): RPMSeriesData => {
-  const source =
-    payload && typeof payload === "object" && payload !== null
-      ? (Array.isArray((payload as any).series) ? (payload as any).series : Array.isArray(payload) ? payload : [])
-      : [];
+  const source = getSeriesFromPayload(payload);
 
   const series: RPMSeriesPoint[] = source
-    .map((entry: any): RPMSeriesPoint | null => {
+    .map((entry: unknown): RPMSeriesPoint | null => {
       if (!entry || typeof entry !== "object") return null;
-      const timestampValue = toString(entry.timestamp ?? entry.time ?? entry.label, "");
+      const e = entry as Record<string, unknown>;
+      const timestampValue = toString(e.timestamp ?? e.time ?? e.label, "");
       if (!timestampValue) return null;
-      const requests = toNumber(entry.requests ?? entry.count ?? entry.total, 0);
-      const errors = toNumber(entry.errors ?? entry.errorCount ?? entry.failures, 0);
+      const requests = toNumber(e.requests ?? e.count ?? e.total, 0);
+      const errors = toNumber(e.errors ?? e.errorCount ?? e.failures, 0);
       return { timestamp: timestampValue, requests, errors };
     })
     .filter((point: RPMSeriesPoint | null): point is RPMSeriesPoint => Boolean(point));
@@ -100,19 +104,25 @@ const normalizeRPMSeries = (payload: unknown): RPMSeriesData => {
   return { series };
 };
 
+const getEndpointsFromPayload = (payload: unknown): unknown[] => {
+  if (!payload || typeof payload !== "object") return [];
+  const obj = payload as Record<string, unknown>;
+  if (Array.isArray(obj.endpoints)) return obj.endpoints;
+  if (Array.isArray(payload)) return payload;
+  return [];
+};
+
 const normalizeTopEndpoints = (payload: unknown): TopEndpointsData => {
-  const source =
-    payload && typeof payload === "object" && payload !== null
-      ? (Array.isArray((payload as any).endpoints) ? (payload as any).endpoints : Array.isArray(payload) ? payload : [])
-      : [];
+  const source = getEndpointsFromPayload(payload);
 
   const endpoints: EndpointMetric[] = source
-    .map((entry: any): EndpointMetric | null => {
+    .map((entry: unknown): EndpointMetric | null => {
       if (!entry || typeof entry !== "object") return null;
-      const endpoint = toString(entry.endpoint ?? entry.path ?? entry.name, "");
+      const e = entry as Record<string, unknown>;
+      const endpoint = toString(e.endpoint ?? e.path ?? e.name, "");
       if (!endpoint) return null;
-      const volume = toNumber(entry.volume ?? entry.count ?? entry.totalRequests, 0);
-      const errorRateRaw = entry.errorRate ?? entry.error_rate ?? entry.failPercentage;
+      const volume = toNumber(e.volume ?? e.count ?? e.totalRequests, 0);
+      const errorRateRaw = e.errorRate ?? e.error_rate ?? e.failPercentage;
       const errorRate = toNumber(errorRateRaw, 0);
       return { endpoint, volume, errorRate };
     })
