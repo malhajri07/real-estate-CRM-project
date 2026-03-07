@@ -99,6 +99,7 @@
     "google-auth-library": "^10.3.0",
     "helmet": "^8.1.0",
     "input-otp": "^1.4.2",
+    "isomorphic-dompurify": "^3.0.0",
     "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.453.0",

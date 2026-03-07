@@ -25,6 +25,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { toast } from "sonner";
 
 interface LoginFormProps {
   onLogin: (identifier: string, password: string, rememberMe: boolean) => Promise<void>;
@@ -89,7 +90,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
               <Button
                 type="button"
                 variant="link"
-                className="p-0 h-auto text-xs font-medium text-emerald-600 hover:text-emerald-700"
+                className="p-0 h-auto text-xs font-medium text-slate-600 hover:text-slate-700"
                 onClick={() => {
                   alert('يرجى التواصل مع مدير النظام لاستعادة بيانات الدخول');
                 }}
@@ -152,7 +153,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
           >
             {isLoading ? (
               <>
-                <Spinner size="sm" className="ml-2" />
+                <Spinner size="sm" className="ms-2" />
                 جاري الدخول...
               </>
             ) : (

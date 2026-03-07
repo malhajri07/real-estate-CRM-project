@@ -20,7 +20,7 @@
  */
 
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +39,7 @@ import { defaultCardDraft } from "./utils/defaults";
 import { SectionEditor, CardEditor } from "./components";
 import { useCMSLandingSections } from "./hooks";
 import { apiPut, apiPost, apiDelete } from "@/lib/apiClient";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface CMSLandingPageProps {
   embedded?: boolean;
@@ -55,9 +56,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
 
   // Use extracted hook for section data
   const { sections, loading, updateSection, updateSectionsOrder, setSections } = useCMSLandingSections(viewMode);
-  
-  // Get direction from context or default to rtl
-  const dir = "rtl";
+  const { dir } = useLanguage();
 
   // Helper to update sections with a function
   const updateSections = useCallback((updater: (prev: LandingSection[]) => LandingSection[]) => {
@@ -199,6 +198,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
   };
 
   const handleDeleteCard = async (cardId: string) => {
+    if (!selectedSectionId) return;
     try {
       await apiDelete(`api/cms/landing/cards/${cardId}`);
       updateSections((prev) =>
@@ -334,7 +334,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
   const innerClasses = embedded ? "space-y-8" : "space-y-8 p-0";
 
   return (
-    <div className={outerClasses} dir="rtl">
+    <div className={outerClasses} dir={dir}>
       <div className={innerClasses}>
         <div className="flex flex-col gap-6">
           <Card>
@@ -413,7 +413,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                                 <div className="flex flex-col items-start gap-1">
                                   <span className={cn(
                                     "text-sm font-bold tracking-tight transition-colors",
-                                    selectedSectionId === section.id ? "text-white" : "text-slate-900 group-hover:text-blue-600"
+                                    selectedSectionId === section.id ? "text-white" : "text-slate-900 group-hover:text-slate-700"
                                   )}>
                                     {SECTION_LABELS[section.slug] ?? section.title}
                                   </span>
@@ -464,7 +464,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                         عناصر القسم ({selectedSection.cards?.length ?? 0})
                       </CardTitle>
                       <Button size="sm" onClick={handleAddCard}>
-                        <Plus className="h-4 w-4 ml-2" />
+                        <Plus className="h-4 w-4 ms-2" />
                         إضافة عنصر
                       </Button>
                     </CardHeader>

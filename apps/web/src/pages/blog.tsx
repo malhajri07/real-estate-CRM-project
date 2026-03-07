@@ -16,9 +16,11 @@
  * - apps/web/src/pages/admin/articles-management.tsx - Article management
  */
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
+import DOMPurify from "isomorphic-dompurify";
+import { apiGet } from "@/lib/apiClient";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,28 +78,23 @@ const fetchArticles = async (params: {
   if (params.categoryId) queryParams.append("categoryId", params.categoryId);
   if (params.tagId) queryParams.append("tagId", params.tagId);
 
-  const res = await fetch(`/api/cms/articles?${queryParams.toString()}`);
-  if (!res.ok) throw new Error("Failed to fetch articles");
-  return res.json();
+  return apiGet<{
+    items: Article[];
+    total: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+  }>(`api/cms/articles?${queryParams.toString()}`);
 };
 
-const fetchArticleBySlug = async (slug: string): Promise<Article> => {
-  const res = await fetch(`/api/cms/articles/slug/${slug}`);
-  if (!res.ok) throw new Error("Failed to fetch article");
-  return res.json();
-};
+const fetchArticleBySlug = async (slug: string): Promise<Article> =>
+  apiGet<Article>(`api/cms/articles/slug/${slug}`);
 
-const fetchCategories = async (): Promise<Category[]> => {
-  const res = await fetch("/api/cms/articles/categories");
-  if (!res.ok) return [];
-  return res.json();
-};
+const fetchCategories = async (): Promise<Category[]> =>
+  apiGet<Category[]>("api/cms/articles/categories").catch(() => []);
 
-const fetchTags = async (): Promise<Tag[]> => {
-  const res = await fetch("/api/cms/articles/tags");
-  if (!res.ok) return [];
-  return res.json();
-};
+const fetchTags = async (): Promise<Tag[]> =>
+  apiGet<Tag[]>("api/cms/articles/tags").catch(() => []);
 
 export default function BlogPage() {
   const [location, setLocation] = useLocation();
@@ -262,7 +259,7 @@ export default function BlogPage() {
               )}
               <div
                 className="prose prose-lg max-w-none mb-8 prose-headings:text-slate-900 prose-p:text-slate-700 prose-a:text-emerald-600 prose-strong:text-slate-900"
-                dangerouslySetInnerHTML={{ __html: article.content }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }}
               />
               {article.tags.length > 0 && (
                 <div className="mb-8 pt-6 border-t border-border">
@@ -472,7 +469,7 @@ export default function BlogPage() {
                       )}
                     </div>
                     <Link href={`/blog/${article.slug}`}>
-                      <h2 className="text-xl font-bold mb-3 text-slate-900 group-hover:text-emerald-600 transition-colors cursor-pointer line-clamp-2">
+                      <h2 className="text-xl font-bold mb-3 text-slate-900 group-hover:text-slate-700 transition-colors cursor-pointer line-clamp-2">
                         {article.title}
                       </h2>
                     </Link>

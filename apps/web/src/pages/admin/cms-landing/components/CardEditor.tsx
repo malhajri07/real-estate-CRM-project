@@ -49,10 +49,10 @@ export const CardEditor: React.FC<CardEditorProps> = ({
     <Card className="bg-white/50 border border-slate-100 rounded-2xl p-6 hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group relative overflow-visible">
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 overflow-visible">
         <div className="flex items-center gap-4">
-          <div className="h-10 w-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+          <div className="h-10 w-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center group-hover:bg-slate-100 group-hover:text-slate-600 transition-colors">
             <Type className="h-5 w-5" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors">{cardTitle}</h3>
+          <h3 className="text-lg font-bold text-slate-900 tracking-tight group-hover:text-slate-700 transition-colors">{cardTitle}</h3>
         </div>
         <div className="flex items-center gap-2 overflow-visible">
           <div className="flex items-center gap-3 px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100 overflow-visible">
@@ -63,10 +63,10 @@ export const CardEditor: React.FC<CardEditorProps> = ({
               className="data-[state=checked]:bg-blue-600"
             />
           </div>
-          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-all" onClick={onSave} disabled={saving}>
+          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-all" onClick={onSave} disabled={saving} aria-label="حفظ البطاقة">
             <Save className={cn("h-5 w-5", saving && "animate-spin")} />
           </Button>
-          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all" onClick={onDelete}>
+          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all" onClick={onDelete} aria-label="حذف البطاقة">
             <Trash2 className="h-5 w-5" />
           </Button>
         </div>

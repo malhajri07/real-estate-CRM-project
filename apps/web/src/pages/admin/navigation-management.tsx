@@ -55,7 +55,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Edit, Trash2, GripVertical, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface NavigationLink {
@@ -130,7 +130,7 @@ export default function NavigationManagement() {
     },
   });
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
     const items = Array.from(links);
@@ -260,7 +260,7 @@ export default function NavigationManagement() {
                                       }
                                     />
                                     {link.visible ? (
-                                      <Eye className="h-4 w-4 text-emerald-600" />
+                                      <Eye className="h-4 w-4 text-slate-600" />
                                     ) : (
                                       <EyeOff className="h-4 w-4 text-slate-400" />
                                     )}

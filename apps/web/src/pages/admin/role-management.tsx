@@ -16,7 +16,7 @@
  * - apps/api/rbac.ts - RBAC system
  */
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Edit, Eye, Plus, Settings, Shield, Trash2, Unlock, Users } from "lucide-react";
 import { AdminCard, MetricCard } from "@/components/admin";
 import { AdminTable, type AdminTableColumn } from "@/components/admin";
@@ -111,6 +111,22 @@ export default function RoleManagement() {
     }, {});
   }, [permissionCatalog]);
 
+  const handleOpenEditDialog = useCallback((role: AdminRole) => {
+    setDialogMode("edit");
+    setFormState({
+      id: role.name,
+      name: role.displayName ?? role.name,
+      description: role.description ?? "",
+      permissions: role.permissions,
+    });
+    setIsDialogOpen(true);
+  }, []);
+
+  const handleOpenDeleteDialog = useCallback((role: AdminRole) => {
+    setDeleteTarget(role);
+    setIsDeleteDialogOpen(true);
+  }, []);
+
   const roleColumns: AdminTableColumn<AdminRole>[] = useMemo(() => [
     {
       key: "name",
@@ -118,7 +134,7 @@ export default function RoleManagement() {
       sortable: true,
       render: (role) => (
         <div className="flex flex-col py-1">
-          <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+          <span className="font-bold text-slate-900 group-hover:text-slate-700 transition-colors">
             {role.displayName || role.name}
           </span>
           <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{role.name}</span>
@@ -183,22 +199,11 @@ export default function RoleManagement() {
         </div>
       )
     }
-  ], []);
+  ], [handleOpenEditDialog, handleOpenDeleteDialog]);
 
   const handleOpenCreateDialog = () => {
     setDialogMode("create");
     setFormState(createEmptyRoleForm());
-    setIsDialogOpen(true);
-  };
-
-  const handleOpenEditDialog = (role: AdminRole) => {
-    setDialogMode("edit");
-    setFormState({
-      id: role.name,
-      name: role.displayName ?? role.name,
-      description: role.description ?? "",
-      permissions: role.permissions,
-    });
     setIsDialogOpen(true);
   };
 
@@ -259,11 +264,6 @@ export default function RoleManagement() {
     }));
   };
 
-  const handleOpenDeleteDialog = (role: AdminRole) => {
-    setDeleteTarget(role);
-    setIsDeleteDialogOpen(true);
-  };
-
   const handleDeleteRole = () => {
     if (!deleteTarget) return;
     deleteRoleMutation.mutate(
@@ -308,28 +308,28 @@ export default function RoleManagement() {
         <MetricCard
           title="إجمالي الأدوار"
           subtitle="قاعدية ومخصصة"
-          icon={<Shield className="w-5 h-5 text-blue-600" />}
+          icon={<Shield className="w-5 h-5 text-slate-600" />}
           metric={{ today: roles.length, last7Days: roles.length, last30Days: roles.length }}
           loading={isLoadingRoles}
         />
         <MetricCard
           title="الأدوار المخصصة"
           subtitle="تم إنشاؤها يدويًا"
-          icon={<Settings className="w-5 h-5 text-emerald-600" />}
+          icon={<Settings className="w-5 h-5 text-slate-600" />}
           metric={{ today: customRolesCount, last7Days: customRolesCount, last30Days: customRolesCount }}
           loading={isLoadingRoles}
         />
         <MetricCard
           title="إجمالي الصلاحيات"
           subtitle="متاحة في النظام"
-          icon={<Unlock className="w-5 h-5 text-purple-600" />}
+          icon={<Unlock className="w-5 h-5 text-slate-600" />}
           metric={{ today: permissionCatalog.length, last7Days: permissionCatalog.length, last30Days: permissionCatalog.length }}
           loading={isLoadingRoles}
         />
         <MetricCard
           title="أدوار المنظمات"
           subtitle="مستوى المنظمة"
-          icon={<Users className="w-5 h-5 text-amber-600" />}
+          icon={<Users className="w-5 h-5 text-slate-600" />}
           metric={{ today: organizationRolesCount, last7Days: organizationRolesCount, last30Days: organizationRolesCount }}
           loading={isLoadingRoles}
         />

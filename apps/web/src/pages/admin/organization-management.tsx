@@ -16,10 +16,6 @@ import {
   Edit,
   Trash2,
   Users,
-  TrendingUp,
-  Settings,
-  Eye,
-  AlertCircle,
   ShieldCheck,
   CreditCard
 } from 'lucide-react';
@@ -34,7 +30,7 @@ import {
 } from "@/lib/rbacAdmin";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import { MetricCard } from "@/components/admin";
-import { cn } from "@/lib/utils";
+import { formatAdminDate } from "@/lib/formatters";
 
 export default function OrganizationManagement() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,6 +50,8 @@ export default function OrganizationManagement() {
     phone: '',
     address: ''
   });
+
+  const [editForm, setEditForm] = useState<CreateAdminOrganizationInput | null>(null);
 
   const { toast } = useToast();
 
@@ -91,14 +89,6 @@ export default function OrganizationManagement() {
     );
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
   const handleCreateOrganization = () => {
     createMutation.mutate(newOrganization, {
       onSuccess: () => {
@@ -117,9 +107,25 @@ export default function OrganizationManagement() {
   };
 
   const handleUpdateOrganization = () => {
-    if (!selectedOrganization) return;
-    // Implementation for update would go here - simplified for now
-    setIsEditDialogOpen(false);
+    if (!selectedOrganization || !editForm) return;
+    updateMutation.mutate(
+      { id: selectedOrganization.id, ...editForm },
+      {
+        onSuccess: () => {
+          setIsEditDialogOpen(false);
+          setSelectedOrganization(null);
+          setEditForm(null);
+          toast({ title: "تم تحديث المنظمة بنجاح" });
+        },
+        onError: (err) => {
+          toast({
+            variant: "destructive",
+            title: "فشل تحديث المنظمة",
+            description: err.message
+          });
+        }
+      }
+    );
   };
 
   const handleDeleteOrganization = () => {
@@ -144,7 +150,7 @@ export default function OrganizationManagement() {
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <Spinner size="lg" className="text-blue-600" />
-        <span className="mr-2 text-lg text-slate-600">جاري تحميل المنظمات...</span>
+        <span className="me-2 text-lg text-slate-600">جاري تحميل المنظمات...</span>
       </div>
     );
   }
@@ -181,28 +187,28 @@ export default function OrganizationManagement() {
         <MetricCard
           title="إجمالي المنظمات"
           subtitle="شركات ومؤسسات"
-          icon={<Building2 className="w-5 h-5 text-blue-600" />}
+          icon={<Building2 className="w-5 h-5 text-slate-600" />}
           metric={{ today: organizations.length, last7Days: organizations.length, last30Days: organizations.length }}
           loading={isLoading}
         />
         <MetricCard
           title="المنظمات النشطة"
           subtitle="اشتراكات مفعلة"
-          icon={<ShieldCheck className="w-5 h-5 text-emerald-600" />}
+          icon={<ShieldCheck className="w-5 h-5 text-slate-600" />}
           metric={{ today: activeOrgsCount, last7Days: activeOrgsCount, last30Days: activeOrgsCount }}
           loading={isLoading}
         />
         <MetricCard
           title="إجمالي المستخدمين"
           subtitle="في جميع المنظمات"
-          icon={<Users className="w-5 h-5 text-purple-600" />}
+          icon={<Users className="w-5 h-5 text-slate-600" />}
           metric={{ today: totalUsersCount, last7Days: totalUsersCount, last30Days: totalUsersCount }}
           loading={isLoading}
         />
         <MetricCard
           title="الاشتراكات المميزة"
           subtitle="تراخيص نشطة"
-          icon={<CreditCard className="w-5 h-5 text-amber-600" />}
+          icon={<CreditCard className="w-5 h-5 text-slate-600" />}
           metric={{ today: activeSubsCount, last7Days: activeSubsCount, last30Days: activeSubsCount }}
           loading={isLoading}
         />
@@ -296,7 +302,7 @@ export default function OrganizationManagement() {
                       <TableRow key={organization.id} className="border-slate-50 hover:bg-blue-50/30 transition-colors group">
                         <TableCell className="py-4">
                           <div className="flex flex-col">
-                            <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{organization.name}</span>
+                            <span className="font-bold text-slate-900 group-hover:text-slate-700 transition-colors">{organization.name}</span>
                             <span className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-tight">{organization.contactInfo?.email}</span>
                           </div>
                         </TableCell>
@@ -318,7 +324,7 @@ export default function OrganizationManagement() {
                             <span className="text-sm font-bold text-slate-900">{organization.subscription?.plan ?? 'Basic'}</span>
                             <span className="text-xs font-bold text-slate-400 mt-0.5">
                               {organization.subscription?.expiryDate
-                                ? `ينتهي: ${formatDate(organization.subscription.expiryDate)}`
+                                ? `ينتهي: ${formatAdminDate(organization.subscription.expiryDate)}`
                                 : '-'}
                             </span>
                           </div>
@@ -331,22 +337,20 @@ export default function OrganizationManagement() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-slate-50 transition-all"
-                              onClick={() => {
-                                setSelectedOrganization(organization);
-                                setIsEditDialogOpen(true);
-                              }}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
                               className="h-8 w-8 p-0 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all"
                               onClick={() => {
                                 setSelectedOrganization(organization);
+                                setEditForm({
+                                  name: organization.name,
+                                  description: organization.description ?? '',
+                                  type: organization.type ?? '',
+                                  email: organization.contactInfo?.email ?? '',
+                                  phone: organization.contactInfo?.phone ?? '',
+                                  address: organization.contactInfo?.address ?? ''
+                                });
                                 setIsEditDialogOpen(true);
                               }}
+                              aria-label="تعديل المنظمة"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -358,6 +362,7 @@ export default function OrganizationManagement() {
                                 setSelectedOrganization(organization);
                                 setIsDeleteDialogOpen(true);
                               }}
+                              aria-label="حذف المنظمة"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -465,8 +470,104 @@ export default function OrganizationManagement() {
               onClick={handleCreateOrganization}
               disabled={createMutation.isPending || !newOrganization.name}
             >
-              {createMutation.isPending && <Spinner size="sm" className="ml-2" />}
+              {createMutation.isPending && <Spinner size="sm" className="ms-2" />}
               إضافة المنظمة
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Organization Dialog */}
+      <Dialog
+        open={isEditDialogOpen}
+        onOpenChange={(open) => {
+          setIsEditDialogOpen(open);
+          if (!open) setEditForm(null);
+        }}
+      >
+        <DialogContent className="max-w-2xl" dir="rtl">
+          <DialogHeader className="text-end">
+            <DialogTitle>تعديل المنظمة</DialogTitle>
+            <DialogDescription>تعديل بيانات المنظمة</DialogDescription>
+          </DialogHeader>
+          {editForm && (
+            <div className="space-y-4 text-end">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-org-name">اسم المنظمة <span className="text-red-500">*</span></Label>
+                  <Input
+                    id="edit-org-name"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    placeholder="أدخل اسم المنظمة"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-org-type">نوع المنظمة</Label>
+                  <Select value={editForm.type} onValueChange={(value) => setEditForm({ ...editForm, type: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر نوع المنظمة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="شركة عقارية">شركة عقارية</SelectItem>
+                      <SelectItem value="مؤسسة">مؤسسة</SelectItem>
+                      <SelectItem value="مجموعة استثمارية">مجموعة استثمارية</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="edit-org-description">الوصف</Label>
+                <Textarea
+                  id="edit-org-description"
+                  value={editForm.description}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  placeholder="وصف المنظمة"
+                  rows={3}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="edit-org-email">البريد الإلكتروني</Label>
+                  <Input
+                    id="edit-org-email"
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    placeholder="email@example.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="edit-org-phone">الهاتف</Label>
+                  <Input
+                    id="edit-org-phone"
+                    value={editForm.phone}
+                    onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                    placeholder="+966501234567"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="edit-org-address">العنوان</Label>
+                <Input
+                  id="edit-org-address"
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                  placeholder="العنوان الكامل"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              إلغاء
+            </Button>
+            <Button
+              onClick={handleUpdateOrganization}
+              disabled={updateMutation.isPending || !editForm?.name}
+            >
+              {updateMutation.isPending && <Spinner size="sm" className="ms-2" />}
+              حفظ التغييرات
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -490,7 +591,7 @@ export default function OrganizationManagement() {
               onClick={handleDeleteOrganization}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending && <Spinner size="sm" className="ml-2" />}
+              {deleteMutation.isPending && <Spinner size="sm" className="ms-2" />}
               حذف المنظمة
             </Button>
           </DialogFooter>

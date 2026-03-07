@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { formatNumber, formatPrice } from '@/lib/formatters';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 interface AdminCardProps {
@@ -56,14 +57,7 @@ export function MetricCard({
     loading,
     className,
 }: MetricCardProps) {
-    const formatNumber = (val?: number) => (val ?? 0).toLocaleString('en-US');
-    const formatCurrency = (val?: number, curr = 'SAR') => {
-        const formatted = new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
-        }).format(val ?? 0);
-        return `${formatted} ريال`;
-    };
+    const formatCurrency = (val?: number, curr = 'SAR') => formatPrice(val, curr);
 
     return (
         <Card className={cn("glass border-0 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 rounded-2xl group", className)}>
@@ -72,7 +66,7 @@ export function MetricCard({
                     <CardTitle className="text-sm font-bold text-slate-900 tracking-tight">{title}</CardTitle>
                     <p className="text-xs font-medium text-slate-500 uppercase tracking-widest">{subtitle}</p>
                 </div>
-                <div className="p-2.5 bg-slate-50 rounded-2xl group-hover:bg-blue-600 transition-colors duration-300 group-hover:text-white">
+                <div className="p-2.5 bg-slate-50 rounded-2xl group-hover:bg-slate-200 transition-colors duration-300 group-hover:text-slate-700">
                     {icon}
                 </div>
             </CardHeader>
