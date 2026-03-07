@@ -341,6 +341,7 @@ export default function UnverifiedListingsManagement() {
                       photos={selectedListing.imageGallery ?? []}
                       alt={selectedListing.title ?? "صور الإعلان"}
                       autoHeight
+                      loading="lazy"
                     />
                   </div>
                 </div>

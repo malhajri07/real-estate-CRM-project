@@ -162,7 +162,7 @@ export default function ForumPage() {
                                             <div className="flex items-center gap-3">
                                                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted overflow-hidden">
                                                     {post.author?.avatarUrl ? (
-                                                        <img src={post.author.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                                                        <img src={post.author.avatarUrl} alt="Avatar" className="h-full w-full object-cover" loading="lazy" />
                                                     ) : (
                                                         <User className="h-5 w-5" />
                                                     )}

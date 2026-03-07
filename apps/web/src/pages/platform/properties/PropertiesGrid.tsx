@@ -38,6 +38,7 @@ export default function PropertiesGrid({
               alt={property.title}
               className="aspect-video"
               showIndicators={property.photoUrls.length > 1}
+              loading="lazy"
             />
           ) : (
             <div className="aspect-video bg-muted flex items-center justify-center border-b">

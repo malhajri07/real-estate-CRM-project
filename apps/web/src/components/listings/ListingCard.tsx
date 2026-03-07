@@ -70,7 +70,7 @@ export default function ListingCard({ item }: { item: Listing }) {
     <div className="ui-surface overflow-hidden group">
       <div className="aspect-video bg-slate-100 relative">
         {img ? (
-          <img src={img} alt={item.title} className="w-full h-full object-cover" />
+          <img src={img} alt={item.title} className="w-full h-full object-cover" loading="lazy" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-slate-400">{t('listing.no_photo')}</div>
         )}

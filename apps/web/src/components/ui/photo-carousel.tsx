@@ -24,6 +24,8 @@ interface PhotoCarouselProps {
   className?: string;
   showIndicators?: boolean;
   autoHeight?: boolean;
+  /** "eager" for hero/above-fold, "lazy" for grids below fold. Default: eager */
+  loading?: "lazy" | "eager";
 }
 
 export function PhotoCarousel({ 
@@ -31,7 +33,8 @@ export function PhotoCarousel({
   alt, 
   className = "", 
   showIndicators = true,
-  autoHeight = false 
+  autoHeight = false,
+  loading = "eager"
 }: PhotoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -66,6 +69,7 @@ export function PhotoCarousel({
           src={photos[currentIndex]} 
           alt={`${alt} - صورة ${currentIndex + 1}`}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+          loading={loading}
         />
         
         {/* Navigation Arrows - only show if more than 1 photo */}
