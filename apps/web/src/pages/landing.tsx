@@ -112,7 +112,9 @@ export default function Landing() {
           credentials: "include",
           headers: noCache ? { 'Cache-Control': 'no-cache' } : {},
         });
-        let landingPayload: { data: any[] } | null = null;
+        type LandingSection = { slug?: string; content?: Record<string, unknown>; draftJson?: Record<string, unknown>; title?: string; subtitle?: string; cards?: unknown[] };
+        type LandingPayload = { data: LandingSection[] } | null;
+        let landingPayload: LandingPayload = null;
 
         if (landingRes.ok) {
           landingPayload = await landingRes.json();
@@ -123,10 +125,11 @@ export default function Landing() {
 
         if (landingPayload?.data?.length) {
           const sections = landingPayload.data;
-          const findSection = (slug: string) => sections.find((section: any) => section.slug === slug);
+          const findSection = (slug: string) => sections.find((s: LandingSection) => s.slug === slug);
 
           const hero = findSection("hero");
-          const heroContent = (hero?.content ?? hero?.draftJson ?? {}) as any;
+          const heroContent = (hero?.content ?? hero?.draftJson ?? {}) as Record<string, unknown>;
+          const toStr = (v: unknown, fallback: string | undefined) => (v != null && v !== "" ? String(v) : (fallback ?? ""));
           const features = findSection("features");
           const solutions = findSection("solutions");
           const stats = findSection("stats");
@@ -137,111 +140,108 @@ export default function Landing() {
 
           updatedContent = {
             ...updatedContent,
-            heroWelcomeText: heroContent?.badge ?? updatedContent.heroWelcomeText,
-            heroTitle: heroContent?.title ?? hero?.title ?? updatedContent.heroTitle,
-            heroSubtitle: heroContent?.subtitle ?? hero?.subtitle ?? updatedContent.heroSubtitle,
-            heroButton: heroContent?.cta?.label ?? updatedContent.heroButton,
-            heroLoginButton: heroContent?.secondaryCta?.label ?? updatedContent.heroLoginButton,
-            heroDashboardTitle: heroContent?.dashboardTitle ?? updatedContent.heroDashboardTitle,
+            heroWelcomeText: toStr(heroContent?.badge, updatedContent.heroWelcomeText),
+            heroTitle: toStr(heroContent?.title ?? hero?.title, updatedContent.heroTitle),
+            heroSubtitle: toStr(heroContent?.subtitle ?? hero?.subtitle, updatedContent.heroSubtitle),
+            heroButton: toStr((heroContent?.cta as Record<string, unknown>)?.label, updatedContent.heroButton),
+            heroLoginButton: toStr((heroContent?.secondaryCta as Record<string, unknown>)?.label, updatedContent.heroLoginButton),
+            heroDashboardTitle: toStr(heroContent?.dashboardTitle, updatedContent.heroDashboardTitle),
             heroDashboardMetrics: Array.isArray(hero?.cards) && hero.cards.length > 0
-              ? hero.cards.map((card: any, index: number) => ({
-                id: index,
-                value: card.content?.value ?? card.content?.title ?? "",
-                label: card.content?.label ?? card.content?.body ?? "",
-                color: card.content?.color ?? "blue",
-                order: card.orderIndex ?? index,
-              }))
+              ? (hero.cards as Record<string, unknown>[]).map((card, index) => {
+                const c = card.content as Record<string, unknown> | undefined;
+                return { id: index, value: toStr(c?.value ?? c?.title, ""), label: toStr(c?.label ?? c?.body, ""), color: toStr(c?.color, "blue"), order: Number(card.orderIndex ?? index) };
+              })
               : updatedContent.heroDashboardMetrics,
-            featuresBadge: features?.content?.badge ?? updatedContent.featuresBadge,
-            featuresTitle: features?.content?.title ?? features?.title ?? updatedContent.featuresTitle,
-            featuresDescription: features?.content?.subtitle ?? features?.subtitle ?? updatedContent.featuresDescription,
+            featuresBadge: toStr(features?.content?.badge, updatedContent.featuresBadge),
+            featuresTitle: toStr(features?.content?.title ?? features?.title, updatedContent.featuresTitle),
+            featuresDescription: toStr(features?.content?.subtitle ?? features?.subtitle, updatedContent.featuresDescription),
             features: Array.isArray(features?.cards) && features.cards.length > 0
-              ? features.cards.map((card: any, index: number) => ({
-                id: index,
-                title: card.content?.title ?? card.title ?? "",
-                description: card.content?.body ?? card.body ?? "",
-                icon: card.content?.icon ?? "Sparkles",
-              }))
+              ? (features.cards as Record<string, unknown>[]).map((card, index) => {
+                const c = card.content as Record<string, unknown> | undefined;
+                return { id: index, title: toStr(c?.title ?? card.title, ""), description: toStr(c?.body ?? card.body, ""), icon: toStr(c?.icon, "Sparkles") };
+              })
               : updatedContent.features,
-            solutionsBadge: solutions?.content?.badge ?? updatedContent.solutionsBadge,
-            solutionsTitle: solutions?.content?.title ?? solutions?.title ?? updatedContent.solutionsTitle,
-            solutionsDescription: solutions?.content?.subtitle ?? solutions?.subtitle ?? updatedContent.solutionsDescription,
+            solutionsBadge: toStr(solutions?.content?.badge, updatedContent.solutionsBadge),
+            solutionsTitle: toStr(solutions?.content?.title ?? solutions?.title, updatedContent.solutionsTitle),
+            solutionsDescription: toStr(solutions?.content?.subtitle ?? solutions?.subtitle, updatedContent.solutionsDescription),
             solutions: Array.isArray(solutions?.cards) && solutions.cards.length > 0
-              ? solutions.cards.map((card: any, index: number) => ({
-                id: index,
-                title: card.content?.title ?? card.title ?? "",
-                description: card.content?.body ?? card.body ?? "",
-                icon: card.content?.icon ?? "Target",
-                features: Array.isArray(card.content?.features)
-                  ? card.content.features.map((feature: any, idx: number) => ({
-                    id: idx,
-                    text: feature?.text ?? feature ?? "",
-                    icon: feature?.icon ?? "Check",
-                  }))
-                  : [],
-                order: card.orderIndex ?? index,
-              }))
+              ? (solutions.cards as Record<string, unknown>[]).map((card, index) => {
+                const content = card.content as Record<string, unknown> | undefined;
+                return {
+                  id: index,
+                  title: toStr(content?.title ?? card.title, ""),
+                  description: toStr(content?.body ?? card.body, ""),
+                  icon: toStr(content?.icon, "Target"),
+                  features: Array.isArray(content?.features)
+                    ? (content.features as unknown[]).map((feature, idx) => ({
+                      id: idx,
+                      text: toStr((feature as Record<string, unknown>)?.text ?? feature, ""),
+                      icon: toStr((feature as Record<string, unknown>)?.icon, "Check"),
+                    }))
+                    : [],
+                  order: Number(card.orderIndex ?? index),
+                };
+              })
               : updatedContent.solutions,
-            statsTitle: stats?.content?.title ?? stats?.title ?? updatedContent.statsTitle,
+            statsTitle: toStr(stats?.content?.title ?? stats?.title, updatedContent.statsTitle),
             stats: Array.isArray(stats?.cards) && stats.cards.length > 0
-              ? stats.cards.map((card: any, index: number) => ({
-                id: index,
-                number: card.content?.value ?? "",
-                label: card.content?.label ?? "",
-                suffix: card.content?.suffix ?? "",
-              }))
+              ? (stats.cards as Record<string, unknown>[]).map((card, index) => {
+                const c = card.content as Record<string, unknown> | undefined;
+                return { id: index, number: toStr(c?.value, ""), label: toStr(c?.label, ""), suffix: toStr(c?.suffix, "") };
+              })
               : updatedContent.stats,
-            pricingBadge: pricing?.content?.badge ?? updatedContent.pricingBadge,
-            pricingTitle: pricing?.content?.title ?? pricing?.title ?? updatedContent.pricingTitle,
-            pricingSubtitle: pricing?.content?.subtitle ?? pricing?.subtitle ?? updatedContent.pricingSubtitle,
-            contactBadge: contact?.content?.badge ?? updatedContent.contactBadge,
-            contactTitle: contact?.content?.title ?? contact?.title ?? updatedContent.contactTitle,
-            contactDescription: contact?.content?.subtitle ?? contact?.subtitle ?? updatedContent.contactDescription,
+            pricingBadge: toStr(pricing?.content?.badge, updatedContent.pricingBadge),
+            pricingTitle: toStr(pricing?.content?.title ?? pricing?.title, updatedContent.pricingTitle),
+            pricingSubtitle: toStr(pricing?.content?.subtitle ?? pricing?.subtitle, updatedContent.pricingSubtitle),
+            contactBadge: toStr(contact?.content?.badge, updatedContent.contactBadge),
+            contactTitle: toStr(contact?.content?.title ?? contact?.title, updatedContent.contactTitle),
+            contactDescription: toStr(contact?.content?.subtitle ?? contact?.subtitle, updatedContent.contactDescription),
             contactInfo: Array.isArray(contact?.cards) && contact.cards.length > 0
-              ? contact.cards.map((card: any, index: number) => ({
-                id: index,
-                type: card.content?.type ?? "info",
-                label: card.content?.title ?? card.title ?? "",
-                value: card.content?.body ?? card.body ?? "",
-                icon: card.content?.icon ?? "Mail",
-              }))
+              ? (contact.cards as Record<string, unknown>[]).map((card, index) => {
+                const c = card.content as Record<string, unknown> | undefined;
+                return { id: index, type: toStr(c?.type, "info"), label: toStr(c?.title ?? card.title, ""), value: toStr(c?.body ?? card.body, ""), icon: toStr(c?.icon, "Mail") };
+              })
               : updatedContent.contactInfo,
-            footerDescription: footer?.content?.body ?? updatedContent.footerDescription,
-            footerCopyright: footer?.content?.copyright ?? updatedContent.footerCopyright,
-            footerLogoUrl: footer?.content?.logoUrl ?? updatedContent.footerLogoUrl,
+            footerDescription: toStr(footer?.content?.body, updatedContent.footerDescription),
+            footerCopyright: toStr(footer?.content?.copyright, updatedContent.footerCopyright),
+            footerLogoUrl: toStr(footer?.content?.logoUrl, updatedContent.footerLogoUrl),
             footerLinks: Array.isArray(footer?.cards) && footer.cards.length > 0
-              ? footer.cards.flatMap((card: any, cardIndex: number) => {
-                const category = card.content?.category ?? card.title ?? `group-${cardIndex}`;
-                const links = Array.isArray(card.content?.links) ? card.content.links : [];
-                return links.map((link: any, linkIndex: number) => ({
-                  id: `${card.id ?? cardIndex}-${linkIndex}`,
-                  text: link?.text ?? "",
-                  url: link?.href ?? link?.url ?? "#",
+              ? (footer.cards as Record<string, unknown>[]).flatMap((card, cardIndex) => {
+                const content = card.content as Record<string, unknown> | undefined;
+                const category = toStr(content?.category ?? card.title, `group-${cardIndex}`);
+                const links = Array.isArray(content?.links) ? (content.links as unknown[]) : [];
+                return links.map((link, linkIndex) => ({
+                  id: cardIndex * 1000 + linkIndex,
+                  text: toStr((link as Record<string, unknown>)?.text, ""),
+                  url: toStr((link as Record<string, unknown>)?.href ?? (link as Record<string, unknown>)?.url, "#"),
                   category,
-                  order: link?.order ?? linkIndex,
+                  order: Number((link as Record<string, unknown>)?.order ?? linkIndex),
                 }));
               })
               : updatedContent.footerLinks,
           };
 
           if (Array.isArray(pricing?.cards) && pricing.cards.length > 0) {
-            const pricingPlans = pricing.cards.map((card: any, index: number) => ({
-              id: index,
-              name: card.content?.title ?? card.title ?? "",
-              price: Number(card.content?.price ?? 0),
-              period: (card.content?.period ?? "monthly") as "monthly" | "yearly",
-              isPopular: Boolean(card.content?.isPopular),
-              description: card.content?.body ?? "",
-              features: Array.isArray(card.content?.features)
-                ? card.content.features.map((feature: any, idx: number) => ({
-                  id: idx,
-                  text: feature?.text ?? feature ?? "",
-                  included: feature?.included ?? true,
-                }))
-                : [],
-              buttonText: card.content?.cta?.label ?? "ابدأ الآن",
-              order: card.orderIndex ?? index,
-            }));
+            const pricingPlans = (pricing.cards as Record<string, unknown>[]).map((card, index) => {
+              const c = card.content as Record<string, unknown> | undefined;
+              return {
+                id: index,
+                name: toStr(c?.title ?? card.title, ""),
+                price: Number(c?.price ?? 0),
+                period: (toStr(c?.period, "monthly") || "monthly") as "monthly" | "yearly",
+                isPopular: Boolean(c?.isPopular),
+                description: toStr(c?.body, ""),
+                features: Array.isArray(c?.features)
+                  ? (c.features as unknown[]).map((feature, idx) => ({
+                    id: idx,
+                    text: toStr((feature as Record<string, unknown>)?.text ?? feature, ""),
+                    included: (feature as Record<string, unknown>)?.included !== false,
+                  }))
+                  : [],
+                buttonText: toStr((c?.cta as Record<string, unknown>)?.label, "ابدأ الآن"),
+                order: Number(card.orderIndex ?? index),
+              };
+            });
             setPricingPlans(pricingPlans);
           }
         }

@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
+import type { GeographyItem } from "./types";
 
 const LISTING_TYPES = [
   { value: "بيع", label: "بيع" },
@@ -107,7 +108,7 @@ export default function UnverifiedListingPage() {
   });
 
   // Fetch regions, cities, districts
-  const { data: regions } = useQuery<any[]>({
+  const { data: regions } = useQuery<GeographyItem[]>({
     queryKey: ["/api/regions"],
     queryFn: async () => {
       const response = await fetch("/api/locations/regions");
@@ -116,7 +117,7 @@ export default function UnverifiedListingPage() {
     },
   });
 
-  const { data: cities } = useQuery<any[]>({
+  const { data: cities } = useQuery<GeographyItem[]>({
     queryKey: ["/api/locations/cities", form.region],
     queryFn: async () => {
       if (!form.region) return [];
@@ -147,7 +148,7 @@ export default function UnverifiedListingPage() {
   };
 
   // Fetch districts based on selected city
-  const { data: districts, isLoading: districtsLoading, error: districtsError } = useQuery<any[]>({
+  const { data: districts, isLoading: districtsLoading, error: districtsError } = useQuery<GeographyItem[]>({
     queryKey: ["/api/locations/districts", form.city],
     queryFn: async () => {
       if (!form.city) return [];
@@ -167,7 +168,7 @@ export default function UnverifiedListingPage() {
   });
 
   // Fetch property categories
-  const { data: propertyCategories, isLoading: categoriesLoading, error: categoriesError } = useQuery<any[]>({
+  const { data: propertyCategories, isLoading: categoriesLoading, error: categoriesError } = useQuery<GeographyItem[]>({
     queryKey: ["/api/property-categories"],
     queryFn: async () => {
       try {
@@ -189,7 +190,7 @@ export default function UnverifiedListingPage() {
   });
 
   // Fetch property types filtered by selected category
-  const { data: propertyTypes, isLoading: typesLoading, error: typesError } = useQuery<any[]>({
+  const { data: propertyTypes, isLoading: typesLoading, error: typesError } = useQuery<GeographyItem[]>({
     queryKey: ["/api/property-types", form.propertyCategory],
     queryFn: async () => {
       if (!form.propertyCategory) return [];
@@ -213,9 +214,9 @@ export default function UnverifiedListingPage() {
   });
 
   // Deduplicate helper
-  const deduplicate = (arr: any[]) => {
+  const deduplicate = <T extends { id?: unknown; code?: unknown }>(arr: T[]): T[] => {
     if (!arr) return [];
-    const seen = new Set();
+    const seen = new Set<unknown>();
     return arr.filter((item) => {
       const key = item.id || item.code;
       if (seen.has(key)) return false;
@@ -485,13 +486,13 @@ export default function UnverifiedListingPage() {
 
       const getRegionName = () => {
         if (!form.region) return undefined;
-        const region = (regions || []).find((r: any) => String(r.id) === form.region);
+        const region = (regions || []).find((r) => String(r.id) === form.region);
         return region ? (region.nameAr || region.nameEn || region.name) : form.region;
       };
 
       const getCityName = () => {
         if (!form.city) return "";
-        const city = (filteredCities || []).find((c: any) => String(c.id) === form.city);
+        const city = (filteredCities || []).find((c) => String(c.id) === form.city);
         if (city) {
           return city.nameAr || city.nameEn || city.name || "";
         }
@@ -501,11 +502,11 @@ export default function UnverifiedListingPage() {
       const getDistrictName = () => {
         if (!form.district) return undefined;
         // Search in full districts array, not just filteredDistricts, to ensure we find the district
-        const district = (districts || []).find((d: any) => String(d.id) === form.district);
+        const district = (districts || []).find((d) => String(d.id) === form.district);
         return district ? (district.nameAr || district.nameEn || district.name) : form.district;
       };
 
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         title: form.title.trim(),
         description: optionalText(form.description),
         propertyCategory: form.propertyCategory,
@@ -557,15 +558,17 @@ export default function UnverifiedListingPage() {
         if (import.meta.env.DEV && responseData?.debug) {
           console.error("[Unverified listing error]", responseData);
         }
-        const relevantErrors = (responseData?.errors || []).filter((e: any) => {
-          const pathStr = Array.isArray(e.path) ? e.path.join('.') : String(e.path || '').toLowerCase();
+        type ApiError = { path?: unknown; message?: string };
+        const relevantErrors = (responseData?.errors || []).filter((e: unknown) => {
+          const err = e as ApiError;
+          const pathStr = Array.isArray(err.path) ? err.path.join('.') : String(err.path || '').toLowerCase();
           return !pathStr.includes('propertycategory') &&
             !pathStr.includes('property_category') &&
             !pathStr.includes('property-category');
         });
 
         if (relevantErrors.length > 0) {
-          const firstError = relevantErrors[0];
+          const firstError = relevantErrors[0] as ApiError;
           const fieldName = Array.isArray(firstError.path) ? firstError.path.join('.') : String(firstError.path || 'حقل');
           errorMessage = `يرجى التحقق من حقل "${fieldName}": ${firstError.message}`;
         }
@@ -577,11 +580,12 @@ export default function UnverifiedListingPage() {
       const extractedPropertyId = responseData?.propertyId || responseData?.id || null;
       setPropertyId(extractedPropertyId);
       setSubmitted(true);
-    } catch (error: any) {
-      if (error?.name === "AbortError") {
+    } catch (error: unknown) {
+      const err = error as { name?: string; message?: string };
+      if (err?.name === "AbortError") {
         toast({ title: "انتهت المهلة", description: "انتهى وقت الإرسال قبل وصول الرد. حاول مرة أخرى.", variant: "destructive" });
       } else {
-        toast({ title: "خطأ", description: error?.message || "حدث خطأ غير متوقع", variant: "destructive" });
+        toast({ title: "خطأ", description: err?.message || "حدث خطأ غير متوقع", variant: "destructive" });
       }
     } finally {
       setLoading(false);
@@ -841,8 +845,8 @@ export default function UnverifiedListingPage() {
                                     {categoriesLoading
                                       ? "جار التحميل..."
                                       : form.propertyCategory
-                                        ? (propertyCategories || []).find((c: any) => (c.code || String(c.id)) === form.propertyCategory)?.nameAr ||
-                                        (propertyCategories || []).find((c: any) => (c.code || String(c.id)) === form.propertyCategory)?.nameEn ||
+                                        ? (propertyCategories || []).find((c) => (c.code || String(c.id)) === form.propertyCategory)?.nameAr ||
+                                        (propertyCategories || []).find((c) => (c.code || String(c.id)) === form.propertyCategory)?.nameEn ||
                                         form.propertyCategory
                                         : "اختر فئة العقار"}
                                   </span>
@@ -869,7 +873,7 @@ export default function UnverifiedListingPage() {
                                           </div>
                                         </CommandItem>
                                       ) : uniquePropertyCategories && Array.isArray(uniquePropertyCategories) && uniquePropertyCategories.length > 0 ? (
-                                        uniquePropertyCategories.map((category: any) => {
+                                        uniquePropertyCategories.map((category) => {
                                           const displayName = category.nameAr || category.nameEn || category.code || category.name || "فئة";
                                           const searchableValue = `${category.code || category.id} ${category.nameAr || ""} ${category.nameEn || ""} ${category.code || ""} ${category.name || ""}`.trim();
                                           return (
@@ -929,8 +933,8 @@ export default function UnverifiedListingPage() {
                                       : typesLoading
                                         ? "جار التحميل..."
                                         : form.propertyType
-                                          ? (propertyTypes || []).find((t: any) => (t.code || String(t.id)) === form.propertyType)?.nameAr ||
-                                          (propertyTypes || []).find((t: any) => (t.code || String(t.id)) === form.propertyType)?.nameEn ||
+                                          ? (propertyTypes || []).find((t) => (t.code || String(t.id)) === form.propertyType)?.nameAr ||
+                                          (propertyTypes || []).find((t) => (t.code || String(t.id)) === form.propertyType)?.nameEn ||
                                           form.propertyType
                                           : "اختر نوع العقار"}
                                   </span>
@@ -960,7 +964,7 @@ export default function UnverifiedListingPage() {
                                           </div>
                                         </CommandItem>
                                       ) : uniquePropertyTypes && Array.isArray(uniquePropertyTypes) && uniquePropertyTypes.length > 0 ? (
-                                        uniquePropertyTypes.map((type: any) => {
+                                        uniquePropertyTypes.map((type) => {
                                           const displayName = type.nameAr || type.nameEn || type.code || type.name || "نوع";
                                           const searchableValue = `${type.code || type.id} ${type.nameAr || ""} ${type.nameEn || ""} ${type.code || ""} ${type.name || ""}`.trim();
                                           return (
@@ -1063,8 +1067,8 @@ export default function UnverifiedListingPage() {
                               )}
                             >
                               {form.region
-                                ? (regions || []).find((region: any) => String(region.id) === form.region)?.nameAr ||
-                                (regions || []).find((region: any) => String(region.id) === form.region)?.nameEn ||
+                                ? (regions || []).find((region) => String(region.id) === form.region)?.nameAr ||
+                                (regions || []).find((region) => String(region.id) === form.region)?.nameEn ||
                                 "اختر المنطقة"
                                 : "اختر المنطقة"}
                               <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
@@ -1084,7 +1088,7 @@ export default function UnverifiedListingPage() {
                                       </div>
                                     </CommandItem>
                                   ) : (
-                                    (uniqueRegions || []).map((region: any) => {
+                                    (uniqueRegions || []).map((region) => {
                                       const displayName = region.nameAr || region.nameEn || String(region.id);
                                       const searchableValue = `${region.id} ${region.nameAr || ""} ${region.nameEn || ""} ${region.code || ""} ${region.name || ""}`.trim();
                                       return (
@@ -1136,8 +1140,8 @@ export default function UnverifiedListingPage() {
                               disabled={!form.region}
                             >
                               {form.city
-                                ? (filteredCities || []).find((city: any) => String(city.id) === form.city)?.nameAr ||
-                                (filteredCities || []).find((city: any) => String(city.id) === form.city)?.nameEn ||
+                                ? (filteredCities || []).find((city) => String(city.id) === form.city)?.nameAr ||
+                                (filteredCities || []).find((city) => String(city.id) === form.city)?.nameEn ||
                                 "اختر المدينة"
                                 : "اختر المدينة"}
                               <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
@@ -1154,7 +1158,7 @@ export default function UnverifiedListingPage() {
                                       <span>يرجى اختيار المنطقة أولاً</span>
                                     </CommandItem>
                                   ) : (
-                                    filteredCities.map((city: any) => {
+                                    filteredCities.map((city) => {
                                       const displayName = city.nameAr || city.nameEn || String(city.id);
                                       const searchableValue = `${city.id} ${city.nameAr || ""} ${city.nameEn || ""} ${city.code || ""} ${city.name || ""}`.trim();
                                       return (
@@ -1203,8 +1207,8 @@ export default function UnverifiedListingPage() {
                               disabled={!form.city}
                             >
                               {form.district
-                                ? (filteredDistricts || []).find((district: any) => String(district.id) === form.district)?.nameAr ||
-                                (filteredDistricts || []).find((district: any) => String(district.id) === form.district)?.nameEn ||
+                                ? (filteredDistricts || []).find((district) => String(district.id) === form.district)?.nameAr ||
+                                (filteredDistricts || []).find((district) => String(district.id) === form.district)?.nameEn ||
                                 "اختر الحي"
                                 : "اختر الحي"}
                               <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
@@ -1247,7 +1251,7 @@ export default function UnverifiedListingPage() {
                                       <div className="text-slate-500 text-xs py-2">لا توجد أحياء متاحة لهذه المدينة</div>
                                     </CommandItem>
                                   ) : (
-                                    filteredDistricts.map((district: any) => {
+                                    filteredDistricts.map((district) => {
                                       const displayName = district.nameAr || district.nameEn || String(district.id);
                                       const searchableValue = `${district.id} ${district.nameAr || ""} ${district.nameEn || ""} ${district.code || ""} ${district.name || ""}`.trim();
                                       return (

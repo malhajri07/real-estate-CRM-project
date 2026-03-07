@@ -21,11 +21,11 @@
  */
 
 import { useQuery } from "@tanstack/react-query";
-import type { ListingFormData } from "../types";
+import type { ListingFormData, GeographyItem } from "../types";
 
 export function useListingData(form: ListingFormData) {
   // Fetch regions
-  const { data: regions } = useQuery<any[]>({
+  const { data: regions } = useQuery<GeographyItem[]>({
     queryKey: ["/api/regions"],
     queryFn: async () => {
       const response = await fetch("/api/locations/regions");
@@ -35,7 +35,7 @@ export function useListingData(form: ListingFormData) {
   });
 
   // Fetch cities
-  const { data: cities } = useQuery<any[]>({
+  const { data: cities } = useQuery<GeographyItem[]>({
     queryKey: ["/api/locations/saudi-cities"],
     queryFn: async () => {
       const response = await fetch("/api/locations/saudi-cities");
@@ -45,7 +45,7 @@ export function useListingData(form: ListingFormData) {
   });
 
   // Fetch districts based on selected city
-  const { data: districts, isLoading: districtsLoading, error: districtsError } = useQuery<any[]>({
+  const { data: districts, isLoading: districtsLoading, error: districtsError } = useQuery<GeographyItem[]>({
     queryKey: ["/api/locations/districts", form.city],
     queryFn: async () => {
       if (!form.city) return [];
@@ -65,7 +65,7 @@ export function useListingData(form: ListingFormData) {
   });
 
   // Fetch property categories
-  const { data: propertyCategories, isLoading: categoriesLoading, error: categoriesError } = useQuery<any[]>({
+  const { data: propertyCategories, isLoading: categoriesLoading, error: categoriesError } = useQuery<GeographyItem[]>({
     queryKey: ["/api/property-categories"],
     queryFn: async () => {
       try {
@@ -87,7 +87,7 @@ export function useListingData(form: ListingFormData) {
   });
 
   // Fetch property types filtered by selected category
-  const { data: propertyTypes, isLoading: typesLoading, error: typesError } = useQuery<any[]>({
+  const { data: propertyTypes, isLoading: typesLoading, error: typesError } = useQuery<GeographyItem[]>({
     queryKey: ["/api/property-types", form.propertyCategory],
     queryFn: async () => {
       if (!form.propertyCategory) return [];

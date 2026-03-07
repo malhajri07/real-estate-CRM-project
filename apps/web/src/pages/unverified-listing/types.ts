@@ -17,6 +17,8 @@
  * Type definitions for Unverified Listing Page
  */
 
+export type GeographyItem = { id?: number | string; name?: string; nameAr?: string; nameEn?: string; code?: string; regionId?: number };
+
 export interface ListingFormData {
   title: string;
   description: string;

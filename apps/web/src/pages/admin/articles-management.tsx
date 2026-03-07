@@ -117,7 +117,7 @@ interface ArticleVersion {
   id: string;
   articleId: string;
   version: number;
-  snapshot: any;
+  snapshot: Record<string, unknown>;
   createdBy?: string;
   createdAt: string;
 }
@@ -157,7 +157,7 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
       </div>
       <div className="space-y-3">
         {versions.map((version) => {
-          const snapshot = version.snapshot as any;
+          const snapshot = version.snapshot;
           return (
             <Card key={version.id}>
               <CardContent className="p-4">
@@ -175,10 +175,10 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
                       )}
                     </div>
                     <div className="space-y-1">
-                      <div className="font-medium">{snapshot.title || "بدون عنوان"}</div>
-                      {snapshot.excerpt && (
+                      <div className="font-medium">{String(snapshot.title || "بدون عنوان")}</div>
+                      {snapshot.excerpt != null && String(snapshot.excerpt) && (
                         <div className="text-sm text-slate-600 line-clamp-2">
-                          {snapshot.excerpt}
+                          {String(snapshot.excerpt)}
                         </div>
                       )}
                     </div>
@@ -240,7 +240,7 @@ export default function ArticlesManagement() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: any) => apiPost("api/cms/articles", data),
+    mutationFn: async (data: Record<string, unknown>) => apiPost("api/cms/articles", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       setIsDialogOpen(false);
@@ -249,7 +249,7 @@ export default function ArticlesManagement() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) =>
+    mutationFn: async ({ id, data }: { id: string; data: Record<string, unknown> }) =>
       apiPut(`api/cms/articles/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
@@ -277,14 +277,15 @@ export default function ArticlesManagement() {
 
   const bulkActionMutation = useMutation({
     mutationFn: async ({ action, articleIds }: { action: string; articleIds: string[] }) =>
-      apiPost("api/cms/articles/bulk", { action, articleIds }),
-    onSuccess: (data) => {
-      const successCount = data.results.filter((r: any) => r.success).length;
+      apiPost("api/cms/articles/bulk", { action, articleIds }) as Promise<{ results?: Array<{ success?: boolean }> }>,
+    onSuccess: (data: { results?: Array<{ success?: boolean }> }) => {
+      const results = data?.results ?? [];
+      const successCount = results.filter((r) => r.success).length;
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       setSelectedArticles(new Set());
       toast({
         title: "تم تنفيذ الإجراء بنجاح",
-        description: `تم معالجة ${successCount} من ${data.results.length} مقال`,
+        description: `تم معالجة ${successCount} من ${results.length} مقال`,
       });
     },
     onError: () => {
@@ -341,7 +342,7 @@ export default function ArticlesManagement() {
     setIsDialogOpen(true);
   };
 
-  const handleSubmit = (formData: any) => {
+  const handleSubmit = (formData: Record<string, unknown>) => {
     if (editingArticle) {
       updateMutation.mutate({ id: editingArticle.id, data: formData });
     } else {
@@ -542,8 +543,8 @@ export default function ArticlesManagement() {
           open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           article={editingArticle}
-          categories={categories}
-          tags={tags}
+          categories={(categories ?? []) as Array<{ id: string; name: string }>}
+          tags={(tags ?? []) as Array<{ id: string; name: string }>}
           onSubmit={handleSubmit}
           isLoading={createMutation.isPending || updateMutation.isPending}
         />
@@ -566,7 +567,7 @@ function ArticleDialog({
   article: Article | null;
   categories: Array<{ id: string; name: string }>;
   tags: Array<{ id: string; name: string }>;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: Record<string, unknown>) => void;
   isLoading: boolean;
 }) {
   const [title, setTitle] = useState("");

@@ -88,8 +88,8 @@ const toNumber = (value: unknown): number | null => {
     const parsed = Number(trimmed);
     return Number.isFinite(parsed) ? parsed : null;
   }
-  if (typeof value === "object" && typeof (value as any).toString === "function") {
-    const parsed = Number((value as any).toString());
+  if (typeof value === "object" && value !== null && typeof (value as { toString?: () => string }).toString === "function") {
+    const parsed = Number((value as { toString: () => string }).toString());
     return Number.isFinite(parsed) ? parsed : null;
   }
   return null;
@@ -113,7 +113,7 @@ const formatNumber = (value: unknown): string => {
 
 const formatDateTime = (value: unknown): string => {
   if (!value) return "—";
-  const date = value instanceof Date ? value : new Date(value as any);
+  const date = value instanceof Date ? value : new Date(String(value));
   if (Number.isNaN(date.getTime())) return "—";
   return new Intl.DateTimeFormat("ar-SA", {
     dateStyle: "medium",
@@ -200,8 +200,8 @@ export default function Requests() {
             setSmsDialogOpen(false);
             setSmsTargetId(null);
         },
-        onError: (err: any) => {
-            const raw = err?.message || String(err);
+        onError: (err: unknown) => {
+            const raw = err instanceof Error ? err.message : String(err);
             let msg = "Failed to send SMS.";
             if (raw.includes("not configured")) msg = "SMS is not configured. Contact admin.";
             else if (raw.includes("Only agents or admins")) msg = "You don't have permission to send SMS.";
@@ -362,8 +362,11 @@ export default function Requests() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {poolRequests.map((req: any, idx: number) => (
-                                            <TableRow key={req?.id ?? `row-${idx}`}>
+                                        {poolRequests.map((req: Record<string, unknown>, idx: number) => {
+                                            const reqId = req.id != null ? String(req.id) : undefined;
+                                            const reqSource = req.source != null ? String(req.source) : undefined;
+                                            return (
+                                            <TableRow key={reqId ?? `row-${idx}`}>
                                                 <TableCell>
                                                     <Badge variant={req.type === "Buy" || req.type === "شراء" ? "info" : "purple"}>
                                                         {req.type || "—"}
@@ -387,9 +390,9 @@ export default function Requests() {
                                                 <TableCell>
                                                     <span className={cn(
                                                         "text-xs font-medium",
-                                                        req.source === "customer_request" ? "text-amber-600" : "text-muted-foreground",
+                                                        reqSource === "customer_request" ? "text-amber-600" : "text-muted-foreground",
                                                     )}>
-                                                        {req.source === "customer_request" ? t("pool.customer_request") : t("pool.buyer_pool")}
+                                                        {reqSource === "customer_request" ? t("pool.customer_request") : t("pool.buyer_pool")}
                                                     </span>
                                                 </TableCell>
                                                 <TableCell className="text-muted-foreground">
@@ -399,13 +402,13 @@ export default function Requests() {
                                                 </TableCell>
                                                 <TableCell className="text-end">
                                                     <div className="flex items-center justify-end gap-2">
-                                                        {req.source === "customer_request" && req.canSendSms && (
-                                                            <Dialog open={smsDialogOpen && smsTargetId === req.id} onOpenChange={(open) => {
+                                                        {reqSource === "customer_request" && req.canSendSms && (
+                                                            <Dialog open={smsDialogOpen && smsTargetId === reqId} onOpenChange={(open) => {
                                                                 setSmsDialogOpen(open);
                                                                 if (!open) { setSmsTargetId(null); setSmsMessage(""); }
                                                             }}>
                                                                 <DialogTrigger asChild>
-                                                                    <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { setSmsTargetId(req.id); setSmsDialogOpen(true); }}>
+                                                                    <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { setSmsTargetId(reqId ?? null); setSmsDialogOpen(true); }}>
                                                                         <MessageSquare className="h-4 w-4" />
                                                                         {t("pool.send_sms")}
                                                                     </Button>
@@ -442,7 +445,7 @@ export default function Requests() {
                                                         )}
                                                         <Button
                                                             size="sm"
-                                                            onClick={() => claimMutation.mutate({ requestId: req.id, source: req.source })}
+                                                            onClick={() => reqId && claimMutation.mutate({ requestId: reqId, source: reqSource })}
                                                             disabled={claimMutation.isPending}
                                                         >
                                                             {claimMutation.isPending ? t("pool.claiming") : t("pool.claim")}
@@ -450,7 +453,8 @@ export default function Requests() {
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
-                                        ))}
+                                        );
+                                        })}
                                     </TableBody>
                                 </Table>
                             </div>
