@@ -23,7 +23,8 @@
     "delete-legacy-agents": "tsx apps/api/scripts/delete-legacy-agent-users.ts",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
-    "build:analyze": "ANALYZE_BUNDLE=true pnpm run build"
+    "build:analyze": "ANALYZE_BUNDLE=true pnpm run build",
+    "depcheck": "npx dependency-cruiser apps/web/src/main.tsx apps/api/index.ts --config dependency-cruiser.config.cjs"
   },
   "prisma": {
     "schema": "data/schema/prisma/schema.prisma",
@@ -161,6 +162,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "postcss": "^8.4.47",
+    "dependency-cruiser": "^17.0.0",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.1",
     "typescript": "5.6.3",
