@@ -331,7 +331,6 @@ export default function Reports() {
           change={`${filteredLeads.length > 0 ? "+" : ""}${formatNumber(filteredLeads.length)} في ${selectedPeriod} أيام`}
           changeType="positive"
           icon={Users}
-          iconColor="bg-blue-100 text-blue-600"
         />
         <MetricsCard
           title="العقارات المدرجة"
@@ -339,7 +338,6 @@ export default function Reports() {
           change={`${filteredProperties.length > 0 ? "+" : ""}${formatNumber(filteredProperties.length)} في ${selectedPeriod} أيام`}
           changeType="positive"
           icon={Building}
-          iconColor="bg-emerald-100 text-emerald-600"
         />
         <MetricsCard
           title="معدل التحويل"
@@ -347,7 +345,6 @@ export default function Reports() {
           change="نسبة العميل المحتمل إلى الصفقة المكتملة"
           changeType="neutral"
           icon={TrendingUp}
-          iconColor="bg-purple-100 text-purple-600"
         />
         <MetricsCard
           title="إجمالي العمولة"
@@ -355,7 +352,6 @@ export default function Reports() {
           change={`من ${formatNumber(filteredDeals.filter(d => d.stage === "closed").length)} صفقة مكتملة`}
           changeType="positive"
           icon={DollarSign}
-          iconColor="bg-yellow-100 text-yellow-600"
         />
       </div>
 

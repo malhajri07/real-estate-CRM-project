@@ -42,7 +42,7 @@ export default function PreferencesSection({ isOpen, onOpenChange }: Preferences
                   <div className="font-medium text-slate-900 mb-1">عملاء محتملين جدد</div>
                   <div className="text-sm text-slate-500">إشعار عند إضافة عملاء محتملين جدد</div>
                 </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600">
                   <Users size={18} />
                 </div>
               </div>
@@ -54,7 +54,7 @@ export default function PreferencesSection({ isOpen, onOpenChange }: Preferences
                   <div className="font-medium text-slate-900 mb-1">تحديثات المهام</div>
                   <div className="text-sm text-slate-500">إشعار عند اكتمال أو تحديث المهام</div>
                 </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600">
                   <CheckCircle size={18} />
                 </div>
               </div>

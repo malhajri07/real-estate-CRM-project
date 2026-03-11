@@ -40,7 +40,7 @@ function NotificationTemplates({ templates, isLoading }: { templates: Notificati
         <Card className="glass border-0 rounded-3xl overflow-hidden shadow-none">
             <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
                 <div className="relative w-full md:w-96 group">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" />
                     <Input placeholder="البحث عن قالب إشعار..." className="h-12 pr-11 rounded-2xl bg-white border-slate-100 focus:ring-blue-500/20" />
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
@@ -70,7 +70,7 @@ function NotificationTemplates({ templates, isLoading }: { templates: Notificati
                     <Card key={template.id} className="bg-white/50 border border-slate-100 rounded-2xl p-6 hover:bg-white hover:shadow-2xl transition-all duration-300 group relative overflow-visible">
                         <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-4">
-                                <div className="h-12 w-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <div className="h-12 w-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                                     <Bell className="h-6 w-6" />
                                 </div>
                                 <div>
@@ -99,8 +99,8 @@ function NotificationTemplates({ templates, isLoading }: { templates: Notificati
                         <div className="flex items-center justify-between pt-4 border-t border-slate-50 mt-auto">
                             <span className="text-xs font-bold text-slate-400">تحديث {template.lastUpdated}</span>
                             <div className="flex gap-1">
-                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50"><Eye className="h-4 w-4" /></Button>
-                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50"><Settings className="h-4 w-4" /></Button>
+                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100"><Eye className="h-4 w-4" /></Button>
+                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100"><Settings className="h-4 w-4" /></Button>
                             </div>
                         </div>
                     </Card>
@@ -162,10 +162,10 @@ export default function NotificationsManagement() {
                     ))
                 ) : (
                     [
-                        { title: "إشعارات اليوم", value: stats?.notificationsToday || "0", icon: Send, color: "text-blue-600", bg: "bg-blue-50" },
-                        { title: "معدل الوصول", value: stats?.deliveryRate || "0%", icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
-                        { title: "أخطاء الإرسال", value: `${stats?.errors || 0} أخطاء`, icon: AlertTriangle, color: "text-rose-600", bg: "bg-rose-50" },
-                        { title: "وقت التسليم", value: stats?.avgDeliveryTime || "0 ث", icon: Clock, color: "text-amber-600", bg: "bg-amber-50" },
+                        { title: "إشعارات اليوم", value: stats?.notificationsToday || "0", icon: Send, color: "text-slate-600", bg: "bg-slate-100" },
+                        { title: "معدل الوصول", value: stats?.deliveryRate || "0%", icon: CheckCircle2, color: "text-slate-600", bg: "bg-slate-100" },
+                        { title: "أخطاء الإرسال", value: `${stats?.errors || 0} أخطاء`, icon: AlertTriangle, color: "text-slate-600", bg: "bg-slate-100" },
+                        { title: "وقت التسليم", value: stats?.avgDeliveryTime || "0 ث", icon: Clock, color: "text-slate-600", bg: "bg-slate-100" },
                     ].map((stat, i) => (
                         <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none flex items-center gap-4 hover:bg-white hover:shadow-xl transition-all">
                             <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", stat.bg, stat.color)}>
@@ -194,9 +194,9 @@ export default function NotificationsManagement() {
                 <TabsContent value="channels" className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {[
-                            { name: "Email (SMTP/SendGrid)", status: "Connected", icon: Mail, color: "text-blue-600" },
-                            { name: "SMS (Twilio/Unifonic)", status: "Connected", icon: MessageSquare, color: "text-emerald-600" },
-                            { name: "Push (Firebase FCM)", status: "Error", icon: Smartphone, color: "text-rose-600" },
+                            { name: "Email (SMTP/SendGrid)", status: "Connected", icon: Mail, color: "text-slate-600" },
+                            { name: "SMS (Twilio/Unifonic)", status: "Connected", icon: MessageSquare, color: "text-slate-600" },
+                            { name: "Push (Firebase FCM)", status: "Error", icon: Smartphone, color: "text-slate-600" },
                         ].map((channel, i) => (
                             <Card key={i} className="glass border-0 rounded-3xl p-8 shadow-none text-center flex flex-col items-center group hover:bg-white hover:shadow-2xl transition-all duration-300">
                                 <div className={cn("h-16 w-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform", channel.color)}>
@@ -209,7 +209,7 @@ export default function NotificationsManagement() {
                                 )}>
                                     {channel.status === "Connected" ? "متصل" : "خطأ اتصال"}
                                 </Badge>
-                                <Button variant="ghost" className="mt-6 text-xs font-bold text-slate-400 hover:text-blue-600 underline">إعدادات الاتصال</Button>
+                                <Button variant="ghost" className="mt-6 text-xs font-bold text-slate-400 hover:text-slate-700 underline">إعدادات الاتصال</Button>
                             </Card>
                         ))}
                     </div>
@@ -218,7 +218,7 @@ export default function NotificationsManagement() {
                 <TabsContent value="logs" className="space-y-4">
                     <Card className="glass border-0 rounded-3xl p-20 text-center bg-slate-50/50 border-2 border-dashed border-border/50 flex flex-col items-center">
                         <div className="h-20 w-20 bg-white rounded-2xl shadow-xl shadow-slate-500/10 flex items-center justify-center text-slate-400 mb-6 group-hover:scale-110 transition-transform">
-                            <History className="h-10 w-10 text-blue-600 opacity-20" />
+                            <History className="h-10 w-10 text-slate-600 opacity-20" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 tracking-tight">سجلات إرسال الإشعارات</h3>
                         <p className="text-sm font-medium text-slate-500 max-w-xs mx-auto leading-relaxed mt-2">

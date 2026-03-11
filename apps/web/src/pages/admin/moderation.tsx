@@ -68,7 +68,7 @@ export default function ModerationQueuePage() {
       sortable: true,
       render: (item) => (
         <div className="flex flex-col py-1">
-          <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+          <span className="font-bold text-slate-900 group-hover:text-slate-700 transition-colors">
             {item.title}
           </span>
           <span className="text-xs font-bold text-slate-400 mt-0.5 max-w-xs truncate">
@@ -119,7 +119,7 @@ export default function ModerationQueuePage() {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 rounded-lg text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-all"
+            className="h-8 w-8 p-0 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-700 transition-all"
             onClick={() => handleAction(item.id, 'approve')}
             disabled={processingId === item.id}
           >

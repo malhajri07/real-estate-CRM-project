@@ -70,7 +70,7 @@ function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading:
         <Card className="glass border-0 rounded-3xl overflow-hidden shadow-none">
             <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
                 <div className="relative w-full md:w-96 group">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" />
                     <Input placeholder="البحث عن فاتورة أو عميل..." className="h-12 pr-11 rounded-2xl bg-white border-slate-100 focus:ring-blue-500/20" />
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
@@ -149,9 +149,9 @@ function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading:
                                     </TableCell>
                                     <TableCell className="py-4">
                                         <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50"><Eye className="h-4 w-4" /></Button>
-                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50"><Download className="h-4 w-4" /></Button>
-                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50"><MoreHorizontal className="h-4 w-4" /></Button>
+                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100"><Eye className="h-4 w-4" /></Button>
+                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100"><Download className="h-4 w-4" /></Button>
+                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100"><MoreHorizontal className="h-4 w-4" /></Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -217,22 +217,22 @@ export default function BillingManagement() {
                             title: "إجمالي التحصيل", 
                             value: `${(stats?.totalCollected || 0).toLocaleString('en-US')} ر.س`, 
                             icon: Wallet, 
-                            color: "text-blue-600", 
-                            bg: "bg-blue-50" 
+                            color: "text-slate-600", 
+                            bg: "bg-slate-100" 
                         },
                         { 
                             title: "فواتير معلقة", 
                             value: `${stats?.pendingInvoices || 0} فاتورة`, 
                             icon: History, 
-                            color: "text-amber-600", 
-                            bg: "bg-amber-50" 
+                            color: "text-slate-600", 
+                            bg: "bg-slate-100" 
                         },
                         { 
                             title: "الإيراد الشهري", 
                             value: `${stats?.revenueChange ? (Number(stats.revenueChange) > 0 ? '+' : '') + stats.revenueChange : '0'}٪`, 
                             icon: TrendingUp, 
-                            color: "text-emerald-600", 
-                            bg: "bg-emerald-50" 
+                            color: "text-slate-600", 
+                            bg: "bg-slate-100" 
                         },
                     ].map((stat, i) => (
                         <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none hover:bg-white hover:shadow-xl transition-all">

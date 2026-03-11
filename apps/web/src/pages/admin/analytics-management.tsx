@@ -114,7 +114,7 @@ export default function AnalyticsManagement() {
                                 className={cn("h-10 px-4 rounded-xl font-bold transition-all", timeRange === "30d" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500")}
                             >٣٠ يوم</Button>
                         </div>
-                        <Button variant="outline" className="h-12 w-12 rounded-2xl border-border text-slate-400 hover:text-blue-600 transition-all">
+                        <Button variant="outline" className="h-12 w-12 rounded-2xl border-border text-slate-400 hover:text-slate-600 transition-all">
                             <Download className="h-5 w-5" />
                         </Button>
                     </div>
@@ -130,10 +130,10 @@ export default function AnalyticsManagement() {
                     ))
                 ) : (
                     [
-                        { title: "إجمالي الزيارات", value: metrics?.totalVisits || "0", change: "+0%", icon: Eye, color: "text-blue-600", bg: "bg-blue-50" },
-                        { title: "المستخدمين النشطين", value: metrics?.activeUsers || "0", change: "+0%", icon: Users, color: "text-emerald-600", bg: "bg-emerald-50" },
-                        { title: "معدل التحويل", value: metrics?.conversionRate || "0%", change: "+0%", icon: Zap, color: "text-amber-600", bg: "bg-amber-50" },
-                        { title: "وقت الجلسة", value: metrics?.avgSessionTime || "0 د", change: "+0%", icon: Clock, color: "text-purple-600", bg: "bg-purple-50" },
+                        { title: "إجمالي الزيارات", value: metrics?.totalVisits || "0", change: "+0%", icon: Eye, color: "text-slate-600", bg: "bg-slate-100" },
+                        { title: "المستخدمين النشطين", value: metrics?.activeUsers || "0", change: "+0%", icon: Users, color: "text-slate-600", bg: "bg-slate-100" },
+                        { title: "معدل التحويل", value: metrics?.conversionRate || "0%", change: "+0%", icon: Zap, color: "text-slate-600", bg: "bg-slate-100" },
+                        { title: "وقت الجلسة", value: metrics?.avgSessionTime || "0 د", change: "+0%", icon: Clock, color: "text-slate-600", bg: "bg-slate-100" },
                     ].map((metric, i) => (
                         <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none flex flex-col justify-between hover:bg-white hover:shadow-2xl transition-all duration-300">
                             <div className="flex items-center justify-between mb-4">

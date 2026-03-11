@@ -117,7 +117,7 @@ function OverviewTab() {
                 <MetricCard
                     title="إجمالي الإيرادات"
                     subtitle="ريال سعودي"
-                    icon={<Wallet className="w-5 h-5 text-emerald-600" />}
+                    icon={<Wallet className="w-5 h-5 text-slate-600" />}
                     metric={{ today: totalRevenue, last7Days: totalRevenue, last30Days: totalRevenue }}
                     currency="SAR"
                     loading={isLoading}
@@ -125,21 +125,21 @@ function OverviewTab() {
                 <MetricCard
                     title="الاشتراكات النشطة"
                     subtitle="مستخدم مفعل"
-                    icon={<Users className="w-5 h-5 text-blue-600" />}
+                    icon={<Users className="w-5 h-5 text-slate-600" />}
                     metric={{ today: activeSubscriptions, last7Days: activeSubscriptions, last30Days: activeSubscriptions }}
                     loading={isLoading}
                 />
                 <MetricCard
                     title="معدل النمو"
                     subtitle="آخر ٣٠ يوم"
-                    icon={<ArrowUpRight className="w-5 h-5 text-purple-600" />}
+                    icon={<ArrowUpRight className="w-5 h-5 text-slate-600" />}
                     metric={{ today: 12, last7Days: 8, last30Days: 15 }}
                     loading={isLoading}
                 />
                 <MetricCard
                     title="متوسط دخل العميل"
                     subtitle="لكل عملية"
-                    icon={<TrendingUp className="w-5 h-5 text-amber-600" />}
+                    icon={<TrendingUp className="w-5 h-5 text-slate-600" />}
                     metric={{ today: 450, last7Days: 420, last30Days: 445 }}
                     currency="SAR"
                     loading={isLoading}
@@ -150,7 +150,7 @@ function OverviewTab() {
                 <Card className="glass border-0 rounded-2xl p-8 shadow-none group">
                     <div className="mb-8">
                         <h3 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                            <Activity className="w-5 h-5 text-blue-600" />
+                            <Activity className="w-5 h-5 text-slate-600" />
                             تحليل نمو الإيرادات
                         </h3>
                         <p className="text-slate-500 font-medium text-sm">مراقبة تدفق الدخل الشهري</p>
@@ -167,7 +167,7 @@ function OverviewTab() {
                 <Card className="glass border-0 rounded-2xl p-8 shadow-none group">
                     <div className="mb-8">
                         <h3 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                            <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                            <ShieldCheck className="w-5 h-5 text-slate-600" />
                             توزيع الاشتراكات
                         </h3>
                         <p className="text-slate-500 font-medium text-sm">تقسيم المستخدمين حسب حالة الاشتراك</p>
@@ -313,7 +313,7 @@ function PaymentMethodsTab() {
 
                     <div className="flex flex-col h-full">
                         <div className="mb-8">
-                            <div className="h-14 w-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <div className="h-14 w-14 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                 <Activity className="h-8 w-8" />
                             </div>
                             <h3 className="text-2xl font-bold text-slate-900 mb-1">Stripe</h3>
@@ -387,7 +387,7 @@ function PlansTab() {
                 {(plans || []).map(plan => (
                     <Card key={plan.id} className="glass border-0 rounded-3xl p-8 shadow-none flex flex-col hover:shadow-2xl hover:shadow-blue-500/5 transition-all group overflow-hidden relative">
                         <div className="absolute top-0 right-0 p-8">
-                            <div className="h-12 w-12 rounded-2xl bg-blue-50/50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                            <div className="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-600 group-hover:scale-110 transition-transform">
                                 <ShieldCheck className="w-6 h-6" />
                             </div>
                         </div>
@@ -405,8 +405,8 @@ function PlansTab() {
                             <ul className="space-y-3">
                                 {(plan.pricing_plan_features || []).map((feature) => (
                                     <li key={feature.id} className="flex items-start gap-3">
-                                        <div className="mt-1 h-4 w-4 rounded-full bg-emerald-50 flex items-center justify-center">
-                                            <CheckCircle2 className="h-2.5 w-2.5 text-emerald-600" />
+                                        <div className="mt-1 h-4 w-4 rounded-full bg-slate-100 flex items-center justify-center">
+                                            <CheckCircle2 className="h-2.5 w-2.5 text-slate-600" />
                                         </div>
                                         <span className="text-sm font-medium text-slate-600 leading-tight">{feature.nameAr || feature.nameEn || feature.code}</span>
                                     </li>
@@ -454,7 +454,7 @@ export default function RevenueManagement() {
                         onClick={() => seedMutation.mutate()}
                         disabled={seedMutation.isPending}
                     >
-                        {seedMutation.isPending ? <Spinner size="sm" className="me-2" /> : <Activity className="h-5 w-5 me-2 text-blue-500" />}
+                        {seedMutation.isPending ? <Spinner size="sm" className="me-2" /> : <Activity className="h-5 w-5 me-2 text-slate-600" />}
                         إعادة تعيين بيانات تجريبية
                     </Button>
                 </div>
@@ -498,12 +498,12 @@ export default function RevenueManagement() {
                                 { name: "تقرير الاشتراكات - السنوي 2024", type: "PDF" }
                             ].map((report, i) => (
                                 <div key={i} className="flex flex-col p-6 bg-white/50 border border-slate-100 rounded-2xl hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group">
-                                    <div className="h-12 w-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <div className="h-12 w-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                         <FileText className="h-6 w-6" />
                                     </div>
                                     <span className="font-bold text-slate-900 mb-1">{report.name}</span>
                                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">{report.type}</span>
-                                    <Button variant="outline" className="mt-auto h-10 w-full rounded-xl border-slate-100 font-bold text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-all">
+                                    <Button variant="outline" className="mt-auto h-10 w-full rounded-xl border-slate-100 font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-700 hover:border-slate-200 transition-all">
                                         <Download className="h-4 w-4 me-2" />
                                         تحميل التقرير
                                     </Button>

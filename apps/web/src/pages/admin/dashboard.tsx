@@ -44,7 +44,7 @@ import NotificationsManagement from "@/pages/admin/notifications-management";
 import SystemSettings from "@/pages/admin/system-settings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Users } from "lucide-react";
+import { AlertCircle, Users, Home, Trophy, Wallet } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
@@ -180,28 +180,28 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
         <MetricCard
           title="العملاء المحتملون"
           subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
-          icon={<Users className="w-5 h-5 text-blue-600" />}
+          icon={<Users className="w-5 h-5 text-slate-600" />}
           metric={metrics?.leads}
           loading={isLoading && !metrics}
         />
         <MetricCard
           title="الإعلانات المنشورة"
           subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
-          icon={<div className="text-xl">🏠</div>}
+          icon={<Home className="w-5 h-5 text-slate-600" />}
           metric={metrics?.listings}
           loading={isLoading && !metrics}
         />
         <MetricCard
           title="الصفقات الرابحة"
           subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
-          icon={<div className="text-xl">🏆</div>}
+          icon={<Trophy className="w-5 h-5 text-slate-600" />}
           metric={metrics?.dealsWon}
           loading={isLoading && !metrics}
         />
         <MetricCard
           title="قيمة المبيعات (GMV)"
           subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
-          icon={<div className="text-xl">💰</div>}
+          icon={<Wallet className="w-5 h-5 text-slate-600" />}
           metric={metrics?.gmv}
           currency={currency}
           loading={isLoading && !metrics}
@@ -284,7 +284,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
             {isLoading && <LoadingRows rows={4} />}
             {!isLoading && (!data?.topAgents || data.topAgents.length === 0) ? (
               <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-slate-50/50 rounded-2xl border border-dashed border-border">
-                <div className="rounded-2xl bg-white p-4 shadow-sm text-3xl">👥</div>
+                <div className="rounded-2xl bg-white p-4 shadow-sm"><Users className="h-12 w-12 text-slate-400" /></div>
                 <div>
                   <p className="text-base font-bold text-slate-800">لا يوجد وكلاء نشطين</p>
                   <p className="text-sm text-slate-500 mt-1">لم يتم تسجيل أي نشاط للوكلاء في الفترة المحددة</p>
@@ -298,7 +298,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                     className="flex flex-col p-5 rounded-2xl bg-white/50 border border-slate-100 hover:bg-white hover:border-blue-200 hover:shadow-md transition-all duration-300 group"
                   >
                     <div className="flex items-center gap-4 mb-3">
-                      <div className="h-10 w-10 rounded-xl bg-blue-600/10 flex items-center justify-center text-blue-600 font-bold group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                      <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 font-bold group-hover:bg-slate-200 group-hover:text-slate-700 transition-colors duration-300">
                         {agent.name.charAt(0)}
                       </div>
                       <div className="flex flex-col">
@@ -313,7 +313,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                       </div>
                       <div className="flex flex-col text-end">
                         <span className="text-xs font-extrabold text-slate-400 uppercase tracking-tighter">القيمة الإجمالية</span>
-                        <span className="text-xs font-bold text-blue-600">{formatCurrency(agent.gmv, currency)}</span>
+                        <span className="text-xs font-bold text-slate-600">{formatCurrency(agent.gmv, currency)}</span>
                       </div>
                     </div>
                   </div>
@@ -346,7 +346,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                     className="flex flex-col p-4 rounded-xl bg-white/50 border border-slate-100 hover:bg-white hover:border-blue-100 transition-all cursor-pointer group"
                   >
                     <div className="flex items-start justify-between gap-3 mb-2">
-                      <p className="text-xs font-bold text-slate-900 group-hover:text-blue-700 transition-colors line-clamp-1">{ticket.subject}</p>
+                      <p className="text-xs font-bold text-slate-900 group-hover:text-slate-700 transition-colors line-clamp-1">{ticket.subject}</p>
                       <Badge className={cn("text-xs font-bold uppercase px-2 py-0.5 rounded-md border-0 shrink-0", ticketStatusColor(ticket.status))}>
                         {ticketStatusLabel(ticket.status)}
                       </Badge>

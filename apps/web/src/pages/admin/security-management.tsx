@@ -52,7 +52,7 @@ function SecurityAuditLogs() {
         <Card className="glass border-0 rounded-3xl overflow-hidden shadow-none">
             <div className="p-8 border-b border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
                 <div className="relative w-full md:w-96 group">
-                    <Search className="absolute start-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                    <Search className="absolute start-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" />
                     <Input placeholder="البحث في سجلات الأمان..." className="h-12 ps-11 rounded-2xl bg-white border-slate-100 focus:ring-blue-500/20" />
                 </div>
                 <div className="flex items-center gap-3">
@@ -112,7 +112,7 @@ function SecurityAuditLogs() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell className="py-4">
-                                    <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 opacity-0 group-hover:opacity-100 transition-all">
+                                    <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all">
                                         <Eye className="h-4 w-4" />
                                     </Button>
                                 </TableCell>
@@ -154,10 +154,10 @@ export default function SecurityManagement() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                    { title: "حالة النظام", value: "آمن", icon: ShieldCheck, color: "text-emerald-600", bg: "bg-emerald-50" },
-                    { title: "ثغرات مكتشفة", value: "٠ ثغرات", icon: ShieldAlert, color: "text-blue-600", bg: "bg-blue-50" },
-                    { title: "هجمات محجوبة", value: "١٢٨ هجمة", icon: AlertTriangle, color: "text-amber-600", bg: "bg-amber-50" },
-                    { title: "الأجهزة النشطة", value: "٤٢ جهاز", icon: Smartphone, color: "text-purple-600", bg: "bg-purple-50" },
+                    { title: "حالة النظام", value: "آمن", icon: ShieldCheck, color: "text-slate-600", bg: "bg-slate-100" },
+                    { title: "ثغرات مكتشفة", value: "٠ ثغرات", icon: ShieldAlert, color: "text-slate-600", bg: "bg-slate-100" },
+                    { title: "هجمات محجوبة", value: "١٢٨ هجمة", icon: AlertTriangle, color: "text-slate-600", bg: "bg-slate-100" },
+                    { title: "الأجهزة النشطة", value: "٤٢ جهاز", icon: Smartphone, color: "text-slate-600", bg: "bg-slate-100" },
                 ].map((stat, i) => (
                     <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none flex items-center gap-4 hover:bg-white hover:shadow-xl transition-all">
                         <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", stat.bg, stat.color)}>
@@ -188,7 +188,7 @@ export default function SecurityManagement() {
                             <div className="space-y-6">
                                 <div className="flex items-center justify-between p-6 bg-white/50 rounded-3xl border border-slate-100 group hover:shadow-xl hover:shadow-blue-500/5 transition-all">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-10 w-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><Terminal className="h-5 w-5" /></div>
+                                        <div className="h-10 w-10 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center"><Terminal className="h-5 w-5" /></div>
                                         <div>
                                             <p className="text-sm font-bold text-slate-900">فرض المصادقة الثنائية</p>
                                             <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">للمشرفين فقط</p>
@@ -215,9 +215,9 @@ export default function SecurityManagement() {
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">تفعيل إجراءات الأمان المشددة</p>
                             </div>
                             <div className="p-8 bg-blue-50 shadow-inner rounded-2xl border border-blue-100 relative overflow-hidden group">
-                                <Zap className="absolute top-0 right-0 h-32 w-32 text-blue-600 opacity-5 -translate-y-8 translate-x-8 group-hover:scale-110 transition-transform duration-500" />
+                                <Zap className="absolute top-0 right-0 h-32 w-32 text-slate-600 opacity-5 -translate-y-8 translate-x-8 group-hover:scale-110 transition-transform duration-500" />
                                 <div className="relative z-10 text-center">
-                                    <div className="h-14 w-14 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/10 mx-auto mb-4 text-blue-600"><ShieldAlert className="h-8 w-8" /></div>
+                                    <div className="h-14 w-14 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-slate-500/10 mx-auto mb-4 text-slate-600"><ShieldAlert className="h-8 w-8" /></div>
                                     <h4 className="text-lg font-bold text-slate-900 mb-2">تفعيل وضع الصيانة</h4>
                                     <p className="text-xs font-bold text-slate-500 max-w-[200px] mx-auto leading-relaxed">منع كافة المستخدمين من دخول المنصة مؤقتاً لأغراض أمنية طارئة.</p>
                                     <Button className="mt-6 h-12 px-8 rounded-2xl premium-gradient text-white border-0 font-bold shadow-lg shadow-blue-500/25">تفعيل الآن</Button>
@@ -234,7 +234,7 @@ export default function SecurityManagement() {
                 <TabsContent value="authentication" className="space-y-4">
                     <Card className="glass border-0 rounded-3xl p-20 text-center bg-slate-50/50 border-2 border-dashed border-border/50 flex flex-col items-center">
                         <div className="h-20 w-20 bg-white rounded-2xl shadow-xl shadow-slate-500/10 flex items-center justify-center text-slate-400 mb-6 group-hover:scale-110 transition-transform">
-                            <Key className="h-10 w-10 text-blue-600 opacity-20" />
+                            <Key className="h-10 w-10 text-slate-600 opacity-20" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 tracking-tight">إعدادات المصادقة</h3>
                         <p className="text-sm font-medium text-slate-500 max-w-xs mx-auto leading-relaxed mt-2">

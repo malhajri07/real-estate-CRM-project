@@ -45,7 +45,7 @@ function WhatsAppTab() {
                 <Card className="glass border-0 rounded-3xl p-8 shadow-none lg:col-span-2">
                     <div className="mb-8 flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <div className="h-16 w-16 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                            <div className="h-16 w-16 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center">
                                 <MessageSquare className="h-8 w-8" />
                             </div>
                             <div>
@@ -62,7 +62,7 @@ function WhatsAppTab() {
                                 <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">معرف الحساب (Account ID)</Label>
                                 <div className="relative group">
                                     <Input value="act_982347239487" readOnly className="h-12 rounded-xl bg-slate-50 border-slate-100 font-mono text-xs" />
-                                    <Button size="icon" variant="ghost" className="absolute left-1 top-1 h-10 w-10 text-slate-400 hover:text-blue-600"><Copy className="h-4 w-4" /></Button>
+                                    <Button size="icon" variant="ghost" className="absolute left-1 top-1 h-10 w-10 text-slate-400 hover:text-slate-600"><Copy className="h-4 w-4" /></Button>
                                 </div>
                             </div>
                             <div className="space-y-2">
@@ -76,8 +76,8 @@ function WhatsAppTab() {
                             <div className="relative group">
                                 <Input type="password" value="••••••••••••••••••••••••••••••" readOnly className="h-12 rounded-xl bg-slate-50 border-slate-100" />
                                 <div className="absolute left-1 top-1 flex gap-1">
-                                    <Button size="icon" variant="ghost" className="h-10 w-10 text-slate-400 hover:text-blue-600"><RefreshCw className="h-4 w-4" /></Button>
-                                    <Button size="icon" variant="ghost" className="h-10 w-10 text-slate-400 hover:text-blue-600"><Copy className="h-4 w-4" /></Button>
+                                    <Button size="icon" variant="ghost" className="h-10 w-10 text-slate-400 hover:text-slate-600"><RefreshCw className="h-4 w-4" /></Button>
+                                    <Button size="icon" variant="ghost" className="h-10 w-10 text-slate-400 hover:text-slate-600"><Copy className="h-4 w-4" /></Button>
                                 </div>
                             </div>
                         </div>
@@ -93,7 +93,7 @@ function WhatsAppTab() {
                     <Card className="glass border-0 rounded-2xl p-8 shadow-none bg-blue-50/30">
                         <div className="mb-6">
                             <h3 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                                <Activity className="h-5 w-5 text-blue-600" />
+                                <Activity className="h-5 w-5 text-slate-600" />
                                 حالة الخدمة
                             </h3>
                         </div>
@@ -116,7 +116,7 @@ function WhatsAppTab() {
                     <Card className="glass border-0 rounded-2xl p-8 shadow-none bg-emerald-50/20">
                         <div className="mb-4">
                             <h3 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                                <CheckCircle2 className="h-5 w-5 text-slate-600" />
                                 قوالب الرسائل
                             </h3>
                             <p className="text-xs text-slate-500 font-medium">إدارة قوالب الرسائل المعتمدة من Meta</p>
@@ -134,7 +134,7 @@ function EmailTab() {
         <div className="space-y-8">
             <Card className="glass border-0 rounded-3xl p-8 shadow-none">
                 <div className="mb-10 flex items-center gap-4">
-                    <div className="h-16 w-16 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                    <div className="h-16 w-16 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center">
                         <Mail className="h-8 w-8" />
                     </div>
                     <div>
@@ -183,7 +183,7 @@ function EmailTab() {
                 </div>
 
                 <div className="mt-10 pt-8 border-t border-slate-100 flex items-center justify-between">
-                    <Button variant="ghost" className="text-blue-600 font-bold hover:bg-blue-50 transition-all">اختبار الاتصال</Button>
+                    <Button variant="ghost" className="text-slate-600 font-bold hover:bg-slate-100 transition-all">اختبار الاتصال</Button>
                     <div className="flex gap-3">
                         <Button variant="outline" className="h-12 px-6 rounded-xl border-border font-bold text-slate-600">إلغاء</Button>
                         <Button className="h-12 px-8 rounded-xl bg-slate-900 text-white font-bold shadow-xl shadow-slate-900/10">حفظ الإعدادات</Button>
@@ -201,25 +201,25 @@ function APITab() {
                 <MetricCard
                     title="طلبات الـ API"
                     subtitle="آخر ٢٤ ساعة"
-                    icon={<Activity className="w-5 h-5 text-blue-600" />}
+                    icon={<Activity className="w-5 h-5 text-slate-600" />}
                     metric={{ today: 4520, last7Days: 4520, last30Days: 4520 }}
                 />
                 <MetricCard
                     title="نسبة النجاح"
                     subtitle="أداء النظام"
-                    icon={<CheckCircle2 className="w-5 h-5 text-emerald-600" />}
+                    icon={<CheckCircle2 className="w-5 h-5 text-slate-600" />}
                     metric={{ today: 99.5, last7Days: 99.5, last30Days: 99.5 }}
                 />
                 <MetricCard
                     title="وقت الاستجابة"
                     subtitle="ملي ثانية"
-                    icon={<Timer className="w-5 h-5 text-purple-600" />}
+                    icon={<Timer className="w-5 h-5 text-slate-600" />}
                     metric={{ today: 124, last7Days: 124, last30Days: 124 }}
                 />
                 <MetricCard
                     title="مفاتيح نشطة"
                     subtitle="أذونات الوصول"
-                    icon={<Lock className="w-5 h-5 text-amber-600" />}
+                    icon={<Lock className="w-5 h-5 text-slate-600" />}
                     metric={{ today: 8, last7Days: 8, last30Days: 8 }}
                 />
             </div>
@@ -263,7 +263,7 @@ function APITab() {
                                         <Badge className="bg-emerald-50 text-emerald-700 border-0 text-xs font-bold">نشط</Badge>
                                     </TableCell>
                                     <TableCell className="py-4">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg outline-none"><Settings className="h-4 w-4 text-slate-300 group-hover:text-blue-600 transition-colors" /></Button>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg outline-none"><Settings className="h-4 w-4 text-slate-300 group-hover:text-slate-600 transition-colors" /></Button>
                                     </TableCell>
                                 </TableRow>
                             ))}

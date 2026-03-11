@@ -303,7 +303,7 @@ export default function UserManagement() {
       sortable: true,
       render: (user) => (
         <div className="flex flex-col py-1">
-          <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+          <span className="font-bold text-slate-900 group-hover:text-slate-700 transition-colors">
             {user.firstName && user.lastName
               ? `${user.firstName} ${user.lastName}`
               : user.name || user.username}
@@ -362,7 +362,7 @@ export default function UserManagement() {
       className: "w-20 text-center",
       render: (user) => (
         <div className="flex items-center justify-center gap-1">
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all" onClick={() => handleOpenEditDialog(user)}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-slate-100 hover:text-slate-700 transition-all" onClick={() => handleOpenEditDialog(user)}>
             <Edit className="h-4 w-4" />
           </Button>
           <Button
@@ -407,28 +407,28 @@ export default function UserManagement() {
         <MetricCard
           title="إجمالي المستخدمين"
           subtitle="مستخدم مسجل"
-          icon={<Users className="w-5 h-5 text-blue-600" />}
+          icon={<Users className="w-5 h-5 text-slate-600" />}
           metric={{ today: users.length, last7Days: users.length, last30Days: users.length }} // Placeholder for actual trend data if available
           loading={isLoadingUsers}
         />
         <MetricCard
           title="المستخدمون النشطون"
           subtitle="حسابات مفعلة"
-          icon={<CheckCircle className="w-5 h-5 text-emerald-600" />}
+          icon={<CheckCircle className="w-5 h-5 text-slate-600" />}
           metric={{ today: activeUsers, last7Days: activeUsers, last30Days: activeUsers }}
           loading={isLoadingUsers}
         />
         <MetricCard
           title="المستخدمون المعلقون"
           subtitle="بانتظار المراجعة"
-          icon={<AlertCircle className="w-5 h-5 text-amber-600" />}
+          icon={<AlertCircle className="w-5 h-5 text-slate-600" />}
           metric={{ today: pendingUsers, last7Days: pendingUsers, last30Days: pendingUsers }}
           loading={isLoadingUsers}
         />
         <MetricCard
           title="إجمالي المنظمات"
           subtitle="منظمة نشطة"
-          icon={<Building2 className="w-5 h-5 text-purple-600" />}
+          icon={<Building2 className="w-5 h-5 text-slate-600" />}
           metric={{ today: totalOrgs, last7Days: totalOrgs, last30Days: totalOrgs }}
           loading={isLoadingUsers}
         />
@@ -555,7 +555,7 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="text-xs font-bold text-slate-500 uppercase tracking-wider">الاسم الأول *</Label>
                   <div className="relative group">
-                    <Users className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                    <Users className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" />
                     <Input
                       id="firstName"
                       value={formState.firstName}
@@ -568,7 +568,7 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="lastName" className="text-xs font-bold text-slate-500 uppercase tracking-wider">الاسم الأخير *</Label>
                   <div className="relative group">
-                    <Users className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                    <Users className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" />
                     <Input
                       id="lastName"
                       value={formState.lastName}
@@ -594,7 +594,7 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-xs font-bold text-slate-500 uppercase tracking-wider">البريد الإلكتروني *</Label>
                   <div className="relative group">
-                    <Building2 className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
+                    <Building2 className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" />
                     <Input
                       id="email"
                       type="email"
@@ -627,7 +627,7 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="username" className="text-xs font-bold text-slate-500 uppercase tracking-wider">اسم المستخدم *</Label>
                   <div className="relative group">
-                    <Shield className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-purple-600 transition-colors" />
+                    <Shield className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" />
                     <Input
                       id="username"
                       value={formState.username}
@@ -660,7 +660,7 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-xs font-bold text-slate-500 uppercase tracking-wider">كلمة المرور *</Label>
                   <div className="relative group">
-                    <Shield className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-red-500 transition-colors" />
+                    <Shield className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" />
                     <Input
                       id="password"
                       type="password"

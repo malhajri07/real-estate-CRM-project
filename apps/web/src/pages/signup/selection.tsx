@@ -103,7 +103,7 @@ export default function SignupSelection() {
                     </div>
 
                     <div className="space-y-2 text-start">
-                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">وسيط مستقل</h3>
+                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-slate-700 transition-colors">وسيط مستقل</h3>
                       <p className="text-slate-500 leading-relaxed">
                         مصمم للأفراد والوسطاء المستقلين. ابدأ رحلتك في السوق العقاري مع أدوات احترافية لإدارة عملائك وعروضك.
                       </p>
@@ -136,7 +136,7 @@ export default function SignupSelection() {
                     </div>
 
                     <div className="space-y-2 text-start">
-                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors">منشأة عقارية</h3>
+                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-slate-700 transition-colors">منشأة عقارية</h3>
                       <p className="text-slate-500 leading-relaxed">
                         حل متكامل للشركات والمكاتب العقارية. إدارة صلاحيات الفريق، متابعة الأداء، وتقارير تفصيلية متقدمة.
                       </p>
