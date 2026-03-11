@@ -47,6 +47,13 @@ export async function setupVite(app: Express, server: Server) {
     configFile: false,
     customLogger: {
       ...viteLogger,
+      info: (msg, options) => {
+        // Suppress noisy HMR/file-update logs; keep other info (e.g. server ready)
+        const s = String(msg ?? "");
+        if (s.includes("hmr update") || s.includes("page reload")) return;
+        viteLogger.info(msg, options);
+      },
+      clearScreen: () => {},
       error: (msg, options) => {
         viteLogger.error(msg, options);
         process.exit(1);
