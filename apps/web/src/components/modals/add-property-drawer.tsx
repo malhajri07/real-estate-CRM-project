@@ -10,8 +10,7 @@
  * - Property submission
  * 
  * Related Files:
- * - apps/web/src/components/modals/add-property-modal.tsx - Modal variant
- * - apps/web/src/pages/properties.tsx - Properties page uses this
+ * - apps/web/src/pages/platform/properties/index.tsx - Properties page uses this
  */
 
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { insertPropertySchema, type InsertProperty } from "@shared/types";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { getAuthHeaders } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Check, ChevronsUpDown, Home, MapPin, Upload, X, Image as ImageIcon } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,9 @@ interface AddPropertyDrawerProps {
 
 export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDrawerProps) {
   const { toast } = useToast();
+  const { dir } = useLanguage();
+  // Left side: LTR → side="left" (start), RTL → side="right" (end)
+  const side = dir === "rtl" ? "right" : "left";
   const queryClient = useQueryClient();
   const [cityOpen, setCityOpen] = useState(false);
   const [districtOpen, setDistrictOpen] = useState(false);
@@ -155,6 +159,8 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
 
       const response = await fetch('/api/listings', {
         method: 'POST',
+        headers: getAuthHeaders(),
+        credentials: 'include',
         body: formData,
       });
 
@@ -197,7 +203,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
       onOpenChange={onOpenChange}
       title="إضافة عقار جديد"
       description="املأ المعلومات التالية لإضافة عقار جديد إلى النظام"
-      side="left"
+      side={side}
     >
       <div className="p-6 pb-20">
         <Form {...form}>

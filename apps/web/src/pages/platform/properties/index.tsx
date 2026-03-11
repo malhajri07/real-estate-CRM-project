@@ -22,7 +22,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import EmptyState from "@/components/ui/empty-state";
-import AddPropertyModal from "@/components/modals/add-property-modal";
+import AddPropertyDrawer from "@/components/modals/add-property-drawer";
 import { apiDelete } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Property } from "@shared/types";
@@ -38,7 +38,7 @@ import PropertiesTable from "./PropertiesTable";
 
 export default function Properties() {
   const { t, dir } = useLanguage();
-  const [addPropertyModalOpen, setAddPropertyModalOpen] = useState(false);
+  const [addPropertyDrawerOpen, setAddPropertyDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
@@ -257,7 +257,7 @@ export default function Properties() {
                 <SlidersHorizontal size={16} className="me-2" />
                 الفلاتر
               </Button>
-              <Button onClick={() => setAddPropertyModalOpen(true)}>
+              <Button onClick={() => setAddPropertyDrawerOpen(true)}>
                 <Plus className="me-2" size={16} />
                 إضافة عقار
               </Button>
@@ -294,7 +294,7 @@ export default function Properties() {
               title={searchQuery ? "لا توجد عقارات تطابق بحثك" : "لا توجد عقارات"}
               description={searchQuery ? undefined : "أضف أول عقار للبدء."}
               action={!searchQuery ? (
-                <Button onClick={() => setAddPropertyModalOpen(true)}>
+                <Button onClick={() => setAddPropertyDrawerOpen(true)}>
                   <Plus className="me-2" size={16} />
                   إضافة أول عقار
                 </Button>
@@ -398,7 +398,7 @@ export default function Properties() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AddPropertyModal open={addPropertyModalOpen} onOpenChange={setAddPropertyModalOpen} />
+      <AddPropertyDrawer open={addPropertyDrawerOpen} onOpenChange={setAddPropertyDrawerOpen} />
     </div>
   );
 }
