@@ -253,7 +253,7 @@ export default function SystemSettings() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="p-6 bg-slate-50/50 rounded-3xl border border-slate-100 space-y-4 group hover:bg-white hover:shadow-xl transition-all">
-                                <div className="h-12 w-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 group-hover:text-blue-600 transition-colors"><RefreshCcw className="h-6 w-6" /></div>
+                                <div className="h-12 w-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400 group-hover:text-slate-600 transition-colors"><RefreshCcw className="h-6 w-6" /></div>
                                 <div>
                                     <h4 className="text-sm font-bold text-slate-900">مسح الذاكرة المؤقتة</h4>
                                     <p className="text-xs font-medium text-slate-500 mt-1">تحديث كافة البيانات المخزنة مؤقتاً في Redis</p>

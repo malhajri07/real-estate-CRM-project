@@ -83,7 +83,7 @@ export const ContactSection = ({ content, iconMap }: ContactSectionProps) => {
                                         </div>
 
                                         {/* Label */}
-                                        <h3 className="text-xl font-black text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors duration-300">
+                                        <h3 className="text-xl font-black text-slate-900 mb-4 group-hover:text-slate-700 transition-colors duration-300">
                                             {info.label}
                                         </h3>
 

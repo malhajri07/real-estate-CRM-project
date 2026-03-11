@@ -821,6 +821,7 @@ model users {
   deals                    deals[]
   community_posts          community_posts[]
   community_comments       community_comments[]
+  forum_channels          forum_channels[]
 
   @@index([approvalStatus])
   @@index([email])
@@ -1847,22 +1848,54 @@ model daily_system_stats {
   @@index([date])
 }
 
+model forum_channels {
+  id          String   @id @default(uuid())
+  nameAr      String   @db.VarChar(100)
+  nameEn      String?  @db.VarChar(100)
+  description String?  @db.Text
+  createdById String
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   users    @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  posts       community_posts[]
+
+  @@index([createdById])
+  @@index([isPublic])
+}
+
 model community_posts {
   id        String   @id @default(uuid())
   authorId  String
+  channelId String?
   content   String   @db.Text
   tags      Json?    // Array of strings e.g. ["Riyadh", "Villa"]
   likes     Int      @default(0)
   isPinned  Boolean  @default(false)
-  type      String   @default("DISCUSSION") // DISCUSSION, DEAL, ALERT
+  type      String   @default("DISCUSSION") // DISCUSSION, NEWS, ANNOUNCEMENT, DEAL, ALERT
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author    users    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  channel   forum_channels? @relation(fields: [channelId], references: [id], onDelete: SetNull)
   comments  community_comments[]
+  media     community_post_media[]
 
   @@index([authorId])
+  @@index([channelId])
   @@index([type])
   @@index([createdAt])
+}
+
+model community_post_media {
+  id        String   @id @default(uuid())
+  postId    String
+  url       String   @db.Text
+  type      String   @db.VarChar(20) // IMAGE, VIDEO
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  post      community_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
 }
 
 model community_comments {

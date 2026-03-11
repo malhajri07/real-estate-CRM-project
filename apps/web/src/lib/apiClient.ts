@@ -5,7 +5,8 @@
  * raw fetch or scattered apiRequest calls.
  */
 
-const getAuthHeaders = (): Record<string, string> => {
+/** Auth headers for API requests (exported for FormData/multipart use) */
+export const getAuthHeaders = (): Record<string, string> => {
   const token = localStorage.getItem("auth_token");
   const headers: Record<string, string> = {};
   if (token) {

@@ -12,7 +12,6 @@
  * Route: /home/platform/post-listing or /post-listing
  * 
  * Related Files:
- * - apps/web/src/components/modals/add-property-modal.tsx - Add property modal
  * - apps/api/routes/listings.ts - Listing API routes
  */
 

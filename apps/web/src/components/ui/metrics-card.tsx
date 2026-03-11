@@ -23,7 +23,7 @@ interface MetricsCardProps {
   change?: string;
   changeType?: "positive" | "negative" | "neutral";
   icon: LucideIcon;
-  iconColor: string;
+  iconColor?: string; // deprecated - use unified slate styling
 }
 
 export default function MetricsCard({ 
@@ -31,8 +31,7 @@ export default function MetricsCard({
   value, 
   change, 
   changeType = "neutral", 
-  icon: Icon, 
-  iconColor 
+  icon: Icon 
 }: MetricsCardProps) {
   const changeColorMap = {
     positive: "text-emerald-600",
@@ -59,7 +58,7 @@ export default function MetricsCard({
             </p>
           )}
         </div>
-        <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600", iconColor)}>
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
           <Icon size={24} />
         </div>
       </div>

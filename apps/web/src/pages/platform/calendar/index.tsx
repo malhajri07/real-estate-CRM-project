@@ -227,7 +227,7 @@ export default function AppointmentsManager() {
 
                                             {appointment.status === 'SCHEDULED' && (
                                                 <div className="flex space-x-1 rtl:space-x-reverse">
-                                                    <Button size="sm" variant="outline" className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                                    <Button size="sm" variant="outline" className="text-slate-600 hover:text-slate-700 hover:bg-slate-100"
                                                         onClick={() => updateStatusMutation.mutate({ id: appointment.id, status: 'COMPLETED' })}
                                                     >
                                                         <CheckCircle className="w-4 h-4" />

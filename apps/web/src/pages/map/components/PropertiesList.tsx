@@ -209,7 +209,7 @@ export function PropertiesList({
                       className={cn(
                         "h-8 w-8 rounded-md transition-colors duration-150 relative z-50",
                         isFavourite 
-                          ? "text-red-600 hover:text-red-800 hover:bg-red-50" 
+                          ? "text-slate-600 hover:text-slate-700 hover:bg-slate-100" 
                           : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                       )}
                       onClick={(e) => {
@@ -235,7 +235,7 @@ export function PropertiesList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-md text-purple-600 transition-colors duration-150 hover:text-purple-800 hover:bg-purple-50 relative z-50"
+                      className="h-8 w-8 rounded-md text-slate-600 transition-colors duration-150 hover:text-slate-700 hover:bg-slate-100 relative z-50"
                       onClick={(e) => {
                         e.stopPropagation();
                         shareProperty(property, 'whatsapp');

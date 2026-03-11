@@ -77,12 +77,12 @@ export const SolutionsSection = ({ content, iconMap }: SolutionsSectionProps) =>
 
                                 <div className="relative z-10">
                                     {/* Icon */}
-                                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-100 to-blue-100 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
+                                    <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-6 text-slate-600 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
                                         <Icon className="w-8 h-8" />
                                     </div>
 
                                     {/* Title */}
-                                    <h3 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors duration-300">
+                                    <h3 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-slate-700 transition-colors duration-300">
                                         {solution.title}
                                     </h3>
                                     
@@ -105,7 +105,7 @@ export const SolutionsSection = ({ content, iconMap }: SolutionsSectionProps) =>
                                                         viewport={{ once: true }}
                                                         className="flex items-start gap-3 text-slate-700"
                                                     >
-                                                        <CheckCircle2 className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5" />
+                                                        <CheckCircle2 className="w-6 h-6 text-slate-600 shrink-0 mt-0.5" />
                                                         <span className="leading-relaxed" style={{ lineHeight: '1.8' }}>{text}</span>
                                                     </motion.li>
                                                 )

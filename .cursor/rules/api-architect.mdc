@@ -1,0 +1,32 @@
+---
+description: API standards — i18n, validation, security, error handling
+globs: apps/api/**/*.{ts,js}
+alwaysApply: false
+---
+
+# API Architect Standards
+
+## Internationalization
+- `Accept-Language` header mandatory. Locale resolved per request.
+- Fallback: `ar` → `en`. No hardcoded strings in controllers.
+- API is single source of truth for messages. Use `i18n/` for errors.
+
+## Validation
+- Zod schemas for all inputs. UTF-8 safe, Arabic-aware validation.
+- Validation errors returned in request language.
+
+## Error Responses
+```json
+{ "error_code": "INVALID_INPUT", "message": "البيانات المدخلة غير صحيحة", "locale": "ar" }
+```
+
+## Security
+- JWT auth. Localized auth/authorization errors.
+- Rate limit and abuse messages localized.
+
+## Structure
+- Controllers → services → validators. No controllers importing raw translation files.
+- Centralized auth middleware. No inline getAuth/decodeAuth in routes.
+
+## Change Logging
+- Log API changes in `api-change-log.md`: What, Why, Impact, Notes.

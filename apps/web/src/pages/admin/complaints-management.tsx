@@ -83,28 +83,28 @@ function ComplaintsSummaryCards() {
             <MetricCard
                 title="إجمالي التذاكر"
                 subtitle="دعم فني وشكاوي"
-                icon={<LifeBuoy className="w-5 h-5 text-blue-600" />}
+                icon={<LifeBuoy className="w-5 h-5 text-slate-600" />}
                 metric={{ today: total, last7Days: total, last30Days: total }}
                 loading={isLoading}
             />
             <MetricCard
                 title="قيد الانتظار"
                 subtitle="تحتاج تدخل سريع"
-                icon={<ShieldAlert className="w-5 h-5 text-amber-600" />}
+                icon={<ShieldAlert className="w-5 h-5 text-slate-600" />}
                 metric={{ today: pending, last7Days: pending, last30Days: pending }}
                 loading={isLoading}
             />
             <MetricCard
                 title="تذاكر محلولة"
                 subtitle="تمت المعالجة"
-                icon={<CheckCircle2 className="w-5 h-5 text-emerald-600" />}
+                icon={<CheckCircle2 className="w-5 h-5 text-slate-600" />}
                 metric={{ today: resolved, last7Days: resolved, last30Days: resolved }}
                 loading={isLoading}
             />
             <MetricCard
                 title="وقت الاستجابة"
                 subtitle="متوسط السرعة"
-                icon={<Timer className="w-5 h-5 text-purple-600" />}
+                icon={<Timer className="w-5 h-5 text-slate-600" />}
                 metric={{ today: 24, last7Days: 18, last30Days: 22 }}
                 loading={isLoading}
             />
@@ -138,7 +138,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="relative group w-full lg:w-72">
-                        <Search className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                        <Search className="absolute right-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-slate-600 transition-colors" />
                         <Input placeholder="بحث برقم التذكرة..." className="pe-10 h-10 rounded-xl bg-white/50 border-slate-100 focus:ring-blue-500/20" />
                     </div>
                     <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl border-slate-100 text-slate-500 hover:bg-slate-50 transition-all"><Filter className="h-4 w-4" /></Button>
@@ -173,7 +173,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex flex-col">
-                                            <span className="font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{ticket.subject}</span>
+                                            <span className="font-bold text-slate-700 group-hover:text-slate-900 transition-colors">{ticket.subject}</span>
                                             <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{ticket.channel}</span>
                                         </div>
                                     </TableCell>
@@ -203,7 +203,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                                     <TableCell>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 p-0 rounded-lg hover:bg-blue-50 hover:text-blue-600 outline-none"><MoreHorizontal className="h-4 w-4" /></Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 p-0 rounded-lg hover:bg-slate-100 hover:text-slate-600 outline-none"><MoreHorizontal className="h-4 w-4" /></Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 shadow-2xl">
                                                 <DropdownMenuLabel className="text-xs font-bold uppercase text-slate-400 tracking-widest pb-1">الإجراءات</DropdownMenuLabel>
@@ -243,14 +243,14 @@ function CategoriesTab() {
                         <div key={cat.id} className="flex items-center justify-between p-4 bg-white/50 border border-slate-100 rounded-2xl hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group">
                             <div className="flex items-center gap-4">
                                 <div className={cn("h-3 w-3 rounded-full shadow-sm", cat.active ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-slate-300')} />
-                                <span className="font-bold text-slate-700 group-hover:text-blue-600 transition-colors">{cat.name}</span>
+                                <span className="font-bold text-slate-700 group-hover:text-slate-700 transition-colors">{cat.name}</span>
                             </div>
                             <div className="flex items-center gap-4">
                                 <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-0 text-xs font-bold px-2.5 py-1 rounded-lg">
                                     {cat.ticketCount ?? 0} تذاكر
                                 </Badge>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-slate-50 transition-all outline-none">
-                                    <Settings className="h-4 w-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                                    <Settings className="h-4 w-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
                                 </Button>
                             </div>
                         </div>
@@ -258,7 +258,7 @@ function CategoriesTab() {
                     {categories?.length === 0 && (
                         <div className="text-center py-12 text-slate-400 font-medium italic">لا توجد فئات حالياً</div>
                     )}
-                    <Button variant="outline" className="w-full h-12 border-dashed border-border mt-6 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 hover:text-blue-600 hover:border-blue-100 transition-all">
+                    <Button variant="outline" className="w-full h-12 border-dashed border-border mt-6 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-200 transition-all">
                         <Plus className="h-4 w-4 me-2" />
                         إضافة فئة جديدة
                     </Button>
@@ -316,7 +316,7 @@ function TemplatesTab() {
                                 </Badge>
                             </div>
                             <div className="space-y-3">
-                                <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">{tpl.title}</h3>
+                                <h3 className="text-lg font-bold text-slate-900 group-hover:text-slate-700 transition-colors truncate">{tpl.title}</h3>
                                 <p className="text-sm font-medium text-slate-500 line-clamp-3 leading-relaxed">
                                     {tpl.content}
                                 </p>

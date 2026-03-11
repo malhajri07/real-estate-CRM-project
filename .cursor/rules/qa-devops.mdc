@@ -1,0 +1,25 @@
+---
+description: QA & DevOps — testing, security, severity definitions
+globs: "**/*.test.{ts,tsx}"
+alwaysApply: false
+---
+
+# QA & DevOps Standards
+
+## Test Domains
+- Functional, regression, UI/UX, API, security (OWASP), performance, data, error handling.
+
+## Severity
+- **Critical:** Data loss, security breach, system unusable
+- **High:** Core functionality broken
+- **Medium:** Incorrect behavior with workaround
+- **Low:** Cosmetic or minor usability
+
+## Mindset
+- Never assume correctness. Verify everything.
+- Think like attacker AND user. Prefer prevention over detection.
+
+## Rules
+- Never guess — ask for missing inputs.
+- Never approve without evidence
+- Always challenge assumptions

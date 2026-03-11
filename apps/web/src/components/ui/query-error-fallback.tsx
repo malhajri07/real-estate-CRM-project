@@ -22,7 +22,7 @@ export function QueryErrorFallback({
     <div
       className={`flex flex-col items-center justify-center py-16 px-4 text-center min-h-[200px] ${className ?? ""}`}
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-600 mb-4">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-600 mb-4">
         <AlertTriangle className="h-6 w-6" />
       </div>
       <p className="text-sm font-medium text-slate-700 mb-2">{message}</p>

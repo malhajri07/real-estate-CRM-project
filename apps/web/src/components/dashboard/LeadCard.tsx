@@ -59,7 +59,7 @@ export function LeadCard({
               {/* Name and Status */}
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-bold text-slate-900 mb-1 group-hover:text-emerald-600 transition-colors" style={{ lineHeight: '1.4' }}>
+                  <h3 className="text-base font-bold text-slate-900 mb-1 group-hover:text-slate-700 transition-colors" style={{ lineHeight: '1.4' }}>
                     {lead.firstName} {lead.lastName}
                   </h3>
                   <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
@@ -144,7 +144,7 @@ export function LeadCard({
 
           {/* Hover Arrow Indicator */}
           <div className="absolute end-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <ArrowLeft className="h-5 w-5 text-emerald-600" />
+            <ArrowLeft className="h-5 w-5 text-slate-600" />
           </div>
         </div>
       </Link>

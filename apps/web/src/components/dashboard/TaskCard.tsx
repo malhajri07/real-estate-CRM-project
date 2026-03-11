@@ -45,14 +45,7 @@ export function TaskCard({
     >
       <div className="relative z-10 flex items-start gap-4">
         {/* Checkbox/Status Icon */}
-        <div className={cn(
-          "flex-shrink-0 h-12 w-12 rounded-xl flex items-center justify-center bg-slate-50 transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-110",
-          completed
-            ? "text-emerald-600"
-            : isOverdue
-            ? "text-amber-600"
-            : "text-slate-600"
-        )}>
+        <div className="flex-shrink-0 h-12 w-12 rounded-xl flex items-center justify-center bg-slate-100 text-slate-600 transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-110">
           {completed ? (
             <Check className="h-6 w-6" />
           ) : isOverdue ? (
@@ -65,7 +58,7 @@ export function TaskCard({
         {/* Content */}
         <div className="flex-1 min-w-0 pt-1">
           <h3 className={cn(
-            "text-sm font-bold text-slate-900 mb-1 transition-colors group-hover:text-emerald-600",
+            "text-sm font-bold text-slate-900 mb-1 transition-colors group-hover:text-slate-700",
             completed && "line-through text-slate-500"
           )} style={{ lineHeight: '1.6' }}>
             {activity.title}

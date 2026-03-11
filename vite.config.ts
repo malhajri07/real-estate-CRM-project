@@ -73,12 +73,6 @@ const adminManualChunkGroups: Array<{ name: string; patterns: string[] }> = [
     ],
   },
   {
-    name: "admin-rbac-dashboard",
-    patterns: [
-      "/apps/web/src/pages/admin/dashboard",
-    ],
-  },
-  {
     name: "admin-rbac-login",
     patterns: [
       "/apps/web/src/pages/auth/login",

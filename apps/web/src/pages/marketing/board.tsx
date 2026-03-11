@@ -264,7 +264,7 @@ export default function MarketingRequestsBoardPage() {
           {selectedRequest ? (
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-slate-700">
-                <Sparkles className="w-4 h-4 text-emerald-600" />
+                <Sparkles className="w-4 h-4 text-slate-600" />
                 <h3 className="text-base font-semibold">تفاصيل الطلب</h3>
               </div>
               <div className="space-y-3 text-sm">
