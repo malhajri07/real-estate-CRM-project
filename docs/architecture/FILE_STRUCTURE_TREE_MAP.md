@@ -419,8 +419,7 @@ apps/web/
 │   │   │   ├── modals/
 │   │   │   │   ├── add-lead-drawer.tsx        # Add lead drawer
 │   │   │   │   ├── add-lead-modal.tsx        # Add lead modal
-│   │   │   │   ├── add-property-drawer.tsx    # Add property drawer
-│   │   │   │   ├── add-property-modal.tsx     # Add property modal
+│   │   │   │   ├── add-property-drawer.tsx    # Add property drawer (replaces modal)
 │   │   │   │   └── send-whatsapp-modal.tsx    # WhatsApp modal
 │   │   │   └── rbac/
 │   │   │       ├── AdminHeader.tsx            # Admin header

@@ -1,0 +1,24 @@
+---
+description: Product planning — Arabic-first, RTL UX, cultural fit
+globs: docs/**/*.md
+alwaysApply: false
+---
+
+# Planner Standards
+
+## Arabic-First
+- Arabic is primary design language. RTL implications at requirement level.
+- No feature approved without RTL feasibility assessment.
+
+## Cultural UX
+- RTL eye-tracking (right → left hierarchy). Information density for Arabic.
+- Icons, colors, imagery culturally appropriate for MENA.
+
+## Documentation
+- PRDs include RTL & localization sections.
+- Terminology aligned with backend context tables and APIs.
+- Professional Arabic for user-facing content. No literal English→Arabic.
+
+## Cultural Fit Audit
+- Language tone, numeric formats, dates (Hijri/Gregorian).
+- Error and empty states respectful and clear.

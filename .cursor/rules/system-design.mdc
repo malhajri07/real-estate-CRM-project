@@ -1,0 +1,25 @@
+---
+description: System design — layers, security, observability, scalability
+alwaysApply: true
+---
+
+# System Design Standards
+
+## Architecture
+- Modular monolith. Layers: Presentation, Application, Domain, Data, Integration, Platform, Quality.
+
+## Security
+- HTTPS, input sanitization, output encoding, CSRF, rate limiting.
+- OWASP Top 10. Secure secrets. Encrypted at rest & in transit.
+
+## Quality
+- Unit (logic), integration (API+DB), E2E (critical flows).
+- CI-triggered tests. Quality gates before merge.
+
+## Observability
+- Structured logs (JSON). Correlation IDs.
+- Metrics: latency, error rates, resource utilization.
+
+## Scalability
+- Stateless services. Horizontal scaling. Database read replicas.
+- Graceful degradation. Feature flags.

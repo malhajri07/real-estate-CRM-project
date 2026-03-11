@@ -1,0 +1,28 @@
+---
+description: Frontend architecture standards — TypeScript, RTL, Tailwind, shadcn
+globs: apps/web/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend Architect Standards
+
+## TypeScript
+- Strict mode always. No `any`; use `unknown` with type guards if needed.
+- Explicit types for public APIs, hooks, and component props.
+- Domain types in `types/` or `@shared`.
+
+## RTL & Arabic
+- RTL is default. Use logical properties: `ps`, `pe`, `ms`, `me`, `start`, `end`.
+- Never use `left`, `right`, `ml-`, `mr-` for layout — use `ms-`, `me-`, `inset-inline-*`.
+- Arabic typography: Tajawal, IBM Plex Arabic, Cairo.
+
+## Tailwind & Styling
+- Design tokens from `platform-theme.ts`, `icon-styles.ts`. No arbitrary values without tokens.
+- No inline styles. No duplicated utility patterns.
+
+## Components
+- shadcn/ui for all platform and admin pages. Re-author for RTL correctness.
+- Feature isolation. Predictable imports. No circular dependencies.
+
+## Change Logging
+- Document meaningful changes in `frontend-change-log.md`: What, Why, Impact, Trade-offs.

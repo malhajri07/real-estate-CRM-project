@@ -4,7 +4,41 @@
 
 ### Recent Completed Work
 
-1. **Customer Pool Page** (Completed - Feb 8, 2026)
+1. **Ultra Audit & Enhancement** (Completed - Mar 2025)
+   - Comprehensive audit: structure, frontend, backend, performance, quality
+   - Design doc: docs/plans/2025-03-07-ultra-audit-enhancement-design.md
+   - Implementation plan: docs/plans/2025-03-07-ultra-audit-enhancement-plan.md (5 phases, 15+ tasks)
+   - Cursor rules from agent skills: frontend-architect, database-engineer, api-architect, planner, qa-devops, system-design
+   - Findings: Critical (test script, ESLint), High (any usage, property types), Medium (Vite chunks, RTL, images, auth), Low (features/, dep-cruiser)
+
+2. **Icon Color Unification Phase 2** (Completed - Mar 2025)
+   - Full audit: unified all icon colors and hovers to slate (text-slate-600, hover:text-slate-700)
+   - Admin: MetricCard hover, icon buttons (analytics, notifications, billing, security, complaints, user-management, features, moderation, system-settings)
+   - Platform: PreferencesSection, calendar, map, PropertiesList, LeadCard
+   - Landing: FeatureGrid, SolutionsSection; marketing board
+   - Auth/signup: LoginForm, corporate Upload icons
+   - Misc: query-error-fallback, security-management, features-management, integrations-management, dashboard, revenue-management
+   - Added ICON_HOVER to lib/icon-styles.ts
+
+2. **Icon Unification** (Completed - Mar 2025)
+   - Unified all icons: one color (text-slate-600), one style (Lucide outline), one library (lucide-react)
+   - Replaced emoji icons (🏠 🏆 💰 👥) with Lucide (Home, Trophy, Wallet, Users) in admin dashboard
+   - Removed react-icons dependency
+   - Added lib/icon-styles.ts (ICON_CONTAINER, ICON_SIZE, ICON_COLOR)
+   - Updated 15+ admin pages, platform reports, landing (FeatureGrid, SolutionsSection), TaskCard
+   - MetricsCard: removed iconColor prop, uses bg-slate-100 text-slate-600
+
+2. **Update Memory Bank Rule** (Completed - Mar 2025)
+   - Created `.cursor/rules/update-memory-bank.mdc` — always apply rule
+   - Instructs AI to update memory bank (activeContext, systemPatterns, techContext, etc.) after any code change
+   - Skip for trivial edits (typos, formatting only)
+
+2. **apiRequest → apiClient Migration** (Completed - Mar 2025)
+   - Migrated moderation, billingAdmin, rbacAdmin to apiGet/apiPost/apiPut/apiDelete
+   - Deprecated apiRequest in queryClient.ts; updated ARCHITECTURE.md and REBUILD_PLAN.md
+   - Fixed forum/pool type safety (PoolSearchResponse, apiGet<{ data?: unknown[] }>)
+
+3. **Customer Pool Page** (Completed - Feb 8, 2026)
    - Pool at `/home/platform/pool` shows customer requests (`properties_seeker`) + buyer requests, sorted by latest first
    - Table layout: Type, City, Region, Budget, Bedrooms, Bathrooms, Living Rooms, Notes, Source, Date, Actions (ID column removed)
    - Send SMS for customer requests (Twilio: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER)

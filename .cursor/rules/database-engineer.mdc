@@ -1,0 +1,26 @@
+---
+description: Database standards — Prisma, Unicode, Arabic search, indexing
+globs: "**/*.prisma"
+alwaysApply: false
+---
+
+# Database Engineer Standards
+
+## Prisma & PostgreSQL
+- PostgreSQL encoding: UTF8. Locale explicit (LC_COLLATE, LC_CTYPE).
+- Prisma models: PascalCase. Tables: snake_case. Columns: snake_case.
+
+## Unicode & Arabic
+- All text fields UTF-8 safe. No silent truncation.
+- Arabic collation explicit for critical text. ICU collations preferred.
+
+## Search
+- Normalized Arabic fields for search (tashkeel removal, alef/ya normalization).
+- GIN indexes for text search. Functional indexes for normalized columns.
+
+## Context & Seeds
+- Context data via Prisma seed scripts. Idempotent upserts.
+- No manual production inserts. No untracked SQL.
+
+## Change Logging
+- Log schema/index changes in `database-change-log.md`: What, Why, Impact, Notes.
