@@ -87,6 +87,8 @@ import auditLogsRoutes from "./routes/audit-logs";
 import knowledgeBaseRoutes from "./routes/knowledge-base";
 import { JWT_SECRET as getJwtSecret } from "./config/env";
 import { localeMiddleware } from "./src/middleware/locale";
+import { requireOrg, injectOrgFilter } from "./src/middleware/org-isolation.middleware";
+import { authenticateToken } from "./src/middleware/auth.middleware";
 
 // Force server restart for dashboard routes catch
 
@@ -350,8 +352,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   /**
    * Leads Routes - /api/leads/*
+   * Org-scoped: requires authentication + organization context
    */
-  app.use("/api/leads", leadsRoutes);
+  app.use("/api/leads", authenticateToken, requireOrg, injectOrgFilter, leadsRoutes);
 
   /**
    * Data Population Routes - /api/*
@@ -367,13 +370,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   /**
    * Deals Routes - /api/deals/*
+   * Org-scoped: requires authentication + organization context
    */
-  app.use("/api/deals", dealsRoutes);
+  app.use("/api/deals", authenticateToken, requireOrg, injectOrgFilter, dealsRoutes);
 
   /**
    * Activities Routes - /api/activities/*
+   * Org-scoped: requires authentication + organization context
    */
-  app.use("/api/activities", activitiesRoutes);
+  app.use("/api/activities", authenticateToken, requireOrg, injectOrgFilter, activitiesRoutes);
 
   /**
    * Messages Routes - /api/messages/*
@@ -392,8 +397,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   /**
    * CSV Routes - /api/csv/*
+   * Org-scoped: export/import requires org context
    */
-  app.use("/api/csv", csvRoutes);
+  app.use("/api/csv", authenticateToken, requireOrg, csvRoutes);
 
   /**
    * Billing Routes - /api/billing/*

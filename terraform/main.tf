@@ -7,6 +7,13 @@ terraform {
       version = "~> 4.0"
     }
   }
+
+  # Remote state stored in GCS — bucket must be created before `terraform init`
+  # Override at init time: terraform init -backend-config="bucket=<YOUR_BUCKET>"
+  backend "gcs" {
+    bucket = "REPLACE_WITH_YOUR_TF_STATE_BUCKET"
+    prefix = "terraform/state/real-estate-crm"
+  }
 }
 
 # Configure the Google Cloud Provider

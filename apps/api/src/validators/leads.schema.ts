@@ -1,11 +1,13 @@
 import { z } from "zod";
 
+const saudiPhoneRegex = /^(\+?966|0)?5[0-9]{8}$/;
+
 export const leadSchemas = {
     create: z.object({
         firstName: z.string().min(1),
         lastName: z.string().min(1),
         email: z.union([z.string().email(), z.literal("")]).optional().transform((value) => (value ? value : undefined)),
-        phone: z.string().min(1).optional(),
+        phone: z.string().regex(saudiPhoneRegex, 'Phone must be a valid Saudi mobile number').optional(),
         status: z.string().optional(),
         leadSource: z.string().optional(),
         interestType: z.string().optional(),
@@ -17,7 +19,7 @@ export const leadSchemas = {
         firstName: z.string().min(1).optional(),
         lastName: z.string().min(1).optional(),
         email: z.union([z.string().email(), z.literal("")]).optional().transform((value) => (value ? value : undefined)),
-        phone: z.string().min(1).optional(),
+        phone: z.string().regex(saudiPhoneRegex, 'Phone must be a valid Saudi mobile number').optional(),
         status: z.string().optional(),
         leadSource: z.string().optional(),
         interestType: z.string().optional(),

@@ -30,6 +30,7 @@ import { normalizeSaudiPhone } from '../utils/phone';
 import { requireRole, isAgent, isWebsiteAdmin, isCorpOwner, canClaimBuyerRequest, canReleaseClaim, maskContact, CLAIM_RATE_LIMITS, UserRole } from '../rbac';
 import { authenticateToken } from '../auth';
 import twilio from 'twilio';
+import { logger } from '../logger';
 
 const router = express.Router();
 
@@ -69,7 +70,7 @@ router.get('/health', authenticateToken, async (_req, res) => {
     ]);
     res.json({ ok: true, propertiesSeekerCount: seekerCount, buyerRequestsCount: buyerCount });
   } catch (err) {
-    console.error('Pool health check error:', err);
+    logger.error({ err }, 'Pool health check error');
     res.status(500).json({ ok: false, error: String((err as Error).message) });
   }
 });
@@ -149,7 +150,7 @@ router.get('/search', authenticateToken, async (req, res) => {
         createdBy: null
       }));
     } catch (err) {
-      console.error('Pool: public.properties_seeker query failed:', err);
+      logger.error({ err }, 'Pool: properties_seeker query failed');
     }
 
     // 2. Buyer requests (buyer_requests)
@@ -209,7 +210,7 @@ router.get('/search', authenticateToken, async (req, res) => {
       };
     });
     } catch (err) {
-      console.error('Pool: buyer_requests query failed:', err);
+      logger.error({ err }, 'Pool: buyer_requests query failed');
     }
 
     // Merge and sort by date – show most recent requests first
@@ -236,7 +237,7 @@ router.get('/search', authenticateToken, async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ message: 'Invalid query parameters', errors: error.errors });
     }
-    console.error('Search buyer requests error:', error);
+    logger.error({ err: error }, 'Search buyer requests error');
     res.status(500).json({ message: 'Failed to search buyer requests' });
   }
 });
@@ -305,7 +306,7 @@ router.post('/customer-requests/:id/send-sms', authenticateToken, async (req, re
     }
     // Log full error in development for debugging
     if (process.env.NODE_ENV === 'development') {
-      console.error('[Send SMS] Full error:', {
+      logger.error({
         message: error?.message,
         code: error?.code,
         status: error?.status,
@@ -313,7 +314,7 @@ router.post('/customer-requests/:id/send-sms', authenticateToken, async (req, re
         name: error?.name
       });
     } else {
-      console.error('Send SMS error:', error?.message || error);
+      logger.error({ err: error }, 'Send SMS error');
     }
     let userMessage = 'Failed to send SMS.';
     try {
@@ -417,7 +418,7 @@ router.post('/customer-requests/:id/claim', authenticateToken, async (req, res) 
     if (error instanceof z.ZodError) {
       return res.status(400).json({ message: 'Invalid input', errors: error.errors });
     }
-    console.error('Claim customer request error:', error);
+    logger.error({ err: error }, 'Claim customer request error');
     res.status(500).json({ message: 'Failed to claim customer request' });
   }
 });
@@ -550,7 +551,7 @@ router.post('/:id/claim', authenticateToken, async (req, res) => {
       });
     }
     
-    console.error('Claim buyer request error:', error);
+    logger.error({ err: error }, 'Claim buyer request error');
     res.status(500).json({ message: 'Failed to claim buyer request' });
   }
 });
@@ -618,7 +619,7 @@ router.post('/:id/release', authenticateToken, async (req, res) => {
       });
     }
     
-    console.error('Release claim error:', error);
+    logger.error({ err: error }, 'Release claim error');
     res.status(500).json({ message: 'Failed to release claim' });
   }
 });

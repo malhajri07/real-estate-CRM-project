@@ -24,10 +24,12 @@ import { storage } from "../storage-prisma";
 
 const router = express.Router();
 
+const saudiPhoneRegex = /^(\+?966|0)?5[0-9]{8}$/;
+
 const RequestSchema = z.object({
   firstName: z.string().trim().min(1),
   lastName: z.string().trim().min(1),
-  mobileNumber: z.string().trim().min(6),
+  mobileNumber: z.string().trim().regex(saudiPhoneRegex, 'Mobile number must be a valid Saudi mobile number'),
   email: z.string().trim().email(),
   nationality: z.string().trim().min(2),
   age: z.coerce.number().int().min(0).max(120),

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 const arabicNameRegex = /^[\u0600-\u06FFa-zA-Z\s]+$/;
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\W]{8,}$/;
+const saudiPhoneRegex = /^(\+?966|0)?5[0-9]{8}$/;
 
 export const authSchemas = {
     login: z.object({
@@ -19,7 +20,7 @@ export const authSchemas = {
         password: z.string().regex(passwordRegex, 'Password must be at least 8 characters with uppercase, lowercase, and number'),
         firstName: z.string().regex(arabicNameRegex, 'First name must be valid (Arabic or English)'),
         lastName: z.string().regex(arabicNameRegex, 'Last name must be valid (Arabic or English)'),
-        phone: z.string().optional(),
+        phone: z.string().regex(saudiPhoneRegex, 'Phone must be a valid Saudi mobile number').optional(),
         roles: z.string().min(1),
         organizationId: z.string().optional(),
         username: z.string().min(3).optional()
