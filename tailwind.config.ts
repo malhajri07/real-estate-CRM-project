@@ -79,6 +79,9 @@ const config: Config = {
         error: "hsl(0 72% 51%)",
         info: "hsl(208 92% 54%)",
         brand: {
+          DEFAULT: "hsl(var(--primary))",
+          light: "hsl(var(--primary) / 0.1)",
+          hover: "hsl(var(--primary) / 0.85)",
           400: "hsl(var(--primary))",
           500: "hsl(var(--primary))",
         },
@@ -177,6 +180,30 @@ const config: Config = {
         },
         ".ui-stat-grid": {
           "@apply grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4": {},
+        },
+        ".icon-container": {
+          "@apply flex items-center justify-center rounded-2xl bg-primary/10 text-primary p-3": {},
+        },
+        ".icon-container-sm": {
+          "@apply flex items-center justify-center rounded-xl bg-primary/10 text-primary p-2": {},
+        },
+        ".status-badge-active": {
+          "@apply bg-emerald-50 text-emerald-800 border-emerald-200": {},
+        },
+        ".status-badge-inactive": {
+          "@apply bg-slate-100 text-slate-700 border-border": {},
+        },
+        ".status-badge-pending": {
+          "@apply bg-yellow-50 text-yellow-800 border-yellow-200": {},
+        },
+        ".status-badge-rejected": {
+          "@apply bg-red-50 text-red-800 border-red-200": {},
+        },
+        ".status-badge-info": {
+          "@apply bg-blue-50 text-blue-800 border-blue-200": {},
+        },
+        ".status-badge-warning": {
+          "@apply bg-orange-50 text-orange-800 border-orange-200": {},
         },
         ".ui-data-list": {
           "@apply divide-y divide-border/50": {},

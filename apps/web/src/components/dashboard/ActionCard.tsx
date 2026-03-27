@@ -44,22 +44,22 @@ export function ActionCard({
         onClick={onClick}
         disabled={disabled}
         className={cn(
-          "w-full justify-between rounded-2xl px-5 py-4 h-auto font-bold transition-all duration-300 relative overflow-hidden bg-white border border-slate-100 hover:border-border hover:shadow-md text-slate-700 hover:bg-slate-50",
+          "w-full justify-between rounded-2xl px-5 py-4 h-auto font-bold transition-all duration-300 relative overflow-hidden bg-card border border-border hover:border-border hover:shadow-md text-foreground/80 hover:bg-muted/30",
           disabled && "opacity-50 cursor-not-allowed"
         )}
       >
         <span className="flex items-center gap-3">
           <div className={cn(
-            "flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600 transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-110"
+            "flex h-12 w-12 items-center justify-center rounded-xl bg-muted/30 text-muted-foreground transition-all duration-300 group-hover:bg-muted/50 group-hover:scale-110"
           )}>
             <Icon className="h-6 w-6" />
           </div>
-          <span className="text-sm font-bold text-slate-900" style={{ lineHeight: '1.6' }}>
+          <span className="text-sm font-bold text-foreground" style={{ lineHeight: '1.6' }}>
             {label}
           </span>
         </span>
         {!disabled && (
-          <ArrowLeft className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-[-4px] transition-all duration-300 text-slate-400" />
+          <ArrowLeft className="h-4 w-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-[-4px] transition-all duration-300 text-muted-foreground/70" />
         )}
       </Button>
     </motion.div>

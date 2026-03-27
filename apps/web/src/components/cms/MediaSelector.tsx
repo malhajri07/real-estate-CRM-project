@@ -165,12 +165,12 @@ export function MediaSelector({
                   {item.mimeType.startsWith("image/") ? (
                     <img
                       src={item.url}
-                      alt={item.alt || item.title || item.originalName}
+                      alt={item.alt || item.title || item.originalName || "Media"}
                       className="w-full h-32 object-cover rounded"
                     />
                   ) : (
-                    <div className="w-full h-32 bg-slate-100 rounded flex items-center justify-center">
-                      <ImageIcon className="h-8 w-8 text-slate-400" />
+                    <div className="w-full h-32 bg-muted/50 rounded flex items-center justify-center">
+                      <ImageIcon className="h-8 w-8 text-muted-foreground/70" />
                     </div>
                   )}
                   <div className="mt-2 text-xs truncate">{item.originalName}</div>
@@ -182,23 +182,23 @@ export function MediaSelector({
               {data.items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-4 p-4 border rounded-lg hover:bg-slate-50 cursor-pointer"
+                  className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/30 cursor-pointer"
                   onClick={() => handleSelect(item)}
                 >
                   {item.mimeType.startsWith("image/") ? (
                     <img
                       src={item.url}
-                      alt={item.alt || item.title || item.originalName}
+                      alt={item.alt || item.title || item.originalName || "Media"}
                       className="w-16 h-16 object-cover rounded"
                     />
                   ) : (
-                    <div className="w-16 h-16 bg-slate-100 rounded flex items-center justify-center">
-                      <ImageIcon className="h-8 w-8 text-slate-400" />
+                    <div className="w-16 h-16 bg-muted/50 rounded flex items-center justify-center">
+                      <ImageIcon className="h-8 w-8 text-muted-foreground/70" />
                     </div>
                   )}
                   <div className="flex-1">
                     <div className="font-medium">{item.originalName}</div>
-                    <div className="text-sm text-slate-500">
+                    <div className="text-sm text-muted-foreground">
                       {item.mimeType}
                     </div>
                   </div>

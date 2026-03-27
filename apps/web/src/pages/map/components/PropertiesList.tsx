@@ -77,10 +77,10 @@ export function PropertiesList({
   };
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border bg-white shadow-sm relative z-50">
+    <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm relative z-50">
       <Table className="min-w-[900px] text-end">
-        <TableHeader className="bg-slate-50 border-b border-border">
-          <TableRow className="text-xs font-medium text-slate-700 uppercase tracking-wider">
+        <TableHeader className="bg-muted/30 border-b border-border">
+          <TableRow className="text-xs font-medium text-foreground/80 uppercase tracking-wider">
             <TableHead className="px-6 py-3 text-end">الصورة</TableHead>
             <TableHead className="px-6 py-3 text-end">العقار</TableHead>
             <TableHead className="px-6 py-3 text-end">الموقع</TableHead>
@@ -101,15 +101,15 @@ export function PropertiesList({
               <TableRow
                 key={property.id}
                 className={cn(
-                  "cursor-pointer transition-colors hover:bg-slate-50/50",
-                  isActive && "bg-slate-100"
+                  "cursor-pointer transition-colors hover:bg-muted/30",
+                  isActive && "bg-muted/50"
                 )}
                 onMouseEnter={() => onHighlight(property)}
                 onMouseLeave={() => onHighlight(null)}
                 onClick={() => onNavigate(property.id)}
               >
                 {/* Image */}
-                <TableCell className="p-0 w-20 align-middle text-sm text-slate-700">
+                <TableCell className="p-0 w-20 align-middle text-sm text-foreground/80">
                   <div className="relative w-20 h-20 min-h-[80px]">
                     {property.photoUrls && property.photoUrls.length > 0 ? (
                       <img 
@@ -129,8 +129,8 @@ export function PropertiesList({
                         }}
                       />
                     ) : (
-                      <div className="absolute inset-0 w-full h-full bg-slate-100 flex items-center justify-center">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400">
+                      <div className="absolute inset-0 w-full h-full bg-muted/50 flex items-center justify-center">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground/70">
                           <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/>
                           <circle cx="9" cy="9" r="2"/>
                           <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
@@ -142,21 +142,21 @@ export function PropertiesList({
 
                 {/* Property */}
                 <TableCell className="px-6 py-4 text-end text-sm">
-                  <div className="font-semibold text-slate-900">{property.title}</div>
+                  <div className="font-semibold text-foreground">{property.title}</div>
                 </TableCell>
 
                 {/* Location */}
                 <TableCell className="px-6 py-4 text-end text-sm">
-                  <div className="text-slate-900">
+                  <div className="text-foreground">
                     {property.city}
                     {property.district && `, ${property.district}`}
                   </div>
-                  <div className="mt-1 text-xs font-bold text-slate-600">{property.address}</div>
+                  <div className="mt-1 text-xs font-bold text-muted-foreground">{property.address}</div>
                 </TableCell>
 
                 {/* Type */}
                 <TableCell className="px-6 py-4 text-end text-sm">
-                  <div className="text-slate-900">
+                  <div className="text-foreground">
                     {property.propertyType || property.transactionType || '-'}
                   </div>
                 </TableCell>
@@ -184,7 +184,7 @@ export function PropertiesList({
 
                 {/* Rooms */}
                 <TableCell className="px-6 py-4 text-end text-sm">
-                  <div className="flex items-center gap-2 text-slate-900">
+                  <div className="flex items-center gap-2 text-foreground">
                     {property.bedrooms && (
                       <span className="flex items-center gap-1">
                         <Bed size={12} />
@@ -209,8 +209,8 @@ export function PropertiesList({
                       className={cn(
                         "h-8 w-8 rounded-md transition-colors duration-150 relative z-50",
                         isFavourite 
-                          ? "text-slate-600 hover:text-slate-700 hover:bg-slate-100" 
-                          : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                          ? "text-muted-foreground hover:text-foreground/80 hover:bg-muted/50" 
+                          : "text-muted-foreground/70 hover:text-muted-foreground hover:bg-muted/30"
                       )}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -223,7 +223,7 @@ export function PropertiesList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-md text-slate-600 transition-colors duration-150 hover:text-slate-800 hover:bg-slate-50 relative z-50"
+                      className="h-8 w-8 rounded-md text-muted-foreground transition-colors duration-150 hover:text-foreground hover:bg-muted/30 relative z-50"
                       onClick={(e) => {
                         e.stopPropagation();
                         onNavigate(property.id);
@@ -235,7 +235,7 @@ export function PropertiesList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-md text-slate-600 transition-colors duration-150 hover:text-slate-700 hover:bg-slate-100 relative z-50"
+                      className="h-8 w-8 rounded-md text-muted-foreground transition-colors duration-150 hover:text-foreground/80 hover:bg-muted/50 relative z-50"
                       onClick={(e) => {
                         e.stopPropagation();
                         shareProperty(property, 'whatsapp');

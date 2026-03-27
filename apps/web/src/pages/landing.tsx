@@ -96,7 +96,7 @@ export default function Landing() {
 
   // Debug logging
   useEffect(() => {
-    console.log('[Landing] Component mounted, content:', {
+    if (import.meta.env.DEV) console.log('[Landing] Component mounted, content:', {
       hasTitle: !!landingContent.heroTitle,
       hasFeatures: landingContent.features.length,
       hasStats: landingContent.stats.length,
@@ -247,19 +247,19 @@ export default function Landing() {
         }
 
         setLandingContent(updatedContent);
-        console.log('[Landing] CMS content loaded:', {
+        if (import.meta.env.DEV) console.log('[Landing] CMS content loaded:', {
           sectionsFound: landingPayload?.data?.length || 0,
           hasHero: !!updatedContent.heroTitle,
           hasFeatures: updatedContent.features.length,
         });
       } catch (error) {
-        console.error('[Landing] Error loading CMS content:', error);
+        if (import.meta.env.DEV) console.error('[Landing] Error loading CMS content:', error);
         // On error, use default content
         setLandingContent(DEFAULT_LANDING_CONTENT);
-        console.log('[Landing] Using default content due to error');
+        if (import.meta.env.DEV) console.log('[Landing] Using default content due to error');
       } finally {
         setIsLoading(false);
-        console.log('[Landing] Loading complete');
+        if (import.meta.env.DEV) console.log('[Landing] Loading complete');
       }
     };
     loadCMSContent(true);
@@ -316,8 +316,8 @@ export default function Landing() {
         {/* Global Loader */}
         {isLoading && (
           <div className="fixed inset-x-0 top-0 z-50">
-            <div className="h-1 bg-emerald-100">
-              <div className="h-full w-full animate-pulse bg-gradient-to-r from-emerald-600 to-teal-600"></div>
+            <div className="h-1 bg-primary/10">
+              <div className="h-full w-full animate-pulse bg-gradient-to-r from-primary to-primary/70"></div>
             </div>
           </div>
         )}

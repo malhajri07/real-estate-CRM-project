@@ -42,13 +42,13 @@ export function LeadCard({
       className="group"
     >
       <Link to="/home/platform/leads">
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden group">
+        <div className="bg-card rounded-2xl p-5 border border-border shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden group">
           
           <div className="relative z-10 flex items-start gap-4">
             {/* Avatar */}
             <div className="flex-shrink-0">
-              <div className="h-12 w-12 rounded-xl bg-slate-50 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300">
-                <span className="text-lg font-bold text-slate-700">
+              <div className="h-12 w-12 rounded-xl bg-muted/30 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300">
+                <span className="text-lg font-bold text-foreground/80">
                   {initials || "?"}
                 </span>
               </div>
@@ -59,10 +59,10 @@ export function LeadCard({
               {/* Name and Status */}
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-bold text-slate-900 mb-1 group-hover:text-slate-700 transition-colors" style={{ lineHeight: '1.4' }}>
+                  <h3 className="text-base font-bold text-foreground mb-1 group-hover:text-foreground/80 transition-colors" style={{ lineHeight: '1.4' }}>
                     {lead.firstName} {lead.lastName}
                   </h3>
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                     {lead.phone && (
                       <span className="inline-flex items-center gap-1.5">
                         <Phone className="h-3.5 w-3.5" />
@@ -87,7 +87,7 @@ export function LeadCard({
 
               {/* Meta Info */}
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500 font-semibold">
+                <span className="text-xs text-muted-foreground font-semibold">
                   {createdDate.toLocaleDateString(locale, { 
                     month: 'short', 
                     day: 'numeric',
@@ -144,7 +144,7 @@ export function LeadCard({
 
           {/* Hover Arrow Indicator */}
           <div className="absolute end-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <ArrowLeft className="h-5 w-5 text-slate-600" />
+            <ArrowLeft className="h-5 w-5 text-muted-foreground" />
           </div>
         </div>
       </Link>

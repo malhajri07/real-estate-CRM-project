@@ -52,11 +52,11 @@ export function useListingData(form: ListingFormData) {
       const response = await fetch(`/api/locations/districts?cityId=${form.city}`);
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Failed to fetch districts:", response.status, errorText);
+        if (import.meta.env.DEV) console.error("Failed to fetch districts:", response.status, errorText);
         throw new Error(`Failed to fetch districts: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Districts loaded for city", form.city, ":", data);
+      if (import.meta.env.DEV) console.log("Districts loaded for city", form.city, ":", data);
       return data;
     },
     enabled: !!form.city,
@@ -72,13 +72,13 @@ export function useListingData(form: ListingFormData) {
         const response = await fetch("/api/property-categories");
         if (!response.ok) {
           const errorText = await response.text();
-          console.error("Failed to fetch property categories:", response.status, errorText);
+          if (import.meta.env.DEV) console.error("Failed to fetch property categories:", response.status, errorText);
           throw new Error(`Failed to fetch property categories: ${response.status} ${errorText}`);
         }
         const data = await response.json();
         return data;
       } catch (error) {
-        console.error("Error fetching property categories:", error);
+        if (import.meta.env.DEV) console.error("Error fetching property categories:", error);
         throw error;
       }
     },
@@ -95,13 +95,13 @@ export function useListingData(form: ListingFormData) {
         const response = await fetch(`/api/property-types?categoryCode=${form.propertyCategory}`);
         if (!response.ok) {
           const errorText = await response.text();
-          console.error("Failed to fetch property types:", response.status, errorText);
+          if (import.meta.env.DEV) console.error("Failed to fetch property types:", response.status, errorText);
           throw new Error(`Failed to fetch property types: ${response.status} ${errorText}`);
         }
         const data = await response.json();
         return data;
       } catch (error) {
-        console.error("Error fetching property types:", error);
+        if (import.meta.env.DEV) console.error("Error fetching property types:", error);
         throw error;
       }
     },

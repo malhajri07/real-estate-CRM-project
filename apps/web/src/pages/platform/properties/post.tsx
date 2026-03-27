@@ -114,11 +114,11 @@ export default function PostListingPage() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
-                  <Label htmlFor="latitude">Latitude</Label>
+                  <Label htmlFor="latitude">خط العرض</Label>
                   <Input id="latitude" name="latitude" value={form.latitude} onChange={onChange} placeholder="Latitude" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="longitude">Longitude</Label>
+                  <Label htmlFor="longitude">خط الطول</Label>
                   <Input id="longitude" name="longitude" value={form.longitude} onChange={onChange} placeholder="Longitude" />
                 </div>
               </div>

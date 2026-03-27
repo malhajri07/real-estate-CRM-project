@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
   "scripts": {
     "dev": "PORT=3000 NODE_ENV=development npx tsx apps/api/index.ts",
     "dev:restart": "lsof -ti:3000 | xargs kill -9 2>/dev/null; sleep 1; PORT=3000 NODE_ENV=development npx tsx apps/api/index.ts",
@@ -27,7 +31,6 @@
     "depcheck": "npx dependency-cruiser apps/web/src/main.tsx apps/api/index.ts --config dependency-cruiser.config.cjs"
   },
   "prisma": {
-    "schema": "data/schema/prisma/schema.prisma",
     "seed": "tsx data/schema/prisma/seed.ts"
   },
   "dependencies": {

@@ -8,7 +8,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: process.env.PORT || 3000,
-        JWT_SECRET: process.env.JWT_SECRET || 'change-me',
+        JWT_SECRET: (() => { if (!process.env.JWT_SECRET) throw new Error('JWT_SECRET env var is required'); return process.env.JWT_SECRET; })(),
         PUBLIC_BASE_URL: process.env.PUBLIC_BASE_URL || 'http://localhost:3000'
       },
       watch: false,

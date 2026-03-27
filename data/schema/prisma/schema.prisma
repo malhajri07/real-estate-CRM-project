@@ -1,5 +1,8 @@
+// NOTE: All findMany queries should use a default limit. See apps/api/src/utils/pagination.ts
+
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -22,6 +25,10 @@ model accounts {
   status        String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@index([parentAccount])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model agent_profiles {
@@ -483,6 +490,17 @@ model properties {
   inquiries      inquiries[]
   appointments   appointments[]
   deals          deals[]
+  agent          users?    @relation("PropertyAgent", fields: [agentId], references: [id], onDelete: SetNull)
+
+  @@index([agentId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([city])
+  @@index([cityId])
+  @@index([district])
+  @@index([status, city])
+  @@index([status, city, type])
+  @@index([createdAt])
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -609,6 +627,7 @@ model customers {
   phone             String
   secondaryPhone    String?
   whatsappNumber    String?
+  // TODO: Add application-level Zod validation for email format, phone format, mobile format
   preferredLanguage String?           @default("ar")
   city              String?
   district          String?
@@ -774,6 +793,7 @@ model support_templates {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
+  // TODO: Review if this model needs relations or should be removed
   @@index([title])
 }
 
@@ -822,6 +842,7 @@ model users {
   community_posts          community_posts[]
   community_comments       community_comments[]
   forum_channels          forum_channels[]
+  agentProperties          properties[]               @relation("PropertyAgent")
 
   @@index([approvalStatus])
   @@index([email])
@@ -1429,6 +1450,7 @@ model cms_content_blocks {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // TODO: Review if this model needs relations or should be removed
   @@unique([key, locale])
   @@index([locale])
 }
@@ -1845,6 +1867,7 @@ model daily_system_stats {
   disputesOpened  Int      @default(0)
   createdAt       DateTime @default(now())
 
+  // TODO: Review if this model needs relations or should be removed
   @@index([date])
 }
 
@@ -1924,6 +1947,7 @@ model agent_memory {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  // TODO: Review if this model needs relations or should be removed
   @@index([type])
   @@index([createdAt])
 }

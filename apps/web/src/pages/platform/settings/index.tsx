@@ -125,7 +125,7 @@ export default function Settings() {
                     type="button"
                     variant="outline"
                     size="icon"
-                    className="rounded-full border border-border bg-white p-2 text-slate-500 transition hover:text-slate-700"
+                    className="rounded-full border border-border bg-card p-2 text-muted-foreground transition hover:text-foreground/80"
                     aria-label="تبديل عرض معلومات الشركة"
                   >
                     <ChevronDown className={`h-4 w-4 transition-transform ${companyOpen ? "rotate-180" : ""}`} />
@@ -137,7 +137,7 @@ export default function Settings() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="companyName" className="block text-sm font-medium text-slate-700">اسم الشركة</Label>
+                        <Label htmlFor="companyName" className="block text-sm font-medium text-foreground/80">اسم الشركة</Label>
                         <Input
                           id="companyName"
                           className="text-subtle"
@@ -147,7 +147,7 @@ export default function Settings() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="businessType" className="block text-sm font-medium text-slate-700">نوع النشاط</Label>
+                        <Label htmlFor="businessType" className="block text-sm font-medium text-foreground/80">نوع النشاط</Label>
                         <Select value={accountDetails.businessType} onValueChange={(value) => setAccountDetails({ ...accountDetails, businessType: value })}>
                           <SelectTrigger className="text-subtle" data-testid="select-business-type">
                             <SelectValue />
@@ -163,7 +163,7 @@ export default function Settings() {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-2">
-                          <Label htmlFor="taxId" className="block text-sm font-medium text-slate-700">الرقم الضريبي</Label>
+                          <Label htmlFor="taxId" className="block text-sm font-medium text-foreground/80">الرقم الضريبي</Label>
                           <Input
                             id="taxId"
                             className="text-subtle"
@@ -173,7 +173,7 @@ export default function Settings() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="website" className="block text-sm font-medium text-slate-700">الموقع الإلكتروني</Label>
+                          <Label htmlFor="website" className="block text-sm font-medium text-foreground/80">الموقع الإلكتروني</Label>
                           <Input
                             id="website"
                             type="url"
@@ -185,7 +185,7 @@ export default function Settings() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="description" className="block text-sm font-medium text-slate-700">وصف الشركة</Label>
+                        <Label htmlFor="description" className="block text-sm font-medium text-foreground/80">وصف الشركة</Label>
                         <Textarea
                           id="description"
                           rows={3}
@@ -199,7 +199,7 @@ export default function Settings() {
 
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="address" className="block text-sm font-medium text-slate-700">العنوان</Label>
+                        <Label htmlFor="address" className="block text-sm font-medium text-foreground/80">العنوان</Label>
                         <Input
                           id="address"
                           className="text-subtle"
@@ -210,7 +210,7 @@ export default function Settings() {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-2">
-                          <Label htmlFor="city" className="block text-sm font-medium text-slate-700">المدينة</Label>
+                          <Label htmlFor="city" className="block text-sm font-medium text-foreground/80">المدينة</Label>
                           <Input
                             id="city"
                             className="text-subtle"
@@ -220,7 +220,7 @@ export default function Settings() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="postalCode" className="block text-sm font-medium text-slate-700">الرمز البريدي</Label>
+                          <Label htmlFor="postalCode" className="block text-sm font-medium text-foreground/80">الرمز البريدي</Label>
                           <Input
                             id="postalCode"
                             className="text-subtle"
@@ -231,7 +231,7 @@ export default function Settings() {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="country" className="block text-sm font-medium text-slate-700">البلد</Label>
+                        <Label htmlFor="country" className="block text-sm font-medium text-foreground/80">البلد</Label>
                         <Select value={accountDetails.country} onValueChange={(value) => setAccountDetails({ ...accountDetails, country: value })}>
                           <SelectTrigger className="text-subtle" data-testid="select-country">
                             <SelectValue />
@@ -248,7 +248,7 @@ export default function Settings() {
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-2">
-                          <Label htmlFor="phone" className="block text-sm font-medium text-slate-700">هاتف الشركة</Label>
+                          <Label htmlFor="phone" className="block text-sm font-medium text-foreground/80">هاتف الشركة</Label>
                           <Input
                             id="phone"
                             type="tel"
@@ -259,7 +259,7 @@ export default function Settings() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="email" className="block text-sm font-medium text-slate-700">البريد الإلكتروني للشركة</Label>
+                          <Label htmlFor="email" className="block text-sm font-medium text-foreground/80">البريد الإلكتروني للشركة</Label>
                           <Input
                             id="email"
                             type="email"
@@ -286,7 +286,7 @@ export default function Settings() {
                     <CardContent className="pt-6">
                       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="contactPerson" className="block text-sm font-medium text-slate-700">الاسم الكامل</Label>
+                          <Label htmlFor="contactPerson" className="block text-sm font-medium text-foreground/80">الاسم الكامل</Label>
                           <Input
                             id="contactPerson"
                             className="text-subtle"
@@ -296,7 +296,7 @@ export default function Settings() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="contactTitle" className="block text-sm font-medium text-slate-700">المسمى الوظيفي</Label>
+                          <Label htmlFor="contactTitle" className="block text-sm font-medium text-foreground/80">المسمى الوظيفي</Label>
                           <Input
                             id="contactTitle"
                             className="text-subtle"
@@ -306,7 +306,7 @@ export default function Settings() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="contactPhone" className="block text-sm font-medium text-slate-700">رقم الهاتف</Label>
+                          <Label htmlFor="contactPhone" className="block text-sm font-medium text-foreground/80">رقم الهاتف</Label>
                           <Input
                             id="contactPhone"
                             type="tel"
@@ -317,7 +317,7 @@ export default function Settings() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="contactEmail" className="block text-sm font-medium text-slate-700">البريد الإلكتروني</Label>
+                          <Label htmlFor="contactEmail" className="block text-sm font-medium text-foreground/80">البريد الإلكتروني</Label>
                           <Input
                             id="contactEmail"
                             type="email"

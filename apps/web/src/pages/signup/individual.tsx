@@ -274,14 +274,14 @@ export default function SignupIndividual() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden" dir={dir}>
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
       <main className="relative pt-32 pb-20 px-4">
         {/* Background Blobs */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-teal-500/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
@@ -289,14 +289,14 @@ export default function SignupIndividual() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-4 mb-12"
           >
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-medium">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-sm font-medium">
               <UserRound className="w-4 h-4" />
               <span>تسجيل وسيط عقاري مستقل</span>
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
-              أنشئ حسابك وانضم إلى <span className="text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-teal-600">نخبة الوسطاء</span>
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
+              أنشئ حسابك وانضم إلى <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary/70">نخبة الوسطاء</span>
             </h1>
-            <p className="text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
               خطوات بسيطة تفصلك عن الانضمام لأكبر منصة عقارية في المملكة.
             </p>
           </motion.div>
@@ -329,10 +329,10 @@ export default function SignupIndividual() {
                           className={cn(
                             "flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold transition-all border-2",
                             isCompleted
-                              ? "bg-emerald-600 text-white border-emerald-600"
+                              ? "bg-primary text-primary-foreground border-primary"
                               : isCurrent
-                                ? "bg-emerald-100 text-emerald-600 border-emerald-300"
-                                : "bg-slate-100 text-slate-500 border-slate-300"
+                                ? "bg-primary/10 text-primary border-primary/30"
+                                : "bg-muted/50 text-muted-foreground border-slate-300"
                           )}
                         >
                           {isCompleted ? (
@@ -345,12 +345,12 @@ export default function SignupIndividual() {
                           <div
                             className={cn(
                               "text-sm font-semibold",
-                              isCurrent || isCompleted ? "text-emerald-600" : "text-slate-500"
+                              isCurrent || isCompleted ? "text-primary" : "text-muted-foreground"
                             )}
                           >
                             {step.title}
                           </div>
-                          <div className="text-xs text-slate-400">{step.description}</div>
+                          <div className="text-xs text-muted-foreground/70">{step.description}</div>
                         </div>
                         {index < STEPS.length - 1 && (
                           <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-slate-200 -z-10" />
@@ -375,17 +375,17 @@ export default function SignupIndividual() {
                 {/* Step 1: Account Credentials */}
                 {currentStep === 1 && (
                   <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 font-bold text-sm">1</span>
+                    <div className="flex items-center gap-4 pb-4 border-b border-border">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">1</span>
                       <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-slate-900">بيانات الحساب الأساسية</h2>
-                        <p className="text-sm text-slate-500">قم بتعيين بيانات الدخول الخاصة بحسابك</p>
+                        <h2 className="text-xl font-bold text-foreground">بيانات الحساب الأساسية</h2>
+                        <p className="text-sm text-muted-foreground">قم بتعيين بيانات الدخول الخاصة بحسابك</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="username" className="text-sm font-medium text-slate-700">اسم المستخدم <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="username" className="text-sm font-medium text-foreground/80">اسم المستخدم <span className="text-red-500">*</span></Label>
                         <Input
                           id="username"
                           type="text"
@@ -393,12 +393,12 @@ export default function SignupIndividual() {
                           onChange={(e) => setUsername(e.target.value)}
                           required
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="password" className="text-sm font-medium text-slate-700">كلمة المرور <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="password" className="text-sm font-medium text-foreground/80">كلمة المرور <span className="text-red-500">*</span></Label>
                         <Input
                           id="password"
                           type="password"
@@ -407,12 +407,12 @@ export default function SignupIndividual() {
                           placeholder="••••••••"
                           required
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start font-password"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
                         />
                       </div>
 
                       <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">تأكيد كلمة المرور <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground/80">تأكيد كلمة المرور <span className="text-red-500">*</span></Label>
                         <Input
                           id="confirmPassword"
                           type="password"
@@ -421,7 +421,7 @@ export default function SignupIndividual() {
                           placeholder="••••••••"
                           required
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start font-password"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
                         />
                       </div>
                     </div>
@@ -431,16 +431,16 @@ export default function SignupIndividual() {
                 {/* Step 2: Personal Information */}
                 {currentStep === 2 && (
                   <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 font-bold text-sm">2</span>
+                    <div className="flex items-center gap-4 pb-4 border-b border-border">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">2</span>
                       <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-slate-900">المعلومات الشخصية</h2>
-                        <p className="text-sm text-slate-500">بياناتك الشخصية للتواصل والتحقق</p>
+                        <h2 className="text-xl font-bold text-foreground">المعلومات الشخصية</h2>
+                        <p className="text-sm text-muted-foreground">بياناتك الشخصية للتواصل والتحقق</p>
                       </div>
                     </div>
 
                     <div className="space-y-2 mb-6">
-                      <Label htmlFor="mobileNumber" className="text-sm font-medium text-slate-700">رقم الجوال <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="mobileNumber" className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></Label>
                       <Input
                         id="mobileNumber"
                         type="tel"
@@ -450,41 +450,41 @@ export default function SignupIndividual() {
                         required
                         maxLength={10}
                         dir="ltr"
-                        className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
+                        className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
                       />
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="firstName" className="text-sm font-medium text-slate-700">الاسم الأول <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="firstName" className="text-sm font-medium text-foreground/80">الاسم الأول <span className="text-red-500">*</span></Label>
                         <Input
                           id="firstName"
                           type="text"
                           value={firstName}
                           onChange={(e) => setFirstName(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="lastName" className="text-sm font-medium text-slate-700">اسم العائلة <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="lastName" className="text-sm font-medium text-foreground/80">اسم العائلة <span className="text-red-500">*</span></Label>
                         <Input
                           id="lastName"
                           type="text"
                           value={lastName}
                           onChange={(e) => setLastName(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 mt-6">
                       <div className="space-y-2">
-                        <Label htmlFor="gender" className="text-sm font-medium text-slate-700">النوع <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="gender" className="text-sm font-medium text-foreground/80">النوع <span className="text-red-500">*</span></Label>
                         <Select value={gender} onValueChange={setGender} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start">
+                          <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
                             <SelectValue placeholder="اختر النوع" />
                           </SelectTrigger>
                           <SelectContent position="popper" sideOffset={4} className="z-[100]">
@@ -495,9 +495,9 @@ export default function SignupIndividual() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="city" className="text-sm font-medium text-slate-700">المنطقة <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="city" className="text-sm font-medium text-foreground/80">المنطقة <span className="text-red-500">*</span></Label>
                         <Select value={city} onValueChange={setCity} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start">
+                          <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
                             <SelectValue placeholder="اختر المنطقة" />
                           </SelectTrigger>
                           <SelectContent position="popper" sideOffset={4} className="z-[100]">
@@ -510,7 +510,7 @@ export default function SignupIndividual() {
                     </div>
 
                     <div className="space-y-2 mt-6">
-                      <Label htmlFor="saudiId" className="text-sm font-medium text-slate-700">رقم الهوية الوطنية <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="saudiId" className="text-sm font-medium text-foreground/80">رقم الهوية الوطنية <span className="text-red-500">*</span></Label>
                       <Input
                         id="saudiId"
                         type="text"
@@ -520,7 +520,7 @@ export default function SignupIndividual() {
                         required
                         maxLength={10}
                         dir="ltr"
-                        className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
+                        className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
                       />
                     </div>
                   </section>
@@ -529,40 +529,40 @@ export default function SignupIndividual() {
                 {/* Step 3: Certification Information */}
                 {currentStep === 3 && (
                   <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 font-bold text-sm">3</span>
+                    <div className="flex items-center gap-4 pb-4 border-b border-border">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">3</span>
                       <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-slate-900">معلومات رخصة فال</h2>
-                        <p className="text-sm text-slate-500">بيانات الترخيص المهني</p>
+                        <h2 className="text-xl font-bold text-foreground">معلومات رخصة فال</h2>
+                        <p className="text-sm text-muted-foreground">بيانات الترخيص المهني</p>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="certificationNumber" className="text-sm font-medium text-slate-700">رقم رخصة فال العقاري <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="certificationNumber" className="text-sm font-medium text-foreground/80">رقم رخصة فال العقاري <span className="text-red-500">*</span></Label>
                       <Input
                         id="certificationNumber"
                         type="text"
                         value={certificationNumber}
                         onChange={(e) => setCertificationNumber(e.target.value)}
                         required
-                        className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
+                        className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                       />
                     </div>
 
                     <div className="space-y-2 mt-6">
-                      <Label htmlFor="certificationStartDate" className="text-sm font-medium text-slate-700">تاريخ بداية الترخيص <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="certificationStartDate" className="text-sm font-medium text-foreground/80">تاريخ بداية الترخيص <span className="text-red-500">*</span></Label>
                       <Input
                         id="certificationStartDate"
                         type="date"
                         value={certificationStartDate}
                         onChange={(e) => setCertificationStartDate(e.target.value)}
                         required
-                        className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
+                        className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
                       />
                     </div>
 
                     <div className="space-y-2 mt-6">
-                      <Label htmlFor="certificationFile" className="text-sm font-medium text-slate-700">ملف ترخيص فال العقاري (PDF) <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="certificationFile" className="text-sm font-medium text-foreground/80">ملف ترخيص فال العقاري (PDF) <span className="text-red-500">*</span></Label>
                       <div className="relative group">
                         <Input
                           id="certificationFile"
@@ -570,12 +570,12 @@ export default function SignupIndividual() {
                           accept="application/pdf"
                           onChange={handleFileChange}
                           required
-                          className="h-14 rounded-xl border-border bg-white/50 text-end focus:ring-emerald-500 file:mr-10 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-emerald-50 file:px-6 file:py-0 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100 pl-10 cursor-pointer transition-all"
+                          className="h-14 rounded-xl border-border bg-card/50 text-end focus:ring-primary/30 file:mr-10 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-primary/10 file:px-6 file:py-0 file:text-sm file:font-medium file:text-primary hover:file:bg-primary/10 pl-10 cursor-pointer transition-all"
                         />
-                        <Upload className="w-5 h-5 text-emerald-600 absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Upload className="w-5 h-5 text-primary absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                       </div>
-                      <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">
-                        <span className="flex items-center justify-center w-4 h-4 rounded-full bg-emerald-100 text-emerald-600">
+                      <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                        <span className="flex items-center justify-center w-4 h-4 rounded-full bg-primary/10 text-primary">
                           <Check className="w-2.5 h-2.5" />
                         </span>
                         يجب رفع ملف بصيغة PDF فقط
@@ -587,32 +587,32 @@ export default function SignupIndividual() {
                 {/* Step 4: Terms and Conditions */}
                 {currentStep === 4 && (
                   <section className="space-y-6">
-                    <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 font-bold text-sm">4</span>
+                    <div className="flex items-center gap-4 pb-4 border-b border-border">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">4</span>
                       <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-slate-900">الشروط والأحكام</h2>
-                        <p className="text-sm text-slate-500">موافقتك على سياسات المنصة</p>
+                        <h2 className="text-xl font-bold text-foreground">الشروط والأحكام</h2>
+                        <p className="text-sm text-muted-foreground">موافقتك على سياسات المنصة</p>
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-border bg-white/50 p-6 shadow-inner">
-                      <div className="space-y-4 text-sm leading-7 text-slate-600 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                        <h3 className="text-base font-bold text-slate-900 mb-2">شروط استخدام منصة عقاراتي للوسطاء العقاريين:</h3>
+                    <div className="rounded-2xl border border-border bg-card/50 p-6 shadow-inner">
+                      <div className="space-y-4 text-sm leading-7 text-muted-foreground max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                        <h3 className="text-base font-bold text-foreground mb-2">شروط استخدام منصة عقاراتي للوسطاء العقاريين:</h3>
                         
                         <div className="space-y-4">
                           <div>
-                            <strong className="block text-slate-900 mb-1">1. الأهلية والتسجيل:</strong>
+                            <strong className="block text-foreground mb-1">1. الأهلية والتسجيل:</strong>
                             <p>يجب أن يكون المتقدم حاصلاً على ترخيص فال عقاري ساري المفعول وأن يكون مؤهلاً لممارسة الوساطة العقارية في المملكة العربية السعودية وفقاً للأنظمة المعمول بها.</p>
                           </div>
                           
                           <div>
-                            <strong className="block text-slate-900 mb-1">2. صحة البيانات والمعلومات:</strong>
+                            <strong className="block text-foreground mb-1">2. صحة البيانات والمعلومات:</strong>
                             <p>يتعهد المستخدم بتقديم معلومات صحيحة ودقيقة عن هويته الشخصية وترخيصه المهني، وتحديث هذه المعلومات عند الحاجة. أي معلومات مضللة قد تؤدي إلى إلغاء الحساب نهائياً.</p>
                           </div>
 
                           <div>
-                            <strong className="block text-slate-900 mb-1">3. استخدام النظام:</strong>
-                            <ul className="list-disc list-inside space-y-1 marker:text-emerald-500">
+                            <strong className="block text-foreground mb-1">3. استخدام النظام:</strong>
+                            <ul className="list-disc list-inside space-y-1 marker:text-primary">
                               <li>الالتزام بأخلاقيات المهنة وقواعد السلوك المهني</li>
                               <li>عدم استخدام النظام لأغراض غير مشروعة</li>
                               <li>الحفاظ على سرية بيانات العملاء</li>
@@ -621,14 +621,14 @@ export default function SignupIndividual() {
                           </div>
 
                           <div>
-                            <strong className="block text-slate-900 mb-1">4. الترخيص المهني:</strong>
+                            <strong className="block text-foreground mb-1">4. الترخيص المهني:</strong>
                             <p>يجب المحافظة على سريان ترخيص فال العقاري وإشعار المنصة بأي تغيير في حالة الترخيص فوراً.</p>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <Label className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer group">
+                    <Label className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer group">
                       <div className="relative flex items-center mt-1">
                         <Checkbox
                           checked={agreedToTerms}
@@ -636,7 +636,7 @@ export default function SignupIndividual() {
                           className="h-5 w-5"
                         />
                       </div>
-                      <span className="text-sm font-medium text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors">
+                      <span className="text-sm font-medium text-foreground/80 leading-relaxed group-hover:text-foreground transition-colors">
                         أوافق على جميع الشروط والأحكام المذكورة أعلاه وأقر بأنني قد قرأتها وفهمتها بالكامل. كما أتعهد بالالتزام بأخلاقيات المهنة وقواعد السلوك للوسطاء العقاريين وأؤكد صحة جميع البيانات المقدمة.
                       </span>
                     </Label>
@@ -644,13 +644,13 @@ export default function SignupIndividual() {
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="flex items-center justify-between pt-6 border-t border-slate-100">
+                <div className="flex items-center justify-between pt-6 border-t border-border">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handlePrevious}
                     disabled={currentStep === 1}
-                    className="h-12 rounded-2xl border-border px-8 text-slate-600 transition-colors hover:bg-slate-100"
+                    className="h-12 rounded-2xl border-border px-8 text-muted-foreground transition-colors hover:bg-muted/50"
                   >
                     <ChevronRight className={cn("me-2", "h-4 w-4")} />
                     السابق
@@ -660,7 +660,7 @@ export default function SignupIndividual() {
                     <Button
                       type="button"
                       onClick={handleNext}
-                      className="h-12 rounded-2xl bg-emerald-600 px-8 text-white hover:bg-emerald-700"
+                      className="h-12 rounded-2xl bg-primary/10 px-8 text-white hover:bg-primary/10"
                     >
                       التالي
                       <ChevronLeft className={cn(dir === "rtl" ? "me-2" : "ms-2", "h-4 w-4")} />
@@ -669,7 +669,7 @@ export default function SignupIndividual() {
                     <Button
                       type="submit"
                       disabled={isLoading || !agreedToTerms}
-                      className="h-12 rounded-2xl bg-emerald-600 px-8 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 disabled:opacity-60"
+                      className="h-12 rounded-2xl bg-primary/10 px-8 text-white shadow-lg shadow-primary/20 hover:bg-primary/10 disabled:opacity-60"
                     >
                       {isLoading ? (
                         <>

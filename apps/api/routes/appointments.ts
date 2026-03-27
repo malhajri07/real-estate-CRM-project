@@ -1,6 +1,7 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma } from '../prismaClient';
 import { z } from 'zod';
+import { authenticateToken } from '../auth';
 
 const router = Router();
 
@@ -14,7 +15,7 @@ const AppointmentSchema = z.object({
 });
 
 // GET /api/appointments
-router.get('/', async (req: any, res) => {
+router.get('/', authenticateToken, async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
         const orgId = req.user?.organizationId;
@@ -43,13 +44,21 @@ router.get('/', async (req: any, res) => {
 });
 
 // POST /api/appointments
-router.post('/', async (req: any, res) => {
+router.post('/', authenticateToken, async (req: Request, res: Response) => {
     try {
         const data = AppointmentSchema.parse(req.body);
         const userId = req.user?.id;
         const orgId = req.user?.organizationId;
 
         if (!orgId) return res.status(400).json({ message: 'Organization context required' });
+
+        // Verify customer belongs to user's organization
+        if (orgId) {
+            const customer = await prisma.customers.findFirst({
+                where: { id: data.customerId, organizationId: orgId }
+            });
+            if (!customer) return res.status(403).json({ message: "Customer not in your organization" });
+        }
 
         const appointment = await prisma.appointments.create({
             data: {
@@ -74,9 +83,18 @@ router.post('/', async (req: any, res) => {
 });
 
 // PUT /api/appointments/:id
-router.put('/:id', async (req: any, res) => {
+router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
     try {
         const { status, scheduledAt, notes, agentId } = req.body;
+        const userId = req.user?.id;
+        const orgId = req.user?.organizationId;
+
+        // Verify ownership before update
+        const appointment = await prisma.appointments.findFirst({
+            where: { id: req.params.id, organizationId: orgId ?? undefined }
+        });
+        if (!appointment) return res.status(403).json({ message: "Not authorized to update this appointment" });
+
         const result = await prisma.appointments.update({
             where: { id: req.params.id },
             data: {

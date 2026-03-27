@@ -27,6 +27,14 @@ import { cn } from "@/lib/utils";
 import { logger } from "@/lib/logger";
 import type { PropertiesMapProps, Coordinates, GoogleWindow } from "../types";
 import { DEFAULT_CENTER, DEFAULT_ZOOM, SINGLE_MARKER_ZOOM, HIGHLIGHT_ZOOM, clusterStyles } from "../utils/constants";
+
+// Map polygon colors — aligned with design system primary (emerald) and neutral slate
+const MAP_COLORS = {
+  regionMatch: { stroke: "#059669", fill: "rgba(5,150,105,0.15)" },        // primary green
+  regionNoMatch: { stroke: "#94a3b8", fill: "rgba(148,163,184,0.08)" },    // slate-400
+  districtMatch: { stroke: "#059669", fill: "rgba(5,150,105,0.22)" },
+  districtNoMatch: { stroke: "#10b981", fill: "rgba(16,185,129,0.12)" },
+} as const;
 import { toLatLngLiteral, formatMarkerPrice } from "../utils/formatters";
 import { createMarkerIcon } from "../utils/map-helpers";
 
@@ -43,7 +51,7 @@ export function PropertiesMap({
 
   // Debug logging
   useEffect(() => {
-    if (isClient) {
+    if (isClient && import.meta.env.DEV) {
       console.log("[PropertiesMap] Client-side render", {
         hasApiKey: !!googleMapsApiKey,
         apiKeyLength: googleMapsApiKey?.length || 0,
@@ -66,7 +74,7 @@ export function PropertiesMap({
         context: "PropertiesMap",
         data: { error: scriptLoadError },
       });
-      console.error("[PropertiesMap] Script load error:", scriptLoadError);
+      if (import.meta.env.DEV) console.error("[PropertiesMap] Script load error:", scriptLoadError);
     }
   }, [scriptLoadError]);
 
@@ -109,7 +117,7 @@ export function PropertiesMap({
       controlSize: 28,
       disableDefaultUI: false,
       gestureHandling: "greedy",
-      backgroundColor: "#f8fafc",
+      backgroundColor: "hsl(240 4% 96.5%)", // --background CSS var
     }),
     []
   );
@@ -224,7 +232,7 @@ export function PropertiesMap({
 
   // Debug logging for map readiness
   useEffect(() => {
-    if (isClient) {
+    if (isClient && import.meta.env.DEV) {
       console.log("[PropertiesMap] Map readiness check", {
         isClient,
         isLoaded,
@@ -237,7 +245,7 @@ export function PropertiesMap({
   }, [isClient, isLoaded, googleInstance, isGoogleMapsReady, scriptLoadError]);
 
   return (
-    <div className={cn("relative overflow-hidden rounded-3xl border border-border/60 bg-slate-100/70", heightClass)}>
+    <div className={cn("relative overflow-hidden rounded-3xl border border-border/60 bg-muted/70", heightClass)}>
       {!isClient ? (
         <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
           جار تجهيز الخريطة...
@@ -302,10 +310,10 @@ export function PropertiesMap({
                 key={poly.regionId}
                 paths={poly.paths}
                 options={{
-                  strokeColor: poly.isFilterMatch ? "#1d4ed8" : "#94a3b8",
+                  strokeColor: poly.isFilterMatch ? MAP_COLORS.regionMatch.stroke : MAP_COLORS.regionNoMatch.stroke,
                   strokeOpacity: 0.7,
                   strokeWeight: 1.5,
-                  fillColor: poly.isFilterMatch ? "rgba(37,99,235,0.15)" : "rgba(148,163,184,0.08)",
+                  fillColor: poly.isFilterMatch ? MAP_COLORS.regionMatch.fill : MAP_COLORS.regionNoMatch.fill,
                   fillOpacity: poly.isFilterMatch ? 0.25 : 0.08,
                   clickable: false,
                 }}
@@ -315,10 +323,10 @@ export function PropertiesMap({
               <Polygon
                 paths={districtPolygon.paths}
                 options={{
-                  strokeColor: districtPolygon.isFilterMatch ? "#1d4ed8" : "#0f9d58",
+                  strokeColor: districtPolygon.isFilterMatch ? MAP_COLORS.districtMatch.stroke : MAP_COLORS.districtNoMatch.stroke,
                   strokeOpacity: 0.9,
                   strokeWeight: 2,
-                  fillColor: districtPolygon.isFilterMatch ? "rgba(37,99,235,0.22)" : "rgba(16,185,129,0.18)",
+                  fillColor: districtPolygon.isFilterMatch ? MAP_COLORS.districtMatch.fill : MAP_COLORS.districtNoMatch.fill,
                   fillOpacity: districtPolygon.isFilterMatch ? 0.3 : 0.18,
                   clickable: false,
                 }}

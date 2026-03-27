@@ -37,11 +37,11 @@ import { PAGE_WRAPPER } from "@/config/platform-theme";
 import type { BadgeVariant } from "@/lib/status-variants";
 
 const STAGES: { id: string; title: string; badgeVariant: BadgeVariant; accent: string }[] = [
-  { id: "lead", title: "عميل محتمل", badgeVariant: "secondary", accent: "text-slate-600" },
+  { id: "lead", title: "عميل محتمل", badgeVariant: "secondary", accent: "text-muted-foreground" },
   { id: "qualified", title: "مؤهل", badgeVariant: "info", accent: "text-sky-600" },
   { id: "showing", title: "معاينة", badgeVariant: "warning", accent: "text-amber-600" },
   { id: "negotiation", title: "تفاوض", badgeVariant: "orange", accent: "text-orange-600" },
-  { id: "closed", title: "مكتملة", badgeVariant: "success", accent: "text-emerald-600" },
+  { id: "closed", title: "مكتملة", badgeVariant: "success", accent: "text-primary" },
 ];
 
 const STAGE_LABELS: Record<string, string> = {
@@ -306,7 +306,7 @@ export default function Pipeline() {
                                       <div className="flex items-center justify-between">
                                         <h4 className="text-sm font-semibold">{getLeadName(deal.leadId)}</h4>
                                         {deal.dealValue && (
-                                          <span className="text-sm font-semibold text-emerald-600">
+                                          <span className="text-sm font-semibold text-primary">
                                             {formatCurrency(deal.dealValue)}
                                           </span>
                                         )}
@@ -395,13 +395,13 @@ export default function Pipeline() {
                         <span>{request.city ?? ''}</span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-emerald-600 text-xs">
+                        <span className="font-semibold text-primary text-xs">
                           {formatBudget(request.budgetSize)}
                         </span>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-6 rounded-md border-emerald-200 px-2 text-xs text-emerald-600 hover:bg-emerald-50"
+                          className="h-6 rounded-md border-primary/20 px-2 text-xs text-primary hover:bg-primary/10"
                           onClick={() => handleConvertToPipeline(request, key)}
                         >
                           نقل إلى عميل محتمل

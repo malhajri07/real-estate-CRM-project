@@ -162,6 +162,8 @@ export default defineConfig(async () => {
   const visualizerPlugins = await loadBundleVisualizerPlugins();
 
   return {
+  // Cache directory - use writable location in sandbox environments
+  cacheDir: process.env.VITE_CACHE_DIR || 'node_modules/.vite',
   // Plugin configuration
   plugins: [
     react(), // React plugin for JSX/TSX support
@@ -220,7 +222,7 @@ export default defineConfig(async () => {
   
   // Development server configuration
   server: {
-    port: FRONTEND_PORT(),
+    port: parseInt(process.env.PORT || '3000', 10),
     strictPort: true,
     // File system security settings
     fs: {

@@ -21,13 +21,19 @@
 import express from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";
+import { logger } from "../logger";
 
 const router = express.Router();
 
 const MAX_VIDEO_SIZE_BYTES = 1024 * 1024;
 
+/**
+ * DEPRECATED SCHEMAS SECTION
+ * These schemas are kept for backward compatibility reference only.
+ * Do not use in new code - use updatedSchema instead.
+ */
+
 // Old schema - DEPRECATED - Not used anymore
-// This schema is kept for backward compatibility reference only
 const submissionSchema = z.object({
   title: z.string().min(3),
   description: z.string().min(30),
@@ -90,7 +96,7 @@ router.get("/", async (req, res) => {
       endpointGet: "GET /api/unverified-listings?status=Pending to get listings"
     });
   } catch (error) {
-    console.error("Error fetching unverified listings:", error);
+    logger.error({ err: error }, "Error fetching unverified listings");
     res.status(500).json({ 
       message: error instanceof Error ? error.message : "Failed to fetch unverified listings" 
     });
@@ -107,7 +113,7 @@ router.get("/:id", async (req, res) => {
     }
     res.json(listing);
   } catch (error) {
-    console.error("Error fetching listing:", error);
+    logger.error({ err: error }, "Error fetching listing");
     res.status(500).json({ 
       message: error instanceof Error ? error.message : "Failed to fetch listing" 
     });
@@ -135,7 +141,7 @@ router.post("/:id/accept", async (req, res) => {
       listing: updated 
     });
   } catch (error) {
-    console.error("Error accepting listing:", error);
+    logger.error({ err: error }, "Error accepting listing");
     res.status(500).json({ 
       message: error instanceof Error ? error.message : "Failed to accept listing" 
     });
@@ -164,7 +170,7 @@ router.post("/:id/reject", async (req, res) => {
       listing: updated 
     });
   } catch (error) {
-    console.error("Error rejecting listing:", error);
+    logger.error({ err: error }, "Error rejecting listing");
     res.status(500).json({ 
       message: error instanceof Error ? error.message : "Failed to reject listing" 
     });
@@ -237,7 +243,7 @@ router.post("/", async (req, res) => {
       path: ["mobileNumber"],
     }); // passthrough() already allows unknown fields
 
-    console.log("Request body received:", JSON.stringify(req.body, null, 2));
+    logger.info({ body: JSON.stringify(req.body, null, 2) }, "Request body received");
     
     // Remove propertyCategory and any other fields not in property_listings table
     const cleanedBody: any = {};
@@ -254,32 +260,32 @@ router.post("/", async (req, res) => {
     Object.keys(req.body).forEach(key => {
       // Completely skip propertyCategory - it doesn't exist in property_listings table
       if (key === 'propertyCategory' || key === 'property_category') {
-        console.log(`⚠️ EXCLUDED ${key} from request (not in property_listings database schema)`);
+        logger.info(`⚠️ EXCLUDED ${key} from request (not in property_listings database schema)`);
         return;
       }
       if (allowedFields.includes(key)) {
         cleanedBody[key] = req.body[key];
       } else {
-        console.log(`⚠️ Ignoring unknown field: ${key}`);
+        logger.info(`⚠️ Ignoring unknown field: ${key}`);
       }
     });
     
     // Final safety check: Ensure propertyCategory is NOT in cleanedBody
     if ('propertyCategory' in cleanedBody) {
       delete cleanedBody.propertyCategory;
-      console.error("ERROR: propertyCategory was still in cleanedBody after filtering!");
+      logger.error("ERROR: propertyCategory was still in cleanedBody after filtering!");
     }
     if ('property_category' in cleanedBody) {
       delete cleanedBody.property_category;
-      console.error("ERROR: property_category was still in cleanedBody after filtering!");
+      logger.error("ERROR: property_category was still in cleanedBody after filtering!");
     }
     
-    console.log("Cleaned body (allowed fields only):", JSON.stringify(cleanedBody, null, 2));
-    console.log("Verification - propertyCategory in cleanedBody?", 'propertyCategory' in cleanedBody || 'property_category' in cleanedBody ? 'YES - ERROR!' : 'NO - OK');
+    logger.info({ body: JSON.stringify(cleanedBody, null, 2) }, "Cleaned body (allowed fields only)");
+    logger.info({ result: 'propertyCategory' in cleanedBody || 'property_category' in cleanedBody ? 'YES - ERROR!' : 'NO - OK' }, "Verification - propertyCategory in cleanedBody?");
     
     const parsed = updatedSchema.parse(cleanedBody);
     
-    console.log("Parsed data (after cleanup):", JSON.stringify(parsed, null, 2));
+    logger.info({ data: JSON.stringify(parsed, null, 2) }, "Parsed data (after cleanup)");
 
     // Handle both new and old image formats
     let imageGallery: string[] = [];
@@ -379,8 +385,8 @@ router.post("/", async (req, res) => {
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error("Validation errors:", JSON.stringify(error.errors, null, 2));
-      console.error("Error paths:", error.errors.map(e => e.path));
+      logger.error({ errors: JSON.stringify(error.errors, null, 2) }, "Validation errors");
+      logger.error({ paths: error.errors.map(e => e.path) }, "Error paths");
       
       // Filter out propertyCategory errors completely - they should never appear since we filter the request body
       const filteredErrors = error.errors.filter(e => {
@@ -392,7 +398,7 @@ router.post("/", async (req, res) => {
       
       // If all errors are about propertyCategory, return a generic message without mentioning propertyCategory
       if (filteredErrors.length === 0 && error.errors.length > 0) {
-        console.error("All validation errors were filtered out (likely propertyCategory)");
+        logger.error("All validation errors were filtered out (likely propertyCategory)");
         return res.status(400).json({ 
           message: "يرجى التحقق من الحقول المدخلة والتأكد من صحة جميع البيانات.",
           errors: [],
@@ -401,7 +407,7 @@ router.post("/", async (req, res) => {
       
       // If no valid errors remain after filtering, skip validation error response
       if (filteredErrors.length === 0) {
-        console.error("No valid errors after filtering propertyCategory");
+        logger.error("No valid errors after filtering propertyCategory");
         return res.status(400).json({ 
           message: "يرجى التحقق من الحقول المدخلة.",
           errors: [],
@@ -423,7 +429,7 @@ router.post("/", async (req, res) => {
         firstError: errorMessage
       });
     }
-    console.error("Error creating unverified listing:", error);
+    logger.error({ err: error }, "Error creating unverified listing");
     const errMsg = error instanceof Error ? error.message : "تعذر معالجة الطلب حالياً";
     const errStack = error instanceof Error ? error.stack : undefined;
     res.status(500).json({ 

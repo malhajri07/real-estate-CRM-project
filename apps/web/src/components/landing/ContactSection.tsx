@@ -16,7 +16,7 @@ export const ContactSection = ({ content, iconMap }: ContactSectionProps) => {
     // Always show contact section, even if empty (will show default content)
 
     return (
-        <section id="contact" className="py-32 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 relative overflow-hidden" dir="rtl">
+        <section id="contact" className="py-32 bg-gradient-to-br from-slate-50 via-white to-primary/10 relative overflow-hidden" dir="rtl">
             {/* Background Decor */}
             <div className="absolute end-0 top-0 w-96 h-96 bg-blue-400/5 blur-[120px] rounded-full" />
 
@@ -40,7 +40,7 @@ export const ContactSection = ({ content, iconMap }: ContactSectionProps) => {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight"
+                            className="text-4xl lg:text-5xl font-black text-foreground leading-tight"
                             style={{ lineHeight: '1.4' }}
                         >
                             {content.contactTitle}
@@ -51,7 +51,7 @@ export const ContactSection = ({ content, iconMap }: ContactSectionProps) => {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-xl text-slate-600 leading-relaxed"
+                            className="text-xl text-muted-foreground leading-relaxed"
                             style={{ lineHeight: '1.8' }}
                         >
                             {content.contactDescription}
@@ -75,21 +75,21 @@ export const ContactSection = ({ content, iconMap }: ContactSectionProps) => {
                                 transition={{ delay: index * 0.15, duration: 0.6 }}
                                 viewport={{ once: true }}
                             >
-                                <Card className="group text-center border-2 border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:border-emerald-200 transition-all duration-500 hover:-translate-y-2 bg-white">
+                                <Card className="group text-center border-2 border-border shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 bg-white">
                                     <CardContent className="p-8">
                                         {/* Icon */}
-                                        <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-emerald-600 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
+                                        <div className="w-20 h-20 bg-gradient-to-br from-primary to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-primary group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
                                             <Icon className="w-10 h-10" />
                                         </div>
 
                                         {/* Label */}
-                                        <h3 className="text-xl font-black text-slate-900 mb-4 group-hover:text-slate-700 transition-colors duration-300">
+                                        <h3 className="text-xl font-black text-foreground mb-4 group-hover:text-foreground/80 transition-colors duration-300">
                                             {info.label}
                                         </h3>
 
                                         {/* Value */}
                                         <p className={cn(
-                                            "text-slate-600 font-bold text-lg leading-relaxed",
+                                            "text-muted-foreground font-bold text-lg leading-relaxed",
                                             (isEmail || isPhone) && "dir-ltr"
                                         )} style={{ lineHeight: '1.8' }}>
                                             {info.value}

@@ -12,6 +12,7 @@ import { UserRole } from '@shared/rbac';
 import { prisma } from '../prismaClient';
 import bcrypt from 'bcryptjs';
 import { getErrorResponse } from '../i18n';
+import { logger } from '../logger';
 
 const router = Router();
 const authService = new AuthService();
@@ -40,7 +41,7 @@ router.post('/login', async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, message: 'Validation Error', errors: error.errors });
     }
-    console.error('Login Error:', error);
+    logger.error({ err: error }, 'Login Error');
     const message = error instanceof Error ? error.message : 'Login failed';
     // If it's a known service error, we might want to map it, but for now fallback to general
     const locale = (req as any).locale || 'ar';
@@ -65,7 +66,7 @@ router.post('/register', async (req, res) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, message: 'Validation Error', errors: error.errors });
     }
-    console.error('Registration Error:', error);
+    logger.error({ err: error }, 'Registration Error');
     res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Registration failed' });
   }
 });
@@ -104,13 +105,26 @@ router.post('/impersonate', authenticateToken, async (req, res) => {
     const { targetUserId } = authSchemas.impersonate.parse(req.body);
     const result = await authService.impersonate(req.user.id, targetUserId);
 
+    logger.info({ adminId: req.user.id, targetUserId }, 'Admin impersonated user');
+
+    await prisma.audit_logs.create({
+      data: {
+        userId: req.user.id,
+        action: 'IMPERSONATE',
+        entity: 'USER',
+        entityId: targetUserId,
+        afterJson: JSON.stringify({ adminId: req.user.id, targetUserId }),
+        ipAddress: req.ip,
+      },
+    });
+
     res.json({ success: true, ...result });
 
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, message: 'Validation Error', errors: error.errors });
     }
-    console.error('Impersonate Error:', error);
+    logger.error({ err: error }, 'Impersonate Error');
     res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Impersonation failed' });
   }
 });
@@ -126,16 +140,25 @@ router.post('/logout', authenticateToken, async (req, res) => {
 router.post('/ensure-primary-admin', async (req, res) => {
   try {
     if (process.env.NODE_ENV === 'production' && process.env.ALLOW_ADMIN_RESET !== 'true') {
-      return res.status(403).json({ success: false, message: 'Not allowed in production' });
+      return res.status(403).json({ message: "This endpoint is disabled in production" });
     }
+
+    // Verify admin setup token is properly configured
+    const setupToken = process.env.ADMIN_SETUP_TOKEN;
+    if (!setupToken || setupToken.length < 32) {
+      return res.status(403).json({ message: "Admin setup token not configured or too weak" });
+    }
+
     const token = req.headers['x-setup-token'] as string | undefined;
-    const expected = process.env.ADMIN_SETUP_TOKEN || 'dev';
-    if (!token || token !== expected) {
+    if (!token || token !== setupToken) {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
 
-    const { username = 'admin', password = 'admin123', email = 'admin@realestateInfo.com' } = req.body || {};
-    const normalized = (username || '').trim().toLowerCase();
+    const { username, password, email } = req.body || {};
+    if (!username || !password || !email) {
+      return res.status(400).json({ success: false, message: 'username, password, and email are required' });
+    }
+    const normalized = username.trim().toLowerCase();
 
     // Hash using bcrypt directly or via service
     const passwordHash = await AuthService.hashPassword(password);
@@ -147,7 +170,7 @@ router.post('/ensure-primary-admin', async (req, res) => {
       user = await prisma.users.create({
         data: {
           username: normalized,
-          email, // Use provided email
+          email,
           firstName: 'Primary',
           lastName: 'Admin',
           passwordHash,
@@ -156,23 +179,42 @@ router.post('/ensure-primary-admin', async (req, res) => {
           updatedAt: new Date(),
         },
       });
+      await prisma.audit_logs.create({
+        data: {
+          userId: user.id,
+          action: 'ENSURE_PRIMARY_ADMIN_CREATE',
+          entity: 'USER',
+          entityId: user.id,
+          afterJson: JSON.stringify({ username: normalized }),
+          ipAddress: req.ip,
+        },
+      });
       return res.json({ success: true, created: true, user: { id: user.id, username: user.username } });
     }
 
-    // Update existing user
     await prisma.users.update({
       where: { id: user.id },
       data: {
         passwordHash,
         roles,
         isActive: true,
-        email: email || user.email // Keep existing email if none provided, or update
+        email: email || user.email,
+      },
+    });
+    await prisma.audit_logs.create({
+      data: {
+        userId: user.id,
+        action: 'ENSURE_PRIMARY_ADMIN_UPDATE',
+        entity: 'USER',
+        entityId: user.id,
+        afterJson: JSON.stringify({ username: normalized }),
+        ipAddress: req.ip,
       },
     });
     return res.json({ success: true, created: false, user: { id: user.id, username: user.username } });
 
   } catch (e: any) {
-    console.error('ensure-primary-admin error:', e?.message || e);
+    logger.error('ensure-primary-admin error:', e?.message || e);
     return res.status(500).json({ success: false, message: 'failed to ensure primary admin' });
   }
 });

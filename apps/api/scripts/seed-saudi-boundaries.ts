@@ -12,7 +12,7 @@
  * Or: pnpm db:seed-saudi-boundaries
  */
 
-const BASE =
+const BASE_BOUNDARIES =
   "https://raw.githubusercontent.com/homaily/Saudi-Arabia-Regions-Cities-and-Districts/master/json";
 
 async function fetchWithTimeout<T>(
@@ -43,19 +43,19 @@ interface DistrictFull {
   boundaries?: unknown[][][];
 }
 
-async function main() {
+async function mainBoundaries() {
   const { PrismaClient } = await import("@prisma/client");
   const prisma = new PrismaClient();
 
   console.log("Fetching regions with boundaries from homaily...");
-  const regionsRaw = await fetchWithTimeout<RegionFull[]>(`${BASE}/regions.json`);
+  const regionsRaw = await fetchWithTimeout<RegionFull[]>(`${BASE_BOUNDARIES}/regions.json`);
 
   let regionsUpdated = 0;
   for (const r of regionsRaw) {
     if (!r.boundaries || !Array.isArray(r.boundaries) || r.boundaries.length === 0) {
       continue;
     }
-    const boundary = r.boundaries as unknown;
+    const boundary = r.boundaries as any;
     await prisma.regions.update({
       where: { id: r.region_id },
       data: {
@@ -75,7 +75,7 @@ async function main() {
 
   console.log("Fetching districts with boundaries (this may take 2–3 minutes)...");
   const districtsRaw = await fetchWithTimeout<DistrictFull[]>(
-    `${BASE}/districts.json`,
+    `${BASE_BOUNDARIES}/districts.json`,
     300_000
   );
 
@@ -87,7 +87,7 @@ async function main() {
       if (!d.boundaries || !Array.isArray(d.boundaries) || d.boundaries.length === 0) {
         continue;
       }
-      const boundary = d.boundaries as unknown;
+      const boundary = d.boundaries as any;
       try {
         await prisma.districts.update({
           where: { id: BigInt(d.district_id) },
@@ -107,7 +107,7 @@ async function main() {
   console.log("Boundaries seeded successfully.");
 }
 
-main().catch((e) => {
+mainBoundaries().catch((e) => {
   console.error(e);
   process.exit(1);
 });

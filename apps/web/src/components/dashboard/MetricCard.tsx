@@ -17,7 +17,7 @@ interface MetricCardProps {
   label: string;
   value: string | number;
   icon: LucideIcon;
-  accent: string;
+  accent?: string;
   delta?: {
     value: number;
     tone: "up" | "down";
@@ -68,7 +68,7 @@ export function MetricCard({
       transition={{ delay: index * 0.1, duration: 0.5 }}
       whileHover={{ scale: 1.02, y: -2 }}
       className={cn(
-        "group relative rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden bg-white border border-slate-100",
+        "group relative rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden bg-card border border-border",
         // Removed border-s and accent usage
         // accent,
       )}
@@ -76,7 +76,7 @@ export function MetricCard({
       <div className="relative z-10">
         {/* Header with Icon and Delta */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-600 group-hover:bg-slate-100 group-hover:scale-110 transition-all duration-300">
+          <div className="icon-container group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
             <Icon className="h-6 w-6" />
           </div>
           {delta && (
@@ -97,13 +97,13 @@ export function MetricCard({
 
         {/* Value */}
         <div className="mb-1">
-          <p className="text-3xl font-bold text-slate-900 leading-tight">
+          <p className="text-3xl font-bold text-foreground leading-tight">
             {isNumeric ? displayValue.toLocaleString("en-US") : value}
           </p>
         </div>
 
         {/* Label */}
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           {label}
         </p>
       </div>

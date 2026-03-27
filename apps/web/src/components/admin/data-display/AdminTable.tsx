@@ -197,9 +197,9 @@ export function AdminTable<T extends Record<string, any>>({
                 </div>
             )}
 
-            <div className="rounded-xl border border-border bg-white shadow-sm overflow-hidden">
+            <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <Table>
-                    <TableHeader className="bg-slate-50/80">
+                    <TableHeader className="bg-muted/30">
                         <TableRow className="border-b border-border hover:bg-transparent">
                             {selectable && (
                                 <TableHead className="w-12 text-center">
@@ -212,12 +212,12 @@ export function AdminTable<T extends Record<string, any>>({
                                 </TableHead>
                             )}
                             {columns.map((column) => (
-                                <TableHead key={column.key} className={cn("text-start h-12 text-xs font-semibold text-slate-600 uppercase tracking-wider", column.className)}>
+                                <TableHead key={column.key} className={cn("text-start h-12 text-xs font-semibold text-muted-foreground uppercase tracking-wider", column.className)}>
                                     {column.sortable ? (
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="h-8 -me-3 text-xs font-semibold hover:bg-slate-200/50 text-slate-600"
+                                            className="h-8 -me-3 text-xs font-semibold hover:bg-slate-200/50 text-muted-foreground"
                                             onClick={() => handleSort(column.key)}
                                         >
                                             {column.label}
@@ -259,8 +259,8 @@ export function AdminTable<T extends Record<string, any>>({
                                     <TableRow
                                         key={id}
                                         className={cn(
-                                            "transition-colors hover:bg-slate-50/80 border-b border-slate-100 last:border-0",
-                                            isSelected ? 'bg-emerald-50/60 hover:bg-emerald-50/80' : ''
+                                            "transition-colors hover:bg-muted/30 border-b border-border last:border-0",
+                                            isSelected ? 'bg-primary/10 hover:bg-primary/10' : ''
                                         )}
                                     >
                                         {selectable && (
@@ -274,7 +274,7 @@ export function AdminTable<T extends Record<string, any>>({
                                             </TableCell>
                                         )}
                                         {columns.map((column) => (
-                                            <TableCell key={column.key} className={cn("py-4 text-sm text-slate-700", column.className)}>
+                                            <TableCell key={column.key} className={cn("py-4 text-sm text-foreground/80", column.className)}>
                                                 {column.render ? column.render(item) : item[column.key]}
                                             </TableCell>
                                         ))}

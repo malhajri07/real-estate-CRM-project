@@ -46,14 +46,14 @@ export class AppErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundar
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8" dir="ltr">
+        <div className="min-h-screen bg-muted/30 flex items-center justify-center p-8" dir="ltr">
           <div className="text-center max-w-md space-y-6">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-600">
               <span className="text-3xl">⚠</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 mb-2">Something went wrong</h1>
-              <p className="text-sm text-slate-600">
+              <h1 className="text-xl font-bold text-foreground mb-2">Something went wrong</h1>
+              <p className="text-sm text-muted-foreground">
                 We encountered an unexpected error. Try refreshing or going back.
               </p>
             </div>
@@ -61,14 +61,14 @@ export class AppErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundar
               <Button onClick={this.handleRetry} variant="outline" className="rounded-xl">
                 Try again
               </Button>
-              <Button onClick={this.handleReload} className="rounded-xl bg-emerald-600 hover:bg-emerald-700">
+              <Button onClick={this.handleReload} className="rounded-xl bg-primary hover:bg-primary/90">
                 Reload page
               </Button>
             </div>
             {process.env.NODE_ENV === "development" && this.state.error && (
-              <details className="mt-4 text-start bg-white p-4 rounded-lg border border-border">
-                <summary className="cursor-pointer text-xs font-medium text-slate-600">Error details</summary>
-                <pre className="mt-2 text-xs text-slate-500 overflow-auto max-h-32">{this.state.error.message}</pre>
+              <details className="mt-4 text-start bg-card p-4 rounded-lg border border-border">
+                <summary className="cursor-pointer text-xs font-medium text-muted-foreground">Error details</summary>
+                <pre className="mt-2 text-xs text-muted-foreground overflow-auto max-h-32">{this.state.error.message}</pre>
               </details>
             )}
           </div>

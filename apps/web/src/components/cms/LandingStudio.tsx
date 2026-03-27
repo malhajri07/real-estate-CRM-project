@@ -207,30 +207,30 @@ export function LandingStudio() {
 
   if (!selectedSection) {
     return (
-      <div className="text-center text-sm text-slate-500">
+      <div className="text-center text-sm text-muted-foreground">
         لا توجد أقسام متاحة. استخدم زر إنشاء قسم جديد لبدء إدارة المحتوى.
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-muted/30">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">إدارة المحتوى</h1>
-          <p className="text-slate-600">إدارة أقسام الصفحة الرئيسية والمحتوى</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">إدارة المحتوى</h1>
+          <p className="text-muted-foreground">إدارة أقسام الصفحة الرئيسية والمحتوى</p>
         </div>
 
         {/* Main Content */}
         <Card className="shadow-sm border border-border">
-          <CardHeader className="bg-white border-b border-border">
+          <CardHeader className="bg-card border-b border-border">
             <div className="flex items-center justify-between">
           <div>
-                <CardTitle className="text-lg font-semibold text-slate-900">
+                <CardTitle className="text-lg font-semibold text-foreground">
               {selectedSection.slug}
             </CardTitle>
-                <CardDescription className="text-slate-600">
+                <CardDescription className="text-muted-foreground">
                   قم بتحديث محتوى القسم واضغط حفظ المسودة قبل النشر
             </CardDescription>
           </div>
@@ -305,7 +305,7 @@ export function LandingStudio() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                      <Label className="text-sm font-medium text-slate-700">العنوان</Label>
+                      <Label className="text-sm font-medium text-foreground/80">العنوان</Label>
                     <Input
                       value={sectionDraft.title ?? ""}
                       onChange={(event) =>
@@ -315,7 +315,7 @@ export function LandingStudio() {
                     />
                   </div>
                   <div className="space-y-2">
-                      <Label className="text-sm font-medium text-slate-700">الوصف المختصر</Label>
+                      <Label className="text-sm font-medium text-foreground/80">الوصف المختصر</Label>
                     <Input
                       value={sectionDraft.subtitle ?? ""}
                       onChange={(event) =>
@@ -326,7 +326,7 @@ export function LandingStudio() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">النص الرئيسي</Label>
+                    <Label className="text-sm font-medium text-foreground/80">النص الرئيسي</Label>
                   <Textarea
                     value={sectionDraft.body ?? ""}
                     onChange={(event) =>
@@ -340,18 +340,18 @@ export function LandingStudio() {
 
             <TabsContent value="published">
                 <div className="text-center py-8">
-                  <p className="text-slate-500">محتوى منشور - سيتم عرض المحتوى المنشور هنا</p>
+                  <p className="text-muted-foreground">محتوى منشور - سيتم عرض المحتوى المنشور هنا</p>
                 </div>
               </TabsContent>
 
               <TabsContent value="publish">
                 <div className="space-y-6">
-                  <div className="bg-slate-50 p-4 rounded-lg">
-                    <h3 className="font-medium text-slate-900 mb-2">إجراءات النشر</h3>
-                    <p className="text-sm text-slate-600 mb-4">
+                  <div className="bg-muted/30 p-4 rounded-lg">
+                    <h3 className="font-medium text-foreground mb-2">إجراءات النشر</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
                       اعتمد المحتوى بعد مراجعة الفرق المختصة
                     </p>
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <span>الإصدار الحالي:</span>
                       <Badge variant="outline">v{selectedSection.version}</Badge>
                 </div>

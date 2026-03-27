@@ -1,19 +1,25 @@
 /**
  * unverified-listing.tsx - Public Unverified Listing Submission Page
- * 
+ *
  * Location: apps/web/src/ → Pages/ → Public Pages → unverified-listing.tsx
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
+ *
  * Public unverified listing submission page. Provides:
  * - Unverified listing submission form
  * - Property information input
  * - Image upload
- * 
+ *
  * Route: /unverified-listings
- * 
+ *
  * Related Files:
  * - apps/web/src/pages/unverified-listings-management.tsx - Management interface
  * - apps/api/routes/unverified-listings.ts - Unverified listings API routes
+ *
+ * TODO: This component is too large (1600+ lines). Extract sub-components:
+ * - UnverifiedListingForm (steps 1-4, form state)
+ * - ImageUploadStep (step 5, image handling)
+ * - ContactInfoStep (step 6, contact details)
+ * - StepNavigation (step indicator and navigation buttons)
  */
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -594,14 +600,14 @@ export default function UnverifiedListingPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
+      <div className="min-h-screen bg-background font-sans text-foreground overflow-x-hidden" dir={dir}>
         <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
         <PublicHeader />
 
         <main className="relative pt-32 pb-20 px-4 flex items-center justify-center min-h-[80vh]">
           {/* Background Blobs */}
-          <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-teal-500/10 blur-[100px] rounded-full pointer-events-none" />
+          <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-primary/50 blur-[100px] rounded-full pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
 
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -609,31 +615,31 @@ export default function UnverifiedListingPage() {
             className="w-full max-w-2xl"
           >
             <div className="glass rounded-2xl p-12 text-center shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-emerald-500 to-teal-500" />
+              <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-primary to-primary/70" />
 
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600"
+                className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-primary"
               >
                 <CheckCircle2 className="h-10 w-10" />
               </motion.div>
 
-              <h1 className="text-3xl font-bold text-slate-900 mb-4">تم استلام إعلانك بنجاح</h1>
-              <p className="text-slate-600 text-lg leading-relaxed mb-8 max-w-lg mx-auto">
+              <h1 className="text-3xl font-bold text-foreground mb-4">تم استلام إعلانك بنجاح</h1>
+              <p className="text-muted-foreground text-lg leading-relaxed mb-8 max-w-lg mx-auto">
                 شكراً لثقتك بنا. سيقوم أحد الوسطاء المرخصين بمراجعة إعلانك والاتصال بك قريباً لإتمام عملية النشر.
               </p>
 
               {propertyId && (
-                <div className="mb-10 inline-block bg-emerald-50/50 border border-emerald-100 rounded-2xl px-8 py-4">
-                  <p className="text-sm font-semibold text-emerald-800 mb-1">رقم الإعلان الخاص بك</p>
-                  <p className="text-3xl font-bold text-emerald-600 font-mono tracking-widest">{propertyId}</p>
+                <div className="mb-10 inline-block bg-primary/5 border border-primary/10 rounded-2xl px-8 py-4">
+                  <p className="text-sm font-semibold text-foreground mb-1">رقم الإعلان الخاص بك</p>
+                  <p className="text-3xl font-bold text-primary font-mono tracking-widest">{propertyId}</p>
                 </div>
               )}
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
-                  className="rounded-xl h-12 px-8 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
+                  className="rounded-xl h-12 px-8 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20"
                   onClick={() => {
                     setSubmitted(false);
                     setCurrentStep(1);
@@ -682,7 +688,7 @@ export default function UnverifiedListingPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-xl h-12 px-8 border-border hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200"
+                  className="rounded-xl h-12 px-8 border-border hover:bg-muted/30 hover:text-primary hover:border-primary/20"
                   onClick={() => setLocation("/")}
                 >
                   <Home className={cn("me-2", "h-4 w-4")} />
@@ -697,14 +703,14 @@ export default function UnverifiedListingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-background font-sans text-foreground overflow-x-hidden" dir={dir}>
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
       <main className="relative pt-32 pb-20 px-4">
         {/* Background Blobs */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-teal-500/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/50 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
@@ -712,10 +718,10 @@ export default function UnverifiedListingPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-4 mb-12"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
-              أدرج <span className="text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-teal-600">عقارك للبيع</span>
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
+              أدرج <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary/70">عقارك للبيع</span>
             </h1>
-            <p className="text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
               أدخل تفاصيل عقارك خطوة بخطوة. أكمل كل خطوة للانتقال إلى الخطوة التالية.
             </p>
           </motion.div>
@@ -748,10 +754,10 @@ export default function UnverifiedListingPage() {
                           className={cn(
                             "flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold transition-all border-2",
                             isCompleted
-                              ? "bg-emerald-600 text-white border-emerald-600"
+                              ? "bg-primary text-primary-foreground border-primary"
                               : isCurrent
-                                ? "bg-emerald-100 text-emerald-600 border-emerald-300"
-                                : "bg-slate-100 text-slate-500 border-slate-300"
+                                ? "bg-primary/10 text-primary border-primary/30"
+                                : "bg-muted text-muted-foreground border-border"
                           )}
                         >
                           {isCompleted ? (
@@ -764,12 +770,12 @@ export default function UnverifiedListingPage() {
                           <div
                             className={cn(
                               "text-sm font-semibold",
-                              isCurrent || isCompleted ? "text-emerald-600" : "text-slate-500"
+                              isCurrent || isCompleted ? "text-primary" : "text-muted-foreground"
                             )}
                           >
                             {step.title}
                           </div>
-                          <div className="text-xs text-slate-400">{step.description}</div>
+                          <div className="text-xs text-muted-foreground/70">{step.description}</div>
                         </div>
                         {index < STEPS.length - 1 && (
                           <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-slate-200 -z-10" />
@@ -778,7 +784,7 @@ export default function UnverifiedListingPage() {
                           <ChevronRight
                             className={cn(
                               "h-5 w-5 flex-shrink-0 mx-2 lg:hidden",
-                              isCompleted ? "text-emerald-600" : "text-slate-300"
+                              isCompleted ? "text-primary" : "text-muted-foreground/40"
                             )}
                           />
                         )}
@@ -804,16 +810,16 @@ export default function UnverifiedListingPage() {
                   <section className="space-y-6">
                     <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
-                        <h2 className="text-2xl font-bold text-slate-900">الخطوة 1: البيانات الأساسية</h2>
-                        <p className="text-sm text-slate-500 mt-1">أدخل المعلومات الأساسية عن العقار</p>
+                        <h2 className="text-2xl font-bold text-foreground">الخطوة 1: البيانات الأساسية</h2>
+                        <p className="text-sm text-muted-foreground mt-1">أدخل المعلومات الأساسية عن العقار</p>
                       </div>
-                      <div className="text-sm text-slate-400">* الحقول الإلزامية</div>
+                      <div className="text-sm text-muted-foreground/70">* الحقول الإلزامية</div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div>
                         <Label className="mb-1 block text-sm font-medium">
-                          عنوان الإعلان <span className="text-red-500">*</span>
+                          عنوان الإعلان <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           value={form.title}
@@ -824,11 +830,11 @@ export default function UnverifiedListingPage() {
                       </div>
 
                       <div className="md:col-span-2">
-                        <Label className="mb-3 block text-sm font-medium">تصنيف العقار <span className="text-red-500">*</span></Label>
+                        <Label className="mb-3 block text-sm font-medium">تصنيف العقار <span className="text-destructive">*</span></Label>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                           <div className="space-y-2">
-                            <Label className="text-xs text-slate-600">الخطوة 1: اختر الفئة</Label>
+                            <Label className="text-xs text-muted-foreground">الخطوة 1: اختر الفئة</Label>
                             <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
                               <PopoverTrigger asChild>
                                 <Button
@@ -837,7 +843,7 @@ export default function UnverifiedListingPage() {
                                   aria-expanded={categoryOpen}
                                   className={cn(
                                     "w-full justify-between transition-all",
-                                    form.propertyCategory && "border-emerald-300 bg-emerald-50"
+                                    form.propertyCategory && "border-primary/30 bg-primary/5"
                                   )}
                                   disabled={categoriesLoading}
                                 >
@@ -868,7 +874,7 @@ export default function UnverifiedListingPage() {
                                         </CommandItem>
                                       ) : categoriesError ? (
                                         <CommandItem disabled>
-                                          <div className="text-red-600 text-xs py-2">
+                                          <div className="text-destructive text-xs py-2">
                                             <div>خطأ في تحميل الفئات</div>
                                           </div>
                                         </CommandItem>
@@ -897,7 +903,7 @@ export default function UnverifiedListingPage() {
                                         })
                                       ) : (
                                         <CommandItem disabled>
-                                          <div className="text-slate-500 text-xs py-2">لا توجد فئات متاحة</div>
+                                          <div className="text-muted-foreground text-xs py-2">لا توجد فئات متاحة</div>
                                         </CommandItem>
                                       )}
                                     </CommandGroup>
@@ -908,10 +914,10 @@ export default function UnverifiedListingPage() {
                           </div>
 
                           <div className="space-y-2">
-                            <Label className="text-xs text-slate-600">
+                            <Label className="text-xs text-muted-foreground">
                               الخطوة 2: اختر النوع
                               {!form.propertyCategory && (
-                                <span className="text-red-500 me-1">(اختر الفئة أولاً)</span>
+                                <span className="text-destructive me-1">(اختر الفئة أولاً)</span>
                               )}
                             </Label>
                             <Popover open={typeOpen} onOpenChange={setTypeOpen}>
@@ -922,8 +928,8 @@ export default function UnverifiedListingPage() {
                                   aria-expanded={typeOpen}
                                   className={cn(
                                     "w-full justify-between transition-all",
-                                    !form.propertyCategory && "bg-slate-100 cursor-not-allowed",
-                                    form.propertyType && "border-emerald-300 bg-emerald-50"
+                                    !form.propertyCategory && "bg-muted/50 cursor-not-allowed",
+                                    form.propertyType && "border-primary/30 bg-primary/5"
                                   )}
                                   disabled={!form.propertyCategory || typesLoading}
                                 >
@@ -951,7 +957,7 @@ export default function UnverifiedListingPage() {
                                     <CommandGroup>
                                       {!form.propertyCategory ? (
                                         <CommandItem disabled>
-                                          <div className="flex items-center gap-2 text-slate-400 py-2">
+                                          <div className="flex items-center gap-2 text-muted-foreground/70 py-2">
                                             <span>←</span>
                                             <span>يرجى اختيار فئة العقار أولاً</span>
                                           </div>
@@ -988,7 +994,7 @@ export default function UnverifiedListingPage() {
                                         })
                                       ) : (
                                         <CommandItem disabled>
-                                          <div className="text-slate-500 text-xs py-2">لا توجد أنواع متاحة لهذه الفئة</div>
+                                          <div className="text-muted-foreground text-xs py-2">لا توجد أنواع متاحة لهذه الفئة</div>
                                         </CommandItem>
                                       )}
                                     </CommandGroup>
@@ -1002,7 +1008,7 @@ export default function UnverifiedListingPage() {
 
                       <div>
                         <Label className="mb-1 block text-sm font-medium">
-                          نوع العرض <span className="text-red-500">*</span>
+                          نوع العرض <span className="text-destructive">*</span>
                         </Label>
                         <Select value={form.listingType} onValueChange={(value) => setForm({ ...form, listingType: value })}>
                           <SelectTrigger><SelectValue placeholder="بيع أم إيجار؟" /></SelectTrigger>
@@ -1016,7 +1022,7 @@ export default function UnverifiedListingPage() {
 
                       <div>
                         <Label className="mb-1 block text-sm font-medium">
-                          السعر (﷼) <span className="text-red-500">*</span>
+                          السعر (﷼) <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           type="number"
@@ -1047,8 +1053,8 @@ export default function UnverifiedListingPage() {
                   <section className="space-y-6">
                     <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
-                        <h2 className="text-2xl font-bold text-slate-900">الخطوة 2: الموقع</h2>
-                        <p className="text-sm text-slate-500 mt-1">حدد موقع العقار</p>
+                        <h2 className="text-2xl font-bold text-foreground">الخطوة 2: الموقع</h2>
+                        <p className="text-sm text-muted-foreground mt-1">حدد موقع العقار</p>
                       </div>
                     </div>
 
@@ -1125,7 +1131,7 @@ export default function UnverifiedListingPage() {
 
                       <div>
                         <Label className="mb-1 block text-sm font-medium">
-                          المدينة <span className="text-red-500">*</span>
+                          المدينة <span className="text-destructive">*</span>
                         </Label>
                         <Popover open={cityOpen} onOpenChange={setCityOpen}>
                           <PopoverTrigger asChild>
@@ -1241,14 +1247,14 @@ export default function UnverifiedListingPage() {
                                     </CommandItem>
                                   ) : districtsError ? (
                                     <CommandItem disabled>
-                                      <div className="text-red-600 text-xs py-2">
+                                      <div className="text-destructive text-xs py-2">
                                         <div>خطأ في تحميل الأحياء</div>
                                         <div className="text-xs mt-1">{districtsError instanceof Error ? districtsError.message : "خطأ غير معروف"}</div>
                                       </div>
                                     </CommandItem>
                                   ) : filteredDistricts.length === 0 ? (
                                     <CommandItem disabled>
-                                      <div className="text-slate-500 text-xs py-2">لا توجد أحياء متاحة لهذه المدينة</div>
+                                      <div className="text-muted-foreground text-xs py-2">لا توجد أحياء متاحة لهذه المدينة</div>
                                     </CommandItem>
                                   ) : (
                                     filteredDistricts.map((district) => {
@@ -1323,8 +1329,8 @@ export default function UnverifiedListingPage() {
                   <section className="space-y-6">
                     <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
-                        <h2 className="text-2xl font-bold text-slate-900">الخطوة 3: المواصفات</h2>
-                        <p className="text-sm text-slate-500 mt-1">تفاصيل العقار والمواصفات</p>
+                        <h2 className="text-2xl font-bold text-foreground">الخطوة 3: المواصفات</h2>
+                        <p className="text-sm text-muted-foreground mt-1">تفاصيل العقار والمواصفات</p>
                       </div>
                     </div>
 
@@ -1426,62 +1432,62 @@ export default function UnverifiedListingPage() {
                   <section className="space-y-6">
                     <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
-                        <h2 className="text-2xl font-bold text-slate-900">الخطوة 4: المرافق</h2>
-                        <p className="text-sm text-slate-500 mt-1">اختر المرافق والخدمات المتاحة</p>
+                        <h2 className="text-2xl font-bold text-foreground">الخطوة 4: المرافق</h2>
+                        <p className="text-sm text-muted-foreground mt-1">اختر المرافق والخدمات المتاحة</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      <Label className="flex items-center justify-end gap-2 text-foreground cursor-pointer p-3 rounded-lg hover:bg-muted transition">
                         <Checkbox
                           checked={form.hasParking}
                           onCheckedChange={(value) => setForm({ ...form, hasParking: Boolean(value) })}
                         />
                         يوجد موقف سيارة
                       </Label>
-                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      <Label className="flex items-center justify-end gap-2 text-foreground cursor-pointer p-3 rounded-lg hover:bg-muted transition">
                         <Checkbox
                           checked={form.hasElevator}
                           onCheckedChange={(value) => setForm({ ...form, hasElevator: Boolean(value) })}
                         />
                         يوجد مصعد
                       </Label>
-                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      <Label className="flex items-center justify-end gap-2 text-foreground cursor-pointer p-3 rounded-lg hover:bg-muted transition">
                         <Checkbox
                           checked={form.hasMaidsRoom}
                           onCheckedChange={(value) => setForm({ ...form, hasMaidsRoom: Boolean(value) })}
                         />
                         يحتوي على غرفة خادمة
                       </Label>
-                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      <Label className="flex items-center justify-end gap-2 text-foreground cursor-pointer p-3 rounded-lg hover:bg-muted transition">
                         <Checkbox
                           checked={form.hasDriverRoom}
                           onCheckedChange={(value) => setForm({ ...form, hasDriverRoom: Boolean(value) })}
                         />
                         يحتوي على غرفة سائق
                       </Label>
-                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      <Label className="flex items-center justify-end gap-2 text-foreground cursor-pointer p-3 rounded-lg hover:bg-muted transition">
                         <Checkbox
                           checked={form.furnished}
                           onCheckedChange={(value) => setForm({ ...form, furnished: Boolean(value) })}
                         />
                         مفروش
                       </Label>
-                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      <Label className="flex items-center justify-end gap-2 text-foreground cursor-pointer p-3 rounded-lg hover:bg-muted transition">
                         <Checkbox
                           checked={form.balcony}
                           onCheckedChange={(value) => setForm({ ...form, balcony: Boolean(value) })}
                         />
                         يحتوي على شرفة
                       </Label>
-                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      <Label className="flex items-center justify-end gap-2 text-foreground cursor-pointer p-3 rounded-lg hover:bg-muted transition">
                         <Checkbox
                           checked={form.swimmingPool}
                           onCheckedChange={(value) => setForm({ ...form, swimmingPool: Boolean(value) })}
                         />
                         يحتوي على مسبح
                       </Label>
-                      <Label className="flex items-center justify-end gap-2 text-slate-600 cursor-pointer p-3 rounded-lg hover:bg-slate-50 transition">
+                      <Label className="flex items-center justify-end gap-2 text-foreground cursor-pointer p-3 rounded-lg hover:bg-muted transition">
                         <Checkbox
                           checked={form.centralAc}
                           onCheckedChange={(value) => setForm({ ...form, centralAc: Boolean(value) })}
@@ -1497,23 +1503,23 @@ export default function UnverifiedListingPage() {
                   <section className="space-y-6">
                     <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
-                        <h2 className="text-2xl font-bold text-slate-900">الخطوة 5: الصور</h2>
-                        <p className="text-sm text-slate-500 mt-1">أضف صور العقار</p>
+                        <h2 className="text-2xl font-bold text-foreground">الخطوة 5: الصور</h2>
+                        <p className="text-sm text-muted-foreground mt-1">أضف صور العقار</p>
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border-2 border-dashed border-border bg-slate-50/60 p-6">
+                    <div className="rounded-2xl border-2 border-dashed border-border bg-muted/30 p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <h4 className="font-semibold text-slate-800">صور العقار</h4>
-                          <p className="text-sm text-slate-500">
+                          <h4 className="font-semibold text-foreground">صور العقار</h4>
+                          <p className="text-sm text-muted-foreground">
                             يمكن رفع حتى {MAX_IMAGE_COUNT} صورة، إجمالي الحجم أقل من {MAX_IMAGE_TOTAL_SIZE_BYTES / (1024 * 1024)} ميجابايت
                           </p>
-                          <p className="text-xs text-slate-400 mt-1">
+                          <p className="text-xs text-muted-foreground/70 mt-1">
                             الصور المرفوعة: {selectedImages.length} / {MAX_IMAGE_COUNT}
                           </p>
                         </div>
-                        <Label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50 cursor-pointer transition">
+                        <Label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-primary/20 bg-white text-primary hover:bg-primary/5 cursor-pointer transition">
                           <UploadCloud className="w-4 h-4" /> رفع صور
                           <Input type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
                         </Label>
@@ -1530,7 +1536,7 @@ export default function UnverifiedListingPage() {
                               <Button
                                 type="button"
                                 onClick={() => removeImage(index)}
-                                className="absolute top-2 start-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
+                                className="absolute top-2 start-2 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
                                 aria-label="إزالة الصورة"
                               >
                                 <X className="w-4 h-4" />
@@ -1539,7 +1545,7 @@ export default function UnverifiedListingPage() {
                           ))}
                         </div>
                       ) : (
-                        <div className="text-sm text-slate-500 text-center py-8">لم يتم اختيار صور بعد.</div>
+                        <div className="text-sm text-muted-foreground text-center py-8">لم يتم اختيار صور بعد.</div>
                       )}
                     </div>
                   </section>
@@ -1550,8 +1556,8 @@ export default function UnverifiedListingPage() {
                   <section className="space-y-6">
                     <div className="flex items-center justify-between pb-4 border-b border-border">
                       <div>
-                        <h2 className="text-2xl font-bold text-slate-900">الخطوة 6: معلومات التواصل</h2>
-                        <p className="text-sm text-slate-500 mt-1">بيانات الاتصال</p>
+                        <h2 className="text-2xl font-bold text-foreground">الخطوة 6: معلومات التواصل</h2>
+                        <p className="text-sm text-muted-foreground mt-1">بيانات الاتصال</p>
                       </div>
                     </div>
 
@@ -1566,7 +1572,7 @@ export default function UnverifiedListingPage() {
                       </div>
                       <div>
                         <Label className="mb-1 block text-sm font-medium">
-                          رقم الجوال <span className="text-red-500">*</span>
+                          رقم الجوال <span className="text-destructive">*</span>
                         </Label>
                         <Input
                           value={form.mobileNumber}
@@ -1596,7 +1602,7 @@ export default function UnverifiedListingPage() {
                     <Button
                       type="button"
                       onClick={handleNext}
-                      className="rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700"
+                      className="rounded-2xl bg-primary/10 text-white hover:bg-primary/10"
                     >
                       التالي
                       <ChevronLeft className={cn("me-2", "h-4 w-4")} />
@@ -1605,7 +1611,7 @@ export default function UnverifiedListingPage() {
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
+                      className="rounded-2xl bg-primary/10 text-white hover:bg-primary/10 disabled:opacity-60"
                     >
                       {loading ? (
                         <>
@@ -1621,8 +1627,8 @@ export default function UnverifiedListingPage() {
 
                 {loading && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md">
-                    <div className="flex flex-col items-center gap-3 text-slate-600">
-                      <Spinner size="xl" className="text-emerald-500" />
+                    <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                      <Spinner size="xl" className="text-primary" />
                       <p className="text-sm font-medium">جارٍ إرسال إعلانك، يرجى الانتظار...</p>
                     </div>
                   </div>

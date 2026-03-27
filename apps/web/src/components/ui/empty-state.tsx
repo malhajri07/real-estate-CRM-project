@@ -42,15 +42,15 @@ export default function EmptyState({
   className 
 }: EmptyStateProps) {
   return (
-    <div className={cn("text-center py-16 px-4 bg-slate-50 rounded-3xl border border-dashed border-slate-200 flex flex-col items-center justify-center gap-3", className)}>
+    <div className={cn("text-center py-16 px-4 bg-muted/30 rounded-3xl border border-dashed border-border flex flex-col items-center justify-center gap-3", className)}>
       {Icon && (
         <Icon className="h-16 w-16 text-slate-300 mb-4" />
       )}
-      <h3 className="text-xl font-bold text-slate-900 mb-2">
+      <h3 className="text-xl font-bold text-foreground mb-2">
         {title}
       </h3>
       {description && (
-        <p className="text-base text-slate-500 max-w-sm mx-auto leading-relaxed">
+        <p className="text-base text-muted-foreground max-w-sm mx-auto leading-relaxed">
           {description}
         </p>
       )}

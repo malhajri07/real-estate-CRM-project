@@ -391,7 +391,7 @@ export default function Requests() {
                                                 </TableCell>
                                                 <TableCell>{req.city || "—"}</TableCell>
                                                 <TableCell>{req.region || "—"}</TableCell>
-                                                <TableCell className="font-medium text-emerald-600">
+                                                <TableCell className="font-medium text-primary">
                                                     {req.minPrice != null && req.maxPrice != null
                                                         ? `${Number(req.minPrice).toLocaleString("en-US")} - ${Number(req.maxPrice).toLocaleString("en-US")}`
                                                         : req.minPrice != null
@@ -656,7 +656,7 @@ export default function Requests() {
                                                         </TableCell>
                                                         <TableCell>
                                                             <div className="flex flex-col items-end gap-1 text-end text-sm">
-                                                                <span className="font-semibold text-emerald-600">
+                                                                <span className="font-semibold text-primary">
                                                                     {formatCurrency(seeker.budgetSize)}
                                                                 </span>
                                                                 <span className="text-xs text-muted-foreground">

@@ -34,9 +34,9 @@ export default function MetricsCard({
   icon: Icon 
 }: MetricsCardProps) {
   const changeColorMap = {
-    positive: "text-emerald-600",
-    negative: "text-red-600",
-    neutral: "text-amber-600"
+    positive: "text-primary",
+    negative: "text-destructive",
+    neutral: "text-warning"
   };
 
   const changeIconMap = {
@@ -49,8 +49,8 @@ export default function MetricsCard({
     <Card className="border-0 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6">
       <div className="flex items-center justify-between pb-2">
         <div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{title}</p>
-          <p className="text-3xl font-bold text-slate-900">{value}</p>
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{title}</p>
+          <p className="text-3xl font-bold text-foreground">{value}</p>
           {change && (
             <p className={cn("text-xs font-bold mt-1 flex items-center gap-1", changeColorMap[changeType])}>
               <span>{changeIconMap[changeType]}</span>
@@ -58,7 +58,7 @@ export default function MetricsCard({
             </p>
           )}
         </div>
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground">
           <Icon size={24} />
         </div>
       </div>

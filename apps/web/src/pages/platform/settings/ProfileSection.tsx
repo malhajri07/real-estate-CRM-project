@@ -48,7 +48,7 @@ export default function ProfileSection({
               type="button"
               variant="outline"
               size="icon"
-              className="rounded-full border border-border bg-white p-2 text-slate-500 transition hover:text-slate-700"
+              className="rounded-full border border-border bg-card p-2 text-muted-foreground transition hover:text-foreground/80"
               aria-label="تبديل عرض الملف الشخصي"
             >
               <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -69,12 +69,12 @@ export default function ProfileSection({
                   <Upload size={16} />
                   تغيير الصورة الشخصية
                 </Button>
-                <p className="text-sm text-slate-500">يفضل استخدام صور بحجم 400x400 بكسل أو أكبر</p>
+                <p className="text-sm text-muted-foreground">يفضل استخدام صور بحجم 400x400 بكسل أو أكبر</p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName" className="block text-sm font-medium text-slate-700">الاسم الأول</Label>
+                <Label htmlFor="firstName" className="block text-sm font-medium text-foreground/80">الاسم الأول</Label>
                 <Input
                   id="firstName"
                   className="text-subtle"
@@ -84,7 +84,7 @@ export default function ProfileSection({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName" className="block text-sm font-medium text-slate-700">اسم العائلة</Label>
+                <Label htmlFor="lastName" className="block text-sm font-medium text-foreground/80">اسم العائلة</Label>
                 <Input
                   id="lastName"
                   className="text-subtle"
@@ -94,7 +94,7 @@ export default function ProfileSection({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="userEmail" className="block text-sm font-medium text-slate-700">البريد الإلكتروني</Label>
+                <Label htmlFor="userEmail" className="block text-sm font-medium text-foreground/80">البريد الإلكتروني</Label>
                 <Input
                   id="userEmail"
                   type="email"
@@ -105,7 +105,7 @@ export default function ProfileSection({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="userPhone" className="block text-sm font-medium text-slate-700">رقم الهاتف</Label>
+                <Label htmlFor="userPhone" className="block text-sm font-medium text-foreground/80">رقم الهاتف</Label>
                 <Input
                   id="userPhone"
                   type="tel"
@@ -116,7 +116,7 @@ export default function ProfileSection({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="title" className="block text-sm font-medium text-slate-700">المسمى الوظيفي</Label>
+                <Label htmlFor="title" className="block text-sm font-medium text-foreground/80">المسمى الوظيفي</Label>
                 <Input
                   id="title"
                   className="text-subtle"
@@ -126,7 +126,7 @@ export default function ProfileSection({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="department" className="block text-sm font-medium text-slate-700">القسم</Label>
+                <Label htmlFor="department" className="block text-sm font-medium text-foreground/80">القسم</Label>
                 <Select value={userProfile.department} onValueChange={(value) => onUserProfileChange({ ...userProfile, department: value })}>
                   <SelectTrigger className="text-subtle" data-testid="select-department">
                     <SelectValue />

@@ -1,6 +1,7 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma } from '../prismaClient';
 import { z } from 'zod';
+import { authenticateToken } from '../auth';
 
 const router = Router();
 
@@ -12,7 +13,20 @@ const TicketSchema = z.object({
     customerId: z.string().optional(), // For admin/agent creation
 });
 
-// GET /api/support-tickets
+const createTicketSchema = z.object({
+    subject: z.string().min(1).max(200),
+    description: z.string().min(1),
+    categoryId: z.string().optional(),
+    priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+});
+
+const updateTicketSchema = z.object({
+    status: z.string().optional(),
+    priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+    assignedToUserId: z.string().optional(),
+    description: z.string().optional(),
+});
+
 // GET /api/support-tickets
 router.get('/', async (req: any, res) => {
     try {
@@ -47,7 +61,7 @@ router.get('/', async (req: any, res) => {
 // POST /api/support-tickets
 router.post('/', async (req: any, res) => {
     try {
-        const data = TicketSchema.parse(req.body);
+        const data = createTicketSchema.parse(req.body);
         const userId = req.user?.id;
         const orgId = req.user?.organizationId;
 
@@ -58,10 +72,9 @@ router.post('/', async (req: any, res) => {
                 subject: data.subject,
                 description: data.description,
                 priority: data.priority || 'MEDIUM',
-                channel: data.channel || 'WEBSITE',
+                channel: 'WEBSITE',
                 organizationId: orgId,
                 createdByUserId: userId,
-                customerId: data.customerId,
                 status: 'OPEN'
             }
         });
@@ -76,21 +89,38 @@ router.post('/', async (req: any, res) => {
 });
 
 // PUT /api/support-tickets/:id
-router.put('/:id', async (req: any, res) => {
+router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
     try {
-        const { status, priority, assignedToUserId, description } = req.body;
-        const ticket = await prisma.support_tickets.update({
+        const validated = updateTicketSchema.parse(req.body);
+        const userId = (req as any).user?.id;
+        const roles = (req as any).user?.roles || [];
+
+        // Verify ticket ownership or admin privileges
+        const ticket = await prisma.support_tickets.findFirst({
+            where: { id: req.params.id }
+        });
+        if (!ticket) return res.status(404).json({ message: "Ticket not found" });
+
+        // Only allow update if user owns the ticket or is admin
+        if (ticket.createdByUserId !== userId && !roles.includes('ADMIN') && !roles.includes('WEBSITE_ADMIN')) {
+            return res.status(403).json({ message: "Not authorized to update this ticket" });
+        }
+
+        const updated = await prisma.support_tickets.update({
             where: { id: req.params.id },
             data: {
-                ...(status && { status }),
-                ...(priority && { priority }),
-                ...(assignedToUserId && { assignedToUserId }),
-                ...(description && { description }),
-                ...(status === 'CLOSED' || status === 'RESOLVED' ? { closedAt: new Date() } : {})
+                ...(validated.status && { status: validated.status as any }),
+                ...(validated.priority && { priority: validated.priority }),
+                ...(validated.assignedToUserId && { assignedToUserId: validated.assignedToUserId }),
+                ...(validated.description && { description: validated.description }),
+                ...(validated.status === 'CLOSED' || validated.status === 'RESOLVED' ? { closedAt: new Date() } : {})
             }
         });
-        res.json(ticket);
+        res.json(updated);
     } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ message: 'Invalid data', errors: error.errors });
+        }
         res.status(500).json({ message: 'Failed to update ticket' });
     }
 });
@@ -107,8 +137,8 @@ router.get('/categories', async (_req, res) => {
         });
         res.json({ categories });
     } catch (error) {
-        console.error('Failed to fetch categories:', error);
-        res.status(500).json({ message: 'Failed to fetch categories' });
+        console.error('Error fetching categories:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
@@ -122,13 +152,18 @@ router.get('/templates', async (_req, res) => {
         });
         res.json({ templates });
     } catch (error) {
-        console.error('Failed to fetch templates:', error);
-        res.status(500).json({ message: 'Failed to fetch templates' });
+        console.error('Error fetching templates:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
 // POST /api/support/seed (Moved down)
 router.post('/seed', async (req: any, res) => {
+    // Prevent seed endpoint in production
+    if (process.env.NODE_ENV === 'production') {
+        return res.status(403).json({ message: "Seed endpoint disabled in production" });
+    }
+
     try {
         const userId = req.user?.id;
         const orgId = req.user?.organizationId;
@@ -174,8 +209,8 @@ router.post('/seed', async (req: any, res) => {
 
         res.json({ success: true, message: 'Support tickets seeded' });
     } catch (error) {
-        console.error('Seeding tickets error:', error);
-        res.status(500).json({ message: 'Failed to seed tickets' });
+        console.error('Error seeding tickets:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 

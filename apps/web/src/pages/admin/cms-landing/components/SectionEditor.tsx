@@ -61,7 +61,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
     <Card className="glass border-0 rounded-3xl p-8 shadow-none relative overflow-visible">
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10 overflow-visible">
         <div className="flex items-center gap-4">
-          <div className="h-12 w-12 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center">
+          <div className="h-12 w-12 bg-slate-100 text-muted-foreground rounded-2xl flex items-center justify-center">
             <Layout className="h-6 w-6" />
           </div>
           <div>
@@ -73,7 +73,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
           <Button
             onClick={onSave}
             disabled={saving}
-            className="h-11 px-6 rounded-xl bg-white border border-border text-slate-700 font-bold hover:bg-slate-50 transition-all shadow-sm flex-1 md:flex-none"
+            className="h-11 px-6 rounded-xl bg-card border border-border text-foreground font-bold hover:bg-slate-50 transition-all shadow-sm flex-1 md:flex-none"
             aria-label="حفظ المسودة"
           >
             <Save className="h-4 w-4 me-2" />
@@ -82,7 +82,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
           <Button
             onClick={onPublish}
             disabled={publishing}
-            className="h-11 px-6 rounded-xl premium-gradient text-white border-0 font-bold shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex-1 md:flex-none"
+            className="h-11 px-6 rounded-xl premium-gradient text-white border-0 font-bold shadow-lg shadow-primary/10 hover:scale-[1.02] active:scale-[0.98] transition-all flex-1 md:flex-none"
             aria-label="نشر التعديلات"
           >
             <Send className="h-4 w-4 me-2" />
@@ -92,9 +92,9 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
       </div>
 
       <div className="space-y-8">
-        <div className="flex items-center justify-between gap-6 p-6 bg-blue-50/50 rounded-3xl border border-blue-100/50 group transition-all hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 overflow-visible">
+        <div className="flex items-center justify-between gap-6 p-6 bg-primary/5 rounded-3xl border border-primary/10 group transition-all hover:bg-card hover:shadow-xl hover:shadow-primary/10 overflow-visible">
           <div className="flex items-center gap-4">
-            <div className="h-10 w-10 bg-white rounded-xl flex items-center justify-center text-slate-600 shadow-sm">
+            <div className="h-10 w-10 bg-card rounded-xl flex items-center justify-center text-muted-foreground shadow-sm">
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
@@ -106,7 +106,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
             <Switch
               checked={formState.visible}
               onCheckedChange={(checked) => setField("visible", checked)}
-              className="data-[state=checked]:bg-blue-600"
+              className="data-[state=checked]:bg-primary"
             />
           </div>
         </div>
@@ -118,7 +118,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
               value={formState.title ?? ""}
               onChange={(event) => setField("title", event.target.value)}
               placeholder="أدخل عنواناً جذاباً..."
-              className="h-14 rounded-2xl bg-white/50 border-slate-100 focus:ring-slate-500/20 text-lg font-bold text-slate-900 placeholder:text-slate-300"
+              className="h-14 rounded-2xl bg-white/50 border-border focus:ring-primary/10 text-lg font-bold text-slate-900 placeholder:text-slate-300"
             />
           </div>
 
@@ -129,7 +129,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                 value={formState.subtitle ?? ""}
                 onChange={(event) => setField("subtitle", event.target.value)}
                 placeholder="أضف سياقاً إضافياً للعنوان..."
-                className="h-14 rounded-2xl bg-white/50 border-slate-100 focus:ring-slate-500/20 font-bold text-slate-600 placeholder:text-slate-300"
+                className="h-14 rounded-2xl bg-white/50 border-border focus:ring-primary/10 font-bold text-muted-foreground placeholder:text-slate-300"
               />
             </div>
           )}
@@ -142,7 +142,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                   value={formState.badge ?? ""}
                   onChange={(event) => setField("badge", event.target.value)}
                   placeholder="مثال: الإصدار الجديد ٢.٠"
-                  className="h-14 rounded-2xl bg-white/50 border-slate-100 focus:ring-slate-500/20 font-bold text-slate-600 placeholder:text-slate-300"
+                  className="h-14 rounded-2xl bg-white/50 border-border focus:ring-primary/10 font-bold text-muted-foreground placeholder:text-slate-300"
                 />
               </div>
               <div className="space-y-3">
@@ -152,10 +152,10 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                   onChange={(event) => setField("body", event.target.value)}
                   rows={4}
                   placeholder="وصف مختصر ومؤثر لمهمة المنصة..."
-                  className="rounded-2xl bg-white/50 border-slate-100 focus:ring-slate-500/20 font-medium text-slate-600 leading-relaxed placeholder:text-slate-300"
+                  className="rounded-2xl bg-white/50 border-border focus:ring-primary/10 font-medium text-muted-foreground leading-relaxed placeholder:text-slate-300"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50/50 rounded-3xl border border-slate-100">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-slate-50/50 rounded-3xl border border-border">
                 <div className="space-y-3">
                   <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2">الزر الرئيسي - النص</Label>
                   <Input
@@ -164,7 +164,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                       setField("primaryCtaLabel", event.target.value)
                     }
                     placeholder="ابدأ رحلتك"
-                    className="h-12 rounded-xl bg-white border-slate-100 focus:ring-slate-500/20 font-bold"
+                    className="h-12 rounded-xl bg-card border-border focus:ring-primary/10 font-bold"
                   />
                 </div>
                 <div className="space-y-3">
@@ -176,7 +176,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                     }
                     placeholder="/signup"
                     dir="ltr"
-                    className="h-12 rounded-xl bg-white border-slate-100 focus:ring-slate-500/20 font-mono text-xs"
+                    className="h-12 rounded-xl bg-card border-border focus:ring-primary/10 font-mono text-xs"
                   />
                 </div>
               </div>
@@ -191,7 +191,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                   value={formState.badge ?? ""}
                   onChange={(event) => setField("badge", event.target.value)}
                   placeholder="مثال: مميزات النظام، حلول متكاملة، خطط التسعير، تواصل معنا"
-                  className="h-14 rounded-2xl bg-white/50 border-slate-100 focus:ring-slate-500/20 font-bold text-slate-600 placeholder:text-slate-300"
+                  className="h-14 rounded-2xl bg-white/50 border-border focus:ring-primary/10 font-bold text-muted-foreground placeholder:text-slate-300"
                 />
                 <p className="text-xs text-slate-400 px-1">نص صغير يظهر أعلى العنوان الرئيسي للقسم</p>
               </div>
@@ -204,7 +204,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                   }
                   rows={4}
                   placeholder="اشرح لعملائك أهمية هذا القسم وما سيستفيدونه منه..."
-                  className="rounded-2xl bg-white/50 border-slate-100 focus:ring-slate-500/20 font-medium text-slate-600 leading-relaxed placeholder:text-slate-300"
+                  className="rounded-2xl bg-white/50 border-border focus:ring-primary/10 font-medium text-muted-foreground leading-relaxed placeholder:text-slate-300"
                 />
               </div>
             </>
@@ -219,7 +219,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                   onChange={(event) => setField("body", event.target.value)}
                   rows={4}
                   placeholder="كلمة أخيرة للزوار في نهاية الصفحة..."
-                  className="rounded-2xl bg-white/50 border-slate-100 focus:ring-slate-500/20 font-medium text-slate-600"
+                  className="rounded-2xl bg-white/50 border-border focus:ring-primary/10 font-medium text-muted-foreground"
                 />
               </div>
               <div className="space-y-3">
@@ -228,7 +228,7 @@ export const SectionEditor: React.FC<SectionEditorProps> = ({
                   value={formState.copyright ?? ""}
                   onChange={(event) => setField("copyright", event.target.value)}
                   placeholder="© ٢٠٢٤ جميع الحقوق محفوظة"
-                  className="h-12 rounded-xl bg-white/50 border-slate-100 font-bold text-slate-500"
+                  className="h-12 rounded-xl bg-white/50 border-border font-bold text-slate-500"
                 />
               </div>
             </div>

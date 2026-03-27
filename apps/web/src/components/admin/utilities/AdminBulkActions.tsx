@@ -44,12 +44,12 @@ export function AdminBulkActions({
     return (
         <div
             className={cn(
-                'bg-emerald-50 border border-emerald-200 rounded-lg p-4 flex items-center justify-between',
+                'bg-primary/10 border border-primary/20 rounded-lg p-4 flex items-center justify-between',
                 className
             )}
         >
             <div className="flex items-center gap-4">
-                <div className="text-sm text-emerald-900">
+                <div className="text-sm text-primary">
                     تم تحديد <span className="font-bold">{selectedCount}</span>{' '}
                     {selectedCount === 1 ? 'عنصر' : 'عناصر'}
                 </div>
@@ -58,7 +58,7 @@ export function AdminBulkActions({
                         variant="ghost"
                         size="sm"
                         onClick={onClear}
-                        className="h-7 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100"
+                        className="h-7 text-primary hover:text-primary hover:bg-primary/10"
                     >
                         <X className="h-4 w-4 ms-1" />
                         إلغاء التحديد

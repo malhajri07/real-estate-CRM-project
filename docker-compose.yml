@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_DB: real_estate_crm
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - "5432:5432"
     volumes:
@@ -38,10 +38,10 @@ services:
     container_name: real-estate-crm-app
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/real_estate_crm?schema=public
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/real_estate_crm?schema=public
       - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=your-jwt-secret-key
-      - SESSION_SECRET=your-session-secret-key
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
+      - SESSION_SECRET=${SESSION_SECRET:?SESSION_SECRET is required}
       - PORT=3000
     ports:
       - "3000:3000"

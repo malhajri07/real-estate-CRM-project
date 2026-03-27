@@ -36,8 +36,8 @@ export interface ReportChartsProps {
 function CustomTooltip({ active, payload, label, formatCurrency, formatNumber }: any) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-3 border border-border rounded-xl shadow-lg text-end">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-2">{label}</p>
+      <div className="bg-card p-3 border border-border rounded-xl shadow-lg text-end">
+        <p className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">{label}</p>
         {payload.map((entry: any, index: number) => (
           <p
             key={index}
@@ -131,7 +131,7 @@ export default function ReportCharts({
                     <Tooltip />
                   </RechartsPieChart>
                 ) : (
-                  <div className="flex h-full items-center justify-center text-slate-500 text-sm">لا توجد بيانات</div>
+                  <div className="flex h-full items-center justify-center text-muted-foreground text-sm">لا توجد بيانات</div>
                 )}
               </ResponsiveContainer>
             </CardContent>

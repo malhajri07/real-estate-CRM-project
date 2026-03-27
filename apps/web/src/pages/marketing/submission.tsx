@@ -164,16 +164,16 @@ export default function MarketingRequestSubmissionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/70 py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <header className="mb-10 text-center">
-          <h1 className="text-3xl font-extrabold text-slate-900 mb-3">أرسل طلب تسويق لعقارك</h1>
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-3xl mx-auto">
+          <h1 className="text-3xl font-extrabold text-foreground mb-3">أرسل طلب تسويق لعقارك</h1>
+          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-3xl mx-auto">
             شارك تفاصيل العقار وخطة التسويق المتوقعة ليتمكن الوسطاء المعتمدون من تقديم عروضهم المالية وخطتهم التنفيذية.
           </p>
         </header>
 
-        <form onSubmit={handleSubmit} className="bg-white shadow-xl rounded-3xl border border-slate-100 p-6 md:p-10 space-y-8">
+        <form onSubmit={handleSubmit} className="bg-card shadow-xl rounded-3xl border border-border p-6 md:p-10 space-y-8">
           {errors.length > 0 && (
             <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4" role="alert">
               <strong className="block mb-2">يرجى مراجعة البيانات التالية:</strong>
@@ -186,72 +186,72 @@ export default function MarketingRequestSubmissionPage() {
           )}
 
           {message && (
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-700 p-4" role="status">
+            <div className="rounded-2xl border border-primary/20 bg-primary/10 text-primary p-4" role="status">
               {message}
             </div>
           )}
 
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Label className="block">
-              <span className="text-sm text-slate-600">عنوان الطلب *</span>
+              <span className="text-sm text-muted-foreground">عنوان الطلب *</span>
               <Input
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="مثال: حملة تسويق لفيلا في حي الياسمين"
                 required
               />
             </Label>
             <Label className="block">
-              <span className="text-sm text-slate-600">نوع العقار *</span>
+              <span className="text-sm text-muted-foreground">نوع العقار *</span>
               <Input
                 name="propertyType"
                 value={form.propertyType}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="مثال: فيلا، شقة، أرض"
                 required
               />
             </Label>
             <Label className="block">
-              <span className="text-sm text-slate-600">نوع العرض</span>
+              <span className="text-sm text-muted-foreground">نوع العرض</span>
               <Input
                 name="listingType"
                 value={form.listingType}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="بيع، إيجار، استثمار"
               />
             </Label>
             <Label className="block">
-              <span className="text-sm text-slate-600">المدينة *</span>
+              <span className="text-sm text-muted-foreground">المدينة *</span>
               <Input
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="مثال: الرياض"
                 required
               />
             </Label>
             <Label className="block">
-              <span className="text-sm text-slate-600">الحي</span>
+              <span className="text-sm text-muted-foreground">الحي</span>
               <Input
                 name="district"
                 value={form.district}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="مثال: حي الياسمين"
               />
             </Label>
             <Label className="block">
-              <span className="text-sm text-slate-600">المنطقة</span>
+              <span className="text-sm text-muted-foreground">المنطقة</span>
               <Input
                 name="region"
                 value={form.region}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="مثال: منطقة الرياض"
               />
             </Label>
@@ -259,23 +259,23 @@ export default function MarketingRequestSubmissionPage() {
 
           <section className="space-y-4">
             <Label className="block">
-              <span className="text-sm text-slate-600">وصف مختصر للحملة *</span>
+              <span className="text-sm text-muted-foreground">وصف مختصر للحملة *</span>
               <Textarea
                 name="summary"
                 value={form.summary}
                 onChange={handleChange}
-                className="mt-1 w-full min-h-[140px] rounded-2xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full min-h-[140px] rounded-2xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="عرّفنا بالعقار وأهداف الحملة التسويقية والنتيجة المتوقعة"
                 required
               />
             </Label>
             <Label className="block">
-              <span className="text-sm text-slate-600">تفاصيل إضافية (اختياري)</span>
+              <span className="text-sm text-muted-foreground">تفاصيل إضافية (اختياري)</span>
               <Textarea
                 name="requirements"
                 value={form.requirements}
                 onChange={handleChange}
-                className="mt-1 w-full min-h-[120px] rounded-2xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full min-h-[120px] rounded-2xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="اذكر المتطلبات الخاصة أو المستندات المساندة"
               />
             </Label>
@@ -283,7 +283,7 @@ export default function MarketingRequestSubmissionPage() {
 
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <span className="text-sm text-slate-600">الميزانية التقديرية للحملة</span>
+              <span className="text-sm text-muted-foreground">الميزانية التقديرية للحملة</span>
               <div className="grid grid-cols-2 gap-4 mt-2">
                 <Input
                   name="budgetMin"
@@ -291,7 +291,7 @@ export default function MarketingRequestSubmissionPage() {
                   onChange={handleChange}
                   type="number"
                   min="0"
-                  className="rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                  className="rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                   placeholder="الحد الأدنى"
                 />
                 <Input
@@ -300,13 +300,13 @@ export default function MarketingRequestSubmissionPage() {
                   onChange={handleChange}
                   type="number"
                   min="0"
-                  className="rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                  className="rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                   placeholder="الحد الأعلى"
                 />
               </div>
             </div>
             <div>
-              <span className="text-sm text-slate-600">نسبة السعي المتوقعة</span>
+              <span className="text-sm text-muted-foreground">نسبة السعي المتوقعة</span>
               <Input
                 name="commissionExpectation"
                 value={form.commissionExpectation}
@@ -314,37 +314,37 @@ export default function MarketingRequestSubmissionPage() {
                 type="number"
                 min="0"
                 step="0.1"
-                className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="مثال: 2.5"
               />
             </div>
             <div>
-              <span className="text-sm text-slate-600">تاريخ البدء المفضل</span>
+              <span className="text-sm text-muted-foreground">تاريخ البدء المفضل</span>
               <Input
                 name="preferredStartDate"
                 value={form.preferredStartDate}
                 onChange={handleChange}
                 type="date"
-                className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
               />
             </div>
             <div>
-              <span className="text-sm text-slate-600">تاريخ الانتهاء المتوقع</span>
+              <span className="text-sm text-muted-foreground">تاريخ الانتهاء المتوقع</span>
               <Input
                 name="preferredEndDate"
                 value={form.preferredEndDate}
                 onChange={handleChange}
                 type="date"
-                className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
               />
             </div>
           </section>
 
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="block">
-              <Label className="text-sm text-slate-600">فئة الطلب</Label>
+              <Label className="text-sm text-muted-foreground">فئة الطلب</Label>
               <Select value={form.seriousnessTier} onValueChange={(value) => setForm((prev) => ({ ...prev, seriousnessTier: value as FormState["seriousnessTier"] }))}>
-                <SelectTrigger className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none">
+                <SelectTrigger className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -355,12 +355,12 @@ export default function MarketingRequestSubmissionPage() {
               </Select>
             </div>
             <Label className="block">
-              <span className="text-sm text-slate-600">معرف العقار (اختياري)</span>
+              <span className="text-sm text-muted-foreground">معرف العقار (اختياري)</span>
               <Input
                 name="propertyId"
                 value={form.propertyId}
                 onChange={handleChange}
-                className="mt-2 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="اربط الطلب بعقار مسجل في النظام"
               />
             </Label>
@@ -368,44 +368,44 @@ export default function MarketingRequestSubmissionPage() {
 
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Label className="block">
-              <span className="text-sm text-slate-600">اسم جهة التواصل *</span>
+              <span className="text-sm text-muted-foreground">اسم جهة التواصل *</span>
               <Input
                 name="contactName"
                 value={form.contactName}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="مثال: أحمد العتيبي"
                 required
               />
             </Label>
             <Label className="block">
-              <span className="text-sm text-slate-600">رقم التواصل</span>
+              <span className="text-sm text-muted-foreground">رقم التواصل</span>
               <Input
                 name="contactPhone"
                 value={form.contactPhone}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="05XXXXXXXX"
               />
             </Label>
             <Label className="block">
-              <span className="text-sm text-slate-600">البريد الإلكتروني</span>
+              <span className="text-sm text-muted-foreground">البريد الإلكتروني</span>
               <Input
                 name="contactEmail"
                 value={form.contactEmail}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-white px-4 py-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
                 placeholder="example@email.com"
                 type="email"
               />
             </Label>
           </section>
 
-          <div className="pt-6 border-t border-slate-100">
+          <div className="pt-6 border-t border-border">
             <Button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 text-white font-semibold shadow-lg shadow-emerald-200 transition hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {submitting ? "جاري إرسال الطلب..." : "إرسال الطلب للمراجعة"}
             </Button>

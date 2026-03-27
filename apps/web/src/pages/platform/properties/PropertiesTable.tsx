@@ -81,7 +81,7 @@ export default function PropertiesTable({
               </Badge>
             </TableCell>
             <TableCell>
-              <div className="font-semibold text-emerald-600">
+              <div className="font-semibold text-primary">
                 {formatCurrency(property.price)}
               </div>
             </TableCell>

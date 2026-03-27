@@ -29,14 +29,14 @@ export function PipelineFlow({ stages }: PipelineFlowProps) {
     <Card className="bg-transparent border-0 shadow-none overflow-hidden">
       <CardHeader className="pb-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted/30 text-muted-foreground">
             <TrendingUp className="h-6 w-6" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">
+            <CardTitle className="text-2xl font-bold text-foreground mb-2 tracking-tight">
               {t("dashboard.pipeline_stages")}
             </CardTitle>
-            <CardDescription className="text-slate-600" style={{ lineHeight: '1.8' }}>
+            <CardDescription className="text-muted-foreground" style={{ lineHeight: '1.8' }}>
               {t("dashboard.pipeline_description")}
             </CardDescription>
           </div>
@@ -66,15 +66,15 @@ export function PipelineFlow({ stages }: PipelineFlowProps) {
                   className="group relative"
                 >
                   {/* Stage Card - fixed height for consistent layout */}
-                  <div className="rounded-2xl p-5 min-h-[140px] flex flex-col items-center justify-center border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 bg-white text-center cursor-pointer">
+                  <div className="rounded-2xl p-5 min-h-[140px] flex flex-col items-center justify-center border border-border shadow-sm hover:shadow-md transition-all duration-300 bg-card text-center cursor-pointer">
                     {/* Progress Bar */}
-                    <div className="absolute bottom-0 start-0 end-0 h-1 bg-emerald-500 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    <div className="absolute bottom-0 start-0 end-0 h-1 bg-primary/10 rounded-b-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{ height: `${Math.max(percentage / 10, 2)}px` }}
                     />
                     
                     {/* Value */}
                     <motion.p 
-                      className="text-3xl font-bold text-slate-900 mb-2"
+                      className="text-3xl font-bold text-foreground mb-2"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ delay: index * 0.1 + 0.3, type: "spring", stiffness: 200 }}
@@ -83,7 +83,7 @@ export function PipelineFlow({ stages }: PipelineFlowProps) {
                     </motion.p>
                     
                     {/* Label */}
-                    <p className="text-xs font-bold text-slate-600 uppercase tracking-wider" style={{ lineHeight: '1.6' }}>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider" style={{ lineHeight: '1.6' }}>
                       {stage.label}
                     </p>
                     
@@ -104,9 +104,9 @@ export function PipelineFlow({ stages }: PipelineFlowProps) {
                       style={{ transform: 'translateY(-50%)' }}
                     >
                       {isRTL ? (
-                        <ArrowLeft className="h-5 w-5 text-slate-400 opacity-50" />
+                        <ArrowLeft className="h-5 w-5 text-muted-foreground/70 opacity-50" />
                       ) : (
-                        <ArrowRight className="h-5 w-5 text-slate-400 opacity-50" />
+                        <ArrowRight className="h-5 w-5 text-muted-foreground/70 opacity-50" />
                       )}
                     </div>
                   )}
@@ -119,18 +119,18 @@ export function PipelineFlow({ stages }: PipelineFlowProps) {
         {/* Summary Stats */}
         <div className="flex items-center justify-between pt-4 border-t border-border/50">
           <div>
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
               {t("dashboard.total_deals") || t("dashboard.deals_in_pipeline") || "إجمالي الصفقات"}
             </p>
-            <p className="text-2xl font-bold text-slate-900 mt-1">
+            <p className="text-2xl font-bold text-foreground mt-1">
               {total}
             </p>
           </div>
           <div className="text-end">
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">
+            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
               {t("dashboard.active_stages") || "المراحل النشطة"}
             </p>
-            <p className="text-2xl font-bold text-slate-900 mt-1">
+            <p className="text-2xl font-bold text-foreground mt-1">
               {stages.filter(s => s.value > 0).length}
             </p>
           </div>

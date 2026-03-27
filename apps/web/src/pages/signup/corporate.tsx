@@ -285,13 +285,13 @@ export default function SignupCorporate() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden" dir={dir}>
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
       <main className="relative pt-32 pb-20 px-4">
         {/* Background Blobs */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/10 blur-[100px] rounded-full pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
@@ -304,10 +304,10 @@ export default function SignupCorporate() {
               <Building2 className="w-4 h-4" />
               <span>تسجيل منشأة عقارية</span>
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
               ابدأ رحلة النجاح مع <span className="text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-indigo-600">حساب مؤسسي</span>
             </h1>
-            <p className="text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
               خطوات بسيطة لتسجيل منشأتك والبدء في إدارة أعمالك العقارية باحترافية.
             </p>
           </motion.div>
@@ -343,7 +343,7 @@ export default function SignupCorporate() {
                               ? "bg-blue-600 text-white border-blue-600"
                               : isCurrent
                                 ? "bg-blue-100 text-blue-600 border-blue-300"
-                                : "bg-slate-100 text-slate-500 border-slate-300"
+                                : "bg-muted/50 text-muted-foreground border-slate-300"
                           )}
                         >
                           {isCompleted ? (
@@ -356,12 +356,12 @@ export default function SignupCorporate() {
                           <div
                             className={cn(
                               "text-sm font-semibold",
-                              isCurrent || isCompleted ? "text-blue-600" : "text-slate-500"
+                              isCurrent || isCompleted ? "text-blue-600" : "text-muted-foreground"
                             )}
                           >
                             {step.title}
                           </div>
-                          <div className="text-xs text-slate-400">{step.description}</div>
+                          <div className="text-xs text-muted-foreground/70">{step.description}</div>
                         </div>
                         {index < STEPS.length - 1 && (
                           <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-slate-200 -z-10" />
@@ -386,17 +386,17 @@ export default function SignupCorporate() {
                 {/* Step 1: Account Credentials */}
                 {currentStep === 1 && (
                   <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-4 pb-4 border-b border-border">
                       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">1</span>
                       <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-slate-900">بيانات الحساب الأساسية</h2>
-                        <p className="text-sm text-slate-500">قم بتعيين بيانات الدخول الخاصة بمدير الحساب</p>
+                        <h2 className="text-xl font-bold text-foreground">بيانات الحساب الأساسية</h2>
+                        <p className="text-sm text-muted-foreground">قم بتعيين بيانات الدخول الخاصة بمدير الحساب</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                       <div className="space-y-2">
-                        <Label htmlFor="username" className="text-sm font-medium text-slate-700">اسم المستخدم <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="username" className="text-sm font-medium text-foreground/80">اسم المستخدم <span className="text-red-500">*</span></Label>
                         <Input
                           id="username"
                           type="text"
@@ -404,12 +404,12 @@ export default function SignupCorporate() {
                           value={username}
                           onChange={(e) => setUsername(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="password" className="text-sm font-medium text-slate-700">كلمة المرور <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="password" className="text-sm font-medium text-foreground/80">كلمة المرور <span className="text-red-500">*</span></Label>
                         <Input
                           id="password"
                           type="password"
@@ -418,12 +418,12 @@ export default function SignupCorporate() {
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••"
                           required
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start font-password"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">تأكيد كلمة المرور <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground/80">تأكيد كلمة المرور <span className="text-red-500">*</span></Label>
                         <Input
                           id="confirmPassword"
                           type="password"
@@ -432,7 +432,7 @@ export default function SignupCorporate() {
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           placeholder="••••••••"
                           required
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start font-password"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
                         />
                       </div>
                     </div>
@@ -442,30 +442,30 @@ export default function SignupCorporate() {
                 {/* Step 2: Company Information */}
                 {currentStep === 2 && (
                   <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-4 pb-4 border-b border-border">
                       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">2</span>
                       <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-slate-900">معلومات الشركة</h2>
-                        <p className="text-sm text-slate-500">بيانات السجل التجاري والنشاط</p>
+                        <h2 className="text-xl font-bold text-foreground">معلومات الشركة</h2>
+                        <p className="text-sm text-muted-foreground">بيانات السجل التجاري والنشاط</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="companyName" className="text-sm font-medium text-slate-700">اسم الشركة <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="companyName" className="text-sm font-medium text-foreground/80">اسم الشركة <span className="text-red-500">*</span></Label>
                         <Input
                           id="companyName"
                           type="text"
                           value={companyName}
                           onChange={(e) => setCompanyName(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="companyType" className="text-sm font-medium text-slate-700">نوع الشركة <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="companyType" className="text-sm font-medium text-foreground/80">نوع الشركة <span className="text-red-500">*</span></Label>
                         <Select value={companyType} onValueChange={setCompanyType} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start">
+                          <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
                             <SelectValue placeholder="اختر نوع الشركة" />
                           </SelectTrigger>
                           <SelectContent position="popper" sideOffset={4} className="z-[100]">
@@ -481,7 +481,7 @@ export default function SignupCorporate() {
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                       <div className="space-y-2">
-                        <Label htmlFor="commercialRegistration" className="text-sm font-medium text-slate-700">رقم السجل التجاري <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="commercialRegistration" className="text-sm font-medium text-foreground/80">رقم السجل التجاري <span className="text-red-500">*</span></Label>
                         <Input
                           id="commercialRegistration"
                           type="text"
@@ -489,47 +489,47 @@ export default function SignupCorporate() {
                           onChange={(e) => handleNumericInput(e.target.value, setCommercialRegistration)}
                           placeholder="10 أرقام"
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="taxNumber" className="text-sm font-medium text-slate-700">الرقم الضريبي</Label>
+                        <Label htmlFor="taxNumber" className="text-sm font-medium text-foreground/80">الرقم الضريبي</Label>
                         <Input
                           id="taxNumber"
                           type="text"
                           value={taxNumber}
                           onChange={(e) => handleNumericInput(e.target.value, setTaxNumber)}
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="establishmentDate" className="text-sm font-medium text-slate-700">تاريخ التأسيس</Label>
+                        <Label htmlFor="establishmentDate" className="text-sm font-medium text-foreground/80">تاريخ التأسيس</Label>
                         <Input
                           id="establishmentDate"
                           type="date"
                           value={establishmentDate}
                           onChange={(e) => setEstablishmentDate(e.target.value)}
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="employeesCount" className="text-sm font-medium text-slate-700">عدد الموظفين التقريبي</Label>
+                        <Label htmlFor="employeesCount" className="text-sm font-medium text-foreground/80">عدد الموظفين التقريبي</Label>
                         <Input
                           id="employeesCount"
                           type="text"
                           value={employeesCount}
                           onChange={(e) => handleNumericInput(e.target.value, setEmployeesCount)}
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="companyCity" className="text-sm font-medium text-slate-700">المدينة الرئيسية <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="companyCity" className="text-sm font-medium text-foreground/80">المدينة الرئيسية <span className="text-red-500">*</span></Label>
                         <Select value={companyCity} onValueChange={setCompanyCity} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start">
+                          <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
                             <SelectValue placeholder="اختر المدينة" />
                           </SelectTrigger>
                           <SelectContent position="popper" sideOffset={4} className="z-[100]">
@@ -545,18 +545,18 @@ export default function SignupCorporate() {
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="companyAddress" className="text-sm font-medium text-slate-700">العنوان الكامل</Label>
+                        <Label htmlFor="companyAddress" className="text-sm font-medium text-foreground/80">العنوان الكامل</Label>
                         <Input
                           id="companyAddress"
                           type="text"
                           value={companyAddress}
                           onChange={(e) => setCompanyAddress(e.target.value)}
                           placeholder="المدينة، الحي، الشارع"
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="companyWebsite" className="text-sm font-medium text-slate-700">الموقع الإلكتروني</Label>
+                        <Label htmlFor="companyWebsite" className="text-sm font-medium text-foreground/80">الموقع الإلكتروني</Label>
                         <Input
                           id="companyWebsite"
                           type="url"
@@ -564,19 +564,19 @@ export default function SignupCorporate() {
                           value={companyWebsite}
                           onChange={(e) => setCompanyWebsite(e.target.value)}
                           placeholder="https://company.sa"
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="companyDescription" className="text-sm font-medium text-slate-700">نبذة عن الشركة</Label>
+                      <Label htmlFor="companyDescription" className="text-sm font-medium text-foreground/80">نبذة عن الشركة</Label>
                       <Textarea
                         id="companyDescription"
                         value={companyDescription}
                         onChange={(e) => setCompanyDescription(e.target.value)}
                         placeholder="صف مجالات عمل الشركة والخدمات التي تقدمها..."
-                        className="min-h-[120px] rounded-2xl bg-white/50 border-border focus:ring-emerald-500"
+                        className="min-h-[120px] rounded-2xl bg-card/50 border-border focus:ring-primary/30"
                       />
                     </div>
                   </section>
@@ -585,41 +585,41 @@ export default function SignupCorporate() {
                 {/* Step 3: Contact Person */}
                 {currentStep === 3 && (
                   <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-4 pb-4 border-b border-border">
                       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">3</span>
                       <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-slate-900">مسؤول الاتصال</h2>
-                        <p className="text-sm text-slate-500">بيانات المفوض بالتواصل</p>
+                        <h2 className="text-xl font-bold text-foreground">مسؤول الاتصال</h2>
+                        <p className="text-sm text-muted-foreground">بيانات المفوض بالتواصل</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="contactName" className="text-sm font-medium text-slate-700">الاسم الكامل <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="contactName" className="text-sm font-medium text-foreground/80">الاسم الكامل <span className="text-red-500">*</span></Label>
                         <Input
                           id="contactName"
                           type="text"
                           value={contactName}
                           onChange={(e) => setContactName(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="contactPosition" className="text-sm font-medium text-slate-700">المسمى الوظيفي</Label>
+                        <Label htmlFor="contactPosition" className="text-sm font-medium text-foreground/80">المسمى الوظيفي</Label>
                         <Input
                           id="contactPosition"
                           type="text"
                           value={contactPosition}
                           onChange={(e) => setContactPosition(e.target.value)}
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="contactEmail" className="text-sm font-medium text-slate-700">البريد الإلكتروني <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="contactEmail" className="text-sm font-medium text-foreground/80">البريد الإلكتروني <span className="text-red-500">*</span></Label>
                         <Input
                           id="contactEmail"
                           type="email"
@@ -627,11 +627,11 @@ export default function SignupCorporate() {
                           value={contactEmail}
                           onChange={(e) => setContactEmail(e.target.value)}
                           required
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-start"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="contactPhone" className="text-sm font-medium text-slate-700">رقم الجوال <span className="text-red-500">*</span></Label>
+                        <Label htmlFor="contactPhone" className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></Label>
                         <Input
                           id="contactPhone"
                           type="tel"
@@ -641,7 +641,7 @@ export default function SignupCorporate() {
                           required
                           maxLength={10}
                           dir="ltr"
-                          className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end"
+                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
                         />
                       </div>
                     </div>
@@ -651,59 +651,59 @@ export default function SignupCorporate() {
                 {/* Step 4: Documents */}
                 {currentStep === 4 && (
                   <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-4 pb-4 border-b border-border">
                       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">4</span>
                       <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-slate-900">المستندات المساندة</h2>
-                        <p className="text-sm text-slate-500">رفع الوثائق الرسمية (اختياري)</p>
+                        <h2 className="text-xl font-bold text-foreground">المستندات المساندة</h2>
+                        <p className="text-sm text-muted-foreground">رفع الوثائق الرسمية (اختياري)</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                       <div className="space-y-2">
-                        <Label htmlFor="commercialRegDoc" className="text-sm font-medium text-slate-700">صورة السجل التجاري</Label>
+                        <Label htmlFor="commercialRegDoc" className="text-sm font-medium text-foreground/80">صورة السجل التجاري</Label>
                         <div className="relative group">
                           <Input
                             id="commercialRegDoc"
                             type="file"
                             accept="application/pdf"
                             onChange={(e) => setCommercialRegDoc(e.target.files)}
-                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer ps-10 transition-all"
+                            className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
                           />
-                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="vatCertificate" className="text-sm font-medium text-slate-700">شهادة الضريبة</Label>
+                        <Label htmlFor="vatCertificate" className="text-sm font-medium text-foreground/80">شهادة الضريبة</Label>
                         <div className="relative group">
                           <Input
                             id="vatCertificate"
                             type="file"
                             accept="application/pdf"
                             onChange={(e) => setVatCertificate(e.target.files)}
-                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer ps-10 transition-all"
+                            className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
                           />
-                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="companyProfile" className="text-sm font-medium text-slate-700">ملف تعريف الشركة</Label>
+                        <Label htmlFor="companyProfile" className="text-sm font-medium text-foreground/80">ملف تعريف الشركة</Label>
                         <div className="relative group">
                           <Input
                             id="companyProfile"
                             type="file"
                             accept="application/pdf"
                             onChange={(e) => setCompanyProfile(e.target.files)}
-                            className="h-12 rounded-xl border-border bg-white/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-emerald-500 cursor-pointer ps-10 transition-all"
+                            className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
                           />
-                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs text-slate-500 bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground bg-blue-50/50 p-3 rounded-xl border border-blue-100">
                       <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-100 text-blue-600">
                         <Check className="w-2.5 h-2.5" />
                       </span>
@@ -715,17 +715,17 @@ export default function SignupCorporate() {
                 {/* Step 5: Terms and Conditions */}
                 {currentStep === 5 && (
                   <section className="space-y-6">
-                    <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-4 pb-4 border-b border-border">
                       <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">5</span>
                       <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-slate-900">الشروط والأحكام</h2>
-                        <p className="text-sm text-slate-500">موافقتك على سياسات المنصة</p>
+                        <h2 className="text-xl font-bold text-foreground">الشروط والأحكام</h2>
+                        <p className="text-sm text-muted-foreground">موافقتك على سياسات المنصة</p>
                       </div>
                     </div>
 
-                    <div className="rounded-2xl border border-border bg-white/50 p-6 shadow-inner">
-                      <div className="space-y-4 text-sm leading-7 text-slate-600 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                        <h3 className="text-base font-bold text-slate-900 mb-2">شروط استخدام المنصة للمنشآت:</h3>
+                    <div className="rounded-2xl border border-border bg-card/50 p-6 shadow-inner">
+                      <div className="space-y-4 text-sm leading-7 text-muted-foreground max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                        <h3 className="text-base font-bold text-foreground mb-2">شروط استخدام المنصة للمنشآت:</h3>
                         
                         <div className="space-y-3">
                           <p><strong>1. القبول والاتفاقية:</strong> باستخدام المنصة فإنك توافق على شروط الاستخدام وسياسة الخصوصية. إذا لم توافق على البنود فلا يمكنك المتابعة.</p>
@@ -745,7 +745,7 @@ export default function SignupCorporate() {
                           className="h-5 w-5"
                         />
                       </div>
-                      <span className="text-sm font-medium text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors">
+                      <span className="text-sm font-medium text-foreground/80 leading-relaxed group-hover:text-foreground transition-colors">
                         أوافق على جميع الشروط والأحكام المذكورة أعلاه وأؤكد صحة البيانات التجارية المقدمة.
                       </span>
                     </Label>
@@ -753,13 +753,13 @@ export default function SignupCorporate() {
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="flex items-center justify-between pt-6 border-t border-slate-100">
+                <div className="flex items-center justify-between pt-6 border-t border-border">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handlePrevious}
                     disabled={currentStep === 1}
-                    className="h-12 rounded-2xl border-border px-8 text-slate-600 transition-colors hover:bg-slate-100"
+                    className="h-12 rounded-2xl border-border px-8 text-muted-foreground transition-colors hover:bg-muted/50"
                   >
                     <ChevronRight className={cn("me-2", "h-4 w-4")} />
                     السابق
@@ -769,7 +769,7 @@ export default function SignupCorporate() {
                     <Button
                       type="button"
                       onClick={handleNext}
-                      className="h-12 rounded-2xl bg-emerald-600 px-8 text-white hover:bg-emerald-700"
+                      className="h-12 rounded-2xl bg-primary/10 px-8 text-white hover:bg-primary/10"
                     >
                       التالي
                       <ChevronLeft className={cn(dir === "rtl" ? "me-2" : "ms-2", "h-4 w-4")} />
@@ -778,7 +778,7 @@ export default function SignupCorporate() {
                     <Button
                       type="submit"
                       disabled={isLoading || !agreedToTerms}
-                      className="h-12 rounded-2xl bg-emerald-600 px-8 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 disabled:opacity-60"
+                      className="h-12 rounded-2xl bg-primary/10 px-8 text-white shadow-lg shadow-primary/20 hover:bg-primary/10 disabled:opacity-60"
                     >
                       {isLoading ? (
                         <>

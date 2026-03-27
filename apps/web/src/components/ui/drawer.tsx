@@ -48,7 +48,7 @@ export default function Drawer({
       {/* Drawer */}
       <div 
         className={cn(
-          "fixed top-0 h-full w-full max-w-2xl bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out",
+          "fixed top-0 h-full w-full max-w-2xl bg-card shadow-xl z-50 transform transition-transform duration-300 ease-in-out",
           isStart ? 'start-0' : 'end-0',
           open ? 'translate-x-0' : closedTransform,
           className
@@ -57,15 +57,15 @@ export default function Drawer({
       >
         {/* Header */}
         {(title || description) && (
-          <div className="flex items-center justify-between p-6 border-b border-slate-200">
+          <div className="flex items-center justify-between p-6 border-b border-border">
             <div className="flex-1">
               {title && (
-                <h2 className="text-lg font-semibold text-slate-900">
+                <h2 className="text-lg font-semibold text-foreground">
                   {title}
                 </h2>
               )}
               {description && (
-                <p className="text-sm text-slate-600 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {description}
                 </p>
               )}
@@ -74,7 +74,7 @@ export default function Drawer({
               variant="ghost"
               size="sm"
               onClick={() => onOpenChange(false)}
-              className="text-slate-400 hover:text-slate-600"
+              className="text-muted-foreground/70 hover:text-muted-foreground"
             >
               <X className="h-4 w-4" />
             </Button>

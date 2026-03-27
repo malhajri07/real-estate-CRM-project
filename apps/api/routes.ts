@@ -122,7 +122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Increased to 100 attempts per 15 minutes for debugging
+    max: 15, // Strict limit: 15 attempts per 15 minutes to prevent brute force attacks
     message: {
       error: 'TOO_MANY_REQUESTS',
       message: 'Too many login attempts, please try again after 15 minutes'
@@ -151,7 +151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // General API rate limiting
   const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 1000, // Increased limit for development/admin usage
+    max: 100,
     message: {
       error: 'TOO_MANY_REQUESTS',
       message: 'Too many requests, please try again later'
@@ -159,10 +159,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     standardHeaders: true,
     legacyHeaders: false,
     skip: (req) => {
-      // Skip rate limiting for health checks and CMS admin routes
+      // Skip rate limiting only for health checks
       if (req.path === '/health') return true;
-      if (req.path.startsWith('/api/cms/')) return true; // CMS routes need more requests
-      if (req.path.startsWith('/api/rbac-admin/')) return true; // Admin dashboard needs more requests
       return false;
     },
   });
@@ -196,6 +194,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
    */
   app.use("/api/pool", buyerPoolRoutes);
   app.use("/api/community", communityRoutes);
+
+  const adminLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 50,
+    message: {
+      error: 'TOO_MANY_REQUESTS',
+      message: 'Too many admin requests, please try again later'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  app.use("/api/rbac-admin", adminLimiter);
+  app.use("/api/cms", adminLimiter);
 
   // CMS Routes
   app.use("/api/cms", cmsLandingRoutes);

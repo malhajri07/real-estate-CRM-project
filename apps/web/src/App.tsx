@@ -150,8 +150,8 @@ function Router() {
   const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN); // Helper flag to distinguish admin flow from standard platform users.
 
   const fullScreenSuspenseFallback = (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="text-sm text-slate-600">جار التحميل...</div>
+    <div className="min-h-screen flex items-center justify-center bg-muted/30">
+      <div className="text-sm text-muted-foreground">جار التحميل...</div>
     </div>
   );
 
@@ -267,10 +267,10 @@ function Router() {
 
   if (shouldShowNormalizationScreen) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center">
         <div className="text-center">
-          <Spinner size="xl" className="text-emerald-600 mx-auto mb-4" />
-          <p className="text-slate-700 text-sm">جار تهيئة الرابط...</p>
+          <Spinner size="xl" className="text-primary mx-auto mb-4" />
+          <p className="text-foreground/80 text-sm">جار تهيئة الرابط...</p>
         </div>
       </div>
     );
@@ -394,8 +394,8 @@ function Router() {
   // Show loading spinner while checking authentication status
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Spinner size="xl" className="text-blue-600" />
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center">
+        <Spinner size="xl" className="text-primary" />
       </div>
     );
   }
@@ -433,7 +433,7 @@ function Router() {
     setLocation(target, { replace: true });
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-sm text-slate-600">{message}</div>
+        <div className="text-sm text-muted-foreground">{message}</div>
       </div>
     );
   };
@@ -535,7 +535,7 @@ function Router() {
               key={path}
               path={path}
               component={() => {
-                window.location.href = `http://localhost:3000${path}`;
+                window.location.href = `${window.location.origin}${path}`;
                 return (
                   <div className="min-h-screen flex items-center justify-center">
                     جاري التوجيه إلى لوحة التحكم...
@@ -576,7 +576,7 @@ function Router() {
           {/* Use RBAC-aware login that integrates with AuthProvider */}
           <Route path="/rbac-login" component={SuspendedRBACLoginPage} />
           <Route path="/login" component={() => {
-            window.location.href = '/rbac-login';
+            window.location.href = `${window.location.origin}/rbac-login`;
             return null;
           }} />
           {/* Public Routes */}
@@ -610,8 +610,8 @@ function Router() {
       <PlatformShell onLogout={handleLogout}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
-            <Spinner size="xl" className="text-emerald-600 mx-auto mb-4" />
-            <p className="text-lg font-medium text-slate-700">جار التحميل...</p>
+            <Spinner size="xl" className="text-primary mx-auto mb-4" />
+            <p className="text-lg font-medium text-foreground/80">جار التحميل...</p>
           </div>
         </div>
       </PlatformShell>
@@ -731,10 +731,10 @@ function Router() {
     data: { isDashboardPort, isAuthenticated, location }
   });
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <div className="min-h-screen bg-muted/30 flex items-center justify-center">
       <div className="text-center">
-        <Spinner size="xl" className="text-blue-600 mx-auto mb-4" />
-        <p className="text-lg font-medium text-slate-700">جار التحميل...</p>
+        <Spinner size="xl" className="text-primary mx-auto mb-4" />
+        <p className="text-lg font-medium text-foreground/80">جار التحميل...</p>
       </div>
     </div>
   );

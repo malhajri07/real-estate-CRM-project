@@ -1,4 +1,4 @@
-import { prisma } from "../lib/prisma";
+import { prisma } from "../../prismaClient";
 import { BuyerRequestStatus, Prisma } from "@prisma/client";
 
 export class PoolService {

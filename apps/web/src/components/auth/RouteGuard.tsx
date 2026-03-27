@@ -28,14 +28,14 @@ const AccessDenied = ({
 }) => {
     const [, setLocation] = useLocation();
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
             <div className="max-w-md w-full space-y-4 text-center">
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-600">
                     <span className="text-2xl">🔒</span>
                 </div>
                 <div className="space-y-2">
-                    <h1 className="text-xl font-semibold text-slate-900">صلاحية غير كافية</h1>
-                    <p className="text-sm text-slate-600">{message}</p>
+                    <h1 className="text-xl font-semibold text-foreground">صلاحية غير كافية</h1>
+                    <p className="text-sm text-muted-foreground">{message}</p>
                 </div>
                 <div className="flex items-center justify-center gap-3">
                     <Button
@@ -47,7 +47,7 @@ const AccessDenied = ({
                     </Button>
                     <Button
                         onClick={() => setLocation('/home', { replace: true })}
-                        className="rounded-full bg-emerald-600 hover:bg-emerald-700"
+                        className="rounded-full bg-primary hover:bg-primary/90"
                     >
                         الذهاب إلى الصفحة الرئيسية
                     </Button>

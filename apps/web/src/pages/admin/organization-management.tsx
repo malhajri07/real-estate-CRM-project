@@ -75,8 +75,8 @@ export default function OrganizationManagement() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
-      active: { label: 'نشط', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
-      inactive: { label: 'غير نشط', className: 'bg-slate-100 text-slate-800 border-border' },
+      active: { label: 'نشط', className: 'bg-primary/10 text-primary border-primary/20' },
+      inactive: { label: 'غير نشط', className: 'bg-muted/50 text-foreground border-border' },
       pending_verification: { label: 'معلق', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
       suspended: { label: 'معلق', className: 'bg-red-100 text-red-800 border-red-200' }
     };
@@ -149,8 +149,8 @@ export default function OrganizationManagement() {
   if (isLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <Spinner size="lg" className="text-blue-600" />
-        <span className="me-2 text-lg text-slate-600">جاري تحميل المنظمات...</span>
+        <Spinner size="lg" className="text-primary" />
+        <span className="me-2 text-lg text-muted-foreground">جاري تحميل المنظمات...</span>
       </div>
     );
   }
@@ -172,10 +172,10 @@ export default function OrganizationManagement() {
       <Card className="glass border-0 rounded-2xl p-8 shadow-none">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-end">
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">إدارة المنظمات</h1>
-            <p className="text-slate-500 font-medium text-lg">تحكم في الكيانات والشركات المشتركة في النظام</p>
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">إدارة المنظمات</h1>
+            <p className="text-muted-foreground font-medium text-lg">تحكم في الكيانات والشركات المشتركة في النظام</p>
           </div>
-          <Button className="premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 h-12 px-8 rounded-2xl font-bold w-full md:w-auto" onClick={() => setIsCreateDialogOpen(true)}>
+          <Button className="premium-gradient text-white border-0 shadow-lg shadow-primary/10 h-12 px-8 rounded-2xl font-bold w-full md:w-auto" onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="h-5 w-5 me-2" />
             إضافة منظمة جديدة
           </Button>
@@ -187,28 +187,28 @@ export default function OrganizationManagement() {
         <MetricCard
           title="إجمالي المنظمات"
           subtitle="شركات ومؤسسات"
-          icon={<Building2 className="w-5 h-5 text-slate-600" />}
+          icon={<Building2 className="w-5 h-5 text-muted-foreground" />}
           metric={{ today: organizations.length, last7Days: organizations.length, last30Days: organizations.length }}
           loading={isLoading}
         />
         <MetricCard
           title="المنظمات النشطة"
           subtitle="اشتراكات مفعلة"
-          icon={<ShieldCheck className="w-5 h-5 text-slate-600" />}
+          icon={<ShieldCheck className="w-5 h-5 text-muted-foreground" />}
           metric={{ today: activeOrgsCount, last7Days: activeOrgsCount, last30Days: activeOrgsCount }}
           loading={isLoading}
         />
         <MetricCard
           title="إجمالي المستخدمين"
           subtitle="في جميع المنظمات"
-          icon={<Users className="w-5 h-5 text-slate-600" />}
+          icon={<Users className="w-5 h-5 text-muted-foreground" />}
           metric={{ today: totalUsersCount, last7Days: totalUsersCount, last30Days: totalUsersCount }}
           loading={isLoading}
         />
         <MetricCard
           title="الاشتراكات المميزة"
           subtitle="تراخيص نشطة"
-          icon={<CreditCard className="w-5 h-5 text-slate-600" />}
+          icon={<CreditCard className="w-5 h-5 text-muted-foreground" />}
           metric={{ today: activeSubsCount, last7Days: activeSubsCount, last30Days: activeSubsCount }}
           loading={isLoading}
         />
@@ -219,23 +219,23 @@ export default function OrganizationManagement() {
         <div className="flex flex-col lg:flex-row items-end gap-6">
           <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="search" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">البحث</Label>
+              <Label htmlFor="search" className="text-xs font-bold text-muted-foreground uppercase tracking-widest ps-1">البحث</Label>
               <Input
                 id="search"
                 placeholder="اسم المنظمة، البريد..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-11 bg-white/50 border-border/60 rounded-xl focus:ring-blue-500/20"
+                className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-blue-500/20"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="status-filter" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">الحالة</Label>
+              <Label htmlFor="status-filter" className="text-xs font-bold text-muted-foreground uppercase tracking-widest ps-1">الحالة</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-11 bg-white/50 border-border/60 rounded-xl focus:ring-blue-500/20">
+                <SelectTrigger className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-blue-500/20">
                   <SelectValue placeholder="الكل" />
                 </SelectTrigger>
-                <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
+                <SelectContent className="rounded-2xl border-border shadow-2xl">
                   <SelectItem value="all">جميع الحالات</SelectItem>
                   <SelectItem value="active">نشط</SelectItem>
                   <SelectItem value="inactive">غير نشط</SelectItem>
@@ -246,12 +246,12 @@ export default function OrganizationManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="type-filter" className="text-xs font-bold text-slate-500 uppercase tracking-widest ps-1">نوع الكيان</Label>
+              <Label htmlFor="type-filter" className="text-xs font-bold text-muted-foreground uppercase tracking-widest ps-1">نوع الكيان</Label>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="h-11 bg-white/50 border-border/60 rounded-xl focus:ring-blue-500/20">
+                <SelectTrigger className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-blue-500/20">
                   <SelectValue placeholder="الكل" />
                 </SelectTrigger>
-                <SelectContent className="rounded-2xl border-slate-100 shadow-2xl">
+                <SelectContent className="rounded-2xl border-border shadow-2xl">
                   <SelectItem value="all">جميع الأنواع</SelectItem>
                   <SelectItem value="شركة عقارية">شركة عقارية</SelectItem>
                   <SelectItem value="مؤسسة">مؤسسة</SelectItem>
@@ -264,65 +264,65 @@ export default function OrganizationManagement() {
       </Card>
 
       <Tabs defaultValue="organizations" className="space-y-6">
-        <TabsList className="bg-slate-100/50 p-1 rounded-2xl border-0 h-14">
-          <TabsTrigger value="organizations" className="rounded-xl px-8 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all">المنظمات</TabsTrigger>
-          <TabsTrigger value="types" className="rounded-xl px-8 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all">أنواع المنظمات</TabsTrigger>
+        <TabsList className="bg-muted/50 p-1 rounded-2xl border-0 h-14">
+          <TabsTrigger value="organizations" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">المنظمات</TabsTrigger>
+          <TabsTrigger value="types" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">أنواع المنظمات</TabsTrigger>
         </TabsList>
 
         <TabsContent value="organizations">
           <Card className="glass border-0 rounded-2xl p-8 shadow-none">
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-slate-900 tracking-tight">قائمة المنظمات</h2>
-                <p className="text-slate-500 font-medium text-sm">عرض وتصفية الشركات المشتركة في النظام</p>
+                <h2 className="text-xl font-bold text-foreground tracking-tight">قائمة المنظمات</h2>
+                <p className="text-muted-foreground font-medium text-sm">عرض وتصفية الشركات المشتركة في النظام</p>
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white/40">
+            <div className="overflow-hidden rounded-2xl border border-border bg-white/40">
               <Table>
-                <TableHeader className="bg-slate-50/50">
-                  <TableRow className="border-slate-100">
-                    <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">المنظمة</TableHead>
-                    <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">النوع</TableHead>
-                    <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">المستخدمين</TableHead>
-                    <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">الاشتراك</TableHead>
-                    <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
-                    <TableHead className="text-center text-xs font-bold uppercase text-slate-400 tracking-widest py-4">تحكم</TableHead>
+                <TableHeader className="bg-muted/30">
+                  <TableRow className="border-border">
+                    <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المنظمة</TableHead>
+                    <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">النوع</TableHead>
+                    <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المستخدمين</TableHead>
+                    <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الاشتراك</TableHead>
+                    <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الحالة</TableHead>
+                    <TableHead className="text-center text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">تحكم</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {organizations.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-12 text-slate-500 font-medium">
+                      <TableCell colSpan={6} className="text-center py-12 text-muted-foreground font-medium">
                         لا توجد منظمات مطابقة للبحث
                       </TableCell>
                     </TableRow>
                   ) : (
                     organizations.map((organization) => (
-                      <TableRow key={organization.id} className="border-slate-50 hover:bg-blue-50/30 transition-colors group">
+                      <TableRow key={organization.id} className="border-slate-50 hover:bg-primary/5 transition-colors group">
                         <TableCell className="py-4">
                           <div className="flex flex-col">
-                            <span className="font-bold text-slate-900 group-hover:text-slate-700 transition-colors">{organization.name}</span>
-                            <span className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-tight">{organization.contactInfo?.email}</span>
+                            <span className="font-bold text-foreground group-hover:text-foreground/80 transition-colors">{organization.name}</span>
+                            <span className="text-xs font-bold text-muted-foreground/70 mt-1 uppercase tracking-tight">{organization.contactInfo?.email}</span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="secondary" className="bg-slate-50 text-slate-500 border-0 text-xs font-bold px-2.5 py-0.5 rounded-md uppercase">
+                          <Badge variant="secondary" className="bg-muted/30 text-muted-foreground border-0 text-xs font-bold px-2.5 py-0.5 rounded-md uppercase">
                             {organization.type}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs">
+                            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
                               {organization.userCount}
                             </div>
-                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">مستخدم</span>
+                            <span className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest">مستخدم</span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="text-sm font-bold text-slate-900">{organization.subscription?.plan ?? 'Basic'}</span>
-                            <span className="text-xs font-bold text-slate-400 mt-0.5">
+                            <span className="text-sm font-bold text-foreground">{organization.subscription?.plan ?? 'Basic'}</span>
+                            <span className="text-xs font-bold text-muted-foreground/70 mt-0.5">
                               {organization.subscription?.expiryDate
                                 ? `ينتهي: ${formatAdminDate(organization.subscription.expiryDate)}`
                                 : '-'}
@@ -337,7 +337,7 @@ export default function OrganizationManagement() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-primary/5 hover:text-primary transition-all"
                               onClick={() => {
                                 setSelectedOrganization(organization);
                                 setEditForm({
@@ -378,7 +378,7 @@ export default function OrganizationManagement() {
         </TabsContent>
 
         <TabsContent value="types">
-          <div className="p-8 text-center text-slate-500 bg-slate-50 rounded-lg border border-dashed border-border">
+          <div className="p-8 text-center text-muted-foreground bg-muted/30 rounded-lg border border-dashed border-border">
             ميزة أنواع المنظمات قادمة قريباً
           </div>
         </TabsContent>

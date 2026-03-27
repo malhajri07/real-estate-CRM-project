@@ -50,15 +50,17 @@ app.use(express.json({ limit: "12mb" }));
 app.use(express.urlencoded({ extended: false, limit: "12mb" }));
 
 // Security headers with helmet
+const isDev = process.env.NODE_ENV !== 'production';
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
-        "'unsafe-inline'", // Consider removing if possible
         "https://maps.googleapis.com", // Google Maps
         "https://*.googleapis.com", // Google Maps subdomains
+        // Vite HMR requires unsafe-inline in development
+        ...(isDev ? ["'unsafe-inline'", "ws:", "wss:"] : []),
       ],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
@@ -70,6 +72,8 @@ app.use(helmet({
         "https://maps.gstatic.com", // Google Maps static resources
         "https://*.google.com", // Additional Google domains
         "https://*.googleapis.com", // Explicit wildcard for all Google APIs
+        // Vite HMR websocket in development
+        ...(isDev ? ["ws://localhost:*", "wss://localhost:*"] : []),
       ],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
@@ -130,10 +134,11 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
+    rolling: true, // Enable rolling sessions to extend TTL on each request
     cookie: {
       secure: process.env.NODE_ENV === 'production' || process.env.FORCE_SECURE_COOKIES === 'true',
       httpOnly: true, // Explicitly prevent XSS access
-      maxAge: 5 * 60 * 1000, // 5 minutes (was 24 hours)
+      maxAge: 30 * 60 * 1000, // 30 minutes
       sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
       domain: process.env.COOKIE_DOMAIN || undefined,
     },

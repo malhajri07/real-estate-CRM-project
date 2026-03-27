@@ -178,8 +178,8 @@ export default function NavigationManagement() {
     <div className="space-y-6" dir="rtl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">إدارة روابط التنقل</h1>
-          <p className="text-slate-600">تخصيص القائمة العلوية وروابط الموقع</p>
+          <h1 className="text-2xl font-bold text-foreground">إدارة روابط التنقل</h1>
+          <p className="text-muted-foreground">تخصيص القائمة العلوية وروابط الموقع</p>
         </div>
         <Button onClick={handleCreate}>
           <Plus className="me-2 h-4 w-4" />
@@ -228,16 +228,16 @@ export default function NavigationManagement() {
                               <TableRow
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                className={snapshot.isDragging ? "bg-slate-50" : ""}
+                                className={snapshot.isDragging ? "bg-muted/30" : ""}
                               >
                                 <TableCell {...provided.dragHandleProps}>
-                                  <GripVertical className="h-5 w-5 text-slate-400" />
+                                  <GripVertical className="h-5 w-5 text-muted-foreground/70" />
                                 </TableCell>
                                 <TableCell className="font-medium">
                                   {link.label}
                                 </TableCell>
                                 <TableCell>
-                                  <code className="text-sm bg-slate-100 px-2 py-1 rounded">
+                                  <code className="text-sm bg-muted/50 px-2 py-1 rounded">
                                     {link.href}
                                   </code>
                                 </TableCell>
@@ -260,9 +260,9 @@ export default function NavigationManagement() {
                                       }
                                     />
                                     {link.visible ? (
-                                      <Eye className="h-4 w-4 text-slate-600" />
+                                      <Eye className="h-4 w-4 text-muted-foreground" />
                                     ) : (
-                                      <EyeOff className="h-4 w-4 text-slate-400" />
+                                      <EyeOff className="h-4 w-4 text-muted-foreground/70" />
                                     )}
                                   </div>
                                 </TableCell>
@@ -381,7 +381,7 @@ function NavigationLinkDialog({
                 onChange={(e) => setLabel(e.target.value)}
                 placeholder="مثال: المدونة"
                 required
-                className="bg-white/50 border-border focus:bg-white transition-all h-11"
+                className="bg-card/50 border-border focus:bg-card transition-all h-11"
               />
             </div>
             <div className="space-y-2">
@@ -393,13 +393,13 @@ function NavigationLinkDialog({
                 placeholder="مثال: /blog أو https://example.com"
                 required
                 dir="ltr"
-                className="text-left bg-white/50 border-border focus:bg-white transition-all h-11 font-mono text-sm"
+                className="text-left bg-card/50 border-border focus:bg-card transition-all h-11 font-mono text-sm"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="target">الهدف</Label>
               <Select value={target} onValueChange={(v: "_self" | "_blank") => setTarget(v)}>
-                <SelectTrigger className="h-11 bg-white/50 border-border">
+                <SelectTrigger className="h-11 bg-card/50 border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -415,10 +415,10 @@ function NavigationLinkDialog({
                 value={icon}
                 onChange={(e) => setIcon(e.target.value)}
                 placeholder="اسم أيقونة Lucide (مثال: BookOpen)"
-                className="bg-white/50 border-border focus:bg-white transition-all h-11"
+                className="bg-card/50 border-border focus:bg-card transition-all h-11"
               />
             </div>
-            <div className="flex items-center gap-2 p-4 rounded-xl border border-slate-100 bg-slate-50/50">
+            <div className="flex items-center gap-2 p-4 rounded-xl border border-border bg-muted/30">
               <Switch
                 id="visible"
                 checked={visible}
@@ -437,7 +437,7 @@ function NavigationLinkDialog({
             >
               إلغاء
             </Button>
-            <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
+            <Button type="submit" disabled={isLoading} className="bg-primary hover:bg-blue-700">
               {isLoading ? "جاري الحفظ..." : link ? "تحديث" : "إنشاء"}
             </Button>
           </AdminSheetFooter>

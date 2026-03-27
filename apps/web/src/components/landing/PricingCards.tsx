@@ -16,8 +16,8 @@ export const PricingCards = ({ content, pricingPlans, onSelectPlan }: PricingCar
     return (
         <section id="pricing" className="py-32 relative bg-white" dir="rtl">
             {/* Background Decor */}
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-white to-emerald-50/30 -z-10" />
-            <div className="absolute top-0 start-0 w-96 h-96 bg-emerald-400/5 blur-[120px] rounded-full" />
+            <div className="absolute inset-0 bg-gradient-to-br from-muted/50 via-card to-primary/5 -z-10" />
+            <div className="absolute top-0 start-0 w-96 h-96 bg-primary/5 blur-[120px] rounded-full" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
@@ -27,7 +27,7 @@ export const PricingCards = ({ content, pricingPlans, onSelectPlan }: PricingCar
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50/80 backdrop-blur-sm border border-purple-100/50 text-purple-700 text-sm font-bold shadow-sm"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 text-primary text-sm font-bold shadow-sm"
                         >
                             <Sparkles className="w-4 h-4" />
                             <span>{content.pricingBadge}</span>
@@ -39,7 +39,7 @@ export const PricingCards = ({ content, pricingPlans, onSelectPlan }: PricingCar
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight"
+                            className="text-4xl lg:text-5xl font-black text-foreground leading-tight"
                             style={{ lineHeight: '1.4' }}
                         >
                             {content.pricingTitle}
@@ -50,7 +50,7 @@ export const PricingCards = ({ content, pricingPlans, onSelectPlan }: PricingCar
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-xl text-slate-600 leading-relaxed"
+                            className="text-xl text-muted-foreground leading-relaxed"
                             style={{ lineHeight: '1.8' }}
                         >
                             {content.pricingSubtitle}
@@ -73,13 +73,13 @@ export const PricingCards = ({ content, pricingPlans, onSelectPlan }: PricingCar
                                 className={cn(
                                     "relative p-8 rounded-3xl border-2 transition-all duration-500 group",
                                     isPopular
-                                        ? "bg-gradient-to-br from-white to-emerald-50/50 shadow-2xl border-emerald-300 scale-105 z-10"
-                                        : "bg-white shadow-xl border-slate-200 hover:border-emerald-200 hover:scale-105 hover:shadow-2xl"
+                                        ? "bg-gradient-to-br from-card to-primary/10 shadow-2xl border-primary/30 scale-105 z-10"
+                                        : "bg-card shadow-xl border-border hover:border-primary/20 hover:scale-105 hover:shadow-2xl"
                                 )}
                             >
                                 {/* Popular Badge */}
                                 {isPopular && (
-                                    <div className="absolute -top-5 start-1/2 -translate-x-1/2 px-5 py-2 bg-gradient-to-l from-emerald-600 to-teal-600 rounded-full text-white text-sm font-black shadow-xl flex items-center gap-2">
+                                    <div className="absolute -top-5 start-1/2 -translate-x-1/2 px-5 py-2 bg-primary rounded-full text-primary-foreground text-sm font-black shadow-xl flex items-center gap-2">
                                         <Star className="w-4 h-4 fill-current" />
                                         <span>الأكثر طلباً</span>
                                     </div>
@@ -87,21 +87,21 @@ export const PricingCards = ({ content, pricingPlans, onSelectPlan }: PricingCar
 
                                 {/* Gradient Overlay for Popular */}
                                 {isPopular && (
-                                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                 )}
 
                                 <div className="relative z-10">
                                     {/* Plan Name */}
                                     <div className="text-center mb-8">
-                                        <h3 className="text-2xl font-black text-slate-900 mb-4">{plan.name}</h3>
+                                        <h3 className="text-2xl font-black text-foreground mb-4">{plan.name}</h3>
                                         <div className="flex items-baseline justify-center gap-2 mb-4">
-                                            <span className="text-5xl font-black text-slate-900">{plan.price}</span>
-                                            <span className="text-lg text-slate-500 font-bold">
+                                            <span className="text-5xl font-black text-foreground">{plan.price}</span>
+                                            <span className="text-lg text-muted-foreground font-bold">
                                                 {plan.period === "monthly" ? "ريال/شهر" : "ريال/سنة"}
                                             </span>
                                         </div>
                                         {plan.description && (
-                                            <p className="text-sm text-slate-600 leading-relaxed" style={{ lineHeight: '1.8' }}>
+                                            <p className="text-sm text-muted-foreground leading-relaxed" style={{ lineHeight: '1.8' }}>
                                                 {plan.description}
                                             </p>
                                         )}
@@ -110,14 +110,14 @@ export const PricingCards = ({ content, pricingPlans, onSelectPlan }: PricingCar
                                     {/* Features List */}
                                     <ul className="space-y-4 mb-8 min-h-[200px]">
                                         {plan.features.map((feature, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
+                                            <li key={i} className="flex items-start gap-3 text-sm text-foreground/80">
                                                 <CheckCircle2 className={cn(
                                                     "w-5 h-5 shrink-0 mt-0.5",
-                                                    feature.included !== false ? "text-emerald-500" : "text-slate-300"
+                                                    feature.included !== false ? "text-primary" : "text-muted-foreground/40"
                                                 )} />
                                                 <span className={cn(
                                                     "leading-relaxed",
-                                                    feature.included === false && "line-through text-slate-400"
+                                                    feature.included === false && "line-through text-muted-foreground/70"
                                                 )} style={{ lineHeight: '1.8' }}>
                                                     {feature.text}
                                                 </span>
@@ -132,8 +132,8 @@ export const PricingCards = ({ content, pricingPlans, onSelectPlan }: PricingCar
                                         className={cn(
                                             "w-full rounded-2xl py-7 font-black text-lg shadow-xl transition-all duration-300",
                                             isPopular
-                                                ? "bg-gradient-to-l from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/30 hover:shadow-emerald-600/40"
-                                                : "bg-white text-slate-900 border-2 border-slate-200 hover:bg-slate-50 hover:border-emerald-300 shadow-slate-200"
+                                                ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/30 hover:shadow-primary/40"
+                                                : "bg-card text-foreground border-2 border-border hover:bg-muted hover:border-primary/30 shadow-sm"
                                         )}
                                     >
                                         {plan.buttonText || "اختر الباقة"}

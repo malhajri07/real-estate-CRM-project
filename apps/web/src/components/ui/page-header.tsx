@@ -41,11 +41,11 @@ export default function PageHeader({
   return (
     <div className={cn("mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4", className)}>
       <div className="flex-1 min-w-0">
-        <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
+        <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">
+          <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
             {subtitle}
           </p>
         )}

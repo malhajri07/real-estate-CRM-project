@@ -24,11 +24,11 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
         return (
             <section id="home" className="relative min-h-screen flex items-center justify-center pt-24 pb-20" dir="rtl">
                 <div className="text-center">
-                    <h1 className="text-4xl font-black text-slate-900 mb-4">منصة إدارة العقارات الذكية</h1>
-                    <p className="text-xl text-slate-600 mb-8">أداة متكاملة لإدارة عملياتك العقارية بكفاءة واحترافية</p>
+                    <h1 className="text-4xl font-black text-foreground mb-4">منصة إدارة العقارات الذكية</h1>
+                    <p className="text-xl text-muted-foreground mb-8">أداة متكاملة لإدارة عملياتك العقارية بكفاءة واحترافية</p>
                     <div className="flex gap-4 justify-center">
-                        <Button onClick={onLogin} variant="outline" className="px-8 py-3 rounded-2xl border-2 border-slate-200 font-bold">تسجيل الدخول</Button>
-                        <Button onClick={onSignUp} className="px-8 py-3 rounded-2xl bg-emerald-600 text-white font-bold">ابدأ الآن</Button>
+                        <Button onClick={onLogin} variant="outline" className="px-8 py-3 rounded-2xl border-2 border-border font-bold">تسجيل الدخول</Button>
+                        <Button onClick={onSignUp} className="px-8 py-3 rounded-2xl bg-primary text-primary-foreground font-bold">ابدأ الآن</Button>
                     </div>
                 </div>
             </section>
@@ -38,7 +38,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
     return (
         <section id="home" className="relative min-h-screen flex items-center pt-24 pb-20 overflow-hidden" dir="rtl" style={{ minHeight: '100vh' }}>
             {/* Modern Background with Gradient Mesh */}
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30" />
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-primary/10" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.1),transparent_50%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.1),transparent_50%)]" />
             
@@ -54,7 +54,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                     repeat: Infinity,
                     ease: "easeInOut"
                 }}
-                className="absolute top-20 end-20 w-96 h-96 bg-emerald-400/20 blur-[120px] rounded-full"
+                className="absolute top-20 end-20 w-96 h-96 bg-primary/10 blur-[120px] rounded-full"
             />
             <motion.div
                 animate={{
@@ -85,11 +85,11 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.2 }}
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50/80 backdrop-blur-sm border border-emerald-100/50 text-emerald-700 text-sm font-bold shadow-sm"
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 backdrop-blur-sm border border-primary/20 text-primary text-sm font-bold shadow-sm"
                             >
                                 <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/10 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary/10"></span>
                                 </span>
                                 {content.heroWelcomeText}
                             </motion.div>
@@ -100,10 +100,10 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.3 }}
-                                className="text-5xl lg:text-7xl xl:text-8xl font-black tracking-tight text-slate-900 leading-[1.1]"
+                                className="text-5xl lg:text-7xl xl:text-8xl font-black tracking-tight text-foreground leading-[1.1]"
                                 style={{ lineHeight: '1.6' }}
                             >
-                                <span className="block bg-gradient-to-l from-slate-900 via-slate-800 to-emerald-600 bg-clip-text text-transparent">
+                                <span className="block bg-gradient-to-l from-slate-900 via-slate-800 to-primary/70 bg-clip-text text-transparent">
                                     {content.heroTitle || "منصة إدارة العقارات الذكية"}
                                 </span>
                             </motion.h1>
@@ -112,7 +112,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.4 }}
-                                className="text-xl lg:text-2xl text-slate-600 leading-relaxed max-w-2xl ms-auto"
+                                className="text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-2xl ms-auto"
                                 style={{ lineHeight: '1.8' }}
                             >
                                 {content.heroSubtitle || "أداة متكاملة لإدارة عملياتك العقارية بكفاءة واحترافية"}
@@ -129,14 +129,14 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                 onClick={onLogin}
                                 variant="outline"
                                 size="lg"
-                                className="h-14 px-8 text-lg rounded-2xl border-2 border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-300 font-bold shadow-sm"
+                                className="h-14 px-8 text-lg rounded-2xl border-2 border-border hover:bg-muted/30 hover:border-slate-300 transition-all duration-300 font-bold shadow-sm"
                             >
                                 {content.heroLoginButton || "تسجيل الدخول"}
                             </Button>
                             <Button
                                 onClick={onSignUp}
                                 size="lg"
-                                className="h-14 px-8 text-lg rounded-2xl bg-gradient-to-l from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xl shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all duration-300 group font-bold"
+                                className="h-14 px-8 text-lg rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/30 hover:shadow-primary/40 transition-all duration-300 group font-bold"
                             >
                                 {content.heroButton || "ابدأ الآن"}
                                 <ArrowRight className="ms-2 h-5 w-5 transition-transform group-hover:translate-x-[-4px]" />
@@ -149,9 +149,9 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.6 }}
-                                className="pt-8 border-t border-slate-200/50"
+                                className="pt-8 border-t border-border/50"
                             >
-                                <p className="text-sm font-bold text-slate-500 mb-4 uppercase tracking-wider">
+                                <p className="text-sm font-bold text-muted-foreground mb-4 uppercase tracking-wider">
                                     {content.heroDashboardTitle}
                                 </p>
                                 <div className="grid grid-cols-2 gap-4">
@@ -161,15 +161,15 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                             initial={{ opacity: 0, scale: 0.9 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             transition={{ delay: 0.7 + idx * 0.1 }}
-                                            className="p-4 rounded-xl bg-white/60 backdrop-blur-sm border border-slate-100 shadow-sm hover:shadow-md transition-all"
+                                            className="p-4 rounded-xl bg-white/60 backdrop-blur-sm border border-border shadow-sm hover:shadow-md transition-all"
                                         >
                                             <div className={cn(
                                                 "text-2xl font-black mb-1",
-                                                HERO_METRIC_THEME[metric.color as keyof typeof HERO_METRIC_THEME]?.text || "text-slate-900"
+                                                HERO_METRIC_THEME[metric.color as keyof typeof HERO_METRIC_THEME]?.text || "text-foreground"
                                             )}>
                                                 {metric.value}
                                             </div>
-                                            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                            <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                                                 {metric.label}
                                             </div>
                                         </motion.div>
@@ -188,7 +188,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                         className="relative lg:h-[650px] flex items-center justify-center"
                     >
                         {/* Glow Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-blue-400/20 blur-3xl rounded-full scale-75 animate-pulse" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-blue-400/20 blur-3xl rounded-full scale-75 animate-pulse" />
 
                         {/* Main Dashboard Card - Modern Glass Design */}
                         <div className="relative w-full max-w-lg glass rounded-3xl p-6 border border-white/60 shadow-2xl backdrop-blur-xl bg-white/80">
@@ -197,7 +197,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                 <div className="w-3 h-3 rounded-full bg-red-400" />
                                 <div className="w-3 h-3 rounded-full bg-yellow-400" />
                                 <div className="w-3 h-3 rounded-full bg-green-400" />
-                                <div className="flex-1 ms-4 h-7 bg-slate-100/80 rounded-lg" />
+                                <div className="flex-1 ms-4 h-7 bg-muted/50 rounded-lg" />
                             </div>
 
                             {/* Dashboard Content */}
@@ -205,8 +205,8 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                 {/* Header */}
                                 <div className="flex justify-between items-center">
                                     <div className="h-10 w-40 bg-gradient-to-l from-slate-200 to-slate-100 rounded-lg" />
-                                    <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                                        <Sparkles className="w-5 h-5 text-emerald-600" />
+                                    <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
+                                        <Sparkles className="w-5 h-5 text-primary" />
                                     </div>
                                 </div>
 
@@ -214,7 +214,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                 <div className="grid grid-cols-2 gap-4">
                                     {heroMetrics.length > 0 ? (
                                         heroMetrics.slice(0, 4).map((metric, i) => (
-                                            <div key={i} className="bg-white/80 p-4 rounded-xl border border-slate-100 shadow-sm">
+                                            <div key={i} className="bg-white/80 p-4 rounded-xl border border-border shadow-sm">
                                                 <div className="h-3 w-20 bg-slate-200 rounded mb-3" />
                                                 <div className={cn(
                                                     "h-8 w-24 rounded",
@@ -224,7 +224,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                         ))
                                     ) : (
                                         [1, 2, 3, 4].map(i => (
-                                            <div key={i} className="bg-white/80 p-4 rounded-xl border border-slate-100 shadow-sm">
+                                            <div key={i} className="bg-white/80 p-4 rounded-xl border border-border shadow-sm">
                                                 <div className="h-3 w-20 bg-slate-200 rounded mb-3" />
                                                 <div className="h-8 w-24 bg-slate-300 rounded" />
                                             </div>
@@ -233,14 +233,14 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                 </div>
 
                                 {/* Chart Area */}
-                                <div className="h-40 bg-gradient-to-t from-emerald-50/80 to-transparent rounded-xl border border-emerald-100/50 flex items-end p-3 gap-2">
+                                <div className="h-40 bg-gradient-to-t from-primary/10 to-transparent rounded-xl border border-primary/20 flex items-end p-3 gap-2">
                                     {[40, 60, 45, 70, 50, 80, 65].map((h, i) => (
                                         <motion.div
                                             key={i}
                                             initial={{ height: 0 }}
                                             animate={{ height: `${h}%` }}
                                             transition={{ delay: 0.8 + i * 0.1, duration: 0.5 }}
-                                            className="flex-1 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-lg opacity-80"
+                                            className="flex-1 bg-gradient-to-t from-primary to-primary/70 rounded-t-lg opacity-80"
                                         />
                                     ))}
                                 </div>
@@ -260,18 +260,18 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                                     <div className="flex items-center gap-3">
                                         <div className={cn(
                                             "w-12 h-12 rounded-xl flex items-center justify-center",
-                                            HERO_METRIC_THEME[metric.color as keyof typeof HERO_METRIC_THEME]?.bg || "bg-emerald-100"
+                                            HERO_METRIC_THEME[metric.color as keyof typeof HERO_METRIC_THEME]?.bg || "bg-primary/10"
                                         )}>
                                             <Sparkles className={cn(
                                                 "w-6 h-6",
-                                                HERO_METRIC_THEME[metric.color as keyof typeof HERO_METRIC_THEME]?.text || "text-emerald-600"
+                                                HERO_METRIC_THEME[metric.color as keyof typeof HERO_METRIC_THEME]?.text || "text-primary"
                                             )} />
                                         </div>
                                         <div>
-                                            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">{metric.label}</div>
+                                            <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{metric.label}</div>
                                             <div className={cn(
                                                 "text-lg font-black",
-                                                HERO_METRIC_THEME[metric.color as keyof typeof HERO_METRIC_THEME]?.text || "text-slate-900"
+                                                HERO_METRIC_THEME[metric.color as keyof typeof HERO_METRIC_THEME]?.text || "text-foreground"
                                             )}>
                                                 {metric.value}
                                             </div>

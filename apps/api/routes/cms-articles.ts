@@ -131,6 +131,7 @@ router.post(
   async (req, res) => {
     try {
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const article = await ArticleService.createArticle({
         payload: req.body,
         authorId: auth.id,
@@ -157,6 +158,7 @@ router.put(
   async (req, res) => {
     try {
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const article = await ArticleService.updateArticle({
         id: req.params.id,
         payload: req.body,
@@ -183,6 +185,7 @@ router.post(
   async (req, res) => {
     try {
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const article = await ArticleService.publishArticle({
         id: req.params.id,
         actor: auth.id,
@@ -205,6 +208,7 @@ router.post(
   async (req, res) => {
     try {
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const article = await ArticleService.archiveArticle({
         id: req.params.id,
         actor: auth.id,
@@ -227,6 +231,7 @@ router.delete(
   async (req, res) => {
     try {
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       await ArticleService.deleteArticle({
         id: req.params.id,
         actor: auth.id,
@@ -325,6 +330,7 @@ router.post(
     try {
       const { id, version } = req.params;
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const article = await ArticleService.restoreArticleVersion({
         articleId: id,
         version: parseInt(version, 10),

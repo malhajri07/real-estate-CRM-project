@@ -26,7 +26,7 @@ export default function PreferencesSection({ isOpen, onOpenChange }: Preferences
               type="button"
               variant="outline"
               size="icon"
-              className="rounded-full border border-border bg-white p-2 text-slate-500 transition hover:text-slate-700"
+              className="rounded-full border border-border bg-card p-2 text-muted-foreground transition hover:text-foreground/80"
               aria-label="تبديل عرض إعدادات الإشعارات"
             >
               <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -35,36 +35,36 @@ export default function PreferencesSection({ isOpen, onOpenChange }: Preferences
         </CardHeader>
         <CollapsibleContent>
           <CardContent className="space-y-4 pt-6">
-            <Card className="rounded-2xl bg-slate-50/60 p-4">
+            <Card className="rounded-2xl bg-muted/30 p-4">
               <div className="flex items-center justify-between">
                 <Switch defaultChecked data-testid="toggle-new-leads" />
                 <div className="flex-1 pe-4 ps-4">
-                  <div className="font-medium text-slate-900 mb-1">عملاء محتملين جدد</div>
-                  <div className="text-sm text-slate-500">إشعار عند إضافة عملاء محتملين جدد</div>
+                  <div className="font-medium text-foreground mb-1">عملاء محتملين جدد</div>
+                  <div className="text-sm text-muted-foreground">إشعار عند إضافة عملاء محتملين جدد</div>
                 </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
                   <Users size={18} />
                 </div>
               </div>
             </Card>
-            <Card className="rounded-2xl bg-slate-50/60 p-4">
+            <Card className="rounded-2xl bg-muted/30 p-4">
               <div className="flex items-center justify-between">
                 <Switch defaultChecked data-testid="toggle-task-updates" />
                 <div className="flex-1 pe-4 ps-4">
-                  <div className="font-medium text-slate-900 mb-1">تحديثات المهام</div>
-                  <div className="text-sm text-slate-500">إشعار عند اكتمال أو تحديث المهام</div>
+                  <div className="font-medium text-foreground mb-1">تحديثات المهام</div>
+                  <div className="text-sm text-muted-foreground">إشعار عند اكتمال أو تحديث المهام</div>
                 </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
                   <CheckCircle size={18} />
                 </div>
               </div>
             </Card>
-            <Card className="rounded-2xl bg-slate-50/60 p-4">
+            <Card className="rounded-2xl bg-muted/30 p-4">
               <div className="flex items-center justify-between">
                 <Switch defaultChecked data-testid="toggle-new-deals" />
                 <div className="flex-1 pe-4 ps-4">
-                  <div className="font-medium text-slate-900 mb-1">صفقات جديدة</div>
-                  <div className="text-sm text-slate-500">إشعار عند إنشاء صفقات جديدة</div>
+                  <div className="font-medium text-foreground mb-1">صفقات جديدة</div>
+                  <div className="text-sm text-muted-foreground">إشعار عند إنشاء صفقات جديدة</div>
                 </div>
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-orange-600">
                   <TrendingUp size={18} />

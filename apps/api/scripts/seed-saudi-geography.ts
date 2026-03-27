@@ -10,7 +10,7 @@
  * Run: npx tsx apps/api/scripts/seed-saudi-geography.ts
  */
 
-const BASE = "https://raw.githubusercontent.com/homaily/Saudi-Arabia-Regions-Cities-and-Districts/master/json";
+const BASE_GEOGRAPHY = "https://raw.githubusercontent.com/homaily/Saudi-Arabia-Regions-Cities-and-Districts/master/json";
 
 async function fetchJson<T>(url: string): Promise<T> {
   const res = await fetch(url);
@@ -42,15 +42,15 @@ interface DistrictLite {
   name_en: string;
 }
 
-async function main() {
+async function mainGeography() {
   const { storage } = await import("../storage-prisma");
 
   console.log("Downloading Saudi geography data from homaily/Saudi-Arabia-Regions-Cities-and-Districts...");
 
   const [regionsRaw, citiesRaw, districtsRaw] = await Promise.all([
-    fetchJson<RegionLite[]>(`${BASE}/regions_lite.json`),
-    fetchJson<CityLite[]>(`${BASE}/cities_lite.json`),
-    fetchJson<DistrictLite[]>(`${BASE}/districts_lite.json`),
+    fetchJson<RegionLite[]>(`${BASE_GEOGRAPHY}/regions_lite.json`),
+    fetchJson<CityLite[]>(`${BASE_GEOGRAPHY}/cities_lite.json`),
+    fetchJson<DistrictLite[]>(`${BASE_GEOGRAPHY}/districts_lite.json`),
   ]);
 
   const regions = regionsRaw.map((r) => ({
@@ -100,7 +100,7 @@ async function main() {
   console.log("Saudi geography seeded successfully.");
 }
 
-main().catch((e) => {
+mainGeography().catch((e) => {
   console.error(e);
   process.exit(1);
 });

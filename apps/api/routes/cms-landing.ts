@@ -117,13 +117,14 @@ router.post(
     try {
       const payload = SectionCreateSchema.parse(req.body);
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const section = await LandingService.createSection({
         slug: payload.slug,
         title: payload.title,
-        subtitle: payload.subtitle,
-        layoutVariant: payload.layoutVariant,
-        theme: payload.theme as any,
-        draftJson: payload.draftJson,
+        subtitle: payload.subtitle ?? "",
+        layoutVariant: payload.layoutVariant ?? "custom",
+        theme: (payload.theme ?? {}) as any,
+        draftJson: payload.draftJson ?? null,
         actor: auth.id,
       });
       res.status(201).json(section);
@@ -144,6 +145,7 @@ router.put(
     try {
       const payload = SectionUpdateSchema.parse(req.body);
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const section = await LandingService.updateSection({
         id: req.params.id,
         payload,
@@ -167,6 +169,7 @@ router.put(
     try {
       const payload = SectionReorderSchema.parse(req.body);
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       await LandingService.reorderSections({
         orders: payload.orders,
         actor: auth.id,
@@ -188,6 +191,7 @@ router.post(
   async (req, res) => {
     try {
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const publishCards = req.body?.publishCards === true;
       const section = await LandingService.publishSection({
         id: req.params.id,
@@ -208,6 +212,7 @@ router.post(
   async (req, res) => {
     try {
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const section = await LandingService.archiveSection({
         id: req.params.id,
         actor: auth.id,
@@ -226,6 +231,7 @@ router.delete(
   async (req, res) => {
     try {
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       await LandingService.deleteSection({ id: req.params.id, actor: auth.id });
       res.status(204).send();
     } catch (error) {
@@ -242,6 +248,7 @@ router.post(
     try {
       const payload = CardCreateSchema.parse(req.body);
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const card = await LandingService.createCard({
         sectionId: payload.sectionId,
         draftJson: payload.draftJson,
@@ -265,6 +272,7 @@ router.put(
     try {
       const payload = CardUpdateSchema.parse(req.body);
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const card = await LandingService.updateCard({
         id: req.params.id,
         payload,
@@ -288,6 +296,7 @@ router.put(
     try {
       const payload = CardReorderSchema.parse(req.body);
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       await LandingService.reorderCards({
         sectionId: payload.sectionId,
         orders: payload.orders,
@@ -310,6 +319,7 @@ router.post(
   async (req, res) => {
     try {
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const card = await LandingService.publishCard({
         id: req.params.id,
         actor: auth.id,
@@ -328,6 +338,7 @@ router.post(
   async (req, res) => {
     try {
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       const card = await LandingService.archiveCard({
         id: req.params.id,
         actor: auth.id,
@@ -346,6 +357,7 @@ router.delete(
   async (req, res) => {
     try {
       const auth = getAuth(req);
+      if (!auth?.id) return res.status(401).json({ message: "Unauthorized" });
       await LandingService.deleteCard({ id: req.params.id, actor: auth.id });
       res.status(204).send();
     } catch (error) {

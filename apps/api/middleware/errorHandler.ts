@@ -22,6 +22,25 @@ import { logger } from '../logger';
 import { ZodError } from 'zod';
 import { getErrorResponse } from '../i18n';
 
+const SENSITIVE_PATTERNS = [
+  /postgres(ql)?:\/\/[^\s]+/gi,
+  /mysql:\/\/[^\s]+/gi,
+  /mongodb(\+srv)?:\/\/[^\s]+/gi,
+  /redis:\/\/[^\s]+/gi,
+  /password\s*[=:]\s*\S+/gi,
+  /\/Users\/[^\s]+/g,
+  /\/home\/[^\s]+/g,
+  /[A-Z]:\\[^\s]+/g,
+];
+
+function sanitizeMessage(msg: string): string {
+  let sanitized = msg;
+  for (const pattern of SENSITIVE_PATTERNS) {
+    sanitized = sanitized.replace(pattern, '[REDACTED]');
+  }
+  return sanitized;
+}
+
 /**
  * Error handling middleware
  * Catches all errors and returns consistent error responses
@@ -52,8 +71,8 @@ export const errorHandler = (
     return res.status(err.statusCode).json({
       ...errorResponse,
       ...(process.env.NODE_ENV === 'development' && {
-        stack: err.stack,
-        originalMessage: err.message,
+        stack: sanitizeMessage(err.stack || ''),
+        originalMessage: sanitizeMessage(err.message),
       }),
     });
   }
@@ -75,10 +94,18 @@ export const errorHandler = (
   }
 
   // Handle unknown errors
+  if (process.env.NODE_ENV === 'production') {
+    // In production, don't expose internal error details
+    return res.status(500).json({
+      message: 'Internal server error',
+      code: 'SERVER_ERROR'
+    });
+  }
+
   const errorResponse = getErrorResponse(
     'SERVER_ERROR',
     locale,
-    process.env.NODE_ENV === 'development' ? { originalMessage: err.message, stack: err.stack } : undefined
+    { originalMessage: sanitizeMessage(err.message), stack: sanitizeMessage(err.stack || '') }
   );
   res.status(500).json(errorResponse);
 };

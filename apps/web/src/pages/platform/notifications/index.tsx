@@ -253,7 +253,7 @@ export default function Notifications() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleWhatsAppClick(lead)}
-                                className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                                className="text-primary border-primary/20 hover:bg-primary/10"
                               >
                                 <MessageCircle size={14} className={"me-2"} />
                                 واتساب

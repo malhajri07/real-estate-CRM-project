@@ -45,83 +45,83 @@ function WhatsAppTab() {
                 <Card className="glass border-0 rounded-3xl p-8 shadow-none lg:col-span-2">
                     <div className="mb-8 flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <div className="h-16 w-16 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center">
+                            <div className="h-16 w-16 bg-muted/50 text-muted-foreground rounded-xl flex items-center justify-center">
                                 <MessageSquare className="h-8 w-8" />
                             </div>
                             <div>
-                                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">WhatsApp Business API</h2>
-                                <p className="text-slate-500 font-medium">إعدادات الربط مع واتساب لإرسال الإشعارات والرسائل</p>
+                                <h2 className="text-2xl font-bold text-foreground tracking-tight">WhatsApp Business API</h2>
+                                <p className="text-muted-foreground font-medium">إعدادات الربط مع واتساب لإرسال الإشعارات والرسائل</p>
                             </div>
                         </div>
-                        <Badge className="bg-emerald-50 text-emerald-700 border-0 text-xs font-bold uppercase px-3 py-1 rounded-lg">متصل</Badge>
+                        <Badge className="bg-primary/10 text-primary border-0 text-xs font-bold uppercase px-3 py-1 rounded-lg">متصل</Badge>
                     </div>
 
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">معرف الحساب (Account ID)</Label>
+                                <Label className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-1">معرف الحساب (Account ID)</Label>
                                 <div className="relative group">
-                                    <Input value="act_982347239487" readOnly className="h-12 rounded-xl bg-slate-50 border-slate-100 font-mono text-xs" />
-                                    <Button size="icon" variant="ghost" className="absolute left-1 top-1 h-10 w-10 text-slate-400 hover:text-slate-600"><Copy className="h-4 w-4" /></Button>
+                                    <Input value="act_982347239487" readOnly className="h-12 rounded-xl bg-muted/30 border-border font-mono text-xs" />
+                                    <Button size="icon" variant="ghost" className="absolute left-1 top-1 h-10 w-10 text-muted-foreground/70 hover:text-muted-foreground"><Copy className="h-4 w-4" /></Button>
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">رقم الهاتف المرتبط</Label>
-                                <Input value="+966 50 123 4567" readOnly className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold text-slate-700" />
+                                <Label className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-1">رقم الهاتف المرتبط</Label>
+                                <Input value="+966 50 123 4567" readOnly className="h-12 rounded-xl bg-muted/30 border-border font-bold text-foreground/80" />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">مفتاح الوصول (Access Token)</Label>
+                            <Label className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-1">مفتاح الوصول (Access Token)</Label>
                             <div className="relative group">
-                                <Input type="password" value="••••••••••••••••••••••••••••••" readOnly className="h-12 rounded-xl bg-slate-50 border-slate-100" />
+                                <Input type="password" value="••••••••••••••••••••••••••••••" readOnly className="h-12 rounded-xl bg-muted/30 border-border" />
                                 <div className="absolute left-1 top-1 flex gap-1">
-                                    <Button size="icon" variant="ghost" className="h-10 w-10 text-slate-400 hover:text-slate-600"><RefreshCw className="h-4 w-4" /></Button>
-                                    <Button size="icon" variant="ghost" className="h-10 w-10 text-slate-400 hover:text-slate-600"><Copy className="h-4 w-4" /></Button>
+                                    <Button size="icon" variant="ghost" className="h-10 w-10 text-muted-foreground/70 hover:text-muted-foreground"><RefreshCw className="h-4 w-4" /></Button>
+                                    <Button size="icon" variant="ghost" className="h-10 w-10 text-muted-foreground/70 hover:text-muted-foreground"><Copy className="h-4 w-4" /></Button>
                                 </div>
                             </div>
                         </div>
 
                         <div className="pt-4 flex justify-end gap-3">
-                            <Button variant="outline" className="h-12 px-6 rounded-xl border-border font-bold text-slate-600 hover:bg-slate-50 transition-all">قطع الاتصال</Button>
-                            <Button className="h-12 px-8 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">حفظ الإعدادات</Button>
+                            <Button variant="outline" className="h-12 px-6 rounded-xl border-border font-bold text-muted-foreground hover:bg-muted/30 transition-all">قطع الاتصال</Button>
+                            <Button className="h-12 px-8 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-all shadow-xl shadow-primary/20">حفظ الإعدادات</Button>
                         </div>
                     </div>
                 </Card>
 
                 <div className="space-y-6">
-                    <Card className="glass border-0 rounded-2xl p-8 shadow-none bg-blue-50/30">
+                    <Card className="glass border-0 rounded-2xl p-8 shadow-none bg-primary/5">
                         <div className="mb-6">
-                            <h3 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                                <Activity className="h-5 w-5 text-slate-600" />
+                            <h3 className="text-lg font-bold text-foreground tracking-tight flex items-center gap-2">
+                                <Activity className="h-5 w-5 text-muted-foreground" />
                                 حالة الخدمة
                             </h3>
                         </div>
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between p-3 bg-white/60 rounded-xl border border-white">
-                                <span className="text-xs font-bold text-slate-500">جودة الربط</span>
-                                <Badge className="bg-emerald-50 text-emerald-700 border-0 text-xs font-bold">ممتاز</Badge>
+                            <div className="flex items-center justify-between p-3 bg-card/60 rounded-xl border border-white">
+                                <span className="text-xs font-bold text-muted-foreground">جودة الربط</span>
+                                <Badge className="bg-primary/10 text-primary border-0 text-xs font-bold">ممتاز</Badge>
                             </div>
-                            <div className="flex items-center justify-between p-3 bg-white/60 rounded-xl border border-white">
-                                <span className="text-xs font-bold text-slate-500">الرسائل المرسلة اليوم</span>
-                                <span className="text-sm font-bold text-slate-900">١,٢٥٤</span>
+                            <div className="flex items-center justify-between p-3 bg-card/60 rounded-xl border border-white">
+                                <span className="text-xs font-bold text-muted-foreground">الرسائل المرسلة اليوم</span>
+                                <span className="text-sm font-bold text-foreground">١,٢٥٤</span>
                             </div>
-                            <div className="flex items-center justify-between p-3 bg-white/60 rounded-xl border border-white">
-                                <span className="text-xs font-bold text-slate-500">نسبة وصول الرسائل</span>
-                                <span className="text-sm font-bold text-slate-900">٩٩.٨٪</span>
+                            <div className="flex items-center justify-between p-3 bg-card/60 rounded-xl border border-white">
+                                <span className="text-xs font-bold text-muted-foreground">نسبة وصول الرسائل</span>
+                                <span className="text-sm font-bold text-foreground">٩٩.٨٪</span>
                             </div>
                         </div>
                     </Card>
 
-                    <Card className="glass border-0 rounded-2xl p-8 shadow-none bg-emerald-50/20">
+                    <Card className="glass border-0 rounded-2xl p-8 shadow-none bg-primary/10">
                         <div className="mb-4">
-                            <h3 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                                <CheckCircle2 className="h-5 w-5 text-slate-600" />
+                            <h3 className="text-lg font-bold text-foreground tracking-tight flex items-center gap-2">
+                                <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
                                 قوالب الرسائل
                             </h3>
-                            <p className="text-xs text-slate-500 font-medium">إدارة قوالب الرسائل المعتمدة من Meta</p>
+                            <p className="text-xs text-muted-foreground font-medium">إدارة قوالب الرسائل المعتمدة من Meta</p>
                         </div>
-                        <Button variant="outline" className="w-full h-10 rounded-xl border-emerald-100 text-emerald-700 font-bold hover:bg-emerald-50 transition-all">عرض القوالب (١٢)</Button>
+                        <Button variant="outline" className="w-full h-10 rounded-xl border-primary/20 text-primary font-bold hover:bg-primary/10 transition-all">عرض القوالب (١٢)</Button>
                     </Card>
                 </div>
             </div>
@@ -134,33 +134,33 @@ function EmailTab() {
         <div className="space-y-8">
             <Card className="glass border-0 rounded-3xl p-8 shadow-none">
                 <div className="mb-10 flex items-center gap-4">
-                    <div className="h-16 w-16 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center">
+                    <div className="h-16 w-16 bg-muted/50 text-muted-foreground rounded-xl flex items-center justify-center">
                         <Mail className="h-8 w-8" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">إعدادات البريد الإلكتروني (SMTP)</h2>
-                        <p className="text-slate-500 font-medium">تكوين خادم البريد الخاص بالنظام لإرسال التقارير والإشعارات</p>
+                        <h2 className="text-2xl font-bold text-foreground tracking-tight">إعدادات البريد الإلكتروني (SMTP)</h2>
+                        <p className="text-muted-foreground font-medium">تكوين خادم البريد الخاص بالنظام لإرسال التقارير والإشعارات</p>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">خادم SMTP</Label>
-                            <Input placeholder="smtp.sendgrid.net" className="h-12 rounded-xl bg-slate-50 border-slate-100" />
+                            <Label className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-1">خادم SMTP</Label>
+                            <Input placeholder="smtp.sendgrid.net" className="h-12 rounded-xl bg-muted/30 border-border" />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">المنفذ (Port)</Label>
-                                <Input placeholder="587" className="h-12 rounded-xl bg-slate-50 border-slate-100" />
+                                <Label className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-1">المنفذ (Port)</Label>
+                                <Input placeholder="587" className="h-12 rounded-xl bg-muted/30 border-border" />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">التشفير</Label>
+                                <Label className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-1">التشفير</Label>
                                 <Select defaultValue="tls">
-                                    <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold text-slate-700">
+                                    <SelectTrigger className="h-12 rounded-xl bg-muted/30 border-border font-bold text-foreground/80">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="rounded-xl border-slate-100">
+                                    <SelectContent className="rounded-xl border-border">
                                         <SelectItem value="tls">TLS</SelectItem>
                                         <SelectItem value="ssl">SSL</SelectItem>
                                         <SelectItem value="none">بلا تشفير</SelectItem>
@@ -172,21 +172,21 @@ function EmailTab() {
 
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">اسم المستخدم</Label>
-                            <Input placeholder="apikey" className="h-12 rounded-xl bg-slate-50 border-slate-100" />
+                            <Label className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-1">اسم المستخدم</Label>
+                            <Input placeholder="apikey" className="h-12 rounded-xl bg-muted/30 border-border" />
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">كلمة المرور</Label>
-                            <Input type="password" placeholder="••••••••••••••••" className="h-12 rounded-xl bg-slate-50 border-slate-100" />
+                            <Label className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-1">كلمة المرور</Label>
+                            <Input type="password" placeholder="••••••••••••••••" className="h-12 rounded-xl bg-muted/30 border-border" />
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-10 pt-8 border-t border-slate-100 flex items-center justify-between">
-                    <Button variant="ghost" className="text-slate-600 font-bold hover:bg-slate-100 transition-all">اختبار الاتصال</Button>
+                <div className="mt-10 pt-8 border-t border-border flex items-center justify-between">
+                    <Button variant="ghost" className="text-muted-foreground font-bold hover:bg-muted/50 transition-all">اختبار الاتصال</Button>
                     <div className="flex gap-3">
-                        <Button variant="outline" className="h-12 px-6 rounded-xl border-border font-bold text-slate-600">إلغاء</Button>
-                        <Button className="h-12 px-8 rounded-xl bg-slate-900 text-white font-bold shadow-xl shadow-slate-900/10">حفظ الإعدادات</Button>
+                        <Button variant="outline" className="h-12 px-6 rounded-xl border-border font-bold text-muted-foreground">إلغاء</Button>
+                        <Button className="h-12 px-8 rounded-xl bg-primary text-primary-foreground font-bold shadow-xl shadow-primary/20">حفظ الإعدادات</Button>
                     </div>
                 </div>
             </Card>
@@ -201,25 +201,25 @@ function APITab() {
                 <MetricCard
                     title="طلبات الـ API"
                     subtitle="آخر ٢٤ ساعة"
-                    icon={<Activity className="w-5 h-5 text-slate-600" />}
+                    icon={<Activity className="w-5 h-5 text-muted-foreground" />}
                     metric={{ today: 4520, last7Days: 4520, last30Days: 4520 }}
                 />
                 <MetricCard
                     title="نسبة النجاح"
                     subtitle="أداء النظام"
-                    icon={<CheckCircle2 className="w-5 h-5 text-slate-600" />}
+                    icon={<CheckCircle2 className="w-5 h-5 text-muted-foreground" />}
                     metric={{ today: 99.5, last7Days: 99.5, last30Days: 99.5 }}
                 />
                 <MetricCard
                     title="وقت الاستجابة"
                     subtitle="ملي ثانية"
-                    icon={<Timer className="w-5 h-5 text-slate-600" />}
+                    icon={<Timer className="w-5 h-5 text-muted-foreground" />}
                     metric={{ today: 124, last7Days: 124, last30Days: 124 }}
                 />
                 <MetricCard
                     title="مفاتيح نشطة"
                     subtitle="أذونات الوصول"
-                    icon={<Lock className="w-5 h-5 text-slate-600" />}
+                    icon={<Lock className="w-5 h-5 text-muted-foreground" />}
                     metric={{ today: 8, last7Days: 8, last30Days: 8 }}
                 />
             </div>
@@ -227,24 +227,24 @@ function APITab() {
             <Card className="glass border-0 rounded-3xl p-8 shadow-none">
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">مفاتيح الوصول (API Keys)</h2>
-                        <p className="text-slate-500 font-medium">إدارة مفاتيح الدخول للربط الخارجي والمطورين</p>
+                        <h2 className="text-2xl font-bold text-foreground tracking-tight">مفاتيح الوصول (API Keys)</h2>
+                        <p className="text-muted-foreground font-medium">إدارة مفاتيح الدخول للربط الخارجي والمطورين</p>
                     </div>
-                    <Button className="premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 h-12 px-8 rounded-2xl font-bold">
+                    <Button className="premium-gradient text-white border-0 shadow-lg shadow-primary/10 h-12 px-8 rounded-2xl font-bold">
                         <Plus className="h-5 w-5 me-2" />
                         إنشاء مفتاح جديد
                     </Button>
                 </div>
 
-                <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white/40">
+                <div className="overflow-hidden rounded-2xl border border-border bg-white/40">
                     <Table className="text-end">
-                        <TableHeader className="bg-slate-50/50">
-                            <TableRow className="border-slate-100">
-                                <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">اسم المفتاح</TableHead>
-                                <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">المفتاح</TableHead>
-                                <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">تاريخ الإنشاء</TableHead>
-                                <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">آخر استخدام</TableHead>
-                                <TableHead className="text-end text-xs font-bold uppercase text-slate-400 tracking-widest py-4">الحالة</TableHead>
+                        <TableHeader className="bg-muted/30">
+                            <TableRow className="border-border">
+                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">اسم المفتاح</TableHead>
+                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المفتاح</TableHead>
+                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">تاريخ الإنشاء</TableHead>
+                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">آخر استخدام</TableHead>
+                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الحالة</TableHead>
                                 <TableHead className="w-[50px]"></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -254,16 +254,16 @@ function APITab() {
                                 { name: "Staging Testing", key: "sk_test_••••1245", created: "2024/02/10", lastUsed: "منذ ٣ أيام", status: "ACTIVE" },
                                 { name: "Mobile App API", key: "sk_live_••••5567", created: "2023/11/20", lastUsed: "الآن", status: "ACTIVE" },
                             ].map((api, i) => (
-                                <TableRow key={i} className="hover:bg-blue-50/30 transition-colors group border-slate-50">
-                                    <TableCell className="py-4"><span className="font-bold text-slate-700">{api.name}</span></TableCell>
-                                    <TableCell className="py-4"><code className="bg-slate-100 p-1 rounded text-xs text-slate-500 font-mono">{api.key}</code></TableCell>
-                                    <TableCell className="py-4"><span className="text-xs font-bold text-slate-400">{api.created}</span></TableCell>
-                                    <TableCell className="py-4"><span className="text-xs font-bold text-slate-400">{api.lastUsed}</span></TableCell>
+                                <TableRow key={i} className="hover:bg-primary/5 transition-colors group border-slate-50">
+                                    <TableCell className="py-4"><span className="font-bold text-foreground/80">{api.name}</span></TableCell>
+                                    <TableCell className="py-4"><code className="bg-muted/50 p-1 rounded text-xs text-muted-foreground font-mono">{api.key}</code></TableCell>
+                                    <TableCell className="py-4"><span className="text-xs font-bold text-muted-foreground/70">{api.created}</span></TableCell>
+                                    <TableCell className="py-4"><span className="text-xs font-bold text-muted-foreground/70">{api.lastUsed}</span></TableCell>
                                     <TableCell className="py-4">
-                                        <Badge className="bg-emerald-50 text-emerald-700 border-0 text-xs font-bold">نشط</Badge>
+                                        <Badge className="bg-primary/10 text-primary border-0 text-xs font-bold">نشط</Badge>
                                     </TableCell>
                                     <TableCell className="py-4">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg outline-none"><Settings className="h-4 w-4 text-slate-300 group-hover:text-slate-600 transition-colors" /></Button>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg outline-none"><Settings className="h-4 w-4 text-slate-300 group-hover:text-muted-foreground transition-colors" /></Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -297,18 +297,18 @@ export default function IntegrationsManagement() {
             <Card className="glass border-0 rounded-2xl p-8 shadow-none">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="space-y-2 text-center md:text-end">
-                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">إدارة التكامل والربط</h1>
-                        <p className="text-slate-500 font-medium text-lg">إدارة الاتصال مع الخدمات الخارجية والواجهات البرمجية</p>
+                        <h1 className="text-3xl font-bold text-foreground tracking-tight">إدارة التكامل والربط</h1>
+                        <p className="text-muted-foreground font-medium text-lg">إدارة الاتصال مع الخدمات الخارجية والواجهات البرمجية</p>
                     </div>
                 </div>
             </Card>
 
             <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
-                <TabsList className="bg-slate-100/50 p-1 rounded-2xl border-0 h-14">
-                    <TabsTrigger value="whatsapp" className="rounded-xl px-6 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all">واتساب</TabsTrigger>
-                    <TabsTrigger value="email" className="rounded-xl px-6 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all">البريد الإلكتروني</TabsTrigger>
-                    <TabsTrigger value="sms" className="rounded-xl px-6 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all">الرسائل (SMS)</TabsTrigger>
-                    <TabsTrigger value="api" className="rounded-xl px-6 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all">واجهات الـ API</TabsTrigger>
+                <TabsList className="bg-muted/50 p-1 rounded-2xl border-0 h-14">
+                    <TabsTrigger value="whatsapp" className="rounded-xl px-6 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">واتساب</TabsTrigger>
+                    <TabsTrigger value="email" className="rounded-xl px-6 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">البريد الإلكتروني</TabsTrigger>
+                    <TabsTrigger value="sms" className="rounded-xl px-6 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">الرسائل (SMS)</TabsTrigger>
+                    <TabsTrigger value="api" className="rounded-xl px-6 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">واجهات الـ API</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="whatsapp" className="space-y-4">
@@ -320,12 +320,12 @@ export default function IntegrationsManagement() {
                 </TabsContent>
 
                 <TabsContent value="sms" className="space-y-4">
-                    <Card className="glass border-0 rounded-3xl p-20 text-center bg-slate-50/50 border-2 border-dashed border-border/50 flex flex-col items-center">
-                        <div className="h-20 w-20 bg-white rounded-2xl shadow-xl shadow-slate-500/10 flex items-center justify-center text-slate-400 mb-6 group-hover:scale-110 transition-transform">
+                    <Card className="glass border-0 rounded-3xl p-20 text-center bg-muted/30 border-2 border-dashed border-border/50 flex flex-col items-center">
+                        <div className="h-20 w-20 bg-card rounded-2xl shadow-xl shadow-slate-500/10 flex items-center justify-center text-muted-foreground/70 mb-6 group-hover:scale-110 transition-transform">
                             <Smartphone className="h-10 w-10" />
                         </div>
-                        <h3 className="text-xl font-bold text-slate-900 tracking-tight">قريباً: خدمة الرسائل القصيرة (SMS)</h3>
-                        <p className="text-sm font-medium text-slate-500 max-w-xs mx-auto leading-relaxed mt-2">
+                        <h3 className="text-xl font-bold text-foreground tracking-tight">قريباً: خدمة الرسائل القصيرة (SMS)</h3>
+                        <p className="text-sm font-medium text-muted-foreground max-w-xs mx-auto leading-relaxed mt-2">
                             نحن نعمل على توفير خيارات ربط مع مزودي خدمة الـ SMS المحليين والدوليين قريباً.
                         </p>
                     </Card>

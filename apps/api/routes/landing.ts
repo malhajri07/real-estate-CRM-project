@@ -1,9 +1,9 @@
 import express from 'express';
+import crypto from 'crypto';
 import { LandingService } from '../services/landingService';
 import { decodeAuth } from '../src/middleware/auth-helpers';
 
 const router = express.Router();
-const previewToken = process.env.LANDING_PREVIEW_TOKEN;
 
 router.get("/", async (req, res) => {
     try {
@@ -25,9 +25,15 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/preview", async (req, res) => {
+    const previewToken = process.env.LANDING_PREVIEW_TOKEN;
     if (previewToken) {
-        const token = req.query.token;
-        if (!token || token !== previewToken) {
+        const token = req.query.token as string | undefined;
+        // Use timing-safe comparison to prevent timing attacks
+        const isValid = token && previewToken &&
+            token.length === previewToken.length &&
+            crypto.timingSafeEqual(Buffer.from(token), Buffer.from(previewToken));
+
+        if (!isValid) {
             return res.status(401).json({ message: "Invalid preview token" });
         }
     } else {

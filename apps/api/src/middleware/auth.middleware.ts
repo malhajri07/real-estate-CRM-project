@@ -9,8 +9,8 @@ export interface AuthenticatedUser {
     email: string | null;
     username: string | null;
     name: string | null;
-    firstName: string;
-    lastName: string;
+    firstName: string | null;
+    lastName: string | null;
     userLevel: number;
     tenantId: string;
     accountOwnerId: string | null;
@@ -22,7 +22,9 @@ export interface AuthenticatedUser {
 declare global {
     namespace Express {
         interface Request {
-            user?: AuthenticatedUser;
+            auth?: { id: string; email?: string; roles?: string[] };
+            locale?: string;
+            t?: (key: string) => string;
         }
     }
 }

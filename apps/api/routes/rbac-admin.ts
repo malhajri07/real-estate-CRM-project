@@ -9,6 +9,7 @@
 import { Router } from 'express';
 import { RbacService } from '../src/services/rbac.service';
 import { requireAdmin } from '../src/middleware/rbac.middleware';
+import { logger } from '../logger';
 
 const router = Router();
 const rbacService = new RbacService();
@@ -36,7 +37,7 @@ router.get('/activities', async (req, res) => {
     const formattedLogs = await rbacService.getActivities();
     res.json(formattedLogs);
   } catch (error) {
-    console.error('Activities fetch error:', error);
+    logger.error({ err: error }, 'Activities fetch error');
     res.status(500).json({
       success: false,
       message: 'Failed to fetch activities',
@@ -49,7 +50,7 @@ router.get('/activities', async (req, res) => {
  * GET /api/rbac-admin/dashboard - Aggregated analytics for overview
  */
 router.get('/dashboard', async (req, res) => {
-  console.log('[RBAC-ADMIN] Dashboard route hit');
+  logger.info('Dashboard route hit');
   try {
     // Default 30 days
     const result = await rbacService.getDashboardMetrics(30);
@@ -60,7 +61,7 @@ router.get('/dashboard', async (req, res) => {
       recentTickets: []
     });
   } catch (error) {
-    console.error('Dashboard error:', error);
+    logger.error({ err: error }, 'Dashboard error');
     res.status(500).json({
       success: false,
       message: 'Failed to fetch dashboard metrics',
@@ -86,7 +87,7 @@ router.get(['/users', '/users/all-users'], async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Users fetch error:', error);
+    logger.error({ err: error }, 'Users fetch error');
     res.status(500).json({
       success: false,
       message: 'Failed to fetch users',
@@ -103,7 +104,7 @@ router.get('/roles', async (req, res) => {
     const roles = await rbacService.getRoles();
     res.json({ success: true, roles });
   } catch (error) {
-    console.error('Roles fetch error:', error);
+    logger.error({ err: error }, 'Roles fetch error');
     res.status(500).json({
       success: false,
       message: 'Failed to fetch roles',
@@ -120,7 +121,7 @@ router.get('/organizations', async (req, res) => {
     const organizations = await rbacService.getAllOrganizations();
     res.json({ success: true, organizations });
   } catch (error) {
-    console.error('Organizations fetch error:', error);
+    logger.error({ err: error }, 'Organizations fetch error');
     res.status(500).json({
       success: false,
       message: 'Failed to fetch organizations',
@@ -141,7 +142,7 @@ router.post('/organizations', async (req, res) => {
     const newOrg = await rbacService.createOrganization(req.body);
     res.json({ success: true, organization: newOrg });
   } catch (error) {
-    console.error('Create organization error:', error);
+    logger.error({ err: error }, 'Create organization error');
     res.status(500).json({ success: false, message: 'Failed to create organization' });
   }
 });
@@ -154,7 +155,7 @@ router.delete('/organizations/:id', async (req, res) => {
     await rbacService.deleteOrganization(req.params.id);
     res.json({ success: true, message: 'Organization deleted successfully' });
   } catch (error) {
-    console.error('Delete organization error:', error);
+    logger.error({ err: error }, 'Delete organization error');
     res.status(500).json({ success: false, message: 'Failed to delete organization' });
   }
 });
@@ -174,7 +175,7 @@ router.post('/users', async (req, res) => {
     res.json({ success: true, user });
 
   } catch (error) {
-    console.error('Create user error:', error);
+    logger.error({ err: error }, 'Create user error');
     res.status(400).json({
       success: false,
       message: error instanceof Error ? error.message : 'Failed to create user'
@@ -198,7 +199,7 @@ router.put('/users/:id', async (req, res) => {
     const updatedUser = await rbacService.updateUser(id, updates);
     res.json({ success: true, user: updatedUser });
   } catch (error) {
-    console.error('Update user error:', error);
+    logger.error({ err: error }, 'Update user error');
     res.status(400).json({
       success: false,
       message: error instanceof Error ? error.message : 'Failed to update user'
@@ -215,7 +216,7 @@ router.delete('/users/:id', async (req, res) => {
     await rbacService.deleteUser(id);
     res.json({ success: true, message: 'User deleted successfully' });
   } catch (error) {
-    console.error('Delete user error:', error);
+    logger.error({ err: error }, 'Delete user error');
     res.status(500).json({
       success: false,
       message: error instanceof Error ? error.message : 'Failed to delete user'
@@ -256,7 +257,7 @@ router.get('/billing/invoices', async (req, res) => {
     });
     res.json({ success: true, invoices });
   } catch (error) {
-    console.error('Admin invoices fetch error:', error);
+    logger.error({ err: error }, 'Admin invoices fetch error');
     res.status(500).json({
       success: false,
       message: 'Failed to fetch invoices',
@@ -320,7 +321,7 @@ router.get('/billing/stats', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Billing stats error:', error);
+    logger.error({ err: error }, 'Billing stats error');
     res.status(500).json({
       success: false,
       message: 'Failed to fetch billing statistics',
@@ -433,7 +434,7 @@ router.get('/analytics/overview', async (req, res) => {
       pageViews
     });
   } catch (error) {
-    console.error('Analytics overview error:', error);
+    logger.error({ err: error }, 'Analytics overview error');
     res.status(500).json({
       success: false,
       message: 'Failed to fetch analytics',
@@ -464,7 +465,7 @@ router.get('/notifications/templates', async (req, res) => {
 
     res.json({ success: true, templates: mappedTemplates });
   } catch (error) {
-    console.error('Notification templates error:', error);
+    logger.error({ err: error }, 'Notification templates error');
     res.status(500).json({
       success: false,
       message: 'Failed to fetch notification templates',
@@ -504,7 +505,7 @@ router.get('/notifications/stats', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Notification stats error:', error);
+    logger.error({ err: error }, 'Notification stats error');
     res.status(500).json({
       success: false,
       message: 'Failed to fetch notification statistics',
@@ -551,7 +552,7 @@ router.get('/features/plans', async (req, res) => {
 
     res.json({ success: true, plans });
   } catch (error) {
-    console.error('Features plans error:', error);
+    logger.error({ err: error }, 'Features plans error');
     res.status(500).json({
       success: false,
       message: 'Failed to fetch pricing plans',

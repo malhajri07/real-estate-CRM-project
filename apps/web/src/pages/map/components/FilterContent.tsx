@@ -236,7 +236,7 @@ export function FilterContent({
           />
           <span className="text-sm font-medium text-foreground">إظهار المفضلة فقط</span>
         </Label>
-        <Heart className="h-4 w-4 text-slate-600" />
+        <Heart className="h-4 w-4 text-muted-foreground" />
       </div>
 
       <div className="flex items-center justify-end">

@@ -154,13 +154,13 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white/80 backdrop-blur-md border border-white/20 shadow-xl rounded-2xl p-4 text-xs">
-          <p className="font-bold text-slate-800 mb-2">{label}</p>
+        <div className="bg-card/80 backdrop-blur-md border border-white/20 shadow-xl rounded-2xl p-4 text-xs">
+          <p className="font-bold text-foreground mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center gap-2 mb-1 last:mb-0">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-              <span className="text-slate-600 font-medium">{entry.name}:</span>
-              <span className="text-slate-900 font-bold ml-auto">{
+              <span className="text-muted-foreground font-medium">{entry.name}:</span>
+              <span className="text-foreground font-bold ml-auto">{
                 typeof entry.value === 'number' && entry.name.includes('قيمة') || entry.name.includes('التحصيلات')
                   ? formatCurrency(entry.value, currency)
                   : formatNumber(entry.value)
@@ -180,28 +180,28 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
         <MetricCard
           title="العملاء المحتملون"
           subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
-          icon={<Users className="w-5 h-5 text-slate-600" />}
+          icon={<Users className="w-5 h-5 text-muted-foreground" />}
           metric={metrics?.leads}
           loading={isLoading && !metrics}
         />
         <MetricCard
           title="الإعلانات المنشورة"
           subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
-          icon={<Home className="w-5 h-5 text-slate-600" />}
+          icon={<Home className="w-5 h-5 text-muted-foreground" />}
           metric={metrics?.listings}
           loading={isLoading && !metrics}
         />
         <MetricCard
           title="الصفقات الرابحة"
           subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
-          icon={<Trophy className="w-5 h-5 text-slate-600" />}
+          icon={<Trophy className="w-5 h-5 text-muted-foreground" />}
           metric={metrics?.dealsWon}
           loading={isLoading && !metrics}
         />
         <MetricCard
           title="قيمة المبيعات (GMV)"
           subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
-          icon={<Wallet className="w-5 h-5 text-slate-600" />}
+          icon={<Wallet className="w-5 h-5 text-muted-foreground" />}
           metric={metrics?.gmv}
           currency={currency}
           loading={isLoading && !metrics}
@@ -213,8 +213,8 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
           <Card className="glass border-0 rounded-2xl overflow-hidden p-2 transition-all hover:shadow-2xl">
             <CardHeader className="px-6 pt-6 pb-2">
-              <CardTitle className="text-lg font-bold text-slate-900 tracking-tight">نشاط المبيعات</CardTitle>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">العملاء المحتملون، الإعلانات، والصفقات</p>
+              <CardTitle className="text-lg font-bold text-foreground tracking-tight">نشاط المبيعات</CardTitle>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">العملاء المحتملون، الإعلانات، والصفقات</p>
             </CardHeader>
             <CardContent className="px-6 pb-6">
               <div className="h-[320px] mt-4">
@@ -250,8 +250,8 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
 
           <Card className="glass border-0 rounded-2xl overflow-hidden p-2 transition-all hover:shadow-2xl">
             <CardHeader className="px-6 pt-6 pb-2">
-              <CardTitle className="text-lg font-bold text-slate-900 tracking-tight">الإيرادات المالية</CardTitle>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">قيمة المبيعات، الفواتير، والتحصيلات</p>
+              <CardTitle className="text-lg font-bold text-foreground tracking-tight">الإيرادات المالية</CardTitle>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">قيمة المبيعات، الفواتير، والتحصيلات</p>
             </CardHeader>
             <CardContent className="px-6 pb-6">
               <div className="h-[320px] mt-4">
@@ -277,17 +277,17 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <Card className="glass border-0 rounded-2xl xl:col-span-2 overflow-hidden transition-all hover:shadow-2xl">
           <CardHeader className="p-8 pb-4">
-            <CardTitle className="text-xl font-bold text-slate-900 tracking-tight">أفضل الوكلاء</CardTitle>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">النشاط خلال آخر ٩٠ يومًا</p>
+            <CardTitle className="text-xl font-bold text-foreground tracking-tight">أفضل الوكلاء</CardTitle>
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">النشاط خلال آخر ٩٠ يومًا</p>
           </CardHeader>
           <CardContent className="p-8 pt-2 space-y-4">
             {isLoading && <LoadingRows rows={4} />}
             {!isLoading && (!data?.topAgents || data.topAgents.length === 0) ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-slate-50/50 rounded-2xl border border-dashed border-border">
-                <div className="rounded-2xl bg-white p-4 shadow-sm"><Users className="h-12 w-12 text-slate-400" /></div>
+              <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-muted/30 rounded-2xl border border-dashed border-border">
+                <div className="rounded-2xl bg-card p-4 shadow-sm"><Users className="h-12 w-12 text-muted-foreground/70" /></div>
                 <div>
-                  <p className="text-base font-bold text-slate-800">لا يوجد وكلاء نشطين</p>
-                  <p className="text-sm text-slate-500 mt-1">لم يتم تسجيل أي نشاط للوكلاء في الفترة المحددة</p>
+                  <p className="text-base font-bold text-foreground">لا يوجد وكلاء نشطين</p>
+                  <p className="text-sm text-muted-foreground mt-1">لم يتم تسجيل أي نشاط للوكلاء في الفترة المحددة</p>
                 </div>
               </div>
             ) : (
@@ -295,25 +295,25 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                 {data?.topAgents.map((agent) => (
                   <div
                     key={agent.id}
-                    className="flex flex-col p-5 rounded-2xl bg-white/50 border border-slate-100 hover:bg-white hover:border-blue-200 hover:shadow-md transition-all duration-300 group"
+                    className="flex flex-col p-5 rounded-2xl bg-card/50 border border-border hover:bg-card hover:border-primary/20 hover:shadow-md transition-all duration-300 group"
                   >
                     <div className="flex items-center gap-4 mb-3">
-                      <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 font-bold group-hover:bg-slate-200 group-hover:text-slate-700 transition-colors duration-300">
+                      <div className="h-10 w-10 rounded-xl bg-muted/50 flex items-center justify-center text-muted-foreground font-bold group-hover:bg-slate-200 group-hover:text-foreground/80 transition-colors duration-300">
                         {agent.name.charAt(0)}
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-sm font-bold text-slate-900 leading-none mb-1">{agent.name}</span>
-                        <span className="text-xs font-bold text-slate-400 truncate max-w-[150px]">{agent.email || "بدون بريد"}</span>
+                        <span className="text-sm font-bold text-foreground leading-none mb-1">{agent.name}</span>
+                        <span className="text-xs font-bold text-muted-foreground/70 truncate max-w-[150px]">{agent.email || "بدون بريد"}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between pt-3 border-t border-slate-50">
                       <div className="flex flex-col">
-                        <span className="text-xs font-extrabold text-slate-400 uppercase tracking-tighter">الصفقات</span>
-                        <span className="text-xs font-bold text-slate-900">{agent.dealsWon}</span>
+                        <span className="text-xs font-extrabold text-muted-foreground/70 uppercase tracking-tighter">الصفقات</span>
+                        <span className="text-xs font-bold text-foreground">{agent.dealsWon}</span>
                       </div>
                       <div className="flex flex-col text-end">
-                        <span className="text-xs font-extrabold text-slate-400 uppercase tracking-tighter">القيمة الإجمالية</span>
-                        <span className="text-xs font-bold text-slate-600">{formatCurrency(agent.gmv, currency)}</span>
+                        <span className="text-xs font-extrabold text-muted-foreground/70 uppercase tracking-tighter">القيمة الإجمالية</span>
+                        <span className="text-xs font-bold text-muted-foreground">{formatCurrency(agent.gmv, currency)}</span>
                       </div>
                     </div>
                   </div>
@@ -325,17 +325,17 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
 
         <Card className="glass border-0 rounded-2xl overflow-hidden transition-all hover:shadow-2xl">
           <CardHeader className="p-8 pb-4">
-            <CardTitle className="text-xl font-bold text-slate-900 tracking-tight">التذاكر الحديثة</CardTitle>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">آخر التحديثات</p>
+            <CardTitle className="text-xl font-bold text-foreground tracking-tight">التذاكر الحديثة</CardTitle>
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">آخر التحديثات</p>
           </CardHeader>
           <CardContent className="p-8 pt-2 space-y-4">
             {isLoading && <LoadingRows rows={5} />}
             {!isLoading && (!data?.recentTickets || data.recentTickets.length === 0) ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-slate-50/50 rounded-2xl border border-dashed border-border">
-                <div className="rounded-2xl bg-white p-4 shadow-sm text-3xl">🎫</div>
+              <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-muted/30 rounded-2xl border border-dashed border-border">
+                <div className="rounded-2xl bg-card p-4 shadow-sm text-3xl">🎫</div>
                 <div>
-                  <p className="text-base font-bold text-slate-800">لا توجد تذاكر</p>
-                  <p className="text-sm text-slate-500 mt-1">جميع التذاكر تمت معالجتها</p>
+                  <p className="text-base font-bold text-foreground">لا توجد تذاكر</p>
+                  <p className="text-sm text-muted-foreground mt-1">جميع التذاكر تمت معالجتها</p>
                 </div>
               </div>
             ) : (
@@ -343,10 +343,10 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                 {data?.recentTickets.map((ticket) => (
                   <div
                     key={ticket.id}
-                    className="flex flex-col p-4 rounded-xl bg-white/50 border border-slate-100 hover:bg-white hover:border-blue-100 transition-all cursor-pointer group"
+                    className="flex flex-col p-4 rounded-xl bg-card/50 border border-border hover:bg-card hover:border-primary/20 transition-all cursor-pointer group"
                   >
                     <div className="flex items-start justify-between gap-3 mb-2">
-                      <p className="text-xs font-bold text-slate-900 group-hover:text-slate-700 transition-colors line-clamp-1">{ticket.subject}</p>
+                      <p className="text-xs font-bold text-foreground group-hover:text-foreground/80 transition-colors line-clamp-1">{ticket.subject}</p>
                       <Badge className={cn("text-xs font-bold uppercase px-2 py-0.5 rounded-md border-0 shrink-0", ticketStatusColor(ticket.status))}>
                         {ticketStatusLabel(ticket.status)}
                       </Badge>
@@ -354,9 +354,9 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                     <div className="flex items-center justify-between mt-auto">
                       <div className="flex items-center gap-2">
                         <div className="w-1 h-1 rounded-full bg-slate-300" />
-                        <span className="text-xs font-bold text-slate-500">{ticket.customerName || "عميل"}</span>
+                        <span className="text-xs font-bold text-muted-foreground">{ticket.customerName || "عميل"}</span>
                       </div>
-                      <span className="text-xs font-bold text-slate-400">{new Date(ticket.updatedAt).toLocaleDateString("ar-SA")}</span>
+                      <span className="text-xs font-bold text-muted-foreground/70">{new Date(ticket.updatedAt).toLocaleDateString("ar-SA")}</span>
                     </div>
                   </div>
                 ))}
@@ -399,13 +399,13 @@ const ticketStatusColor = (status: string) => {
     case "OPEN":
       return "bg-amber-50 text-amber-700 border-amber-200";
     case "IN_PROGRESS":
-      return "bg-blue-50 text-blue-700 border-blue-200";
+      return "bg-primary/5 text-primary border-primary/20";
     case "RESOLVED":
-      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+      return "bg-primary/10 text-primary border-primary/20";
     case "CLOSED":
-      return "bg-slate-100 text-slate-600 border-border";
+      return "bg-muted/50 text-muted-foreground border-border";
     default:
-      return "bg-slate-100 text-slate-600 border-border";
+      return "bg-muted/50 text-muted-foreground border-border";
   }
 };
 
@@ -427,7 +427,7 @@ const ticketPriorityLabel = (priority: string) => {
 const ticketPriorityColor = (priority: string) => {
   switch (priority) {
     case "LOW":
-      return "bg-emerald-50 text-emerald-700";
+      return "bg-primary/10 text-primary";
     case "MEDIUM":
       return "bg-sky-50 text-sky-700";
     case "HIGH":
@@ -435,14 +435,14 @@ const ticketPriorityColor = (priority: string) => {
     case "URGENT":
       return "bg-rose-50 text-rose-700";
     default:
-      return "bg-slate-100 text-slate-600";
+      return "bg-muted/50 text-muted-foreground";
   }
 };
 
 const LoadingRows = ({ rows }: { rows: number }) => (
   <div className="space-y-2">
     {Array.from({ length: rows }).map((_, index) => (
-      <div key={index} className="h-10 animate-pulse rounded-lg bg-slate-100" />
+      <div key={index} className="h-10 animate-pulse rounded-lg bg-muted/50" />
     ))}
   </div>
 );
@@ -453,13 +453,13 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
   return (
     <div className="space-y-8 animate-in-start">
       <Card className="glass border-0 rounded-3xl overflow-hidden relative p-4 lg:p-12">
-        <div className="absolute top-0 end-0 w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        <div className="absolute top-0 end-0 w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
         <CardHeader className="space-y-6 relative z-10 pt-0 ps-0">
-          <Badge variant="secondary" className="px-3 py-1 bg-blue-600/10 text-blue-700 border-0 rounded-lg text-xs font-bold uppercase tracking-widest w-fit">
+          <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-0 rounded-lg text-xs font-bold uppercase tracking-widest w-fit">
             {groupLabel}
           </Badge>
-          <CardTitle className="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-tight">{label}</CardTitle>
-          <p className="text-lg lg:text-xl text-slate-500 max-w-2xl leading-relaxed">
+          <CardTitle className="text-4xl lg:text-5xl font-bold text-foreground tracking-tight leading-tight">{label}</CardTitle>
+          <p className="text-lg lg:text-xl text-muted-foreground max-w-2xl leading-relaxed">
             المحتوى التفصيلي قيد الإعداد وسيتكامل مع الواجهات قريباً. نحن نعمل على تطوير حلول ذكية ومبتكرة تليق بجودة أعمالكم.
           </p>
         </CardHeader>
@@ -467,14 +467,14 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
           {sections && sections.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
               {sections.map((section) => (
-                <div key={section.title} className="bg-white/40 backdrop-blur-sm p-8 rounded-2xl border border-white/40 shadow-sm transition hover:shadow-xl hover:bg-white/60 hover:-translate-y-1 duration-300">
-                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-3 mb-5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.4)]" />
+                <div key={section.title} className="bg-card/40 backdrop-blur-sm p-8 rounded-2xl border border-white/40 shadow-sm transition hover:shadow-xl hover:bg-card/60 hover:-translate-y-1 duration-300">
+                  <h3 className="text-lg font-bold text-foreground flex items-center gap-3 mb-5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(37,99,235,0.4)]" />
                     {section.title}
                   </h3>
                   <ul className="space-y-4 ps-1">
                     {section.items.map((item) => (
-                      <li key={item} className="text-sm text-slate-600 font-semibold flex items-center gap-3 group">
+                      <li key={item} className="text-sm text-muted-foreground font-semibold flex items-center gap-3 group">
                         <div className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-blue-400 transition-colors" />
                         {item}
                       </li>
@@ -484,9 +484,9 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
               ))}
             </div>
           ) : (
-            <div className="p-20 text-center bg-slate-50/50 rounded-3xl border-2 border-dashed border-border/50 flex flex-col items-center">
-              <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-6 text-2xl">⏳</div>
-              <p className="text-xl font-bold text-slate-400 italic">لا توجد تفاصيل متاحة لهذا القسم حتى الآن. سيتم التحديث قريباً.</p>
+            <div className="p-20 text-center bg-muted/30 rounded-3xl border-2 border-dashed border-border/50 flex flex-col items-center">
+              <div className="w-16 h-16 bg-muted/50 rounded-2xl flex items-center justify-center mb-6 text-2xl">⏳</div>
+              <p className="text-xl font-bold text-muted-foreground/70 italic">لا توجد تفاصيل متاحة لهذا القسم حتى الآن. سيتم التحديث قريباً.</p>
             </div>
           )}
         </CardContent>

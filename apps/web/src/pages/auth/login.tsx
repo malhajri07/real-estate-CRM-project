@@ -69,10 +69,10 @@ export default function RBACLoginPage() {
   // Loading Screen
   if ((user && !isAuthenticating) || isRedirecting) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center" dir={dir}>
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center" dir={dir}>
         <div className="text-center space-y-4">
-          <Spinner size="xl" className="text-emerald-600 mx-auto" />
-          <p className="text-sm font-medium text-slate-600 animate-pulse">
+          <Spinner size="xl" className="text-primary mx-auto" />
+          <p className="text-sm font-medium text-muted-foreground animate-pulse">
             {isRedirecting ? 'جاري التحقق من البيانات...' : 'جاري التوجيه...'}
           </p>
         </div>
@@ -84,10 +84,10 @@ export default function RBACLoginPage() {
 
   if (isAuthenticating) {
     primaryCard = (
-      <Card className="w-full rounded-3xl border border-border bg-white shadow-sm">
+      <Card className="w-full rounded-3xl border border-border bg-card shadow-sm">
         <CardContent className="py-16 text-center space-y-6">
-          <Spinner size="xl" className="mx-auto text-emerald-600" />
-          <p className="text-sm font-medium text-slate-600">جاري التحميل...</p>
+          <Spinner size="xl" className="mx-auto text-primary" />
+          <p className="text-sm font-medium text-muted-foreground">جاري التحميل...</p>
         </CardContent>
       </Card>
     );
@@ -105,8 +105,8 @@ export default function RBACLoginPage() {
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-4 relative" dir={dir}>
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-emerald-50/50 to-transparent opacity-60" />
-        <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] rounded-full bg-emerald-100/30 blur-3xl" />
+        <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary/10 to-transparent opacity-60" />
+        <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute top-[20%] -left-[10%] w-[400px] h-[400px] rounded-full bg-blue-100/30 blur-3xl" />
       </div>
 
@@ -115,7 +115,7 @@ export default function RBACLoginPage() {
         <Button
           onClick={goHome}
           variant="ghost"
-          className="group flex items-center gap-2 text-slate-500 hover:text-slate-900 hover:bg-white/50 rounded-full px-4 py-2 transition-all"
+          className="group flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-card/50 rounded-full px-4 py-2 transition-all"
         >
           <ArrowRight className={cn("h-4 w-4 transition-transform group-hover:translate-x-1", dir === 'rtl' ? "rotate-180 group-hover:-translate-x-1" : "")} />
           <span className="font-medium">العودة للرئيسية</span>
@@ -140,18 +140,18 @@ export default function RBACLoginPage() {
 
         {/* Footer Links */}
         <div className="text-center space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             لا تملك حساباً بعد؟{' '}
             <Button
               variant="link"
               onClick={() => setLocation('/signup')}
-              className="font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors p-0 h-auto"
+              className="font-bold text-primary hover:text-primary/80 hover:underline transition-colors p-0 h-auto"
             >
               إنشاء حساب جديد
             </Button>
           </p>
           
-          <div className="pt-8 text-xs text-slate-400 font-medium">
+          <div className="pt-8 text-xs text-muted-foreground/70 font-medium">
             جميع الحقوق محفوظة © {new Date().getFullYear()} منصة عقاراتي
           </div>
         </div>

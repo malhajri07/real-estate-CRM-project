@@ -154,8 +154,8 @@ export default function MediaLibrary() {
     <div className="space-y-6" dir="rtl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">مكتبة الوسائط</h1>
-          <p className="text-slate-600">إدارة الملفات والوسائط</p>
+          <h1 className="text-2xl font-bold text-foreground">مكتبة الوسائط</h1>
+          <p className="text-muted-foreground">إدارة الملفات والوسائط</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -241,8 +241,8 @@ export default function MediaLibrary() {
                         className="w-full h-32 object-cover rounded"
                       />
                     ) : (
-                      <div className="w-full h-32 bg-slate-100 rounded flex items-center justify-center">
-                        <span className="text-slate-400">
+                      <div className="w-full h-32 bg-muted/50 rounded flex items-center justify-center">
+                        <span className="text-muted-foreground/70">
                           {item.mimeType.split("/")[1]}
                         </span>
                       </div>
@@ -250,11 +250,11 @@ export default function MediaLibrary() {
                     <div className="mt-2 text-xs truncate">{item.originalName}</div>
                     <div className="flex justify-between items-center mt-2">
                       <div className="flex flex-col gap-1">
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-muted-foreground">
                           {formatFileSize(item.size)}
                         </span>
                         {item.usageCount > 0 && (
-                          <span className="text-xs text-blue-600">
+                          <span className="text-xs text-primary">
                             مستخدم {item.usageCount} مرة
                           </span>
                         )}
@@ -295,18 +295,18 @@ export default function MediaLibrary() {
                         className="w-16 h-16 object-cover rounded"
                       />
                     ) : (
-                      <div className="w-16 h-16 bg-slate-100 rounded flex items-center justify-center">
-                        <span className="text-slate-400 text-xs">
+                      <div className="w-16 h-16 bg-muted/50 rounded flex items-center justify-center">
+                        <span className="text-muted-foreground/70 text-xs">
                           {item.mimeType.split("/")[1]}
                         </span>
                       </div>
                     )}
                     <div className="flex-1">
                       <div className="font-medium">{item.originalName}</div>
-                      <div className="text-sm text-slate-500">
+                      <div className="text-sm text-muted-foreground">
                         {formatFileSize(item.size)} • {item.mimeType}
                         {item.usageCount > 0 && (
-                          <span className="text-blue-600 mr-2">
+                          <span className="text-primary mr-2">
                             • مستخدم {item.usageCount} مرة
                           </span>
                         )}

@@ -108,13 +108,13 @@ export default function SendWhatsAppModal({
   const getStatusIcon = () => {
     switch (messageStatus) {
       case 'sending':
-        return <Clock className="h-5 w-5 text-blue-500 animate-spin" />;
+        return <Clock className="h-5 w-5 text-primary animate-spin" />;
       case 'sent':
-        return <CheckCircle className="h-5 w-5 text-emerald-500" />;
+        return <CheckCircle className="h-5 w-5 text-primary" />;
       case 'failed':
         return <XCircle className="h-5 w-5 text-red-500" />;
       default:
-        return <MessageCircle className="h-5 w-5 text-emerald-500" />;
+        return <MessageCircle className="h-5 w-5 text-primary" />;
     }
   };
 
@@ -139,7 +139,7 @@ export default function SendWhatsAppModal({
             {getStatusIcon()}
             {t('whatsapp.send_message')}
           </DialogTitle>
-          <div className="text-sm text-slate-600 mt-2">
+          <div className="text-sm text-muted-foreground mt-2">
             {t('whatsapp.to')}: {leadName} ({phoneNumber})
           </div>
         </DialogHeader>
@@ -182,7 +182,7 @@ export default function SendWhatsAppModal({
               <Button
                 type="submit"
                 disabled={messageStatus === 'sending' || messageStatus === 'sent'}
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-primary hover:bg-primary/90"
               >
                 {getStatusText()}
               </Button>

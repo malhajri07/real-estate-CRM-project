@@ -40,6 +40,7 @@ import { SectionEditor, CardEditor } from "./components";
 import { useCMSLandingSections } from "./hooks";
 import { apiPut, apiPost, apiDelete } from "@/lib/apiClient";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { PageSectionHeader } from "@/components/ui/page-section-header";
 
 interface CMSLandingPageProps {
   embedded?: boolean;
@@ -109,7 +110,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     setSectionSaving(true);
     try {
       const payload = buildSectionPayload(selectedSection, sectionForm);
-      const updatedSection = await apiPut(`api/cms/landing/sections/${selectedSection.id}`, payload);
+      const updatedSection = await apiPut(`api/cms/landing/sections/${selectedSection.id}`, payload) as LandingSection;
       updateSectionState(updatedSection);
       toast.success("تم حفظ القسم");
 
@@ -136,7 +137,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
       const updated = await apiPost(
         `api/cms/landing/sections/${selectedSection.id}/publish`,
         { publishCards: true }
-      );
+      ) as LandingSection;
       updateSectionState(updated);
       toast.success("تم نشر القسم بنجاح");
 
@@ -337,39 +338,30 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     <div className={outerClasses} dir={dir}>
       <div className={innerClasses}>
         <div className="flex flex-col gap-6">
-          <Card>
-            <CardHeader>
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-6">
-                  <div className="h-16 w-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
-                    <Sparkles className="h-8 w-8" />
-                  </div>
-                  <div className="text-center md:text-end">
-                    <CardTitle className="text-2xl font-bold tracking-tight">إدارة محتوى صفحة الهبوط</CardTitle>
-                    <CardDescription>قم بتحديث النصوص والأيقونات والعناصر المرئية بكل سهولة</CardDescription>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  className="h-12 px-8 rounded-xl border-border font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-3"
-                  onClick={() => window.open("/", "_blank")}
-                >
-                  <LinkIcon className="h-4 w-4" />
-                  عرض الموقع المباشر
-                </Button>
-              </div>
-            </CardHeader>
-          </Card>
+          <PageSectionHeader
+            icon={<Sparkles className="h-7 w-7" />}
+            title="إدارة محتوى صفحة الهبوط"
+            subtitle="قم بتحديث النصوص والأيقونات والعناصر المرئية بكل سهولة"
+            actions={
+              <Button
+                variant="outline"
+                onClick={() => window.open("/", "_blank")}
+              >
+                <LinkIcon className="h-4 w-4 me-2" />
+                عرض الموقع المباشر
+              </Button>
+            }
+          />
 
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
             <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "draft" | "published")} className="w-full lg:w-auto">
               <TabsList className="bg-slate-100/50 p-1 rounded-2xl border-0 h-14 w-full lg:w-auto">
-                <TabsTrigger value="draft" className="rounded-xl px-8 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all flex-1 lg:flex-none">المسودة (قيد التحرير)</TabsTrigger>
-                <TabsTrigger value="published" className="rounded-xl px-8 h-12 data-[state=active]:bg-white data-[state=active]:shadow-lg data-[state=active]:text-blue-600 font-bold transition-all flex-1 lg:flex-none">المنشور حالياً</TabsTrigger>
+                <TabsTrigger value="draft" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all flex-1 lg:flex-none">المسودة (قيد التحرير)</TabsTrigger>
+                <TabsTrigger value="published" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all flex-1 lg:flex-none">المنشور حالياً</TabsTrigger>
               </TabsList>
             </Tabs>
             <div className="flex items-center gap-3">
-              <Badge className="bg-blue-50 text-blue-700 border-0 text-xs font-bold uppercase px-3 py-1 rounded-lg">إصدار ٢.٤.٠</Badge>
+              <Badge variant="outline" className="status-badge-info text-xs font-bold uppercase px-3 py-1 rounded-lg">إصدار ٢.٤.٠</Badge>
             </div>
           </div>
         </div>
@@ -404,8 +396,8 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                               className={cn(
                                 "w-full p-4 rounded-2xl text-end transition-all duration-300 group relative overflow-hidden",
                                 selectedSectionId === section.id
-                                  ? "bg-slate-900 text-white shadow-xl shadow-slate-900/20"
-                                  : "bg-white/50 border border-slate-100 text-slate-600 hover:bg-white hover:shadow-lg hover:shadow-blue-500/5",
+                                  ? "bg-foreground text-background shadow-xl shadow-foreground/20"
+                                  : "bg-card/50 border border-border text-foreground hover:bg-card hover:shadow-md",
                                 snapshot.isDragging && "shadow-2xl ring-2 ring-blue-500/20"
                               )}
                             >
@@ -413,7 +405,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                                 <div className="flex flex-col items-start gap-1">
                                   <span className={cn(
                                     "text-sm font-bold tracking-tight transition-colors",
-                                    selectedSectionId === section.id ? "text-white" : "text-slate-900 group-hover:text-slate-700"
+                                    selectedSectionId === section.id ? "text-white" : "text-slate-900 group-hover:text-muted-foreground"
                                   )}>
                                     {SECTION_LABELS[section.slug] ?? section.title}
                                   </span>
@@ -427,8 +419,8 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                                 <Badge className={cn(
                                   "text-xs font-bold uppercase px-2 py-0.5 rounded-md border-0 shrink-0",
                                   section.status === "published"
-                                    ? (selectedSectionId === section.id ? "bg-emerald-500/20 text-emerald-300" : "bg-emerald-50 text-emerald-700")
-                                    : (selectedSectionId === section.id ? "bg-white/10 text-slate-300" : "bg-slate-100 text-slate-500")
+                                    ? (selectedSectionId === section.id ? "bg-primary/20 text-primary-foreground" : "status-badge-active")
+                                    : (selectedSectionId === section.id ? "bg-background/10 text-background/60" : "status-badge-inactive")
                                 )}>
                                   {section.status === "published" ? "منشور" : "مسودة"}
                                 </Badge>

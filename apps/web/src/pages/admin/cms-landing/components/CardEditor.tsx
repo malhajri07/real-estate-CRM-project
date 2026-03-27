@@ -46,24 +46,24 @@ export const CardEditor: React.FC<CardEditorProps> = ({
     formState.title || formState.label || card.title || SECTION_LABELS[section.slug] || "عنصر";
 
   return (
-    <Card className="bg-white/50 border border-slate-100 rounded-2xl p-6 hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group relative overflow-visible">
+    <Card className="bg-white/50 border border-border rounded-2xl p-6 hover:bg-card hover:shadow-xl hover:shadow-primary/10 transition-all group relative overflow-visible">
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 overflow-visible">
         <div className="flex items-center gap-4">
-          <div className="h-10 w-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center group-hover:bg-slate-100 group-hover:text-slate-600 transition-colors">
+          <div className="h-10 w-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center group-hover:bg-slate-100 group-hover:text-muted-foreground transition-colors">
             <Type className="h-5 w-5" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900 tracking-tight group-hover:text-slate-700 transition-colors">{cardTitle}</h3>
+          <h3 className="text-lg font-bold text-slate-900 tracking-tight group-hover:text-muted-foreground transition-colors">{cardTitle}</h3>
         </div>
         <div className="flex items-center gap-2 overflow-visible">
-          <div className="flex items-center gap-3 px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-100 overflow-visible">
+          <div className="flex items-center gap-3 px-3 py-1.5 bg-slate-50 rounded-xl border border-border overflow-visible">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">ظهور</span>
             <Switch
               checked={formState.visible}
               onCheckedChange={(checked) => setField("visible", checked)}
-              className="data-[state=checked]:bg-blue-600"
+              className="data-[state=checked]:bg-primary"
             />
           </div>
-          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-all" onClick={onSave} disabled={saving} aria-label="حفظ البطاقة">
+          <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-primary/5 hover:text-primary transition-all" onClick={onSave} disabled={saving} aria-label="حفظ البطاقة">
             <Save className={cn("h-5 w-5", saving && "animate-spin")} />
           </Button>
           <Button size="icon" variant="ghost" className="h-10 w-10 rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all" onClick={onDelete} aria-label="حذف البطاقة">
@@ -79,7 +79,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
             <Input
               value={formState.title ?? ""}
               onChange={(event) => setField("title", event.target.value)}
-              className="h-12 rounded-xl bg-slate-50/50 border-slate-100 focus:ring-blue-500/20 font-bold"
+              className="h-12 rounded-xl bg-slate-50/50 border-border focus:ring-blue-500/20 font-bold"
             />
           </div>
         )}
@@ -92,7 +92,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
                 value={formState.value ?? ""}
                 onChange={(event) => setField("value", event.target.value)}
                 placeholder="مثال: +١٥٤"
-                className="h-12 rounded-xl bg-slate-50/50 border-slate-100 focus:ring-blue-500/20 font-bold text-blue-600"
+                className="h-12 rounded-xl bg-slate-50/50 border-border focus:ring-blue-500/20 font-bold text-primary"
               />
             </div>
             <div className="space-y-2">
@@ -101,7 +101,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
                 value={formState.label ?? ""}
                 onChange={(event) => setField("label", event.target.value)}
                 placeholder="مثال: عملاء سعداء"
-                className="h-12 rounded-xl bg-slate-50/50 border-slate-100 focus:ring-blue-500/20 font-bold"
+                className="h-12 rounded-xl bg-slate-50/50 border-border focus:ring-blue-500/20 font-bold"
               />
             </div>
           </div>
@@ -115,13 +115,13 @@ export const CardEditor: React.FC<CardEditorProps> = ({
               onChange={(event) => setField("body", event.target.value)}
               rows={3}
               placeholder="أدخل تفاصيل العنصر هنا..."
-              className="rounded-xl bg-slate-50/50 border-slate-100 focus:ring-blue-500/20 font-medium text-slate-600 leading-relaxed"
+              className="rounded-xl bg-slate-50/50 border-border focus:ring-blue-500/20 font-medium text-muted-foreground leading-relaxed"
             />
           </div>
         )}
 
         {section.slug === "pricing" && (
-          <div className="p-6 bg-blue-50/30 rounded-xl border border-blue-100/30 space-y-6">
+          <div className="p-6 bg-primary/5 rounded-xl border border-primary/10 space-y-6">
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">السعر</Label>
@@ -129,7 +129,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
                   type="number"
                   value={formState.price ?? ""}
                   onChange={(event) => setField("price", event.target.value)}
-                  className="h-12 rounded-xl bg-white border-slate-100 font-bold text-blue-600"
+                  className="h-12 rounded-xl bg-card border-border font-bold text-primary"
                 />
               </div>
               <div className="space-y-2">
@@ -138,18 +138,18 @@ export const CardEditor: React.FC<CardEditorProps> = ({
                   value={formState.period ?? "monthly"}
                   onValueChange={(value: "monthly" | "yearly") => setField("period", value)}
                 >
-                  <SelectTrigger className="h-12 rounded-xl bg-white border-slate-100 font-bold">
+                  <SelectTrigger className="h-12 rounded-xl bg-card border-border font-bold">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl border-slate-100">
+                  <SelectContent className="rounded-xl border-border">
                     <SelectItem value="monthly">شهري</SelectItem>
                     <SelectItem value="yearly">سنوي</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-slate-100 overflow-visible">
-              <span className="text-sm font-bold text-slate-700">تحديد كخطة مميزة (جديد)</span>
+            <div className="flex items-center justify-between p-4 bg-card rounded-xl border border-border overflow-visible">
+              <span className="text-sm font-bold text-muted-foreground">تحديد كخطة مميزة (جديد)</span>
               <div className="overflow-visible">
                 <Switch
                   checked={formState.isPopular ?? false}
@@ -168,10 +168,10 @@ export const CardEditor: React.FC<CardEditorProps> = ({
               value={formState.icon ?? ""}
               onValueChange={(value) => setField("icon", value)}
             >
-              <SelectTrigger className="h-12 rounded-xl bg-slate-50/50 border-slate-100 font-bold">
+              <SelectTrigger className="h-12 rounded-xl bg-slate-50/50 border-border font-bold">
                 <SelectValue placeholder="اختر أيقونة مناسبة" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl border-slate-100">
+              <SelectContent className="rounded-xl border-border">
                 {(section.slug === "contact" ? CONTACT_ICON_OPTIONS : FEATURE_ICON_OPTIONS).map((option) => (
                   <SelectItem key={option.value} value={option.value} className="font-bold">
                     {option.label}

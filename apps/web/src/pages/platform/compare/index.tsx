@@ -111,7 +111,7 @@ export default function ComparePage() {
                 <CardContent className="p-5 space-y-2">
                   <div className="text-sm font-semibold">{p.title}</div>
                   <div className="text-xs text-muted-foreground">{p.address}، {p.city}</div>
-                  <div className="text-lg font-bold text-emerald-600">{p.price} ﷼</div>
+                  <div className="text-lg font-bold text-primary">{p.price} ﷼</div>
                   <div className="text-xs text-muted-foreground">النوع: {p.propertyType || '-'}</div>
                   <div className="text-xs text-muted-foreground">الغرف: {p.bedrooms ?? '-'}</div>
                   <div className="text-xs text-muted-foreground">الحمامات: {typeof p.bathrooms === 'string' ? p.bathrooms : (p.bathrooms ?? '-')}</div>

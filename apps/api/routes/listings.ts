@@ -73,18 +73,16 @@ router.get("/", async (req, res) => {
       pageSize = "20",
     } = req.query as Record<string, string | undefined>;
 
-    // Parse pagination parameters
-    // If pageSize is "all" or very large number, fetch all records
+    // Parse pagination parameters with hard cap
+    const MAX_PAGE_SIZE = 500;
     const pageSizeStr = pageSize || "20";
-    const shouldFetchAll = pageSizeStr.toLowerCase() === "all" || parseInt(pageSizeStr, 10) >= 10000;
     const pageNum = Math.max(1, parseInt(page || "1", 10) || 1);
-    const sizeNum = shouldFetchAll ? 10000 : Math.min(1000, Math.max(1, parseInt(pageSizeStr, 10) || 20));
+    const sizeNum = Math.min(MAX_PAGE_SIZE, Math.max(1, parseInt(pageSizeStr, 10) || 20));
 
     // Parse filter parameters
     const filterOptions: any = {
       page: pageNum,
       pageSize: sizeNum,
-      fetchAll: shouldFetchAll,
       sort: sort || 'newest',
     };
 
@@ -145,8 +143,12 @@ router.get("/", async (req, res) => {
 
       return {
         ...item,
+        propertyType: item.type ?? null,
+        listingType: Array.isArray(item.listings) && item.listings.length > 0
+          ? item.listings[0].listingType
+          : null,
         photoUrls,
-        imageGallery: photoUrls, // Also include as imageGallery for compatibility
+        imageGallery: photoUrls,
       };
     });
 
@@ -174,10 +176,10 @@ router.get("/map", async (req, res) => {
     const mapProperties = properties
       .filter((p) => p.latitude && p.longitude)
       .filter((p) => (city ? p.city === city : true))
-      .filter((p) => (propertyType ? p.type === propertyType : true))
+      .filter((p) => (propertyType ? (p as any).type === propertyType : true))
       // Property category is optional in seed data; don't exclude when absent
       // .filter((p) => (propertyCategory ? p.propertyCategory === propertyCategory : true))
-      .filter((p) => (listingType ? p.listingType === listingType : true))
+      .filter((p) => (listingType ? (p as any).listingType === listingType : true))
       .map((p) => ({
         id: p.id,
         title: p.title,
@@ -221,7 +223,7 @@ router.get("/:id/similar", async (req, res) => {
     if (!current) return res.status(404).json({ message: "Listing not found" });
     const all = await storage.getAllProperties();
     const similar = all
-      .filter(p => p.id !== current.id && p.city === current.city && p.propertyType === current.propertyType)
+      .filter(p => p.id !== current.id && p.city === current.city && (p as any).type === (current as any).type)
       .slice(0, 8);
     res.json(similar);
   } catch (err) {

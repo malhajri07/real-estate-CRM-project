@@ -428,7 +428,7 @@ export default function ForumPage() {
                   onClick={() => setSelectedChannelId("all")}
                 >
                   <span className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    <TrendingUp className="h-4 w-4 text-primary" />
                     {t("forum.all_channels")}
                   </span>
                 </li>
@@ -444,7 +444,7 @@ export default function ForumPage() {
                     onClick={() => setSelectedChannelId(ch.id)}
                   >
                     <span className="flex items-center gap-2">
-                      <TrendingUp className="h-4 w-4 text-emerald-500" />
+                      <TrendingUp className="h-4 w-4 text-primary" />
                       {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
                     </span>
                     <Badge variant="secondary">{ch._count?.posts ?? 0}</Badge>
@@ -493,7 +493,7 @@ export default function ForumPage() {
                           {post.author?.avatarUrl ? (
                             <img
                               src={post.author.avatarUrl}
-                              alt=""
+                              alt={`${post.author?.firstName} ${post.author?.lastName}'s avatar`}
                               className="h-full w-full object-cover"
                               loading="lazy"
                             />
@@ -545,7 +545,7 @@ export default function ForumPage() {
                               >
                                 <img
                                   src={m.url}
-                                  alt=""
+                                  alt={`Forum post image`}
                                   className="w-full h-full object-cover"
                                   loading="lazy"
                                 />
@@ -606,7 +606,7 @@ export default function ForumPage() {
                         <Heart className="h-4 w-4" />
                         <span>{post.likes}</span>
                       </Button>
-                      <Button variant="ghost" size="sm" className="gap-2 hover:text-blue-500">
+                      <Button variant="ghost" size="sm" className="gap-2 hover:text-primary">
                         <MessageCircle className="h-4 w-4" />
                         <span>{post._count?.comments || 0}</span>
                       </Button>
@@ -627,7 +627,7 @@ export default function ForumPage() {
 
         {/* Right Sidebar */}
         <div className="hidden lg:block lg:col-span-1">
-          <Card className="border-s-4 border-emerald-500">
+          <Card className="border-s-4 border-primary/20">
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold mb-2">{t("forum.trending_topics")}</h3>
               <p className="text-sm text-muted-foreground">

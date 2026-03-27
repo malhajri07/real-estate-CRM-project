@@ -368,14 +368,14 @@ export default function RealEstateRequestsPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
+      <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden" dir={dir}>
         <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
         <PublicHeader />
 
         <main className="relative pt-32 pb-20 px-4 flex items-center justify-center min-h-[80vh]">
           {/* Background Blobs */}
-          <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-teal-500/10 blur-[100px] rounded-full pointer-events-none" />
+          <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
 
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -383,31 +383,31 @@ export default function RealEstateRequestsPage() {
             className="w-full max-w-2xl"
           >
             <div className="glass rounded-2xl p-12 text-center shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-emerald-500 to-teal-500" />
+              <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-primary to-primary/70" />
 
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-600"
+                className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-primary"
               >
                 <CheckCircle2 className="h-10 w-10" />
               </motion.div>
 
-              <h1 className="text-3xl font-bold text-slate-900 mb-4">تم استلام طلبك بنجاح</h1>
-              <p className="text-slate-600 text-lg leading-relaxed mb-8 max-w-lg mx-auto">
+              <h1 className="text-3xl font-bold text-foreground mb-4">تم استلام طلبك بنجاح</h1>
+              <p className="text-muted-foreground text-lg leading-relaxed mb-8 max-w-lg mx-auto">
                 شكراً لثقتك بنا. سيقوم أحد الوسطاء المرخصين بالتواصل معك قريباً لمراجعة احتياجاتك وتقديم أفضل الخيارات المتاحة.
               </p>
 
               {seekerId && (
-                <div className="mb-10 inline-block bg-emerald-50/50 border border-emerald-100 rounded-2xl px-8 py-4">
-                  <p className="text-sm font-semibold text-emerald-800 mb-1">رقم الطلب الخاص بك</p>
-                  <p className="text-3xl font-bold text-emerald-600 font-mono tracking-widest">{seekerId}</p>
+                <div className="mb-10 inline-block bg-primary/10 border border-primary/20 rounded-2xl px-8 py-4">
+                  <p className="text-sm font-semibold text-primary mb-1">رقم الطلب الخاص بك</p>
+                  <p className="text-3xl font-bold text-primary font-mono tracking-widest">{seekerId}</p>
                 </div>
               )}
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
-                  className="rounded-xl h-12 px-8 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20"
+                  className="rounded-xl h-12 px-8 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/500"
                   onClick={() => setSubmitted(false)}
                 >
                   <FileEdit className={cn("me-2", "h-4 w-4")} />
@@ -415,7 +415,7 @@ export default function RealEstateRequestsPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-xl h-12 px-8 border-border hover:bg-slate-50 hover:text-emerald-700 hover:border-emerald-200"
+                  className="rounded-xl h-12 px-8 border-border hover:bg-muted/30 hover:text-primary hover:border-primary/20"
                   onClick={() => setLocation("/")}
                 >
                   <Home className={cn("me-2", "h-4 w-4")} />
@@ -430,14 +430,14 @@ export default function RealEstateRequestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden" dir={dir}>
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
       <main className="relative pt-32 pb-20 px-4">
         {/* Background Blobs */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-teal-500/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
 
         <div className="max-w-4xl mx-auto relative z-10">
           <motion.div
@@ -445,14 +445,14 @@ export default function RealEstateRequestsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-4 mb-12"
           >
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 text-sm font-medium">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/5 border border-primary/10 text-primary text-sm font-medium">
               <Home className="w-4 h-4" />
               <span>استمارة طلب عقار</span>
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight">
-              أخبرنا بتفاصيل <span className="text-transparent bg-clip-text bg-gradient-to-br from-emerald-600 to-teal-600">بيت أحلامك</span>
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
+              أخبرنا بتفاصيل <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary/70">بيت أحلامك</span>
             </h1>
-            <p className="text-lg text-slate-600 max-w-xl mx-auto leading-relaxed">
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
               أدخل بياناتك وتفضيلاتك، وسيقوم فريقنا الخبير بالبحث عن أفضل الخيارات التي تناسب ميزانيتك واحتياجاتك.
             </p>
           </motion.div>
@@ -467,27 +467,27 @@ export default function RealEstateRequestsPage() {
               className="glass rounded-2xl p-8 md:p-12 shadow-2xl"
             >
               <section className="space-y-8 mb-12">
-                <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 font-bold text-sm">1</span>
-                  <h2 className="text-xl font-bold text-slate-900">البيانات الشخصية</h2>
+                <div className="flex items-center gap-4 pb-4 border-b border-border">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">1</span>
+                  <h2 className="text-xl font-bold text-foreground">البيانات الشخصية</h2>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">الاسم الأول <span className="text-red-500">*</span></Label>
-                    <Input className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} required />
+                    <Label className="text-sm font-medium text-foreground/80">الاسم الأول <span className="text-red-500">*</span></Label>
+                    <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">اسم العائلة <span className="text-red-500">*</span></Label>
-                    <Input className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} required />
+                    <Label className="text-sm font-medium text-foreground/80">اسم العائلة <span className="text-red-500">*</span></Label>
+                    <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">رقم الجوال <span className="text-red-500">*</span></Label>
+                    <Label className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></Label>
                     <Input
                       type="tel"
                       inputMode="numeric"
                       autoComplete="tel"
-                      className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end font-mono tracking-wide"
+                      className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end font-mono tracking-wide"
                       dir="ltr"
                       placeholder="+966 5xxxxxxxx"
                       value={form.mobileNumber}
@@ -496,25 +496,25 @@ export default function RealEstateRequestsPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">البريد الإلكتروني <span className="text-red-500">*</span></Label>
-                    <Input type="email" className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500 text-end" dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+                    <Label className="text-sm font-medium text-foreground/80">البريد الإلكتروني <span className="text-red-500">*</span></Label>
+                    <Input type="email" className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end" dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">الجنسية <span className="text-red-500">*</span></Label>
-                    <Input className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.nationality} onChange={(e) => setForm({ ...form, nationality: e.target.value })} required />
+                    <Label className="text-sm font-medium text-foreground/80">الجنسية <span className="text-red-500">*</span></Label>
+                    <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.nationality} onChange={(e) => setForm({ ...form, nationality: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">العمر <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} required />
+                    <Label className="text-sm font-medium text-foreground/80">العمر <span className="text-red-500">*</span></Label>
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">الدخل الشهري (﷼) <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.monthlyIncome} onChange={(e) => setForm({ ...form, monthlyIncome: e.target.value })} required />
+                    <Label className="text-sm font-medium text-foreground/80">الدخل الشهري (﷼) <span className="text-red-500">*</span></Label>
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.monthlyIncome} onChange={(e) => setForm({ ...form, monthlyIncome: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">الجنس <span className="text-red-500">*</span></Label>
+                    <Label className="text-sm font-medium text-foreground/80">الجنس <span className="text-red-500">*</span></Label>
                     <Select value={form.gender} onValueChange={(value) => setForm({ ...form, gender: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"><SelectValue placeholder="اختر" /></SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="اختر" /></SelectTrigger>
                       <SelectContent>
                         {GENDER_OPTIONS.map((option) => (
                           <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
@@ -526,16 +526,16 @@ export default function RealEstateRequestsPage() {
               </section>
 
               <section className="space-y-8 mb-12">
-                <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 font-bold text-sm">2</span>
-                  <h2 className="text-xl font-bold text-slate-900">تفاصيل العقار المطلوب</h2>
+                <div className="flex items-center gap-4 pb-4 border-b border-border">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">2</span>
+                  <h2 className="text-xl font-bold text-foreground">تفاصيل العقار المطلوب</h2>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">نوع العقار <span className="text-red-500">*</span></Label>
+                    <Label className="text-sm font-medium text-foreground/80">نوع العقار <span className="text-red-500">*</span></Label>
                     <Select value={form.typeOfProperty} onValueChange={(value) => setForm({ ...form, typeOfProperty: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"><SelectValue placeholder="اختر نوع العقار" /></SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="اختر نوع العقار" /></SelectTrigger>
                       <SelectContent>
                         {PROPERTY_TYPES.map((type) => (
                           <SelectItem key={type} value={type}>{type}</SelectItem>
@@ -544,9 +544,9 @@ export default function RealEstateRequestsPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">نوع العقد <span className="text-red-500">*</span></Label>
+                    <Label className="text-sm font-medium text-foreground/80">نوع العقد <span className="text-red-500">*</span></Label>
                     <Select value={form.typeOfContract} onValueChange={(value) => setForm({ ...form, typeOfContract: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"><SelectValue placeholder="شراء أم إيجار؟" /></SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="شراء أم إيجار؟" /></SelectTrigger>
                       <SelectContent>
                         {CONTRACT_TYPES.map((type) => (
                           <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
@@ -557,23 +557,23 @@ export default function RealEstateRequestsPage() {
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">عدد الغرف <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.numberOfRooms} onChange={(e) => setForm({ ...form, numberOfRooms: e.target.value })} required />
+                    <Label className="text-sm font-medium text-foreground/80">عدد الغرف <span className="text-red-500">*</span></Label>
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.numberOfRooms} onChange={(e) => setForm({ ...form, numberOfRooms: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">عدد الحمامات <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.numberOfBathrooms} onChange={(e) => setForm({ ...form, numberOfBathrooms: e.target.value })} required />
+                    <Label className="text-sm font-medium text-foreground/80">عدد الحمامات <span className="text-red-500">*</span></Label>
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.numberOfBathrooms} onChange={(e) => setForm({ ...form, numberOfBathrooms: e.target.value })} required />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">عدد صالات المعيشة <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.numberOfLivingRooms} onChange={(e) => setForm({ ...form, numberOfLivingRooms: e.target.value })} required />
+                    <Label className="text-sm font-medium text-foreground/80">عدد صالات المعيشة <span className="text-red-500">*</span></Label>
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.numberOfLivingRooms} onChange={(e) => setForm({ ...form, numberOfLivingRooms: e.target.value })} required />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">اتجاه المنزل</Label>
+                    <Label className="text-sm font-medium text-foreground/80">اتجاه المنزل</Label>
                     <Select value={form.houseDirection} onValueChange={(value) => setForm({ ...form, houseDirection: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500"><SelectValue placeholder="غير محدد" /></SelectTrigger>
+                      <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="غير محدد" /></SelectTrigger>
                       <SelectContent>
                         {HOUSE_DIRECTIONS.map((direction) => (
                           <SelectItem key={direction.value} value={direction.value}>{direction.label}</SelectItem>
@@ -582,21 +582,21 @@ export default function RealEstateRequestsPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">الميزانية المتاحة (﷼) <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.budgetSize} onChange={(e) => setForm({ ...form, budgetSize: e.target.value })} required />
+                    <Label className="text-sm font-medium text-foreground/80">الميزانية المتاحة (﷼) <span className="text-red-500">*</span></Label>
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.budgetSize} onChange={(e) => setForm({ ...form, budgetSize: e.target.value })} required />
                   </div>
                 </div>
               </section>
 
               <section className="space-y-8 mb-12">
-                <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 font-bold text-sm">3</span>
-                  <h2 className="text-xl font-bold text-slate-900">الموقع والمواصفات الإضافية</h2>
+                <div className="flex items-center gap-4 pb-4 border-b border-border">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">3</span>
+                  <h2 className="text-xl font-bold text-foreground">الموقع والمواصفات الإضافية</h2>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">المنطقة</Label>
+                    <Label className="text-sm font-medium text-foreground/80">المنطقة</Label>
                     <Popover open={regionOpen} onOpenChange={setRegionOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" aria-expanded={regionOpen} className={cn("w-full justify-between h-12 rounded-xl", !form.region && "text-muted-foreground")}>
@@ -630,7 +630,7 @@ export default function RealEstateRequestsPage() {
                     </Popover>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">المدينة <span className="text-red-500">*</span></Label>
+                    <Label className="text-sm font-medium text-foreground/80">المدينة <span className="text-red-500">*</span></Label>
                     <Popover open={cityOpen} onOpenChange={setCityOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" aria-expanded={cityOpen} disabled={!form.regionId} className={cn("w-full justify-between h-12 rounded-xl", !form.city && "text-muted-foreground")}>
@@ -664,7 +664,7 @@ export default function RealEstateRequestsPage() {
                     </Popover>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">الحي</Label>
+                    <Label className="text-sm font-medium text-foreground/80">الحي</Label>
                     <Popover open={districtOpen} onOpenChange={setDistrictOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" aria-expanded={districtOpen} disabled={!form.cityId} className={cn("w-full justify-between h-12 rounded-xl", !form.district && "text-muted-foreground")}>
@@ -698,51 +698,51 @@ export default function RealEstateRequestsPage() {
                     </Popover>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">المساحة المطلوبة (م²)</Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-white/50 border-border focus:ring-emerald-500" value={form.sqm} onChange={(e) => setForm({ ...form, sqm: e.target.value })} />
+                    <Label className="text-sm font-medium text-foreground/80">المساحة المطلوبة (م²)</Label>
+                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.sqm} onChange={(e) => setForm({ ...form, sqm: e.target.value })} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3 pt-2">
-                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
+                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
                     <Checkbox checked={form.hasMaidRoom} onCheckedChange={(value) => setForm({ ...form, hasMaidRoom: Boolean(value) })} />
-                    <span className="text-slate-700 font-medium">غرفة خادمة</span>
+                    <span className="text-foreground/80 font-medium">غرفة خادمة</span>
                   </Label>
-                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
+                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
                     <Checkbox checked={form.hasDriverRoom} onCheckedChange={(value) => setForm({ ...form, hasDriverRoom: Boolean(value) })} />
-                    <span className="text-slate-700 font-medium">غرفة سائق</span>
+                    <span className="text-foreground/80 font-medium">غرفة سائق</span>
                   </Label>
-                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
+                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
                     <Checkbox checked={form.kitchenInstalled} onCheckedChange={(value) => setForm({ ...form, kitchenInstalled: Boolean(value) })} />
-                    <span className="text-slate-700 font-medium">مطبخ مركب</span>
+                    <span className="text-foreground/80 font-medium">مطبخ مركب</span>
                   </Label>
-                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
+                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
                     <Checkbox checked={form.hasElevator} onCheckedChange={(value) => setForm({ ...form, hasElevator: Boolean(value) })} />
-                    <span className="text-slate-700 font-medium">يوجد مصعد</span>
+                    <span className="text-foreground/80 font-medium">يوجد مصعد</span>
                   </Label>
-                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-all cursor-pointer">
+                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
                     <Checkbox checked={form.parkingAvailable} onCheckedChange={(value) => setForm({ ...form, parkingAvailable: Boolean(value) })} />
-                    <span className="text-slate-700 font-medium">موقف سيارة</span>
+                    <span className="text-foreground/80 font-medium">موقف سيارة</span>
                   </Label>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-slate-700">ملاحظات إضافية</Label>
+                  <Label className="text-sm font-medium text-foreground/80">ملاحظات إضافية</Label>
                   <Textarea
                     rows={4}
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    className="rounded-2xl bg-white/50 border-border focus:ring-emerald-500"
+                    className="rounded-2xl bg-card/50 border-border focus:ring-primary/30"
                     placeholder="أي تفاصيل أخرى تود إضافتها..."
                   />
                 </div>
               </section>
 
-              <div className="flex justify-end pt-6 border-t border-slate-100">
+              <div className="flex justify-end pt-6 border-t border-border">
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="h-14 rounded-full bg-emerald-600 px-10 text-lg font-bold text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-700 hover:shadow-emerald-500/30 disabled:opacity-60 transition-all"
+                  className="h-14 rounded-full bg-primary/10 px-10 text-lg font-bold text-white shadow-lg shadow-primary/500 hover:bg-primary/10 hover:shadow-primary/500 disabled:opacity-60 transition-all"
                 >
                   {loading ? (
                     <>

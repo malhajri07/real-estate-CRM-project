@@ -14,7 +14,7 @@ export const StatsBanner = ({ content }: StatsBannerProps) => {
         <section className="py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden" dir="rtl">
             {/* Animated Background Pattern */}
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/20 via-transparent to-blue-900/20" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-900/20" />
             
             {/* Animated Gradient Orbs */}
             <motion.div
@@ -27,7 +27,7 @@ export const StatsBanner = ({ content }: StatsBannerProps) => {
                     repeat: Infinity,
                     ease: "easeInOut"
                 }}
-                className="absolute top-0 end-0 w-96 h-96 bg-emerald-500/10 blur-[120px] rounded-full"
+                className="absolute top-0 end-0 w-96 h-96 bg-primary/10 blur-[120px] rounded-full"
             />
             <motion.div
                 animate={{
@@ -71,12 +71,12 @@ export const StatsBanner = ({ content }: StatsBannerProps) => {
                                 {stat.number}
                                 {stat.suffix && <span className="text-3xl">{stat.suffix}</span>}
                             </div>
-                            <div className="text-emerald-300 font-bold text-sm uppercase tracking-wider">
+                            <div className="text-primary font-bold text-sm uppercase tracking-wider">
                                 {stat.label}
                             </div>
                             
                             {/* Hover Glow Effect */}
-                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/0 to-blue-500/0 group-hover:from-emerald-500/10 group-hover:to-blue-500/10 transition-all duration-300 pointer-events-none" />
+                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 to-blue-500/0 group-hover:from-primary/10 group-hover:to-blue-500/10 transition-all duration-300 pointer-events-none" />
                         </motion.div>
                     ))}
                 </div>

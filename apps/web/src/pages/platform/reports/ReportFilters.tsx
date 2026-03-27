@@ -11,8 +11,8 @@ export default function ReportFilters({ selectedPeriod, onPeriodChange }: Report
     <div className="flex items-center justify-between mb-6">
       <div className="flex items-center space-x-4 rtl:space-x-reverse">
         <div className="flex items-center space-x-2 rtl:space-x-reverse">
-          <Calendar size={20} className="text-slate-500" />
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-700">فترة التقرير:</span>
+          <Calendar size={20} className="text-muted-foreground" />
+          <span className="text-xs font-bold uppercase tracking-wider text-foreground/80">فترة التقرير:</span>
           <Select value={selectedPeriod} onValueChange={onPeriodChange}>
             <SelectTrigger className="w-32">
               <SelectValue />

@@ -40,14 +40,14 @@ export class LandingErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
       return (
         <div className="min-h-screen bg-white flex items-center justify-center p-8" dir="rtl">
           <div className="text-center max-w-2xl">
-            <h1 className="text-3xl font-black text-slate-900 mb-4">حدث خطأ في تحميل الصفحة</h1>
-            <p className="text-lg text-slate-600 mb-6">
+            <h1 className="text-3xl font-black text-foreground mb-4">حدث خطأ في تحميل الصفحة</h1>
+            <p className="text-lg text-muted-foreground mb-6">
               نعتذر، حدث خطأ أثناء تحميل صفحة الهبوط. يرجى إعادة تحميل الصفحة أو التواصل مع الدعم الفني.
             </p>
             {this.state.error && (
-              <details className="mt-4 text-start bg-slate-50 p-4 rounded-lg">
-                <summary className="cursor-pointer text-sm font-bold text-slate-700 mb-2">تفاصيل الخطأ</summary>
-                <pre className="text-xs text-slate-600 overflow-auto">{this.state.error.message}</pre>
+              <details className="mt-4 text-start bg-muted/30 p-4 rounded-lg">
+                <summary className="cursor-pointer text-sm font-bold text-foreground/80 mb-2">تفاصيل الخطأ</summary>
+                <pre className="text-xs text-muted-foreground overflow-auto">{this.state.error.message}</pre>
               </details>
             )}
             <Button
@@ -55,7 +55,7 @@ export class LandingErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
                 this.setState({ hasError: false, error: undefined });
                 window.location.reload();
               }}
-              className="mt-6 rounded-2xl bg-emerald-600 px-8 py-3 text-white font-bold hover:bg-emerald-700 transition-colors"
+              className="mt-6 rounded-2xl bg-primary px-8 py-3 text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
             >
               إعادة تحميل الصفحة
             </Button>

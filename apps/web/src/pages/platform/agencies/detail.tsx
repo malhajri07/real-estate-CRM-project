@@ -59,7 +59,7 @@ export default function AgencyPage() {
       <section className="space-y-6">
         <Card>
           <CardContent className="p-6">
-            <div className="text-sm text-slate-600 mb-6">وسطاء: {data.agents.length} — إعلانات: {data.listings.length}</div>
+            <div className="text-sm text-muted-foreground mb-6">وسطاء: {data.agents.length} — إعلانات: {data.listings.length}</div>
           </CardContent>
         </Card>
 
@@ -108,7 +108,7 @@ export default function AgencyPage() {
                     <CardContent className="p-5">
                       <div className="text-sm font-semibold">{p.title}</div>
                       <div className="text-xs text-muted-foreground">{p.address}، {p.city}</div>
-                      <div className="text-lg text-emerald-600 font-bold">{p.price} ﷼</div>
+                      <div className="text-lg text-primary font-bold">{p.price} ﷼</div>
                     </CardContent>
                   </Card>
                 ))}

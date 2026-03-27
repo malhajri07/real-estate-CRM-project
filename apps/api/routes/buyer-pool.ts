@@ -23,7 +23,7 @@
 // @ts-nocheck
 import express from 'express';
 import { z } from 'zod';
-import { BuyerRequestStatus, ClaimStatus } from '@prisma/client';
+import { BuyerRequestStatus, ClaimStatus, Prisma } from '@prisma/client';
 import { prisma } from '../prismaClient';
 import { basePrisma } from '../prismaClient';
 import { normalizeSaudiPhone } from '../utils/phone';
@@ -59,13 +59,12 @@ const sendSmsSchema = z.object({
   message: z.string().min(1).max(500)
 });
 
-// GET /api/pool/health - No auth, returns DB counts (for debugging)
-router.get('/health', async (_req, res) => {
+// GET /api/pool/health - Requires auth, returns DB counts (for debugging)
+router.get('/health', authenticateToken, async (_req, res) => {
   try {
     const [seekerCount, buyerCount] = await Promise.all([
-      basePrisma.$queryRawUnsafe<[{ count: bigint }]>(
-        'SELECT COUNT(*)::bigint as count FROM public.properties_seeker'
-      ).then((r) => Number(r[0]?.count ?? 0)).catch(() => 0),
+      basePrisma.$queryRaw<[{ count: bigint }]>`SELECT COUNT(*)::bigint as count FROM public.properties_seeker`
+        .then((r) => Number(r[0]?.count ?? 0)).catch(() => 0),
       basePrisma.buyer_requests.count().catch(() => 0)
     ]);
     res.json({ ok: true, propertiesSeekerCount: seekerCount, buyerRequestsCount: buyerCount });
@@ -78,12 +77,21 @@ router.get('/health', async (_req, res) => {
 // GET /api/pool/search – Unified pool: customer requests (properties_seeker) first, then buyer_requests
 router.get('/search', authenticateToken, async (req, res) => {
   try {
+    // Validate price parameters
+    const minPrice = req.query.minPrice ? Math.max(0, Number(req.query.minPrice)) : undefined;
+    const maxPrice = req.query.maxPrice ? Math.max(0, Number(req.query.maxPrice)) : undefined;
+    if (minPrice !== undefined && isNaN(minPrice)) return res.status(400).json({ success: false, message: "Invalid minPrice" });
+    if (maxPrice !== undefined && isNaN(maxPrice)) return res.status(400).json({ success: false, message: "Invalid maxPrice" });
+    if (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice) {
+      return res.status(400).json({ success: false, message: "minPrice cannot exceed maxPrice" });
+    }
+
     const query = searchBuyerRequestsSchema.parse({
       ...req.query,
       page: req.query.page ? parseInt(req.query.page as string) : 1,
       pageSize: req.query.pageSize ? parseInt(req.query.pageSize as string) : 20,
-      minPrice: req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined,
-      maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined,
+      minPrice,
+      maxPrice,
       minBedrooms: req.query.minBedrooms ? parseInt(req.query.minBedrooms as string) : undefined,
       maxBedrooms: req.query.maxBedrooms ? parseInt(req.query.maxBedrooms as string) : undefined
     });
@@ -96,33 +104,29 @@ router.get('/search', authenticateToken, async (req, res) => {
     // 1. Customer requests from public.properties_seeker
     let customerPoolItems: any[] = [];
     try {
-      // Query public.properties_seeker explicitly to ensure correct table
-      const conditions: string[] = [];
-      const params: any[] = [];
-      let paramIndex = 1;
+      const conditions: Prisma.Sql[] = [];
       if (query.city) {
-        conditions.push(`city = $${paramIndex++}`);
-        params.push(query.city);
+        conditions.push(Prisma.sql`city = ${query.city}`);
       }
       if (query.type) {
-        conditions.push(`type_of_property = $${paramIndex++}`);
-        params.push(query.type);
+        conditions.push(Prisma.sql`type_of_property = ${query.type}`);
       }
       if (query.minPrice != null) {
-        conditions.push(`budget_size >= $${paramIndex++}`);
-        params.push(query.minPrice);
+        conditions.push(Prisma.sql`budget_size >= ${query.minPrice}`);
       }
       if (query.maxPrice != null) {
-        conditions.push(`budget_size <= $${paramIndex++}`);
-        params.push(query.maxPrice);
+        conditions.push(Prisma.sql`budget_size <= ${query.maxPrice}`);
       }
-      const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-      const customerRequests = await basePrisma.$queryRawUnsafe<any[]>(
-        `SELECT seeker_num, seeker_id, city, region, type_of_property, number_of_rooms, number_of_bathrooms, number_of_living_rooms, budget_size, other_comments, created_at
-         FROM public.properties_seeker ${whereClause}
-         ORDER BY created_at DESC
-         LIMIT 100`,
-        ...params
+
+      const whereClause = conditions.length
+        ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`
+        : Prisma.empty;
+
+      const customerRequests = await basePrisma.$queryRaw<any[]>(
+        Prisma.sql`SELECT seeker_num, seeker_id, city, region, type_of_property, number_of_rooms, number_of_bathrooms, number_of_living_rooms, budget_size, other_comments, created_at
+          FROM public.properties_seeker ${whereClause}
+          ORDER BY created_at DESC
+          LIMIT 100`
       );
 
       customerPoolItems = customerRequests.map((r: any) => ({

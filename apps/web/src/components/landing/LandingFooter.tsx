@@ -11,10 +11,10 @@ interface LandingFooterProps {
 
 export const LandingFooter = ({ content, footerGroups }: LandingFooterProps) => {
     return (
-        <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-300 py-20 border-t border-slate-700/50 relative overflow-hidden" dir="rtl">
+        <footer className="glass-dark text-slate-300 py-20 border-t border-white/10 relative overflow-hidden" dir="rtl">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/10 via-transparent to-blue-900/10" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 mb-16">
@@ -27,11 +27,11 @@ export const LandingFooter = ({ content, footerGroups }: LandingFooterProps) => 
                     >
                         <img
                             src={content?.footerLogoUrl || agarkomFooterLogo}
-                            alt="عقاركم"
+                            alt="Real Estate CRM Logo"
                             className="h-28 w-auto object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity duration-300"
                         />
                         {content?.footerDescription && (
-                            <p className="text-slate-400 leading-relaxed max-w-sm" style={{ lineHeight: '1.8' }}>
+                            <p className="text-muted-foreground/70 leading-relaxed max-w-sm" style={{ lineHeight: '1.8' }}>
                                 {content.footerDescription}
                             </p>
                         )}
@@ -53,7 +53,7 @@ export const LandingFooter = ({ content, footerGroups }: LandingFooterProps) => 
                                         <li key={linkIdx}>
                                             <a
                                                 href={link.url}
-                                                className="text-slate-400 hover:text-white transition-colors duration-300 font-medium hover:translate-x-[-4px] inline-block"
+                                                className="text-muted-foreground/70 hover:text-white transition-colors duration-300 font-medium hover:translate-x-[-4px] inline-block"
                                             >
                                                 {link.text}
                                             </a>
@@ -72,7 +72,7 @@ export const LandingFooter = ({ content, footerGroups }: LandingFooterProps) => 
                     viewport={{ once: true }}
                     className="pt-8 border-t border-slate-700/50 text-center"
                 >
-                    <p className="text-slate-500 text-sm font-medium">
+                    <p className="text-muted-foreground text-sm font-medium">
                         {content.footerCopyright || "© جميع الحقوق محفوظة"}
                     </p>
                 </motion.div>

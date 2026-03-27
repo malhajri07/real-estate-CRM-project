@@ -78,7 +78,7 @@ export default function Header({
       initial="hidden"
       animate="visible"
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="sticky top-0 z-30 h-16 bg-white border-b border-border/60 shadow-sm transition-all duration-300"
+      className="sticky top-0 z-30 h-16 bg-card border-b border-border/60 shadow-sm transition-all duration-300"
       aria-label={title || "الشريط العلوي"}
     >
       <div className="w-full px-6 sm:px-8 lg:px-12 h-full" dir={dir}>
@@ -90,7 +90,7 @@ export default function Header({
               size="icon"
               onClick={onToggleSidebar}
               aria-label={isSidebarOpen ? t("header.toggleSidebarClose") : t("header.toggleSidebarOpen")}
-              className={cn("inline-flex border border-white/60 bg-white/50 text-slate-600 shadow-sm transition hover:bg-white/80 hover:text-slate-900 focus-visible:ring-emerald-500/40 lg:hidden rounded-2xl h-11 w-11")}
+              className={cn("inline-flex border border-white/60 bg-card/50 text-muted-foreground shadow-sm transition hover:bg-card/80 hover:text-foreground focus-visible:ring-primary/30 lg:hidden rounded-2xl h-11 w-11")}
             >
               <Menu className="h-5 w-5" />
             </Button>
@@ -105,9 +105,9 @@ export default function Header({
                   placeholder={defaultPlaceholder}
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  className="w-full h-11 border-0 bg-slate-100/50 hover:bg-white focus:bg-white ring-1 ring-slate-200/60 ps-12 pe-4 text-sm shadow-sm transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-emerald-500/20 text-start placeholder:text-start rounded-2xl"
+                  className="w-full h-11 border-0 bg-muted/50 hover:bg-card focus:bg-card ring-1 ring-slate-200/60 ps-12 pe-4 text-sm shadow-sm transition-all placeholder:text-muted-foreground/70 focus:ring-2 focus:ring-primary/30 text-start placeholder:text-start rounded-2xl"
                 />
-                <Search className="absolute start-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Search className="absolute start-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/70" />
               </div>
             )}
           </div>
@@ -124,9 +124,9 @@ export default function Header({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="relative h-11 w-11 p-0 hover:bg-slate-100/80 rounded-2xl transition-colors"
+                  className="relative h-11 w-11 p-0 hover:bg-muted/50 rounded-2xl transition-colors"
                 >
-                  <Bell className="h-5 w-5 text-slate-600" />
+                  <Bell className="h-5 w-5 text-muted-foreground" />
                   {notificationCount > 0 && (
                     <span className="absolute top-2.5 end-2.5 h-4 w-4 bg-red-500 border-2 border-white text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
                       {notificationCount > 9 ? '9+' : notificationCount}
@@ -136,10 +136,10 @@ export default function Header({
                 
                 <div className="flex items-center gap-3 ps-3 border-s border-border/50">
                   <div className="hidden flex-col items-end sm:flex">
-                    <span className="text-xs font-semibold text-slate-900 leading-none mb-1">{username}</span>
-                    <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider leading-none">{t("auth.loggedIn") || "مرحباً بعودتك"}</span>
+                    <span className="text-xs font-semibold text-foreground leading-none mb-1">{username}</span>
+                    <span className="text-xs font-bold text-primary uppercase tracking-wider leading-none">{t("auth.loggedIn") || "مرحباً بعودتك"}</span>
                   </div>
-                  <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+                  <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-white shadow-md shadow-primary/20">
                     <User className="h-5 w-5" />
                   </div>
                 </div>

@@ -3,6 +3,11 @@ import express from 'express';
 
 const router = express.Router();
 
+// GET /api/csv - Not implemented endpoint
+router.get("/", (req, res) => {
+    res.status(501).json({ message: "CSV export is not yet implemented", code: "NOT_IMPLEMENTED" });
+});
+
 router.post("/upload-url", async (req, res) => {
     try {
         // Return a simple upload endpoint for local file system

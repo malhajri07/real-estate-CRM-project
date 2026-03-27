@@ -183,7 +183,7 @@ export default function BlogPage() {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white" dir="rtl">
           <PublicHeader />
           <div className="max-w-4xl mx-auto px-4 py-16">
-            <div className="text-center text-slate-600">جار التحميل...</div>
+            <div className="text-center text-muted-foreground">جار التحميل...</div>
           </div>
         </div>
       );
@@ -197,7 +197,7 @@ export default function BlogPage() {
             <Card>
               <CardContent className="p-8 text-center">
                 <h1 className="text-2xl font-bold mb-4">المقال غير موجود</h1>
-                <p className="text-slate-600 mb-6">عذراً، لم يتم العثور على المقال المطلوب.</p>
+                <p className="text-muted-foreground mb-6">عذراً، لم يتم العثور على المقال المطلوب.</p>
                 <Button onClick={() => setLocation("/blog")} className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
                   العودة إلى المدونة
@@ -232,8 +232,8 @@ export default function BlogPage() {
               </div>
             )}
             <CardContent className="p-6 md:p-8">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">{article.title}</h1>
-              <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-slate-600">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">{article.title}</h1>
+              <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-muted-foreground">
                 {article.publishedAt && (
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
@@ -247,7 +247,7 @@ export default function BlogPage() {
                 {article.categories.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {article.categories.map((cat) => (
-                      <Badge key={cat.id} variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                      <Badge key={cat.id} variant="outline" className="bg-primary/10 text-primary border-primary/20">
                         {cat.name}
                       </Badge>
                     ))}
@@ -255,18 +255,18 @@ export default function BlogPage() {
                 )}
               </div>
               {article.excerpt && (
-                <p className="text-lg text-slate-700 mb-8 leading-relaxed">{article.excerpt}</p>
+                <p className="text-lg text-foreground/80 mb-8 leading-relaxed">{article.excerpt}</p>
               )}
               <div
-                className="prose prose-lg max-w-none mb-8 prose-headings:text-slate-900 prose-p:text-slate-700 prose-a:text-emerald-600 prose-strong:text-slate-900"
+                className="prose prose-lg max-w-none mb-8 prose-headings:text-foreground prose-p:text-foreground/80 prose-a:text-primary prose-strong:text-foreground"
                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content) }}
               />
               {article.tags.length > 0 && (
                 <div className="mb-8 pt-6 border-t border-border">
                   <div className="flex flex-wrap gap-2">
-                    <span className="text-sm text-slate-600 font-medium">الوسوم:</span>
+                    <span className="text-sm text-muted-foreground font-medium">الوسوم:</span>
                     {article.tags.map((tag) => (
-                      <Badge key={tag.id} variant="secondary" className="bg-slate-100 text-slate-700 hover:bg-slate-200">
+                      <Badge key={tag.id} variant="secondary" className="bg-muted/50 text-foreground/80 hover:bg-slate-200">
                         {tag.name}
                       </Badge>
                     ))}
@@ -275,7 +275,7 @@ export default function BlogPage() {
               )}
               <div className="mt-8 pt-6 border-t border-border">
                 <div className="flex flex-wrap items-center gap-4">
-                  <span className="text-sm font-medium text-slate-700">شارك المقال:</span>
+                  <span className="text-sm font-medium text-foreground/80">شارك المقال:</span>
                   <div className="flex flex-wrap gap-2">
                     <Button
                       variant="outline"
@@ -330,13 +330,13 @@ export default function BlogPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Header Section */}
         <div className="mb-8 md:mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900">المدونة</h1>
-          <p className="text-lg text-slate-600 mb-6">اقرأ آخر المقالات والأخبار في عالم العقارات</p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">المدونة</h1>
+          <p className="text-lg text-muted-foreground mb-6">اقرأ آخر المقالات والأخبار في عالم العقارات</p>
           
           {/* Search Bar */}
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute end-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+              <Search className="absolute end-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground/70" />
               <Input
                 placeholder="بحث في المقالات..."
                 value={searchTerm}
@@ -368,8 +368,8 @@ export default function BlogPage() {
                   }}
                   className={cn(
                     selectedCategory === null
-                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : "bg-white hover:bg-slate-50"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "bg-white hover:bg-muted/30"
                   )}
                 >
                   الكل
@@ -385,8 +385,8 @@ export default function BlogPage() {
                     }}
                     className={cn(
                       selectedCategory === category.id
-                        ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                        : "bg-white hover:bg-slate-50"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : "bg-white hover:bg-muted/30"
                     )}
                   >
                     {category.name}
@@ -407,8 +407,8 @@ export default function BlogPage() {
                     className={cn(
                       "cursor-pointer transition-colors",
                       selectedTag === tag.id
-                        ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                        : "bg-white hover:bg-emerald-50"
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : "bg-white hover:bg-primary/10"
                     )}
                     onClick={() => {
                       setSelectedTag(selectedTag === tag.id ? null : tag.id);
@@ -426,12 +426,12 @@ export default function BlogPage() {
         {/* Articles Grid */}
         {isLoading ? (
           <div className="text-center py-16">
-            <div className="text-slate-600">جار التحميل...</div>
+            <div className="text-muted-foreground">جار التحميل...</div>
           </div>
         ) : !data?.items.length ? (
           <Card>
             <CardContent className="p-12 text-center">
-              <div className="text-slate-500 text-lg mb-4">لا توجد مقالات</div>
+              <div className="text-muted-foreground text-lg mb-4">لا توجد مقالات</div>
               {hasActiveFilters && (
                 <Button variant="outline" onClick={clearFilters} className="gap-2">
                   <X className="h-4 w-4" />
@@ -455,7 +455,7 @@ export default function BlogPage() {
                     </div>
                   )}
                   <CardContent className="p-6 flex-1 flex flex-col">
-                    <div className="flex flex-wrap items-center gap-2 mb-3 text-xs text-slate-500">
+                    <div className="flex flex-wrap items-center gap-2 mb-3 text-xs text-muted-foreground">
                       {article.publishedAt && (
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
@@ -463,18 +463,18 @@ export default function BlogPage() {
                         </div>
                       )}
                       {article.categories.length > 0 && (
-                        <Badge variant="outline" className="text-xs bg-emerald-50 text-emerald-700 border-emerald-200">
+                        <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
                           {article.categories[0].name}
                         </Badge>
                       )}
                     </div>
                     <Link href={`/blog/${article.slug}`}>
-                      <h2 className="text-xl font-bold mb-3 text-slate-900 group-hover:text-slate-700 transition-colors cursor-pointer line-clamp-2">
+                      <h2 className="text-xl font-bold mb-3 text-foreground group-hover:text-foreground/80 transition-colors cursor-pointer line-clamp-2">
                         {article.title}
                       </h2>
                     </Link>
                     {article.excerpt && (
-                      <p className="text-slate-600 mb-4 line-clamp-3 flex-1">{article.excerpt}</p>
+                      <p className="text-muted-foreground mb-4 line-clamp-3 flex-1">{article.excerpt}</p>
                     )}
                     <Link href={`/blog/${article.slug}`}>
                       <Button variant="outline" className="w-full mt-auto">
@@ -498,7 +498,7 @@ export default function BlogPage() {
                   <ArrowLeft className="h-4 w-4" />
                   السابق
                 </Button>
-                <span className="px-4 py-2 text-slate-700">
+                <span className="px-4 py-2 text-foreground/80">
                   صفحة {page} من {data.totalPages}
                 </span>
                 <Button

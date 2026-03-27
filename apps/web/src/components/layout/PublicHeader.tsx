@@ -136,15 +136,15 @@ export default function PublicHeader() {
       className={cn(
         "sticky top-0 z-50 transition-colors duration-300",
         isScrolled
-          ? "bg-white/85 backdrop-blur-2xl border-b border-white/60 shadow-soft"
-          : "bg-white/60 backdrop-blur-xl border-transparent"
+          ? "bg-card/85 backdrop-blur-2xl border-b border-white/60 shadow-soft"
+          : "bg-card/60 backdrop-blur-xl border-transparent"
       )}
     >
       <div className="max-w-7xl mx-auto flex h-[64px] items-center justify-between px-4 sm:px-6 xl:px-8">
         <div className="flex items-center gap-3">
           <a
             href="/"
-            className="flex items-center gap-3 rounded-full bg-white/80 px-3 py-1.5 shadow-sm ring-1 ring-white/60 transition hover:shadow hover:ring-white"
+            className="flex items-center gap-3 rounded-full bg-card/80 px-3 py-1.5 shadow-sm ring-1 ring-white/60 transition hover:shadow hover:ring-white"
           >
             <img
               src={logoSrc}
@@ -173,8 +173,8 @@ export default function PublicHeader() {
                   className={cn(
                     "px-3 py-2 rounded-full transition-colors duration-200",
                     isActive
-                      ? "text-emerald-600 bg-emerald-50"
-                      : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-primary hover:bg-primary/10"
                   )}
                 >
                   {link.label}
@@ -189,8 +189,8 @@ export default function PublicHeader() {
                 className={cn(
                   "px-3 py-2 rounded-full transition-colors duration-200 cursor-pointer inline-block",
                   isActive
-                    ? "text-emerald-600 bg-emerald-50"
-                    : "text-slate-600 hover:text-emerald-600 hover:bg-emerald-50"
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-primary hover:bg-primary/10"
                 )}
               >
                 {link.label}
@@ -203,8 +203,8 @@ export default function PublicHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden rounded-full border border-border text-slate-600"
-            onClick={() => (window.location.href = isAuth ? getDashboardUrl() : "/rbac-login")}
+            className="md:hidden rounded-full border border-border text-muted-foreground"
+            onClick={() => setLocation(isAuth ? getDashboardUrl() : "/rbac-login")}
             aria-label="فتح القائمة أو تسجيل الدخول"
           >
             <Menu className="h-4 w-4" />
@@ -212,8 +212,8 @@ export default function PublicHeader() {
           {isAuth ? (
             <Button
               variant="secondary"
-              className="hidden md:inline-flex rounded-2xl bg-emerald-600 text-white shadow-soft hover:bg-emerald-700"
-              onClick={() => (window.location.href = getDashboardUrl())}
+              className="hidden md:inline-flex rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90"
+              onClick={() => setLocation(getDashboardUrl())}
             >
               {t("nav.dashboard")}
             </Button>
@@ -221,14 +221,14 @@ export default function PublicHeader() {
             <>
               <Button
                 variant="ghost"
-                className="hidden md:inline-flex rounded-2xl text-emerald-600 hover:bg-emerald-50"
-                onClick={() => (window.location.href = "/rbac-login")}
+                className="hidden md:inline-flex rounded-2xl text-primary hover:bg-primary/10"
+                onClick={() => setLocation("/rbac-login")}
               >
                 {t("nav.login")}
               </Button>
               <Button
-                className="hidden md:inline-flex rounded-2xl bg-emerald-600 text-white shadow-soft hover:bg-emerald-700"
-                onClick={() => (window.location.href = "/signup")}
+                className="hidden md:inline-flex rounded-2xl bg-primary text-primary-foreground shadow-soft hover:bg-primary/90"
+                onClick={() => setLocation("/signup")}
               >
                 {t("nav.signup")}
               </Button>

@@ -47,12 +47,12 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
   };
 
   return (
-    <Card className="w-full border-0 rounded-3xl shadow-xl shadow-slate-200/50 bg-white overflow-hidden">
-      <CardHeader className="space-y-2 text-center pb-8 pt-8 border-b border-slate-50 bg-slate-50/30">
-        <CardTitle className="text-xl font-bold text-slate-900">
+    <Card className="w-full border-0 rounded-3xl shadow-xl shadow-slate-200/50 bg-card overflow-hidden">
+      <CardHeader className="space-y-2 text-center pb-8 pt-8 border-b border-slate-50 bg-muted/30">
+        <CardTitle className="text-xl font-bold text-foreground">
           مرحباً بك مجدداً
         </CardTitle>
-        <CardDescription className="text-sm text-slate-500">
+        <CardDescription className="text-sm text-muted-foreground">
           أدخل بيانات حسابك للمتابعة
         </CardDescription>
       </CardHeader>
@@ -66,7 +66,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
           )}
 
           <div className="space-y-2 text-start">
-            <Label htmlFor="identifier" className="text-sm font-semibold text-slate-700">
+            <Label htmlFor="identifier" className="text-sm font-semibold text-foreground/80">
               البريد الإلكتروني
             </Label>
             <Input
@@ -78,21 +78,21 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
               autoComplete="username"
               required
               disabled={isLoading}
-              className="h-11 border-border rounded-xl bg-white/80 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-start"
+              className="h-11 border-border rounded-xl bg-card/80 focus:bg-card focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-start"
             />
           </div>
 
           <div className="space-y-2 text-start">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password" className="text-sm font-semibold text-slate-700">
+              <Label htmlFor="password" className="text-sm font-semibold text-foreground/80">
                 كلمة المرور
               </Label>
               <Button
                 type="button"
                 variant="link"
-                className="p-0 h-auto text-xs font-medium text-slate-600 hover:text-slate-700"
+                className="p-0 h-auto text-xs font-medium text-muted-foreground hover:text-foreground/80"
                 onClick={() => {
-                  alert('يرجى التواصل مع مدير النظام لاستعادة بيانات الدخول');
+                  toast.info('يرجى التواصل مع مدير النظام لاستعادة بيانات الدخول');
                 }}
               >
                 نسيت كلمة المرور؟
@@ -108,14 +108,14 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
                 autoComplete="current-password"
                 required
                 disabled={isLoading}
-                className={cn("h-11 border-border rounded-xl bg-white/80 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-start", dir === 'rtl' ? "pl-10" : "pr-10")}
+                className={cn("h-11 border-border rounded-xl bg-card/80 focus:bg-card focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-start", dir === 'rtl' ? "pl-10" : "pr-10")}
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hover:bg-transparent h-8 w-8",
+                  "absolute top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-muted-foreground hover:bg-transparent h-8 w-8",
                   dir === 'rtl' ? "left-2" : "right-2"
                 )}
                 onClick={() => setShowPassword(!showPassword)}
@@ -136,11 +136,11 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
               checked={rememberMe}
               onCheckedChange={(checked) => setRememberMe(checked as boolean)}
               disabled={isLoading}
-              className="data-[state=checked]:bg-emerald-600 data-[state=checked]:border-emerald-600"
+              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
             />
             <Label
               htmlFor="remember"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-600 cursor-pointer select-none"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground cursor-pointer select-none"
             >
               تذكر تسجيل دخولي
             </Label>
@@ -148,7 +148,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
 
           <Button
             type="submit"
-            className="w-full h-12 text-base shadow-lg shadow-emerald-600/20 mt-4"
+            className="w-full h-12 text-base shadow-lg shadow-primary/20 mt-4"
             disabled={isLoading || !identifier || !password}
           >
             {isLoading ? (

@@ -7,7 +7,7 @@
 
 /** Icon container for metric/stat cards (e.g. MetricCard, admin stats) */
 export const ICON_CONTAINER =
-  "flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-slate-600";
+  "flex h-12 w-12 items-center justify-center rounded-xl bg-muted/50 text-muted-foreground";
 
 /** Icon size for cards */
 export const ICON_SIZE = "h-5 w-5";
@@ -16,7 +16,7 @@ export const ICON_SIZE = "h-5 w-5";
 export const ICON_SIZE_SM = "h-4 w-4";
 
 /** Unified icon color class - use for all icons */
-export const ICON_COLOR = "text-slate-600";
+export const ICON_COLOR = "text-muted-foreground";
 
 /** Hover state for icon buttons - similar shade, no colorful icons */
-export const ICON_HOVER = "hover:text-slate-700 hover:bg-slate-100";
+export const ICON_HOVER = "hover:text-foreground/80 hover:bg-muted/50";

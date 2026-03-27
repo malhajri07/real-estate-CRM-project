@@ -294,13 +294,13 @@ export default function MapPage() {
               className={cn(
                 "h-8 rounded-full border px-3 text-xs transition-colors",
                 isActive
-                  ? "bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700 hover:border-emerald-700"
-                  : "border-border bg-white/50 text-slate-700 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700"
+                  ? "bg-primary/10 border-primary/20 text-white hover:bg-primary/10 hover:border-primary/20"
+                  : "border-border bg-card/50 text-foreground/80 hover:bg-primary/10 hover:border-primary/20 hover:text-primary"
               )}
               onClick={() => handleQuickCityFilter(city)}
             >
-              <span className={cn("font-bold", isActive ? "text-white" : "text-slate-900")}>{city.label}</span>
-              <span className={cn("text-xs me-1", isActive ? "text-white/90" : "text-slate-500")}>({city.count})</span>
+              <span className={cn("font-bold", isActive ? "text-white" : "text-foreground")}>{city.label}</span>
+              <span className={cn("text-xs me-1", isActive ? "text-white/90" : "text-muted-foreground")}>({city.count})</span>
             </Button>
           );
         })}
@@ -324,8 +324,8 @@ export default function MapPage() {
               className={cn(
                 "h-8 rounded-full border px-3 text-xs transition-colors",
                 isActive
-                  ? "bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700 hover:border-emerald-700"
-                  : "border-border bg-white/50 text-slate-700 hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700"
+                  ? "bg-primary/10 border-primary/20 text-white hover:bg-primary/10 hover:border-primary/20"
+                  : "border-border bg-card/50 text-foreground/80 hover:bg-primary/10 hover:border-primary/20 hover:text-primary"
               )}
               onClick={() => {
                 setFilters((prev) => ({
@@ -335,8 +335,8 @@ export default function MapPage() {
                 setCurrentPageState(1);
               }}
             >
-              <span className={cn("font-normal", isActive ? "text-white" : "text-slate-900")}>{type}</span>
-              <span className={cn("text-xs me-1", isActive ? "text-white/90" : "text-slate-500")}>({count})</span>
+              <span className={cn("font-normal", isActive ? "text-white" : "text-foreground")}>{type}</span>
+              <span className={cn("text-xs me-1", isActive ? "text-white/90" : "text-muted-foreground")}>({count})</span>
             </Button>
           );
         })}
@@ -345,7 +345,7 @@ export default function MapPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[rgb(245,245,247)] font-sans text-slate-900 overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-[rgb(245,245,247)] font-sans text-foreground overflow-x-hidden" dir={dir}>
       <PublicHeader />
 
       <main className="pt-10 pb-20 px-4 md:px-6 w-full max-w-7xl mx-auto">
@@ -357,12 +357,12 @@ export default function MapPage() {
           >
              
              {/* Controls Bar */}
-             <div className="flex flex-wrap items-center gap-2 p-1 rounded-2xl bg-white border border-border shadow-sm">
+             <div className="flex flex-wrap items-center gap-2 p-1 rounded-2xl bg-card border border-border shadow-sm">
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-9 gap-2 rounded-xl text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
+                  className="h-9 gap-2 rounded-xl text-foreground/80 hover:bg-primary/10 hover:text-primary"
                   onClick={handleFilterToggle}
                 >
                   <SlidersHorizontal className="h-4 w-4" />
@@ -371,7 +371,7 @@ export default function MapPage() {
 
                 <div className="h-6 w-px bg-slate-200 mx-1" />
 
-                <div className="flex items-center bg-slate-100/50 rounded-xl p-1">
+                <div className="flex items-center bg-muted/50 rounded-xl p-1">
                   <Button
                     type="button"
                     variant={viewMode === "map" ? "default" : "ghost"}
@@ -379,8 +379,8 @@ export default function MapPage() {
                     className={cn(
                       "h-8 rounded-lg px-3 text-xs transition-all",
                       viewMode === "map" 
-                        ? "bg-white text-emerald-600 shadow-sm" 
-                        : "text-slate-600 hover:text-slate-900"
+                        ? "bg-card text-primary shadow-sm" 
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                     onClick={() => setViewMode("map")}
                   >
@@ -394,8 +394,8 @@ export default function MapPage() {
                     className={cn(
                       "h-8 rounded-lg px-3 text-xs transition-all",
                       viewMode === "table" 
-                        ? "bg-white text-emerald-600 shadow-sm" 
-                        : "text-slate-600 hover:text-slate-900"
+                        ? "bg-card text-primary shadow-sm" 
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                     onClick={() => setViewMode("table")}
                   >
@@ -414,7 +414,7 @@ export default function MapPage() {
                     "h-9 gap-2 rounded-xl transition-all",
                     filters.favoritesOnly 
                       ? "bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700" 
-                      : "text-slate-700 hover:bg-rose-50 hover:text-rose-600"
+                      : "text-foreground/80 hover:bg-rose-50 hover:text-rose-600"
                   )}
                   onClick={() => setFilters((prev) => ({ ...prev, favoritesOnly: !prev.favoritesOnly }))}
                 >
@@ -426,7 +426,7 @@ export default function MapPage() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-9 w-9 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                  className="h-9 w-9 rounded-xl text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                   onClick={handleReset}
                   title="إعادة تعيين"
                 >
@@ -442,15 +442,15 @@ export default function MapPage() {
             className="space-y-6"
           >
             {viewMode === "table" ? (
-              <div className="rounded-2xl border border-border bg-white shadow-sm overflow-hidden">
-                <div className="p-6 md:p-8 flex flex-col gap-4 border-b border-slate-100/50">
+              <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+                <div className="p-6 md:p-8 flex flex-col gap-4 border-b border-border/50">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                       <LayoutGrid className="w-5 h-5 text-emerald-600" />
+                    <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                       <LayoutGrid className="w-5 h-5 text-primary" />
                        قائمة العقارات
                     </h2>
                     {!listingsQuery.isLoading && (
-                      <span className="text-sm font-medium text-slate-500 bg-slate-100/50 px-3 py-1 rounded-full">
+                      <span className="text-sm font-medium text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
                         {filteredProperties.length} عقار متاح
                       </span>
                     )}
@@ -489,8 +489,8 @@ export default function MapPage() {
 
                       {/* Pagination Controls */}
                       {totalItemsState > 0 && (
-                        <div className="flex items-center justify-between border-t border-slate-100 mt-6 pt-6">
-                          <div className="text-sm text-slate-500">
+                        <div className="flex items-center justify-between border-t border-border mt-6 pt-6">
+                          <div className="text-sm text-muted-foreground">
                             عرض {((currentPageState - 1) * 25) + 1} إلى {Math.min(currentPageState * 25, totalItemsState)} من {totalItemsState} نتيجة
                           </div>
 
@@ -501,7 +501,7 @@ export default function MapPage() {
                                 size="sm"
                                 onClick={() => setCurrentPageState(prev => Math.max(1, prev - 1))}
                                 disabled={currentPageState === 1}
-                                className="h-9 px-4 rounded-xl text-xs border-border hover:bg-slate-50"
+                                className="h-9 px-4 rounded-xl text-xs border-border hover:bg-muted/30"
                               >
                                 السابق
                               </Button>
@@ -519,7 +519,7 @@ export default function MapPage() {
                                       onClick={() => setCurrentPageState(pageNum)}
                                       className={cn(
                                         "h-9 w-9 p-0 rounded-xl text-xs transition-all",
-                                        isActive ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20' : 'hover:bg-slate-100'
+                                        isActive ? 'bg-primary/10 text-white shadow-md shadow-primary/20' : 'hover:bg-muted/50'
                                       )}
                                     >
                                       {pageNum}
@@ -529,12 +529,12 @@ export default function MapPage() {
 
                                 {totalPagesState > 5 && (
                                   <>
-                                    <span className="text-xs text-slate-400">...</span>
+                                    <span className="text-xs text-muted-foreground/70">...</span>
                                     <Button
                                       variant="ghost"
                                       size="sm"
                                       onClick={() => setCurrentPageState(totalPagesState)}
-                                      className="h-9 w-9 p-0 rounded-xl text-xs hover:bg-slate-100"
+                                      className="h-9 w-9 p-0 rounded-xl text-xs hover:bg-muted/50"
                                     >
                                       {totalPagesState}
                                     </Button>
@@ -547,7 +547,7 @@ export default function MapPage() {
                                 size="sm"
                                 onClick={() => setCurrentPageState(prev => Math.min(totalPagesState, prev + 1))}
                                 disabled={currentPageState === totalPagesState}
-                                className="h-9 px-4 rounded-xl text-xs border-border hover:bg-slate-50"
+                                className="h-9 px-4 rounded-xl text-xs border-border hover:bg-muted/30"
                               >
                                 التالي
                               </Button>
@@ -560,16 +560,16 @@ export default function MapPage() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-border bg-white shadow-sm overflow-hidden w-full">
-                <div className="p-6 border-b border-slate-100/50 flex flex-col md:flex-row md:items-center justify-between gap-2">
+              <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden w-full">
+                <div className="p-6 border-b border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-2">
                   <div className="space-y-1">
-                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                       <MapIcon className="w-5 h-5 text-slate-600" />
+                    <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+                       <MapIcon className="w-5 h-5 text-muted-foreground" />
                        خريطة العقارات
                     </h2>
-                    <p className="text-sm text-slate-500">استكشف العقارات على خريطة تفاعلية</p>
+                    <p className="text-sm text-muted-foreground">استكشف العقارات على خريطة تفاعلية</p>
                   </div>
-                  <div className="text-sm font-medium text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
+                  <div className="text-sm font-medium text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
                     {listingsQuery.isLoading
                       ? "جار تحميل العقارات..."
                       : `${filteredProperties.filter((property) => property.latitude && property.longitude).length} عقار على الخريطة`
@@ -613,10 +613,10 @@ export default function MapPage() {
 
       {/* Favorites Drawer */}
       <Sheet open={isFavoritesDrawerOpen} onOpenChange={setIsFavoritesDrawerOpen}>
-        <SheetContent side="left" className="w-full max-w-sm border-r border-border bg-white shadow-lg p-0">
+        <SheetContent side="left" className="w-full max-w-sm border-r border-border bg-card shadow-lg p-0">
           <SheetHeader className="border-b border-border px-5 py-4">
-            <SheetTitle className="text-xs font-semibold text-emerald-600">المفضلة</SheetTitle>
-            <SheetDescription className="text-sm font-bold text-slate-900">{favoriteIds.length} عقار محفوظ</SheetDescription>
+            <SheetTitle className="text-xs font-semibold text-primary">المفضلة</SheetTitle>
+            <SheetDescription className="text-sm font-bold text-foreground">{favoriteIds.length} عقار محفوظ</SheetDescription>
           </SheetHeader>
 
           <div className="flex h-[calc(100%-5rem)] flex-col overflow-hidden">
@@ -625,12 +625,12 @@ export default function MapPage() {
                 {favoriteProperties.map((property) => (
                   <div
                     key={property.id}
-                    className="space-y-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm hover:border-emerald-100 hover:shadow-md transition-all"
+                    className="space-y-3 rounded-2xl border border-border bg-card p-4 shadow-sm hover:border-primary/20 hover:shadow-md transition-all"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
-                        <p className="text-sm font-bold text-slate-900 line-clamp-1">{property.title}</p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-sm font-bold text-foreground line-clamp-1">{property.title}</p>
+                        <p className="text-xs text-muted-foreground">
                           {property.city ? `${property.city}${property.region ? `، ${property.region}` : ""}` : property.region}
                         </p>
                       </div>
@@ -645,16 +645,16 @@ export default function MapPage() {
                         <span className="sr-only">إزالة من المفضلة</span>
                       </Button>
                     </div>
-                    <div className="flex items-center justify-between text-xs font-medium text-slate-700">
-                      <span className="text-emerald-600 font-bold text-sm">
+                    <div className="flex items-center justify-between text-xs font-medium text-foreground/80">
+                      <span className="text-primary font-bold text-sm">
                         {formatCurrency(property.price)}
                       </span>
                       <span className="flex items-center gap-1">
-                        <span className="text-slate-400">|</span>
+                        <span className="text-muted-foreground/70">|</span>
                         {property.areaSqm ? `${property.areaSqm} م²` : "—"}
                       </span>
                       <span className="flex items-center gap-1">
-                         <span className="text-slate-400">|</span>
+                         <span className="text-muted-foreground/70">|</span>
                          {property.bedrooms ?? "—"} غرف
                       </span>
                     </div>
@@ -663,7 +663,7 @@ export default function MapPage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="h-8 flex-1 rounded-xl border-border text-slate-600 hover:bg-slate-50 text-xs"
+                        className="h-8 flex-1 rounded-xl border-border text-muted-foreground hover:bg-muted/30 text-xs"
                         onClick={() => {
                           setHighlightedPropertyId(property.id);
                           setIsFavoritesDrawerOpen(false);
@@ -676,7 +676,7 @@ export default function MapPage() {
                       <Button
                         type="button"
                         size="sm"
-                        className="h-8 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-xs px-4"
+                        className="h-8 rounded-xl bg-primary/10 text-white hover:bg-primary/10 text-xs px-4"
                         onClick={() => {
                           navigate(`/properties/${property.id}`);
                           setIsFavoritesDrawerOpen(false);
@@ -689,11 +689,11 @@ export default function MapPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center text-sm text-slate-500">
-                <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center">
+              <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center text-sm text-muted-foreground">
+                <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center">
                   <Heart className="h-8 w-8 text-slate-300" />
                 </div>
-                <p className="font-medium text-slate-900">قائمة المفضلة فارغة</p>
+                <p className="font-medium text-foreground">قائمة المفضلة فارغة</p>
                 <p className="text-xs max-w-[200px] leading-relaxed">استخدم زر القلب لحفظ العقارات التي تود الرجوع إليها لاحقًا.</p>
               </div>
             )}
@@ -703,10 +703,10 @@ export default function MapPage() {
 
       {/* Filter Sheet */}
       <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md border-l border-border bg-white shadow-lg">
+        <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md border-l border-border bg-card shadow-lg">
           <SheetHeader className="pb-6">
-            <SheetTitle className="text-xl font-bold text-slate-900">تصفية البحث</SheetTitle>
-            <SheetDescription className="text-slate-500">قم بتخصيص النتائج حسب تفضيلاتك في أي وقت.</SheetDescription>
+            <SheetTitle className="text-xl font-bold text-foreground">تصفية البحث</SheetTitle>
+            <SheetDescription className="text-muted-foreground">قم بتخصيص النتائج حسب تفضيلاتك في أي وقت.</SheetDescription>
           </SheetHeader>
           <div className="space-y-6 pb-10">
             <FilterContent
@@ -737,7 +737,7 @@ export default function MapPage() {
             />
             <Button 
               type="button" 
-              className="w-full rounded-xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 font-bold" 
+              className="w-full rounded-xl h-12 bg-primary/10 hover:bg-primary/10 text-white shadow-lg shadow-primary/20 font-bold" 
               onClick={() => setIsFilterOpen(false)}
             >
               عرض النتائج ({filteredProperties.length})

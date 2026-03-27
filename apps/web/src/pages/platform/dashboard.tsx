@@ -274,12 +274,10 @@ export default function Dashboard() {
         />
       
       <section aria-label={t("dashboard.quick_summary")} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {metricCards.map((metric, index) => (
+        {metricCards.map((metric) => (
           <MetricCard
             key={metric.id}
             {...metric}
-            index={index}
-            className="bg-white shadow-sm hover:shadow-md transition-shadow rounded-2xl border-none"
           />
         ))}
       </section>
@@ -301,14 +299,14 @@ export default function Dashboard() {
             <Card className="rounded-2xl p-6">
               <CardHeader className="pb-4 px-0 pt-0">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                  <div className="icon-container shrink-0">
                     <Banknote className="h-6 w-6" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl font-bold text-slate-900 tracking-tight">
+                    <CardTitle className="text-2xl font-bold text-foreground tracking-tight">
                       {t("dashboard.monthly_revenue") || "إيرادات الشهر"}
                     </CardTitle>
-                    <CardDescription className="text-slate-500 mt-2 font-medium leading-relaxed">
+                    <CardDescription className="text-muted-foreground mt-2 font-medium leading-relaxed">
                       {t("dashboard.revenue_description") || t("dashboard.pipeline_description") || "نظرة عامة على الإيرادات الشهرية"}
                     </CardDescription>
                   </div>
@@ -324,14 +322,14 @@ export default function Dashboard() {
           <Card className="rounded-2xl p-6">
               <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between pb-6 px-0 pt-0">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                  <div className="icon-container shrink-0">
                     <Users className="h-6 w-6" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">
+                    <CardTitle className="text-2xl font-bold text-foreground mb-2 tracking-tight">
                       {t("dashboard.recent_leads")}
                     </CardTitle>
-                    <CardDescription className="text-slate-500 font-medium leading-relaxed">
+                    <CardDescription className="text-muted-foreground font-medium leading-relaxed">
                       {t("dashboard.recent_leads_description")}
                     </CardDescription>
                   </div>
@@ -339,7 +337,7 @@ export default function Dashboard() {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="rounded-full px-4 font-bold bg-slate-50 text-slate-600 hover:bg-slate-100"
+                  className="rounded-full px-4 font-bold bg-muted text-muted-foreground hover:bg-muted/80"
                   onClick={() => setLocation("/home/platform/leads")}
                 >
                   {t("form.view_all")}
@@ -388,7 +386,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                <div className="icon-container shrink-0">
                   <Zap className="h-6 w-6" />
                 </div>
                 <div>
@@ -421,7 +419,7 @@ export default function Dashboard() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-600">
+                <div className="icon-container shrink-0">
                   <ListTodo className="h-6 w-6" />
                 </div>
                 <div>

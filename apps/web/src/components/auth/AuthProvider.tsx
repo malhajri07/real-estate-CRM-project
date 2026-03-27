@@ -478,7 +478,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               </Button>
             ) : (
               <>
-                <span className="text-sm text-slate-600 font-medium">
+                <span className="text-sm text-muted-foreground font-medium">
                   سيتم الإنهاء خلال&nbsp;{countdownSeconds}&nbsp;ثانية
                 </span>
                 <Button

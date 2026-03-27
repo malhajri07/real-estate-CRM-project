@@ -32,46 +32,18 @@ import type { UploadResult } from "@uppy/core";
 import { getLeadStatusVariant } from "@/lib/status-variants";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import {
+  LEAD_STATUS_LABELS,
+  INTEREST_TYPE_LABELS,
+  MARITAL_STATUS_LABELS,
+  getLabel,
+} from "@/constants/labels";
 
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case "new": return "جديد";
-    case "qualified": return "مؤهل";
-    case "showing": return "معاينة";
-    case "negotiation": return "تفاوض";
-    case "closed": return "مغلق";
-    case "lost": return "مفقود";
-    default: return status;
-  }
-};
-
-const getInterestTypeLabel = (interestType: string) => {
-  switch (interestType) {
-    case "buying": return "شراء";
-    case "selling": return "بيع";
-    case "renting": return "تأجير";
-    case "investment": return "استئجار";
-    case "شراء": return "شراء";
-    case "بيع": return "بيع";
-    case "تأجير": return "تأجير";
-    case "استئجار": return "استئجار";
-    default: return interestType || "غير محدد";
-  }
-};
-
-const getMaritalStatusLabel = (maritalStatus: string) => {
-  switch (maritalStatus) {
-    case "single": return "أعزب";
-    case "married": return "متزوج";
-    case "divorced": return "مطلق";
-    case "widowed": return "أرمل";
-    case "أعزب": return "أعزب";
-    case "متزوج": return "متزوج";
-    case "مطلق": return "مطلق";
-    case "أرمل": return "أرمل";
-    default: return maritalStatus || "غير محدد";
-  }
-};
+const getStatusLabel = (status: string) => getLabel(LEAD_STATUS_LABELS, status);
+const getInterestTypeLabel = (interestType: string) =>
+  interestType ? (getLabel(INTEREST_TYPE_LABELS, interestType) || "غير محدد") : "غير محدد";
+const getMaritalStatusLabel = (maritalStatus: string) =>
+  maritalStatus ? (getLabel(MARITAL_STATUS_LABELS, maritalStatus) || "غير محدد") : "غير محدد";
 
 const formatBudgetRange = (budgetRange?: string | null): string => {
   const rawValue = budgetRange ?? "";
@@ -373,7 +345,7 @@ export default function Contacts() {
           <CSVUploader
             onGetUploadParameters={handleGetUploadParameters}
             onComplete={handleCSVUploadComplete}
-            buttonClassName="bg-emerald-600 hover:bg-emerald-700"
+            buttonClassName="bg-primary/10 hover:bg-primary/10"
           >
             <Upload className="me-2" size={16} />
             {t("leads.upload_csv") || "رفع CSV"}

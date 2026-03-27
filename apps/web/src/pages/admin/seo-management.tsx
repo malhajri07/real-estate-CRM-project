@@ -141,8 +141,8 @@ export default function SEOManagement() {
   return (
     <div className="space-y-6" dir="rtl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">إدارة SEO</h1>
-        <p className="text-slate-600">تحسين محركات البحث وملفات sitemap</p>
+        <h1 className="text-2xl font-bold text-foreground">إدارة SEO</h1>
+        <p className="text-muted-foreground">تحسين محركات البحث وملفات sitemap</p>
       </div>
 
       <div className="space-y-6">
@@ -211,7 +211,7 @@ export default function SEOManagement() {
                             }
                             maxLength={60}
                           />
-                          <p className="text-xs text-slate-500 mt-1">
+                          <p className="text-xs text-muted-foreground mt-1">
                             {formData.metaTitle?.length || 0}/60
                           </p>
                         </div>
@@ -229,7 +229,7 @@ export default function SEOManagement() {
                             maxLength={160}
                             rows={3}
                           />
-                          <p className="text-xs text-slate-500 mt-1">
+                          <p className="text-xs text-muted-foreground mt-1">
                             {formData.metaDescription?.length || 0}/160
                           </p>
                         </div>
@@ -300,7 +300,7 @@ export default function SEOManagement() {
                         </Button>
                       </form>
                     ) : (
-                      <div className="text-center py-8 text-slate-500">
+                      <div className="text-center py-8 text-muted-foreground">
                         اختر صفحة لتعديل إعدادات SEO الخاصة بها
                       </div>
                     )}

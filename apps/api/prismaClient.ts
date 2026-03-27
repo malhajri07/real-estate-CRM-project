@@ -1,20 +1,42 @@
 /**
  * prismaClient.ts - Prisma Client Singleton
- * 
+ *
  * Location: apps/api/ → Database & Prisma → prismaClient.ts
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
+ *
  * Prisma client singleton for database operations. Provides:
  * - Database connection management
  * - Type-safe database queries
  * - Marketing delegate stubs for unsupported models
- * 
+ *
  * Related Files:
  * - data/schema/prisma/schema.prisma - Prisma schema definition
  * - apps/api/storage-prisma.ts - Prisma storage adapter
+ *
+ * TODO: Add field-level encryption for PII fields (email, phone, mobile)
+ * Consider using prisma-field-encryption or manual AES-256-GCM encryption
+ * to protect sensitive user data at rest in the database.
  */
 
 import { PrismaClient } from '@prisma/client';
+import { createRequire } from 'module';
+
+// Use driver adapter for database connectivity.
+// This approach uses the pg driver adapter which works across all platforms
+// without needing platform-specific native Prisma engine binaries.
+let driverAdapterConfig: any = {};
+try {
+  const _require = createRequire(import.meta.url);
+  const pg = _require('pg');
+  const { PrismaPg } = _require('@prisma/adapter-pg');
+  const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg(pool);
+  driverAdapterConfig = { adapter };
+  console.log('[Prisma] Using pg driver adapter');
+} catch (e: any) {
+  // Fall back to native engine if driver adapter packages are not available
+  console.log('[Prisma] Driver adapter not available:', e?.message?.slice(0, 100));
+}
 
 type MarketingDelegate = {
   create: (...args: any[]) => Promise<any>;
@@ -24,7 +46,7 @@ type MarketingDelegate = {
   findFirst: (...args: any[]) => Promise<any | null>;
 };
 
-export const basePrisma = new PrismaClient();
+export const basePrisma = new PrismaClient(driverAdapterConfig);
 // Forced reload check
 
 const createStubDelegate = (name: string): MarketingDelegate => {

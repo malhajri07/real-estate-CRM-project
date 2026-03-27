@@ -9,7 +9,7 @@ interface TableSkeletonProps {
 
 export function TableSkeleton({ rows = 8, cols = 6, showHeader = true }: TableSkeletonProps) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-border bg-white shadow-sm animate-pulse">
+    <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm animate-pulse">
       <Table>
         {showHeader && (
           <TableHeader className="bg-slate-50/80">

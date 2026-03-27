@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { formatNumber, formatPrice } from '@/lib/formatters';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { TIME_PERIOD_LABELS } from '@/constants/labels';
 
 interface AdminCardProps {
     title?: string;
@@ -28,8 +29,8 @@ export function AdminCard({
             onClick={onClick}
         >
             <CardHeader className="p-6 pb-2">
-                {title && <CardTitle className="text-xl font-bold tracking-tight text-slate-900">{title}</CardTitle>}
-                {description && <p className="text-sm text-slate-500 font-medium">{description}</p>}
+                {title && <CardTitle className="text-xl font-bold tracking-tight text-foreground">{title}</CardTitle>}
+                {description && <p className="text-sm text-muted-foreground font-medium">{description}</p>}
             </CardHeader>
             <CardContent className="p-6 pt-2">
                 {children}
@@ -63,10 +64,10 @@ export function MetricCard({
         <Card className={cn("glass border-0 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 rounded-2xl group", className)}>
             <CardHeader className="flex flex-row items-center justify-between pb-2 px-6 pt-6">
                 <div className="space-y-1">
-                    <CardTitle className="text-sm font-bold text-slate-900 tracking-tight">{title}</CardTitle>
-                    <p className="text-xs font-medium text-slate-500 uppercase tracking-widest">{subtitle}</p>
+                    <CardTitle className="text-sm font-bold text-foreground tracking-tight">{title}</CardTitle>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest">{subtitle}</p>
                 </div>
-                <div className="p-2.5 bg-slate-50 rounded-2xl group-hover:bg-slate-200 transition-colors duration-300 group-hover:text-slate-700">
+                <div className="icon-container-sm group-hover:bg-primary/20 transition-colors duration-300">
                     {icon}
                 </div>
             </CardHeader>
@@ -76,20 +77,20 @@ export function MetricCard({
                 ) : (
                     <div className="grid grid-cols-3 gap-2 mt-2">
                         <div className="flex flex-col">
-                            <span className="text-xs font-bold text-slate-400 mb-1">اليوم</span>
-                            <span className="text-sm font-bold text-slate-900">
+                            <span className="text-xs font-bold text-muted-foreground mb-1">{TIME_PERIOD_LABELS.today}</span>
+                            <span className="text-sm font-bold text-foreground">
                                 {currency ? formatCurrency(metric?.today, currency) : formatNumber(metric?.today)}
                             </span>
                         </div>
-                        <div className="flex flex-col border-s border-slate-100 ps-3">
-                            <span className="text-xs font-bold text-slate-400 mb-1">٧ أيام</span>
-                            <span className="text-sm font-bold text-slate-900">
+                        <div className="flex flex-col border-s border-border ps-3">
+                            <span className="text-xs font-bold text-muted-foreground mb-1">{TIME_PERIOD_LABELS.week7}</span>
+                            <span className="text-sm font-bold text-foreground">
                                 {currency ? formatCurrency(metric?.last7Days, currency) : formatNumber(metric?.last7Days)}
                             </span>
                         </div>
-                        <div className="flex flex-col border-s border-slate-100 ps-3">
-                            <span className="text-xs font-bold text-slate-400 mb-1">٣٠ يوم</span>
-                            <span className="text-sm font-bold text-slate-900">
+                        <div className="flex flex-col border-s border-border ps-3">
+                            <span className="text-xs font-bold text-muted-foreground mb-1">{TIME_PERIOD_LABELS.month30}</span>
+                            <span className="text-sm font-bold text-foreground">
                                 {currency ? formatCurrency(metric?.last30Days, currency) : formatNumber(metric?.last30Days)}
                             </span>
                         </div>

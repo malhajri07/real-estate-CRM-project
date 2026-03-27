@@ -1,15 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { t } from '../../i18n';
 
-// Extend Express Request interface locally or assume global declaration exists
-declare global {
-    namespace Express {
-        interface Request {
-            t: (key: string) => string;
-            locale: string;
-        }
-    }
-}
+// Express Request interface is declared in auth.middleware.ts
 
 export const localeMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const header = req.headers['accept-language'];

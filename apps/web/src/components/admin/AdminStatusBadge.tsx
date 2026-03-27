@@ -1,21 +1,18 @@
 /**
  * AdminStatusBadge.tsx - Admin Status Badge Component
- * 
- * Location: apps/web/src/ → Components/ → Admin Components → AdminStatusBadge.tsx
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * Admin status badge component. Displays:
- * - User approval status
- * - Active/inactive status
- * - Status badges with colors
- * 
+ *
+ * Displays user approval/active status as a colored badge.
+ * Uses status-badge-* utility classes from tailwind.config for consistent color tokens.
+ *
  * Related Files:
  * - apps/web/src/pages/admin/user-management.tsx - Uses this badge
+ * - apps/web/src/constants/labels.ts - Label strings
  */
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { AdminUserApprovalStatus } from "@/lib/rbacAdmin";
+import { USER_STATUS_LABELS, USER_STATUS_BADGE_CLASS } from "@/constants/labels";
 
 interface AdminStatusBadgeProps {
   approvalStatus?: AdminUserApprovalStatus | null;
@@ -23,39 +20,28 @@ interface AdminStatusBadgeProps {
   className?: string;
 }
 
-const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  active: { label: "نشط", className: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-  inactive: { label: "غير نشط", className: "bg-slate-100 text-slate-800 border-border" },
-  pending: { label: "قيد المراجعة", className: "bg-yellow-100 text-yellow-800 border-yellow-200" },
-  needsInfo: { label: "مطلوب معلومات", className: "bg-orange-100 text-orange-800 border-orange-200" },
-  rejected: { label: "مرفوض", className: "bg-red-100 text-red-800 border-red-200" },
-  unknown: { label: "غير محدد", className: "bg-slate-100 text-slate-800 border-border" },
-};
-
 const resolveStatusKey = (
   approvalStatus: AdminUserApprovalStatus | null | undefined,
   isActive: boolean,
-): keyof typeof STATUS_MAP => {
+): string => {
   const normalized = approvalStatus?.toUpperCase();
 
   if (normalized === "PENDING") return "pending";
   if (normalized === "NEEDS_INFO") return "needsInfo";
   if (normalized === "REJECTED") return "rejected";
-
-  if (normalized === "APPROVED") {
-    return isActive ? "active" : "inactive";
-  }
+  if (normalized === "APPROVED") return isActive ? "active" : "inactive";
 
   return isActive ? "active" : "inactive";
 };
 
 export const AdminStatusBadge = ({ approvalStatus, isActive, className }: AdminStatusBadgeProps) => {
   const statusKey = resolveStatusKey(approvalStatus, isActive);
-  const config = STATUS_MAP[statusKey] ?? STATUS_MAP.unknown;
+  const label = USER_STATUS_LABELS[statusKey] ?? USER_STATUS_LABELS.unknown;
+  const badgeClass = USER_STATUS_BADGE_CLASS[statusKey] ?? "status-badge-inactive";
 
   return (
-    <Badge className={cn("border", config.className, className)}>
-      {config.label}
+    <Badge className={cn("border", badgeClass, className)}>
+      {label}
     </Badge>
   );
 };

@@ -39,13 +39,13 @@ export function TaskCard({
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={cn(
-        "group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden bg-white border border-slate-100",
-        completed && "opacity-70 bg-slate-50"
+        "group rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer overflow-hidden bg-card border border-border",
+        completed && "opacity-70 bg-muted/30"
       )}
     >
       <div className="relative z-10 flex items-start gap-4">
         {/* Checkbox/Status Icon */}
-        <div className="flex-shrink-0 h-12 w-12 rounded-xl flex items-center justify-center bg-slate-100 text-slate-600 transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-110">
+        <div className="flex-shrink-0 h-12 w-12 rounded-xl flex items-center justify-center bg-muted/50 text-muted-foreground transition-all duration-300 group-hover:bg-muted/50 group-hover:scale-110">
           {completed ? (
             <Check className="h-6 w-6" />
           ) : isOverdue ? (
@@ -58,14 +58,14 @@ export function TaskCard({
         {/* Content */}
         <div className="flex-1 min-w-0 pt-1">
           <h3 className={cn(
-            "text-sm font-bold text-slate-900 mb-1 transition-colors group-hover:text-slate-700",
-            completed && "line-through text-slate-500"
+            "text-sm font-bold text-foreground mb-1 transition-colors group-hover:text-foreground/80",
+            completed && "line-through text-muted-foreground"
           )} style={{ lineHeight: '1.6' }}>
             {activity.title}
           </h3>
           {timeStr && (
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-slate-500">
+              <span className="text-xs font-medium text-muted-foreground">
                 {timeStr}
               </span>
               {isOverdue && (

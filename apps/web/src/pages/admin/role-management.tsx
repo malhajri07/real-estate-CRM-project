@@ -134,27 +134,27 @@ export default function RoleManagement() {
       sortable: true,
       render: (role) => (
         <div className="flex flex-col py-1">
-          <span className="font-bold text-slate-900 group-hover:text-slate-700 transition-colors">
+          <span className="font-bold text-foreground group-hover:text-foreground/80 transition-colors">
             {role.displayName || role.name}
           </span>
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{role.name}</span>
+          <span className="text-xs font-bold text-muted-foreground/70 uppercase tracking-tighter mt-0.5">{role.name}</span>
         </div>
       ),
     },
     {
       key: "description",
       label: "الوصف",
-      render: (role) => <div className="text-sm font-medium text-slate-500 max-w-xs truncate">{role.description || "—"}</div>
+      render: (role) => <div className="text-sm font-medium text-muted-foreground max-w-xs truncate">{role.description || "—"}</div>
     },
     {
       key: "scope",
       label: "النطاق",
       render: (role) => (
         <div className="flex flex-col gap-1">
-          <Badge className={cn("w-fit text-xs font-bold uppercase px-2 py-0.5 rounded-md border-0", role.isSystem ? "bg-blue-50 text-blue-700" : "bg-purple-50 text-purple-700")}>
+          <Badge className={cn("w-fit text-xs font-bold uppercase px-2 py-0.5 rounded-md border-0", role.isSystem ? "bg-primary/5 text-primary" : "bg-purple-50 text-purple-700")}>
             {role.isSystem ? "نظام" : "مخصص"}
           </Badge>
-          <span className="text-xs font-bold text-slate-400">
+          <span className="text-xs font-bold text-muted-foreground/70">
             {role.scope === "ORGANIZATION" ? "منظمة" : "شامل"}
           </span>
         </div>
@@ -166,12 +166,12 @@ export default function RoleManagement() {
       render: (role) => (
         <div className="flex flex-wrap gap-1">
           {role.permissions.slice(0, 3).map((permission) => (
-            <Badge key={permission} variant="secondary" className="bg-slate-50 text-slate-500 border-0 text-xs font-bold px-2 py-0.5 rounded-md">
+            <Badge key={permission} variant="secondary" className="bg-muted/30 text-muted-foreground border-0 text-xs font-bold px-2 py-0.5 rounded-md">
               {permission}
             </Badge>
           ))}
           {role.permissions.length > 3 ? (
-            <Badge className="bg-slate-100 text-slate-400 border-0 text-xs font-bold px-2 py-0.5 rounded-md">+{role.permissions.length - 3}</Badge>
+            <Badge className="bg-muted/50 text-muted-foreground/70 border-0 text-xs font-bold px-2 py-0.5 rounded-md">+{role.permissions.length - 3}</Badge>
           ) : null}
         </div>
       )
@@ -182,10 +182,10 @@ export default function RoleManagement() {
       className: "w-24 text-center",
       render: (role) => (
         <div className="flex items-center justify-center gap-1">
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-slate-50 transition-all" onClick={() => handleOpenEditDialog(role)}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-muted/30 transition-all" onClick={() => handleOpenEditDialog(role)}>
             <Eye className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all" onClick={() => handleOpenEditDialog(role)}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/5 hover:text-primary transition-all" onClick={() => handleOpenEditDialog(role)}>
             <Edit className="h-4 w-4" />
           </Button>
           <Button
@@ -294,10 +294,10 @@ export default function RoleManagement() {
       <Card className="glass border-0 rounded-2xl p-8 shadow-none">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-end">
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">إدارة الأدوار</h1>
-            <p className="text-slate-500 font-medium text-lg">تحكم في الصلاحيات والوصول لمختلف مجموعات المستخدمين</p>
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">إدارة الأدوار</h1>
+            <p className="text-muted-foreground font-medium text-lg">تحكم في الصلاحيات والوصول لمختلف مجموعات المستخدمين</p>
           </div>
-          <Button className="premium-gradient text-white border-0 shadow-lg shadow-blue-500/25 h-12 px-8 rounded-2xl font-bold w-full md:w-auto" onClick={handleOpenCreateDialog}>
+          <Button className="premium-gradient text-white border-0 shadow-lg shadow-primary/10 h-12 px-8 rounded-2xl font-bold w-full md:w-auto" onClick={handleOpenCreateDialog}>
             <Plus className="h-5 w-5 me-2" />
             إنشاء دور جديد
           </Button>
@@ -308,28 +308,28 @@ export default function RoleManagement() {
         <MetricCard
           title="إجمالي الأدوار"
           subtitle="قاعدية ومخصصة"
-          icon={<Shield className="w-5 h-5 text-slate-600" />}
+          icon={<Shield className="w-5 h-5 text-muted-foreground" />}
           metric={{ today: roles.length, last7Days: roles.length, last30Days: roles.length }}
           loading={isLoadingRoles}
         />
         <MetricCard
           title="الأدوار المخصصة"
           subtitle="تم إنشاؤها يدويًا"
-          icon={<Settings className="w-5 h-5 text-slate-600" />}
+          icon={<Settings className="w-5 h-5 text-muted-foreground" />}
           metric={{ today: customRolesCount, last7Days: customRolesCount, last30Days: customRolesCount }}
           loading={isLoadingRoles}
         />
         <MetricCard
           title="إجمالي الصلاحيات"
           subtitle="متاحة في النظام"
-          icon={<Unlock className="w-5 h-5 text-slate-600" />}
+          icon={<Unlock className="w-5 h-5 text-muted-foreground" />}
           metric={{ today: permissionCatalog.length, last7Days: permissionCatalog.length, last30Days: permissionCatalog.length }}
           loading={isLoadingRoles}
         />
         <MetricCard
           title="أدوار المنظمات"
           subtitle="مستوى المنظمة"
-          icon={<Users className="w-5 h-5 text-slate-600" />}
+          icon={<Users className="w-5 h-5 text-muted-foreground" />}
           metric={{ today: organizationRolesCount, last7Days: organizationRolesCount, last30Days: organizationRolesCount }}
           loading={isLoadingRoles}
         />
@@ -344,8 +344,8 @@ export default function RoleManagement() {
 
       <Card className="glass border-0 rounded-2xl p-8 shadow-none mt-8">
         <div className="mb-6">
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">قائمة الأدوار</h2>
-          <p className="text-slate-500 font-medium">عرض وإدارة الصلاحيات لكل دور وظيفي</p>
+          <h2 className="text-xl font-bold text-foreground tracking-tight">قائمة الأدوار</h2>
+          <p className="text-muted-foreground font-medium">عرض وإدارة الصلاحيات لكل دور وظيفي</p>
         </div>
         <AdminTable
           columns={roleColumns}
@@ -372,24 +372,24 @@ export default function RoleManagement() {
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <Label htmlFor="role-name" className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">اسم الدور</Label>
+                  <Label htmlFor="role-name" className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">اسم الدور</Label>
                   <Input
                     id="role-name"
                     value={formState.name}
                     onChange={(event) => setFormState((prev) => ({ ...prev, name: event.target.value }))}
-                    className="bg-white/50 border-border focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
+                    className="bg-card/50 border-border focus:bg-card focus:border-primary/20/50 focus:ring-4 focus:ring-primary/10 transition-all h-11 rounded-xl shadow-sm"
                     placeholder="اسم الدور (مثلاً: مدير النظام)"
                   />
                 </div>
               </div>
               <div>
-                <Label htmlFor="role-description" className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">الوصف</Label>
+                <Label htmlFor="role-description" className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">الوصف</Label>
                 <Input
                   id="role-description"
                   value={formState.description}
                   onChange={(event) => setFormState((prev) => ({ ...prev, description: event.target.value }))}
                   placeholder="صف الاستخدام الأساسي لهذا الدور"
-                  className="bg-white/50 border-border focus:bg-white focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all h-11 rounded-xl shadow-sm"
+                  className="bg-card/50 border-border focus:bg-card focus:border-primary/20/50 focus:ring-4 focus:ring-primary/10 transition-all h-11 rounded-xl shadow-sm"
                 />
               </div>
             </div>
@@ -399,19 +399,19 @@ export default function RoleManagement() {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <div className="h-6 w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
-                <h3 className="text-base font-bold text-slate-800">صلاحيات الدور</h3>
+                <h3 className="text-base font-bold text-foreground">صلاحيات الدور</h3>
               </div>
 
               <div className="space-y-3">
                 {isLoadingRoles ? (
-                  <div className="text-sm text-slate-500 mt-2">جاري تحميل الصلاحيات...</div>
+                  <div className="text-sm text-muted-foreground mt-2">جاري تحميل الصلاحيات...</div>
                 ) : (
                   <div className="mt-2 space-y-6 overflow-y-auto pr-1">
                     {Object.entries(permissionCategories).map(([category, categoryPermissions]) => (
                       <div key={category} className="space-y-3">
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs font-bold text-slate-600 bg-slate-50">{category}</Badge>
-                          <div className="h-px flex-1 bg-slate-100" />
+                          <Badge variant="outline" className="text-xs font-bold text-muted-foreground bg-muted/30">{category}</Badge>
+                          <div className="h-px flex-1 bg-muted/50" />
                         </div>
                         <div className="grid grid-cols-1 gap-2">
                           {categoryPermissions.map((permission) => {
@@ -422,8 +422,8 @@ export default function RoleManagement() {
                                 className={cn(
                                   "flex items-start space-x-3 rtl:space-x-reverse rounded-xl border p-3 cursor-pointer transition-all duration-200 group",
                                   checked
-                                    ? "bg-blue-50/50 border-blue-200 shadow-sm"
-                                    : "bg-white border-slate-100 hover:border-border hover:bg-slate-50/50"
+                                    ? "bg-primary/5 border-primary/20 shadow-sm"
+                                    : "bg-card border-border hover:border-border hover:bg-muted/30"
                                 )}
                               >
                                 <Checkbox
@@ -431,13 +431,13 @@ export default function RoleManagement() {
                                   onCheckedChange={(value) =>
                                     handleTogglePermission(permission.key, Boolean(value))
                                   }
-                                  className="mt-1 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                                  className="mt-1 data-[state=checked]:bg-primary data-[state=checked]:border-primary/20"
                                 />
                                 <span className="flex-1 ms-2">
-                                  <div className={cn("text-sm font-bold transition-colors", checked ? "text-blue-900" : "text-slate-700")}>
+                                  <div className={cn("text-sm font-bold transition-colors", checked ? "text-blue-900" : "text-foreground/80")}>
                                     {permission.label}
                                   </div>
-                                  <div className="text-xs text-slate-500 mt-0.5 leading-snug">{permission.description || "—"}</div>
+                                  <div className="text-xs text-muted-foreground mt-0.5 leading-snug">{permission.description || "—"}</div>
                                 </span>
                               </Label>
                             );
@@ -462,7 +462,7 @@ export default function RoleManagement() {
             <Button
               onClick={handleSubmit}
               disabled={disableSubmit || isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-primary hover:bg-blue-700 text-white"
             >
               {dialogMode === "create" ? "إنشاء الدور" : "حفظ التغييرات"}
             </Button>

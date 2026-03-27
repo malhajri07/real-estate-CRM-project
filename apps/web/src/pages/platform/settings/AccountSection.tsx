@@ -27,7 +27,7 @@ export default function AccountSection({ isOpen, onOpenChange }: AccountSectionP
               type="button"
               variant="outline"
               size="icon"
-              className="rounded-full border border-border bg-white p-2 text-slate-500 transition hover:text-slate-700"
+              className="rounded-full border border-border bg-card p-2 text-muted-foreground transition hover:text-foreground/80"
               aria-label="تبديل عرض إعدادات الأمان"
             >
               <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -37,15 +37,15 @@ export default function AccountSection({ isOpen, onOpenChange }: AccountSectionP
         <CollapsibleContent>
           <CardContent className="space-y-4 pt-6">
             <div className="space-y-2">
-              <Label htmlFor="currentPassword" className="block text-sm font-medium text-slate-700">كلمة المرور الحالية</Label>
+              <Label htmlFor="currentPassword" className="block text-sm font-medium text-foreground/80">كلمة المرور الحالية</Label>
               <Input id="currentPassword" type="password" className="text-subtle" data-testid="input-current-password" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="newPassword" className="block text-sm font-medium text-slate-700">كلمة المرور الجديدة</Label>
+              <Label htmlFor="newPassword" className="block text-sm font-medium text-foreground/80">كلمة المرور الجديدة</Label>
               <Input id="newPassword" type="password" className="text-subtle" data-testid="input-new-password" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700">تأكيد كلمة المرور الجديدة</Label>
+              <Label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground/80">تأكيد كلمة المرور الجديدة</Label>
               <Input id="confirmPassword" type="password" className="text-subtle" data-testid="input-confirm-password" />
             </div>
             <Button className="mt-4 flex items-center gap-2" data-testid="button-change-password">

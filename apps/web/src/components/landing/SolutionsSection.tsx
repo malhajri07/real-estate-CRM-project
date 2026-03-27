@@ -14,10 +14,10 @@ export const SolutionsSection = ({ content, iconMap }: SolutionsSectionProps) =>
     // Always show solutions section, even if empty (will show default content)
 
     return (
-        <section id="solutions" className="py-32 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 relative overflow-hidden" dir="rtl">
+        <section id="solutions" className="py-32 bg-gradient-to-br from-slate-50 via-white to-primary/10 relative overflow-hidden" dir="rtl">
             {/* Background Decor */}
             <div className="absolute end-0 top-0 w-1/2 h-full bg-white/50 skew-x-12 opacity-30 pointer-events-none" />
-            <div className="absolute start-0 bottom-0 w-96 h-96 bg-emerald-400/5 blur-[120px] rounded-full" />
+            <div className="absolute start-0 bottom-0 w-96 h-96 bg-primary/10 blur-[120px] rounded-full" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 {/* Section Header */}
@@ -39,7 +39,7 @@ export const SolutionsSection = ({ content, iconMap }: SolutionsSectionProps) =>
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-4xl lg:text-5xl font-black text-slate-900 leading-tight"
+                            className="text-4xl lg:text-5xl font-black text-foreground leading-tight"
                             style={{ lineHeight: '1.4' }}
                         >
                             {content.solutionsTitle}
@@ -50,7 +50,7 @@ export const SolutionsSection = ({ content, iconMap }: SolutionsSectionProps) =>
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="text-xl text-slate-600 leading-relaxed"
+                            className="text-xl text-muted-foreground leading-relaxed"
                             style={{ lineHeight: '1.8' }}
                         >
                             {content.solutionsDescription}
@@ -70,24 +70,24 @@ export const SolutionsSection = ({ content, iconMap }: SolutionsSectionProps) =>
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.15, duration: 0.6 }}
                                 viewport={{ once: true }}
-                                className="group relative bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border-2 border-slate-100 hover:border-emerald-200 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                                className="group relative bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border-2 border-border hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
                             >
                                 {/* Gradient Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/0 via-transparent to-blue-50/0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-50/0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                                 <div className="relative z-10">
                                     {/* Icon */}
-                                    <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-6 text-slate-600 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
+                                    <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-6 text-muted-foreground group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
                                         <Icon className="w-8 h-8" />
                                     </div>
 
                                     {/* Title */}
-                                    <h3 className="text-2xl font-black text-slate-900 mb-4 group-hover:text-slate-700 transition-colors duration-300">
+                                    <h3 className="text-2xl font-black text-foreground mb-4 group-hover:text-foreground/80 transition-colors duration-300">
                                         {solution.title}
                                     </h3>
                                     
                                     {/* Description */}
-                                    <p className="text-slate-600 mb-8 leading-relaxed" style={{ lineHeight: '1.8' }}>
+                                    <p className="text-muted-foreground mb-8 leading-relaxed" style={{ lineHeight: '1.8' }}>
                                         {solution.description}
                                     </p>
 
@@ -103,9 +103,9 @@ export const SolutionsSection = ({ content, iconMap }: SolutionsSectionProps) =>
                                                         whileInView={{ opacity: 1, x: 0 }}
                                                         transition={{ delay: index * 0.15 + i * 0.05 }}
                                                         viewport={{ once: true }}
-                                                        className="flex items-start gap-3 text-slate-700"
+                                                        className="flex items-start gap-3 text-foreground/80"
                                                     >
-                                                        <CheckCircle2 className="w-6 h-6 text-slate-600 shrink-0 mt-0.5" />
+                                                        <CheckCircle2 className="w-6 h-6 text-muted-foreground shrink-0 mt-0.5" />
                                                         <span className="leading-relaxed" style={{ lineHeight: '1.8' }}>{text}</span>
                                                     </motion.li>
                                                 )
