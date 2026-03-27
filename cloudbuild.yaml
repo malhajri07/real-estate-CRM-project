@@ -1,13 +1,18 @@
 # Cloud Build configuration for Google Cloud Platform deployment
 steps:
+  # Security audit — fail build on critical vulnerabilities
+  - name: 'node:20-alpine'
+    entrypoint: 'npm'
+    args: ['audit', '--audit-level=critical']
+
   # Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/real-estate-crm:$COMMIT_SHA', '.']
-    
+
   # Push the image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/real-estate-crm:$COMMIT_SHA']
-    
+
   # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
@@ -21,9 +26,9 @@ steps:
       - 'us-central1'
       - '--platform'
       - 'managed'
-      - '--allow-unauthenticated'
+      - '--no-allow-unauthenticated'
       - '--port'
-      - '8080'
+      - '${_APP_PORT}'
       - '--memory'
       - '2Gi'
       - '--cpu'
@@ -40,6 +45,7 @@ substitutions:
   _DATABASE_URL: 'postgresql://postgres:password@/real_estate_crm?host=/cloudsql/PROJECT_ID:REGION:INSTANCE_NAME'
   _JWT_SECRET: 'your-jwt-secret-key'
   _SESSION_SECRET: 'your-session-secret-key'
+  _APP_PORT: '3000'
 
 # Build options
 options:

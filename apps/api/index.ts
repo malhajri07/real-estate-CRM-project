@@ -62,7 +62,7 @@ app.use(helmet({
         // Vite HMR requires unsafe-inline in development
         ...(isDev ? ["'unsafe-inline'", "ws:", "wss:"] : []),
       ],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      styleSrc: ["'self'", "https://fonts.googleapis.com", ...(isDev ? ["'unsafe-inline'"] : [])],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
       connectSrc: [
         "'self'",

@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../prismaClient';
 import { z } from 'zod';
 import { authenticateToken } from '../auth';
+import { logger } from '../logger';
+import { UserRole } from '@shared/rbac';
 
 const router = Router();
 
@@ -28,12 +30,12 @@ const updateTicketSchema = z.object({
 });
 
 // GET /api/support-tickets
-router.get('/', async (req: any, res) => {
+router.get('/', authenticateToken, async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
         const orgId = req.user?.organizationId;
         const roles = req.user?.roles || [];
-        const isGlobalAdmin = roles.includes('WEBSITE_ADMIN');
+        const isGlobalAdmin = roles.includes(UserRole.WEBSITE_ADMIN);
 
         // If admin/agent, might see all. For now, scoping to organization or creator.
         const tickets = await prisma.support_tickets.findMany({
@@ -53,19 +55,19 @@ router.get('/', async (req: any, res) => {
         });
         res.json(tickets);
     } catch (error) {
-        console.error('Error fetching tickets:', error);
-        res.status(500).json({ message: 'Failed to fetch tickets' });
+        logger.error({ err: error }, 'Error fetching tickets');
+        res.status(500).json({ error: 'FETCH_FAILED', message: 'Failed to fetch tickets' });
     }
 });
 
 // POST /api/support-tickets
-router.post('/', async (req: any, res) => {
+router.post('/', authenticateToken, async (req: Request, res: Response) => {
     try {
         const data = createTicketSchema.parse(req.body);
         const userId = req.user?.id;
         const orgId = req.user?.organizationId;
 
-        if (!orgId) return res.status(400).json({ message: 'Organization context required' });
+        if (!orgId) return res.status(400).json({ error: 'ORG_REQUIRED', message: 'Organization context required' });
 
         const ticket = await prisma.support_tickets.create({
             data: {
@@ -81,10 +83,10 @@ router.post('/', async (req: any, res) => {
         res.status(201).json(ticket);
     } catch (error) {
         if (error instanceof z.ZodError) {
-            return res.status(400).json({ message: 'Invalid data', errors: error.errors });
+            return res.status(400).json({ error: 'VALIDATION_ERROR', errors: error.errors });
         }
-        console.error('Error creating ticket:', error);
-        res.status(500).json({ message: 'Failed to create ticket' });
+        logger.error({ err: error }, 'Error creating ticket');
+        res.status(500).json({ error: 'CREATE_FAILED', message: 'Failed to create ticket' });
     }
 });
 
@@ -99,11 +101,11 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
         const ticket = await prisma.support_tickets.findFirst({
             where: { id: req.params.id }
         });
-        if (!ticket) return res.status(404).json({ message: "Ticket not found" });
+        if (!ticket) return res.status(404).json({ error: 'NOT_FOUND', message: 'Ticket not found' });
 
         // Only allow update if user owns the ticket or is admin
-        if (ticket.createdByUserId !== userId && !roles.includes('ADMIN') && !roles.includes('WEBSITE_ADMIN')) {
-            return res.status(403).json({ message: "Not authorized to update this ticket" });
+        if (ticket.createdByUserId !== userId && !roles.includes(UserRole.WEBSITE_ADMIN)) {
+            return res.status(403).json({ error: 'FORBIDDEN', message: 'Not authorized to update this ticket' });
         }
 
         const updated = await prisma.support_tickets.update({
@@ -119,9 +121,10 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
         res.json(updated);
     } catch (error) {
         if (error instanceof z.ZodError) {
-            return res.status(400).json({ message: 'Invalid data', errors: error.errors });
+            return res.status(400).json({ error: 'VALIDATION_ERROR', errors: error.errors });
         }
-        res.status(500).json({ message: 'Failed to update ticket' });
+        logger.error({ err: error }, 'Error updating ticket');
+        res.status(500).json({ error: 'UPDATE_FAILED', message: 'Failed to update ticket' });
     }
 });
 
@@ -137,8 +140,8 @@ router.get('/categories', async (_req, res) => {
         });
         res.json({ categories });
     } catch (error) {
-        console.error('Error fetching categories:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        logger.error({ err: error }, 'Error fetching categories');
+        res.status(500).json({ error: 'FETCH_FAILED', message: 'Internal server error' });
     }
 });
 
@@ -158,7 +161,7 @@ router.get('/templates', async (_req, res) => {
 });
 
 // POST /api/support/seed (Moved down)
-router.post('/seed', async (req: any, res) => {
+router.post('/seed', async (req: Request, res: Response) => {
     // Prevent seed endpoint in production
     if (process.env.NODE_ENV === 'production') {
         return res.status(403).json({ message: "Seed endpoint disabled in production" });
@@ -209,8 +212,8 @@ router.post('/seed', async (req: any, res) => {
 
         res.json({ success: true, message: 'Support tickets seeded' });
     } catch (error) {
-        console.error('Error seeding tickets:', error);
-        res.status(500).json({ message: 'Internal server error' });
+        logger.error({ err: error }, 'Error seeding tickets');
+        res.status(500).json({ error: 'SEED_FAILED', message: 'Internal server error' });
     }
 });
 

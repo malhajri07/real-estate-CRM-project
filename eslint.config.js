@@ -107,8 +107,8 @@ export default [
       }],
       'no-empty': 'warn',
 
-      // Disabled rules to allow existing code to pass
-      'no-console': 'off',
+      // Allow console only in non-browser code; warn to encourage logger usage
+      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
       'no-undef': 'off',
       'prefer-const': 'off',
     },

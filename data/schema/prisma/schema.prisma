@@ -479,8 +479,8 @@ model properties {
   longitude      Decimal?
   features       String?
   photos         String?
-  createdAt      DateTime?
-  updatedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
   cityId         Int?
   districtId     BigInt?
   regionId       Int?

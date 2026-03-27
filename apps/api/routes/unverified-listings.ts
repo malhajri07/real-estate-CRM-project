@@ -27,53 +27,6 @@ const router = express.Router();
 
 const MAX_VIDEO_SIZE_BYTES = 1024 * 1024;
 
-/**
- * DEPRECATED SCHEMAS SECTION
- * These schemas are kept for backward compatibility reference only.
- * Do not use in new code - use updatedSchema instead.
- */
-
-// Old schema - DEPRECATED - Not used anymore
-const submissionSchema = z.object({
-  title: z.string().min(3),
-  description: z.string().min(30),
-  propertyType: z.string().min(1),
-  propertyCategory: z.string().optional(), // DEPRECATED - field doesn't exist in property_listings table
-  listingType: z.string().min(1),
-  price: z.number().nonnegative(),
-  city: z.string().min(1),
-  state: z.string().nullable().optional(),
-  district: z.string().nullable().optional(),
-  zipCode: z.string().nullable().optional(),
-  address: z.string().min(1),
-  bedrooms: z.number().int().min(0).nullable().optional(),
-  bathrooms: z.number().min(0).nullable().optional(),
-  areaSqm: z.number().min(0).nullable().optional(),
-  landArea: z.number().min(0).nullable().optional(),
-  latitude: z.number().nullable().optional(),
-  longitude: z.number().nullable().optional(),
-  completionYear: z.number().int().min(1900).max(new Date().getFullYear()).nullable().optional(),
-  furnishing: z.string().nullable().optional(),
-  occupancy: z.string().nullable().optional(),
-  maintenanceFees: z.number().min(0).nullable().optional(),
-  paymentPlan: z.string().nullable().optional(),
-  amenities: z.array(z.string()).optional().default([]),
-  additionalNotes: z.string().nullable().optional(),
-  contact: z.object({
-    name: z.string().min(3),
-    email: z.string().email().nullable().optional(),
-    phone: z.string().min(7).nullable().optional(),
-    preferredTime: z.string().nullable().optional(),
-  }),
-  media: z
-    .object({
-      images: z.array(z.string()).max(15).optional().default([]),
-      videos: z.array(z.string()).max(5).optional().default([]),
-    })
-    .optional()
-    .default({ images: [], videos: [] }),
-});
-
 const calculateBase64Size = (dataUrl: string): number => {
   const base64Segment = dataUrl.includes(",") ? dataUrl.split(",")[1] : dataUrl;
   const paddingMatches = (base64Segment.match(/=*$/) ?? [""])[0].length;
