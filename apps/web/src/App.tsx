@@ -80,7 +80,7 @@ const LazyMarketingRequestSubmissionPage = lazy(() => import("@/pages/marketing/
 const LazyMarketingRequestsBoardPage = lazy(() => import("@/pages/marketing/board"));
 const FavoritesPage = lazy(() => import("@/pages/platform/favorites"));
 const ComparePage = lazy(() => import("@/pages/platform/compare"));
-const PostListingPage = lazy(() => import("@/pages/platform/properties/post"));
+const PostListingPage = lazy(() => import("@/pages/platform/properties/post-listing"));
 const ModerationQueuePage = lazy(() => import("@/pages/admin/moderation"));
 const AgenciesPage = lazy(() => import("@/pages/platform/agencies"));
 const AgencyPage = lazy(() => import("@/pages/platform/agencies/detail"));
@@ -107,22 +107,18 @@ const SEOManagementPage = lazy(() => import("@/pages/admin/seo-management"));
 const TemplatesManagementPage = lazy(() => import("@/pages/admin/templates-management"));
 const ComplaintsManagementPage = lazy(() => import("@/pages/admin/complaints-management"));
 const RevenueManagementPage = lazy(() => import("@/pages/admin/revenue-management"));
+// ADMIN_DASHBOARD_ROUTES: derives all routes from the sidebar config (single source of truth).
+// Legacy/alias paths that are NOT in the sidebar are listed explicitly here.
 const ADMIN_DASHBOARD_ROUTES = Array.from(
   new Set<string>([
+    // Legacy aliases and base admin paths not present in sidebar config
     "/rbac-dashboard",
     "/admin",
     "/admin/dashboard",
     "/admin/analytics",
     "/overview/dashboard",
     "/overview/main-dashboard",
-    "/admin/overview/main-dashboard",
-    "/admin/users/all-users",
-    "/admin/content/landing-pages",
-    "/admin/content/articles",
-    "/admin/content/media-library",
-    "/admin/content/seo",
-    "/admin/content/templates",
-    "/admin/content/navigation",
+    // All routes generated from the sidebar config (avoids manual duplication)
     ...adminSidebarConfig.flatMap((section) => section.children.map((child) => child.route))
   ])
 );
@@ -338,7 +334,7 @@ function Router() {
       { path: '/home/platform/settings', component: Settings, aliases: ['/settings'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/agencies', component: AgenciesPage, aliases: ['/agencies'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: PLATFORM_CORE_ROLES },
-      { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms', '/cms-admin'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/marketing-requests', component: LazyMarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/unverified-listings', component: SuspendedUnverifiedListingsManagementPage, allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/pool', component: withSuspense(PoolPage), aliases: ['/pool'], allowedRoles: PLATFORM_CORE_ROLES },
@@ -367,7 +363,7 @@ function Router() {
     requiredPermission?: string;
   }> = [
       { path: '/home/platform/customer-requests', component: CustomerRequestsPage, aliases: ['/customer-requests'], allowedRoles: PLATFORM_CORE_ROLES },
-      { path: '/home/platform/admin-requests', component: AdminRequestsPage, aliases: ['/admin/requests'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/admin-requests', component: AdminRequestsPage, aliases: ['/admin-requests'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/favorites', component: FavoritesPage, aliases: ['/favorites'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/compare', component: ComparePage, aliases: ['/compare'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/post-listing', component: PostListingPage, aliases: ['/post-listing'], allowedRoles: EXTENDED_PLATFORM_ROLES },
@@ -413,7 +409,6 @@ function Router() {
       "/inquiries",
       "/requests",
       "/locations",
-      "/cms-admin",
       ...ADMIN_DASHBOARD_ROUTES.filter((path) => path.startsWith("/admin"))
     ])
   );
