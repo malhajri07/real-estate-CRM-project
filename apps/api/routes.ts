@@ -56,7 +56,6 @@ import moderationRoutes from "./routes/moderation";   // Content moderation
 import reportsRoutes from "./routes/reports";         // Analytics reports
 import agenciesRoutes from "./routes/agencies";       // Agency management
 import requestsRoutes from "./routes/requests";       // General requests
-import populateRoutes from "./routes/populate";       // Data population
 import sitemapRoutes from "./routes/sitemap";         // SEO sitemap
 import authRoutes from "./routes/auth";               // Authentication routes (Prisma-backed)
 import buyerPoolRoutes from "./routes/buyer-pool";    // Buyer pool (RBAC)
@@ -355,18 +354,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Org-scoped: requires authentication + organization context
    */
   app.use("/api/leads", authenticateToken, requireOrg, injectOrgFilter, leadsRoutes);
-
-  /**
-   * Data Population Routes - /api/*
-   * 
-   * Handles data seeding and population:
-   * - POST /api/populate - Populate database with sample data
-   * - POST /api/seed - Seed database
-   * 
-   * Dependencies: populateRoutes from ./routes/populate.ts
-   * Pages affected: Admin data management, development tools
-   */
-  app.use("/api", populateRoutes);
 
   /**
    * Deals Routes - /api/deals/*

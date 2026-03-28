@@ -39,7 +39,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 import { UserRole } from "@shared/rbac";
-import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { logger } from "@/lib/logger";
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
@@ -145,7 +144,7 @@ const ADMIN_DASHBOARD_ROUTES = Array.from(
  */
 function Router() {
   // Get authentication state from AuthProvider context
-  const { user, isLoading, logout, hasRole, hasPermission } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const [location, setLocation] = useLocation();
   const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN); // Helper flag to distinguish admin flow from standard platform users.
 
@@ -381,16 +380,6 @@ function Router() {
 
 
 
-  /**
-   * Handle logout functionality
-   * 
-   * Note: The actual logout logic is handled by the AuthProvider context.
-   * This function is passed to the Sidebar component for the logout button.
-   */
-  const handleLogout = () => {
-    // Logout is handled by AuthProvider
-  };
-
   // Show loading spinner while checking authentication status
   if (isLoading) {
     return (
@@ -607,7 +596,7 @@ function Router() {
   // Only render the animated loading overlay for non-admin users; admins should see the RBAC dashboard immediately.
   if (isNavigationLoading && !isAdmin) {
     return (
-      <PlatformShell onLogout={handleLogout}>
+      <PlatformShell onLogout={logout}>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <Spinner size="xl" className="text-primary mx-auto mb-4" />
