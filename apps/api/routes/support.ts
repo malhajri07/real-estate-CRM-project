@@ -90,6 +90,36 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
     }
 });
 
+// GET /api/support/categories (must be before /:id to avoid being shadowed)
+router.get('/categories', async (_req, res) => {
+    try {
+        // Use casting until schema is generated
+        const categories = await (prisma as any).support_categories.findMany({
+            where: { isActive: true },
+            orderBy: { displayOrder: 'asc' }
+        });
+        res.json({ categories });
+    } catch (error) {
+        logger.error({ err: error }, 'Error fetching categories');
+        res.status(500).json({ error: 'FETCH_FAILED', message: 'Internal server error' });
+    }
+});
+
+// GET /api/support/templates (must be before /:id to avoid being shadowed)
+router.get('/templates', async (_req, res) => {
+    try {
+        // Use casting until schema is generated
+        const templates = await (prisma as any).support_templates.findMany({
+            where: { isActive: true },
+            orderBy: { title: 'asc' }
+        });
+        res.json({ templates });
+    } catch (error) {
+        console.error('Error fetching templates:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 // PUT /api/support-tickets/:id
 router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
     try {
@@ -125,38 +155,6 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
         }
         logger.error({ err: error }, 'Error updating ticket');
         res.status(500).json({ error: 'UPDATE_FAILED', message: 'Failed to update ticket' });
-    }
-});
-
-
-
-// GET /api/support/categories
-router.get('/categories', async (_req, res) => {
-    try {
-        // Use casting until schema is generated
-        const categories = await (prisma as any).support_categories.findMany({
-            where: { isActive: true },
-            orderBy: { displayOrder: 'asc' }
-        });
-        res.json({ categories });
-    } catch (error) {
-        logger.error({ err: error }, 'Error fetching categories');
-        res.status(500).json({ error: 'FETCH_FAILED', message: 'Internal server error' });
-    }
-});
-
-// GET /api/support/templates
-router.get('/templates', async (_req, res) => {
-    try {
-        // Use casting until schema is generated
-        const templates = await (prisma as any).support_templates.findMany({
-            where: { isActive: true },
-            orderBy: { title: 'asc' }
-        });
-        res.json({ templates });
-    } catch (error) {
-        console.error('Error fetching templates:', error);
-        res.status(500).json({ message: 'Internal server error' });
     }
 });
 

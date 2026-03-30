@@ -8,6 +8,7 @@ vite.config.ts.*
 /generated/prisma
 playwright-report
 test-results
+.env
 
 # Agent & Tooling
 .agent/

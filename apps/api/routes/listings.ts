@@ -204,19 +204,23 @@ router.get("/map", async (req, res) => {
   }
 });
 
-// Listing detail
-router.get("/:id", async (req, res) => {
+// Featured/new listings (must be before /:id to avoid being shadowed)
+router.get("/featured", async (req, res) => {
   try {
-    const item = await storage.getProperty(req.params.id);
-    if (!item) return res.status(404).json(getErrorResponse('LISTING_NOT_FOUND', (req as any).locale));
-    res.json(item);
+    const all = await storage.getAllProperties();
+    let featured = all.filter((p: any) => p.isFeatured === true && p.status === 'active');
+    if (featured.length === 0) {
+      // fallback to newest
+      featured = all.sort((a: any, b: any) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime());
+    }
+    res.json(featured.slice(0, 12));
   } catch (err) {
-    console.error("Error fetching listing detail:", err);
-    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
+    console.error("Error fetching featured listings:", err);
+    res.status(500).json({ message: "Failed to fetch featured listings" });
   }
 });
 
-// Similar listings
+// Similar listings (must be before /:id to avoid being shadowed)
 router.get("/:id/similar", async (req, res) => {
   try {
     const current = await storage.getProperty(req.params.id);
@@ -232,19 +236,15 @@ router.get("/:id/similar", async (req, res) => {
   }
 });
 
-// Featured/new listings
-router.get("/featured", async (req, res) => {
+// Listing detail
+router.get("/:id", async (req, res) => {
   try {
-    const all = await storage.getAllProperties();
-    let featured = all.filter((p: any) => p.isFeatured === true && p.status === 'active');
-    if (featured.length === 0) {
-      // fallback to newest
-      featured = all.sort((a: any, b: any) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime());
-    }
-    res.json(featured.slice(0, 12));
+    const item = await storage.getProperty(req.params.id);
+    if (!item) return res.status(404).json(getErrorResponse('LISTING_NOT_FOUND', (req as any).locale));
+    res.json(item);
   } catch (err) {
-    console.error("Error fetching featured listings:", err);
-    res.status(500).json({ message: "Failed to fetch featured listings" });
+    console.error("Error fetching listing detail:", err);
+    res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
   }
 });
 

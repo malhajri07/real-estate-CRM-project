@@ -97,15 +97,10 @@ function requireRole(roles: string[]) {
 
 // Get image dimensions helper
 async function getImageDimensions(
-  filePath: string
+  _filePath: string
 ): Promise<{ width: number; height: number } | null> {
-  try {
-    // For now, return null - can be enhanced with sharp or jimp
-    // This would require additional dependencies
-    return null;
-  } catch {
-    return null;
-  }
+  // Stub: can be enhanced with sharp or jimp if image dimension detection is needed
+  return null;
 }
 
 // List media

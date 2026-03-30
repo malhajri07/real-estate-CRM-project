@@ -37,6 +37,18 @@ function requireRole(roles: string[]) {
   };
 }
 
+// Public: Get robots.txt (must be before /seo/:pagePath(*) wildcard to avoid being shadowed)
+router.get("/seo/robots.txt", async (req, res) => {
+  try {
+    const robotsTxt = await SEOService.getRobotsTxt();
+    res.setHeader("Content-Type", "text/plain");
+    res.send(robotsTxt);
+  } catch (error) {
+    console.error("Failed to get robots.txt:", error);
+    res.status(500).send("User-agent: *\nDisallow: /");
+  }
+});
+
 // Public: Get SEO settings for a page
 router.get("/seo/:pagePath(*)", async (req, res) => {
   try {
@@ -151,18 +163,6 @@ router.get("/sitemap.xml", async (req, res) => {
       message:
         error instanceof Error ? error.message : "Failed to generate sitemap",
     });
-  }
-});
-
-// Public: Get robots.txt (no auth required) - Moved to sitemap.ts, keeping here for reference/backup or specific CMS access if needed w/ /seo prefix
-router.get("/seo/robots.txt", async (req, res) => {
-  try {
-    const robotsTxt = await SEOService.getRobotsTxt();
-    res.setHeader("Content-Type", "text/plain");
-    res.send(robotsTxt);
-  } catch (error) {
-    console.error("Failed to get robots.txt:", error);
-    res.status(500).send("User-agent: *\nDisallow: /");
   }
 });
 
