@@ -57,7 +57,7 @@ import {
   type AdminUser,
 } from "@/lib/rbacAdmin";
 import { formatAdminDate, formatAdminDateTime } from "@/lib/formatters";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
+
 
 interface UserFormState {
   id?: string;
@@ -401,7 +401,7 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="space-y-8 animate-in-start" dir="rtl">
+    <div className="w-full space-y-6">
       {/* Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <MetricCard

@@ -188,7 +188,7 @@ export default function UnverifiedListingsManagement() {
   };
 
   return (
-    <div className="w-full space-y-6" dir="rtl">
+    <div className="w-full space-y-6">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

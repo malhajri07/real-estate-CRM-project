@@ -47,7 +47,6 @@ import {
 } from "@/components/admin";
 import { Plus, Edit, Trash2, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface Template {
   id: string;
@@ -160,7 +159,7 @@ export default function TemplatesManagement() {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="w-full space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">إدارة القوالب</h1>

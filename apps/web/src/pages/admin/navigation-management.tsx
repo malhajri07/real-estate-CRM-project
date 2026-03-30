@@ -56,7 +56,6 @@ import {
 import { Plus, Edit, Trash2, GripVertical, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface NavigationLink {
   id: string;
@@ -175,7 +174,7 @@ export default function NavigationManagement() {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="w-full space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">إدارة روابط التنقل</h1>

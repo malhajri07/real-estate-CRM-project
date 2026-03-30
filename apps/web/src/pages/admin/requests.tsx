@@ -104,7 +104,7 @@ export default function AdminRequestsPage() {
   };
 
   return (
-    <main className="w-full space-y-6" dir="rtl">
+    <main className="w-full space-y-6">
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">

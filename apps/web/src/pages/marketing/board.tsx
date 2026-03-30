@@ -169,7 +169,7 @@ export default function MarketingRequestsBoardPage() {
   };
 
   return (
-    <main className="w-full space-y-6" dir="rtl">
+    <main className="w-full space-y-6">
       <section className="space-y-6">
         <header className="bg-card border-0 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">

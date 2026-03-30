@@ -148,7 +148,7 @@ export default function ModerationQueuePage() {
   );
 
   return (
-    <main className="w-full space-y-6" dir="rtl">
+    <main className="w-full space-y-6">
       <PageSectionHeader
         icon={<ShieldCheck className="h-7 w-7" />}
         title="إدارة المحتوى"

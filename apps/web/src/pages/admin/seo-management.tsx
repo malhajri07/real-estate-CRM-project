@@ -32,7 +32,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Save, FileText, Code } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface SEOSettings {
   pagePath: string;
@@ -139,7 +138,7 @@ export default function SEOManagement() {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="w-full space-y-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">إدارة SEO</h1>
         <p className="text-muted-foreground">تحسين محركات البحث وملفات sitemap</p>

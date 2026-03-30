@@ -45,7 +45,6 @@ import {
   useDeleteAdminRole,
   type AdminRole,
 } from "@/lib/rbacAdmin";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface RoleFormState {
   id?: string;
@@ -290,7 +289,7 @@ export default function RoleManagement() {
   const organizationRolesCount = roles.filter((role) => role.scope === "ORGANIZATION").length;
 
   return (
-    <div className="space-y-8 animate-in-start" dir="rtl">
+    <div className="w-full space-y-6">
       <Card className="glass border-0 rounded-2xl p-8 shadow-none">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-end">

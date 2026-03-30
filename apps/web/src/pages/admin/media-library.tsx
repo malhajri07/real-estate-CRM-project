@@ -38,7 +38,6 @@ import {
 } from "@/components/ui/select";
 import { Upload, Trash2, Search, Grid, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 
 interface MediaItem {
   id: string;
@@ -151,7 +150,7 @@ export default function MediaLibrary() {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="w-full space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">مكتبة الوسائط</h1>

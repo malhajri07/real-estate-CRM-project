@@ -28,7 +28,6 @@ import {
   type AdminOrganization,
   type CreateAdminOrganizationInput
 } from "@/lib/rbacAdmin";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import { MetricCard } from "@/components/admin";
 import { formatAdminDate } from "@/lib/formatters";
 
@@ -168,7 +167,7 @@ export default function OrganizationManagement() {
   const activeSubsCount = organizations.filter(o => o.subscription?.status === 'active').length;
 
   return (
-    <div className="space-y-8 animate-in-start" dir="rtl">
+    <div className="w-full space-y-6">
       <Card className="glass border-0 rounded-2xl p-8 shadow-none">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-end">

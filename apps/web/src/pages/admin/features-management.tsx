@@ -206,7 +206,7 @@ export default function FeaturesManagement() {
     };
 
     return (
-        <div className="space-y-8 animate-in-start" dir="rtl">
+        <div className="w-full space-y-6">
             <Card className="glass border-0 rounded-2xl p-8 shadow-none group relative overflow-hidden">
                 <div className="absolute top-0 end-0 w-[30%] h-[30%] bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">

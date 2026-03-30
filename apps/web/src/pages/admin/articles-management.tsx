@@ -75,7 +75,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import DOMPurify from 'isomorphic-dompurify';
 import { LISTING_STATUS_LABELS, LISTING_STATUS_BADGE_CLASS } from "@/constants/labels";
 
@@ -372,7 +371,7 @@ export default function ArticlesManagement() {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="w-full space-y-6">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">إدارة المقالات</h1>
