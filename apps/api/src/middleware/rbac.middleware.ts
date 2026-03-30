@@ -3,11 +3,12 @@ import { prisma } from '../../prismaClient';
 import { UserRole, normalizeRoleKeys } from '@shared/rbac';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET as getJwtSecret } from '../../config/env';
+import { logger } from '../../logger';
 
 const JWT_SECRET = getJwtSecret();
 
 export const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
-    console.log(`[RBAC-ADMIN] Request: ${req.method} ${req.path}`);
+    logger.debug({ method: req.method, path: req.path }, 'RBAC-ADMIN request');
     try {
         const headerToken = req.headers.authorization?.replace('Bearer ', '');
         const session = req.session as any;
@@ -26,14 +27,10 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
         const ensureAdmin = (rolesValue: unknown) =>
             normalizeRoleKeys(rolesValue).includes(UserRole.WEBSITE_ADMIN);
 
-        const validateAdminAccess = (user: any, roles: any[]) => {
+        const validateAdminAccess = (_user: any, roles: any[]) => {
             const hasRole = ensureAdmin(roles);
-            const isNamedAdmin = user?.username === 'admin';
-
-            if (!hasRole && !isNamedAdmin) return { valid: false };
-
-            const finalRoles = hasRole ? roles : [...roles, UserRole.WEBSITE_ADMIN];
-            return { valid: true, finalRoles };
+            if (!hasRole) return { valid: false };
+            return { valid: true, finalRoles: roles };
         };
 
         if (headerToken) {
@@ -53,7 +50,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
             (req as any).user = {
                 ...user,
                 roles: finalRoles!,
-                name: user.firstName + ' ' + user.lastName,
+                name: [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || 'Unknown',
                 userLevel: 1,
                 tenantId: user.organizationId || user.id
             };
@@ -77,7 +74,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
             (req as any).user = {
                 ...user,
                 roles: finalRoles!,
-                name: user.firstName + ' ' + user.lastName,
+                name: [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || 'Unknown',
                 userLevel: 1,
                 tenantId: user.organizationId || user.id
             };
@@ -99,7 +96,7 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 
         return res.status(401).json({ success: false, message: 'No valid authentication' });
     } catch (error) {
-        console.error('Admin auth error:', error);
+        logger.error({ err: error }, 'Admin auth error');
         return res.status(401).json({ success: false, message: 'Authentication failed' });
     }
 };
