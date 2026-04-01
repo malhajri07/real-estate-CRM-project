@@ -17,7 +17,7 @@
  * - apps/web/src/hooks/useDashboardData.ts - Dashboard data hook
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
@@ -83,6 +83,13 @@ type MetricResponse = {
 export default function Dashboard() {
   const [addPropertyDrawerOpen, setAddPropertyDrawerOpen] = useState(false);
   const [completedactivities, setCompletedActivities] = useState<string[]>([]);
+  const [minLoadTime, setMinLoadTime] = useState(true);
+
+  // Show skeleton for at least 2 seconds so the layout is visible
+  useEffect(() => {
+    const timer = setTimeout(() => setMinLoadTime(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
   const { dir, language, t } = useLanguage();
   const [, setLocation] = useLocation();
   const { user } = useAuth();
@@ -248,7 +255,7 @@ export default function Dashboard() {
     );
   }
 
-  if (metricsLoading) {
+  if (metricsLoading || minLoadTime) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <PageHeader

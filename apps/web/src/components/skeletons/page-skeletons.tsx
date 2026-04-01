@@ -446,5 +446,5 @@ export function MapSkeleton() {
 }
 
 // Re-export existing skeletons for convenience
-export { DashboardSkeleton } from "./dashboard-skeleton";
+export { DashboardSkeleton, FullPageSkeleton } from "./dashboard-skeleton";
 export { TableSkeleton } from "./table-skeleton";

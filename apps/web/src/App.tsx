@@ -41,7 +41,7 @@ import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 import { UserRole } from "@shared/rbac";
 import { Spinner } from "@/components/ui/spinner";
 import { logger } from "@/lib/logger";
-import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
+import { DashboardSkeleton, FullPageSkeleton } from "@/components/skeletons/dashboard-skeleton";
 import { RouteGuard } from "@/components/auth/RouteGuard";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 
@@ -144,13 +144,7 @@ function Router() {
   const [location, setLocation] = useLocation();
   const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN); // Helper flag to distinguish admin flow from standard platform users.
 
-  const fullScreenSuspenseFallback = (
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
-        <DashboardSkeleton />
-      </div>
-    </div>
-  );
+  const fullScreenSuspenseFallback = <FullPageSkeleton />;
 
   const shellSuspenseFallback = (
     <div className="h-full">

@@ -3,7 +3,7 @@ import React, { ComponentType, LazyExoticComponent, Suspense } from 'react';
 import { useAuth, UserRole } from '@/components/auth/AuthProvider';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { DashboardSkeleton } from '@/components/skeletons/dashboard-skeleton';
+import { DashboardSkeleton, FullPageSkeleton } from '@/components/skeletons/dashboard-skeleton';
 import PlatformShell from '@/components/layout/PlatformShell';
 import { logger } from '@/lib/logger';
 
@@ -104,5 +104,10 @@ export function RouteGuard({
         );
     }
 
-    return content;
+    // Without shell — show full page skeleton with sidebar frame
+    return (
+        <Suspense fallback={<FullPageSkeleton />}>
+            <Component />
+        </Suspense>
+    );
 }
