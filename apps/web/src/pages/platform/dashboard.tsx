@@ -303,7 +303,7 @@ export default function Dashboard() {
                     <Banknote className="h-6 w-6" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl font-bold text-foreground tracking-tight">
+                    <CardTitle className="font-bold text-foreground tracking-tight">
                       {t("dashboard.monthly_revenue") || "إيرادات الشهر"}
                     </CardTitle>
                     <CardDescription className="text-muted-foreground mt-2 font-medium leading-relaxed">
@@ -379,6 +379,7 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
+        </div>
 
         {/* Right Column - Sidebar */}
         <div className="space-y-6">
@@ -459,8 +460,7 @@ export default function Dashboard() {
                 </ul>
               )}
             </CardContent>
-            </Card>
-          </div>
+          </Card>
         </div>
       </div>
 
