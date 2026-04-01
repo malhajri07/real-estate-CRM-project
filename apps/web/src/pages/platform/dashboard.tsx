@@ -283,219 +283,149 @@ export default function Dashboard() {
         ))}
       </section>
 
-      {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-3" aria-label={t("dashboard.details_section")}>
-        {/* Left Column - Main Content */}
-        <div className="space-y-6 lg:col-span-2">
-          {/* Pipeline Flow + Revenue Chart - side by side on large screens */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Clean Pipeline Flow */}
-            <Card className="rounded-2xl">
-              <CardContent className="p-6">
-                <PipelineFlow stages={pipelineStages} />
-              </CardContent>
-            </Card>
-
-            {/* Revenue Chart */}
-            <Card className="rounded-2xl p-6">
-              <CardHeader className="pb-4 px-0 pt-0">
-                <div className="flex items-center gap-3">
-                  <div className="icon-container shrink-0">
-                    <Banknote className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <CardTitle className="font-bold text-foreground tracking-tight">
-                      {t("dashboard.monthly_revenue") || "إيرادات الشهر"}
-                    </CardTitle>
-                    <CardDescription className="text-muted-foreground mt-2 font-medium leading-relaxed">
-                      {t("dashboard.revenue_description") || t("dashboard.pipeline_description") || "نظرة عامة على الإيرادات الشهرية"}
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="px-0 pb-0">
-                <RevenueChart />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Row 2: Recent Leads + Recent Activity - side by side */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Recent Leads */}
-            <Card>
-              <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="icon-container shrink-0">
-                    <Users className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <CardTitle>
-                      {t("dashboard.recent_leads")}
-                    </CardTitle>
-                    <CardDescription>
-                      {t("dashboard.recent_leads_description")}
-                    </CardDescription>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="rounded-full px-4 font-bold bg-muted text-muted-foreground hover:bg-muted/80"
-                  onClick={() => setLocation("/home/platform/leads")}
-                >
-                  {t("form.view_all")}
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {leadsLoading ? (
-                  <div className="space-y-4">
-                    {Array.from({ length: 3 }).map((_, index) => (
-                      <Skeleton key={index} className="h-16 w-full rounded-2xl" />
-                    ))}
-                  </div>
-                ) : recentLeads.length === 0 ? (
-                  <EmptyState
-                    title={t("dashboard.no_recent_leads")}
-                    description={t("dashboard.no_recent_leads_description")}
-                  />
-                ) : (
-                  <ul className="space-y-3" aria-live="polite">
-                    {recentLeads.slice(0, 4).map((lead, index) => {
-                      const status = statusBadges[lead.status ?? ""] ?? {
-                        label: lead.status ? t(`status.${lead.status}`) ?? lead.status : undefined,
-                        variant: "secondary" as const,
-                      };
-                      return (
-                        <LeadCard
-                          key={lead.id}
-                          lead={lead}
-                          statusBadge={status}
-                          locale={locale}
-                          index={index}
-                          onCall={handleLeadCall}
-                          onMessage={handleLeadMessage}
-                        />
-                      );
-                    })}
-                  </ul>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Recent Activity */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="icon-container shrink-0">
-                    <Clock className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <CardTitle>
-                      {t("dashboard.recent_activity") || (language === "ar" ? "النشاط الأخير" : "Recent Activity")}
-                    </CardTitle>
-                    <CardDescription>
-                      {t("dashboard.recent_activity_description") || (language === "ar" ? "آخر التحديثات والإجراءات" : "Latest updates and actions")}
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {activitiesLoading ? (
-                  <div className="space-y-4">
-                    {Array.from({ length: 3 }).map((_, index) => (
-                      <Skeleton key={index} className="h-16 w-full rounded-2xl" />
-                    ))}
-                  </div>
-                ) : !todaysActivities || todaysActivities.length === 0 ? (
-                  <EmptyState
-                    title={t("dashboard.no_activities_today")}
-                    description={t("dashboard.no_tasks_description")}
-                  />
-                ) : (
-                  <ul className="space-y-3" aria-live="polite">
-                    {todaysActivities.slice(0, 4).map((activity, index) => (
-                      <TaskCard
-                        key={activity.id}
-                        activity={activity}
-                        completed={activity.completed || completedactivities.includes(activity.id)}
-                        onClick={() => toggleActivity(activity.id)}
-                        locale={locale}
-                        index={index}
-                      />
-                    ))}
-                  </ul>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Right Column - Sidebar */}
-        <div className="space-y-6">
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="icon-container shrink-0">
-                  <Zap className="h-6 w-6" />
-                </div>
-                <div>
-                  <CardTitle>
-                    {t("dashboard.quick_actions")}
-                  </CardTitle>
-                  <CardDescription>
-                    {t("dashboard.quick_actions_description")}
-                  </CardDescription>
-                </div>
+      {/* Row 1: Pipeline Flow + Revenue Chart */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="icon-container shrink-0">
+                <Filter className="h-6 w-6" />
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {quickActions.map((action, index) => (
-                <ActionCard
-                  key={action.id}
-                  id={action.id}
-                  label={action.label}
-                  icon={action.icon}
-                  onClick={action.onClick}
-                  disabled={!action.onClick}
-                  variant={action.variant}
-                  index={index}
-                />
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Upcoming Schedule */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="icon-container shrink-0">
-                  <Calendar className="h-6 w-6" />
-                </div>
-                <div>
-                  <CardTitle>
-                    {t("dashboard.upcoming_schedule") || (language === "ar" ? "المواعيد القادمة" : "Upcoming Schedule")}
-                  </CardTitle>
-                  <CardDescription>
-                    {t("dashboard.upcoming_schedule_description") || (language === "ar" ? "مواعيدك المجدولة" : "Your scheduled appointments")}
-                  </CardDescription>
-                </div>
+              <div>
+                <CardTitle>{t("dashboard.deals_in_pipeline") || (language === "ar" ? "خط الأنابيب" : "Pipeline")}</CardTitle>
+                <CardDescription>{t("dashboard.pipeline_description") || (language === "ar" ? "توزيع الصفقات حسب المرحلة" : "Deal distribution by stage")}</CardDescription>
               </div>
-            </CardHeader>
-            <CardContent>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <PipelineFlow stages={pipelineStages} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="icon-container shrink-0">
+                <Banknote className="h-6 w-6" />
+              </div>
+              <div>
+                <CardTitle>{t("dashboard.monthly_revenue") || (language === "ar" ? "إيرادات الشهر" : "Monthly Revenue")}</CardTitle>
+                <CardDescription>{t("dashboard.revenue_description") || (language === "ar" ? "نظرة عامة على الإيرادات" : "Revenue overview")}</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <RevenueChart />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Row 2: Recent Leads + Recent Activity */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="icon-container shrink-0">
+                <Users className="h-6 w-6" />
+              </div>
+              <div>
+                <CardTitle>{t("dashboard.recent_leads")}</CardTitle>
+                <CardDescription>{t("dashboard.recent_leads_description")}</CardDescription>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-full px-4 font-bold bg-muted text-muted-foreground hover:bg-muted/80"
+              onClick={() => setLocation("/home/platform/leads")}
+            >
+              {t("form.view_all")}
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {leadsLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full rounded-2xl" />
+                ))}
+              </div>
+            ) : recentLeads.length === 0 ? (
               <EmptyState
-                title={t("dashboard.no_time_scheduled") || (language === "ar" ? "لا توجد مواعيد" : "No appointments")}
-                description={language === "ar" ? "جدول مواعيد جديدة من صفحة التقويم" : "Schedule new appointments from the calendar"}
-                action={
-                  <Button variant="outline" size="sm" onClick={() => setLocation("/home/platform/calendar")}>
-                    <Calendar className="h-4 w-4 me-2" />
-                    {language === "ar" ? "فتح التقويم" : "Open Calendar"}
-                  </Button>
-                }
+                title={t("dashboard.no_recent_leads")}
+                description={t("dashboard.no_recent_leads_description")}
               />
-            </CardContent>
-          </Card>
-        </div>
+            ) : (
+              <ul className="space-y-3" aria-live="polite">
+                {recentLeads.slice(0, 5).map((lead, index) => {
+                  const status = statusBadges[lead.status ?? ""] ?? {
+                    label: lead.status ? t(`status.${lead.status}`) ?? lead.status : undefined,
+                    variant: "secondary" as const,
+                  };
+                  return (
+                    <LeadCard
+                      key={lead.id}
+                      lead={lead}
+                      statusBadge={status}
+                      locale={locale}
+                      index={index}
+                      onCall={handleLeadCall}
+                      onMessage={handleLeadMessage}
+                    />
+                  );
+                })}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="icon-container shrink-0">
+                <Clock className="h-6 w-6" />
+              </div>
+              <div>
+                <CardTitle>{t("dashboard.recent_activity") || (language === "ar" ? "النشاط الأخير" : "Recent Activity")}</CardTitle>
+                <CardDescription>{t("dashboard.recent_activity_description") || (language === "ar" ? "آخر التحديثات والإجراءات" : "Latest updates and actions")}</CardDescription>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="rounded-full px-4 font-bold bg-muted text-muted-foreground hover:bg-muted/80"
+              onClick={() => setLocation("/home/platform/activities")}
+            >
+              {t("form.view_all")}
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {activitiesLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-full rounded-2xl" />
+                ))}
+              </div>
+            ) : !todaysActivities || todaysActivities.length === 0 ? (
+              <EmptyState
+                title={t("dashboard.no_activities_today")}
+                description={t("dashboard.no_tasks_description")}
+              />
+            ) : (
+              <ul className="space-y-3" aria-live="polite">
+                {todaysActivities.slice(0, 5).map((activity, index) => (
+                  <TaskCard
+                    key={activity.id}
+                    activity={activity}
+                    completed={activity.completed || completedactivities.includes(activity.id)}
+                    onClick={() => toggleActivity(activity.id)}
+                    locale={locale}
+                    index={index}
+                  />
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <AddPropertyDrawer open={addPropertyDrawerOpen} onOpenChange={setAddPropertyDrawerOpen} />
