@@ -330,10 +330,10 @@ export default function Contacts() {
             buttonClassName="bg-primary/10 hover:bg-primary/10"
           >
             <Upload className="me-2" size={16} />
-            {t("leads.upload_csv") || "رفع CSV"}
+            {"رفع CSV"}
           </CSVUploader>
           <Button variant="outline" onClick={exportLeads}>
-            {t("leads.export_csv") || "تصدير CSV"}
+            {"تصدير CSV"}
           </Button>
         </div>
       </PageHeader>
@@ -349,12 +349,8 @@ export default function Contacts() {
 
       <Tabs defaultValue="quick" className="w-full">
         <TabsList>
-          <TabsTrigger value="quick">
-            {t("contacts.quick_view") || "عرض سريع"}
-          </TabsTrigger>
-          <TabsTrigger value="advanced">
-            {t("contacts.advanced_view") || "عرض متقدم"}
-          </TabsTrigger>
+          <TabsTrigger value="quick">{"عرض سريع"}</TabsTrigger>
+          <TabsTrigger value="advanced">{"عرض متقدم"}</TabsTrigger>
         </TabsList>
 
         {/* ───── Quick View Tab ───── */}
@@ -377,64 +373,44 @@ export default function Contacts() {
                 <Table>
                   <TableHeader className="bg-muted/50">
                     <TableRow>
-                      <TableHead className="text-end">{t("leads.table.name") || "الاسم"}</TableHead>
-                      <TableHead className="text-end">{t("leads.table.email") || "البريد الإلكتروني"}</TableHead>
-                      <TableHead className="text-end">{t("leads.table.phone") || "الهاتف"}</TableHead>
-                      <TableHead className="text-end">{t("leads.table.status") || "الحالة"}</TableHead>
-                      <TableHead className="text-end">{t("leads.table.source") || "المصدر"}</TableHead>
-                      <TableHead className="text-end">{t("leads.table.interest") || "الاهتمام"}</TableHead>
-                      <TableHead className="text-end">{t("leads.table.budget") || "الميزانية"}</TableHead>
-                      <TableHead className="text-end">{t("leads.table.created_at") || "تاريخ الإنشاء"}</TableHead>
-                      <TableHead className="text-end w-[160px]">{t("leads.table.actions") || "الإجراءات"}</TableHead>
+                      <TableHead className="text-start w-[120px]">{"الإجراءات"}</TableHead>
+                      <TableHead className="text-start">{"تاريخ الإنشاء"}</TableHead>
+                      <TableHead className="text-start">{"الميزانية"}</TableHead>
+                      <TableHead className="text-start">{"الاهتمام"}</TableHead>
+                      <TableHead className="text-start">{"المصدر"}</TableHead>
+                      <TableHead className="text-start">{"الحالة"}</TableHead>
+                      <TableHead className="text-start">{"الهاتف"}</TableHead>
+                      <TableHead className="text-start">{"البريد الإلكتروني"}</TableHead>
+                      <TableHead className="text-start">{"الاسم"}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {quickDisplayLeads.map((lead) => (
                       <TableRow key={lead.id}>
-                        <TableCell className="text-end font-medium">
-                          {lead.firstName} {lead.lastName}
-                        </TableCell>
-                        <TableCell className="text-end">{lead.email}</TableCell>
-                        <TableCell className="text-end">{lead.phone || "-"}</TableCell>
-                        <TableCell className="text-end">
-                          <Badge variant={getLeadStatusVariant(lead.status)}>
-                            {t(`status.${lead.status}`) || lead.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-end">{lead.leadSource || "-"}</TableCell>
-                        <TableCell className="text-end">
-                          {lead.interestType ? (t(`interest.${lead.interestType}`) || lead.interestType) : "-"}
-                        </TableCell>
-                        <TableCell className="text-end">{lead.budgetRange || "-"}</TableCell>
-                        <TableCell className="text-end">{formatAdminDate(lead.createdAt)}</TableCell>
-                        <TableCell className="text-end">
-                          <div className="flex items-center gap-2">
+                        <TableCell>
+                          <div className="flex items-center gap-1">
                             {lead.phone && (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleSendWhatsApp(lead)}
-                                title={t("whatsapp.send_message") || "إرسال واتساب"}
-                              >
+                              <Button variant="ghost" size="icon" onClick={() => handleSendWhatsApp(lead)} title="واتساب">
                                 <MessageCircle size={16} />
                               </Button>
                             )}
-                            <Button variant="ghost" size="icon">
-                              <Eye size={16} />
-                            </Button>
-                            <Button variant="ghost" size="icon">
-                              <Edit size={16} />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleQuickDelete(lead)}
-                              disabled={deleteLeadMutation.isPending}
-                            >
+                            <Button variant="ghost" size="icon" title="عرض"><Eye size={16} /></Button>
+                            <Button variant="ghost" size="icon" title="تعديل"><Edit size={16} /></Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleQuickDelete(lead)} disabled={deleteLeadMutation.isPending} title="حذف">
                               <Trash2 size={16} />
                             </Button>
                           </div>
                         </TableCell>
+                        <TableCell>{formatAdminDate(lead.createdAt)}</TableCell>
+                        <TableCell>{lead.budgetRange || "-"}</TableCell>
+                        <TableCell>{lead.interestType ? getInterestTypeLabel(lead.interestType) : "-"}</TableCell>
+                        <TableCell>{lead.leadSource || "-"}</TableCell>
+                        <TableCell>
+                          <Badge variant={getLeadStatusVariant(lead.status)}>{getStatusLabel(lead.status)}</Badge>
+                        </TableCell>
+                        <TableCell>{lead.phone || "-"}</TableCell>
+                        <TableCell>{lead.email || "-"}</TableCell>
+                        <TableCell className="font-bold">{lead.firstName} {lead.lastName}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -581,56 +557,45 @@ export default function Contacts() {
                   <Table className="min-w-[900px]">
                     <TableHeader className="bg-muted/50">
                       <TableRow>
-                        <TableHead className="text-end">{t("contacts.table.customer") || "العميل"}</TableHead>
-                        <TableHead className="text-end">{t("contacts.table.city") || "المدينة"}</TableHead>
-                        <TableHead className="text-end">{t("contacts.table.age") || "العمر"}</TableHead>
-                        <TableHead className="text-end">{t("contacts.table.marital") || "الحالة الاجتماعية"}</TableHead>
-                        <TableHead className="text-end">{t("contacts.table.dependents") || "المُعالين"}</TableHead>
-                        <TableHead className="text-end">{t("contacts.table.interest") || "نوع الاهتمام"}</TableHead>
-                        <TableHead className="text-end">{t("contacts.table.budget") || "نطاق الميزانية"}</TableHead>
-                        <TableHead className="text-end">{t("contacts.table.status") || "الحالة"}</TableHead>
-                        <TableHead className="text-end">{t("contacts.table.joined") || "تاريخ الانضمام"}</TableHead>
-                        <TableHead className="text-end">{t("contacts.table.actions") || "الإجراءات"}</TableHead>
+                        <TableHead className="text-start w-[100px]">{"الإجراءات"}</TableHead>
+                        <TableHead className="text-start">{"تاريخ الانضمام"}</TableHead>
+                        <TableHead className="text-start">{"الحالة"}</TableHead>
+                        <TableHead className="text-start">{"نطاق الميزانية"}</TableHead>
+                        <TableHead className="text-start">{"نوع الاهتمام"}</TableHead>
+                        <TableHead className="text-start">{"المُعالين"}</TableHead>
+                        <TableHead className="text-start">{"الحالة الاجتماعية"}</TableHead>
+                        <TableHead className="text-start">{"العمر"}</TableHead>
+                        <TableHead className="text-start">{"المدينة"}</TableHead>
+                        <TableHead className="text-start">{"العميل"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {currentPageLeads.map((lead) => (
                         <TableRow key={lead.id}>
                           <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Button variant="ghost" size="icon" title="اتصال"><Phone size={16} /></Button>
+                              <Button variant="ghost" size="icon" title="تعديل"><Edit size={16} /></Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleAdvancedDelete(lead)} title="حذف">
+                                <Trash2 size={16} />
+                              </Button>
+                            </div>
+                          </TableCell>
+                          <TableCell>{formatAdminDate(lead.createdAt)}</TableCell>
+                          <TableCell>
+                            <Badge variant={getLeadStatusVariant(lead.status)}>{getStatusLabel(lead.status)}</Badge>
+                          </TableCell>
+                          <TableCell>{formatBudgetRange(lead.budgetRange)}</TableCell>
+                          <TableCell>{getInterestTypeLabel(lead.interestType || "")}</TableCell>
+                          <TableCell>{lead.numberOfDependents || 0}</TableCell>
+                          <TableCell>{getMaritalStatusLabel(lead.maritalStatus || "")}</TableCell>
+                          <TableCell>{lead.age || "غير محدد"}</TableCell>
+                          <TableCell>{lead.city || "غير محدد"}</TableCell>
+                          <TableCell>
                             <div className="font-bold">{lead.firstName} {lead.lastName}</div>
                             <div className="mt-1 flex items-center gap-2 text-muted-foreground">
                               <Phone size={12} />
                               <span>{lead.phone}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-end">{lead.city || (t("contacts.unspecified") || "غير محدد")}</TableCell>
-                          <TableCell className="text-end">{lead.age || (t("contacts.unspecified") || "غير محدد")}</TableCell>
-                          <TableCell className="text-end">{getMaritalStatusLabel(lead.maritalStatus || "")}</TableCell>
-                          <TableCell className="text-end">{lead.numberOfDependents || 0}</TableCell>
-                          <TableCell className="text-end">{getInterestTypeLabel(lead.interestType || "")}</TableCell>
-                          <TableCell className="text-end">{formatBudgetRange(lead.budgetRange)}</TableCell>
-                          <TableCell className="text-end">
-                            <Badge variant={getLeadStatusVariant(lead.status)}>
-                              {getStatusLabel(lead.status)}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-end">{formatAdminDate(lead.createdAt)}</TableCell>
-                          <TableCell className="text-end">
-                            <div className="flex items-center justify-end gap-1">
-                              <Button variant="ghost" size="icon" title={t("contacts.call") || "اتصال"}>
-                                <Phone size={16} />
-                              </Button>
-                              <Button variant="ghost" size="icon" title={t("contacts.edit") || "تعديل"}>
-                                <Edit size={16} />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleAdvancedDelete(lead)}
-                                title={t("contacts.delete") || "حذف"}
-                              >
-                                <Trash2 size={16} />
-                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
