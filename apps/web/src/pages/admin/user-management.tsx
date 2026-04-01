@@ -45,9 +45,9 @@ import {
   AdminTable,
   AdminExport,
   AdminBulkActions,
-  AdminLoading,
   type AdminTableColumn,
 } from "@/components/admin";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 import {
   useAdminUsers,
   useAdminRoles,
@@ -390,7 +390,11 @@ export default function UserManagement() {
   ).size;
 
   if (isLoadingUsers) {
-    return <AdminLoading fullScreen text="جار تحميل بيانات المستخدمين..." />;
+    return (
+      <div className={PAGE_WRAPPER}>
+        <AdminPageSkeleton />
+      </div>
+    );
   }
 
   if (isUsersError) {

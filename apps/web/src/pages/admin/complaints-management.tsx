@@ -19,6 +19,7 @@ import {
     Timer
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 import { Input } from "@/components/ui/input";
 import {
     Table,
@@ -116,7 +117,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
     const { data: tickets, isLoading, error } = useSupportTickets();
     const updateStatusMutation = useUpdateTicketStatus();
 
-    if (isLoading) return <div className="flex justify-center p-20"><Spinner size="xl" className="text-primary" /></div>;
+    if (isLoading) return <AdminPageSkeleton />;
     if (error) return <div className="p-6 text-center text-destructive font-bold">فشل تحميل التذاكر</div>;
 
     const filteredData = (tickets || []).filter((item) => {
@@ -226,7 +227,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
 function CategoriesTab() {
     const { data: categories, isLoading } = useSupportCategories();
 
-    if (isLoading) return <div className="flex justify-center p-20"><Spinner size="xl" className="text-primary" /></div>;
+    if (isLoading) return <AdminPageSkeleton />;
 
     return (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -288,7 +289,7 @@ function CategoriesTab() {
 function TemplatesTab() {
     const { data: templates, isLoading } = useSupportTemplates();
 
-    if (isLoading) return <div className="flex justify-center p-20"><Spinner size="xl" className="text-primary" /></div>;
+    if (isLoading) return <AdminPageSkeleton />;
 
     return (
         <div className="space-y-6">

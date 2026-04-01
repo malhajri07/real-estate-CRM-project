@@ -25,6 +25,7 @@ import {
     Plus
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 import {
     useAdminBillingAnalytics,
     useAdminSubscriptions,
@@ -39,12 +40,7 @@ function OverviewTab() {
     const { data, isLoading, error } = useAdminBillingAnalytics();
 
     if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center p-20 space-y-4">
-                <Spinner size="xl" className="text-primary" />
-                <p className="text-muted-foreground font-bold animate-pulse">جاري تحليل البيانات المالية...</p>
-            </div>
-        );
+        return <AdminPageSkeleton />;
     }
 
     if (error) {
@@ -273,7 +269,7 @@ function ActiveSubscriptionsTab() {
     ];
 
     if (isLoading) {
-        return <div className="flex justify-center p-20"><Spinner size="xl" className="text-primary" /></div>;
+        return <AdminPageSkeleton />;
     }
 
     if (error) {
@@ -366,7 +362,7 @@ function PlansTab() {
     const { data: plans, isLoading, error } = useAdminPlans();
 
     if (isLoading) {
-        return <div className="flex justify-center p-20"><Spinner size="xl" className="text-primary" /></div>;
+        return <AdminPageSkeleton />;
     }
 
     if (error) {

@@ -63,6 +63,7 @@ import {
   AdminSheetFooter,
 } from "@/components/admin";
 import { Spinner } from "@/components/ui/spinner";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit, Trash2, Eye, Search, Image as ImageIcon, CheckSquare, Square, MoreVertical, History, RotateCcw } from "lucide-react";
@@ -376,6 +377,14 @@ export default function ArticlesManagement() {
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <AdminPageSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className={PAGE_WRAPPER}>
       <PageSectionHeader
@@ -419,9 +428,7 @@ export default function ArticlesManagement() {
               </Select>
             </div>
 
-            {isLoading ? (
-              <div className="text-center py-8">جار التحميل...</div>
-            ) : error ? (
+            {error ? (
               <div className="text-center py-8 text-destructive">
                 <div>حدث خطأ في تحميل المقالات</div>
                 <div className="text-sm mt-2 text-muted-foreground">

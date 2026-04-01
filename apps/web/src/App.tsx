@@ -145,8 +145,10 @@ function Router() {
   const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN); // Helper flag to distinguish admin flow from standard platform users.
 
   const fullScreenSuspenseFallback = (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30">
-      <div className="text-sm text-muted-foreground">جار التحميل...</div>
+    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        <DashboardSkeleton />
+      </div>
     </div>
   );
 

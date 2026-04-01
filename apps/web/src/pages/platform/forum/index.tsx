@@ -30,8 +30,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import EmptyState from "@/components/ui/empty-state";
+import { ForumSkeleton } from "@/components/skeletons/page-skeletons";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -455,11 +455,7 @@ export default function ForumPage() {
           </Card>
 
           {isLoading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-40 w-full rounded-2xl" />
-              ))}
-            </div>
+            <ForumSkeleton />
           ) : posts.length === 0 ? (
             <EmptyState
               title={t("forum.no_posts")}

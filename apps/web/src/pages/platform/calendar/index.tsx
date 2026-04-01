@@ -16,8 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Skeleton } from "@/components/ui/skeleton";
 import EmptyState from "@/components/ui/empty-state";
+import { CalendarSkeleton } from "@/components/skeletons/page-skeletons";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { useToast } from "@/hooks/use-toast";
@@ -225,11 +225,7 @@ export default function AppointmentsManager() {
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
-                        <div className="space-y-4">
-                            {Array.from({ length: 3 }).map((_, i) => (
-                                <Skeleton key={i} className="h-24 w-full rounded-2xl" />
-                            ))}
-                        </div>
+                        <CalendarSkeleton />
                     ) : appointments && appointments.length > 0 ? (
                         <div className="space-y-4">
                             {appointments.map((appointment) => (

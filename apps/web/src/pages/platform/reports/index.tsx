@@ -21,8 +21,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
 import { CHART_COLOR_ARRAY } from "@/config/design-tokens";
 import type { Lead, Property, Deal } from "@shared/types";
-import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/ui/page-header";
+import { ReportsSkeleton } from "@/components/skeletons/page-skeletons";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { formatAdminDate } from "@/lib/formatters";
 
@@ -313,10 +313,7 @@ export default function Reports() {
       </PageHeader>
 
       {isInitialLoading && (
-        <div className="flex flex-1 flex-col items-center justify-center gap-4 mb-6 min-h-[400px]" dir={dir}>
-          <Skeleton className="h-10 w-10 rounded-full" />
-          <Skeleton className="h-4 w-48" />
-        </div>
+        <ReportsSkeleton />
       )}
 
       {hasAnyError && (

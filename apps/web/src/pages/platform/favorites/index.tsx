@@ -19,8 +19,8 @@ import { useQuery } from "@tanstack/react-query";
 import type { Property } from "@shared/types";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
-import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/ui/page-header";
+import { FavoritesSkeleton } from "@/components/skeletons/page-skeletons";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import EmptyState from "@/components/ui/empty-state";
 import ListingCard from "@/components/listings/ListingCard";
@@ -34,11 +34,7 @@ export default function FavoritesPage() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-64 w-full rounded-2xl" />
-          ))}
-        </div>
+        <FavoritesSkeleton />
       </div>
     );
   }

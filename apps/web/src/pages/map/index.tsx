@@ -26,6 +26,7 @@ import { motion } from "framer-motion";
 
 import PublicHeader from "@/components/layout/PublicHeader";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MapSkeleton } from "@/components/skeletons/page-skeletons";
 import { Button } from "@/components/ui/button";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import {
@@ -464,12 +465,14 @@ export default function MapPage() {
 
                 <div className="p-6 md:p-8 pt-0">
                   {listingsQuery.isLoading ? (
-                    <div className="space-y-4">
-                      <Skeleton className="h-12 w-full" />
-                      <Skeleton className="h-24 w-full" />
-                      <Skeleton className="h-24 w-full" />
-                      <Skeleton className="h-24 w-full" />
-                      <Skeleton className="h-24 w-3/4" />
+                    <div className="space-y-4 animate-pulse">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="p-4 border-b border-border space-y-2">
+                          <Skeleton className="h-28 w-full rounded-xl" />
+                          <Skeleton className="h-4 w-32 rounded-lg" />
+                          <Skeleton className="h-3 w-24 rounded-lg" />
+                        </div>
+                      ))}
                     </div>
                   ) : listingsQuery.isError ? (
                     <QueryErrorFallback
@@ -578,9 +581,11 @@ export default function MapPage() {
                 </div>
                 <div className="h-[600px] w-full bg-[rgb(245,245,247)] relative">
                   {listingsQuery.isLoading ? (
-                    <div className="absolute inset-0 flex flex-col gap-4 p-8">
-                      <Skeleton className="h-8 w-48" />
-                      <Skeleton className="h-[500px] w-full" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted/30 animate-pulse">
+                      <div className="text-center space-y-3">
+                        <Skeleton className="h-12 w-12 rounded-full mx-auto" />
+                        <Skeleton className="h-4 w-32 rounded-lg mx-auto" />
+                      </div>
                     </div>
                   ) : listingsQuery.isError ? (
                     <div className="absolute inset-0 flex items-center justify-center p-8">

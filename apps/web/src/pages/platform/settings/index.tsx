@@ -22,6 +22,7 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/component
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import PageHeader from "@/components/ui/page-header";
+import { SettingsSkeleton } from "@/components/skeletons/page-skeletons";
 import { apiGet, apiPut } from "@/lib/apiClient";
 
 import ProfileSection from "./ProfileSection";
@@ -84,6 +85,7 @@ export default function Settings() {
   const [securityOpen, setSecurityOpen] = useState(true);
   const [notificationsOpen, setNotificationsOpen] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
 
   // Load user profile and organization data from API on mount
   useEffect(() => {
@@ -124,6 +126,8 @@ export default function Settings() {
         }
       } catch {
         // Silently fall back to empty profile — user can fill in manually
+      } finally {
+        setPageLoading(false);
       }
     })();
   }, []);
@@ -162,6 +166,14 @@ export default function Settings() {
       setProfileLoading(false);
     }
   };
+
+  if (pageLoading) {
+    return (
+      <div className={PAGE_WRAPPER} dir={dir}>
+        <SettingsSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER} dir={dir}>

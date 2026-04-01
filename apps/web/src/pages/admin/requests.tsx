@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { formatAdminDate } from "@/lib/formatters";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { DELETE_BUTTON_STYLES } from "@/config/design-tokens";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 import { Badge } from "@/components/ui/badge";
 import { Search, Download, RefreshCw } from "lucide-react";
 
@@ -105,6 +106,14 @@ export default function AdminRequestsPage() {
   const onExport = () => {
     window.open('/api/requests/export', '_blank');
   };
+
+  if (loading) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <AdminPageSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>

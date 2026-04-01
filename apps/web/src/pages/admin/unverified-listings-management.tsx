@@ -27,8 +27,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import EmptyState from "@/components/ui/empty-state";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 import {
   AdminSheet,
   AdminSheetContent,
@@ -202,17 +202,7 @@ export default function UnverifiedListingsManagement() {
         />
 
         {isLoading ? (
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <Skeleton className="h-8 w-1/3" />
-              <Skeleton className="h-4 w-1/2" />
-              <div className="space-y-4">
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-              </div>
-            </CardContent>
-          </Card>
+          <AdminPageSkeleton />
         ) : !listings || listings.length === 0 ? (
           <EmptyState
             title={`لا توجد إعلانات${statusFilter ? ` بحالة ${statusFilter}` : ""}`}

@@ -22,8 +22,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ClientDetailSkeleton } from "@/components/skeletons/page-skeletons";
 import { PAGE_WRAPPER, GRID_THREE_COL, TYPOGRAPHY } from "@/config/platform-theme";
 import type { Lead, Activity } from "@shared/types";
 import { cn } from "@/lib/utils";
@@ -99,13 +99,7 @@ export default function Clients() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="w-full max-w-md space-y-4">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-8 w-1/2" />
-          </div>
-        </div>
+        <ClientDetailSkeleton />
       </div>
     );
   }

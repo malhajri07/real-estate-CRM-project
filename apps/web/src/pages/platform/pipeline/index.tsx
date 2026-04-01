@@ -23,8 +23,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
 import EmptyState from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PipelineSkeleton } from "@/components/skeletons/page-skeletons";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { apiGet, apiPut } from "@/lib/apiClient";
@@ -243,17 +244,7 @@ export default function Pipeline() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="space-y-4 w-full max-w-md">
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-4 w-full" />
-            <div className="grid grid-cols-5 gap-4 mt-8">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-64 w-full" />
-              ))}
-            </div>
-          </div>
-        </div>
+        <PipelineSkeleton />
       </div>
     );
   }

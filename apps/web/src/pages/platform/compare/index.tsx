@@ -19,8 +19,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/ui/page-header";
+import { CompareSkeleton } from "@/components/skeletons/page-skeletons";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import EmptyState from "@/components/ui/empty-state";
 
@@ -78,11 +78,7 @@ export default function ComparePage() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className={GRID_METRICS}>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-48 w-full rounded-2xl" />
-          ))}
-        </div>
+        <CompareSkeleton />
       </div>
     );
   }

@@ -27,8 +27,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { NotificationsSkeleton } from "@/components/skeletons/page-skeletons";
 import { apiPost } from "@/lib/apiClient";
 import type { Lead } from "@shared/types";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
@@ -156,13 +156,7 @@ export default function Notifications() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className="flex items-center justify-center min-h-[200px]">
-          <div className="w-full max-w-md space-y-4">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-8 w-1/2" />
-          </div>
-        </div>
+        <NotificationsSkeleton />
       </div>
     );
   }

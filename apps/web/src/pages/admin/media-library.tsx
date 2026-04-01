@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/select";
 import { Upload, Trash2, Search, Grid, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 
@@ -150,6 +151,14 @@ export default function MediaLibrary() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
+  if (isLoading) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <AdminPageSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className={PAGE_WRAPPER}>
       <PageSectionHeader
@@ -219,9 +228,7 @@ export default function MediaLibrary() {
               </Select>
             </div>
 
-            {isLoading ? (
-              <div className="text-center py-8">جار التحميل...</div>
-            ) : error ? (
+            {error ? (
               <div className="text-center py-8 text-destructive">
                 حدث خطأ في تحميل الملفات
               </div>

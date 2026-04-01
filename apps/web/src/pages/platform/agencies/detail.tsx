@@ -21,8 +21,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER, TYPOGRAPHY } from "@/config/platform-theme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/ui/page-header";
+import { ClientDetailSkeleton } from "@/components/skeletons/page-skeletons";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import EmptyState from "@/components/ui/empty-state";
 import { Users, Building } from "lucide-react";
@@ -35,9 +35,7 @@ export default function AgencyPage() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Skeleton className="h-4 w-48" />
-        </div>
+        <ClientDetailSkeleton />
       </div>
     );
   }

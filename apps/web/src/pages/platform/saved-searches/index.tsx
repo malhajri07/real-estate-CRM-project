@@ -21,10 +21,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import EmptyState from '@/components/ui/empty-state';
 import PageHeader from '@/components/ui/page-header';
+import { SavedSearchesSkeleton } from '@/components/skeletons/page-skeletons';
 import { QueryErrorFallback } from '@/components/ui/query-error-fallback';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -175,11 +175,7 @@ export default function SavedSearchesPage() {
         </Sheet>
 
         {isLoading ? (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full rounded-2xl" />
-            ))}
-          </div>
+          <SavedSearchesSkeleton />
         ) : (
           <div className="space-y-4">
             {data.map((s: any) => (

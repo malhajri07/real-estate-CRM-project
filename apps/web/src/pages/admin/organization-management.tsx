@@ -20,6 +20,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 import {
   useAdminOrganizations,
   useCreateAdminOrganization,
@@ -151,9 +152,8 @@ export default function OrganizationManagement() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[50vh] items-center justify-center">
-        <Spinner size="lg" className="text-primary" />
-        <span className="me-2 text-lg text-muted-foreground">جاري تحميل المنظمات...</span>
+      <div className={PAGE_WRAPPER}>
+        <AdminPageSkeleton />
       </div>
     );
   }
