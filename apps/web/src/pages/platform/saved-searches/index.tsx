@@ -51,6 +51,8 @@ export default function SavedSearchesPage() {
   const showSkeleton = useMinLoadTime();
   const qc = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
 
@@ -215,7 +217,7 @@ export default function SavedSearchesPage() {
                         الأنواع: {(s.propertyTypes||[]).join(', ') || 'الكل'}
                       </div>
                     </div>
-                    <Button variant="outline" onClick={() => del.mutate(s.id)}>
+                    <Button variant="outline" onClick={() => { setDeleteTargetId(s.id); setDeleteConfirmOpen(true); }}>
                       حذف
                     </Button>
                   </div>
@@ -231,6 +233,36 @@ export default function SavedSearchesPage() {
           </div>
         )}
       </section>
+
+      {/* Delete Confirmation Sheet */}
+      <Sheet open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <SheetContent side="bottom">
+          <SheetHeader>
+            <SheetTitle>تأكيد حذف البحث المحفوظ</SheetTitle>
+            <SheetDescription>
+              هل أنت متأكد من حذف هذا البحث المحفوظ؟ لا يمكن التراجع عن هذا الإجراء.
+            </SheetDescription>
+          </SheetHeader>
+          <SheetFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" className="flex-1" onClick={() => setDeleteConfirmOpen(false)}>
+              إلغاء
+            </Button>
+            <Button
+              className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={del.isPending}
+              onClick={() => {
+                if (deleteTargetId) {
+                  del.mutate(deleteTargetId);
+                  setDeleteConfirmOpen(false);
+                  setDeleteTargetId(null);
+                }
+              }}
+            >
+              {del.isPending ? "جاري الحذف..." : "تأكيد الحذف"}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

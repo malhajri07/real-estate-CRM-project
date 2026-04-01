@@ -28,7 +28,7 @@ import { apiGet, apiPut } from "@/lib/apiClient";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 import ProfileSection from "./ProfileSection";
-import type { UserProfile, ProfileFormValues } from "./ProfileSection";
+import type { UserProfile } from "./ProfileSection";
 import AccountSection from "./AccountSection";
 import PreferencesSection from "./PreferencesSection";
 
@@ -87,7 +87,6 @@ export default function Settings() {
   const [profileOpen, setProfileOpen] = useState(true);
   const [securityOpen, setSecurityOpen] = useState(true);
   const [notificationsOpen, setNotificationsOpen] = useState(true);
-  const [profileLoading, setProfileLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
 
   // Load user profile and organization data from API on mount
@@ -143,37 +142,7 @@ export default function Settings() {
     });
   };
 
-  const handleProfileSave = async (values: ProfileFormValues) => {
-    setProfileLoading(true);
-    try {
-      await apiPut("/api/auth/user", {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        phone: values.phone,
-        jobTitle: values.title,
-        department: values.department,
-      });
-      // Keep parent state in sync after save
-      setUserProfile((prev) => ({
-        ...prev,
-        ...values,
-      }));
-      toast({
-        title: "تم الحفظ بنجاح",
-        description: "تم تحديث الملف الشخصي بنجاح",
-        variant: "default",
-      });
-    } catch {
-      toast({
-        title: "خطأ",
-        description: "فشل تحديث الملف الشخصي",
-        variant: "destructive",
-      });
-    } finally {
-      setProfileLoading(false);
-    }
-  };
+  // handleProfileSave is now inlined on the ProfileSection component (see JSX below)
 
   if (pageLoading || showSkeleton) {
     return (

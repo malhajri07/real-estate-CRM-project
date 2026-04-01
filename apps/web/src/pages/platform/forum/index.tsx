@@ -10,9 +10,12 @@
  */
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search,
   PenLine,
   Heart,
   MessageCircle,
@@ -103,6 +106,24 @@ const POST_TYPES = [
   { value: "ALERT", key: "forum.post_type.alert" },
 ];
 
+// --- Zod Schemas ---
+
+const createPostSchema = z.object({
+  content: z.string().min(1, "المحتوى مطلوب"),
+  type: z.string().min(1),
+  channelId: z.string().optional(),
+});
+
+type CreatePostFormValues = z.infer<typeof createPostSchema>;
+
+const createChannelSchema = z.object({
+  nameAr: z.string().min(1, "اسم القناة بالعربية مطلوب"),
+  nameEn: z.string().optional(),
+  description: z.string().optional(),
+});
+
+type CreateChannelFormValues = z.infer<typeof createChannelSchema>;
+
 function parseTags(tags: string[] | string | null): string[] {
   if (Array.isArray(tags)) return tags;
   if (typeof tags === "string") {
@@ -137,14 +158,28 @@ export default function ForumPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isChannelOpen, setIsChannelOpen] = useState(false);
   const [selectedChannelId, setSelectedChannelId] = useState<string | "all">("all");
-  const [newPostContent, setNewPostContent] = useState("");
-  const [newPostType, setNewPostType] = useState("DISCUSSION");
-  const [newPostChannelId, setNewPostChannelId] = useState<string>("");
   const [mediaUrls, setMediaUrls] = useState<{ url: string; type: "IMAGE" | "VIDEO" }[]>([]);
   const [newMediaUrl, setNewMediaUrl] = useState("");
-  const [newChannelNameAr, setNewChannelNameAr] = useState("");
-  const [newChannelNameEn, setNewChannelNameEn] = useState("");
-  const [newChannelDescription, setNewChannelDescription] = useState("");
+
+  // --- Post Form (shared between compose box and sheet) ---
+  const postForm = useForm<CreatePostFormValues>({
+    resolver: zodResolver(createPostSchema),
+    defaultValues: {
+      content: "",
+      type: "DISCUSSION",
+      channelId: "",
+    },
+  });
+
+  // --- Channel Form ---
+  const channelForm = useForm<CreateChannelFormValues>({
+    resolver: zodResolver(createChannelSchema),
+    defaultValues: {
+      nameAr: "",
+      nameEn: "",
+      description: "",
+    },
+  });
 
   const { data: channelsData } = useQuery({
     queryKey: ["/api/community/channels"],
@@ -166,20 +201,18 @@ export default function ForumPage() {
   });
 
   const createPostMutation = useMutation({
-    mutationFn: async () =>
+    mutationFn: async (values: CreatePostFormValues) =>
       apiPost("api/community/post", {
-        content: newPostContent,
-        type: newPostType,
-        channelId: newPostChannelId || undefined,
+        content: values.content,
+        type: values.type,
+        channelId: values.channelId || undefined,
         media: mediaUrls.length
           ? mediaUrls.map((m, i) => ({ url: m.url, type: m.type, order: i }))
           : undefined,
       }),
     onSuccess: () => {
       toast.success(t("forum.post_success"));
-      setNewPostContent("");
-      setNewPostType("DISCUSSION");
-      setNewPostChannelId("");
+      postForm.reset();
       setMediaUrls([]);
       setIsCreateOpen(false);
       queryClient.invalidateQueries({ queryKey: ["/api/community/feed"] });
@@ -191,17 +224,15 @@ export default function ForumPage() {
   });
 
   const createChannelMutation = useMutation({
-    mutationFn: async () =>
+    mutationFn: async (values: CreateChannelFormValues) =>
       apiPost("api/community/channels", {
-        nameAr: newChannelNameAr,
-        nameEn: newChannelNameEn || undefined,
-        description: newChannelDescription || undefined,
+        nameAr: values.nameAr,
+        nameEn: values.nameEn || undefined,
+        description: values.description || undefined,
       }),
     onSuccess: () => {
       toast.success(t("forum.channel_success"));
-      setNewChannelNameAr("");
-      setNewChannelNameEn("");
-      setNewChannelDescription("");
+      channelForm.reset();
       setIsChannelOpen(false);
       queryClient.invalidateQueries({ queryKey: ["/api/community/channels"] });
     },
@@ -209,6 +240,14 @@ export default function ForumPage() {
       toast.error(t("forum.channel_error"));
     },
   });
+
+  const handlePostSubmit = (values: CreatePostFormValues) => {
+    createPostMutation.mutate(values);
+  };
+
+  const handleChannelSubmit = (values: CreateChannelFormValues) => {
+    createChannelMutation.mutate(values);
+  };
 
   const addMedia = () => {
     if (!newMediaUrl.trim()) return;
@@ -247,157 +286,211 @@ export default function ForumPage() {
           </Button>
         </div>
 
-        {/* ── Bottom Drawer: Create Channel ── */}
+        {/* -- Bottom Drawer: Create Channel -- */}
         <Sheet open={isChannelOpen} onOpenChange={setIsChannelOpen}>
           <SheetContent side="bottom" dir={dir}>
             <SheetHeader>
               <SheetTitle>{t("forum.create_channel")}</SheetTitle>
               <SheetDescription>{t("forum.channel_description") || "إنشاء قناة جديدة في المنتدى"}</SheetDescription>
             </SheetHeader>
-            <div className="space-y-4 py-4 max-w-lg mx-auto">
-              <div className="space-y-2">
-                <Label>{t("forum.channel_name_ar")}</Label>
-                <Input
-                  value={newChannelNameAr}
-                  onChange={(e) => setNewChannelNameAr(e.target.value)}
-                  placeholder="مثال: أخبار السوق"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>{t("forum.channel_name_en")}</Label>
-                <Input
-                  value={newChannelNameEn}
-                  onChange={(e) => setNewChannelNameEn(e.target.value)}
-                  placeholder="مثال: Market News"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>{t("forum.channel_description")}</Label>
-                <Textarea
-                  value={newChannelDescription}
-                  onChange={(e) => setNewChannelDescription(e.target.value)}
-                  placeholder={t("forum.channel_description")}
-                  rows={2}
-                />
-              </div>
-            </div>
-            <SheetFooter className="max-w-lg mx-auto">
-              <Button variant="outline" onClick={() => setIsChannelOpen(false)}>
-                {t("forum.cancel")}
-              </Button>
-              <Button
-                onClick={() => createChannelMutation.mutate()}
-                disabled={createChannelMutation.isPending || !newChannelNameAr.trim()}
-              >
-                {createChannelMutation.isPending ? "..." : t("forum.create_channel")}
-              </Button>
-            </SheetFooter>
+            <Form {...channelForm}>
+              <form onSubmit={channelForm.handleSubmit(handleChannelSubmit)}>
+                <div className="space-y-4 py-4 max-w-lg mx-auto">
+                  <FormField
+                    control={channelForm.control}
+                    name="nameAr"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("forum.channel_name_ar")}</FormLabel>
+                        <FormControl>
+                          <Input placeholder="مثال: أخبار السوق" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={channelForm.control}
+                    name="nameEn"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("forum.channel_name_en")}</FormLabel>
+                        <FormControl>
+                          <Input placeholder="مثال: Market News" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={channelForm.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("forum.channel_description")}</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder={t("forum.channel_description")}
+                            rows={2}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <SheetFooter className="max-w-lg mx-auto">
+                  <Button type="button" variant="outline" onClick={() => setIsChannelOpen(false)}>
+                    {t("forum.cancel")}
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={createChannelMutation.isPending}
+                  >
+                    {createChannelMutation.isPending ? "..." : t("forum.create_channel")}
+                  </Button>
+                </SheetFooter>
+              </form>
+            </Form>
           </SheetContent>
         </Sheet>
 
-        {/* ── Bottom Drawer: Create Post ── */}
+        {/* -- Bottom Drawer: Create Post -- */}
         <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <SheetContent side="bottom" dir={dir}>
             <SheetHeader>
               <SheetTitle>{t("forum.start_discussion")}</SheetTitle>
               <SheetDescription>{t("forum.placeholder") || "ابدأ نقاشاً جديداً"}</SheetDescription>
             </SheetHeader>
-            <div className="space-y-4 py-4 max-w-lg mx-auto">
-              <div className="space-y-2">
-                <Label>{t("forum.post_type.discussion")}</Label>
-                <Select value={newPostType} onValueChange={setNewPostType}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {POST_TYPES.map((pt) => (
-                      <SelectItem key={pt.value} value={pt.value}>
-                        {t(pt.key)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {channels.length > 0 && (
-                <div className="space-y-2">
-                  <Label>{t("forum.channels")}</Label>
-                  <Select
-                    value={newPostChannelId || "none"}
-                    onValueChange={(v) => setNewPostChannelId(v === "none" ? "" : v)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("forum.all_channels")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">{t("forum.all_channels")}</SelectItem>
-                      {channels.map((ch) => (
-                        <SelectItem key={ch.id} value={ch.id}>
-                          {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label>{t("forum.placeholder")}</Label>
-                <Textarea
-                  placeholder={t("forum.placeholder")}
-                  className="min-h-[120px] resize-none"
-                  value={newPostContent}
-                  onChange={(e) => setNewPostContent(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>{t("forum.media_url_placeholder")}</Label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="https://..."
-                    value={newMediaUrl}
-                    onChange={(e) => setNewMediaUrl(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addMedia())}
+            <Form {...postForm}>
+              <form onSubmit={postForm.handleSubmit(handlePostSubmit)}>
+                <div className="space-y-4 py-4 max-w-lg mx-auto">
+                  <FormField
+                    control={postForm.control}
+                    name="type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("forum.post_type.discussion")}</FormLabel>
+                        <FormControl>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {POST_TYPES.map((pt) => (
+                                <SelectItem key={pt.value} value={pt.value}>
+                                  {t(pt.key)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <Button type="button" variant="outline" size="icon" onClick={addMedia}>
-                    <ImageIcon className="h-4 w-4" />
-                  </Button>
-                </div>
-                {mediaUrls.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {mediaUrls.map((m, i) => (
-                      <div
-                        key={i}
-                        className="relative inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs"
-                      >
-                        {m.type === "IMAGE" ? (
-                          <ImageIcon className="h-3 w-3" />
-                        ) : (
-                          <Video className="h-3 w-3" />
-                        )}
-                        <span className="max-w-[120px] truncate">{m.url}</span>
-                        <button
-                          type="button"
-                          onClick={() => removeMedia(i)}
-                          className="rounded p-0.5 hover:bg-muted"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
+                  {channels.length > 0 && (
+                    <FormField
+                      control={postForm.control}
+                      name="channelId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("forum.channels")}</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value || "none"}
+                              onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder={t("forum.all_channels")} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">{t("forum.all_channels")}</SelectItem>
+                                {channels.map((ch) => (
+                                  <SelectItem key={ch.id} value={ch.id}>
+                                    {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                  <FormField
+                    control={postForm.control}
+                    name="content"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("forum.placeholder")}</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder={t("forum.placeholder")}
+                            className="min-h-[120px] resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="space-y-2">
+                    <Label>{t("forum.media_url_placeholder")}</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://..."
+                        value={newMediaUrl}
+                        onChange={(e) => setNewMediaUrl(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addMedia())}
+                      />
+                      <Button type="button" variant="outline" size="icon" onClick={addMedia}>
+                        <ImageIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {mediaUrls.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {mediaUrls.map((m, i) => (
+                          <div
+                            key={i}
+                            className="relative inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs"
+                          >
+                            {m.type === "IMAGE" ? (
+                              <ImageIcon className="h-3 w-3" />
+                            ) : (
+                              <Video className="h-3 w-3" />
+                            )}
+                            <span className="max-w-[120px] truncate">{m.url}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 rounded"
+                              onClick={() => removeMedia(i)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
-            <SheetFooter className="max-w-lg mx-auto">
-              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-                {t("forum.cancel")}
-              </Button>
-              <Button
-                onClick={() => createPostMutation.mutate()}
-                disabled={createPostMutation.isPending || !newPostContent.trim()}
-              >
-                {createPostMutation.isPending ? t("forum.posting") : t("forum.post")}
-              </Button>
-            </SheetFooter>
+                </div>
+                <SheetFooter className="max-w-lg mx-auto">
+                  <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
+                    {t("forum.cancel")}
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={createPostMutation.isPending}
+                  >
+                    {createPostMutation.isPending ? t("forum.posting") : t("forum.post")}
+                  </Button>
+                </SheetFooter>
+              </form>
+            </Form>
           </SheetContent>
         </Sheet>
       </div>
@@ -448,87 +541,114 @@ export default function ForumPage() {
 
         {/* Feed */}
         <div className="lg:col-span-2 space-y-6">
-          {/* ── Twitter-style Compose Box ── */}
+          {/* -- Twitter-style Compose Box -- */}
           <Card className="p-4">
-            <div className="flex gap-3">
-              <Avatar className="h-10 w-10 shrink-0">
-                <AvatarFallback className="bg-primary/10"><User className="h-5 w-5 text-primary" /></AvatarFallback>
-              </Avatar>
-              <div className="flex-1 space-y-3">
-                <Textarea
-                  placeholder={t("forum.placeholder") || "ماذا يحدث في السوق العقاري؟"}
-                  className="min-h-[80px] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 text-base p-0"
-                  value={newPostContent}
-                  onChange={(e) => setNewPostContent(e.target.value)}
-                />
-                {/* Media previews */}
-                {mediaUrls.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {mediaUrls.map((m, i) => (
-                      <div key={i} className="relative inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs bg-muted/50">
-                        {m.type === "IMAGE" ? <ImageIcon className="h-3 w-3" /> : <Video className="h-3 w-3" />}
-                        <span className="max-w-[100px] truncate">{m.url}</span>
-                        <button type="button" onClick={() => removeMedia(i)} className="rounded p-0.5 hover:bg-muted"><X className="h-3 w-3" /></button>
+            <Form {...postForm}>
+              <form onSubmit={postForm.handleSubmit(handlePostSubmit)}>
+                <div className="flex gap-3">
+                  <Avatar className="h-10 w-10 shrink-0">
+                    <AvatarFallback className="bg-primary/10"><User className="h-5 w-5 text-primary" /></AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-3">
+                    <FormField
+                      control={postForm.control}
+                      name="content"
+                      render={({ field }) => (
+                        <FormItem className="space-y-0">
+                          <FormControl>
+                            <Textarea
+                              placeholder={t("forum.placeholder") || "ماذا يحدث في السوق العقاري؟"}
+                              className="min-h-[80px] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 text-base p-0"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* Media previews */}
+                    {mediaUrls.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {mediaUrls.map((m, i) => (
+                          <div key={i} className="relative inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs bg-muted/50">
+                            {m.type === "IMAGE" ? <ImageIcon className="h-3 w-3" /> : <Video className="h-3 w-3" />}
+                            <span className="max-w-[100px] truncate">{m.url}</span>
+                            <Button type="button" variant="ghost" size="sm" className="h-6 w-6 p-0 rounded" onClick={() => removeMedia(i)}><X className="h-3 w-3" /></Button>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
+                    <div className="flex items-center justify-between border-t pt-3">
+                      <div className="flex items-center gap-1">
+                        {/* Channel selector */}
+                        <FormField
+                          control={postForm.control}
+                          name="channelId"
+                          render={({ field }) => (
+                            <Select value={field.value || "none"} onValueChange={(v) => field.onChange(v === "none" ? "" : v)}>
+                              <SelectTrigger className="h-8 w-auto border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-primary hover:bg-primary/5 rounded-full px-3">
+                                <TrendingUp className="h-3.5 w-3.5" />
+                                <SelectValue placeholder={t("forum.all_channels") || "جميع القنوات"} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">{t("forum.all_channels") || "جميع القنوات"}</SelectItem>
+                                {channels.map((ch) => (
+                                  <SelectItem key={ch.id} value={ch.id}>
+                                    {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                        {/* Post type */}
+                        <FormField
+                          control={postForm.control}
+                          name="type"
+                          render={({ field }) => (
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger className="h-8 w-auto border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-muted-foreground hover:bg-muted/50 rounded-full px-3">
+                                <Award className="h-3.5 w-3.5" />
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {POST_TYPES.map((pt) => (
+                                  <SelectItem key={pt.value} value={pt.value}>{t(pt.key)}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                        {/* Media button */}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5"
+                          onClick={() => {
+                            const url = prompt(t("forum.media_url_placeholder") || "أدخل رابط الصورة أو الفيديو");
+                            if (url?.trim()) {
+                              const type = isVideoUrl(url) ? "VIDEO" : "IMAGE";
+                              setMediaUrls((prev) => [...prev, { url: url.trim(), type }]);
+                            }
+                          }}
+                        >
+                          <ImageIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <Button
+                        type="submit"
+                        size="sm"
+                        className="rounded-full px-6 font-bold"
+                        disabled={createPostMutation.isPending || !postForm.watch("content")?.trim()}
+                      >
+                        {createPostMutation.isPending ? "..." : (t("forum.post") || "نشر")}
+                      </Button>
+                    </div>
                   </div>
-                )}
-                <div className="flex items-center justify-between border-t pt-3">
-                  <div className="flex items-center gap-1">
-                    {/* Channel selector */}
-                    <Select value={newPostChannelId || "none"} onValueChange={(v) => setNewPostChannelId(v === "none" ? "" : v)}>
-                      <SelectTrigger className="h-8 w-auto border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-primary hover:bg-primary/5 rounded-full px-3">
-                        <TrendingUp className="h-3.5 w-3.5" />
-                        <SelectValue placeholder={t("forum.all_channels") || "جميع القنوات"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">{t("forum.all_channels") || "جميع القنوات"}</SelectItem>
-                        {channels.map((ch) => (
-                          <SelectItem key={ch.id} value={ch.id}>
-                            {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {/* Post type */}
-                    <Select value={newPostType} onValueChange={setNewPostType}>
-                      <SelectTrigger className="h-8 w-auto border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-muted-foreground hover:bg-muted/50 rounded-full px-3">
-                        <Award className="h-3.5 w-3.5" />
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {POST_TYPES.map((pt) => (
-                          <SelectItem key={pt.value} value={pt.value}>{t(pt.key)}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {/* Media button */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5"
-                      onClick={() => {
-                        const url = prompt(t("forum.media_url_placeholder") || "أدخل رابط الصورة أو الفيديو");
-                        if (url?.trim()) {
-                          const type = isVideoUrl(url) ? "VIDEO" : "IMAGE";
-                          setMediaUrls((prev) => [...prev, { url: url.trim(), type }]);
-                        }
-                      }}
-                    >
-                      <ImageIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Button
-                    size="sm"
-                    className="rounded-full px-6 font-bold"
-                    onClick={() => createPostMutation.mutate()}
-                    disabled={createPostMutation.isPending || !newPostContent.trim()}
-                  >
-                    {createPostMutation.isPending ? "..." : (t("forum.post") || "نشر")}
-                  </Button>
                 </div>
-              </div>
-            </div>
+              </form>
+            </Form>
           </Card>
 
           {(isLoading || showSkeleton) ? (

@@ -18,6 +18,12 @@ import {
   SheetTitle, SheetDescription,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Pagination, PaginationContent, PaginationItem,
+  PaginationLink, PaginationNext, PaginationPrevious,
+} from "@/components/ui/pagination";
+import { Progress } from "@/components/ui/progress";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import PageHeader from "@/components/ui/page-header";
 import EmptyState from "@/components/ui/empty-state";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
@@ -341,9 +347,12 @@ export default function Contacts() {
 
       {csvProcessMutation.isPending && (
         <Alert className="mb-4">
-          <AlertDescription className="flex items-center gap-3">
-            <Spinner size="sm" className="me-2" />
-            {t("leads.csv_processing") || "جاري معالجة ملف CSV..."}
+          <AlertDescription className="space-y-2">
+            <div className="flex items-center gap-3">
+              <Spinner size="sm" className="me-2" />
+              {t("leads.csv_processing") || "جاري معالجة ملف CSV..."}
+            </div>
+            <Progress value={undefined} className="h-2" />
           </AlertDescription>
         </Alert>
       )}
@@ -431,7 +440,21 @@ export default function Contacts() {
                         </TableCell>
                         <TableCell>{lead.phone || "-"}</TableCell>
                         <TableCell>{lead.email || "-"}</TableCell>
-                        <TableCell className="font-bold">{lead.firstName} {lead.lastName}</TableCell>
+                        <TableCell>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <span className="font-bold cursor-pointer hover:underline">{lead.firstName} {lead.lastName}</span>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-64">
+                              <div className="space-y-2 text-sm">
+                                <p className="font-bold">{lead.firstName} {lead.lastName}</p>
+                                <p className="text-muted-foreground">{lead.phone || "لا يوجد هاتف"}</p>
+                                <p className="text-muted-foreground">{lead.email || "لا يوجد بريد"}</p>
+                                <p className="text-muted-foreground">{lead.city || "غير محدد"}</p>
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -628,11 +651,25 @@ export default function Contacts() {
                           <TableCell>{lead.age || "غير محدد"}</TableCell>
                           <TableCell>{lead.city || "غير محدد"}</TableCell>
                           <TableCell>
-                            <div className="font-bold">{lead.firstName} {lead.lastName}</div>
-                            <div className="mt-1 flex items-center gap-2 text-muted-foreground">
-                              <Phone size={12} />
-                              <span>{lead.phone}</span>
-                            </div>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <div className="cursor-pointer hover:underline">
+                                  <div className="font-bold">{lead.firstName} {lead.lastName}</div>
+                                  <div className="mt-1 flex items-center gap-2 text-muted-foreground">
+                                    <Phone size={12} />
+                                    <span>{lead.phone}</span>
+                                  </div>
+                                </div>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-64">
+                                <div className="space-y-2 text-sm">
+                                  <p className="font-bold">{lead.firstName} {lead.lastName}</p>
+                                  <p className="text-muted-foreground">{lead.phone || "لا يوجد هاتف"}</p>
+                                  <p className="text-muted-foreground">{lead.email || "لا يوجد بريد"}</p>
+                                  <p className="text-muted-foreground">{lead.city || "غير محدد"}</p>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -645,16 +682,14 @@ export default function Contacts() {
                       <div className="text-sm text-muted-foreground">
                         {t("contacts.showing") || "عرض"} {startIndex + 1} {t("contacts.to") || "إلى"} {Math.min(endIndex, totalItems)} {t("contacts.of") || "من"} {totalItems} {t("contacts.customer_count") || "عميل"}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handlePageChange(currentPage - 1)}
-                          disabled={currentPage === 1}
-                        >
-                          {t("contacts.previous") || "السابق"}
-                        </Button>
-                        <div className="flex items-center gap-1">
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious
+                              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                              className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                          </PaginationItem>
                           {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                             let pageNum;
                             if (totalPages <= 5) {
@@ -667,27 +702,25 @@ export default function Contacts() {
                               pageNum = currentPage - 2 + i;
                             }
                             return (
-                              <Button
-                                key={pageNum}
-                                variant={currentPage === pageNum ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => handlePageChange(pageNum)}
-                                className="w-8 h-8 p-0"
-                              >
-                                {pageNum}
-                              </Button>
+                              <PaginationItem key={pageNum}>
+                                <PaginationLink
+                                  isActive={pageNum === currentPage}
+                                  onClick={() => handlePageChange(pageNum)}
+                                  className="cursor-pointer"
+                                >
+                                  {pageNum}
+                                </PaginationLink>
+                              </PaginationItem>
                             );
                           })}
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handlePageChange(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                        >
-                          {t("contacts.next") || "التالي"}
-                        </Button>
-                      </div>
+                          <PaginationItem>
+                            <PaginationNext
+                              onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                              className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
                     </div>
                   )}
                 </>

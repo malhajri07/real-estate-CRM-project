@@ -7,14 +7,16 @@ import { DELETE_BUTTON_STYLES } from "@/config/design-tokens";
 import { getCalendarStatusVariant } from "@/lib/status-variants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, Clock, MapPin, CheckCircle, XCircle, Plus } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, MapPin, CheckCircle, XCircle, Plus, ChevronsUpDown, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetDescription,
 } from "@/components/ui/sheet";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import EmptyState from "@/components/ui/empty-state";
 import { CalendarSkeleton } from "@/components/skeletons/page-skeletons";
 import PageHeader from "@/components/ui/page-header";
@@ -23,6 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiPost, apiPut } from "@/lib/apiClient";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 import type { Lead } from "@shared/types";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { useForm } from "react-hook-form";
@@ -64,6 +67,10 @@ function AppointmentForm({
     isPending: boolean;
     onSubmit: (data: { customerId: string; scheduledAt: string; notes?: string }) => void;
 }) {
+    const [customerOpen, setCustomerOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+    const [timeValue, setTimeValue] = useState("");
+
     const form = useForm<AppointmentFormData>({
         resolver: zodResolver(appointmentSchema),
         defaultValues: {
@@ -73,59 +80,147 @@ function AppointmentForm({
         },
     });
 
+    const handleDateSelect = (date: Date | undefined) => {
+        setSelectedDate(date);
+        if (date) {
+            const [hours, minutes] = timeValue ? timeValue.split(":") : ["09", "00"];
+            const combined = new Date(date);
+            combined.setHours(parseInt(hours || "9"), parseInt(minutes || "0"));
+            form.setValue("scheduledAt", combined.toISOString(), { shouldValidate: true });
+        }
+    };
+
+    const handleTimeChange = (time: string) => {
+        setTimeValue(time);
+        if (selectedDate) {
+            const [hours, minutes] = time.split(":");
+            const combined = new Date(selectedDate);
+            combined.setHours(parseInt(hours || "9"), parseInt(minutes || "0"));
+            form.setValue("scheduledAt", combined.toISOString(), { shouldValidate: true });
+        }
+    };
+
+    const selectedLead = leads.find((l) => l.id === form.watch("customerId"));
+
     const handleSubmit = (data: AppointmentFormData) => {
         onSubmit({
             customerId: data.customerId,
-            scheduledAt: new Date(data.scheduledAt).toISOString(),
+            scheduledAt: data.scheduledAt,
             notes: data.notes || undefined,
         });
         form.reset();
+        setSelectedDate(undefined);
+        setTimeValue("");
     };
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4 max-w-lg mx-auto">
+                {/* Customer selection via searchable Command combobox */}
                 <FormField
                     control={form.control}
                     name="customerId"
                     render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-col">
                             <FormLabel>العميل</FormLabel>
-                            <Select value={field.value} onValueChange={field.onChange}>
-                                <FormControl>
-                                    <SelectTrigger data-testid="select-customer">
-                                        <SelectValue placeholder="اختر العميل..." />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent position="popper" sideOffset={4}>
-                                    {leads.length === 0 ? (
-                                        <SelectItem value="__empty" disabled>لا يوجد عملاء</SelectItem>
-                                    ) : (
-                                        leads.map((lead) => (
-                                            <SelectItem key={lead.id} value={lead.id}>
-                                                {lead.firstName} {lead.lastName} {lead.phone ? `(${lead.phone})` : ""}
-                                            </SelectItem>
-                                        ))
-                                    )}
-                                </SelectContent>
-                            </Select>
+                            <Popover open={customerOpen} onOpenChange={setCustomerOpen}>
+                                <PopoverTrigger asChild>
+                                    <FormControl>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={customerOpen}
+                                            className={cn(
+                                                "w-full justify-between",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                            data-testid="select-customer"
+                                        >
+                                            {selectedLead
+                                                ? `${selectedLead.firstName} ${selectedLead.lastName}`
+                                                : "اختر العميل..."}
+                                            <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-full p-0" align="start">
+                                    <Command>
+                                        <CommandInput placeholder="ابحث عن عميل..." />
+                                        <CommandList>
+                                            <CommandEmpty>لا يوجد عملاء</CommandEmpty>
+                                            <CommandGroup>
+                                                {leads.map((lead) => (
+                                                    <CommandItem
+                                                        key={lead.id}
+                                                        value={`${lead.firstName} ${lead.lastName} ${lead.phone || ""}`}
+                                                        onSelect={() => {
+                                                            field.onChange(lead.id);
+                                                            setCustomerOpen(false);
+                                                        }}
+                                                    >
+                                                        <Check
+                                                            className={cn(
+                                                                "me-2 h-4 w-4",
+                                                                field.value === lead.id ? "opacity-100" : "opacity-0"
+                                                            )}
+                                                        />
+                                                        {lead.firstName} {lead.lastName} {lead.phone ? `(${lead.phone})` : ""}
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
+
+                {/* Date selection via Calendar + Popover */}
                 <FormField
                     control={form.control}
                     name="scheduledAt"
-                    render={({ field }) => (
-                        <FormItem>
+                    render={() => (
+                        <FormItem className="flex flex-col">
                             <FormLabel>التاريخ والوقت</FormLabel>
-                            <FormControl>
-                                <Input type="datetime-local" {...field} />
-                            </FormControl>
+                            <div className="flex gap-2">
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                                variant="outline"
+                                                className={cn(
+                                                    "flex-1 justify-start text-start font-normal",
+                                                    !selectedDate && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="me-2 h-4 w-4" />
+                                                {selectedDate ? format(selectedDate, "PPP", { locale: ar }) : "اختر تاريخ"}
+                                            </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={selectedDate}
+                                            onSelect={handleDateSelect}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                                <Input
+                                    type="time"
+                                    value={timeValue}
+                                    onChange={(e) => handleTimeChange(e.target.value)}
+                                    className="w-28"
+                                />
+                            </div>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
+
                 <FormField
                     control={form.control}
                     name="notes"
