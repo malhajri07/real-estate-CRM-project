@@ -158,6 +158,7 @@ export default function Notifications() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader title={t("nav.notifications") || "الإشعارات"} subtitle="إدارة الإشعارات والحملات والتواصل مع العملاء" />
         <NotificationsSkeleton />
       </div>
     );

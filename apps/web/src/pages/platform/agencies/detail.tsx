@@ -37,6 +37,10 @@ export default function AgencyPage() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader
+          title={t("تفاصيل الوكالة")}
+          subtitle={t("عرض تفاصيل الوكالة والوسطاء والإعلانات")}
+        />
         <ClientDetailSkeleton />
       </div>
     );

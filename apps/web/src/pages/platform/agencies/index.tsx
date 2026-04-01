@@ -37,6 +37,7 @@ export default function AgenciesPage() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader title={t("الوكالات")} subtitle={t("عرض وإدارة الوكالات العقارية المسجلة")} />
         <CardGridSkeleton cards={6} />
       </div>
     );

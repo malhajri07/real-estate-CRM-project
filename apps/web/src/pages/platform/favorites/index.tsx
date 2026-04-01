@@ -36,6 +36,7 @@ export default function FavoritesPage() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader title={t("العقارات المفضلة")} subtitle={t("العقارات التي قمت بحفظها")} />
         <FavoritesSkeleton />
       </div>
     );

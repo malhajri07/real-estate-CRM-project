@@ -112,6 +112,7 @@ export default function AdminRequestsPage() {
   if (loading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
+        <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight mb-6">إدارة الطلبات العقارية</h1>
         <AdminPageSkeleton />
       </div>
     );

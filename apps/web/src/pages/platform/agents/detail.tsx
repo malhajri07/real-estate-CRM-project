@@ -37,6 +37,10 @@ export default function AgentPage() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader
+          title={t("تفاصيل الوسيط")}
+          subtitle={t("عرض تفاصيل الوسيط وإعلاناته")}
+        />
         <ClientDetailSkeleton />
       </div>
     );

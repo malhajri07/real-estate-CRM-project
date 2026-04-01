@@ -172,6 +172,7 @@ export default function Settings() {
   if (pageLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader title={t("الإعدادات")} subtitle={t("إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد")} />
         <SettingsSkeleton />
       </div>
     );

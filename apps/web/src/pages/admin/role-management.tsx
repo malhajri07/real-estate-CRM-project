@@ -298,6 +298,7 @@ export default function RoleManagement() {
   if (isLoadingRoles || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
+        <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight mb-6">إدارة الأدوار</h1>
         <AdminPageSkeleton />
       </div>
     );

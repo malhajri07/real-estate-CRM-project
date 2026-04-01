@@ -382,6 +382,7 @@ export default function ArticlesManagement() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
+        <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight mb-6">إدارة المقالات</h1>
         <AdminPageSkeleton />
       </div>
     );

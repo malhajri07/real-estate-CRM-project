@@ -101,6 +101,10 @@ export default function Clients() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader
+          title={t("nav.clients") || "العملاء"}
+          subtitle={t("clients.subtitle") || "إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم"}
+        />
         <ClientDetailSkeleton />
       </div>
     );

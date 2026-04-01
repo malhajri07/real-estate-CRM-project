@@ -80,6 +80,7 @@ export default function ComparePage() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader title={t("مقارنة العقارات")} subtitle={t("قارن بين العقارات المختلفة")} />
         <CompareSkeleton />
       </div>
     );

@@ -29,17 +29,6 @@ function SkeletonMetricRow({ count = 4 }: { count?: number }) {
   );
 }
 
-function SkeletonPageHeader() {
-  return (
-    <div className="flex items-center justify-between">
-      <div className="space-y-2">
-        <Skeleton className="h-8 w-48 rounded-lg" />
-        <Skeleton className="h-4 w-72 rounded-lg" />
-      </div>
-      <Skeleton className="h-10 w-32 rounded-xl" />
-    </div>
-  );
-}
 
 function SkeletonChartArea({ height = "h-72" }: { height?: string }) {
   return (
@@ -69,7 +58,7 @@ function SkeletonListItem() {
 export function PipelineSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <SkeletonPageHeader />
+
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {Array.from({ length: 5 }).map((_, col) => (
           <div key={col} className="rounded-2xl border border-border bg-card p-4 space-y-3">
@@ -98,7 +87,7 @@ export function PipelineSkeleton() {
 export function CalendarSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <SkeletonPageHeader />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Calendar grid */}
         <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-6">
@@ -136,7 +125,7 @@ export function CalendarSkeleton() {
 export function CardGridSkeleton({ cards = 6 }: { cards?: number }) {
   return (
     <div className="space-y-6 animate-pulse">
-      <SkeletonPageHeader />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: cards }).map((_, i) => (
           <div key={i} className="rounded-2xl border border-border bg-card overflow-hidden">
@@ -165,7 +154,7 @@ export function FavoritesSkeleton() {
 export function ClientDetailSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <SkeletonPageHeader />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Client info sidebar */}
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
@@ -202,7 +191,7 @@ export function ClientDetailSkeleton() {
 export function NotificationsSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <SkeletonPageHeader />
+
       <div className="rounded-2xl border border-border bg-card overflow-hidden">
         {Array.from({ length: 8 }).map((_, i) => (
           <SkeletonListItem key={i} />
@@ -216,7 +205,7 @@ export function NotificationsSkeleton() {
 export function ReportsSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <SkeletonPageHeader />
+
       <SkeletonMetricRow count={4} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SkeletonChartArea />
@@ -241,7 +230,7 @@ export function ReportsSkeleton() {
 export function SettingsSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <SkeletonPageHeader />
+
       {Array.from({ length: 3 }).map((_, section) => (
         <div key={section} className="rounded-2xl border border-border bg-card p-6 space-y-4">
           <div className="flex items-center gap-3 pb-4 border-b border-border">
@@ -269,7 +258,7 @@ export function SettingsSkeleton() {
 export function ForumSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <SkeletonPageHeader />
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Channel sidebar */}
         <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
@@ -307,7 +296,7 @@ export function ForumSkeleton() {
 export function SavedSearchesSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <SkeletonPageHeader />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="rounded-2xl border border-border bg-card p-5 space-y-3">
@@ -332,7 +321,7 @@ export function SavedSearchesSkeleton() {
 export function CompareSkeleton() {
   return (
     <div className="space-y-6 animate-pulse">
-      <SkeletonPageHeader />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="rounded-2xl border border-border bg-card overflow-hidden">

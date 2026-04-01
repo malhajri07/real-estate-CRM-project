@@ -223,7 +223,7 @@ export default function Properties() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className="text-sm font-medium text-muted-foreground mb-4">جار تحميل العقارات...</div>
+        <PageHeader title={t("nav.properties") || "العقارات"} />
         <TableSkeleton rows={6} cols={5} />
       </div>
     );

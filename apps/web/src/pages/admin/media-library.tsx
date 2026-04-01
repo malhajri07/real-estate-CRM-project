@@ -156,6 +156,7 @@ export default function MediaLibrary() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
+        <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight mb-6">مكتبة الوسائط</h1>
         <AdminPageSkeleton />
       </div>
     );

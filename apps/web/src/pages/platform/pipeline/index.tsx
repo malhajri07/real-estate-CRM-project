@@ -246,6 +246,7 @@ export default function Pipeline() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
+        <PageHeader title="لوحة مسار الصفقات" subtitle="تابع تقدم الفرص البيعية عبر مراحل المسار المختلفة واسحب البطاقات لتحديث حالة الصفقة فوراً." />
         <PipelineSkeleton />
       </div>
     );

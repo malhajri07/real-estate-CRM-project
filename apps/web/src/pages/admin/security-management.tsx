@@ -143,6 +143,7 @@ export default function SecurityManagement() {
     if (showSkeleton) {
         return (
             <div className={PAGE_WRAPPER}>
+                <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight mb-6">مركز الأمن والتحكم</h1>
                 <AdminPageSkeleton />
             </div>
         );
