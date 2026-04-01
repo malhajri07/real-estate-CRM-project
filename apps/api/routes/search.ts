@@ -1,21 +1,21 @@
 /**
  * routes/search.ts - Search API Routes
- * 
+ *
  * Location: apps/api/ → Routes/ → search.ts
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
+ *
  * API routes for search functionality. Handles:
  * - Property search
  * - Agency search
  * - Agent search
  * - Saved searches management
- * 
+ *
  * API Endpoints:
  * - GET /api/search/properties - Search properties
  * - GET /api/search/agencies - Search agencies
  * - GET /api/search/agents - Search agents
  * - GET /api/search/saved - Get saved searches
- * 
+ *
  * Related Files:
  * - apps/web/src/pages/map/ - Map search page
  * - apps/web/src/pages/saved-searches.tsx - Saved searches page
@@ -28,13 +28,15 @@ import { storage } from "../storage-prisma";
 
 const router = express.Router();
 
-function getUserId(req: any) {
-  return req?.user?.id || "sample-user-1";
+// Require real authenticated user — no fallback to fake IDs
+function getUserId(req: any): string | null {
+  return req?.user?.id || req?.session?.user?.id || null;
 }
 
 router.get("/saved", async (req, res) => {
   try {
     const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ message: "Authentication required" });
     const items = await storage.getSavedSearches(userId);
     res.json(items);
   } catch (err) {
@@ -58,6 +60,7 @@ const SavedSearchSchema = z.object({
 router.post("/saved", async (req, res) => {
   try {
     const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ message: "Authentication required" });
     const data = SavedSearchSchema.parse(req.body);
     const created = await storage.createSavedSearch({
       ...data,
@@ -76,6 +79,7 @@ router.post("/saved", async (req, res) => {
 router.delete("/saved/:id", async (req, res) => {
   try {
     const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ message: "Authentication required" });
     const ok = await storage.deleteSavedSearch(req.params.id, userId);
     if (!ok) return res.status(404).json({ message: "Saved search not found" });
     res.status(204).send();
@@ -89,6 +93,7 @@ router.delete("/saved/:id", async (req, res) => {
 router.post("/run-alerts", async (req, res) => {
   try {
     const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ message: "Authentication required" });
     const alerts = await storage.getSavedSearches(userId);
     const all = await storage.getAllProperties();
     const results = alerts.map((a: any) => {

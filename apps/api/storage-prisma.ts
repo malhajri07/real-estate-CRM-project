@@ -526,21 +526,49 @@ class PrismaStorageSimple {
     });
   }
 
-  // Activity management methods (stub implementations)
+  // Activity management methods (backed by audit_logs)
   async getActivitiesByLead(leadId: string): Promise<any[]> {
-    return [];
+    try {
+      return await prisma.audit_logs.findMany({
+        where: { entity: 'lead', entityId: leadId },
+        include: { users: { select: { id: true, firstName: true, lastName: true } } },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (error) {
+      console.error('Error fetching activities by lead:', error);
+      return [];
+    }
   }
 
   async getTodaysActivities(): Promise<any[]> {
-    return [];
+    try {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      return await prisma.audit_logs.findMany({
+        where: { createdAt: { gte: todayStart } },
+        include: { users: { select: { id: true, firstName: true, lastName: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+      });
+    } catch (error) {
+      console.error('Error fetching today\'s activities:', error);
+      return [];
+    }
   }
 
-  async createActivity(data: any, tenantId?: string): Promise<any> {
-    const activityData = {
-      ...data,
-      ...(tenantId && { tenantId })
-    };
-    return { id: 'stub', ...activityData };
+  async createActivity(data: any, _tenantId?: string): Promise<any> {
+    return await prisma.audit_logs.create({
+      data: {
+        userId: data.userId,
+        action: data.action || data.type || 'UNKNOWN',
+        entity: data.entity || data.entityType || 'system',
+        entityId: data.entityId || '',
+        beforeJson: data.beforeJson || null,
+        afterJson: data.afterJson || null,
+        ipAddress: data.ipAddress || null,
+        userAgent: data.userAgent || null,
+      },
+    });
   }
 
   // Agency/Organization methods
@@ -638,33 +666,94 @@ class PrismaStorageSimple {
     }
   }
 
-  // Saved searches (stub - no table in schema)
+  // Saved searches (backed by saved_searches table)
   async getSavedSearches(userId: string): Promise<any[]> {
-    return [];
+    try {
+      return await (prisma as any).saved_searches.findMany({
+        where: { customerId: userId },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (error) {
+      console.error('Error fetching saved searches:', error);
+      return [];
+    }
   }
 
   async createSavedSearch(data: any): Promise<any> {
-    return { id: 'stub', ...data };
+    return await (prisma as any).saved_searches.create({
+      data: {
+        customerId: data.customerId,
+        alertName: data.alertName,
+        propertyTypes: data.propertyTypes || [],
+        cities: data.cities || [],
+        minPrice: data.minPrice != null ? String(data.minPrice) : null,
+        maxPrice: data.maxPrice != null ? String(data.maxPrice) : null,
+        minBedrooms: data.minBedrooms != null ? Number(data.minBedrooms) : null,
+        maxBedrooms: data.maxBedrooms != null ? Number(data.maxBedrooms) : null,
+        frequency: data.frequency || 'daily',
+        isActive: data.isActive ?? true,
+      },
+    });
   }
 
   async deleteSavedSearch(id: string, userId: string): Promise<boolean> {
-    return true;
+    try {
+      const existing = await (prisma as any).saved_searches.findFirst({
+        where: { id, customerId: userId },
+      });
+      if (!existing) return false;
+      await (prisma as any).saved_searches.delete({ where: { id } });
+      return true;
+    } catch (error) {
+      console.error('Error deleting saved search:', error);
+      return false;
+    }
   }
 
-  // Reports (stub - no table in schema)
+  // Reports (backed by content_reports table)
   async createReport(data: any, userId?: string | null): Promise<any> {
-    return { id: 'stub', ...data };
+    return await (prisma as any).content_reports.create({
+      data: {
+        listingId: data.listingId,
+        reason: data.reason,
+        reporterId: userId || null,
+        status: 'PENDING',
+      },
+    });
   }
 
   async listReports(status?: string): Promise<any[]> {
-    return [];
+    try {
+      const where: any = {};
+      if (status) where.status = status;
+      return await (prisma as any).content_reports.findMany({
+        where,
+        include: { reporter: { select: { id: true, firstName: true, lastName: true, email: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+      });
+    } catch (error) {
+      console.error('Error listing reports:', error);
+      return [];
+    }
   }
 
   async resolveReport(id: string, note?: string): Promise<any | null> {
-    return null;
+    try {
+      return await (prisma as any).content_reports.update({
+        where: { id },
+        data: {
+          status: 'RESOLVED',
+          note: note || null,
+        },
+      });
+    } catch (error) {
+      console.error('Error resolving report:', error);
+      return null;
+    }
   }
 
-  // Message management methods (stub implementations)
+  // Message management methods (backed by contact_logs table)
   async getAllMessages(): Promise<any[]> {
     return prisma.contact_logs.findMany({
       include: { users: { select: { firstName: true, lastName: true } }, leads: true },
@@ -694,9 +783,21 @@ class PrismaStorageSimple {
     });
   }
 
-  // Notification methods (stub implementation)
+  // Notification methods (backed by analytics_event_logs with eventName='notification')
   async getNotifications(userId: string): Promise<any[]> {
-    return [];
+    try {
+      return await prisma.analytics_event_logs.findMany({
+        where: {
+          userId,
+          eventName: { startsWith: 'notification' },
+        },
+        orderBy: { occurredAt: 'desc' },
+        take: 50,
+      });
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      return [];
+    }
   }
 
   // Seeding methods
@@ -870,17 +971,41 @@ class PrismaStorageSimple {
     }
   }
 
-  // Favorites methods (stub implementations)
+  // Favorites methods (backed by favorites table)
   async getFavoriteProperties(userId: string): Promise<any[]> {
-    return [];
+    try {
+      const favs = await (prisma as any).favorites.findMany({
+        where: { userId },
+        include: { property: { include: { listings: true } } },
+        orderBy: { createdAt: 'desc' },
+      });
+      return favs.map((f: any) => ({ ...f.property, favoriteId: f.id, favoritedAt: f.createdAt }));
+    } catch (error) {
+      console.error('Error fetching favorite properties:', error);
+      return [];
+    }
   }
 
   async addFavorite(userId: string, propertyId: string): Promise<any> {
-    return { id: 'stub', userId, propertyId };
+    return await (prisma as any).favorites.create({
+      data: { userId, propertyId },
+    });
   }
 
   async removeFavorite(userId: string, propertyId: string): Promise<boolean> {
-    return true;
+    try {
+      const existing = await (prisma as any).favorites.findUnique({
+        where: { userId_propertyId: { userId, propertyId } },
+      });
+      if (!existing) return false;
+      await (prisma as any).favorites.delete({
+        where: { userId_propertyId: { userId, propertyId } },
+      });
+      return true;
+    } catch (error) {
+      console.error('Error removing favorite:', error);
+      return false;
+    }
   }
 
   // Property inquiry methods
@@ -938,37 +1063,156 @@ class PrismaStorageSimple {
     }
   }
 
-  // Marketing request methods (stub implementations)
+  // Marketing request methods (backed by marketing_requests / marketing_proposals tables)
   async createMarketingRequest(data: any): Promise<any> {
-    return { id: 'stub', ...data };
+    return await (prisma as any).marketing_requests.create({
+      data: {
+        ownerId: data.ownerId,
+        title: data.title,
+        summary: data.summary,
+        requirements: data.requirements || null,
+        propertyType: data.propertyType,
+        listingType: data.listingType || null,
+        city: data.city,
+        district: data.district || null,
+        region: data.region || null,
+        budgetMin: data.budgetMin != null ? String(data.budgetMin) : null,
+        budgetMax: data.budgetMax != null ? String(data.budgetMax) : null,
+        preferredStartDate: data.preferredStartDate || null,
+        preferredEndDate: data.preferredEndDate || null,
+        commissionExpectation: data.commissionExpectation != null ? String(data.commissionExpectation) : null,
+        seriousnessTier: data.seriousnessTier || 'STANDARD',
+        contactName: data.contactName,
+        contactPhone: data.contactPhone || null,
+        contactEmail: data.contactEmail || null,
+        propertyId: data.propertyId || null,
+        status: data.status || 'DRAFT',
+      },
+    });
   }
 
   async listMarketingRequests(filters: any): Promise<any[]> {
-    return [];
+    try {
+      const where: any = {};
+      if (filters.status) where.status = filters.status;
+      if (filters.city) where.city = filters.city;
+      if (filters.seriousnessTier) where.seriousnessTier = filters.seriousnessTier;
+      if (filters.ownerId) where.ownerId = filters.ownerId;
+      if (filters.search) {
+        where.OR = [
+          { title: { contains: filters.search, mode: 'insensitive' } },
+          { summary: { contains: filters.search, mode: 'insensitive' } },
+        ];
+      }
+
+      const include: any = {};
+      if (filters.includeOwner) {
+        include.owner = { select: { id: true, firstName: true, lastName: true, email: true, phone: true } };
+      }
+      if (filters.includeProposals) {
+        include.proposals = {
+          include: { agent: { select: { id: true, firstName: true, lastName: true, email: true } } },
+        };
+        if (filters.forAgentId) {
+          include.proposals.where = { agentId: filters.forAgentId };
+        }
+      }
+
+      return await (prisma as any).marketing_requests.findMany({
+        where,
+        include: Object.keys(include).length > 0 ? include : undefined,
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+      });
+    } catch (error) {
+      console.error('Error listing marketing requests:', error);
+      return [];
+    }
   }
 
-  async getMarketingRequest(id: string, options?: any): Promise<any> {
-    return { id, ...options };
+  async getMarketingRequest(id: string, options?: any): Promise<any | null> {
+    try {
+      const include: any = {};
+      if (options?.includeOwner) {
+        include.owner = { select: { id: true, firstName: true, lastName: true, email: true, phone: true } };
+      }
+      if (options?.includeProposals) {
+        include.proposals = {
+          include: { agent: { select: { id: true, firstName: true, lastName: true, email: true } } },
+        };
+      }
+
+      return await (prisma as any).marketing_requests.findUnique({
+        where: { id },
+        include: Object.keys(include).length > 0 ? include : undefined,
+      });
+    } catch (error) {
+      console.error('Error fetching marketing request:', error);
+      return null;
+    }
   }
 
-  async updateMarketingRequest(id: string, data: any): Promise<any> {
-    return { id, ...data };
+  async updateMarketingRequest(id: string, data: any): Promise<any | null> {
+    try {
+      return await (prisma as any).marketing_requests.update({
+        where: { id },
+        data,
+      });
+    } catch (error) {
+      console.error('Error updating marketing request:', error);
+      return null;
+    }
   }
 
-  async findMarketingProposalForAgent(requestId: string, agentId: string): Promise<any> {
-    return null;
+  async findMarketingProposalForAgent(requestId: string, agentId: string): Promise<any | null> {
+    try {
+      return await (prisma as any).marketing_proposals.findUnique({
+        where: { requestId_agentId: { requestId, agentId } },
+      });
+    } catch (error) {
+      console.error('Error finding marketing proposal:', error);
+      return null;
+    }
   }
 
   async createMarketingProposal(data: any): Promise<any> {
-    return { id: 'stub', ...data };
+    return await (prisma as any).marketing_proposals.create({
+      data: {
+        requestId: data.requestId,
+        agentId: data.agentId,
+        message: data.message || null,
+        commissionRate: data.commissionRate != null ? String(data.commissionRate) : null,
+        marketingBudget: data.marketingBudget != null ? String(data.marketingBudget) : null,
+        estimatedTimeline: data.estimatedTimeline || null,
+        attachments: data.attachments || null,
+        status: data.status || 'PENDING',
+      },
+    });
   }
 
   async listMarketingProposalsByRequest(requestId: string): Promise<any[]> {
-    return [];
+    try {
+      return await (prisma as any).marketing_proposals.findMany({
+        where: { requestId },
+        include: { agent: { select: { id: true, firstName: true, lastName: true, email: true } } },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (error) {
+      console.error('Error listing marketing proposals:', error);
+      return [];
+    }
   }
 
-  async updateMarketingProposal(id: string, data: any): Promise<any> {
-    return { id, ...data };
+  async updateMarketingProposal(id: string, data: any): Promise<any | null> {
+    try {
+      return await (prisma as any).marketing_proposals.update({
+        where: { id },
+        data,
+      });
+    } catch (error) {
+      console.error('Error updating marketing proposal:', error);
+      return null;
+    }
   }
 
   // Real estate request methods

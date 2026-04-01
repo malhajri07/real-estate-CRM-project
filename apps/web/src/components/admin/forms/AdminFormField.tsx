@@ -58,7 +58,7 @@ export function AdminFormField({
         <div className={cn('space-y-2', className)}>
             <Label htmlFor={name} className="text-sm font-medium">
                 {label}
-                {required && <span className="text-red-500 ms-1">*</span>}
+                {required && <span className="text-destructive ms-1">*</span>}
             </Label>
 
             <div className="relative">
@@ -78,7 +78,7 @@ export function AdminFormField({
                         disabled={disabled}
                         rows={rows}
                         className={cn(
-                            error && 'border-red-500 focus-visible:ring-red-500',
+                            error && 'border-destructive focus-visible:ring-destructive',
                             icon && 'pe-10'
                         )}
                     />
@@ -92,7 +92,7 @@ export function AdminFormField({
                         placeholder={placeholder}
                         disabled={disabled}
                         className={cn(
-                            error && 'border-red-500 focus-visible:ring-red-500',
+                            error && 'border-destructive focus-visible:ring-destructive',
                             icon && 'pe-10'
                         )}
                     />
@@ -100,7 +100,7 @@ export function AdminFormField({
             </div>
 
             {error && (
-                <p className="text-sm text-red-500">{error}</p>
+                <p className="text-sm text-destructive">{error}</p>
             )}
 
             {helperText && !error && (

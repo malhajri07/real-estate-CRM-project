@@ -490,7 +490,8 @@ model properties {
   inquiries      inquiries[]
   appointments   appointments[]
   deals          deals[]
-  agent          users?    @relation("PropertyAgent", fields: [agentId], references: [id], onDelete: SetNull)
+  agent          users?      @relation("PropertyAgent", fields: [agentId], references: [id], onDelete: SetNull)
+  favorites      favorites[]
 
   @@index([agentId])
   @@index([organizationId])
@@ -843,6 +844,11 @@ model users {
   community_comments       community_comments[]
   forum_channels          forum_channels[]
   agentProperties          properties[]               @relation("PropertyAgent")
+  saved_searches           saved_searches[]
+  favorites                favorites[]
+  content_reports          content_reports[]
+  marketingRequests        marketing_requests[]       @relation("MarketingRequestOwner")
+  marketingProposals       marketing_proposals[]      @relation("MarketingProposalAgent")
 
   @@index([approvalStatus])
   @@index([email])
@@ -1950,4 +1956,112 @@ model agent_memory {
   // TODO: Review if this model needs relations or should be removed
   @@index([type])
   @@index([createdAt])
+}
+
+model saved_searches {
+  id             String   @id @default(uuid())
+  customerId     String
+  alertName      String
+  propertyTypes  String[]
+  cities         String[]
+  minPrice       Decimal? @db.Decimal(14, 2)
+  maxPrice       Decimal? @db.Decimal(14, 2)
+  minBedrooms    Int?
+  maxBedrooms    Int?
+  frequency      String?  @default("daily")
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           users    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@index([isActive])
+}
+
+model favorites {
+  id         String     @id @default(uuid())
+  userId     String
+  propertyId String
+  createdAt  DateTime   @default(now())
+  user       users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property   properties @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([propertyId])
+}
+
+model content_reports {
+  id         String    @id @default(uuid())
+  listingId  String
+  reporterId String?
+  reason     String
+  status     String    @default("PENDING")
+  note       String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  reporter   users?    @relation(fields: [reporterId], references: [id], onDelete: SetNull)
+
+  @@index([listingId])
+  @@index([reporterId])
+  @@index([status])
+}
+
+model marketing_requests {
+  id                    String                @id @default(uuid())
+  ownerId               String
+  title                 String
+  summary               String                @db.Text
+  requirements          String?               @db.Text
+  propertyType          String
+  listingType           String?
+  city                  String
+  district              String?
+  region                String?
+  budgetMin             Decimal?              @db.Decimal(14, 2)
+  budgetMax             Decimal?              @db.Decimal(14, 2)
+  preferredStartDate    DateTime?
+  preferredEndDate      DateTime?
+  commissionExpectation Decimal?              @db.Decimal(9, 4)
+  seriousnessTier       String                @default("STANDARD")
+  contactName           String
+  contactPhone          String?
+  contactEmail          String?
+  propertyId            String?
+  status                String                @default("DRAFT")
+  moderationNotes       String?               @db.Text
+  approvedAt            DateTime?
+  closedAt              DateTime?
+  awardedProposalId     String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  owner                 users                 @relation("MarketingRequestOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  proposals             marketing_proposals[]
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([city])
+  @@index([seriousnessTier])
+}
+
+model marketing_proposals {
+  id                String             @id @default(uuid())
+  requestId         String
+  agentId           String
+  message           String?            @db.Text
+  commissionRate    Decimal?           @db.Decimal(9, 4)
+  marketingBudget   Decimal?           @db.Decimal(14, 2)
+  estimatedTimeline String?
+  attachments       String?            @db.Text
+  status            String             @default("PENDING")
+  decidedAt         DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  request           marketing_requests @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  agent             users              @relation("MarketingProposalAgent", fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, agentId])
+  @@index([requestId])
+  @@index([agentId])
+  @@index([status])
 }

@@ -48,7 +48,7 @@ export class AppErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundar
       return (
         <div className="min-h-screen bg-muted/30 flex items-center justify-center p-8" dir="ltr">
           <div className="text-center max-w-md space-y-6">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-warning/10 text-warning">
               <span className="text-3xl">⚠</span>
             </div>
             <div>

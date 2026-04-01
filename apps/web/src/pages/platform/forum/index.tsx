@@ -590,7 +590,7 @@ export default function ForumPage() {
                         dir === "rtl" ? "flex-row-reverse" : ""
                       )}
                     >
-                      <Button variant="ghost" size="sm" className="gap-2 hover:text-red-500">
+                      <Button variant="ghost" size="sm" className="gap-2 hover:text-destructive">
                         <Heart className="h-4 w-4" />
                         <span>{post.likes}</span>
                       </Button>

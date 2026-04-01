@@ -69,7 +69,7 @@ export function TaskCard({
                 {timeStr}
               </span>
               {isOverdue && (
-                <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                <span className="text-xs font-bold text-warning bg-warning/10 px-2 py-0.5 rounded-full">
                   متأخر
                 </span>
               )}

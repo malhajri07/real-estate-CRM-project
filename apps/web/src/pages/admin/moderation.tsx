@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, XCircle, ShieldCheck, Clock, Check, X } from "lucide-react";
 import { LISTING_STATUS_LABELS, PROPERTY_TYPE_LABELS, LISTING_TYPE_LABELS } from "@/constants/labels";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { formatPrice } from "@/lib/formatters";
 
 export default function ModerationQueuePage() {
   const queryClient = useQueryClient();
@@ -100,8 +101,7 @@ export default function ModerationQueuePage() {
         label: "السعر",
         render: (item) => (
           <span className="font-bold text-foreground">
-            {item.price ? Number(item.price).toLocaleString("en-US") : "—"}{" "}
-            <span className="text-xs text-muted-foreground">ر.س</span>
+            {item.price ? formatPrice(Number(item.price)) : "—"}
           </span>
         ),
       },

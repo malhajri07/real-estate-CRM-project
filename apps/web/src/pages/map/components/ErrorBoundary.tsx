@@ -53,10 +53,10 @@ export class PropertiesMapErrorBoundary extends Component<ErrorBoundaryProps, Er
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex h-[400px] items-center justify-center rounded-lg border border-red-200 bg-red-50">
+        <div className="flex h-[400px] items-center justify-center rounded-lg border border-destructive/20 bg-destructive/5">
           <div className="text-center">
-            <h3 className="text-lg font-semibold text-red-800">خطأ في تحميل الخريطة</h3>
-            <p className="text-sm text-red-600 mt-2">
+            <h3 className="text-lg font-semibold text-destructive">خطأ في تحميل الخريطة</h3>
+            <p className="text-sm text-destructive mt-2">
               حدث خطأ أثناء تحميل خريطة العقارات. يرجى إعادة تحميل الصفحة.
             </p>
             <Button

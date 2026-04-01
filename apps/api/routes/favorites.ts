@@ -1,19 +1,19 @@
 /**
  * routes/favorites.ts - Favorites API Routes
- * 
+ *
  * Location: apps/api/ → Routes/ → favorites.ts
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
+ *
  * API routes for managing user favorites. Handles:
  * - Retrieving user's favorite properties
  * - Adding properties to favorites
  * - Removing properties from favorites
- * 
+ *
  * API Endpoints:
  * - GET /api/favorites - Get user favorites
  * - POST /api/favorites - Add to favorites
  * - DELETE /api/favorites/:id - Remove from favorites
- * 
+ *
  * Related Files:
  * - apps/web/src/pages/favorites.tsx - Favorites page
  * - apps/web/src/components/listings/ListingCard.tsx - Uses favorites
@@ -24,14 +24,15 @@ import { storage } from "../storage-prisma";
 
 const router = express.Router();
 
-// Helper to get current user in mock/dev
-function getUserId(req: any) {
-  return req?.user?.id || "sample-user-1";
+// Require real authenticated user — no fallback to fake IDs
+function getUserId(req: any): string | null {
+  return req?.user?.id || req?.session?.user?.id || null;
 }
 
 router.get("/", async (req, res) => {
   try {
     const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ message: "Authentication required" });
     const props = await storage.getFavoriteProperties(userId);
     res.json(props);
   } catch (err) {
@@ -43,6 +44,7 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ message: "Authentication required" });
     const { propertyId } = req.body || {};
     if (!propertyId) return res.status(400).json({ message: "propertyId is required" });
     const fav = await storage.addFavorite(userId, propertyId);
@@ -56,6 +58,7 @@ router.post("/", async (req, res) => {
 router.delete("/:propertyId", async (req, res) => {
   try {
     const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ message: "Authentication required" });
     const ok = await storage.removeFavorite(userId, req.params.propertyId);
     if (!ok) return res.status(404).json({ message: "Favorite not found" });
     res.status(204).send();
@@ -66,4 +69,3 @@ router.delete("/:propertyId", async (req, res) => {
 });
 
 export default router;
-

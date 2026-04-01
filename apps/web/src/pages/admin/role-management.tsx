@@ -437,7 +437,7 @@ export default function RoleManagement() {
                                   className="mt-1 data-[state=checked]:bg-primary data-[state=checked]:border-primary/20"
                                 />
                                 <span className="flex-1 ms-2">
-                                  <div className={cn("text-sm font-bold transition-colors", checked ? "text-blue-900" : "text-foreground/80")}>
+                                  <div className={cn("text-sm font-bold transition-colors", checked ? "text-primary" : "text-foreground/80")}>
                                     {permission.label}
                                   </div>
                                   <div className="text-xs text-muted-foreground mt-0.5 leading-snug">{permission.description || "—"}</div>

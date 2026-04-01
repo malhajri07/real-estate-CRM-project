@@ -233,7 +233,7 @@ export default function SystemSettings() {
                                     <h3 className="text-xl font-bold text-foreground tracking-tight">خرائط جوجل</h3>
                                     <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest mt-1">Google Maps Platform</p>
                                 </div>
-                                <Badge className="bg-rose-50 text-rose-700 border-0 px-3 py-1 rounded-lg font-bold text-xs">تحقق مطلوب</Badge>
+                                <Badge className="bg-destructive/5 text-destructive border-0 px-3 py-1 rounded-lg font-bold text-xs">تحقق مطلوب</Badge>
                             </div>
                             <div className="space-y-6">
                                 <div className="space-y-2">
@@ -269,13 +269,13 @@ export default function SystemSettings() {
                                 </div>
                                 <Button size="sm" variant="outline" className="h-9 w-full rounded-xl border-border font-bold">بدء التصدير</Button>
                             </div>
-                            <div className="p-6 bg-rose-50/30 rounded-3xl border border-rose-100 space-y-4 group hover:bg-card hover:shadow-md transition-all">
-                                <div className="h-12 w-12 bg-card rounded-2xl shadow-sm flex items-center justify-center text-rose-600 "><Zap className="h-6 w-6" /></div>
+                            <div className="p-6 bg-destructive/5 rounded-3xl border border-destructive/20 space-y-4 group hover:bg-card hover:shadow-md transition-all">
+                                <div className="h-12 w-12 bg-card rounded-2xl shadow-sm flex items-center justify-center text-destructive "><Zap className="h-6 w-6" /></div>
                                 <div>
-                                    <h4 className="text-sm font-bold text-foreground text-rose-700">وضع التصحيح (Debug)</h4>
-                                    <p className="text-xs font-medium text-rose-500 mt-1">تفعيل تسجيل الأخطاء التفصيلي</p>
+                                    <h4 className="text-sm font-bold text-foreground text-destructive">وضع التصحيح (Debug)</h4>
+                                    <p className="text-xs font-medium text-destructive mt-1">تفعيل تسجيل الأخطاء التفصيلي</p>
                                 </div>
-                                <Switch className="data-[state=checked]:bg-rose-600" />
+                                <Switch className="data-[state=checked]:bg-destructive" />
                             </div>
                         </div>
                     </Card>

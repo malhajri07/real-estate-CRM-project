@@ -94,7 +94,7 @@ export function LeadCard({
                     year: 'numeric'
                   })}
                   {daysSinceCreated > 0 && (
-                    <span className="ms-2 text-amber-600">
+                    <span className="ms-2 text-warning">
                       • {daysSinceCreated} {daysSinceCreated === 1 ? 'يوم' : 'أيام'}
                     </span>
                   )}

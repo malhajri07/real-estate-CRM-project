@@ -337,6 +337,8 @@ router.get('/analytics/overview', async (req, res) => {
   try {
     const { prisma } = await import('../prismaClient');
     const { timeRange = '7d' } = req.query;
+    const locale = (req as any).locale || 'ar';
+    const numLocale = locale === 'ar' ? 'ar-SA' : 'en-US';
 
     const now = new Date();
     let startDate: Date;
@@ -361,7 +363,9 @@ router.get('/analytics/overview', async (req, res) => {
     
     // Get daily breakdown for last 7 days
     const dailyData: Record<string, { visits: number; users: Set<string> }> = {};
-    const dayNames = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+    const dayNamesAr = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayNames = locale === 'ar' ? dayNamesAr : dayNamesEn;
     
     for (let i = 6; i >= 0; i--) {
       const date = new Date(now);
@@ -388,12 +392,30 @@ router.get('/analytics/overview', async (req, res) => {
       users: data.users.size
     }));
 
-    // Device distribution (mock for now - would need device info in payload)
-    const deviceData = [
-      { name: "جوال", value: 65, color: "#3b82f6" },
-      { name: "حاسوب", value: 30, color: "#10b981" },
-      { name: "تابلت", value: 5, color: "#f59e0b" },
-    ];
+    // Device distribution — derive from analytics_event_logs payload.userAgent if available
+    const allEventsWithUA = events.filter(e => e.payload && (e.payload as any)?.userAgent);
+    let deviceData: Array<{ name: string; value: number; color: string }> = [];
+    if (allEventsWithUA.length > 0) {
+      let mobile = 0, desktop = 0, tablet = 0;
+      allEventsWithUA.forEach(e => {
+        const ua = ((e.payload as any)?.userAgent || '').toLowerCase();
+        if (/tablet|ipad/.test(ua)) tablet++;
+        else if (/mobile|android|iphone/.test(ua)) mobile++;
+        else desktop++;
+      });
+      const total = mobile + desktop + tablet || 1;
+      const mobileLabel = locale === 'ar' ? 'جوال' : 'Mobile';
+      const desktopLabel = locale === 'ar' ? 'حاسوب' : 'Desktop';
+      const tabletLabel = locale === 'ar' ? 'تابلت' : 'Tablet';
+      deviceData = [
+        { name: mobileLabel, value: Math.round((mobile / total) * 100), color: "#3b82f6" },
+        { name: desktopLabel, value: Math.round((desktop / total) * 100), color: "#10b981" },
+        { name: tabletLabel, value: Math.round((tablet / total) * 100), color: "#f59e0b" },
+      ];
+    } else {
+      // TODO: Populate device data once userAgent is tracked in analytics_event_logs payload
+      deviceData = [];
+    }
 
     // Page views from event logs
     const pageViewEvents = events.filter(e => e.eventName === 'page_view');
@@ -408,7 +430,7 @@ router.get('/analytics/overview', async (req, res) => {
       .slice(0, 4)
       .map(([page, views]) => ({
         page,
-        views: views.toLocaleString('ar-SA'),
+        views: views.toLocaleString(numLocale),
         change: '+0%', // Would need historical comparison
         status: 'up' as const
       }));
@@ -418,14 +440,23 @@ router.get('/analytics/overview', async (req, res) => {
     const activeUsers = uniqueUsers.size;
     const conversionRate = activeUsers > 0 ? ((events.filter(e => e.eventName === 'user_login').length / activeUsers) * 100).toFixed(1) : '0';
     
-    // Average session time (mock for now - would need session tracking)
-    const avgSessionTime = '4:20';
+    // Average session time — calculate from user_session events if available, otherwise null
+    let avgSessionTime: string | null = null;
+    const sessionEvents = events.filter(e => e.eventName === 'user_session' && (e.payload as any)?.durationMs);
+    if (sessionEvents.length > 0) {
+      const totalMs = sessionEvents.reduce((sum, e) => sum + Number((e.payload as any).durationMs), 0);
+      const avgMs = totalMs / sessionEvents.length;
+      const avgMin = Math.floor(avgMs / 60000);
+      const avgSec = Math.floor((avgMs % 60000) / 1000);
+      avgSessionTime = `${avgMin}:${String(avgSec).padStart(2, '0')}`;
+    }
+    // TODO: Implement session duration tracking in analytics_event_logs to populate this metric
 
     res.json({
       success: true,
       metrics: {
-        totalVisits: totalVisits.toLocaleString('ar-SA'),
-        activeUsers: activeUsers.toLocaleString('ar-SA'),
+        totalVisits: totalVisits.toLocaleString(numLocale),
+        activeUsers: activeUsers.toLocaleString(numLocale),
         conversionRate: `${conversionRate}%`,
         avgSessionTime
       },
@@ -454,12 +485,13 @@ router.get('/notifications/templates', async (req, res) => {
     });
 
     // Map to notification template format
+    const locale = (req as any).locale || 'ar';
     const mappedTemplates = templates.map(t => ({
       id: t.id,
       name: t.title,
       channels: ['Email'], // Default - would need to track channels separately
       status: t.isActive ? 'Active' : 'Draft',
-      lastUpdated: formatRelativeTime(t.updatedAt),
+      lastUpdated: formatRelativeTime(t.updatedAt, locale),
       category: 'System' // Default category
     }));
 
@@ -480,27 +512,42 @@ router.get('/notifications/templates', async (req, res) => {
 router.get('/notifications/stats', async (req, res) => {
   try {
     const { prisma } = await import('../prismaClient');
+    const locale = (req as any).locale || 'ar';
+    const numLocale = locale === 'ar' ? 'ar-SA' : 'en-US';
     const now = new Date();
     const todayStart = new Date(now.setHours(0, 0, 0, 0));
 
-    // Count notifications sent today (using support_tickets as proxy)
-    const ticketsToday = await prisma.support_tickets.count({
+    // Count notification events sent today from analytics_event_logs
+    const notificationEventsToday = await prisma.analytics_event_logs.count({
       where: {
-        openedAt: { gte: todayStart }
-      }
+        eventName: { startsWith: 'notification' },
+        occurredAt: { gte: todayStart },
+      },
     });
 
-    // Calculate delivery rate (mock for now - would need actual notification tracking)
-    const deliveryRate = '99.8%';
-    const errors = 5; // Mock
-    const avgDeliveryTime = '1.2 ث'; // Mock
+    // Count failed notification events today
+    const failedNotifications = await prisma.analytics_event_logs.count({
+      where: {
+        eventName: 'notification_failed',
+        occurredAt: { gte: todayStart },
+      },
+    });
+
+    // Calculate delivery rate from actual data, or null if no data available
+    const totalAttempted = notificationEventsToday + failedNotifications;
+    const deliveryRate = totalAttempted > 0
+      ? `${((notificationEventsToday / totalAttempted) * 100).toFixed(1)}%`
+      : null; // TODO: No notification tracking data available yet
+
+    // TODO: Implement average delivery time tracking via payload.deliveryMs in notification events
+    const avgDeliveryTime: string | null = null;
 
     res.json({
       success: true,
       stats: {
-        notificationsToday: ticketsToday.toLocaleString('ar-SA'),
+        notificationsToday: notificationEventsToday.toLocaleString(numLocale),
         deliveryRate,
-        errors,
+        errors: failedNotifications,
         avgDeliveryTime
       }
     });
@@ -514,23 +561,38 @@ router.get('/notifications/stats', async (req, res) => {
   }
 });
 
-function formatRelativeTime(date: Date): string {
+function formatRelativeTime(date: Date, locale: string = 'ar'): string {
   const now = new Date();
   const diffMs = now.getTime() - new Date(date).getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 60) {
-    return `منذ ${diffMins} دقيقة`;
-  } else if (diffHours < 24) {
-    return `منذ ${diffHours} ساعة`;
-  } else if (diffDays === 1) {
-    return 'منذ يوم';
-  } else if (diffDays < 7) {
-    return `منذ ${diffDays} أيام`;
+  if (locale === 'ar') {
+    if (diffMins < 60) {
+      return `منذ ${diffMins} دقيقة`;
+    } else if (diffHours < 24) {
+      return `منذ ${diffHours} ساعة`;
+    } else if (diffDays === 1) {
+      return 'منذ يوم';
+    } else if (diffDays < 7) {
+      return `منذ ${diffDays} أيام`;
+    } else {
+      return `منذ ${Math.floor(diffDays / 7)} أسبوع`;
+    }
   } else {
-    return `منذ ${Math.floor(diffDays / 7)} أسبوع`;
+    if (diffMins < 60) {
+      return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    } else if (diffDays === 1) {
+      return '1 day ago';
+    } else if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    } else {
+      const weeks = Math.floor(diffDays / 7);
+      return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
+    }
   }
 }
 

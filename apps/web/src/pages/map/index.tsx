@@ -412,9 +412,9 @@ export default function MapPage() {
                   size="sm"
                   className={cn(
                     "h-9 gap-2 rounded-xl transition-all",
-                    filters.favoritesOnly 
-                      ? "bg-rose-50 text-rose-600 hover:bg-rose-100 hover:text-rose-700" 
-                      : "text-foreground/80 hover:bg-rose-50 hover:text-rose-600"
+                    filters.favoritesOnly
+                      ? "bg-destructive/5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      : "text-foreground/80 hover:bg-destructive/5 hover:text-destructive"
                   )}
                   onClick={() => setFilters((prev) => ({ ...prev, favoritesOnly: !prev.favoritesOnly }))}
                 >
@@ -638,7 +638,7 @@ export default function MapPage() {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-100 hover:text-rose-600"
+                        className="h-7 w-7 rounded-full bg-destructive/5 text-destructive hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => handleFavoritesToggle(property.id)}
                       >
                         <Heart className="h-3.5 w-3.5 fill-current" />

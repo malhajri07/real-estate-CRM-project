@@ -77,8 +77,7 @@ export const useSupportCategories = () => {
             try {
                 const json = await apiGet<SupportCategory[] | { categories?: SupportCategory[] }>("api/support/categories");
                 return Array.isArray(json) ? json : (json.categories || []);
-            } catch (e) {
-                console.warn("Categories API not found, returning empty for now");
+            } catch {
                 return [];
             }
         },
@@ -92,8 +91,7 @@ export const useSupportTemplates = () => {
             try {
                 const json = await apiGet<SupportTemplate[] | { templates?: SupportTemplate[] }>("api/support/templates");
                 return Array.isArray(json) ? json : (json.templates || []);
-            } catch (e) {
-                console.warn("Templates API not found, returning empty for now");
+            } catch {
                 return [];
             }
         },

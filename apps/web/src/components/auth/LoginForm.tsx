@@ -61,7 +61,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
       <CardContent className="space-y-6 p-8">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <Alert variant="destructive" className="bg-red-50 text-red-900 border-red-100 rounded-xl">
+            <Alert variant="destructive" className="bg-destructive/5 text-destructive border-destructive/20 rounded-xl">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}

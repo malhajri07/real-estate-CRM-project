@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { formatAdminDate } from "@/lib/formatters";
+import { formatAdminDate, formatPrice } from "@/lib/formatters";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { STATUS_COLORS } from "@/config/design-tokens";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -124,7 +124,6 @@ function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading:
                                 inv.subscription?.plan?.nameEn || 
                                 'فاتورة';
                             const amount = Number(inv.amountPaid || inv.amountDue || 0);
-                            const formattedAmount = amount.toLocaleString('en-US');
                             const statusMap: Record<string, { label: string; className: string }> = {
                                 'PAID': { label: 'مدفوعة', className: `${STATUS_COLORS.success.bg} ${STATUS_COLORS.success.text}` },
                                 'PENDING': { label: 'معلقة', className: `${STATUS_COLORS.pending.bg} ${STATUS_COLORS.pending.text}` },
@@ -143,7 +142,7 @@ function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading:
                                             <span className="text-xs font-bold text-muted-foreground/70 uppercase tracking-tighter">{invoiceType}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="py-4"><span className="text-sm font-bold text-primary">{formattedAmount} {inv.currency || 'ر.س'}</span></TableCell>
+                                    <TableCell className="py-4"><span className="text-sm font-bold text-primary">{formatPrice(amount, inv.currency || 'SAR')}</span></TableCell>
                                     <TableCell className="py-4"><span className="text-xs font-bold text-muted-foreground">{issueDate}</span></TableCell>
                                     <TableCell className="py-4">
                                         <Badge className={cn("text-xs font-bold border-0 px-3 py-1 rounded-lg", statusInfo.className)}>
@@ -217,8 +216,8 @@ export default function BillingManagement() {
                 ) : (
                     [
                         { 
-                            title: "إجمالي التحصيل", 
-                            value: `${(stats?.totalCollected || 0).toLocaleString('en-US')} ر.س`, 
+                            title: "إجمالي التحصيل",
+                            value: formatPrice(stats?.totalCollected || 0),
                             icon: Wallet, 
                             color: "text-muted-foreground", 
                             bg: "bg-muted/50" 

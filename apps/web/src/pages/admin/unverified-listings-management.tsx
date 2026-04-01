@@ -37,6 +37,7 @@ import {
   AdminSheetDescription,
 } from "@/components/admin";
 import { apiGet, apiPost } from "@/lib/apiClient";
+import { formatPrice } from "@/lib/formatters";
 import { useToast } from "@/hooks/use-toast";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { DELETE_BUTTON_STYLES } from "@/config/design-tokens";
@@ -95,9 +96,6 @@ export default function UnverifiedListingsManagement() {
   const [statusFilter, setStatusFilter] = useState<string>("Pending");
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Debug: Log component mount
-  console.log('UnverifiedListingsManagement component mounted');
 
   const { data: listings, isLoading } = useQuery<UnverifiedListing[]>({
     queryKey: ["/api/unverified-listings", statusFilter],
@@ -170,14 +168,6 @@ export default function UnverifiedListingsManagement() {
       hour: "2-digit",
       minute: "2-digit",
     }).format(d);
-  };
-
-  const formatPrice = (price: number, currency: string = "SAR") => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-      minimumFractionDigits: 0,
-    }).format(price);
   };
 
   const getStatusBadge = (status: string) => {
@@ -455,7 +445,7 @@ export default function UnverifiedListingsManagement() {
                   {selectedListing.furnished && <Badge variant="secondary" className="px-3 py-1 text-sm bg-purple-50 text-purple-700 hover:bg-purple-100">مفروش</Badge>}
                   {selectedListing.balcony && <Badge variant="secondary" className="px-3 py-1 text-sm bg-primary/10 text-primary hover:bg-primary/10">شرفة</Badge>}
                   {selectedListing.swimmingPool && <Badge variant="secondary" className="px-3 py-1 text-sm bg-cyan-50 text-cyan-700 hover:bg-cyan-100">مسبح</Badge>}
-                  {selectedListing.centralAc && <Badge variant="secondary" className="px-3 py-1 text-sm bg-orange-50 text-orange-700 hover:bg-orange-100">تكييف مركزي</Badge>}
+                  {selectedListing.centralAc && <Badge variant="secondary" className="px-3 py-1 text-sm bg-warning/10 text-warning hover:bg-warning/20">تكييف مركزي</Badge>}
                 </div>
               </div>
 

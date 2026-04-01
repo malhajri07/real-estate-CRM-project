@@ -52,21 +52,21 @@ export default function Settings() {
   const { t, dir } = useLanguage();
 
   const [accountDetails, setAccountDetails] = useState<AccountDetails>({
-    companyName: "شركة عقاراتي للتطوير العقاري",
-    businessType: "تطوير عقاري",
-    taxId: "1234567890",
-    website: "https://aqaraty.com",
-    description: "شركة رائدة في مجال التطوير العقاري في المملكة العربية السعودية",
-    address: "طريق الملك فهد، حي العليا",
-    city: "الرياض",
-    country: "المملكة العربية السعودية",
-    postalCode: "11564",
-    phone: "+966112345678",
-    email: "info@aqaraty.com",
-    contactPerson: "أحمد محمد العلي",
-    contactTitle: "مدير التطوير",
-    contactPhone: "+966501234567",
-    contactEmail: "ahmed.ali@aqaraty.com",
+    companyName: "",
+    businessType: "",
+    taxId: "",
+    website: "",
+    description: "",
+    address: "",
+    city: "",
+    country: "",
+    postalCode: "",
+    phone: "",
+    email: "",
+    contactPerson: "",
+    contactTitle: "",
+    contactPhone: "",
+    contactEmail: "",
   });
 
   const [userProfile, setUserProfile] = useState<UserProfile>({
@@ -85,7 +85,7 @@ export default function Settings() {
   const [notificationsOpen, setNotificationsOpen] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // Load user profile from API on mount
+  // Load user profile and organization data from API on mount
   useEffect(() => {
     (async () => {
       try {
@@ -100,6 +100,27 @@ export default function Settings() {
             department: data.department || "",
             avatar: data.avatarUrl || "",
           });
+          // Load organization data for company section
+          const org = data.organization;
+          if (org) {
+            setAccountDetails({
+              companyName: org.tradeName || org.legalName || "",
+              businessType: org.industry || "",
+              taxId: org.licenseNo || "",
+              website: org.website || "",
+              description: "",
+              address: org.address || "",
+              city: "",
+              country: "",
+              postalCode: "",
+              phone: org.phone || "",
+              email: org.email || "",
+              contactPerson: data.firstName ? `${data.firstName} ${data.lastName || ""}`.trim() : "",
+              contactTitle: data.jobTitle || "",
+              contactPhone: data.phone || "",
+              contactEmail: data.email || "",
+            });
+          }
         }
       } catch {
         // Silently fall back to empty profile — user can fill in manually

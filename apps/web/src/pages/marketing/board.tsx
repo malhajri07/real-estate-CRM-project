@@ -21,6 +21,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Megaphone, Sparkles, ShieldCheck } from "lucide-react";
+import { formatPrice } from "@/lib/formatters";
 import type { MarketingProposal, MarketingRequest, MarketingRequestStatus, MarketingRequestTier } from "@shared/types";
 import { useToast } from "@/hooks/use-toast";
 import { apiPost, apiGet } from "@/lib/apiClient";
@@ -276,7 +277,7 @@ export default function MarketingRequestsBoardPage() {
                     <div>
                       <dt className="font-medium text-foreground/80">الميزانية</dt>
                       <dd>
-                        {selectedRequest.budgetMin?.toLocaleString("en-US")} - {selectedRequest.budgetMax?.toLocaleString("en-US") || "غير محدد"} ر.س
+                        {formatPrice(selectedRequest.budgetMin)} - {selectedRequest.budgetMax ? formatPrice(selectedRequest.budgetMax) : "غير محدد"}
                       </dd>
                     </div>
                   )}
