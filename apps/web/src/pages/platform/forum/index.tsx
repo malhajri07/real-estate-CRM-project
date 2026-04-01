@@ -58,6 +58,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 interface ForumChannel {
   id: string;
@@ -130,6 +131,7 @@ function getVimeoEmbedUrl(url: string): string | null {
 
 export default function ForumPage() {
   const { t, dir } = useLanguage();
+  const showSkeleton = useMinLoadTime();
   const queryClient = useQueryClient();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isChannelOpen, setIsChannelOpen] = useState(false);
@@ -454,7 +456,7 @@ export default function ForumPage() {
             />
           </Card>
 
-          {isLoading ? (
+          {(isLoading || showSkeleton) ? (
             <ForumSkeleton />
           ) : posts.length === 0 ? (
             <EmptyState

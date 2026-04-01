@@ -31,6 +31,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { PAGE_WRAPPER } from '@/config/platform-theme';
 import { apiPost, apiDelete as apiDel } from '@/lib/apiClient';
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 const CITY_OPTIONS = ['الرياض', 'جدة', 'الدمام', 'مكة المكرمة', 'المدينة المنورة', 'الخبر', 'الطائف', 'تبوك'];
 const PROPERTY_TYPE_OPTIONS = ['شقة', 'فيلا', 'أرض', 'مكتب', 'محل تجاري', 'عمارة', 'مستودع'];
@@ -38,6 +39,7 @@ const PROPERTY_TYPE_OPTIONS = ['شقة', 'فيلا', 'أرض', 'مكتب', 'مح
 export default function SavedSearchesPage() {
   const { dir } = useLanguage();
   const { toast } = useToast();
+  const showSkeleton = useMinLoadTime();
   const qc = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
   const [alertName, setAlertName] = useState('');
@@ -174,7 +176,7 @@ export default function SavedSearchesPage() {
           </SheetContent>
         </Sheet>
 
-        {isLoading ? (
+        {(isLoading || showSkeleton) ? (
           <SavedSearchesSkeleton />
         ) : (
           <div className="space-y-4">

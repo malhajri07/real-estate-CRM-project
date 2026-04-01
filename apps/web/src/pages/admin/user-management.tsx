@@ -48,6 +48,7 @@ import {
   type AdminTableColumn,
 } from "@/components/admin";
 import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import {
   useAdminUsers,
   useAdminRoles,
@@ -89,6 +90,7 @@ const createEmptyFormState = (): UserFormState => ({
 });
 
 export default function UserManagement() {
+  const showSkeleton = useMinLoadTime();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [roleFilter, setRoleFilter] = useState<"all" | UserRole>("all");
@@ -389,7 +391,7 @@ export default function UserManagement() {
       .filter((v): v is string => Boolean(v))
   ).size;
 
-  if (isLoadingUsers) {
+  if (isLoadingUsers || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
         <AdminPageSkeleton />

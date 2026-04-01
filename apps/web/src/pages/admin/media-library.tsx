@@ -40,6 +40,7 @@ import {
 import { Upload, Trash2, Search, Grid, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 
@@ -82,6 +83,7 @@ const fetchMedia = async (params: {
 };
 
 export default function MediaLibrary() {
+  const showSkeleton = useMinLoadTime();
   const [searchTerm, setSearchTerm] = useState("");
   const [mimeTypeFilter, setMimeTypeFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
@@ -151,7 +153,7 @@ export default function MediaLibrary() {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
         <AdminPageSkeleton />

@@ -35,6 +35,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 
 interface SEOSettings {
   pagePath: string;
@@ -60,6 +62,7 @@ const fetchSitemap = async (): Promise<string> =>
   apiGetText("api/cms/seo/sitemap.xml");
 
 export default function SEOManagement() {
+  const showSkeleton = useMinLoadTime();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedPage, setSelectedPage] = useState<string>("");
@@ -139,6 +142,14 @@ export default function SEOManagement() {
     e.preventDefault();
     updateMutation.mutate(formData);
   };
+
+  if (isLoading || showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <AdminPageSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>

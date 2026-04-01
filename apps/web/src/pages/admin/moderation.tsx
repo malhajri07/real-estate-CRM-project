@@ -13,8 +13,11 @@ import { CheckCircle2, XCircle, ShieldCheck, Clock, Check, X } from "lucide-reac
 import { LISTING_STATUS_LABELS, PROPERTY_TYPE_LABELS, LISTING_TYPE_LABELS } from "@/constants/labels";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { formatPrice } from "@/lib/formatters";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 
 export default function ModerationQueuePage() {
+  const showSkeleton = useMinLoadTime();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -147,6 +150,14 @@ export default function ModerationQueuePage() {
     ],
     [processingId],
   );
+
+  if (isLoading || showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <AdminPageSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>

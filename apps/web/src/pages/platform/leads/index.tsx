@@ -39,6 +39,7 @@ import {
   MARITAL_STATUS_LABELS,
   getLabel,
 } from "@/constants/labels";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 const getStatusLabel = (status: string) => getLabel(LEAD_STATUS_LABELS, status);
 const getInterestTypeLabel = (interestType: string) =>
@@ -76,6 +77,7 @@ export default function Contacts() {
   const locale = language === "ar" ? "ar-SA" : "en-US";
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const showSkeleton = useMinLoadTime();
 
   // Quick View state
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
@@ -306,7 +308,7 @@ export default function Contacts() {
   }
 
   // Loading state
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <PageHeader title={t("contacts.title") || "جهات الاتصال"} />

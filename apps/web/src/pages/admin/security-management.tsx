@@ -30,6 +30,8 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
 import { ADMIN_BUTTON_PRIMARY, STATUS_COLORS } from "@/config/design-tokens";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 
 import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/lib/apiClient";
@@ -130,12 +132,21 @@ function SecurityAuditLogs() {
 // --- Main Page Component ---
 
 export default function SecurityManagement() {
+    const showSkeleton = useMinLoadTime();
     const [location, setLocation] = useLocation();
     const activeTab = location.split('/').pop() || 'access-control';
 
     const handleTabChange = (value: string) => {
         setLocation(`/admin/security/${value}`);
     };
+
+    if (showSkeleton) {
+        return (
+            <div className={PAGE_WRAPPER}>
+                <AdminPageSkeleton />
+            </div>
+        );
+    }
 
     return (
         <div className={PAGE_WRAPPER}>

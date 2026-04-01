@@ -38,6 +38,7 @@ import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { STATUS_COLORS } from "@/config/design-tokens";
 import type { BadgeVariant } from "@/lib/status-variants";
 import { formatAdminDate } from "@/lib/formatters";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 const STAGES: { id: string; title: string; badgeVariant: BadgeVariant; accent: string }[] = [
   { id: "NEW", title: "جديدة", badgeVariant: "secondary", accent: STATUS_COLORS.inactive.text },
@@ -60,6 +61,7 @@ export default function Pipeline() {
   const queryClient = useQueryClient();
   const [showRequestDrawer, setShowRequestDrawer] = useState(false);
   const { dir, language } = useLanguage();
+  const showSkeleton = useMinLoadTime();
   const locale = language === "ar" ? "ar-SA" : "en-US";
 
   const { data: deals, isLoading, isError, refetch } = useQuery<Deal[]>({ queryKey: ["/api/deals"] });
@@ -241,7 +243,7 @@ export default function Pipeline() {
     setShowRequestDrawer(false);
   };
 
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <PipelineSkeleton />

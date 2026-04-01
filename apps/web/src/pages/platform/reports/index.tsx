@@ -26,6 +26,7 @@ import { ReportsSkeleton } from "@/components/skeletons/page-skeletons";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { formatAdminDate } from "@/lib/formatters";
 
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import ReportFilters from "./ReportFilters";
 import ReportCharts from "./ReportCharts";
 import ReportTable from "./ReportTable";
@@ -34,6 +35,7 @@ export default function Reports() {
   const [selectedPeriod, setSelectedPeriod] = useState("30");
   const { toast } = useToast();
   const { t, dir } = useLanguage();
+  const showSkeleton = useMinLoadTime();
 
   const { data: leads = [], isLoading: leadsLoading, isError: leadsError, refetch: refetchLeads } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
@@ -312,7 +314,7 @@ export default function Reports() {
         </Button>
       </PageHeader>
 
-      {isInitialLoading && (
+      {(isInitialLoading || showSkeleton) && (
         <ReportsSkeleton />
       )}
 

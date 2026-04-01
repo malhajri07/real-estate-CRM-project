@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import {
   useAdminOrganizations,
   useCreateAdminOrganization,
@@ -37,6 +38,7 @@ import { ADMIN_BUTTON_PRIMARY, DELETE_BUTTON_STYLES, ACTION_BUTTON_ICON, STATUS_
 import { GRID_METRICS } from "@/config/platform-theme";
 
 export default function OrganizationManagement() {
+  const showSkeleton = useMinLoadTime();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
@@ -150,7 +152,7 @@ export default function OrganizationManagement() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
         <AdminPageSkeleton />

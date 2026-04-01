@@ -37,6 +37,8 @@ import {
 import { cn } from "@/lib/utils";
 import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
 import { CHART_COLORS } from "@/config/design-tokens";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 
 // --- Sub-components ---
 
@@ -61,6 +63,7 @@ function CustomTooltip({ active, payload, label }: any) {
 // --- Main Page Component ---
 
 export default function AnalyticsManagement() {
+    const showSkeleton = useMinLoadTime();
     const [timeRange, setTimeRange] = useState("7d");
 
     const { data: analyticsData, isLoading } = useQuery<{
@@ -83,6 +86,14 @@ export default function AnalyticsManagement() {
     const visitorData = analyticsData?.visitorData || [];
     const deviceData = analyticsData?.deviceData || [];
     const pageViews = analyticsData?.pageViews || [];
+
+    if (isLoading || showSkeleton) {
+        return (
+            <div className={PAGE_WRAPPER}>
+                <AdminPageSkeleton />
+            </div>
+        );
+    }
 
     return (
         <div className={PAGE_WRAPPER}>

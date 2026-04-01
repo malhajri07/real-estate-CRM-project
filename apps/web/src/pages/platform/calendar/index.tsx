@@ -25,6 +25,7 @@ import { apiPost, apiPut } from "@/lib/apiClient";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import type { Lead } from "@shared/types";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 type Appointment = {
     id: number;
@@ -110,6 +111,7 @@ function AppointmentForm({
 export default function AppointmentsManager() {
     const { t, dir, language } = useLanguage();
     const { toast } = useToast();
+    const showSkeleton = useMinLoadTime();
     const queryClient = useQueryClient();
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
@@ -224,7 +226,7 @@ export default function AppointmentsManager() {
                     <CardTitle>قائمة المواعيد</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {isLoading ? (
+                    {(isLoading || showSkeleton) ? (
                         <CalendarSkeleton />
                     ) : appointments && appointments.length > 0 ? (
                         <div className="space-y-4">

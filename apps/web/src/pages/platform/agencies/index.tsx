@@ -25,14 +25,16 @@ import { CardGridSkeleton } from "@/components/skeletons/page-skeletons";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import EmptyState from "@/components/ui/empty-state";
 import { Building2 } from "lucide-react";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 type AgencyRow = { id: string; name: string; verified: boolean; agentsCount: number; listingsCount: number };
 
 export default function AgenciesPage() {
   const { t, dir } = useLanguage();
+  const showSkeleton = useMinLoadTime();
   const { data = [], isLoading, error, refetch } = useQuery<AgencyRow[]>({ queryKey: ["/api/agencies"] });
   
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <CardGridSkeleton cards={6} />

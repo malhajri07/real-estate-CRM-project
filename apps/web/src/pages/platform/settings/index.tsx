@@ -24,6 +24,7 @@ import { PAGE_WRAPPER } from "@/config/platform-theme";
 import PageHeader from "@/components/ui/page-header";
 import { SettingsSkeleton } from "@/components/skeletons/page-skeletons";
 import { apiGet, apiPut } from "@/lib/apiClient";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 import ProfileSection from "./ProfileSection";
 import type { UserProfile } from "./ProfileSection";
@@ -51,6 +52,7 @@ interface AccountDetails {
 export default function Settings() {
   const { toast } = useToast();
   const { t, dir } = useLanguage();
+  const showSkeleton = useMinLoadTime();
 
   const [accountDetails, setAccountDetails] = useState<AccountDetails>({
     companyName: "",
@@ -167,7 +169,7 @@ export default function Settings() {
     }
   };
 
-  if (pageLoading) {
+  if (pageLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <SettingsSkeleton />

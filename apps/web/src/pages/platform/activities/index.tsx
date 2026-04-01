@@ -16,10 +16,12 @@ import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
 import { formatAdminDate } from "@/lib/formatters";
 import type { Activity } from "@shared/types";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 export default function Activities() {
     const [searchQuery, setSearchQuery] = useState("");
     const { t, dir, language } = useLanguage();
+    const showSkeleton = useMinLoadTime();
     const locale = language === "ar" ? "ar-SA" : "en-US";
     const iconSpacing = "me-2";
 
@@ -41,7 +43,7 @@ export default function Activities() {
         );
     }
 
-    if (isLoading) {
+    if (isLoading || showSkeleton) {
         return (
             <div className={PAGE_WRAPPER} dir={dir}>
                 <PageHeader title={t("nav.activities") || "الأنشطة"} />

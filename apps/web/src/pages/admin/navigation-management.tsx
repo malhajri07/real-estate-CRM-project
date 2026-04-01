@@ -59,6 +59,8 @@ import { useToast } from "@/hooks/use-toast";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 
 interface NavigationLink {
   id: string;
@@ -74,6 +76,7 @@ const fetchNavigationLinks = async (): Promise<NavigationLink[]> =>
   apiGet<NavigationLink[]>("api/cms/navigation/all");
 
 export default function NavigationManagement() {
+  const showSkeleton = useMinLoadTime();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingLink, setEditingLink] = useState<NavigationLink | null>(null);
   const { toast } = useToast();
@@ -175,6 +178,14 @@ export default function NavigationManagement() {
       createMutation.mutate(newLink);
     }
   };
+
+  if (isLoading || showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <AdminPageSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>

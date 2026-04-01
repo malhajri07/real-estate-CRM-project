@@ -50,6 +50,8 @@ import { Plus, Edit, Trash2, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 
 interface Template {
   id: string;
@@ -89,6 +91,7 @@ const fetchTemplates = async (params: {
 };
 
 export default function TemplatesManagement() {
+  const showSkeleton = useMinLoadTime();
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -160,6 +163,14 @@ export default function TemplatesManagement() {
       createMutation.mutate(formData);
     }
   };
+
+  if (isLoading || showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <AdminPageSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>

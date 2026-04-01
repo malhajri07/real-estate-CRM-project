@@ -33,11 +33,13 @@ import EmptyState from "@/components/ui/empty-state";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { formatAdminDate } from "@/lib/formatters";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const { t, dir, language } = useLanguage();
+  const showSkeleton = useMinLoadTime();
   const locale = language === "ar" ? "ar-SA" : "en-US";
 
   const { data: leads, isLoading, isError, refetch } = useQuery<Lead[]>({
@@ -96,7 +98,7 @@ export default function Clients() {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <ClientDetailSkeleton />

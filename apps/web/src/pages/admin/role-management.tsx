@@ -49,6 +49,8 @@ import {
   type AdminRole,
 } from "@/lib/rbacAdmin";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 
 interface RoleFormState {
   id?: string;
@@ -66,6 +68,7 @@ const createEmptyRoleForm = (): RoleFormState => ({
 });
 
 export default function RoleManagement() {
+  const showSkeleton = useMinLoadTime();
   const [dialogMode, setDialogMode] = useState<RoleDialogMode>("create");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -291,6 +294,14 @@ export default function RoleManagement() {
 
   const customRolesCount = roles.filter((role) => !role.isSystem).length;
   const organizationRolesCount = roles.filter((role) => role.scope === "ORGANIZATION").length;
+
+  if (isLoadingRoles || showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <AdminPageSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>

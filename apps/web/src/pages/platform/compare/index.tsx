@@ -23,6 +23,7 @@ import PageHeader from "@/components/ui/page-header";
 import { CompareSkeleton } from "@/components/skeletons/page-skeletons";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import EmptyState from "@/components/ui/empty-state";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 type Listing = {
   id: string;
@@ -39,6 +40,7 @@ type Listing = {
 
 export default function ComparePage() {
   const { t, dir } = useLanguage();
+  const showSkeleton = useMinLoadTime();
   const [items, setItems] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +77,7 @@ export default function ComparePage() {
 
   useEffect(() => { load(); }, [ids]);
 
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <CompareSkeleton />

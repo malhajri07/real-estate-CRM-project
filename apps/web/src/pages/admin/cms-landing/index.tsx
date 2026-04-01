@@ -41,12 +41,14 @@ import { useCMSLandingSections } from "./hooks";
 import { apiPut, apiPost, apiDelete } from "@/lib/apiClient";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PageSectionHeader } from "@/components/ui/page-section-header";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 interface CMSLandingPageProps {
   embedded?: boolean;
 }
 
 const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => {
+  const showSkeleton = useMinLoadTime();
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"draft" | "published">("draft");
   const [sectionForm, setSectionForm] = useState<SectionFormState | null>(null);
@@ -321,7 +323,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
     }
   };
 
-  if (loading) {
+  if (loading || showSkeleton) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="text-lg font-medium text-muted-foreground">

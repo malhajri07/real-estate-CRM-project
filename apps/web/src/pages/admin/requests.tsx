@@ -27,6 +27,7 @@ import { formatAdminDate } from "@/lib/formatters";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { DELETE_BUTTON_STYLES } from "@/config/design-tokens";
 import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { Badge } from "@/components/ui/badge";
 import { Search, Download, RefreshCw } from "lucide-react";
 
@@ -59,6 +60,7 @@ type RequestItem = {
 };
 
 export default function AdminRequestsPage() {
+  const showSkeleton = useMinLoadTime();
   const { toast } = useToast();
   const [data, setData] = useState<RequestItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -107,7 +109,7 @@ export default function AdminRequestsPage() {
     window.open('/api/requests/export', '_blank');
   };
 
-  if (loading) {
+  if (loading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
         <AdminPageSkeleton />

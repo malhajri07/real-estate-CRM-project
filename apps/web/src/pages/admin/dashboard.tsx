@@ -64,6 +64,7 @@ import {
 } from "recharts";
 import { CHART_COLORS, CHART_HEIGHT } from "@/config/design-tokens";
 import { GRID_METRICS, GRID_TWO_COL } from "@/config/platform-theme";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 // LABELS mapping removed - now using central LanguageContext translations
 
@@ -500,6 +501,7 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
 
 
 export default function RBACDashboard() {
+  const showSkeleton = useMinLoadTime();
   const { logout, user } = useAuth();
   const { dir, t } = useLanguage();
   const [location, setLocation] = useLocation();
@@ -588,7 +590,7 @@ export default function RBACDashboard() {
         return (
           <OverviewDashboard
             data={dashboard.data}
-            isLoading={dashboard.isLoading || dashboard.isFetching}
+            isLoading={dashboard.isLoading || dashboard.isFetching || showSkeleton}
             error={(dashboard.error as Error) ?? null}
           />
         );

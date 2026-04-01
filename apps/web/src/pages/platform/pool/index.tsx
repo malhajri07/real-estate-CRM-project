@@ -31,6 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 // --- Customer Requests helpers ---
 
@@ -125,6 +126,7 @@ const formatDateTime = (value: unknown): string => {
 
 export default function Requests() {
     const { t, dir } = useLanguage();
+    const showSkeleton = useMinLoadTime();
     const queryClient = useQueryClient();
 
     // ── Pool state ──
@@ -347,7 +349,7 @@ export default function Requests() {
 
                     {/* Pool table */}
                     <Card className="overflow-hidden">
-                        {poolLoading ? (
+                        {(poolLoading || showSkeleton) ? (
                             <TableSkeleton rows={6} cols={11} />
                         ) : poolIsError ? (
                             <QueryErrorFallback

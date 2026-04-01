@@ -34,6 +34,8 @@ import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { STATUS_COLORS } from "@/config/design-tokens";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 
 type Invoice = {
     id: string;
@@ -169,6 +171,7 @@ function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading:
 // --- Main Page Component ---
 
 export default function BillingManagement() {
+    const showSkeleton = useMinLoadTime();
     const [location, setLocation] = useLocation();
     const activeTab = location.split('/').pop() || 'invoices';
 
@@ -188,6 +191,14 @@ export default function BillingManagement() {
 
     const invoices = invoicesData?.invoices || [];
     const stats = statsData?.stats;
+
+    if ((invoicesLoading && statsLoading) || showSkeleton) {
+        return (
+            <div className={PAGE_WRAPPER}>
+                <AdminPageSkeleton />
+            </div>
+        );
+    }
 
     return (
         <div className={PAGE_WRAPPER}>

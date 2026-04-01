@@ -17,7 +17,7 @@
  * - apps/web/src/hooks/useDashboardData.ts - Dashboard data hook
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
@@ -60,6 +60,7 @@ import {
   Clock,
 } from "lucide-react";
 import AddPropertyDrawer from "@/components/modals/add-property-drawer";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { useLanguage } from "@/contexts/LanguageContext";
 import EmptyState from "@/components/ui/empty-state";
 import PageHeader from "@/components/ui/page-header";
@@ -83,13 +84,7 @@ type MetricResponse = {
 export default function Dashboard() {
   const [addPropertyDrawerOpen, setAddPropertyDrawerOpen] = useState(false);
   const [completedactivities, setCompletedActivities] = useState<string[]>([]);
-  const [minLoadTime, setMinLoadTime] = useState(true);
-
-  // Show skeleton for at least 2 seconds so the layout is visible
-  useEffect(() => {
-    const timer = setTimeout(() => setMinLoadTime(false), 2000);
-    return () => clearTimeout(timer);
-  }, []);
+  const minLoadTime = useMinLoadTime();
   const { dir, language, t } = useLanguage();
   const [, setLocation] = useLocation();
   const { user } = useAuth();

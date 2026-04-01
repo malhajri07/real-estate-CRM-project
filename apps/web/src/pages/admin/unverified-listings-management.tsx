@@ -41,6 +41,7 @@ import { formatPrice } from "@/lib/formatters";
 import { useToast } from "@/hooks/use-toast";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { DELETE_BUTTON_STYLES } from "@/config/design-tokens";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 
 interface UnverifiedListing {
@@ -91,6 +92,7 @@ interface UnverifiedListing {
 }
 
 export default function UnverifiedListingsManagement() {
+  const showSkeleton = useMinLoadTime();
   const [selectedListing, setSelectedListing] = useState<UnverifiedListing | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>("Pending");
@@ -201,7 +203,7 @@ export default function UnverifiedListingsManagement() {
           }
         />
 
-        {isLoading ? (
+        {(isLoading || showSkeleton) ? (
           <AdminPageSkeleton />
         ) : !listings || listings.length === 0 ? (
           <EmptyState

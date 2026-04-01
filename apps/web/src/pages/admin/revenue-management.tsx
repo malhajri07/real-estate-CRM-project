@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import {
     useAdminBillingAnalytics,
     useAdminSubscriptions,
@@ -37,9 +38,10 @@ import {
 // --- Sub-components ---
 
 function OverviewTab() {
+    const showSkeleton = useMinLoadTime();
     const { data, isLoading, error } = useAdminBillingAnalytics();
 
-    if (isLoading) {
+    if (isLoading || showSkeleton) {
         return <AdminPageSkeleton />;
     }
 
@@ -213,6 +215,7 @@ const PlanFeature = ({ feature }: { feature: string }) => (
 );
 
 function ActiveSubscriptionsTab() {
+    const showSkeleton = useMinLoadTime();
     const { data: subscriptions, isLoading, error } = useAdminSubscriptions();
 
     const subscriptionColumns: AdminTableColumn<any>[] = [
@@ -268,7 +271,7 @@ function ActiveSubscriptionsTab() {
         },
     ];
 
-    if (isLoading) {
+    if (isLoading || showSkeleton) {
         return <AdminPageSkeleton />;
     }
 
@@ -359,9 +362,10 @@ function PaymentMethodsTab() {
 }
 
 function PlansTab() {
+    const showSkeleton = useMinLoadTime();
     const { data: plans, isLoading, error } = useAdminPlans();
 
-    if (isLoading) {
+    if (isLoading || showSkeleton) {
         return <AdminPageSkeleton />;
     }
 

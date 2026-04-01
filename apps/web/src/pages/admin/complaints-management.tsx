@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { Input } from "@/components/ui/input";
 import {
     Table,
@@ -114,10 +115,11 @@ function ComplaintsSummaryCards() {
 }
 
 function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | "ALL_OPEN" }) {
+    const showSkeleton = useMinLoadTime();
     const { data: tickets, isLoading, error } = useSupportTickets();
     const updateStatusMutation = useUpdateTicketStatus();
 
-    if (isLoading) return <AdminPageSkeleton />;
+    if (isLoading || showSkeleton) return <AdminPageSkeleton />;
     if (error) return <div className="p-6 text-center text-destructive font-bold">فشل تحميل التذاكر</div>;
 
     const filteredData = (tickets || []).filter((item) => {
@@ -225,9 +227,10 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
 }
 
 function CategoriesTab() {
+    const showSkeleton = useMinLoadTime();
     const { data: categories, isLoading } = useSupportCategories();
 
-    if (isLoading) return <AdminPageSkeleton />;
+    if (isLoading || showSkeleton) return <AdminPageSkeleton />;
 
     return (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -287,9 +290,10 @@ function CategoriesTab() {
 }
 
 function TemplatesTab() {
+    const showSkeleton = useMinLoadTime();
     const { data: templates, isLoading } = useSupportTemplates();
 
-    if (isLoading) return <AdminPageSkeleton />;
+    if (isLoading || showSkeleton) return <AdminPageSkeleton />;
 
     return (
         <div className="space-y-6">

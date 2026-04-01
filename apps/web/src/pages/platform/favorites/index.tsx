@@ -24,14 +24,16 @@ import { FavoritesSkeleton } from "@/components/skeletons/page-skeletons";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import EmptyState from "@/components/ui/empty-state";
 import ListingCard from "@/components/listings/ListingCard";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 export default function FavoritesPage() {
   const { t, dir } = useLanguage();
+  const showSkeleton = useMinLoadTime();
   const { data: items = [], isLoading, error, refetch } = useQuery<Property[]>({
     queryKey: ["/api/favorites"],
   });
 
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <FavoritesSkeleton />

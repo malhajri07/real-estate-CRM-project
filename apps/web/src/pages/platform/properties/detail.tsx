@@ -33,12 +33,14 @@ import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import PageHeader from "@/components/ui/page-header";
 import { apiGet } from "@/lib/apiClient";
 import type { Property } from "@shared/types";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 export default function PropertyDetail() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { dir, language } = useLanguage();
+  const showSkeleton = useMinLoadTime();
   const locale = language === "ar" ? "ar-SA" : "en-US";
 
   const { data: property, isLoading, error } = useQuery<Property>({
@@ -85,7 +87,7 @@ export default function PropertyDetail() {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <PageHeader title="تفاصيل العقار" />

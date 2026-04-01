@@ -27,6 +27,7 @@ import { motion } from "framer-motion";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MapSkeleton } from "@/components/skeletons/page-skeletons";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { Button } from "@/components/ui/button";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import {
@@ -60,6 +61,7 @@ import {
 export default function MapPage() {
   const [, navigate] = useLocation();
   const { dir } = useLanguage();
+  const showSkeleton = useMinLoadTime();
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
 
   // Fetch location data
@@ -344,6 +346,15 @@ export default function MapPage() {
       </div>
     );
   };
+
+  if (showSkeleton || listingsQuery.isLoading) {
+    return (
+      <div className="min-h-screen bg-[rgb(245,245,247)]" dir={dir}>
+        <PublicHeader />
+        <MapSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[rgb(245,245,247)] font-sans text-foreground overflow-x-hidden" dir={dir}>

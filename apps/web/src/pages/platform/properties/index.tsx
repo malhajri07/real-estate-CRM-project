@@ -32,11 +32,13 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import PageHeader from "@/components/ui/page-header";
 
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import PropertiesFilters from "./PropertiesFilters";
 import PropertiesGrid from "./PropertiesGrid";
 import PropertiesTable from "./PropertiesTable";
 
 export default function Properties() {
+  const showSkeleton = useMinLoadTime();
   const { t, dir } = useLanguage();
   const [addPropertyDrawerOpen, setAddPropertyDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -218,7 +220,7 @@ export default function Properties() {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <div className="text-sm font-medium text-muted-foreground mb-4">جار تحميل العقارات...</div>

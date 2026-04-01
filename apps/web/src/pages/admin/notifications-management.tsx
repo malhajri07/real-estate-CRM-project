@@ -27,6 +27,8 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
 import { ADMIN_BUTTON_PRIMARY } from "@/config/design-tokens";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 
 type NotificationTemplate = {
     id: string;
@@ -116,6 +118,7 @@ function NotificationTemplates({ templates, isLoading }: { templates: Notificati
 // --- Main Page Component ---
 
 export default function NotificationsManagement() {
+    const showSkeleton = useMinLoadTime();
     const [location, setLocation] = useLocation();
     const activeTab = location.split('/').pop() || 'templates';
 
@@ -137,6 +140,14 @@ export default function NotificationsManagement() {
 
     const templates = templatesData?.templates || [];
     const stats = statsData?.stats;
+
+    if ((templatesLoading && statsLoading) || showSkeleton) {
+        return (
+            <div className={PAGE_WRAPPER}>
+                <AdminPageSkeleton />
+            </div>
+        );
+    }
 
     return (
         <div className={PAGE_WRAPPER}>

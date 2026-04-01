@@ -64,6 +64,7 @@ import {
 } from "@/components/admin";
 import { Spinner } from "@/components/ui/spinner";
 import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Edit, Trash2, Eye, Search, Image as ImageIcon, CheckSquare, Square, MoreVertical, History, RotateCcw } from "lucide-react";
@@ -221,6 +222,7 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
 }
 
 export default function ArticlesManagement() {
+  const showSkeleton = useMinLoadTime();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -377,7 +379,7 @@ export default function ArticlesManagement() {
     );
   };
 
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
         <AdminPageSkeleton />

@@ -26,13 +26,15 @@ import { ClientDetailSkeleton } from "@/components/skeletons/page-skeletons";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import EmptyState from "@/components/ui/empty-state";
 import { Building } from "lucide-react";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 export default function AgentPage() {
   const { t, dir } = useLanguage();
+  const showSkeleton = useMinLoadTime();
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error, refetch } = useQuery<{ agent: any; listings: any[] }>({ queryKey: ["/api/agencies/agent", id] });
   
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <ClientDetailSkeleton />

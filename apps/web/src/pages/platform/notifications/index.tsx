@@ -40,10 +40,12 @@ import EmptyState from "@/components/ui/empty-state";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER, GRID_TWO_COL } from "@/config/platform-theme";
 import PageHeader from "@/components/ui/page-header";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 export default function Notifications() {
   const { t, dir, language } = useLanguage();
   const locale = language === "ar" ? "ar-SA" : "en-US";
+  const showSkeleton = useMinLoadTime();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [campaignTitle, setCampaignTitle] = useState("");
@@ -153,7 +155,7 @@ export default function Notifications() {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <NotificationsSkeleton />
