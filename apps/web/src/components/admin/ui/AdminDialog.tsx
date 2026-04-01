@@ -3,8 +3,8 @@ import { Sheet, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescrip
 import { cn } from "@/lib/utils";
 
 /**
- * AdminDialog - Now implemented as a bottom drawer (Sheet side="bottom")
- * for a unified mobile-first UX. Drop-in replacement for the old centered Dialog.
+ * AdminDialog - Bottom drawer (Sheet side="bottom") with centered text.
+ * Drop-in replacement for the old centered Dialog.
  */
 
 const AdminDialog = Sheet;
@@ -20,11 +20,7 @@ const AdminDialogContent = React.forwardRef<
     <SheetContent
         ref={ref}
         side="bottom"
-        className={cn(
-            "max-h-[85vh] rounded-t-2xl overflow-y-auto",
-            "bg-card border-t border-border shadow-lg",
-            className
-        )}
+        className={cn("bg-card border-t border-border shadow-lg", className)}
         {...props}
     >
         {children}
@@ -37,7 +33,7 @@ const AdminDialogHeader = ({
     ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
     <SheetHeader
-        className={cn("text-start", className)}
+        className={cn("text-center", className)}
         {...props}
     />
 );
@@ -49,7 +45,7 @@ const AdminDialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
     <SheetFooter
         className={cn(
-            "flex flex-col-reverse sm:flex-row sm:justify-end gap-2",
+            "flex flex-col-reverse gap-2 sm:flex-row sm:justify-center",
             className
         )}
         {...props}

@@ -63,11 +63,11 @@ export default function AgenciesPage() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {data.map((a) => (
               <Card key={a.id} className="hover:shadow-lg transition cursor-pointer">
-                <CardContent className="p-5">
+                <CardContent className="p-6">
                   <a href={`/home/platform/agency/${a.id}`} className="block">
                     <div className="flex justify-between items-center">
                       <div>
-                        <div className="text-sm font-semibold">
+                        <div className="text-sm font-bold">
                           {a.name}{a.verified && <span className="ms-2 text-primary">✓</span>}
                         </div>
                         <div className="text-xs text-muted-foreground">

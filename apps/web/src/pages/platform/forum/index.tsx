@@ -246,7 +246,7 @@ export default function ForumPage() {
 
         {/* ── Bottom Drawer: Create Channel ── */}
         <Sheet open={isChannelOpen} onOpenChange={setIsChannelOpen}>
-          <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl" dir={dir}>
+          <SheetContent side="bottom" dir={dir}>
             <SheetHeader>
               <SheetTitle>{t("forum.create_channel")}</SheetTitle>
               <SheetDescription>{t("forum.channel_description") || "إنشاء قناة جديدة في المنتدى"}</SheetDescription>
@@ -294,7 +294,7 @@ export default function ForumPage() {
 
         {/* ── Bottom Drawer: Create Post ── */}
         <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl" dir={dir}>
+          <SheetContent side="bottom" dir={dir}>
             <SheetHeader>
               <SheetTitle>{t("forum.start_discussion")}</SheetTitle>
               <SheetDescription>{t("forum.placeholder") || "ابدأ نقاشاً جديداً"}</SheetDescription>

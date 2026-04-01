@@ -61,9 +61,15 @@ const SheetContent = React.forwardRef<
     <SheetOverlay />
     <SheetPrimitive.Content
       ref={ref}
-      className={cn(sheetVariants({ side }), className)}
+      className={cn(sheetVariants({ side }), "overflow-y-auto", className)}
       {...props}
     >
+      {/* Bottom drawer drag handle */}
+      {side === "bottom" && (
+        <div className="flex justify-center pt-2 pb-1">
+          <div className="h-1.5 w-12 rounded-full bg-muted-foreground/20" />
+        </div>
+      )}
       {children}
       <SheetPrimitive.Close className="absolute end-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
         <X className="h-4 w-4" />
@@ -80,7 +86,7 @@ const SheetHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-2 text-center sm:text-start",
+      "flex flex-col space-y-2 text-center",
       className
     )}
     {...props}
@@ -94,7 +100,7 @@ const SheetFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+      "flex flex-col-reverse gap-2 sm:flex-row sm:justify-center",
       className
     )}
     {...props}

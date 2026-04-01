@@ -133,7 +133,7 @@ export default function SendWhatsAppModal({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="overflow-y-auto" dir={dir}>
+      <SheetContent side="bottom" dir={dir}>
         <SheetHeader>
           <SheetTitle className="flex items-center gap-3">
             {getStatusIcon()}

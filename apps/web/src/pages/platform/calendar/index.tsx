@@ -166,7 +166,7 @@ export default function AppointmentsManager() {
 
             {/* ── Bottom Drawer: New Appointment ── */}
             <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl">
+                <SheetContent side="bottom">
                     <SheetHeader>
                         <SheetTitle>موعد جديد</SheetTitle>
                         <SheetDescription>أدخل تفاصيل الموعد الجديد</SheetDescription>

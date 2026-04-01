@@ -123,7 +123,7 @@ export default function SavedSearchesPage() {
         </Card>
 
         <Sheet open={showCreate} onOpenChange={setShowCreate}>
-          <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl">
+          <SheetContent side="bottom">
             <SheetHeader>
               <SheetTitle>بحث محفوظ جديد</SheetTitle>
               <SheetDescription>حدد فلاتر البحث المطلوبة لتنبيهك عند توفر عقارات مطابقة</SheetDescription>

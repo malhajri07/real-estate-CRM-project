@@ -76,9 +76,9 @@ export default function AgencyPage() {
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {data.agents.map((u) => (
                   <Card key={u.id} className="hover:shadow-md transition cursor-pointer">
-                    <CardContent className="p-4">
+                    <CardContent className="p-6">
                       <a href={`/home/platform/agent/${u.id}`} className="block">
-                        <div className="text-sm font-semibold">{u.firstName} {u.lastName}</div>
+                        <div className="text-sm font-bold">{u.firstName} {u.lastName}</div>
                       </a>
                     </CardContent>
                   </Card>
@@ -103,8 +103,8 @@ export default function AgencyPage() {
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 {data.listings.map((p) => (
                   <Card key={p.id}>
-                    <CardContent className="p-5">
-                      <div className="text-sm font-semibold">{p.title}</div>
+                    <CardContent className="p-6">
+                      <div className="text-sm font-bold">{p.title}</div>
                       <div className="text-xs text-muted-foreground">{p.address}، {p.city}</div>
                       <div className="text-lg text-primary font-bold">{p.price} ﷼</div>
                     </CardContent>

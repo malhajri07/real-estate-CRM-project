@@ -77,8 +77,8 @@ export default function AgentPage() {
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {data.listings.map((p) => (
                   <Card key={p.id}>
-                    <CardContent className="p-5">
-                      <div className="text-sm font-semibold">{p.title}</div>
+                    <CardContent className="p-6">
+                      <div className="text-sm font-bold">{p.title}</div>
                       <div className="text-xs text-muted-foreground">{p.address}، {p.city}</div>
                       <div className="text-lg text-primary font-bold">{p.price} ﷼</div>
                     </CardContent>

@@ -270,7 +270,7 @@ export default function Pipeline() {
               <Card key={stage.id} className="flex h-full flex-col">
                 <CardHeader className="text-end">
                   <div className="flex items-center justify-between">
-                    <div className={cn("text-sm font-semibold", stage.accent)}>{stage.title}</div>
+                    <div className={cn("text-sm font-bold", stage.accent)}>{stage.title}</div>
                     <Badge variant={stage.badgeVariant}>
                       {stageDeals.length} صفقة
                     </Badge>
@@ -302,9 +302,9 @@ export default function Pipeline() {
                                   >
                                     <CardContent className="p-4 space-y-2 text-end">
                                       <div className="flex items-center justify-between">
-                                        <h4 className="text-sm font-semibold">{getDealCustomerName(deal)}</h4>
+                                        <h4 className="text-sm font-bold">{getDealCustomerName(deal)}</h4>
                                         {(deal.agreedPrice || deal.dealValue) && (
-                                          <span className="text-sm font-semibold text-primary">
+                                          <span className="text-sm font-bold text-primary">
                                             {formatCurrency(deal.agreedPrice ?? deal.dealValue)}
                                           </span>
                                         )}
@@ -379,7 +379,7 @@ export default function Pipeline() {
                     <CardContent className="p-3 space-y-1.5">
                       <div className="flex items-start justify-between gap-1">
                         <div className="space-y-0.5">
-                          <h3 className="text-xs font-semibold">{firstName}</h3>
+                          <h3 className="text-xs font-bold">{firstName}</h3>
                           <span className="block text-xs text-muted-foreground">{maskPhoneNumber(request.mobileNumber)}</span>
                         </div>
                         {request.typeOfProperty && (
@@ -393,7 +393,7 @@ export default function Pipeline() {
                         <span>{request.city ?? ''}</span>
                       </div>
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-primary text-xs">
+                        <span className="font-bold text-primary text-xs">
                           {formatBudget(request.budgetSize)}
                         </span>
                         <Button

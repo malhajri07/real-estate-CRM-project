@@ -74,7 +74,7 @@ export default function ProfileSection({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName" className="block text-sm font-medium text-foreground/80">الاسم الأول</Label>
+                <Label htmlFor="firstName" className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">الاسم الأول</Label>
                 <Input
                   id="firstName"
                   className="text-subtle"
@@ -84,7 +84,7 @@ export default function ProfileSection({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName" className="block text-sm font-medium text-foreground/80">اسم العائلة</Label>
+                <Label htmlFor="lastName" className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">اسم العائلة</Label>
                 <Input
                   id="lastName"
                   className="text-subtle"
@@ -94,7 +94,7 @@ export default function ProfileSection({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="userEmail" className="block text-sm font-medium text-foreground/80">البريد الإلكتروني</Label>
+                <Label htmlFor="userEmail" className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">البريد الإلكتروني</Label>
                 <Input
                   id="userEmail"
                   type="email"
@@ -105,7 +105,7 @@ export default function ProfileSection({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="userPhone" className="block text-sm font-medium text-foreground/80">رقم الهاتف</Label>
+                <Label htmlFor="userPhone" className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">رقم الهاتف</Label>
                 <Input
                   id="userPhone"
                   type="tel"
@@ -116,7 +116,7 @@ export default function ProfileSection({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="title" className="block text-sm font-medium text-foreground/80">المسمى الوظيفي</Label>
+                <Label htmlFor="title" className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">المسمى الوظيفي</Label>
                 <Input
                   id="title"
                   className="text-subtle"
@@ -126,7 +126,7 @@ export default function ProfileSection({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="department" className="block text-sm font-medium text-foreground/80">القسم</Label>
+                <Label htmlFor="department" className="block text-xs font-bold text-muted-foreground uppercase tracking-wider">القسم</Label>
                 <Select value={userProfile.department} onValueChange={(value) => onUserProfileChange({ ...userProfile, department: value })}>
                   <SelectTrigger className="text-subtle" data-testid="select-department">
                     <SelectValue />

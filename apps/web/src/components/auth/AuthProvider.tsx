@@ -456,7 +456,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }}
       >
-        <SheetContent side="bottom" className="overflow-y-auto text-end" dir="rtl">
+        <SheetContent side="bottom" className="text-end" dir="rtl">
           <SheetHeader>
             <SheetTitle className="text-end">{sessionExpired ? 'تم إنهاء الجلسة بسبب عدم النشاط' : 'انتهاء الجلسة قريباً'}</SheetTitle>
             <SheetDescription className="text-end">

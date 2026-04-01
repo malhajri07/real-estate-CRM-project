@@ -104,8 +104,8 @@ export default function ComparePage() {
           <div className={GRID_METRICS}>
             {items.map((p) => (
               <Card key={p.id}>
-                <CardContent className="p-5 space-y-2">
-                  <div className="text-sm font-semibold">{p.title}</div>
+                <CardContent className="p-6 space-y-2">
+                  <div className="text-sm font-bold">{p.title}</div>
                   <div className="text-xs text-muted-foreground">{p.address}، {p.city}</div>
                   <div className="text-lg font-bold text-primary">{p.price} ﷼</div>
                   <div className="text-xs text-muted-foreground">النوع: {p.propertyType || '-'}</div>

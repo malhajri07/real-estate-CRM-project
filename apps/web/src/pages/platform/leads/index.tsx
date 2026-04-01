@@ -595,7 +595,7 @@ export default function Contacts() {
                       {currentPageLeads.map((lead) => (
                         <TableRow key={lead.id}>
                           <TableCell>
-                            <div className="font-semibold">{lead.firstName} {lead.lastName}</div>
+                            <div className="font-bold">{lead.firstName} {lead.lastName}</div>
                             <div className="mt-1 flex items-center gap-2 text-muted-foreground">
                               <Phone size={12} />
                               <span>{lead.phone}</span>
@@ -696,7 +696,7 @@ export default function Contacts() {
 
       {/* Delete Confirmation Sheet (shared by both tabs) */}
       <Sheet open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <SheetContent side="bottom" className="overflow-y-auto">
+        <SheetContent side="bottom">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2 text-end">
               <AlertTriangle className="h-5 w-5 text-red-500" />

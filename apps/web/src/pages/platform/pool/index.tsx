@@ -679,7 +679,7 @@ export default function Requests() {
                 setSmsDialogOpen(open);
                 if (!open) { setSmsTargetId(null); setSmsMessage(""); }
             }}>
-                <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl">
+                <SheetContent side="bottom">
                     <SheetHeader>
                         <SheetTitle>{t("pool.sms_title")}</SheetTitle>
                         <SheetDescription>{t("pool.sms_description")}</SheetDescription>

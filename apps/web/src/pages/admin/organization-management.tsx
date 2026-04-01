@@ -389,7 +389,7 @@ export default function OrganizationManagement() {
 
       {/* Create Organization Sheet */}
       <Sheet open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <SheetContent side="bottom" className="overflow-y-auto" dir="rtl">
+        <SheetContent side="bottom" dir="rtl">
           <SheetHeader className="text-end">
             <SheetTitle>إضافة منظمة جديدة</SheetTitle>
             <SheetDescription>
@@ -488,7 +488,7 @@ export default function OrganizationManagement() {
           if (!open) setEditForm(null);
         }}
       >
-        <SheetContent side="bottom" className="overflow-y-auto" dir="rtl">
+        <SheetContent side="bottom" dir="rtl">
           <SheetHeader className="text-end">
             <SheetTitle>تعديل المنظمة</SheetTitle>
             <SheetDescription>تعديل بيانات المنظمة</SheetDescription>
@@ -578,7 +578,7 @@ export default function OrganizationManagement() {
 
       {/* Delete Organization Sheet */}
       <Sheet open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <SheetContent side="bottom" className="overflow-y-auto" dir="rtl">
+        <SheetContent side="bottom" dir="rtl">
           <SheetHeader className="text-end">
             <SheetTitle>تأكيد الحذف</SheetTitle>
             <SheetDescription>

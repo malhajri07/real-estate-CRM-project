@@ -114,7 +114,7 @@ export default function Clients() {
           <Card>
             <CardContent className="flex items-center justify-between p-6">
               <div className="space-y-1">
-                <span className="text-xs font-medium text-muted-foreground">{language === "ar" ? "إجمالي العملاء" : "Total Clients"}</span>
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{language === "ar" ? "إجمالي العملاء" : "Total Clients"}</span>
                 <span className="block text-3xl font-bold">{total}</span>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
@@ -125,7 +125,7 @@ export default function Clients() {
           <Card>
             <CardContent className="flex items-center justify-between p-6">
               <div className="space-y-1">
-                <span className="text-xs font-medium text-muted-foreground">{language === "ar" ? "المؤهلون" : "Qualified"}</span>
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{language === "ar" ? "المؤهلون" : "Qualified"}</span>
                 <span className="block text-3xl font-bold">{qualified}</span>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
@@ -136,7 +136,7 @@ export default function Clients() {
           <Card>
             <CardContent className="flex items-center justify-between p-6">
               <div className="space-y-1">
-                <span className="text-xs font-medium text-muted-foreground">{language === "ar" ? "المغلقون" : "Closed"}</span>
+                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{language === "ar" ? "المغلقون" : "Closed"}</span>
                 <span className="block text-3xl font-bold">{closed}</span>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
@@ -243,7 +243,7 @@ export default function Clients() {
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                       <Card>
                         <CardContent className="p-4">
-                          <span className="text-xs font-medium text-muted-foreground text-end">مصدر العميل</span>
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider text-end">مصدر العميل</span>
                           <p className="mt-1 text-sm font-medium text-end">
                             {selectedLead.leadSource || "غير محدد"}
                           </p>
@@ -251,7 +251,7 @@ export default function Clients() {
                       </Card>
                       <Card>
                         <CardContent className="p-4 text-end">
-                          <span className="text-xs font-medium text-muted-foreground text-end">نوع الاهتمام</span>
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider text-end">نوع الاهتمام</span>
                           <p className="mt-1 text-sm font-medium text-end">
                             {selectedLead.interestType || "غير محدد"}
                           </p>
@@ -259,7 +259,7 @@ export default function Clients() {
                       </Card>
                       <Card>
                         <CardContent className="p-4 text-end">
-                          <span className="text-xs font-medium text-muted-foreground text-end">نطاق الميزانية</span>
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider text-end">نطاق الميزانية</span>
                           <p className="mt-1 text-sm font-medium text-end">
                             {selectedLead.budgetRange || "غير محدد"}
                           </p>
@@ -270,7 +270,7 @@ export default function Clients() {
                     {selectedLead.notes && (
                       <Card>
                         <CardContent className="p-4">
-                          <span className="text-xs font-medium text-muted-foreground text-end">ملاحظات</span>
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider text-end">ملاحظات</span>
                           <p className="mt-2 text-sm text-end">{selectedLead.notes}</p>
                         </CardContent>
                       </Card>

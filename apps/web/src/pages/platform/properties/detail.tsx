@@ -134,7 +134,7 @@ export default function PropertyDetail() {
               العودة إلى العقارات
             </Button>
             <div className="h-6 w-px bg-border"></div>
-            <span className="text-xl font-semibold">{property.title}</span>
+            <span className="text-xl font-bold">{property.title}</span>
           </div>
 
           <div className="flex items-center space-x-2 rtl:space-x-reverse">
@@ -253,7 +253,7 @@ export default function PropertyDetail() {
                 {/* Description */}
                 {property.description && (
                   <div className="mb-6">
-                    <h3 className="font-semibold mb-3">الوصف</h3>
+                    <h3 className="font-bold mb-3">الوصف</h3>
                     <p className="text-muted-foreground leading-relaxed">{property.description}</p>
                   </div>
                 )}
@@ -261,7 +261,7 @@ export default function PropertyDetail() {
                 {/* Property Details Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h3 className="font-semibold mb-3">تفاصيل العقار</h3>
+                    <h3 className="font-bold mb-3">تفاصيل العقار</h3>
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">نوع العقار</span>
@@ -288,10 +288,10 @@ export default function PropertyDetail() {
             {/* Location Map */}
             <Card className="ui-surface">
               <CardHeader>
-                <CardTitle className="text-lg">الموقع</CardTitle>
+                <CardTitle className="text-lg font-bold">الموقع</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-48 w-full mb-4 bg-muted/50 rounded-lg flex items-center justify-center">
+                <div className="h-48 w-full mb-4 bg-muted/50 rounded-2xl flex items-center justify-center">
                   <div className="text-center">
                     <MapPin className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">خريطة الموقع</p>
@@ -311,7 +311,7 @@ export default function PropertyDetail() {
             {/* Contact Actions */}
             <Card className="ui-surface">
               <CardHeader>
-                <CardTitle className="text-lg">إجراءات سريعة</CardTitle>
+                <CardTitle className="text-lg font-bold">إجراءات سريعة</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button className="w-full ui-transition">
@@ -329,7 +329,7 @@ export default function PropertyDetail() {
             {/* Property Stats */}
             <Card className="ui-surface">
               <CardHeader>
-                <CardTitle className="text-lg">إحصائيات العقار</CardTitle>
+                <CardTitle className="text-lg font-bold">إحصائيات العقار</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between">

@@ -380,7 +380,7 @@ export default function Properties() {
       </Card>
 
       <Sheet open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <SheetContent side="bottom" className="overflow-y-auto">
+        <SheetContent side="bottom">
           <SheetHeader>
             <SheetTitle>تأكيد حذف العقار</SheetTitle>
             <SheetDescription>

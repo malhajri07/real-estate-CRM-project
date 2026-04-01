@@ -111,7 +111,7 @@ export function MediaSelector({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[90vh] overflow-hidden flex flex-col">
+      <SheetContent side="bottom" className="flex flex-col">
         <SheetHeader>
           <SheetTitle>اختر من المكتبة</SheetTitle>
           <SheetDescription>
