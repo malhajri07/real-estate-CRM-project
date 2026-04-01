@@ -104,7 +104,7 @@ export default function Activities() {
                                         <TableCell>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <Button variant="ghost" size="sm" onClick={() => { }}>
+                                                    <Button variant="ghost" size="sm">
                                                         <Check className="w-4 h-4" />
                                                     </Button>
                                                 </TooltipTrigger>

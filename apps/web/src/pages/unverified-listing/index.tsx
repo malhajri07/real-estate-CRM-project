@@ -15,11 +15,6 @@
  * - apps/web/src/pages/unverified-listings-management.tsx - Management interface
  * - apps/api/routes/unverified-listings.ts - Unverified listings API routes
  *
- * TODO: This component is too large (1600+ lines). Extract sub-components:
- * - UnverifiedListingForm (steps 1-4, form state)
- * - ImageUploadStep (step 5, image handling)
- * - ContactInfoStep (step 6, contact details)
- * - StepNavigation (step indicator and navigation buttons)
  */
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -254,7 +249,6 @@ export default function UnverifiedListingPage() {
         throw new Error(`Failed to fetch districts: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Districts loaded for city", watchCity, ":", data);
       return data;
     },
     enabled: !!watchCity,
@@ -558,10 +552,7 @@ export default function UnverifiedListingPage() {
 
       if (!response.ok) {
         let errorMessage = responseData?.message || "تعذر إنشاء الإعلان";
-        if (import.meta.env.DEV && responseData?.debug) {
-          console.error("[Unverified listing error]", responseData);
-        }
-        type ApiError = { path?: unknown; message?: string };
+          type ApiError = { path?: unknown; message?: string };
         const relevantErrors = (responseData?.errors || []).filter((e: unknown) => {
           const err = e as ApiError;
           const pathStr = Array.isArray(err.path) ? err.path.join('.') : String(err.path || '').toLowerCase();

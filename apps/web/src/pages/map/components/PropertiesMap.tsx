@@ -49,17 +49,6 @@ export function PropertiesMap({
 }: PropertiesMapProps) {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-  // Debug logging
-  useEffect(() => {
-    if (isClient && import.meta.env.DEV) {
-      console.log("[PropertiesMap] Client-side render", {
-        hasApiKey: !!googleMapsApiKey,
-        apiKeyLength: googleMapsApiKey?.length || 0,
-        isClient,
-      });
-    }
-  }, [isClient, googleMapsApiKey]);
-
   // Load Google Maps script using the hook to prevent duplicate loads
   const { isLoaded, loadError: scriptLoadError } = useLoadScript({
     googleMapsApiKey: googleMapsApiKey || "",
@@ -229,20 +218,6 @@ export function PropertiesMap({
 
   // Ensure Google Maps API is fully loaded before rendering
   const isGoogleMapsReady = isLoaded && googleInstance?.maps;
-
-  // Debug logging for map readiness
-  useEffect(() => {
-    if (isClient && import.meta.env.DEV) {
-      console.log("[PropertiesMap] Map readiness check", {
-        isClient,
-        isLoaded,
-        hasGoogleInstance: !!googleInstance,
-        hasMaps: !!googleInstance?.maps,
-        isGoogleMapsReady,
-        scriptLoadError: scriptLoadError?.message || null,
-      });
-    }
-  }, [isClient, isLoaded, googleInstance, isGoogleMapsReady, scriptLoadError]);
 
   return (
     <div className={cn("relative overflow-hidden rounded-3xl border border-border/60 bg-muted/70", heightClass)}>

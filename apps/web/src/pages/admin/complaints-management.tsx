@@ -364,7 +364,6 @@ export default function ComplaintsManagement() {
                     </div>
                     <Button
                         className={`${ADMIN_BUTTON_PRIMARY} w-full md:w-auto`}
-                        onClick={() => { }}
                     >
                         <Plus className="h-5 w-5 me-2" />
                         تذكرة دعم جديدة

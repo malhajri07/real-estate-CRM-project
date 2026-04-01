@@ -96,16 +96,6 @@ export default function Landing() {
 
   useSEO("/", landingContent?.heroTitle, landingContent?.heroSubtitle);
 
-  // Debug logging
-  useEffect(() => {
-    if (import.meta.env.DEV) console.log('[Landing] Component mounted, content:', {
-      hasTitle: !!landingContent.heroTitle,
-      hasFeatures: landingContent.features.length,
-      hasStats: landingContent.stats.length,
-      isLoading
-    });
-  }, [landingContent, isLoading]);
-
   // CMS Loading Logic (Preserved)
   useEffect(() => {
     const loadCMSContent = async (noCache = false) => {
@@ -249,19 +239,11 @@ export default function Landing() {
         }
 
         setLandingContent(updatedContent);
-        if (import.meta.env.DEV) console.log('[Landing] CMS content loaded:', {
-          sectionsFound: landingPayload?.data?.length || 0,
-          hasHero: !!updatedContent.heroTitle,
-          hasFeatures: updatedContent.features.length,
-        });
       } catch (error) {
-        if (import.meta.env.DEV) console.error('[Landing] Error loading CMS content:', error);
         // On error, use default content
         setLandingContent(DEFAULT_LANDING_CONTENT);
-        if (import.meta.env.DEV) console.log('[Landing] Using default content due to error');
       } finally {
         setIsLoading(false);
-        if (import.meta.env.DEV) console.log('[Landing] Loading complete');
       }
     };
     loadCMSContent(true);
@@ -308,13 +290,6 @@ export default function Landing() {
   return (
     <LandingErrorBoundary>
       <div className="relative min-h-screen bg-white font-sans text-slate-900 antialiased" dir={dir}>
-        {/* Debug: Ensure page is rendering */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="fixed bottom-4 start-4 z-[9999] bg-red-500 text-white px-2 py-1 text-xs rounded">
-            Landing Page Rendered
-          </div>
-        )}
-
         {/* Global Loader */}
         {isLoading && (
           <div className="fixed inset-x-0 top-0 z-50">

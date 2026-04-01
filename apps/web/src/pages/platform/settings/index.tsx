@@ -197,13 +197,12 @@ export default function Settings() {
                           className="text-subtle"
                           value={accountDetails.companyName}
                           onChange={(e) => setAccountDetails({ ...accountDetails, companyName: e.target.value })}
-                          data-testid="input-company-name"
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="businessType" className="block text-sm font-medium text-foreground/80">نوع النشاط</Label>
                         <Select value={accountDetails.businessType} onValueChange={(value) => setAccountDetails({ ...accountDetails, businessType: value })}>
-                          <SelectTrigger className="text-subtle" data-testid="select-business-type">
+                          <SelectTrigger className="text-subtle">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent position="popper" sideOffset={4}>
@@ -223,7 +222,6 @@ export default function Settings() {
                             className="text-subtle"
                             value={accountDetails.taxId}
                             onChange={(e) => setAccountDetails({ ...accountDetails, taxId: e.target.value })}
-                            data-testid="input-tax-id"
                           />
                         </div>
                         <div className="space-y-2">
@@ -234,7 +232,6 @@ export default function Settings() {
                             className="text-subtle"
                             value={accountDetails.website}
                             onChange={(e) => setAccountDetails({ ...accountDetails, website: e.target.value })}
-                            data-testid="input-website"
                           />
                         </div>
                       </div>
@@ -246,7 +243,6 @@ export default function Settings() {
                           className="text-subtle"
                           value={accountDetails.description}
                           onChange={(e) => setAccountDetails({ ...accountDetails, description: e.target.value })}
-                          data-testid="textarea-description"
                         />
                       </div>
                     </div>
@@ -259,7 +255,6 @@ export default function Settings() {
                           className="text-subtle"
                           value={accountDetails.address}
                           onChange={(e) => setAccountDetails({ ...accountDetails, address: e.target.value })}
-                          data-testid="input-address"
                         />
                       </div>
                       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -270,7 +265,6 @@ export default function Settings() {
                             className="text-subtle"
                             value={accountDetails.city}
                             onChange={(e) => setAccountDetails({ ...accountDetails, city: e.target.value })}
-                            data-testid="input-city"
                           />
                         </div>
                         <div className="space-y-2">
@@ -280,14 +274,13 @@ export default function Settings() {
                             className="text-subtle"
                             value={accountDetails.postalCode}
                             onChange={(e) => setAccountDetails({ ...accountDetails, postalCode: e.target.value })}
-                            data-testid="input-postal-code"
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="country" className="block text-sm font-medium text-foreground/80">البلد</Label>
                         <Select value={accountDetails.country} onValueChange={(value) => setAccountDetails({ ...accountDetails, country: value })}>
-                          <SelectTrigger className="text-subtle" data-testid="select-country">
+                          <SelectTrigger className="text-subtle">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent position="popper" sideOffset={4}>
@@ -309,7 +302,6 @@ export default function Settings() {
                             className="text-subtle"
                             value={accountDetails.phone}
                             onChange={(e) => setAccountDetails({ ...accountDetails, phone: e.target.value })}
-                            data-testid="input-company-phone"
                           />
                         </div>
                         <div className="space-y-2">
@@ -320,7 +312,6 @@ export default function Settings() {
                             className="text-subtle"
                             value={accountDetails.email}
                             onChange={(e) => setAccountDetails({ ...accountDetails, email: e.target.value })}
-                            data-testid="input-company-email"
                           />
                         </div>
                       </div>

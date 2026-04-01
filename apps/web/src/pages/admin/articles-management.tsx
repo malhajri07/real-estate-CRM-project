@@ -16,11 +16,6 @@
  * - apps/api/routes/cms-articles.ts - Articles API routes
  * - apps/api/services/articleService.ts - Article service
  *
- * TODO: This component is too large (880+ lines). Extract sub-components:
- * - ArticleTable (list display and pagination)
- * - ArticleForm (create/edit form)
- * - ArticleFilters (search and status filtering)
- * - SEOMetadataForm (SEO field management)
  */
 
 import { useState, useEffect } from "react";
