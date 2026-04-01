@@ -21,6 +21,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER, TYPOGRAPHY } from "@/config/platform-theme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import PageHeader from "@/components/ui/page-header";
 import { ClientDetailSkeleton } from "@/components/skeletons/page-skeletons";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
@@ -56,6 +57,15 @@ export default function AgencyPage() {
 
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem><BreadcrumbLink href="/home/platform">الرئيسية</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem><BreadcrumbLink href="/home/platform/agencies">الوكالات</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem><BreadcrumbPage>{data.agency?.name || "تفاصيل الوكالة"}</BreadcrumbPage></BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <PageHeader
         title={data.agency?.name || t("تفاصيل الوكالة")}
         subtitle={t("عرض تفاصيل الوكالة والوسطاء والإعلانات")}

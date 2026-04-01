@@ -22,7 +22,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -41,6 +40,18 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER, GRID_TWO_COL } from "@/config/platform-theme";
 import PageHeader from "@/components/ui/page-header";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+const campaignSchema = z.object({
+  title: z.string().min(1, "يرجى إدخال عنوان الحملة"),
+  message: z.string().min(1, "يرجى إدخال محتوى الرسالة"),
+  type: z.string().min(1, "يرجى اختيار نوع الحملة"),
+});
+
+type CampaignFormData = z.infer<typeof campaignSchema>;
 
 export default function Notifications() {
   const { t, dir, language } = useLanguage();
@@ -48,13 +59,19 @@ export default function Notifications() {
   const showSkeleton = useMinLoadTime();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
-  const [campaignTitle, setCampaignTitle] = useState("");
-  const [campaignMessage, setCampaignMessage] = useState("");
-  const [campaignType, setCampaignType] = useState("email");
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
   const [selectedLeadForWhatsApp, setSelectedLeadForWhatsApp] = useState<Lead | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  const campaignForm = useForm<CampaignFormData>({
+    resolver: zodResolver(campaignSchema),
+    defaultValues: {
+      title: "",
+      message: "",
+      type: "email",
+    },
+  });
 
   const { data: leads, isLoading, isError, refetch } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
@@ -74,8 +91,7 @@ export default function Notifications() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
       toast({ title: "نجح", description: "تم إرسال الحملة بنجاح" });
-      setCampaignTitle("");
-      setCampaignMessage("");
+      campaignForm.reset();
       setSelectedLeads([]);
     },
     onError: () => {
@@ -116,20 +132,20 @@ export default function Notifications() {
     }
   };
 
-  const handleSendCampaign = () => {
-    if (!campaignTitle || !campaignMessage || selectedLeads.length === 0) {
-      toast({ 
-        title: "خطأ", 
-        description: "يرجى ملء جميع الحقول واختيار عملاء على الأقل",
-        variant: "destructive" 
+  const handleSendCampaign = (data: CampaignFormData) => {
+    if (selectedLeads.length === 0) {
+      toast({
+        title: "خطأ",
+        description: "يرجى اختيار عملاء على الأقل",
+        variant: "destructive"
       });
       return;
     }
 
     sendCampaignMutation.mutate({
-      title: campaignTitle,
-      message: campaignMessage,
-      type: campaignType,
+      title: data.title,
+      message: data.message,
+      type: data.type,
       leadIds: selectedLeads,
     });
   };
@@ -281,69 +297,97 @@ export default function Notifications() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className={GRID_TWO_COL}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>عنوان الحملة</Label>
-                      <Input
-                        value={campaignTitle}
-                        onChange={(e) => setCampaignTitle(e.target.value)}
-                        placeholder="أدخل عنوان الحملة..."
+                <Form {...campaignForm}>
+                  <form onSubmit={campaignForm.handleSubmit(handleSendCampaign)}>
+                    <div className={GRID_TWO_COL}>
+                      <div className="space-y-4">
+                        <FormField
+                          control={campaignForm.control}
+                          name="title"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>عنوان الحملة</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="أدخل عنوان الحملة..."
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={campaignForm.control}
+                          name="type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>نوع الحملة</FormLabel>
+                              <Select value={field.value} onValueChange={field.onChange}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="email">البريد الإلكتروني</SelectItem>
+                                  <SelectItem value="sms">رسالة نصية</SelectItem>
+                                  <SelectItem value="whatsapp">واتساب</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="space-y-2">
+                          <FormLabel>العملاء المحددين ({selectedLeads.length})</FormLabel>
+                          <div className="text-sm text-muted-foreground">
+                            {selectedLeads.length === 0
+                              ? "لم يتم تحديد عملاء. انتقل إلى تبويب 'تفاصيل العملاء' لتحديد المستلمين."
+                              : `تم تحديد ${selectedLeads.length} عميل للحملة.`
+                            }
+                          </div>
+                        </div>
+                      </div>
+
+                      <FormField
+                        control={campaignForm.control}
+                        name="message"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>محتوى الرسالة</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                {...field}
+                                placeholder="أدخل محتوى الحملة..."
+                                className="min-h-32"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label>نوع الحملة</Label>
-                      <Select value={campaignType} onValueChange={setCampaignType}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="email">البريد الإلكتروني</SelectItem>
-                          <SelectItem value="sms">رسالة نصية</SelectItem>
-                          <SelectItem value="whatsapp">واتساب</SelectItem>
-                        </SelectContent>
-                      </Select>
+
+                    <div className="flex justify-end gap-3 mt-6">
+                      <Button variant="outline" type="button" onClick={() => {
+                        campaignForm.reset();
+                        setSelectedLeads([]);
+                      }}>
+                        إلغاء
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={sendCampaignMutation.isPending}
+                      >
+                        <Send className={"me-2"} size={16} />
+                        {sendCampaignMutation.isPending ? "جار الإرسال..." : "إرسال الحملة"}
+                      </Button>
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label>العملاء المحددين ({selectedLeads.length})</Label>
-                      <div className="text-sm text-muted-foreground">
-                        {selectedLeads.length === 0 
-                          ? "لم يتم تحديد عملاء. انتقل إلى تبويب 'تفاصيل العملاء' لتحديد المستلمين."
-                          : `تم تحديد ${selectedLeads.length} عميل للحملة.`
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>محتوى الرسالة</Label>
-                    <Textarea
-                      value={campaignMessage}
-                      onChange={(e) => setCampaignMessage(e.target.value)}
-                      placeholder="أدخل محتوى الحملة..."
-                      className="min-h-32"
-                    />
-                  </div>
-                </div>
-                
-                <div className="flex justify-end gap-3">
-                  <Button variant="outline" onClick={() => {
-                    setCampaignTitle("");
-                    setCampaignMessage("");
-                    setSelectedLeads([]);
-                  }}>
-                    إلغاء
-                  </Button>
-                  <Button 
-                    onClick={handleSendCampaign}
-                    disabled={sendCampaignMutation.isPending}
-                  >
-                    <Send className={"me-2"} size={16} />
-                    {sendCampaignMutation.isPending ? "جار الإرسال..." : "إرسال الحملة"}
-                  </Button>
-                </div>
+                  </form>
+                </Form>
                   </CardContent>
                 </Card>
             </TabsContent>

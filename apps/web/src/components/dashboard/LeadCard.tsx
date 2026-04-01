@@ -7,8 +7,10 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Phone, MapPin, MessageSquare, Eye, ArrowLeft } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { Lead } from "@shared/types";
 
@@ -46,13 +48,11 @@ export function LeadCard({
           
           <div className="relative z-10 flex items-start gap-4">
             {/* Avatar */}
-            <div className="flex-shrink-0">
-              <div className="h-12 w-12 rounded-xl bg-muted/30 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300">
-                <span className="text-lg font-bold text-foreground/80">
-                  {initials || "?"}
-                </span>
-              </div>
-            </div>
+            <Avatar className="h-12 w-12 shrink-0 group-hover:scale-110 transition-transform duration-300">
+              <AvatarFallback className="text-lg font-bold bg-muted/30">
+                {initials || "?"}
+              </AvatarFallback>
+            </Avatar>
 
             {/* Content */}
             <div className="flex-1 min-w-0">
@@ -103,40 +103,33 @@ export function LeadCard({
                 {/* Quick Actions (shown on hover) */}
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   {lead.phone && onCall && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 w-8 p-0 rounded-lg"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onCall(lead.phone!);
-                      }}
-                    >
-                      <Phone className="h-4 w-4" />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onCall(lead.phone!); }}>
+                          <Phone className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>اتصال</TooltipContent>
+                    </Tooltip>
                   )}
                   {onMessage && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 w-8 p-0 rounded-lg"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onMessage(lead.id);
-                      }}
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onMessage(lead.id); }}>
+                          <MessageSquare className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>رسالة</TooltipContent>
+                    </Tooltip>
                   )}
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 w-8 p-0 rounded-lg"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>عرض</TooltipContent>
+                  </Tooltip>
                 </div>
               </div>
             </div>

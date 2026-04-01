@@ -1,5 +1,5 @@
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER, CARD_HOVER, GRID_THREE_COL } from "@/config/platform-theme";
@@ -13,7 +13,6 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetDescription,
 } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import EmptyState from "@/components/ui/empty-state";
@@ -26,6 +25,18 @@ import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import type { Lead } from "@shared/types";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+const appointmentSchema = z.object({
+  customerId: z.string().min(1, "يرجى اختيار العميل"),
+  scheduledAt: z.string().min(1, "يرجى تحديد التاريخ والوقت"),
+  notes: z.string().optional(),
+});
+
+type AppointmentFormData = z.infer<typeof appointmentSchema>;
 
 type Appointment = {
     id: number;
@@ -53,58 +64,88 @@ function AppointmentForm({
     isPending: boolean;
     onSubmit: (data: { customerId: string; scheduledAt: string; notes?: string }) => void;
 }) {
-    const [selectedCustomerId, setSelectedCustomerId] = useState("");
-    const [scheduledAt, setScheduledAt] = useState("");
-    const [notes, setNotes] = useState("");
+    const form = useForm<AppointmentFormData>({
+        resolver: zodResolver(appointmentSchema),
+        defaultValues: {
+            customerId: "",
+            scheduledAt: "",
+            notes: "",
+        },
+    });
 
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        if (!selectedCustomerId || !scheduledAt) return;
+    const handleSubmit = (data: AppointmentFormData) => {
         onSubmit({
-            customerId: selectedCustomerId,
-            scheduledAt: new Date(scheduledAt).toISOString(),
-            notes: notes || undefined,
+            customerId: data.customerId,
+            scheduledAt: new Date(data.scheduledAt).toISOString(),
+            notes: data.notes || undefined,
         });
-        setSelectedCustomerId("");
-        setScheduledAt("");
-        setNotes("");
+        form.reset();
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4 py-4 max-w-lg mx-auto">
-            <div className="space-y-2">
-                <Label>العميل</Label>
-                <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
-                    <SelectTrigger data-testid="select-customer">
-                        <SelectValue placeholder="اختر العميل..." />
-                    </SelectTrigger>
-                    <SelectContent position="popper" sideOffset={4}>
-                        {leads.length === 0 ? (
-                            <SelectItem value="__empty" disabled>لا يوجد عملاء</SelectItem>
-                        ) : (
-                            leads.map((lead) => (
-                                <SelectItem key={lead.id} value={lead.id}>
-                                    {lead.firstName} {lead.lastName} {lead.phone ? `(${lead.phone})` : ""}
-                                </SelectItem>
-                            ))
-                        )}
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="space-y-2">
-                <Label>التاريخ والوقت</Label>
-                <Input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} required />
-            </div>
-            <div className="space-y-2">
-                <Label>ملاحظات</Label>
-                <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="تفاصيل الاجتماع..." />
-            </div>
-            <SheetFooter>
-                <Button type="submit" className="w-full" disabled={isPending || !selectedCustomerId}>
-                    {isPending ? "جاري الإنشاء..." : "جدولة الموعد"}
-                </Button>
-            </SheetFooter>
-        </form>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4 max-w-lg mx-auto">
+                <FormField
+                    control={form.control}
+                    name="customerId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>العميل</FormLabel>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                                <FormControl>
+                                    <SelectTrigger data-testid="select-customer">
+                                        <SelectValue placeholder="اختر العميل..." />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent position="popper" sideOffset={4}>
+                                    {leads.length === 0 ? (
+                                        <SelectItem value="__empty" disabled>لا يوجد عملاء</SelectItem>
+                                    ) : (
+                                        leads.map((lead) => (
+                                            <SelectItem key={lead.id} value={lead.id}>
+                                                {lead.firstName} {lead.lastName} {lead.phone ? `(${lead.phone})` : ""}
+                                            </SelectItem>
+                                        ))
+                                    )}
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="scheduledAt"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>التاريخ والوقت</FormLabel>
+                            <FormControl>
+                                <Input type="datetime-local" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>ملاحظات</FormLabel>
+                            <FormControl>
+                                <Textarea {...field} placeholder="تفاصيل الاجتماع..." />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <SheetFooter>
+                    <Button type="submit" className="w-full" disabled={isPending}>
+                        {isPending ? "جاري الإنشاء..." : "جدولة الموعد"}
+                    </Button>
+                </SheetFooter>
+            </form>
+        </Form>
     );
 }
 

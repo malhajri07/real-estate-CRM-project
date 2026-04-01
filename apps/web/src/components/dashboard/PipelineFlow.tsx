@@ -7,6 +7,8 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, ArrowRight, TrendingUp } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -116,8 +118,21 @@ export function PipelineFlow({ stages }: PipelineFlowProps) {
           </div>
         </div>
 
+        {/* Overall Progress */}
+        {total > 0 && (
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{stages[0]?.label}</span>
+              <span>{stages[stages.length - 1]?.label}</span>
+            </div>
+            <Progress value={total > 0 ? (stages.filter(s => s.id === "closed" || s.id === "WON").reduce((s, st) => s + st.value, 0) / total) * 100 : 0} />
+          </div>
+        )}
+
+        <Separator />
+
         {/* Summary Stats */}
-        <div className="flex items-center justify-between pt-4 border-t border-border/50">
+        <div className="flex items-center justify-between pt-4">
           <div>
             <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
               {t("dashboard.total_deals") || t("dashboard.deals_in_pipeline") || "إجمالي الصفقات"}

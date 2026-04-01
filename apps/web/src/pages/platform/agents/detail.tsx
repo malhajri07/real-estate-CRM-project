@@ -21,6 +21,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER, TYPOGRAPHY } from "@/config/platform-theme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import PageHeader from "@/components/ui/page-header";
 import { ClientDetailSkeleton } from "@/components/skeletons/page-skeletons";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
@@ -57,6 +58,15 @@ export default function AgentPage() {
   const a = data.agent;
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
+      <Breadcrumb className="mb-4">
+        <BreadcrumbList>
+          <BreadcrumbItem><BreadcrumbLink href="/home/platform">الرئيسية</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem><BreadcrumbLink href="/home/platform/agencies">الوكالات</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem><BreadcrumbPage>{`${a?.firstName ?? ''} ${a?.lastName ?? ''}`.trim() || "تفاصيل الوسيط"}</BreadcrumbPage></BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <PageHeader
         title={`${a?.firstName ?? ''} ${a?.lastName ?? ''}`.trim() || t("تفاصيل الوسيط")}
         subtitle={t("عرض تفاصيل الوسيط وإعلاناته")}

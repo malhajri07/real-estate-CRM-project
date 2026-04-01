@@ -26,12 +26,21 @@ import {
     SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+const smsSchema = z.object({
+    message: z.string().min(1, "يرجى إدخال الرسالة").max(500, "الحد الأقصى 500 حرف"),
+});
+
+type SmsFormData = z.infer<typeof smsSchema>;
 
 // --- Customer Requests helpers ---
 
@@ -131,11 +140,17 @@ export default function Requests() {
 
     // ── Pool state ──
     const [searchQuery, setSearchQuery] = useState("");
-    const [smsMessage, setSmsMessage] = useState("");
     const [smsDialogOpen, setSmsDialogOpen] = useState(false);
     const [smsTargetId, setSmsTargetId] = useState<string | null>(null);
     const [poolPage, setPoolPage] = useState(1);
     const poolPageSize = 100;
+
+    const smsForm = useForm<SmsFormData>({
+        resolver: zodResolver(smsSchema),
+        defaultValues: {
+            message: "",
+        },
+    });
 
     useEffect(() => setPoolPage(1), [searchQuery]);
 
@@ -215,7 +230,7 @@ export default function Requests() {
             apiPost(`api/pool/customer-requests/${requestId}/send-sms`, { message }),
         onSuccess: () => {
             toast.success("تم إرسال الرسالة بنجاح.");
-            setSmsMessage("");
+            smsForm.reset();
             setSmsDialogOpen(false);
             setSmsTargetId(null);
         },
@@ -666,35 +681,49 @@ export default function Requests() {
             {/* ── Bottom Drawer: Send SMS ── */}
             <Sheet open={smsDialogOpen} onOpenChange={(open) => {
                 setSmsDialogOpen(open);
-                if (!open) { setSmsTargetId(null); setSmsMessage(""); }
+                if (!open) { setSmsTargetId(null); smsForm.reset(); }
             }}>
                 <SheetContent side="bottom">
                     <SheetHeader>
                         <SheetTitle>{t("pool.sms_title")}</SheetTitle>
                         <SheetDescription>{t("pool.sms_description")}</SheetDescription>
                     </SheetHeader>
-                    <div className="grid gap-2 py-4 max-w-lg mx-auto">
-                        <Label htmlFor="sms-body">{t("pool.sms_message")}</Label>
-                        <Textarea
-                            id="sms-body"
-                            placeholder={t("pool.sms_placeholder")}
-                            value={smsMessage}
-                            onChange={(e) => setSmsMessage(e.target.value)}
-                            rows={4}
-                            maxLength={500}
-                        />
-                    </div>
-                    <SheetFooter className="max-w-lg mx-auto">
-                        <Button
-                            onClick={() => {
-                                if (!smsMessage.trim() || !smsTargetId) return;
-                                sendSmsMutation.mutate({ requestId: smsTargetId, message: smsMessage });
-                            }}
-                            disabled={sendSmsMutation.isPending || !smsMessage.trim()}
+                    <Form {...smsForm}>
+                        <form
+                            onSubmit={smsForm.handleSubmit((data) => {
+                                if (!smsTargetId) return;
+                                sendSmsMutation.mutate({ requestId: smsTargetId, message: data.message });
+                            })}
+                            className="grid gap-2 py-4 max-w-lg mx-auto"
                         >
-                            {sendSmsMutation.isPending ? "..." : t("pool.send_sms")}
-                        </Button>
-                    </SheetFooter>
+                            <FormField
+                                control={smsForm.control}
+                                name="message"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t("pool.sms_message")}</FormLabel>
+                                        <FormControl>
+                                            <Textarea
+                                                placeholder={t("pool.sms_placeholder")}
+                                                {...field}
+                                                rows={4}
+                                                maxLength={500}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <SheetFooter className="max-w-lg mx-auto">
+                                <Button
+                                    type="submit"
+                                    disabled={sendSmsMutation.isPending}
+                                >
+                                    {sendSmsMutation.isPending ? "..." : t("pool.send_sms")}
+                                </Button>
+                            </SheetFooter>
+                        </form>
+                    </Form>
                 </SheetContent>
             </Sheet>
         </div>

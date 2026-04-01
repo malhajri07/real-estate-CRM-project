@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import EmptyState from "@/components/ui/empty-state";
 import { ForumSkeleton } from "@/components/skeletons/page-skeletons";
 import PageHeader from "@/components/ui/page-header";
@@ -450,9 +451,9 @@ export default function ForumPage() {
           {/* ── Twitter-style Compose Box ── */}
           <Card className="p-4">
             <div className="flex gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 shrink-0">
-                <User className="h-5 w-5 text-primary" />
-              </div>
+              <Avatar className="h-10 w-10 shrink-0">
+                <AvatarFallback className="bg-primary/10"><User className="h-5 w-5 text-primary" /></AvatarFallback>
+              </Avatar>
               <div className="flex-1 space-y-3">
                 <Textarea
                   placeholder={t("forum.placeholder") || "ماذا يحدث في السوق العقاري؟"}
@@ -549,18 +550,10 @@ export default function ForumPage() {
                   <Card className="p-6">
                     <div className="mb-4 flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted overflow-hidden shrink-0">
-                          {post.author?.avatarUrl ? (
-                            <img
-                              src={post.author.avatarUrl}
-                              alt={`${post.author?.firstName} ${post.author?.lastName}'s avatar`}
-                              className="h-full w-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <User className="h-5 w-5 text-muted-foreground" />
-                          )}
-                        </div>
+                        <Avatar className="h-10 w-10 shrink-0">
+                          <AvatarImage src={post.author?.avatarUrl ?? undefined} alt={`${post.author?.firstName} ${post.author?.lastName}`} />
+                          <AvatarFallback><User className="h-5 w-5" /></AvatarFallback>
+                        </Avatar>
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-sm font-bold">

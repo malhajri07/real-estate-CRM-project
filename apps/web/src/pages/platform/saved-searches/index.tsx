@@ -20,7 +20,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import EmptyState from '@/components/ui/empty-state';
 import PageHeader from '@/components/ui/page-header';
@@ -32,6 +31,16 @@ import { useToast } from '@/hooks/use-toast';
 import { PAGE_WRAPPER } from '@/config/platform-theme';
 import { apiPost, apiDelete as apiDel } from '@/lib/apiClient';
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+
+const savedSearchSchema = z.object({
+  alertName: z.string().min(1, "يرجى إدخال اسم للبحث"),
+});
+
+type SavedSearchFormData = z.infer<typeof savedSearchSchema>;
 
 const CITY_OPTIONS = ['الرياض', 'جدة', 'الدمام', 'مكة المكرمة', 'المدينة المنورة', 'الخبر', 'الطائف', 'تبوك'];
 const PROPERTY_TYPE_OPTIONS = ['شقة', 'فيلا', 'أرض', 'مكتب', 'محل تجاري', 'عمارة', 'مستودع'];
@@ -42,9 +51,15 @@ export default function SavedSearchesPage() {
   const showSkeleton = useMinLoadTime();
   const qc = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
-  const [alertName, setAlertName] = useState('');
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+
+  const searchForm = useForm<SavedSearchFormData>({
+    resolver: zodResolver(savedSearchSchema),
+    defaultValues: {
+      alertName: "",
+    },
+  });
 
   const { data = [], isLoading, isError, refetch } = useQuery<any[]>({ queryKey: ['/api/search/saved'] });
 
@@ -55,7 +70,7 @@ export default function SavedSearchesPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['/api/search/saved'] });
       setShowCreate(false);
-      setAlertName('');
+      searchForm.reset();
       setSelectedCities([]);
       setSelectedTypes([]);
       toast({ title: "تم بنجاح", description: "تم إنشاء البحث المحفوظ" });
@@ -89,12 +104,8 @@ export default function SavedSearchesPage() {
     setSelectedTypes((prev) => prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]);
   };
 
-  const handleCreate = () => {
-    if (!alertName.trim()) {
-      toast({ title: "خطأ", description: "يرجى إدخال اسم للبحث", variant: "destructive" });
-      return;
-    }
-    create.mutate({ alertName: alertName.trim(), propertyTypes: selectedTypes, cities: selectedCities });
+  const handleCreate = (data: SavedSearchFormData) => {
+    create.mutate({ alertName: data.alertName.trim(), propertyTypes: selectedTypes, cities: selectedCities });
   };
 
   if (isError) {
@@ -130,49 +141,60 @@ export default function SavedSearchesPage() {
               <SheetTitle>بحث محفوظ جديد</SheetTitle>
               <SheetDescription>حدد فلاتر البحث المطلوبة لتنبيهك عند توفر عقارات مطابقة</SheetDescription>
             </SheetHeader>
-            <div className="space-y-5 py-4 max-w-lg mx-auto">
-              <div className="space-y-2">
-                <Label>اسم البحث</Label>
-                <Input value={alertName} onChange={(e) => setAlertName(e.target.value)} placeholder="مثال: شقق الرياض" />
-              </div>
-              <div className="space-y-2">
-                <Label>المدن</Label>
-                <div className="flex flex-wrap gap-2">
-                  {CITY_OPTIONS.map((city) => (
-                    <Badge
-                      key={city}
-                      variant={selectedCities.includes(city) ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => toggleCity(city)}
-                    >
-                      {city}
-                    </Badge>
-                  ))}
+            <Form {...searchForm}>
+              <form onSubmit={searchForm.handleSubmit(handleCreate)} className="space-y-5 py-4 max-w-lg mx-auto">
+                <FormField
+                  control={searchForm.control}
+                  name="alertName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>اسم البحث</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="مثال: شقق الرياض" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="space-y-2">
+                  <FormLabel>المدن</FormLabel>
+                  <div className="flex flex-wrap gap-2">
+                    {CITY_OPTIONS.map((city) => (
+                      <Badge
+                        key={city}
+                        variant={selectedCities.includes(city) ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => toggleCity(city)}
+                      >
+                        {city}
+                      </Badge>
+                    ))}
+                  </div>
+                  {selectedCities.length === 0 && <p className="text-xs text-muted-foreground">لم يتم تحديد مدن (سيشمل الكل)</p>}
                 </div>
-                {selectedCities.length === 0 && <p className="text-xs text-muted-foreground">لم يتم تحديد مدن (سيشمل الكل)</p>}
-              </div>
-              <div className="space-y-2">
-                <Label>نوع العقار</Label>
-                <div className="flex flex-wrap gap-2">
-                  {PROPERTY_TYPE_OPTIONS.map((type) => (
-                    <Badge
-                      key={type}
-                      variant={selectedTypes.includes(type) ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => toggleType(type)}
-                    >
-                      {type}
-                    </Badge>
-                  ))}
+                <div className="space-y-2">
+                  <FormLabel>نوع العقار</FormLabel>
+                  <div className="flex flex-wrap gap-2">
+                    {PROPERTY_TYPE_OPTIONS.map((type) => (
+                      <Badge
+                        key={type}
+                        variant={selectedTypes.includes(type) ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => toggleType(type)}
+                      >
+                        {type}
+                      </Badge>
+                    ))}
+                  </div>
+                  {selectedTypes.length === 0 && <p className="text-xs text-muted-foreground">لم يتم تحديد أنواع (سيشمل الكل)</p>}
                 </div>
-                {selectedTypes.length === 0 && <p className="text-xs text-muted-foreground">لم يتم تحديد أنواع (سيشمل الكل)</p>}
-              </div>
-              <SheetFooter>
-                <Button onClick={handleCreate} disabled={create.isPending} className="w-full">
-                  {create.isPending ? "جاري الإنشاء..." : "حفظ البحث"}
-                </Button>
-              </SheetFooter>
-            </div>
+                <SheetFooter>
+                  <Button type="submit" disabled={create.isPending} className="w-full">
+                    {create.isPending ? "جاري الإنشاء..." : "حفظ البحث"}
+                  </Button>
+                </SheetFooter>
+              </form>
+            </Form>
           </SheetContent>
         </Sheet>
 

@@ -5,6 +5,7 @@ import { Check, Clock, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import EmptyState from "@/components/ui/empty-state";
@@ -101,9 +102,14 @@ export default function Activities() {
                                 {filteredActivities.map((activity) => (
                                     <TableRow key={activity.id}>
                                         <TableCell>
-                                            <Button variant="ghost" size="sm" onClick={() => { }}>
-                                                <Check className="w-4 h-4" />
-                                            </Button>
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button variant="ghost" size="sm" onClick={() => { }}>
+                                                        <Check className="w-4 h-4" />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>إكمال</TooltipContent>
+                                            </Tooltip>
                                         </TableCell>
                                         <TableCell>
                                             <Badge variant={activity.completed ? "success" : "secondary"}>

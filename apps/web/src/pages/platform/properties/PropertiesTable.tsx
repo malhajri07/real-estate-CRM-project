@@ -1,6 +1,7 @@
 import { Trash2, Edit, Eye, Bed, Bath, Square, Share2, Sofa } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Property } from "@shared/types";
 import { getPropertyStatusVariant } from "@/lib/status-variants";
@@ -46,18 +47,38 @@ export default function PropertiesTable({
           >
             <TableCell>
               <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onNavigate(property.id); }} title="عرض">
-                  <Eye size={14} />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onShare(property, "whatsapp"); }} title="مشاركة">
-                  <Share2 size={14} />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()} title="تعديل">
-                  <Edit size={14} />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onDelete(property.id); }} disabled={isDeletePending} title="حذف">
-                  <Trash2 size={14} />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onNavigate(property.id); }}>
+                      <Eye size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>عرض</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onShare(property, "whatsapp"); }}>
+                      <Share2 size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>مشاركة</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+                      <Edit size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>تعديل</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onDelete(property.id); }} disabled={isDeletePending}>
+                      <Trash2 size={14} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>حذف</TooltipContent>
+                </Tooltip>
               </div>
             </TableCell>
             <TableCell>

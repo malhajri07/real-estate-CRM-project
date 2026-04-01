@@ -23,6 +23,7 @@ import EmptyState from "@/components/ui/empty-state";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { CSVUploader } from "@/components/admin/data-display/CSVUploader";
 import { Spinner } from "@/components/ui/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { apiDelete, apiGet, apiPost } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -390,15 +391,35 @@ export default function Contacts() {
                         <TableCell>
                           <div className="flex items-center gap-1">
                             {lead.phone && (
-                              <Button variant="ghost" size="icon" onClick={() => handleSendWhatsApp(lead)} title="واتساب">
-                                <MessageCircle size={16} />
-                              </Button>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" onClick={() => handleSendWhatsApp(lead)}>
+                                    <MessageCircle size={16} />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>واتساب</TooltipContent>
+                              </Tooltip>
                             )}
-                            <Button variant="ghost" size="icon" title="عرض"><Eye size={16} /></Button>
-                            <Button variant="ghost" size="icon" title="تعديل"><Edit size={16} /></Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleQuickDelete(lead)} disabled={deleteLeadMutation.isPending} title="حذف">
-                              <Trash2 size={16} />
-                            </Button>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon"><Eye size={16} /></Button>
+                              </TooltipTrigger>
+                              <TooltipContent>عرض</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon"><Edit size={16} /></Button>
+                              </TooltipTrigger>
+                              <TooltipContent>تعديل</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => handleQuickDelete(lead)} disabled={deleteLeadMutation.isPending}>
+                                  <Trash2 size={16} />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>حذف</TooltipContent>
+                            </Tooltip>
                           </div>
                         </TableCell>
                         <TableCell>{formatAdminDate(lead.createdAt)}</TableCell>
@@ -574,11 +595,26 @@ export default function Contacts() {
                         <TableRow key={lead.id}>
                           <TableCell>
                             <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="icon" title="اتصال"><Phone size={16} /></Button>
-                              <Button variant="ghost" size="icon" title="تعديل"><Edit size={16} /></Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleAdvancedDelete(lead)} title="حذف">
-                                <Trash2 size={16} />
-                              </Button>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon"><Phone size={16} /></Button>
+                                </TooltipTrigger>
+                                <TooltipContent>اتصال</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon"><Edit size={16} /></Button>
+                                </TooltipTrigger>
+                                <TooltipContent>تعديل</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" onClick={() => handleAdvancedDelete(lead)}>
+                                    <Trash2 size={16} />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>حذف</TooltipContent>
+                              </Tooltip>
                             </div>
                           </TableCell>
                           <TableCell>{formatAdminDate(lead.createdAt)}</TableCell>

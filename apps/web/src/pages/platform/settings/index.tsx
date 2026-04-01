@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Building2, User, Save, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import PageHeader from "@/components/ui/page-header";
@@ -27,7 +28,7 @@ import { apiGet, apiPut } from "@/lib/apiClient";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 
 import ProfileSection from "./ProfileSection";
-import type { UserProfile } from "./ProfileSection";
+import type { UserProfile, ProfileFormValues } from "./ProfileSection";
 import AccountSection from "./AccountSection";
 import PreferencesSection from "./PreferencesSection";
 
@@ -142,17 +143,22 @@ export default function Settings() {
     });
   };
 
-  const handleProfileSave = async () => {
+  const handleProfileSave = async (values: ProfileFormValues) => {
     setProfileLoading(true);
     try {
       await apiPut("/api/auth/user", {
-        firstName: userProfile.firstName,
-        lastName: userProfile.lastName,
-        email: userProfile.email,
-        phone: userProfile.phone,
-        jobTitle: userProfile.title,
-        department: userProfile.department,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        phone: values.phone,
+        jobTitle: values.title,
+        department: values.department,
       });
+      // Keep parent state in sync after save
+      setUserProfile((prev) => ({
+        ...prev,
+        ...values,
+      }));
       toast({
         title: "تم الحفظ بنجاح",
         description: "تم تحديث الملف الشخصي بنجاح",
@@ -420,15 +426,35 @@ export default function Settings() {
             </Card>
           </Collapsible>
 
+          <Separator />
+
           <ProfileSection
             userProfile={userProfile}
-            onUserProfileChange={setUserProfile}
-            onSave={handleProfileSave}
+            onSave={async (values) => {
+              try {
+                await apiPut("/api/auth/user", {
+                  firstName: values.firstName,
+                  lastName: values.lastName,
+                  email: values.email,
+                  phone: values.phone,
+                  jobTitle: values.title,
+                  department: values.department,
+                });
+                setUserProfile(prev => ({ ...prev, ...values }));
+                toast({ title: "تم الحفظ بنجاح", description: "تم تحديث الملف الشخصي" });
+              } catch {
+                toast({ title: "خطأ", description: "فشل تحديث الملف الشخصي", variant: "destructive" });
+              }
+            }}
             isOpen={profileOpen}
             onOpenChange={setProfileOpen}
           />
 
+          <Separator />
+
           <AccountSection isOpen={securityOpen} onOpenChange={setSecurityOpen} />
+
+          <Separator />
 
           <PreferencesSection isOpen={notificationsOpen} onOpenChange={setNotificationsOpen} />
         </div>

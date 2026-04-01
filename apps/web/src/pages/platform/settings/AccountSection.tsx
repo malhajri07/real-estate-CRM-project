@@ -1,12 +1,28 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Shield, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { apiPut } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
+
+const passwordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "كلمة المرور الحالية مطلوبة"),
+    newPassword: z.string().min(6, "كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل"),
+    confirmPassword: z.string().min(1, "تأكيد كلمة المرور مطلوب"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "كلمة المرور الجديدة وتأكيدها غير متطابقين",
+    path: ["confirmPassword"],
+  });
+
+type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export interface AccountSectionProps {
   isOpen: boolean;
@@ -15,31 +31,26 @@ export interface AccountSectionProps {
 
 export default function AccountSection({ isOpen, onOpenChange }: AccountSectionProps) {
   const { toast } = useToast();
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChangePassword = async () => {
-    if (!currentPassword || !newPassword) {
-      toast({ title: "خطأ", description: "يرجى ملء جميع الحقول", variant: "destructive" });
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      toast({ title: "خطأ", description: "كلمة المرور الجديدة وتأكيدها غير متطابقين", variant: "destructive" });
-      return;
-    }
-    if (newPassword.length < 6) {
-      toast({ title: "خطأ", description: "كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل", variant: "destructive" });
-      return;
-    }
+  const form = useForm<PasswordFormValues>({
+    resolver: zodResolver(passwordSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
+  const handleSubmit = async (values: PasswordFormValues) => {
     setIsSubmitting(true);
     try {
-      await apiPut("/api/auth/password", { currentPassword, newPassword });
+      await apiPut("/api/auth/password", {
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      });
       toast({ title: "تم بنجاح", description: "تم تغيير كلمة المرور بنجاح" });
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      form.reset();
     } catch (err: any) {
       const msg = err?.message?.includes("غير صحيحة") ? "كلمة المرور الحالية غير صحيحة" : "فشل تغيير كلمة المرور";
       toast({ title: "خطأ", description: msg, variant: "destructive" });
@@ -73,22 +84,53 @@ export default function AccountSection({ isOpen, onOpenChange }: AccountSectionP
         </CardHeader>
         <CollapsibleContent>
           <CardContent className="space-y-4 pt-6">
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword" className="block text-sm font-medium text-foreground/80">كلمة المرور الحالية</Label>
-              <Input id="currentPassword" type="password" className="text-subtle" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} data-testid="input-current-password" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="newPassword" className="block text-sm font-medium text-foreground/80">كلمة المرور الجديدة</Label>
-              <Input id="newPassword" type="password" className="text-subtle" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} data-testid="input-new-password" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground/80">تأكيد كلمة المرور الجديدة</Label>
-              <Input id="confirmPassword" type="password" className="text-subtle" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} data-testid="input-confirm-password" />
-            </div>
-            <Button className="mt-4 flex items-center gap-2" onClick={handleChangePassword} disabled={isSubmitting} data-testid="button-change-password">
-              <Shield size={16} />
-              {isSubmitting ? "جاري التغيير..." : "تغيير كلمة المرور"}
-            </Button>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="currentPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-foreground/80">كلمة المرور الحالية</FormLabel>
+                      <FormControl>
+                        <Input type="password" className="text-subtle" data-testid="input-current-password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="newPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-foreground/80">كلمة المرور الجديدة</FormLabel>
+                      <FormControl>
+                        <Input type="password" className="text-subtle" data-testid="input-new-password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="block text-sm font-medium text-foreground/80">تأكيد كلمة المرور الجديدة</FormLabel>
+                      <FormControl>
+                        <Input type="password" className="text-subtle" data-testid="input-confirm-password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="mt-4 flex items-center gap-2" disabled={isSubmitting} data-testid="button-change-password">
+                  <Shield size={16} />
+                  {isSubmitting ? "جاري التغيير..." : "تغيير كلمة المرور"}
+                </Button>
+              </form>
+            </Form>
           </CardContent>
         </CollapsibleContent>
       </Card>
