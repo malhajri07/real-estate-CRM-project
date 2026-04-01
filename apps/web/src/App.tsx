@@ -41,7 +41,7 @@ import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 import { UserRole } from "@shared/rbac";
 import { Spinner } from "@/components/ui/spinner";
 import { logger } from "@/lib/logger";
-import { DashboardSkeleton, FullPageSkeleton } from "@/components/skeletons/dashboard-skeleton";
+// Suspense uses minimal fallbacks — each page handles its own skeleton via useMinLoadTime
 import { RouteGuard } from "@/components/auth/RouteGuard";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 
@@ -144,13 +144,9 @@ function Router() {
   const [location, setLocation] = useLocation();
   const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN); // Helper flag to distinguish admin flow from standard platform users.
 
-  const fullScreenSuspenseFallback = <FullPageSkeleton />;
-
-  const shellSuspenseFallback = (
-    <div className="h-full">
-      <DashboardSkeleton />
-    </div>
-  );
+  // Suspense fallbacks are minimal — each page handles its own skeleton via useMinLoadTime
+  const fullScreenSuspenseFallback = <div className="min-h-screen bg-background" />;
+  const shellSuspenseFallback = <div className="h-full" />;
 
   type LoadableComponent = ComponentType<any> | LazyExoticComponent<ComponentType<any>>;
 

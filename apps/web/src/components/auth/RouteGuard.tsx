@@ -3,7 +3,7 @@ import React, { ComponentType, LazyExoticComponent, Suspense } from 'react';
 import { useAuth, UserRole } from '@/components/auth/AuthProvider';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { DashboardSkeleton, FullPageSkeleton } from '@/components/skeletons/dashboard-skeleton';
+// Skeletons handled by each page via useMinLoadTime — no Suspense skeleton needed
 import PlatformShell from '@/components/layout/PlatformShell';
 import { logger } from '@/lib/logger';
 
@@ -82,12 +82,9 @@ export function RouteGuard({
         return <AccessDenied message="صلاحية إضافية مطلوبة للوصول إلى هذه الصفحة. يرجى التواصل مع مدير النظام." />;
     }
 
+    // Minimal Suspense fallback — each page handles its own skeleton via useMinLoadTime
     const content = (
-        <Suspense fallback={
-            <div className="h-full">
-                <DashboardSkeleton />
-            </div>
-        }>
+        <Suspense fallback={<div className="h-full" />}>
             <Component />
         </Suspense>
     );
@@ -104,9 +101,9 @@ export function RouteGuard({
         );
     }
 
-    // Without shell — show full page skeleton with sidebar frame
+    // Without shell — minimal fallback, page handles its own skeleton
     return (
-        <Suspense fallback={<FullPageSkeleton />}>
+        <Suspense fallback={<div className="min-h-screen bg-background" />}>
             <Component />
         </Suspense>
     );
