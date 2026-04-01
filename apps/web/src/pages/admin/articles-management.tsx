@@ -24,9 +24,12 @@
  */
 
 import { useState, useEffect } from "react";
+import { PageSectionHeader } from "@/components/ui/page-section-header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/apiClient";
 import { cn } from "@/lib/utils";
+import { formatAdminDate } from "@/lib/formatters";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Card,
   CardContent,
@@ -76,6 +79,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 import DOMPurify from 'isomorphic-dompurify';
 import { LISTING_STATUS_LABELS, LISTING_STATUS_BADGE_CLASS } from "@/constants/labels";
 
@@ -131,6 +135,7 @@ interface ArticleVersion {
 }
 
 function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; onRestore: () => void }) {
+  const { dir } = useLanguage();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -163,13 +168,13 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
       <div className="text-sm text-muted-foreground">
         تم العثور على {versions.length} إصدار
       </div>
-      <div className="space-y-3">
+      <div className="space-y-4">
         {versions.map((version) => {
           const snapshot = version.snapshot;
           return (
             <Card key={version.id}>
               <CardContent className="p-4">
-                <div className="flex items-start justify-between" dir="rtl">
+                <div className="flex items-start justify-between" dir={dir}>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant="outline">الإصدار {version.version}</Badge>
@@ -372,17 +377,17 @@ export default function ArticlesManagement() {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">إدارة المقالات</h1>
-          <p className="text-muted-foreground">إدارة ونشر المحتوى والمقالات</p>
-        </div>
-        <Button onClick={handleCreate}>
-          <Plus className="ml-2 h-4 w-4" />
-          إنشاء مقال جديد
-        </Button>
-      </div>
+    <div className={PAGE_WRAPPER}>
+      <PageSectionHeader
+        title="إدارة المقالات"
+        subtitle="إدارة ونشر المحتوى والمقالات"
+        actions={
+          <Button onClick={handleCreate}>
+            <Plus className="ml-2 h-4 w-4" />
+            إنشاء مقال جديد
+          </Button>
+        }
+      />
 
       <div className="space-y-6">
         {/* ... (rest of the content remains same) */}
@@ -417,7 +422,7 @@ export default function ArticlesManagement() {
             {isLoading ? (
               <div className="text-center py-8">جار التحميل...</div>
             ) : error ? (
-              <div className="text-center py-8 text-red-600">
+              <div className="text-center py-8 text-destructive">
                 <div>حدث خطأ في تحميل المقالات</div>
                 <div className="text-sm mt-2 text-muted-foreground">
                   {error instanceof Error ? error.message : "خطأ غير معروف"}
@@ -504,7 +509,7 @@ export default function ArticlesManagement() {
                           ))}
                         </TableCell>
                         <TableCell>
-                          {new Date(article.createdAt).toLocaleDateString("ar-SA")}
+                          {formatAdminDate(article.createdAt)}
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2">
@@ -582,6 +587,7 @@ function ArticleDialog({
   const [featuredImageId, setFeaturedImageId] = useState<string | undefined>(undefined);
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string | undefined>(undefined);
   const [isMediaSelectorOpen, setIsMediaSelectorOpen] = useState(false);
+  const { dir } = useLanguage();
   const queryClient = useQueryClient();
 
   // Reset form when dialog opens/closes or article changes
@@ -636,7 +642,7 @@ function ArticleDialog({
           </AdminSheetDescription>
         </AdminSheetHeader>
         <div className="py-6">
-          <Tabs defaultValue="edit" className="w-full" dir="rtl">
+          <Tabs defaultValue="edit" className="w-full" dir={dir}>
             <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent gap-6">
               <TabsTrigger
                 value="edit"
@@ -661,7 +667,7 @@ function ArticleDialog({
               )}
             </TabsList>
             <TabsContent value="edit" className="pt-6">
-              <form onSubmit={handleSubmit} className="space-y-6" dir="rtl">
+              <form onSubmit={handleSubmit} className="w-full space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div className="space-y-2">
@@ -824,7 +830,7 @@ function ArticleDialog({
                 </AdminSheetFooter>
               </form>
             </TabsContent>
-            <TabsContent value="preview" dir="rtl" className="pt-6">
+            <TabsContent value="preview" dir={dir} className="pt-6">
               <div className="space-y-6 max-w-none prose prose-slate prose-lg dark:prose-invert mx-auto">
                 <div className="space-y-4 not-prose border-b pb-6">
                   {featuredImageUrl && (
@@ -859,7 +865,7 @@ function ArticleDialog({
               </div>
             </TabsContent>
             {article && (
-              <TabsContent value="versions" dir="rtl" className="pt-6">
+              <TabsContent value="versions" dir={dir} className="pt-6">
                 {/* Pending implementation */}
                 <div className="text-center py-12 text-muted-foreground/70 bg-muted/30 rounded-xl border border-dashed text-sm">
                   سجل الإصدارات سيكون متاحاً قريباً

@@ -20,5 +20,17 @@
     "SEARCH_MEMORIES_FAILED": "Failed to search memories",
     "GET_HISTORY_FAILED": "Failed to get agent history",
     "LISTING_NOT_FOUND": "Listing not found",
-    "LEAD_NOT_FOUND": "Lead not found"
+    "LEAD_NOT_FOUND": "Lead not found",
+    "DEAL_NOT_FOUND": "Deal not found",
+    "INQUIRY_NOT_FOUND": "Inquiry not found",
+    "NOTIFICATION_NOT_FOUND": "Notification not found",
+    "ORG_REQUIRED": "Organization context required",
+    "FETCH_FAILED": "Failed to fetch data",
+    "CREATE_FAILED": "Failed to create record",
+    "UPDATE_FAILED": "Failed to update record",
+    "DELETE_FAILED": "Failed to delete record",
+    "EXPORT_FAILED": "Export failed",
+    "IMPORT_FAILED": "Import failed",
+    "BILLING_FETCH_FAILED": "Failed to fetch billing data",
+    "BILLING_ADMIN_REQUIRED": "Admin access required for billing operations"
 }

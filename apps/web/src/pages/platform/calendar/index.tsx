@@ -1,26 +1,30 @@
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { PAGE_WRAPPER, CARD_HOVER, GRID_THREE_COL } from "@/config/platform-theme";
+import { DELETE_BUTTON_STYLES } from "@/config/design-tokens";
 import { getCalendarStatusVariant } from "@/lib/status-variants";
-import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, Clock, MapPin, User, CheckCircle, XCircle, AlertCircle, Plus } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, MapPin, CheckCircle, XCircle, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetDescription,
+} from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import EmptyState from "@/components/ui/empty-state";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { useToast } from "@/hooks/use-toast";
+import { apiPost, apiPut } from "@/lib/apiClient";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
+import type { Lead } from "@shared/types";
 
 type Appointment = {
     id: number;
@@ -32,6 +36,77 @@ type Appointment = {
     property?: { title: string; address: string };
 };
 
+const STATUS_LABELS: Record<string, string> = {
+    SCHEDULED: "مجدول",
+    COMPLETED: "مكتمل",
+    CANCELLED: "ملغي",
+    RESCHEDULED: "معاد جدولته",
+};
+
+function AppointmentForm({
+    leads,
+    isPending,
+    onSubmit,
+}: {
+    leads: Lead[];
+    isPending: boolean;
+    onSubmit: (data: { customerId: string; scheduledAt: string; notes?: string }) => void;
+}) {
+    const [selectedCustomerId, setSelectedCustomerId] = useState("");
+    const [scheduledAt, setScheduledAt] = useState("");
+    const [notes, setNotes] = useState("");
+
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        if (!selectedCustomerId || !scheduledAt) return;
+        onSubmit({
+            customerId: selectedCustomerId,
+            scheduledAt: new Date(scheduledAt).toISOString(),
+            notes: notes || undefined,
+        });
+        setSelectedCustomerId("");
+        setScheduledAt("");
+        setNotes("");
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4 py-4 max-w-lg mx-auto">
+            <div className="space-y-2">
+                <Label>العميل</Label>
+                <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
+                    <SelectTrigger data-testid="select-customer">
+                        <SelectValue placeholder="اختر العميل..." />
+                    </SelectTrigger>
+                    <SelectContent position="popper" sideOffset={4}>
+                        {leads.length === 0 ? (
+                            <SelectItem value="__empty" disabled>لا يوجد عملاء</SelectItem>
+                        ) : (
+                            leads.map((lead) => (
+                                <SelectItem key={lead.id} value={lead.id}>
+                                    {lead.firstName} {lead.lastName} {lead.phone ? `(${lead.phone})` : ""}
+                                </SelectItem>
+                            ))
+                        )}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="space-y-2">
+                <Label>التاريخ والوقت</Label>
+                <Input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+                <Label>ملاحظات</Label>
+                <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="تفاصيل الاجتماع..." />
+            </div>
+            <SheetFooter>
+                <Button type="submit" className="w-full" disabled={isPending || !selectedCustomerId}>
+                    {isPending ? "جاري الإنشاء..." : "جدولة الموعد"}
+                </Button>
+            </SheetFooter>
+        </form>
+    );
+}
+
 export default function AppointmentsManager() {
     const { t, dir, language } = useLanguage();
     const { toast } = useToast();
@@ -42,39 +117,28 @@ export default function AppointmentsManager() {
         queryKey: ["/api/appointments"],
     });
 
+    const { data: leads } = useQuery<Lead[]>({
+        queryKey: ["/api/leads"],
+    });
+
     const createMutation = useMutation({
-        mutationFn: async (data: any) => {
-            const res = await fetch("/api/appointments", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
-            });
-            if (!res.ok) throw new Error("Failed to create appointment");
-            return res.json();
-        },
+        mutationFn: async (data: any) => apiPost("/api/appointments", data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
             setIsCreateOpen(false);
-            toast({ title: t("common.success"), description: "Appointment created successfully" });
+            toast({ title: t("common.success"), description: "تم إنشاء الموعد بنجاح" });
         },
         onError: () => {
-            toast({ title: t("common.error"), description: "Failed to create appointment", variant: "destructive" });
+            toast({ title: t("common.error"), description: "فشل إنشاء الموعد", variant: "destructive" });
         }
     });
 
     const updateStatusMutation = useMutation({
-        mutationFn: async ({ id, status }: { id: number; status: string }) => {
-            const res = await fetch(`/api/appointments/${id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status }),
-            });
-            if (!res.ok) throw new Error("Failed to update status");
-            return res.json();
-        },
+        mutationFn: async ({ id, status }: { id: number; status: string }) =>
+            apiPut(`/api/appointments/${id}`, { status }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
-            toast({ title: t("common.success"), description: "Status updated" });
+            toast({ title: t("common.success"), description: "تم تحديث الحالة" });
         }
     });
 
@@ -93,55 +157,32 @@ export default function AppointmentsManager() {
 
     return (
         <div className={PAGE_WRAPPER} dir={dir}>
-            <div className="flex items-center justify-between mb-6">
-                <PageHeader title={t("nav.calendar") || "المواعيد"} />
-                <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                    <DialogTrigger asChild>
-                        <Button>
-                            <Plus className={cn("me-2", "h-4 w-4")} />
-                            {t("common.create") || "New Appointment"}
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>New Appointment</DialogTitle>
-                        </DialogHeader>
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                const formData = new FormData(e.currentTarget);
-                                createMutation.mutate({
-                                    customerId: formData.get("customerId"),
-                                    scheduledAt: new Date(formData.get("scheduledAt") as string).toISOString(),
-                                    notes: formData.get("notes"),
-                                });
-                            }}
-                            className="space-y-4"
-                        >
-                            <div className="space-y-2">
-                                <Label>Customer (ID for now)</Label>
-                                <Input name="customerId" placeholder="Customer ID (UUID)" required />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Date & Time</Label>
-                                <Input type="datetime-local" name="scheduledAt" required />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Notes</Label>
-                                <Textarea name="notes" placeholder="Meeting details..." />
-                            </div>
-                            <Button type="submit" className="w-full" disabled={createMutation.isPending}>
-                                {createMutation.isPending ? "Creating..." : "Schedule Appointment"}
-                            </Button>
-                        </form>
-                    </DialogContent>
-                </Dialog>
-            </div>
+            <PageHeader title={t("nav.calendar") || "المواعيد"}>
+                <Button onClick={() => setIsCreateOpen(true)}>
+                    <Plus className="me-2 h-4 w-4" />
+                    {t("common.create") || "موعد جديد"}
+                </Button>
+            </PageHeader>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <Card>
+            {/* ── Bottom Drawer: New Appointment ── */}
+            <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl">
+                    <SheetHeader>
+                        <SheetTitle>موعد جديد</SheetTitle>
+                        <SheetDescription>أدخل تفاصيل الموعد الجديد</SheetDescription>
+                    </SheetHeader>
+                    <AppointmentForm
+                        leads={leads ?? []}
+                        isPending={createMutation.isPending}
+                        onSubmit={(data) => createMutation.mutate(data)}
+                    />
+                </SheetContent>
+            </Sheet>
+
+            <div className={GRID_THREE_COL}>
+                <Card className={CARD_HOVER}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Appointments</CardTitle>
+                        <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">إجمالي المواعيد</CardTitle>
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
                             <CalendarIcon className="h-6 w-6" />
                         </div>
@@ -150,9 +191,9 @@ export default function AppointmentsManager() {
                         <div className="text-3xl font-bold">{appointments?.length || 0}</div>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className={CARD_HOVER}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Upcoming</CardTitle>
+                        <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">القادمة</CardTitle>
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
                             <Clock className="h-6 w-6" />
                         </div>
@@ -163,9 +204,9 @@ export default function AppointmentsManager() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className={CARD_HOVER}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Completed</CardTitle>
+                        <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">المكتملة</CardTitle>
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
                             <CheckCircle className="h-6 w-6" />
                         </div>
@@ -180,19 +221,19 @@ export default function AppointmentsManager() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Appointments List</CardTitle>
+                    <CardTitle>قائمة المواعيد</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (
                         <div className="space-y-4">
                             {Array.from({ length: 3 }).map((_, i) => (
-                                <Skeleton key={i} className="h-24 w-full rounded-lg" />
+                                <Skeleton key={i} className="h-24 w-full rounded-2xl" />
                             ))}
                         </div>
                     ) : appointments && appointments.length > 0 ? (
                         <div className="space-y-4">
                             {appointments.map((appointment) => (
-                                <Card key={appointment.id}>
+                                <Card key={appointment.id} className={CARD_HOVER}>
                                     <CardContent className="flex flex-col md:flex-row items-start md:items-center justify-between p-4">
                                         <div className="flex items-start space-x-4 rtl:space-x-reverse mb-4 md:mb-0">
                                             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
@@ -200,7 +241,7 @@ export default function AppointmentsManager() {
                                             </div>
                                             <div>
                                                 <h3 className="font-semibold">
-                                                    {appointment.customer ? `${appointment.customer.firstName} ${appointment.customer.lastName}` : "Unknown Customer"}
+                                                    {appointment.customer ? `${appointment.customer.firstName} ${appointment.customer.lastName}` : "عميل غير معروف"}
                                                 </h3>
                                                 <div className="flex items-center text-sm text-muted-foreground mt-1 space-x-3 rtl:space-x-reverse">
                                                     <span className="flex items-center">
@@ -222,7 +263,7 @@ export default function AppointmentsManager() {
 
                                         <div className="flex items-center space-x-2 rtl:space-x-reverse">
                                             <Badge variant={getCalendarStatusVariant(appointment.status)}>
-                                                {appointment.status}
+                                                {STATUS_LABELS[appointment.status] || appointment.status}
                                             </Badge>
 
                                             {appointment.status === 'SCHEDULED' && (
@@ -232,7 +273,7 @@ export default function AppointmentsManager() {
                                                     >
                                                         <CheckCircle className="w-4 h-4" />
                                                     </Button>
-                                                    <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                    <Button size="sm" variant="outline" className={DELETE_BUTTON_STYLES}
                                                         onClick={() => updateStatusMutation.mutate({ id: appointment.id, status: 'CANCELLED' })}
                                                     >
                                                         <XCircle className="w-4 h-4" />
@@ -247,8 +288,8 @@ export default function AppointmentsManager() {
                     ) : (
                         <EmptyState
                             icon={CalendarIcon}
-                            title="No appointments found"
-                            description="Schedule your first appointment to get started."
+                            title="لا توجد مواعيد"
+                            description="قم بجدولة أول موعد للبدء."
                         />
                     )}
                 </CardContent>

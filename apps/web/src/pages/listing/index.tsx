@@ -24,6 +24,7 @@ import ListingCard from '@/components/listings/ListingCard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { apiGet, apiPost } from '@/lib/apiClient';
 import { LISTING_STATUS_LABELS, PROPERTY_TYPE_LABELS } from '@/constants/labels';
 
 export default function ListingPage() {
@@ -33,9 +34,11 @@ export default function ListingPage() {
   const { data: similar = [] } = useQuery<any[]>({
     queryKey: ["/api/listings", id, "similar"],
     queryFn: async () => {
-      const r = await fetch(`/api/listings/${id}/similar`);
-      if (!r.ok) return [];
-      return r.json();
+      try {
+        return await apiGet<any[]>(`/api/listings/${id}/similar`);
+      } catch {
+        return [];
+      }
     },
   });
 
@@ -97,11 +100,7 @@ export default function ListingPage() {
                 variant="outline"
                 className="w-full text-destructive hover:text-destructive"
                 onClick={async () => {
-                  await fetch('/api/reports', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ listingId: id, reason: 'محتوى غير مناسب' }),
-                  });
+                  await apiPost('/api/reports', { listingId: id, reason: 'محتوى غير مناسب' });
                   toast.success('تم إرسال البلاغ');
                 }}
               >

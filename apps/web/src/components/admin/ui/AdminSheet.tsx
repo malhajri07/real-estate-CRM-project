@@ -47,7 +47,7 @@ const AdminSheetContent = React.forwardRef<
                 // Ensure close button uses logical positioning override
                 // Standard shadcn generic sheet might hardcode right-4.
                 "[&>button]:right-auto [&>button]:end-4",
-                "bg-white/85 backdrop-blur-2xl border-l border-white/20 shadow-2xl ring-1 ring-white/40", // Aurora Deluxe Drawer
+                "bg-card border-s border-border shadow-lg",
                 className
             )}
             {...props}

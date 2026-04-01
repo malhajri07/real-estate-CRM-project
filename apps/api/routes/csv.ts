@@ -192,4 +192,87 @@ router.get('/listings', authenticateToken, async (req: Request, res: Response) =
     }
 });
 
+// GET /api/csv/deals — export deals as CSV
+router.get('/deals', authenticateToken, async (req: Request, res: Response) => {
+    try {
+        const orgId = req.user?.organizationId;
+        const roles = req.user?.roles || [];
+        const isAdmin = roles.includes(UserRole.WEBSITE_ADMIN) || roles.includes(UserRole.CORP_OWNER);
+
+        const deals = await prisma.deals.findMany({
+            where: isAdmin && !orgId ? {} : orgId ? { organizationId: orgId } : {},
+            include: {
+                customer: { select: { firstName: true, lastName: true, phone: true, email: true } },
+                agent: { select: { firstName: true, lastName: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 5000,
+        });
+
+        const columns = ['id', 'stage', 'source', 'agreedPrice', 'currency', 'customerName', 'customerPhone', 'customerEmail', 'agentName', 'expectedCloseDate', 'wonAt', 'createdAt'];
+        const rows = deals.map(d => ({
+            id: d.id,
+            stage: d.stage ?? '',
+            source: d.source ?? '',
+            agreedPrice: d.agreedPrice?.toString() ?? '',
+            currency: d.currency ?? 'SAR',
+            customerName: d.customer ? `${d.customer.firstName ?? ''} ${d.customer.lastName ?? ''}`.trim() : '',
+            customerPhone: d.customer?.phone ?? '',
+            customerEmail: d.customer?.email ?? '',
+            agentName: d.agent ? `${d.agent.firstName ?? ''} ${d.agent.lastName ?? ''}`.trim() : '',
+            expectedCloseDate: d.expectedCloseDate?.toISOString() ?? '',
+            wonAt: d.wonAt?.toISOString() ?? '',
+            createdAt: d.createdAt.toISOString(),
+        }));
+
+        const csv = toCSV(rows, columns);
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="deals-${Date.now()}.csv"`);
+        res.send('\uFEFF' + csv);
+    } catch (error) {
+        logger.error({ err: error }, 'Error exporting deals CSV');
+        res.status(500).json({ error: 'EXPORT_FAILED', message: 'Failed to export deals' });
+    }
+});
+
+// GET /api/csv/appointments — export appointments as CSV
+router.get('/appointments', authenticateToken, async (req: Request, res: Response) => {
+    try {
+        const orgId = req.user?.organizationId;
+        const userId = req.user?.id;
+        const roles = req.user?.roles || [];
+        const isAdmin = roles.includes(UserRole.WEBSITE_ADMIN) || roles.includes(UserRole.CORP_OWNER);
+
+        const appointments = await prisma.appointments.findMany({
+            where: isAdmin && !orgId ? {} : orgId ? { organizationId: orgId } : userId ? { agentId: userId } : {},
+            include: {
+                customer: { select: { firstName: true, lastName: true, phone: true } },
+                agent: { select: { firstName: true, lastName: true } },
+            },
+            orderBy: { scheduledAt: 'desc' },
+            take: 5000,
+        });
+
+        const columns = ['id', 'status', 'scheduledAt', 'customerName', 'customerPhone', 'agentName', 'notes', 'createdAt'];
+        const rows = appointments.map(a => ({
+            id: a.id,
+            status: a.status ?? '',
+            scheduledAt: a.scheduledAt?.toISOString() ?? '',
+            customerName: a.customer ? `${a.customer.firstName ?? ''} ${a.customer.lastName ?? ''}`.trim() : '',
+            customerPhone: a.customer?.phone ?? '',
+            agentName: a.agent ? `${a.agent.firstName ?? ''} ${a.agent.lastName ?? ''}`.trim() : '',
+            notes: a.notes ?? '',
+            createdAt: a.createdAt?.toISOString() ?? '',
+        }));
+
+        const csv = toCSV(rows, columns);
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="appointments-${Date.now()}.csv"`);
+        res.send('\uFEFF' + csv);
+    } catch (error) {
+        logger.error({ err: error }, 'Error exporting appointments CSV');
+        res.status(500).json({ error: 'EXPORT_FAILED', message: 'Failed to export appointments' });
+    }
+});
+
 export default router;

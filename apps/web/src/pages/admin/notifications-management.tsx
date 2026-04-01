@@ -25,6 +25,8 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
+import { ADMIN_BUTTON_PRIMARY } from "@/config/design-tokens";
 
 type NotificationTemplate = {
     id: string;
@@ -37,24 +39,24 @@ type NotificationTemplate = {
 
 function NotificationTemplates({ templates, isLoading }: { templates: NotificationTemplate[]; isLoading: boolean }) {
     return (
-        <Card className="glass border-0 rounded-3xl overflow-hidden shadow-none">
-            <div className="p-8 border-b border-border flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
+        <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-border flex flex-col md:flex-row items-center justify-between gap-6 bg-muted/30">
                 <div className="relative w-full md:w-96 group">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
-                    <Input placeholder="البحث عن قالب إشعار..." className="h-12 pr-11 rounded-2xl bg-card border-border focus:ring-blue-500/20" />
+                    <Search className="absolute end-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
+                    <Input placeholder="البحث عن قالب إشعار..." className="h-12 pe-11 rounded-2xl bg-card border-border focus:ring-primary/20" />
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
                     <Button variant="outline" className="h-12 px-6 rounded-2xl border-border font-bold text-muted-foreground">
                         <Filter className="h-4 w-4 me-2" />
                         تصفية
                     </Button>
-                    <Button className="h-12 px-8 rounded-2xl premium-gradient text-white border-0 font-bold shadow-lg shadow-primary/10">
+                    <Button className={ADMIN_BUTTON_PRIMARY}>
                         <Plus className="h-5 w-5 me-2" />
                         إنشاء قالب جديد
                     </Button>
                 </div>
             </div>
-            <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                 {isLoading ? (
                     Array.from({ length: 4 }).map((_, i) => (
                         <Card key={i} className="bg-card/50 border border-border rounded-2xl p-6">
@@ -67,7 +69,7 @@ function NotificationTemplates({ templates, isLoading }: { templates: Notificati
                     </div>
                 ) : (
                     templates.map((template) => (
-                    <Card key={template.id} className="bg-card/50 border border-border rounded-2xl p-6 hover:bg-card hover:shadow-2xl transition-all duration-300 group relative overflow-visible">
+                    <Card key={template.id} className="bg-card/50 border border-border rounded-2xl p-6 hover:bg-card hover:shadow-md transition-all duration-300 group relative overflow-visible">
                         <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-4">
                                 <div className="h-12 w-12 bg-muted/50 text-muted-foreground rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -96,7 +98,7 @@ function NotificationTemplates({ templates, isLoading }: { templates: Notificati
                                 </Badge>
                             ))}
                         </div>
-                        <div className="flex items-center justify-between pt-4 border-t border-slate-50 mt-auto">
+                        <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
                             <span className="text-xs font-bold text-muted-foreground/70">تحديث {template.lastUpdated}</span>
                             <div className="flex gap-1">
                                 <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-muted-foreground/70 hover:text-muted-foreground hover:bg-muted/50"><Eye className="h-4 w-4" /></Button>
@@ -137,8 +139,8 @@ export default function NotificationsManagement() {
     const stats = statsData?.stats;
 
     return (
-        <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-2xl p-8 shadow-none group relative overflow-hidden">
+        <div className={PAGE_WRAPPER}>
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 group relative overflow-hidden">
                 <div className="absolute top-0 end-0 w-[30%] h-[30%] bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                     <div className="flex items-center gap-6">
@@ -146,17 +148,17 @@ export default function NotificationsManagement() {
                             <Bell className="h-8 w-8" />
                         </div>
                         <div className="text-center md:text-end">
-                            <h1 className="text-3xl font-bold text-foreground tracking-tight">مركز الإشعارات والقوالب</h1>
+                            <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">مركز الإشعارات والقوالب</h1>
                             <p className="text-muted-foreground font-medium text-lg">إدارة قوالب التواصل وقواعد الإرسال عبر القنوات المختلفة</p>
                         </div>
                     </div>
                 </div>
             </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className={GRID_METRICS}>
                 {statsLoading ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                        <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none">
+                        <Card key={i} className="rounded-2xl border border-border bg-card shadow-sm p-6">
                             <Skeleton className="h-20 w-full" />
                         </Card>
                     ))
@@ -167,7 +169,7 @@ export default function NotificationsManagement() {
                         { title: "أخطاء الإرسال", value: `${stats?.errors || 0} أخطاء`, icon: AlertTriangle, color: "text-muted-foreground", bg: "bg-muted/50" },
                         { title: "وقت التسليم", value: stats?.avgDeliveryTime || "0 ث", icon: Clock, color: "text-muted-foreground", bg: "bg-muted/50" },
                     ].map((stat, i) => (
-                        <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none flex items-center gap-4 hover:bg-card hover:shadow-xl transition-all">
+                        <Card key={i} className="rounded-2xl border border-border bg-card shadow-sm p-6 flex items-center gap-4 hover:bg-card hover:shadow-md transition-all">
                             <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", stat.bg, stat.color)}>
                                 <stat.icon className="h-6 w-6" />
                             </div>
@@ -180,7 +182,7 @@ export default function NotificationsManagement() {
                 )}
             </div>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
                 <TabsList className="bg-muted/50 p-1 rounded-2xl border-0 h-14">
                     <TabsTrigger value="templates" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">قوالب الإشعارات</TabsTrigger>
                     <TabsTrigger value="channels" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">القنوات النشطة</TabsTrigger>
@@ -198,7 +200,7 @@ export default function NotificationsManagement() {
                             { name: "SMS (Twilio/Unifonic)", status: "Connected", icon: MessageSquare, color: "text-muted-foreground" },
                             { name: "Push (Firebase FCM)", status: "Error", icon: Smartphone, color: "text-muted-foreground" },
                         ].map((channel, i) => (
-                            <Card key={i} className="glass border-0 rounded-3xl p-8 shadow-none text-center flex flex-col items-center group hover:bg-card hover:shadow-2xl transition-all duration-300">
+                            <Card key={i} className="rounded-2xl border border-border bg-card shadow-sm p-6 text-center flex flex-col items-center group hover:bg-card hover:shadow-md transition-all duration-300">
                                 <div className={cn("h-16 w-16 bg-card rounded-2xl shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform", channel.color)}>
                                     <channel.icon className="h-8 w-8" />
                                 </div>
@@ -216,7 +218,7 @@ export default function NotificationsManagement() {
                 </TabsContent>
 
                 <TabsContent value="logs" className="space-y-4">
-                    <Card className="glass border-0 rounded-3xl p-20 text-center bg-muted/30 border-2 border-dashed border-border/50 flex flex-col items-center">
+                    <Card className="rounded-2xl p-20 text-center bg-muted/30 border-2 border-dashed border-border flex flex-col items-center">
                         <div className="h-20 w-20 bg-card rounded-2xl shadow-xl shadow-slate-500/10 flex items-center justify-center text-muted-foreground/70 mb-6 group-hover:scale-110 transition-transform">
                             <History className="h-10 w-10 text-muted-foreground opacity-20" />
                         </div>

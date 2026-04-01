@@ -31,6 +31,7 @@ import {
     ResponsiveContainer,
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CHART_COLOR_ARRAY } from '@/config/design-tokens';
 
 interface ChartData {
     [key: string]: string | number;
@@ -49,16 +50,6 @@ interface AdminChartProps {
     showGrid?: boolean;
 }
 
-const DEFAULT_COLORS = [
-    '#3b82f6', // blue
-    '#10b981', // green
-    '#f59e0b', // amber
-    '#8b5cf6', // purple
-    '#ef4444', // red
-    '#06b6d4', // cyan
-    '#ec4899', // pink
-];
-
 export function AdminChart({
     title,
     description,
@@ -66,7 +57,7 @@ export function AdminChart({
     type,
     dataKeys,
     xAxisKey = 'name',
-    colors = DEFAULT_COLORS,
+    colors = CHART_COLOR_ARRAY,
     height = 300,
     showLegend = true,
     showGrid = true,

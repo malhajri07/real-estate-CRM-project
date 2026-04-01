@@ -38,13 +38,12 @@ router.post('/login', async (req, res) => {
     res.json({ success: true, ...result });
 
   } catch (error) {
+    const locale = (req as any).locale || 'ar';
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, message: 'Validation Error', errors: error.errors });
+      return res.status(400).json(getErrorResponse('VALIDATION_ERROR', locale, error.errors));
     }
     logger.error({ err: error }, 'Login Error');
     const message = error instanceof Error ? error.message : 'Login failed';
-    // If it's a known service error, we might want to map it, but for now fallback to general
-    const locale = (req as any).locale || 'ar';
     res.status(401).json(getErrorResponse('LOGIN_FAILED', locale, { originalError: message }));
   }
 });
@@ -63,11 +62,12 @@ router.post('/register', async (req, res) => {
     res.status(201).json({ success: true, ...result });
 
   } catch (error) {
+    const locale = (req as any).locale || 'ar';
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ success: false, message: 'Validation Error', errors: error.errors });
+      return res.status(400).json(getErrorResponse('VALIDATION_ERROR', locale, error.errors));
     }
     logger.error({ err: error }, 'Registration Error');
-    res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Registration failed' });
+    res.status(400).json(getErrorResponse('CREATE_FAILED', locale, { originalError: error instanceof Error ? error.message : 'Registration failed' }));
   }
 });
 
@@ -126,6 +126,125 @@ router.post('/impersonate', authenticateToken, async (req, res) => {
     }
     logger.error({ err: error }, 'Impersonate Error');
     res.status(400).json({ success: false, message: error instanceof Error ? error.message : 'Impersonation failed' });
+  }
+});
+
+// PUT /api/auth/user — update current user's profile
+router.put('/user', authenticateToken, async (req, res) => {
+  try {
+    const schema = z.object({
+      firstName: z.string().min(1).optional(),
+      lastName: z.string().min(1).optional(),
+      phone: z.string().optional(),
+      email: z.string().email().optional(),
+      jobTitle: z.string().optional(),
+      department: z.string().optional(),
+    });
+    const data = schema.parse(req.body);
+    const updated = await prisma.users.update({
+      where: { id: req.user!.id },
+      data: {
+        ...(data.firstName !== undefined && { firstName: data.firstName }),
+        ...(data.lastName !== undefined && { lastName: data.lastName }),
+        ...(data.phone !== undefined && { phone: data.phone || null }),
+        ...(data.email !== undefined && { email: data.email || null }),
+        ...(data.jobTitle !== undefined && { jobTitle: data.jobTitle || null }),
+        ...(data.department !== undefined && { department: data.department || null }),
+      },
+    });
+    res.json({ success: true, user: updated });
+  } catch (error) {
+    const locale = (req as any).locale || 'ar';
+    if (error instanceof z.ZodError) {
+      return res.status(400).json(getErrorResponse('VALIDATION_ERROR', locale, error.errors));
+    }
+    logger.error({ err: error }, 'Profile update error');
+    res.status(500).json(getErrorResponse('UPDATE_FAILED', locale));
+  }
+});
+
+// PUT /api/auth/password — change current user's password
+router.put('/password', authenticateToken, async (req, res) => {
+  try {
+    const schema = z.object({
+      currentPassword: z.string().min(1),
+      newPassword: z.string().min(6),
+    });
+    const { currentPassword, newPassword } = schema.parse(req.body);
+
+    const user = await prisma.users.findUnique({ where: { id: req.user!.id } });
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const validPassword = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!validPassword) {
+      const locale = (req as any).locale || 'ar';
+      return res.status(400).json({ success: false, message: 'كلمة المرور الحالية غير صحيحة' });
+    }
+
+    const passwordHash = await AuthService.hashPassword(newPassword);
+    await prisma.users.update({
+      where: { id: req.user!.id },
+      data: { passwordHash },
+    });
+
+    res.json({ success: true, message: 'تم تغيير كلمة المرور بنجاح' });
+  } catch (error) {
+    const locale = (req as any).locale || 'ar';
+    if (error instanceof z.ZodError) {
+      return res.status(400).json(getErrorResponse('VALIDATION_ERROR', locale, error.errors));
+    }
+    logger.error({ err: error }, 'Password change error');
+    res.status(500).json(getErrorResponse('UPDATE_FAILED', locale));
+  }
+});
+
+// PUT /api/auth/preferences — save notification preferences in user metadata
+router.put('/preferences', authenticateToken, async (req, res) => {
+  try {
+    const schema = z.object({
+      newLeads: z.boolean().optional(),
+      taskUpdates: z.boolean().optional(),
+      newDeals: z.boolean().optional(),
+    });
+    const prefs = schema.parse(req.body);
+
+    const user = await prisma.users.findUnique({ where: { id: req.user!.id } });
+    const existingMeta = (user?.metadata as Record<string, unknown>) || {};
+    const updatedMeta = { ...existingMeta, notificationPreferences: prefs };
+
+    await prisma.users.update({
+      where: { id: req.user!.id },
+      data: { metadata: updatedMeta },
+    });
+
+    res.json({ success: true, preferences: prefs });
+  } catch (error) {
+    const locale = (req as any).locale || 'ar';
+    if (error instanceof z.ZodError) {
+      return res.status(400).json(getErrorResponse('VALIDATION_ERROR', locale, error.errors));
+    }
+    logger.error({ err: error }, 'Preferences update error');
+    res.status(500).json(getErrorResponse('UPDATE_FAILED', locale));
+  }
+});
+
+// GET /api/auth/preferences — load notification preferences
+router.get('/preferences', authenticateToken, async (req, res) => {
+  try {
+    const user = await prisma.users.findUnique({ where: { id: req.user!.id } });
+    const meta = (user?.metadata as Record<string, unknown>) || {};
+    const prefs = (meta.notificationPreferences as Record<string, boolean>) || {
+      newLeads: true,
+      taskUpdates: true,
+      newDeals: true,
+    };
+    res.json({ success: true, preferences: prefs });
+  } catch (error) {
+    const locale = (req as any).locale || 'ar';
+    logger.error({ err: error }, 'Preferences fetch error');
+    res.status(500).json(getErrorResponse('FETCH_FAILED', locale));
   }
 });
 

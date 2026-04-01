@@ -82,7 +82,8 @@ export function AdminTable<T extends Record<string, any>>({
     className,
     pageSize = 10,
 }: AdminTableProps<T>) {
-    const { dir } = useLanguage();
+    const { dir, language } = useLanguage();
+    const isAr = language === "ar";
     const [searchTerm, setSearchTerm] = useState('');
     const [sortColumn, setSortColumn] = useState<string | null>(null);
     const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -172,7 +173,7 @@ export function AdminTable<T extends Record<string, any>>({
         return (
             <div className="space-y-3">
                 {[...Array(5)].map((_, i) => (
-                    <div key={i} className="h-12 bg-muted animate-pulse rounded" />
+                    <div key={i} className="h-12 bg-muted animate-pulse rounded-xl" />
                 ))}
             </div>
         );
@@ -199,7 +200,7 @@ export function AdminTable<T extends Record<string, any>>({
 
             <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <Table>
-                    <TableHeader className="bg-muted/30">
+                    <TableHeader className="bg-muted/50">
                         <TableRow className="border-b border-border hover:bg-transparent">
                             {selectable && (
                                 <TableHead className="w-12 text-center">
@@ -207,7 +208,7 @@ export function AdminTable<T extends Record<string, any>>({
                                         checked={allSelected}
                                         onCheckedChange={handleSelectAll}
                                         aria-label="Select all"
-                                        className={someSelected && !allSelected ? 'data-[state=checked]:bg-primary/50 border-slate-300' : 'border-slate-300'}
+                                        className={someSelected && !allSelected ? 'data-[state=checked]:bg-primary/50 border-border' : 'border-border'}
                                     />
                                 </TableHead>
                             )}
@@ -217,7 +218,7 @@ export function AdminTable<T extends Record<string, any>>({
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="h-8 -me-3 text-xs font-semibold hover:bg-slate-200/50 text-muted-foreground"
+                                            className="h-8 -me-3 text-xs font-semibold hover:bg-muted/50 text-muted-foreground"
                                             onClick={() => handleSort(column.key)}
                                         >
                                             {column.label}
@@ -244,8 +245,8 @@ export function AdminTable<T extends Record<string, any>>({
                                 <TableCell colSpan={columns.length + (selectable ? 1 : 0)} className="h-64">
                                     {emptyState || (
                                         <AdminEmptyState
-                                            title="لا توجد بيانات"
-                                            description="لم يتم العثور على أي سجلات"
+                                            title={isAr ? "لا توجد بيانات" : "No data available"}
+                                            description={isAr ? "لم يتم العثور على أي سجلات" : "No records found"}
                                         />
                                     )}
                                 </TableCell>
@@ -269,7 +270,7 @@ export function AdminTable<T extends Record<string, any>>({
                                                     checked={isSelected}
                                                     onCheckedChange={(checked) => handleSelectRow(id, checked as boolean)}
                                                     aria-label={`Select row ${id}`}
-                                                    className="border-slate-300"
+                                                    className="border-border"
                                                 />
                                             </TableCell>
                                         )}
@@ -289,17 +290,17 @@ export function AdminTable<T extends Record<string, any>>({
             {totalPages > 1 && (
                 <div className="flex items-center justify-between">
                     <div className="text-sm text-muted-foreground">
-                        عرض {((currentPage - 1) * pageSize) + 1} إلى {Math.min(currentPage * pageSize, sortedData.length)} من {sortedData.length}
+                        {isAr ? "عرض" : "Showing"} {((currentPage - 1) * pageSize) + 1} {isAr ? "إلى" : "to"} {Math.min(currentPage * pageSize, sortedData.length)} {isAr ? "من" : "of"} {sortedData.length}
                     </div>
-                    <div className={cn("flex items-center gap-2", dir === "rtl" && "flex-row-reverse")}>
+                    <div className="flex items-center gap-2">
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
                         >
-                            <ChevronRight className="h-4 w-4 ms-1" />
-                            السابق
+                            {isAr ? <ChevronRight className="h-4 w-4 me-1" /> : <ChevronLeft className="h-4 w-4 me-1" />}
+                            {isAr ? "السابق" : "Previous"}
                         </Button>
                         <div className="flex items-center gap-1">
                             {[...Array(Math.min(5, totalPages))].map((_, i) => {
@@ -333,8 +334,8 @@ export function AdminTable<T extends Record<string, any>>({
                             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                             disabled={currentPage === totalPages}
                         >
-                            التالي
-                            <ChevronLeft className="h-4 w-4 me-1" />
+                            {isAr ? "التالي" : "Next"}
+                            {isAr ? <ChevronLeft className="h-4 w-4 ms-1" /> : <ChevronRight className="h-4 w-4 ms-1" />}
                         </Button>
                     </div>
                 </div>

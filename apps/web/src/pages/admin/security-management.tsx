@@ -28,6 +28,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
+import { ADMIN_BUTTON_PRIMARY, STATUS_COLORS } from "@/config/design-tokens";
 
 import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/lib/apiClient";
@@ -44,16 +46,16 @@ interface AuditLog {
 
 function SecurityAuditLogs() {
     const { data: logs = [], isLoading, isError } = useQuery<AuditLog[]>({
-        queryKey: ["admin-activities"],
+        queryKey: ["/api/rbac-admin/activities"],
         queryFn: async () => apiGet<AuditLog[]>("api/rbac-admin/activities")
     });
 
     return (
-        <Card className="glass border-0 rounded-3xl overflow-hidden shadow-none">
-            <div className="p-8 border-b border-border flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
+        <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-border flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
                 <div className="relative w-full md:w-96 group">
                     <Search className="absolute start-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
-                    <Input placeholder="البحث في سجلات الأمان..." className="h-12 ps-11 rounded-2xl bg-card border-border focus:ring-blue-500/20" />
+                    <Input placeholder="البحث في سجلات الأمان..." className="h-12 ps-11 rounded-2xl bg-card border-border focus:ring-primary/20" />
                 </div>
                 <div className="flex items-center gap-3">
                     <Button variant="outline" className="h-12 px-6 rounded-2xl border-border font-bold text-muted-foreground">
@@ -79,7 +81,7 @@ function SecurityAuditLogs() {
                         </TableRow>
                     ) : isError ? (
                         <TableRow>
-                            <TableCell colSpan={5} className="p-8 text-center text-red-500">فشل تحميل السجلات</TableCell>
+                            <TableCell colSpan={5} className="p-6 text-center text-destructive">فشل تحميل السجلات</TableCell>
                         </TableRow>
                     ) : logs.length === 0 ? (
                         <TableRow>
@@ -87,7 +89,7 @@ function SecurityAuditLogs() {
                         </TableRow>
                     ) : (
                         logs.map((log) => (
-                            <TableRow key={log.id} className="hover:bg-primary/5 transition-colors group border-slate-50">
+                            <TableRow key={log.id} className="hover:bg-primary/5 transition-colors group border-border">
                                 <TableCell className="py-4">
                                     <div className="flex items-center gap-3">
                                         <div className="h-8 w-8 rounded-full bg-muted/50 flex items-center justify-center text-xs font-bold text-muted-foreground">{log.user[0]}</div>
@@ -106,7 +108,7 @@ function SecurityAuditLogs() {
                                         "text-xs font-bold border-0 px-3 py-1 rounded-lg",
                                         log.risk === "Low" ? "bg-primary/10 text-primary" :
                                             log.risk === "Medium" ? "bg-amber-50 text-amber-700" :
-                                                "bg-rose-50 text-rose-700"
+                                                `${STATUS_COLORS.error.bg} ${STATUS_COLORS.error.text}`
                                     )}>
                                         {log.risk === "Low" ? "منخفض" : log.risk === "Medium" ? "متوسط" : "مرتفع"}
                                     </Badge>
@@ -136,8 +138,8 @@ export default function SecurityManagement() {
     };
 
     return (
-        <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-2xl p-8 shadow-none group relative overflow-hidden">
+        <div className={PAGE_WRAPPER}>
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 group relative overflow-hidden">
                 <div className="absolute top-0 end-0 w-[30%] h-[30%] bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                     <div className="flex items-center gap-6">
@@ -145,21 +147,21 @@ export default function SecurityManagement() {
                             <Shield className="h-8 w-8" />
                         </div>
                         <div className="text-center md:text-end">
-                            <h1 className="text-3xl font-bold text-foreground tracking-tight">مركز الأمن والتحكم</h1>
+                            <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">مركز الأمن والتحكم</h1>
                             <p className="text-muted-foreground font-medium text-lg">إدارة صلاحيات الوصول ومراقبة أمن المنصة والبيانات</p>
                         </div>
                     </div>
                 </div>
             </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className={GRID_METRICS}>
                 {[
                     { title: "حالة النظام", value: "آمن", icon: ShieldCheck, color: "text-muted-foreground", bg: "bg-muted/50" },
                     { title: "ثغرات مكتشفة", value: "٠ ثغرات", icon: ShieldAlert, color: "text-muted-foreground", bg: "bg-muted/50" },
                     { title: "هجمات محجوبة", value: "١٢٨ هجمة", icon: AlertTriangle, color: "text-muted-foreground", bg: "bg-muted/50" },
                     { title: "الأجهزة النشطة", value: "٤٢ جهاز", icon: Smartphone, color: "text-muted-foreground", bg: "bg-muted/50" },
                 ].map((stat, i) => (
-                    <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none flex items-center gap-4 hover:bg-card hover:shadow-xl transition-all">
+                    <Card key={i} className="rounded-2xl border border-border bg-card shadow-sm p-6 flex items-center gap-4 hover:bg-card hover:shadow-md transition-all">
                         <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", stat.bg, stat.color)}>
                             <stat.icon className="h-6 w-6" />
                         </div>
@@ -171,7 +173,7 @@ export default function SecurityManagement() {
                 ))}
             </div>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
                 <TabsList className="bg-muted/50 p-1 rounded-2xl border-0 h-14">
                     <TabsTrigger value="access-control" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">التحكم في الوصول</TabsTrigger>
                     <TabsTrigger value="audit-logs" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">سجلات الأمان</TabsTrigger>
@@ -180,13 +182,13 @@ export default function SecurityManagement() {
 
                 <TabsContent value="access-control" className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <Card className="glass border-0 rounded-3xl p-8 shadow-none space-y-8">
+                        <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 space-y-6">
                             <div>
                                 <h3 className="text-xl font-bold text-foreground tracking-tight">إعدادات الجلسة</h3>
                                 <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest mt-1">التحكم في جلسات المستخدمين</p>
                             </div>
                             <div className="space-y-6">
-                                <div className="flex items-center justify-between p-6 bg-card/50 rounded-3xl border border-border group hover:shadow-xl hover:shadow-primary/10 transition-all">
+                                <div className="flex items-center justify-between p-6 bg-card/50 rounded-3xl border border-border group hover:shadow-md hover:shadow-primary/10 transition-all">
                                     <div className="flex items-center gap-4">
                                         <div className="h-10 w-10 bg-muted/50 text-muted-foreground rounded-xl flex items-center justify-center"><Terminal className="h-5 w-5" /></div>
                                         <div>
@@ -196,7 +198,7 @@ export default function SecurityManagement() {
                                     </div>
                                     <Switch className="data-[state=checked]:bg-primary" />
                                 </div>
-                                <div className="flex items-center justify-between p-6 bg-card/50 rounded-3xl border border-border group hover:shadow-xl hover:shadow-primary/10 transition-all">
+                                <div className="flex items-center justify-between p-6 bg-card/50 rounded-3xl border border-border group hover:shadow-md hover:shadow-primary/10 transition-all">
                                     <div className="flex items-center gap-4">
                                         <div className="h-10 w-10 bg-muted/30 text-muted-foreground/70 rounded-xl flex items-center justify-center"><Fingerprint className="h-5 w-5" /></div>
                                         <div>
@@ -209,7 +211,7 @@ export default function SecurityManagement() {
                             </div>
                         </Card>
 
-                        <Card className="glass border-0 rounded-3xl p-8 shadow-none space-y-8">
+                        <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 space-y-6">
                             <div>
                                 <h3 className="text-xl font-bold text-foreground tracking-tight">وضع الحماية</h3>
                                 <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest mt-1">تفعيل إجراءات الأمان المشددة</p>
@@ -220,7 +222,7 @@ export default function SecurityManagement() {
                                     <div className="h-14 w-14 bg-card rounded-2xl flex items-center justify-center shadow-lg shadow-slate-500/10 mx-auto mb-4 text-muted-foreground"><ShieldAlert className="h-8 w-8" /></div>
                                     <h4 className="text-lg font-bold text-foreground mb-2">تفعيل وضع الصيانة</h4>
                                     <p className="text-xs font-bold text-muted-foreground max-w-[200px] mx-auto leading-relaxed">منع كافة المستخدمين من دخول المنصة مؤقتاً لأغراض أمنية طارئة.</p>
-                                    <Button className="mt-6 h-12 px-8 rounded-2xl premium-gradient text-white border-0 font-bold shadow-lg shadow-primary/10">تفعيل الآن</Button>
+                                    <Button className={`${ADMIN_BUTTON_PRIMARY} mt-6`}>تفعيل الآن</Button>
                                 </div>
                             </div>
                         </Card>
@@ -232,7 +234,7 @@ export default function SecurityManagement() {
                 </TabsContent>
 
                 <TabsContent value="authentication" className="space-y-4">
-                    <Card className="glass border-0 rounded-3xl p-20 text-center bg-muted/30 border-2 border-dashed border-border/50 flex flex-col items-center">
+                    <Card className="rounded-2xl p-20 text-center bg-muted/30 border-2 border-dashed border-border flex flex-col items-center">
                         <div className="h-20 w-20 bg-card rounded-2xl shadow-xl shadow-slate-500/10 flex items-center justify-center text-muted-foreground/70 mb-6 group-hover:scale-110 transition-transform">
                             <Key className="h-10 w-10 text-muted-foreground opacity-20" />
                         </div>

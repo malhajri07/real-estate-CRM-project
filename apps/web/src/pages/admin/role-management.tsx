@@ -32,6 +32,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { ADMIN_BUTTON_PRIMARY, DELETE_BUTTON_STYLES, ACTION_BUTTON_ICON } from "@/config/design-tokens";
+import { GRID_METRICS } from "@/config/platform-theme";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -182,17 +185,17 @@ export default function RoleManagement() {
       className: "w-24 text-center",
       render: (role) => (
         <div className="flex items-center justify-center gap-1">
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-muted/30 transition-all" onClick={() => handleOpenEditDialog(role)}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-muted/30 transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" onClick={() => handleOpenEditDialog(role)}>
             <Eye className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/5 hover:text-primary transition-all" onClick={() => handleOpenEditDialog(role)}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-primary/5 hover:text-primary transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" onClick={() => handleOpenEditDialog(role)}>
             <Edit className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => handleOpenDeleteDialog(role)}
-            className="h-8 w-8 p-0 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all"
+            className={`${ACTION_BUTTON_ICON} ${DELETE_BUTTON_STYLES} transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -290,21 +293,21 @@ export default function RoleManagement() {
   const organizationRolesCount = roles.filter((role) => role.scope === "ORGANIZATION").length;
 
   return (
-    <div className="space-y-8 animate-in-start" dir="rtl">
-      <Card className="glass border-0 rounded-2xl p-8 shadow-none">
+    <div className={PAGE_WRAPPER}>
+      <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-end">
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">إدارة الأدوار</h1>
+            <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">إدارة الأدوار</h1>
             <p className="text-muted-foreground font-medium text-lg">تحكم في الصلاحيات والوصول لمختلف مجموعات المستخدمين</p>
           </div>
-          <Button className="premium-gradient text-white border-0 shadow-lg shadow-primary/10 h-12 px-8 rounded-2xl font-bold w-full md:w-auto" onClick={handleOpenCreateDialog}>
+          <Button className={cn(ADMIN_BUTTON_PRIMARY, "w-full md:w-auto")} onClick={handleOpenCreateDialog}>
             <Plus className="h-5 w-5 me-2" />
             إنشاء دور جديد
           </Button>
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className={GRID_METRICS}>
         <MetricCard
           title="إجمالي الأدوار"
           subtitle="قاعدية ومخصصة"
@@ -342,7 +345,7 @@ export default function RoleManagement() {
         </Alert>
       ) : null}
 
-      <Card className="glass border-0 rounded-2xl p-8 shadow-none mt-8">
+      <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 mt-8">
         <div className="mb-6">
           <h2 className="text-xl font-bold text-foreground tracking-tight">قائمة الأدوار</h2>
           <p className="text-muted-foreground font-medium">عرض وإدارة الصلاحيات لكل دور وظيفي</p>
@@ -394,7 +397,7 @@ export default function RoleManagement() {
               </div>
             </div>
 
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
             <div className="space-y-4">
               <div className="flex items-center gap-2">
@@ -402,13 +405,13 @@ export default function RoleManagement() {
                 <h3 className="text-base font-bold text-foreground">صلاحيات الدور</h3>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {isLoadingRoles ? (
                   <div className="text-sm text-muted-foreground mt-2">جاري تحميل الصلاحيات...</div>
                 ) : (
                   <div className="mt-2 space-y-6 overflow-y-auto pr-1">
                     {Object.entries(permissionCategories).map(([category, categoryPermissions]) => (
-                      <div key={category} className="space-y-3">
+                      <div key={category} className="space-y-4">
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className="text-xs font-bold text-muted-foreground bg-muted/30">{category}</Badge>
                           <div className="h-px flex-1 bg-muted/50" />
@@ -462,7 +465,7 @@ export default function RoleManagement() {
             <Button
               onClick={handleSubmit}
               disabled={disableSubmit || isSubmitting}
-              className="bg-primary hover:bg-blue-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-white"
             >
               {dialogMode === "create" ? "إنشاء الدور" : "حفظ التغييرات"}
             </Button>

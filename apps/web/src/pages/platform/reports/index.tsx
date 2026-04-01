@@ -18,11 +18,13 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MetricsCard from "@/components/ui/metrics-card";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
+import { CHART_COLOR_ARRAY } from "@/config/design-tokens";
 import type { Lead, Property, Deal } from "@shared/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import { formatAdminDate } from "@/lib/formatters";
 
 import ReportFilters from "./ReportFilters";
 import ReportCharts from "./ReportCharts";
@@ -120,7 +122,7 @@ export default function Reports() {
     if (!filteredLeads) return [];
     const sources: { [key: string]: number } = {};
     filteredLeads.forEach(lead => {
-      const source = lead.leadSource || "Unknown";
+      const source = lead.leadSource || "غير معروف";
       sources[source] = (sources[source] || 0) + 1;
     });
     return Object.entries(sources).map(([source, count]) => ({ source, count }));
@@ -130,7 +132,7 @@ export default function Reports() {
     if (!filteredProperties) return [];
     const types: { [key: string]: number } = {};
     filteredProperties.forEach(property => {
-      const type = property.propertyType || "Unknown";
+      const type = property.propertyType || "غير معروف";
       types[type] = (types[type] || 0) + 1;
     });
     return Object.entries(types).map(([type, count]) => ({ type, count }));
@@ -148,7 +150,7 @@ export default function Reports() {
     return new Intl.NumberFormat("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(num) + "%";
   };
 
-  const CHART_COLORS = ["hsl(145 35% 58%)", "hsl(205 70% 27%)", "hsl(142 76% 36%)", "hsl(35 91% 65%)", "hsl(0 84% 60%)", "hsl(145 20% 90%)"];
+  const CHART_COLORS = CHART_COLOR_ARRAY;
 
   const getTimeSeriesData = () => {
     const days = parseInt(selectedPeriod);
@@ -170,7 +172,7 @@ export default function Reports() {
 
   const getRevenueData = () => {
     if (!filteredDeals) return [];
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
     const monthlyData = new Map<string, { revenue: number; commission: number; deals: number }>();
 
     filteredDeals.forEach(deal => {
@@ -233,7 +235,7 @@ export default function Reports() {
     filteredDeals.forEach(deal => {
       const agentName = (deal as any).agent?.firstName
         ? `${(deal as any).agent.firstName} ${(deal as any).agent.lastName || ""}`
-        : `Agent ${(deal as any).agentId || "Unknown"}`;
+        : `وسيط ${(deal as any).agentId || "غير معروف"}`;
       if (!agents[agentName]) agents[agentName] = { deals: 0, revenue: 0, won: 0 };
       agents[agentName].deals++;
       agents[agentName].revenue += toNumber(deal.dealValue) || 0;
@@ -266,21 +268,21 @@ export default function Reports() {
     };
 
     const csvContent = [
-      ["Report Period", reportData.period],
-      ["Generated On", new Date(reportData.generatedOn).toLocaleDateString()],
+      ["فترة التقرير", reportData.period],
+      ["تاريخ الإنشاء", formatAdminDate(reportData.generatedOn)],
       [""],
-      ["METRICS"],
-      ["Total Leads", reportData.metrics.totalLeads],
-      ["Total Properties", reportData.metrics.totalProperties],
-      ["Total Deals", reportData.metrics.totalDeals],
-      ["Conversion Rate", reportData.metrics.conversionRate],
-      ["Average Property Price", reportData.metrics.averagePropertyPrice],
-      ["Total Commission", reportData.metrics.totalCommission],
+      ["المؤشرات"],
+      ["إجمالي العملاء المحتملين", reportData.metrics.totalLeads],
+      ["إجمالي العقارات", reportData.metrics.totalProperties],
+      ["إجمالي الصفقات", reportData.metrics.totalDeals],
+      ["معدل التحويل", reportData.metrics.conversionRate],
+      ["متوسط سعر العقار", reportData.metrics.averagePropertyPrice],
+      ["إجمالي العمولة", reportData.metrics.totalCommission],
       [""],
-      ["LEAD SOURCES"],
+      ["مصادر العملاء"],
       ...reportData.leadSources.map(item => [item.source, item.count]),
       [""],
-      ["PROPERTY TYPES"],
+      ["أنواع العقارات"],
       ...reportData.propertyTypes.map(item => [item.type, item.count]),
     ]
       .map(row => row.join(","))
@@ -324,7 +326,7 @@ export default function Reports() {
       <ReportFilters selectedPeriod={selectedPeriod} onPeriodChange={setSelectedPeriod} />
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className={GRID_METRICS}>
         <MetricsCard
           title="العملاء المحتملين المولدين"
           value={formatNumber(filteredLeads.length)}

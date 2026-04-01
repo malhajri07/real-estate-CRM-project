@@ -29,7 +29,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { getAuthHeaders } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Check, ChevronsUpDown, Home, MapPin, Upload, X, Image as ImageIcon } from "lucide-react";
+import { Check, ChevronsUpDown, Upload, X } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { useState, useRef, useEffect } from "react";
@@ -73,7 +73,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
     enabled: open,
   });
 
-  const form = useForm<InsertProperty & { listingType?: string; region?: string; district?: string; area?: number }>({
+  const form = useForm<InsertProperty>({
     resolver: zodResolver(insertPropertySchema),
     defaultValues: {
       title: "",
@@ -87,23 +87,30 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
       city: "",
       state: "",
       address: "",
-      latitude: "",
-      longitude: "",
+      latitude: undefined,
+      longitude: undefined,
       features: [],
       status: "active",
+      listingType: "",
+      region: "",
+      district: "",
+      regionId: undefined,
+      cityId: undefined,
+      districtId: undefined,
     },
   });
 
-  const cityId = form.watch("city");
+  // Watch the numeric cityId to fetch districts
+  const watchedCityId = form.watch("cityId");
   const { data: districts, isLoading: districtsLoading } = useQuery({
-    queryKey: ["/api/locations/districts", cityId],
+    queryKey: ["/api/locations/districts", watchedCityId],
     queryFn: async () => {
-      if (!cityId) return [];
-      const res = await fetch(`/api/locations/districts?cityId=${cityId}`);
+      if (!watchedCityId) return [];
+      const res = await fetch(`/api/locations/districts?cityId=${watchedCityId}`);
       if (!res.ok) throw new Error("Failed to fetch districts");
       return res.json();
     },
-    enabled: open && !!cityId,
+    enabled: open && !!watchedCityId,
   });
 
   // Image handling functions
@@ -152,29 +159,19 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
 
   const createPropertyMutation = useMutation({
     mutationFn: async (data: InsertProperty) => {
-      const formData = new FormData();
-
-      // Append property data
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          formData.append(key, value.toString());
-        }
-      });
-
-      // Append images
-      selectedImages.forEach((image, index) => {
-        formData.append(`images`, image);
-      });
-
       const response = await fetch('/api/listings', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json',
+        },
         credentials: 'include',
-        body: formData,
+        body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create property');
+        const errorBody = await response.json().catch(() => null);
+        throw new Error(errorBody?.message || 'Failed to create property');
       }
 
       return response.json();
@@ -197,11 +194,17 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
     },
   });
 
-  const onSubmit = (data: InsertProperty & { listingType?: string; region?: string; district?: string; area?: number }) => {
+  const onSubmit = (data: InsertProperty) => {
     const submitData: InsertProperty = {
       ...data,
-      latitude: data.latitude || "",
-      longitude: data.longitude || "",
+      // Ensure lat/lng are numbers or undefined (not empty strings)
+      latitude: data.latitude && Number(data.latitude) !== 0 ? Number(data.latitude) : undefined,
+      longitude: data.longitude && Number(data.longitude) !== 0 ? Number(data.longitude) : undefined,
+      // Map squareFeet for the API (storage layer maps it to areaSqm)
+      squareFeet: data.squareFeet ? Number(data.squareFeet) : 0,
+      price: Number(data.price),
+      bedrooms: Number(data.bedrooms) || 0,
+      bathrooms: Number(data.bathrooms) || 0,
     };
     createPropertyMutation.mutate(submitData);
   };
@@ -417,7 +420,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                 )}
                               >
                                 {field.value
-                                  ? (regions as any[])?.find((region: any) => region.nameArabic === field.value)?.nameArabic
+                                  ? (regions as any[])?.find((region: any) => region.nameAr === field.value)?.nameAr
                                   : "اختر المنطقة"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -440,19 +443,26 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                     regions && Array.isArray(regions) ? regions.map((region: any) => (
                                       <CommandItem
                                         key={region.id}
-                                        value={region.nameArabic}
+                                        value={region.nameAr}
                                         onSelect={(currentValue) => {
-                                          field.onChange(currentValue === field.value ? "" : currentValue)
-                                          setRegionOpen(false)
+                                          const selected = (regions as any[])?.find((r: any) => r.nameAr === currentValue);
+                                          if (currentValue === field.value) {
+                                            field.onChange("");
+                                            form.setValue("regionId", undefined);
+                                          } else {
+                                            field.onChange(currentValue);
+                                            form.setValue("regionId", selected?.id);
+                                          }
+                                          setRegionOpen(false);
                                         }}
                                       >
                                         <Check
                                           className={cn(
                                             "mr-2 h-4 w-4",
-                                            field.value === region.nameArabic ? "opacity-100" : "opacity-0"
+                                            field.value === region.nameAr ? "opacity-100" : "opacity-0"
                                           )}
                                         />
-                                        {region.nameArabic}
+                                        {region.nameAr}
                                       </CommandItem>
                                     )) : null
                                   )}
@@ -487,7 +497,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                 )}
                               >
                                 {field.value
-                                  ? (cities as any[])?.find((city: any) => city.nameArabic === field.value)?.nameArabic
+                                  ? (cities as any[])?.find((city: any) => city.nameAr === field.value)?.nameAr
                                   : "اختر المدينة"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -510,19 +520,32 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                     cities && Array.isArray(cities) ? cities.map((city: any) => (
                                       <CommandItem
                                         key={city.id}
-                                        value={city.nameArabic}
+                                        value={city.nameAr}
                                         onSelect={(currentValue) => {
-                                          field.onChange(currentValue === field.value ? "" : currentValue)
-                                          setCityOpen(false)
+                                          const selected = (cities as any[])?.find((c: any) => c.nameAr === currentValue);
+                                          if (currentValue === field.value) {
+                                            field.onChange("");
+                                            form.setValue("cityId", undefined);
+                                            // Clear district when city is cleared
+                                            form.setValue("district", "");
+                                            form.setValue("districtId", undefined);
+                                          } else {
+                                            field.onChange(currentValue);
+                                            form.setValue("cityId", selected?.id);
+                                            // Clear district when city changes
+                                            form.setValue("district", "");
+                                            form.setValue("districtId", undefined);
+                                          }
+                                          setCityOpen(false);
                                         }}
                                       >
                                         <Check
                                           className={cn(
                                             "mr-2 h-4 w-4",
-                                            field.value === city.nameArabic ? "opacity-100" : "opacity-0"
+                                            field.value === city.nameAr ? "opacity-100" : "opacity-0"
                                           )}
                                         />
-                                        {city.nameArabic}
+                                        {city.nameAr}
                                       </CommandItem>
                                     )) : null
                                   )}
@@ -554,7 +577,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                 )}
                               >
                                 {field.value
-                                  ? (districts as any[])?.find((district: any) => district.nameArabic === field.value)?.nameArabic
+                                  ? (districts as any[])?.find((district: any) => district.nameAr === field.value)?.nameAr
                                   : "اختر الحي"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
@@ -577,19 +600,26 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                     districts && Array.isArray(districts) ? districts.map((district: any) => (
                                       <CommandItem
                                         key={district.id}
-                                        value={district.nameArabic}
+                                        value={district.nameAr}
                                         onSelect={(currentValue) => {
-                                          field.onChange(currentValue === field.value ? "" : currentValue)
-                                          setDistrictOpen(false)
+                                          const selected = (districts as any[])?.find((d: any) => d.nameAr === currentValue);
+                                          if (currentValue === field.value) {
+                                            field.onChange("");
+                                            form.setValue("districtId", undefined);
+                                          } else {
+                                            field.onChange(currentValue);
+                                            form.setValue("districtId", selected?.id ? Number(selected.id) : undefined);
+                                          }
+                                          setDistrictOpen(false);
                                         }}
                                       >
                                         <Check
                                           className={cn(
                                             "mr-2 h-4 w-4",
-                                            field.value === district.nameArabic ? "opacity-100" : "opacity-0"
+                                            field.value === district.nameAr ? "opacity-100" : "opacity-0"
                                           )}
                                         />
-                                        {district.nameArabic}
+                                        {district.nameAr}
                                       </CommandItem>
                                     )) : null
                                   )}

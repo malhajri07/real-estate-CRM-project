@@ -17,7 +17,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/ui/page-header";
@@ -78,9 +78,9 @@ export default function ComparePage() {
   if (isLoading) {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className={GRID_METRICS}>
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-48 w-full rounded-lg" />
+            <Skeleton key={i} className="h-48 w-full rounded-2xl" />
           ))}
         </div>
       </div>
@@ -105,7 +105,7 @@ export default function ComparePage() {
             description="أضف عقارات للمقارنة من صفحة البحث"
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className={GRID_METRICS}>
             {items.map((p) => (
               <Card key={p.id}>
                 <CardContent className="p-5 space-y-2">

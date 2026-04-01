@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { LandingPageContent } from "@/lib/cms";
 import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import { HERO_METRIC_THEME } from "@/lib/landing-theme";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HeroSectionProps {
     content: LandingPageContent;
@@ -12,6 +13,7 @@ interface HeroSectionProps {
 }
 
 export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) => {
+    const { dir } = useLanguage();
     const { scrollY } = useScroll();
     const y1 = useTransform(scrollY, [0, 500], [0, 200]);
     const y2 = useTransform(scrollY, [0, 500], [0, -150]);
@@ -22,7 +24,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
     if (!content) {
         console.error('[HeroSection] No content provided');
         return (
-            <section id="home" className="relative min-h-screen flex items-center justify-center pt-24 pb-20" dir="rtl">
+            <section id="home" className="relative min-h-screen flex items-center justify-center pt-24 pb-20" dir={dir}>
                 <div className="text-center">
                     <h1 className="text-4xl font-black text-foreground mb-4">منصة إدارة العقارات الذكية</h1>
                     <p className="text-xl text-muted-foreground mb-8">أداة متكاملة لإدارة عملياتك العقارية بكفاءة واحترافية</p>
@@ -36,7 +38,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
     }
 
     return (
-        <section id="home" className="relative min-h-screen flex items-center pt-24 pb-20 overflow-hidden" dir="rtl" style={{ minHeight: '100vh' }}>
+        <section id="home" className="relative min-h-screen flex items-center pt-24 pb-20 overflow-hidden" dir={dir} style={{ minHeight: '100vh' }}>
             {/* Modern Background with Gradient Mesh */}
             <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-primary/10" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.1),transparent_50%)]" />

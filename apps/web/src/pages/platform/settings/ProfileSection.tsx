@@ -35,8 +35,8 @@ export default function ProfileSection({
   return (
     <Collapsible open={isOpen} onOpenChange={onOpenChange}>
       <Card>
-        <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <CardHeader className="border-b border-border pb-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <span className="rounded-full bg-primary/10 p-2 text-primary"><Users size={18} /></span>
             <div className="text-end">
               <CardTitle>الملف الشخصي للفريق</CardTitle>

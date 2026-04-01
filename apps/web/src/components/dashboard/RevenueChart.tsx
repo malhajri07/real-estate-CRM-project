@@ -5,6 +5,8 @@ import { CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ChartTooltip } from '@/components/ui/chart-tooltip';
+import { CHART_COLORS } from '@/config/design-tokens';
 
 interface RevenueChartData {
     name: string;
@@ -58,8 +60,8 @@ export function RevenueChart() {
                         >
                             <defs>
                                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                    <stop offset="5%" stopColor={CHART_COLORS.green} stopOpacity={0.8} />
+                                    <stop offset="95%" stopColor={CHART_COLORS.green} stopOpacity={0} />
                                 </linearGradient>
                             </defs>
                             <XAxis
@@ -80,18 +82,16 @@ export function RevenueChart() {
                             />
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                             <Tooltip
-                                contentStyle={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                                    borderRadius: '8px',
-                                    border: 'none',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                                }}
-                                formatter={(value: number) => [`SAR ${value}`, t('dashboard.revenue') || 'الإيرادات']}
+                                content={
+                                  <ChartTooltip
+                                    formatter={(value: number) => `SAR ${value}`}
+                                  />
+                                }
                             />
                             <Area
                                 type="monotone"
                                 dataKey="revenue"
-                                stroke="#10b981"
+                                stroke={CHART_COLORS.green}
                                 fillOpacity={1}
                                 fill="url(#colorRevenue)"
                             />

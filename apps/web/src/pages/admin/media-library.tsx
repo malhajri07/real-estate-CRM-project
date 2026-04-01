@@ -19,8 +19,9 @@
  */
 
 import { useState } from "react";
+import { PageSectionHeader } from "@/components/ui/page-section-header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiGet, apiDelete } from "@/lib/apiClient";
+import { apiGet, apiDelete, getAuthHeaders } from "@/lib/apiClient";
 import {
   Card,
   CardContent,
@@ -39,6 +40,7 @@ import {
 import { Upload, Trash2, Search, Grid, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 interface MediaItem {
   id: string;
@@ -101,13 +103,11 @@ export default function MediaLibrary() {
     mutationFn: async (file: File) => {
       const formData = new FormData();
       formData.append("file", file);
-      const token = localStorage.getItem('auth_token');
-      const headers: HeadersInit = {};
-      if (token) headers['Authorization'] = `Bearer ${token}`;
 
+      // FormData uploads need raw fetch (apiClient auto-sets Content-Type to JSON)
       const res = await fetch("/api/cms/media", {
         method: "POST",
-        headers,
+        headers: getAuthHeaders(),
         credentials: "include",
         body: formData,
       });
@@ -151,46 +151,46 @@ export default function MediaLibrary() {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">مكتبة الوسائط</h1>
-          <p className="text-muted-foreground">إدارة الملفات والوسائط</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant={viewMode === "grid" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("grid")}
-          >
-            <Grid className="ml-2 h-4 w-4" />
-            شبكة
-          </Button>
-          <Button
-            variant={viewMode === "list" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setViewMode("list")}
-          >
-            <List className="ml-2 h-4 w-4" />
-            قائمة
-          </Button>
-          <label>
-            <Button asChild>
-              <span>
-                <Upload className="ml-2 h-4 w-4" />
-                رفع ملفات
-              </span>
+    <div className={PAGE_WRAPPER}>
+      <PageSectionHeader
+        title="مكتبة الوسائط"
+        subtitle="إدارة الملفات والوسائط"
+        actions={
+          <div className="flex gap-2">
+            <Button
+              variant={viewMode === "grid" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+            >
+              <Grid className="ml-2 h-4 w-4" />
+              شبكة
             </Button>
-            <Input
-              type="file"
-              multiple
-              className="hidden"
-              onChange={handleFileUpload}
-              accept="image/*,video/*,application/pdf"
-            />
-          </label>
-        </div>
-      </div>
+            <Button
+              variant={viewMode === "list" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("list")}
+            >
+              <List className="ml-2 h-4 w-4" />
+              قائمة
+            </Button>
+            <label>
+              <Button asChild>
+                <span>
+                  <Upload className="ml-2 h-4 w-4" />
+                  رفع ملفات
+                </span>
+              </Button>
+              <Input
+                type="file"
+                multiple
+                className="hidden"
+                onChange={handleFileUpload}
+                accept="image/*,video/*,application/pdf"
+              />
+            </label>
+          </div>
+        }
+      />
 
       <div className="space-y-6">
         {/* ... (rest of the content remains same) */}
@@ -222,7 +222,7 @@ export default function MediaLibrary() {
             {isLoading ? (
               <div className="text-center py-8">جار التحميل...</div>
             ) : error ? (
-              <div className="text-center py-8 text-red-600">
+              <div className="text-center py-8 text-destructive">
                 حدث خطأ في تحميل الملفات
               </div>
             ) : !data?.items.length ? (

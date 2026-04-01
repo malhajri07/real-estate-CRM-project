@@ -17,6 +17,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { PageSectionHeader } from "@/components/ui/page-section-header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiGet, apiGetText, apiPut } from "@/lib/apiClient";
 import {
@@ -33,6 +34,7 @@ import { Save, FileText, Code } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 interface SEOSettings {
   pagePath: string;
@@ -139,11 +141,11 @@ export default function SEOManagement() {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">إدارة SEO</h1>
-        <p className="text-muted-foreground">تحسين محركات البحث وملفات sitemap</p>
-      </div>
+    <div className={PAGE_WRAPPER}>
+      <PageSectionHeader
+        title="إدارة SEO"
+        subtitle="تحسين محركات البحث وملفات sitemap"
+      />
 
       <div className="space-y-6">
         {/* ... (rest of the content remains same) */}

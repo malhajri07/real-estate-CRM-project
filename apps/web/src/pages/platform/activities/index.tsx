@@ -14,6 +14,7 @@ import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
+import { formatAdminDate } from "@/lib/formatters";
 import type { Activity } from "@shared/types";
 
 export default function Activities() {
@@ -54,12 +55,12 @@ export default function Activities() {
             <PageHeader title={`${t("nav.activities") || "الأنشطة"} (${filteredActivities?.length || 0})`}>
                 <div className="flex items-center gap-2">
                     <div className="relative w-64">
-                        <Search className={cn("absolute top-3 h-4 w-4 text-muted-foreground", dir === "rtl" ? "right-3" : "left-3")} />
+                        <Search className="absolute end-3 top-3 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder={t("common.search")}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className={dir === "rtl" ? "pr-9" : "pl-9"}
+                            className="pe-9"
                         />
                     </div>
                     <Button>
@@ -83,8 +84,9 @@ export default function Activities() {
                             ) : undefined}
                         />
                     ) : (
+                        <div className="overflow-x-auto">
                         <Table>
-                            <TableHeader>
+                            <TableHeader className="bg-muted/50">
                                 <TableRow>
                                     <TableHead className="text-end">{t("activities.table.title")}</TableHead>
                                     <TableHead className="text-end">{t("activities.table.type")}</TableHead>
@@ -107,7 +109,7 @@ export default function Activities() {
                                                 <Clock className="w-4 h-4 text-muted-foreground" />
                                                 <span>
                                                     {activity.scheduledDate
-                                                        ? new Date(activity.scheduledDate).toLocaleDateString(locale)
+                                                        ? formatAdminDate(activity.scheduledDate)
                                                         : t("common.no_date")}
                                                     {' '}
                                                     {activity.scheduledDate
@@ -130,6 +132,7 @@ export default function Activities() {
                                 ))}
                             </TableBody>
                         </Table>
+                        </div>
                     )}
                 </CardContent>
             </Card>

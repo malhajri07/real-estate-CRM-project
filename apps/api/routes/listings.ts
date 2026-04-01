@@ -253,14 +253,31 @@ router.post("/", authenticateToken, async (req, res) => {
   try {
     const data = listingSchemas.create.parse(req.body);
 
+    // Pass only validated data to storage (createProperty handles field mapping)
     const listing = await storage.createProperty(
       {
-        ...req.body,
-        ownerId: data.ownerId || "sample-user-1",
-        createdBy: data.createdBy || "sample-user-1",
-        moderationStatus: (req.body?.moderationStatus as any) || 'pending',
-        status: (req.body?.status as any) || 'draft',
-      } as any,
+        title: data.title,
+        description: data.description,
+        address: data.address,
+        city: data.city,
+        district: data.district,
+        propertyType: data.propertyType,
+        propertyCategory: data.propertyCategory,
+        listingType: data.listingType,
+        price: data.price,
+        bedrooms: data.bedrooms,
+        bathrooms: data.bathrooms,
+        squareFeet: data.squareFeet,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        features: data.features,
+        regionId: data.regionId,
+        cityId: data.cityId,
+        districtId: data.districtId,
+        agentId: data.agentId,
+        organizationId: data.organizationId,
+        status: data.status || 'active',
+      },
       "default-user",
       "default-tenant",
     );

@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { Megaphone, Sparkles, ShieldCheck } from "lucide-react";
 import type { MarketingProposal, MarketingRequest, MarketingRequestStatus, MarketingRequestTier } from "@shared/types";
 import { useToast } from "@/hooks/use-toast";
+import { apiPost, apiGet } from "@/lib/apiClient";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -76,7 +77,7 @@ export default function MarketingRequestsBoardPage() {
   const { toast } = useToast();
 
   const { data: requests = [], isLoading, isFetching } = useQuery<RequestWithExtras[]>({
-    queryKey: ["marketing-requests", statusFilter, tierFilter, search],
+    queryKey: ["/api/marketing-requests", statusFilter, tierFilter, search],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.set("includeOwner", "1");
@@ -86,33 +87,17 @@ export default function MarketingRequestsBoardPage() {
       if (tierFilter !== "all") params.set("seriousnessTier", tierFilter);
       if (search.trim()) params.set("search", search.trim());
 
-      const response = await fetch(`/api/marketing-requests?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error("Failed to load marketing requests");
-      }
-      return response.json();
+      return apiGet<RequestWithExtras[]>(`/api/marketing-requests?${params.toString()}`);
     },
   });
 
   const mutation = useMutation({
     mutationFn: async (payload: { requestId: string; message?: string; commissionRate?: number; marketingBudget?: number; estimatedTimeline?: string }) => {
       const { requestId, ...rest } = payload;
-      const response = await fetch(`/api/marketing-requests/${requestId}/proposals`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(rest),
-      });
-      if (response.status === 401) {
-        throw new Error("يرجى تسجيل الدخول كوسيط لإرسال عرض.");
-      }
-      if (!response.ok) {
-        const detail = await response.json().catch(() => null);
-        throw new Error(detail?.message || "تعذر إرسال العرض");
-      }
-      return response.json();
+      return apiPost(`/api/marketing-requests/${requestId}/proposals`, rest);
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["marketing-requests"] });
+      qc.invalidateQueries({ queryKey: ["/api/marketing-requests"] });
       setProposalMessage("");
       setCommissionRate("");
       setMarketingBudget("");

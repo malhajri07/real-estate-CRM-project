@@ -23,6 +23,9 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { useToast } from "@/hooks/use-toast";
 import { apiGet, apiPatch } from "@/lib/apiClient";
 import { cn } from "@/lib/utils";
+import { formatAdminDate } from "@/lib/formatters";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { DELETE_BUTTON_STYLES } from "@/config/design-tokens";
 import { Badge } from "@/components/ui/badge";
 import { Search, Download, RefreshCw } from "lucide-react";
 
@@ -104,7 +107,7 @@ export default function AdminRequestsPage() {
   };
 
   return (
-    <main className="w-full space-y-6" dir="rtl">
+    <div className={PAGE_WRAPPER}>
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -131,12 +134,12 @@ export default function AdminRequestsPage() {
 
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="relative">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="بحث بالاسم/البريد/المدينة" 
-                value={query} 
-                onChange={(e) => setQuery(e.target.value)} 
-                className="pr-10"
+              <Search className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="بحث بالاسم/البريد/المدينة"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="pe-10"
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -174,7 +177,7 @@ export default function AdminRequestsPage() {
                 <TableRow key={r.id}>
                   <TableCell>
                     <span className="whitespace-nowrap text-muted-foreground">
-                      {new Date(r.requestDate || r.createdAt).toLocaleDateString("ar-SA")}
+                      {formatAdminDate(r.requestDate || r.createdAt)}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -238,7 +241,7 @@ export default function AdminRequestsPage() {
                         size="sm" 
                         variant="ghost" 
                         onClick={() => updateStatus(r.id, 'closed')}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className={`h-8 w-8 p-0 ${DELETE_BUTTON_STYLES}`}
                         title="إغلاق الطلب"
                       >
                         ✕
@@ -261,6 +264,6 @@ export default function AdminRequestsPage() {
           </Table>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

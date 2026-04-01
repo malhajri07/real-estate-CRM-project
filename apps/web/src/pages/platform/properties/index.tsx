@@ -15,9 +15,9 @@ import { useState } from "react";
 import { Plus, SlidersHorizontal, LayoutGrid, List } from "lucide-react";
 import { useLocation } from "wouter";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Sheet, SheetContent, SheetHeader, SheetFooter,
+  SheetTitle, SheetDescription,
+} from "@/components/ui/sheet";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -312,6 +312,7 @@ export default function Properties() {
                   isDeletePending={deletePropertyMutation.isPending}
                 />
               ) : (
+                <div className="overflow-x-auto">
                 <PropertiesTable
                   properties={displayProperties}
                   formatCurrency={formatCurrency}
@@ -320,6 +321,7 @@ export default function Properties() {
                   onShare={shareProperty}
                   isDeletePending={deletePropertyMutation.isPending}
                 />
+                </div>
               )}
             </>
           )}
@@ -377,26 +379,26 @@ export default function Properties() {
         )}
       </Card>
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>تأكيد حذف العقار</AlertDialogTitle>
-            <AlertDialogDescription>
+      <Sheet open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <SheetContent side="bottom" className="overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>تأكيد حذف العقار</SheetTitle>
+            <SheetDescription>
               هل أنت متأكد من حذف هذا العقار؟ لا يمكن التراجع عن هذا الإجراء.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
-            <AlertDialogAction
+            </SheetDescription>
+          </SheetHeader>
+          <SheetFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>إلغاء</Button>
+            <Button
               onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={deletePropertyMutation.isPending}
             >
               {deletePropertyMutation.isPending ? "جاري الحذف..." : "تأكيد الحذف"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
       <AddPropertyDrawer open={addPropertyDrawerOpen} onOpenChange={setAddPropertyDrawerOpen} />
     </div>

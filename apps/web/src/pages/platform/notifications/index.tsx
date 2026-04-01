@@ -35,9 +35,10 @@ import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { getNotificationStatusVariant } from "@/lib/status-variants";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { cn } from "@/lib/utils";
+import { formatAdminDate } from "@/lib/formatters";
 import EmptyState from "@/components/ui/empty-state";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { PAGE_WRAPPER, GRID_TWO_COL } from "@/config/platform-theme";
 import PageHeader from "@/components/ui/page-header";
 
 export default function Notifications() {
@@ -182,11 +183,11 @@ export default function Notifications() {
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+                    <CardTitle className="flex items-center gap-3">
                       <Users size={20} />
                       <span>تفاصيل العملاء ({filteredLeads.length})</span>
                     </CardTitle>
-                    <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                    <div className="flex items-center gap-3">
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -211,14 +212,14 @@ export default function Notifications() {
                     {filteredLeads.map((lead) => (
                       <div key={lead.id} className="p-4 hover:bg-muted/50">
                         <div className="flex items-start justify-between">
-                          <div className="flex items-start space-x-3">
+                          <div className="flex items-start gap-3">
                             <Checkbox
                               checked={selectedLeads.includes(lead.id)}
                               onCheckedChange={() => handleLeadSelection(lead.id)}
                               className="mt-1"
                             />
                             <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
+                              <div className="flex items-center gap-3 mb-2">
                                 <h4 className="font-semibold">
                                   {lead.firstName} {lead.lastName}
                                 </h4>
@@ -241,13 +242,13 @@ export default function Notifications() {
                                 <div className="flex items-center space-x-4 rtl:space-x-reverse text-xs text-muted-foreground">
                                   <span>{lead.interestType || 'غير محدد'}</span>
                                   <span>{lead.budgetRange || 'غير محدد'}</span>
-                                  <span>تاريخ الإنشاء: {new Date(lead.createdAt).toLocaleDateString(locale)}</span>
+                                  <span>تاريخ الإنشاء: {formatAdminDate(lead.createdAt)}</span>
                                 </div>
                               </div>
                             </div>
                           </div>
                           
-                          <div className="flex items-center space-x-2 rtl:space-x-reverse">
+                          <div className="flex items-center gap-3">
                             {lead.phone && (
                               <Button
                                 variant="outline"
@@ -277,13 +278,13 @@ export default function Notifications() {
           <TabsContent value="campaign">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+                <CardTitle className="flex items-center gap-3">
                   <Send size={20} />
                   <span>إنشاء حملة جديدة</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={GRID_TWO_COL}>
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label>عنوان الحملة</Label>
@@ -330,7 +331,7 @@ export default function Notifications() {
                   </div>
                 </div>
                 
-                <div className="flex justify-end space-x-3">
+                <div className="flex justify-end gap-3">
                   <Button variant="outline" onClick={() => {
                     setCampaignTitle("");
                     setCampaignMessage("");
@@ -354,7 +355,7 @@ export default function Notifications() {
             <TabsContent value="history">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+                  <CardTitle className="flex items-center gap-3">
                   <Calendar size={20} />
                   <span>تاريخ الحملات</span>
                 </CardTitle>

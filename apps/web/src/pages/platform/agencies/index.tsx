@@ -36,9 +36,9 @@ export default function AgenciesPage() {
     return (
       <div className={PAGE_WRAPPER} dir={dir}>
         <PageHeader title={t("الوكالات")} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full rounded-lg" />
+            <Skeleton key={i} className="h-24 w-full rounded-2xl" />
           ))}
         </div>
       </div>
@@ -65,7 +65,7 @@ export default function AgenciesPage() {
             description="لم يتم تسجيل أي وكالات عقارية بعد"
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {data.map((a) => (
               <Card key={a.id} className="hover:shadow-lg transition cursor-pointer">
                 <CardContent className="p-5">

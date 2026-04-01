@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +31,9 @@ import {
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import { MetricCard } from "@/components/admin";
 import { formatAdminDate } from "@/lib/formatters";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { ADMIN_BUTTON_PRIMARY, DELETE_BUTTON_STYLES, ACTION_BUTTON_ICON, STATUS_COLORS } from "@/config/design-tokens";
+import { GRID_METRICS } from "@/config/platform-theme";
 
 export default function OrganizationManagement() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,10 +78,10 @@ export default function OrganizationManagement() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { label: string; className: string }> = {
-      active: { label: 'نشط', className: 'bg-primary/10 text-primary border-primary/20' },
-      inactive: { label: 'غير نشط', className: 'bg-muted/50 text-foreground border-border' },
-      pending_verification: { label: 'معلق', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-      suspended: { label: 'معلق', className: 'bg-red-100 text-red-800 border-red-200' }
+      active: { label: 'نشط', className: `${STATUS_COLORS.success.bg} ${STATUS_COLORS.success.text} ${STATUS_COLORS.success.border}` },
+      inactive: { label: 'غير نشط', className: `${STATUS_COLORS.inactive.bg} ${STATUS_COLORS.inactive.text} ${STATUS_COLORS.inactive.border}` },
+      pending_verification: { label: 'معلق', className: `${STATUS_COLORS.pending.bg} ${STATUS_COLORS.pending.text} ${STATUS_COLORS.pending.border}` },
+      suspended: { label: 'معلق', className: `${STATUS_COLORS.error.bg} ${STATUS_COLORS.error.text} ${STATUS_COLORS.error.border}` }
     };
 
     const config = statusConfig[status.toLowerCase()] || statusConfig['inactive'];
@@ -157,7 +160,7 @@ export default function OrganizationManagement() {
 
   if (isError) {
     return (
-      <div className="p-8 text-center text-red-600 bg-red-50 rounded-lg border border-red-200">
+      <div className={`p-6 text-center ${STATUS_COLORS.error.text} ${STATUS_COLORS.error.bg} rounded-2xl border ${STATUS_COLORS.error.border}`}>
         <p>فشل في تحميل البيانات: {error?.message}</p>
       </div>
     );
@@ -168,14 +171,14 @@ export default function OrganizationManagement() {
   const activeSubsCount = organizations.filter(o => o.subscription?.status === 'active').length;
 
   return (
-    <div className="space-y-8 animate-in-start" dir="rtl">
-      <Card className="glass border-0 rounded-2xl p-8 shadow-none">
+    <div className={PAGE_WRAPPER}>
+      <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-end">
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">إدارة المنظمات</h1>
+            <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">إدارة المنظمات</h1>
             <p className="text-muted-foreground font-medium text-lg">تحكم في الكيانات والشركات المشتركة في النظام</p>
           </div>
-          <Button className="premium-gradient text-white border-0 shadow-lg shadow-primary/10 h-12 px-8 rounded-2xl font-bold w-full md:w-auto" onClick={() => setIsCreateDialogOpen(true)}>
+          <Button className={`${ADMIN_BUTTON_PRIMARY} w-full md:w-auto`} onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="h-5 w-5 me-2" />
             إضافة منظمة جديدة
           </Button>
@@ -183,7 +186,7 @@ export default function OrganizationManagement() {
       </Card>
 
       {/* Metrics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className={GRID_METRICS}>
         <MetricCard
           title="إجمالي المنظمات"
           subtitle="شركات ومؤسسات"
@@ -215,7 +218,7 @@ export default function OrganizationManagement() {
       </div>
 
       {/* Filters Container */}
-      <Card className="glass border-0 rounded-2xl p-6 shadow-none">
+      <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
         <div className="flex flex-col lg:flex-row items-end gap-6">
           <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
@@ -225,14 +228,14 @@ export default function OrganizationManagement() {
                 placeholder="اسم المنظمة، البريد..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-blue-500/20"
+                className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-primary/20"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="status-filter" className="text-xs font-bold text-muted-foreground uppercase tracking-widest ps-1">الحالة</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-blue-500/20">
+                <SelectTrigger className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-primary/20">
                   <SelectValue placeholder="الكل" />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-border shadow-2xl">
@@ -248,7 +251,7 @@ export default function OrganizationManagement() {
             <div className="space-y-2">
               <Label htmlFor="type-filter" className="text-xs font-bold text-muted-foreground uppercase tracking-widest ps-1">نوع الكيان</Label>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-blue-500/20">
+                <SelectTrigger className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-primary/20">
                   <SelectValue placeholder="الكل" />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-border shadow-2xl">
@@ -270,7 +273,7 @@ export default function OrganizationManagement() {
         </TabsList>
 
         <TabsContent value="organizations">
-          <Card className="glass border-0 rounded-2xl p-8 shadow-none">
+          <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-foreground tracking-tight">قائمة المنظمات</h2>
@@ -299,7 +302,7 @@ export default function OrganizationManagement() {
                     </TableRow>
                   ) : (
                     organizations.map((organization) => (
-                      <TableRow key={organization.id} className="border-slate-50 hover:bg-primary/5 transition-colors group">
+                      <TableRow key={organization.id} className="border-border hover:bg-primary/5 transition-colors group">
                         <TableCell className="py-4">
                           <div className="flex flex-col">
                             <span className="font-bold text-foreground group-hover:text-foreground/80 transition-colors">{organization.name}</span>
@@ -337,7 +340,7 @@ export default function OrganizationManagement() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-primary/5 hover:text-primary transition-all"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-primary/5 hover:text-primary transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                               onClick={() => {
                                 setSelectedOrganization(organization);
                                 setEditForm({
@@ -357,7 +360,7 @@ export default function OrganizationManagement() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-8 w-8 p-0 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all"
+                              className={`${ACTION_BUTTON_ICON} ${DELETE_BUTTON_STYLES} transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}
                               onClick={() => {
                                 setSelectedOrganization(organization);
                                 setIsDeleteDialogOpen(true);
@@ -378,25 +381,25 @@ export default function OrganizationManagement() {
         </TabsContent>
 
         <TabsContent value="types">
-          <div className="p-8 text-center text-muted-foreground bg-muted/30 rounded-lg border border-dashed border-border">
+          <div className="p-6 text-center text-muted-foreground bg-muted/30 rounded-2xl border border-dashed border-border">
             ميزة أنواع المنظمات قادمة قريباً
           </div>
         </TabsContent>
       </Tabs>
 
-      {/* Create Organization Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-2xl" dir="rtl">
-          <DialogHeader className="text-end">
-            <DialogTitle>إضافة منظمة جديدة</DialogTitle>
-            <DialogDescription>
+      {/* Create Organization Sheet */}
+      <Sheet open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <SheetContent side="bottom" className="overflow-y-auto" dir="rtl">
+          <SheetHeader className="text-end">
+            <SheetTitle>إضافة منظمة جديدة</SheetTitle>
+            <SheetDescription>
               إضافة منظمة جديدة إلى النظام
-            </DialogDescription>
-          </DialogHeader>
+            </SheetDescription>
+          </SheetHeader>
           <div className="space-y-4 text-end">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="org-name">اسم المنظمة <span className="text-red-500">*</span></Label>
+                <Label htmlFor="org-name">اسم المنظمة <span className="text-destructive">*</span></Label>
                 <Input
                   id="org-name"
                   value={newOrganization.name}
@@ -462,7 +465,7 @@ export default function OrganizationManagement() {
               />
             </div>
           </div>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <SheetFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
               إلغاء
             </Button>
@@ -473,28 +476,28 @@ export default function OrganizationManagement() {
               {createMutation.isPending && <Spinner size="sm" className="ms-2" />}
               إضافة المنظمة
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
-      {/* Edit Organization Dialog */}
-      <Dialog
+      {/* Edit Organization Sheet */}
+      <Sheet
         open={isEditDialogOpen}
         onOpenChange={(open) => {
           setIsEditDialogOpen(open);
           if (!open) setEditForm(null);
         }}
       >
-        <DialogContent className="max-w-2xl" dir="rtl">
-          <DialogHeader className="text-end">
-            <DialogTitle>تعديل المنظمة</DialogTitle>
-            <DialogDescription>تعديل بيانات المنظمة</DialogDescription>
-          </DialogHeader>
+        <SheetContent side="bottom" className="overflow-y-auto" dir="rtl">
+          <SheetHeader className="text-end">
+            <SheetTitle>تعديل المنظمة</SheetTitle>
+            <SheetDescription>تعديل بيانات المنظمة</SheetDescription>
+          </SheetHeader>
           {editForm && (
             <div className="space-y-4 text-end">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="edit-org-name">اسم المنظمة <span className="text-red-500">*</span></Label>
+                  <Label htmlFor="edit-org-name">اسم المنظمة <span className="text-destructive">*</span></Label>
                   <Input
                     id="edit-org-name"
                     value={editForm.name}
@@ -558,7 +561,7 @@ export default function OrganizationManagement() {
               </div>
             </div>
           )}
-          <DialogFooter className="gap-2 sm:gap-0">
+          <SheetFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               إلغاء
             </Button>
@@ -569,20 +572,20 @@ export default function OrganizationManagement() {
               {updateMutation.isPending && <Spinner size="sm" className="ms-2" />}
               حفظ التغييرات
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
-      {/* Delete Organization Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent dir="rtl">
-          <DialogHeader className="text-end">
-            <DialogTitle>تأكيد الحذف</DialogTitle>
-            <DialogDescription>
+      {/* Delete Organization Sheet */}
+      <Sheet open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <SheetContent side="bottom" className="overflow-y-auto" dir="rtl">
+          <SheetHeader className="text-end">
+            <SheetTitle>تأكيد الحذف</SheetTitle>
+            <SheetDescription>
               هل أنت متأكد من حذف المنظمة "{selectedOrganization?.name}"؟ لا يمكن التراجع عن هذا الإجراء.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
+            </SheetDescription>
+          </SheetHeader>
+          <SheetFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               إلغاء
             </Button>
@@ -594,9 +597,9 @@ export default function OrganizationManagement() {
               {deleteMutation.isPending && <Spinner size="sm" className="ms-2" />}
               حذف المنظمة
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

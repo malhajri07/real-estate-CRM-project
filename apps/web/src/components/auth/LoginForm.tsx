@@ -38,7 +38,8 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const { dir } = useLanguage();
+  const { dir, language } = useLanguage();
+  const isAr = language === "ar";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,10 +51,10 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
     <Card className="w-full border-0 rounded-3xl shadow-xl shadow-slate-200/50 bg-card overflow-hidden">
       <CardHeader className="space-y-2 text-center pb-8 pt-8 border-b border-slate-50 bg-muted/30">
         <CardTitle className="text-xl font-bold text-foreground">
-          مرحباً بك مجدداً
+          {isAr ? "مرحباً بك مجدداً" : "Welcome Back"}
         </CardTitle>
         <CardDescription className="text-sm text-muted-foreground">
-          أدخل بيانات حسابك للمتابعة
+          {isAr ? "أدخل بيانات حسابك للمتابعة" : "Enter your credentials to continue"}
         </CardDescription>
       </CardHeader>
       
@@ -67,7 +68,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
 
           <div className="space-y-2 text-start">
             <Label htmlFor="identifier" className="text-sm font-semibold text-foreground/80">
-              البريد الإلكتروني
+              {isAr ? "البريد الإلكتروني" : "Email"}
             </Label>
             <Input
               id="identifier"
@@ -85,17 +86,17 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
           <div className="space-y-2 text-start">
             <div className="flex items-center justify-between">
               <Label htmlFor="password" className="text-sm font-semibold text-foreground/80">
-                كلمة المرور
+                {isAr ? "كلمة المرور" : "Password"}
               </Label>
               <Button
                 type="button"
                 variant="link"
                 className="p-0 h-auto text-xs font-medium text-muted-foreground hover:text-foreground/80"
                 onClick={() => {
-                  toast.info('يرجى التواصل مع مدير النظام لاستعادة بيانات الدخول');
+                  toast.info(isAr ? 'يرجى التواصل مع مدير النظام لاستعادة بيانات الدخول' : 'Please contact the system administrator to recover your credentials');
                 }}
               >
-                نسيت كلمة المرور؟
+                {isAr ? "نسيت كلمة المرور؟" : "Forgot password?"}
               </Button>
             </div>
             <div className="relative">
@@ -142,7 +143,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
               htmlFor="remember"
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-muted-foreground cursor-pointer select-none"
             >
-              تذكر تسجيل دخولي
+              {isAr ? "تذكر تسجيل دخولي" : "Remember me"}
             </Label>
           </div>
 
@@ -154,10 +155,10 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
             {isLoading ? (
               <>
                 <Spinner size="sm" className="ms-2" />
-                جاري الدخول...
+                {isAr ? "جاري الدخول..." : "Signing in..."}
               </>
             ) : (
-              'تسجيل الدخول'
+              isAr ? "تسجيل الدخول" : "Sign In"
             )}
           </Button>
         </form>

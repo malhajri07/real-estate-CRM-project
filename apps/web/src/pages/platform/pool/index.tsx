@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { PAGE_WRAPPER, TYPOGRAPHY } from "@/config/platform-theme";
+import { STATUS_COLORS } from "@/config/design-tokens";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiGet, apiPost } from "@/lib/apiClient";
 import { formatDistanceToNow } from "date-fns";
@@ -17,14 +18,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import EmptyState from "@/components/ui/empty-state";
 import { cn } from "@/lib/utils";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -200,11 +200,11 @@ export default function Requests() {
             return apiPost(`api/pool/${requestId}/claim`, { notes: "Quick claim via Platform" });
         },
         onSuccess: () => {
-            toast.success("Request claimed successfully! Added to your pipeline.");
+            toast.success("تم حجز الطلب بنجاح! تمت إضافته إلى خط الأنابيب.");
             queryClient.invalidateQueries({ queryKey: ["/api/pool/search"] });
         },
         onError: () => {
-            toast.error("Failed to claim request. Limit reached or already taken.");
+            toast.error("فشل حجز الطلب. تم الوصول للحد الأقصى أو تم حجزه مسبقاً.");
         },
     });
 
@@ -212,16 +212,16 @@ export default function Requests() {
         mutationFn: async ({ requestId, message }: { requestId: string; message: string }) =>
             apiPost(`api/pool/customer-requests/${requestId}/send-sms`, { message }),
         onSuccess: () => {
-            toast.success("SMS sent successfully.");
+            toast.success("تم إرسال الرسالة بنجاح.");
             setSmsMessage("");
             setSmsDialogOpen(false);
             setSmsTargetId(null);
         },
         onError: (err: unknown) => {
             const raw = err instanceof Error ? err.message : String(err);
-            let msg = "Failed to send SMS.";
-            if (raw.includes("not configured")) msg = "SMS is not configured. Contact admin.";
-            else if (raw.includes("Only agents or admins")) msg = "You don't have permission to send SMS.";
+            let msg = "فشل إرسال الرسالة.";
+            if (raw.includes("not configured")) msg = "خدمة الرسائل غير مفعّلة. تواصل مع المسؤول.";
+            else if (raw.includes("Only agents or admins")) msg = "ليس لديك صلاحية إرسال رسائل.";
             else {
                 try {
                     const jsonStart = raw.indexOf("{");
@@ -249,7 +249,7 @@ export default function Requests() {
         refetch: seekerRefetch,
         isFetching: seekerFetching,
     } = useQuery<PropertySeekerRecord[], Error>({
-        queryKey: ["property-seekers"],
+        queryKey: ["/api/requests"],
         queryFn: async () => {
             const body = await apiGet<PropertySeekerRecord[] | unknown>("api/requests");
             if (!Array.isArray(body)) return [];
@@ -362,8 +362,8 @@ export default function Requests() {
                             />
                         ) : (
                             <div dir={dir} className="w-full overflow-x-auto">
-                                <Table className="min-w-[850px]">
-                                    <TableHeader>
+                                <Table className="min-w-[900px]">
+                                    <TableHeader className="bg-muted/50">
                                         <TableRow>
                                             <TableHead className="text-end">{t("pool.table.type")}</TableHead>
                                             <TableHead className="text-end">{t("pool.table.city")}</TableHead>
@@ -407,7 +407,7 @@ export default function Requests() {
                                                 <TableCell>
                                                     <span className={cn(
                                                         "text-xs font-medium",
-                                                        reqSource === "customer_request" ? "text-amber-600" : "text-muted-foreground",
+                                                        reqSource === "customer_request" ? STATUS_COLORS.warning.text : "text-muted-foreground",
                                                     )}>
                                                         {reqSource === "customer_request" ? t("pool.customer_request") : t("pool.buyer_pool")}
                                                     </span>
@@ -420,45 +420,10 @@ export default function Requests() {
                                                 <TableCell className="text-end">
                                                     <div className="flex items-center justify-end gap-2">
                                                         {reqSource === "customer_request" && req.canSendSms && (
-                                                            <Dialog open={smsDialogOpen && smsTargetId === reqId} onOpenChange={(open) => {
-                                                                setSmsDialogOpen(open);
-                                                                if (!open) { setSmsTargetId(null); setSmsMessage(""); }
-                                                            }}>
-                                                                <DialogTrigger asChild>
-                                                                    <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { setSmsTargetId(reqId ?? null); setSmsDialogOpen(true); }}>
-                                                                        <MessageSquare className="h-4 w-4" />
-                                                                        {t("pool.send_sms")}
-                                                                    </Button>
-                                                                </DialogTrigger>
-                                                                <DialogContent>
-                                                                    <DialogHeader>
-                                                                        <DialogTitle>{t("pool.sms_title")}</DialogTitle>
-                                                                        <DialogDescription>{t("pool.sms_description")}</DialogDescription>
-                                                                    </DialogHeader>
-                                                                    <div className="grid gap-2 py-2">
-                                                                        <Label htmlFor="sms-body">{t("pool.sms_message")}</Label>
-                                                                        <Textarea
-                                                                            id="sms-body"
-                                                                            placeholder={t("pool.sms_placeholder")}
-                                                                            value={smsMessage}
-                                                                            onChange={(e) => setSmsMessage(e.target.value)}
-                                                                            rows={4}
-                                                                            maxLength={500}
-                                                                        />
-                                                                    </div>
-                                                                    <DialogFooter>
-                                                                        <Button
-                                                                            onClick={() => {
-                                                                                if (!smsMessage.trim() || !smsTargetId) return;
-                                                                                sendSmsMutation.mutate({ requestId: smsTargetId, message: smsMessage });
-                                                                            }}
-                                                                            disabled={sendSmsMutation.isPending || !smsMessage.trim()}
-                                                                        >
-                                                                            {sendSmsMutation.isPending ? "..." : t("pool.send_sms")}
-                                                                        </Button>
-                                                                    </DialogFooter>
-                                                                </DialogContent>
-                                                            </Dialog>
+                                                            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { setSmsTargetId(reqId ?? null); setSmsDialogOpen(true); }}>
+                                                                <MessageSquare className="h-4 w-4" />
+                                                                {t("pool.send_sms")}
+                                                            </Button>
                                                         )}
                                                         <Button
                                                             size="sm"
@@ -505,7 +470,7 @@ export default function Requests() {
                     <Card>
                         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div className="space-y-2 text-end">
-                                <CardTitle className="text-2xl font-bold">
+                                <CardTitle className={TYPOGRAPHY.sectionTitle}>
                                     {t("requests.seekers_title") || "قاعدة بيانات العملاء الباحثين عن العقار"}
                                 </CardTitle>
                                 <p className="text-sm text-muted-foreground">
@@ -550,7 +515,7 @@ export default function Requests() {
                             {seekerLoading ? (
                                 <div className="space-y-2">
                                     {Array.from({ length: 5 }).map((_, i) => (
-                                        <Skeleton key={i} className="h-20 w-full rounded-lg" />
+                                        <Skeleton key={i} className="h-20 w-full rounded-2xl" />
                                     ))}
                                 </div>
                             ) : seekerIsError ? (
@@ -564,9 +529,10 @@ export default function Requests() {
                                     description={t("requests.no_match_hint") || "لا توجد طلبات مطابقة لخيارات البحث الحالية."}
                                 />
                             ) : (
-                                <Card>
+                                <Card className="overflow-hidden">
+                                  <div className="overflow-x-auto">
                                     <Table>
-                                        <TableHeader>
+                                        <TableHeader className="bg-muted/50">
                                             <TableRow>
                                                 <TableHead className="w-[16%]">{t("requests.col_name") || "الاسم"}</TableHead>
                                                 <TableHead className="w-[20%]">{t("requests.col_contact") || "بيانات التواصل"}</TableHead>
@@ -700,12 +666,48 @@ export default function Requests() {
                                             })}
                                         </TableBody>
                                     </Table>
+                                  </div>
                                 </Card>
                             )}
                         </CardContent>
                     </Card>
                 </TabsContent>
             </Tabs>
+
+            {/* ── Bottom Drawer: Send SMS ── */}
+            <Sheet open={smsDialogOpen} onOpenChange={(open) => {
+                setSmsDialogOpen(open);
+                if (!open) { setSmsTargetId(null); setSmsMessage(""); }
+            }}>
+                <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl">
+                    <SheetHeader>
+                        <SheetTitle>{t("pool.sms_title")}</SheetTitle>
+                        <SheetDescription>{t("pool.sms_description")}</SheetDescription>
+                    </SheetHeader>
+                    <div className="grid gap-2 py-4 max-w-lg mx-auto">
+                        <Label htmlFor="sms-body">{t("pool.sms_message")}</Label>
+                        <Textarea
+                            id="sms-body"
+                            placeholder={t("pool.sms_placeholder")}
+                            value={smsMessage}
+                            onChange={(e) => setSmsMessage(e.target.value)}
+                            rows={4}
+                            maxLength={500}
+                        />
+                    </div>
+                    <SheetFooter className="max-w-lg mx-auto">
+                        <Button
+                            onClick={() => {
+                                if (!smsMessage.trim() || !smsTargetId) return;
+                                sendSmsMutation.mutate({ requestId: smsTargetId, message: smsMessage });
+                            }}
+                            disabled={sendSmsMutation.isPending || !smsMessage.trim()}
+                        >
+                            {sendSmsMutation.isPending ? "..." : t("pool.send_sms")}
+                        </Button>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

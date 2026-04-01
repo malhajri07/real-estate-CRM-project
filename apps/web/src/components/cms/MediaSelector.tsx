@@ -17,12 +17,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Grid, List, Search, Image as ImageIcon } from "lucide-react";
@@ -110,14 +110,14 @@ export function MediaSelector({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>اختر من المكتبة</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="max-h-[90vh] overflow-hidden flex flex-col">
+        <SheetHeader>
+          <SheetTitle>اختر من المكتبة</SheetTitle>
+          <SheetDescription>
             اختر ملفاً من مكتبة الوسائط
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
         <div className="flex-1 overflow-y-auto space-y-4">
           <div className="flex gap-4">
             <div className="flex-1">
@@ -208,8 +208,8 @@ export function MediaSelector({
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
 

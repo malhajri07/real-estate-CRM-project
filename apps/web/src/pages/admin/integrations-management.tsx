@@ -34,15 +34,17 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
+import { ADMIN_BUTTON_PRIMARY } from "@/config/design-tokens";
 import { Label } from "@/components/ui/label";
 
 // --- Sub-components ---
 
 function WhatsAppTab() {
     return (
-        <div className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <Card className="glass border-0 rounded-3xl p-8 shadow-none lg:col-span-2">
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 lg:col-span-2">
                     <div className="mb-8 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="h-16 w-16 bg-muted/50 text-muted-foreground rounded-xl flex items-center justify-center">
@@ -90,7 +92,7 @@ function WhatsAppTab() {
                 </Card>
 
                 <div className="space-y-6">
-                    <Card className="glass border-0 rounded-2xl p-8 shadow-none bg-primary/5">
+                    <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 bg-primary/5">
                         <div className="mb-6">
                             <h3 className="text-lg font-bold text-foreground tracking-tight flex items-center gap-2">
                                 <Activity className="h-5 w-5 text-muted-foreground" />
@@ -98,22 +100,22 @@ function WhatsAppTab() {
                             </h3>
                         </div>
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between p-3 bg-card/60 rounded-xl border border-white">
+                            <div className="flex items-center justify-between p-3 bg-card/60 rounded-xl border border-border">
                                 <span className="text-xs font-bold text-muted-foreground">جودة الربط</span>
                                 <Badge className="bg-primary/10 text-primary border-0 text-xs font-bold">ممتاز</Badge>
                             </div>
-                            <div className="flex items-center justify-between p-3 bg-card/60 rounded-xl border border-white">
+                            <div className="flex items-center justify-between p-3 bg-card/60 rounded-xl border border-border">
                                 <span className="text-xs font-bold text-muted-foreground">الرسائل المرسلة اليوم</span>
                                 <span className="text-sm font-bold text-foreground">١,٢٥٤</span>
                             </div>
-                            <div className="flex items-center justify-between p-3 bg-card/60 rounded-xl border border-white">
+                            <div className="flex items-center justify-between p-3 bg-card/60 rounded-xl border border-border">
                                 <span className="text-xs font-bold text-muted-foreground">نسبة وصول الرسائل</span>
                                 <span className="text-sm font-bold text-foreground">٩٩.٨٪</span>
                             </div>
                         </div>
                     </Card>
 
-                    <Card className="glass border-0 rounded-2xl p-8 shadow-none bg-primary/10">
+                    <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 bg-primary/10">
                         <div className="mb-4">
                             <h3 className="text-lg font-bold text-foreground tracking-tight flex items-center gap-2">
                                 <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
@@ -131,8 +133,8 @@ function WhatsAppTab() {
 
 function EmailTab() {
     return (
-        <div className="space-y-8">
-            <Card className="glass border-0 rounded-3xl p-8 shadow-none">
+        <div className="space-y-6">
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
                 <div className="mb-10 flex items-center gap-4">
                     <div className="h-16 w-16 bg-muted/50 text-muted-foreground rounded-xl flex items-center justify-center">
                         <Mail className="h-8 w-8" />
@@ -196,8 +198,8 @@ function EmailTab() {
 
 function APITab() {
     return (
-        <div className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="space-y-6">
+            <div className={GRID_METRICS}>
                 <MetricCard
                     title="طلبات الـ API"
                     subtitle="آخر ٢٤ ساعة"
@@ -224,13 +226,13 @@ function APITab() {
                 />
             </div>
 
-            <Card className="glass border-0 rounded-3xl p-8 shadow-none">
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
                 <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h2 className="text-2xl font-bold text-foreground tracking-tight">مفاتيح الوصول (API Keys)</h2>
                         <p className="text-muted-foreground font-medium">إدارة مفاتيح الدخول للربط الخارجي والمطورين</p>
                     </div>
-                    <Button className="premium-gradient text-white border-0 shadow-lg shadow-primary/10 h-12 px-8 rounded-2xl font-bold">
+                    <Button className={ADMIN_BUTTON_PRIMARY}>
                         <Plus className="h-5 w-5 me-2" />
                         إنشاء مفتاح جديد
                     </Button>
@@ -254,7 +256,7 @@ function APITab() {
                                 { name: "Staging Testing", key: "sk_test_••••1245", created: "2024/02/10", lastUsed: "منذ ٣ أيام", status: "ACTIVE" },
                                 { name: "Mobile App API", key: "sk_live_••••5567", created: "2023/11/20", lastUsed: "الآن", status: "ACTIVE" },
                             ].map((api, i) => (
-                                <TableRow key={i} className="hover:bg-primary/5 transition-colors group border-slate-50">
+                                <TableRow key={i} className="hover:bg-primary/5 transition-colors group border-border">
                                     <TableCell className="py-4"><span className="font-bold text-foreground/80">{api.name}</span></TableCell>
                                     <TableCell className="py-4"><code className="bg-muted/50 p-1 rounded text-xs text-muted-foreground font-mono">{api.key}</code></TableCell>
                                     <TableCell className="py-4"><span className="text-xs font-bold text-muted-foreground/70">{api.created}</span></TableCell>
@@ -263,7 +265,7 @@ function APITab() {
                                         <Badge className="bg-primary/10 text-primary border-0 text-xs font-bold">نشط</Badge>
                                     </TableCell>
                                     <TableCell className="py-4">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg outline-none"><Settings className="h-4 w-4 text-slate-300 group-hover:text-muted-foreground transition-colors" /></Button>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg outline-none"><Settings className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" /></Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -293,17 +295,17 @@ export default function IntegrationsManagement() {
     };
 
     return (
-        <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-2xl p-8 shadow-none">
+        <div className={PAGE_WRAPPER}>
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="space-y-2 text-center md:text-end">
-                        <h1 className="text-3xl font-bold text-foreground tracking-tight">إدارة التكامل والربط</h1>
+                        <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">إدارة التكامل والربط</h1>
                         <p className="text-muted-foreground font-medium text-lg">إدارة الاتصال مع الخدمات الخارجية والواجهات البرمجية</p>
                     </div>
                 </div>
             </Card>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
                 <TabsList className="bg-muted/50 p-1 rounded-2xl border-0 h-14">
                     <TabsTrigger value="whatsapp" className="rounded-xl px-6 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">واتساب</TabsTrigger>
                     <TabsTrigger value="email" className="rounded-xl px-6 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">البريد الإلكتروني</TabsTrigger>
@@ -320,7 +322,7 @@ export default function IntegrationsManagement() {
                 </TabsContent>
 
                 <TabsContent value="sms" className="space-y-4">
-                    <Card className="glass border-0 rounded-3xl p-20 text-center bg-muted/30 border-2 border-dashed border-border/50 flex flex-col items-center">
+                    <Card className="rounded-2xl p-20 text-center bg-muted/30 border-2 border-dashed border-border flex flex-col items-center">
                         <div className="h-20 w-20 bg-card rounded-2xl shadow-xl shadow-slate-500/10 flex items-center justify-center text-muted-foreground/70 mb-6 group-hover:scale-110 transition-transform">
                             <Smartphone className="h-10 w-10" />
                         </div>

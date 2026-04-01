@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { PAGE_WRAPPER, GRID_THREE_COL, TYPOGRAPHY } from "@/config/platform-theme";
 import type { Lead, Activity } from "@shared/types";
 import { cn } from "@/lib/utils";
 import { getLeadStatusVariant } from "@/lib/status-variants";
@@ -32,6 +32,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import EmptyState from "@/components/ui/empty-state";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import { formatAdminDate } from "@/lib/formatters";
 
 export default function Clients() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -115,11 +116,11 @@ export default function Clients() {
           title={t("nav.clients") || "العملاء"}
           subtitle={t("clients.subtitle") || "إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم"}
         />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className={GRID_THREE_COL}>
           <Card>
             <CardContent className="flex items-center justify-between p-6">
               <div className="space-y-1">
-                <span className="text-xs font-medium text-muted-foreground">إجمالي العملاء</span>
+                <span className="text-xs font-medium text-muted-foreground">{language === "ar" ? "إجمالي العملاء" : "Total Clients"}</span>
                 <span className="block text-3xl font-bold">{total}</span>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
@@ -130,7 +131,7 @@ export default function Clients() {
           <Card>
             <CardContent className="flex items-center justify-between p-6">
               <div className="space-y-1">
-                <span className="text-xs font-medium text-muted-foreground">المؤهلون</span>
+                <span className="text-xs font-medium text-muted-foreground">{language === "ar" ? "المؤهلون" : "Qualified"}</span>
                 <span className="block text-3xl font-bold">{qualified}</span>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
@@ -141,7 +142,7 @@ export default function Clients() {
           <Card>
             <CardContent className="flex items-center justify-between p-6">
               <div className="space-y-1">
-                <span className="text-xs font-medium text-muted-foreground">المغلقون</span>
+                <span className="text-xs font-medium text-muted-foreground">{language === "ar" ? "المغلقون" : "Closed"}</span>
                 <span className="block text-3xl font-bold">{closed}</span>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
@@ -202,7 +203,7 @@ export default function Clients() {
                               {lead.budgetRange}
                             </span>
                             <span className="text-xs text-muted-foreground text-end">
-                              {new Date(lead.createdAt).toLocaleDateString(locale)}
+                              {formatAdminDate(lead.createdAt)}
                             </span>
                           </div>
                         </div>
@@ -221,7 +222,7 @@ export default function Clients() {
                 <CardContent className="flex h-96 items-center justify-center">
                   <div className="space-y-2 text-center text-muted-foreground">
                     <MessageCircle size={48} className="mx-auto opacity-40" />
-                    <h3 className="text-lg font-semibold text-foreground text-end">اختر عميلاً</h3>
+                    <h3 className={`${TYPOGRAPHY.sectionTitle} text-end`}>اختر عميلاً</h3>
                     <p className="text-sm text-end">اختر عميلاً من القائمة لعرض تفاصيله وتاريخ نشاطه.</p>
                   </div>
                 </CardContent>
@@ -245,7 +246,7 @@ export default function Clients() {
                       </Badge>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                       <Card>
                         <CardContent className="p-4">
                           <span className="text-xs font-medium text-muted-foreground text-end">مصدر العميل</span>
@@ -310,7 +311,7 @@ export default function Clients() {
 
                     <TabsContent value="activities" className="p-6">
                       <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-end">سجل الأنشطة</h3>
+                        <h3 className={`${TYPOGRAPHY.sectionTitle} text-end`}>{language === "ar" ? "سجل الأنشطة" : "Activity Log"}</h3>
                       <Button size="sm">
                         <Plus className={"me-2"} size={16} />
                           إضافة نشاط
@@ -349,7 +350,7 @@ export default function Clients() {
                                       </span>
                                     )}
                                     <span>
-                                      أُنشئ: {new Date(activity.createdAt).toLocaleDateString(locale)}
+                                      أُنشئ: {formatAdminDate(activity.createdAt)}
                                     </span>
                                   </div>
                                 </div>

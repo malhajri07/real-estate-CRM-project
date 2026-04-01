@@ -34,22 +34,24 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { STATUS_COLORS } from "@/config/design-tokens";
 import type { BadgeVariant } from "@/lib/status-variants";
+import { formatAdminDate } from "@/lib/formatters";
 
 const STAGES: { id: string; title: string; badgeVariant: BadgeVariant; accent: string }[] = [
-  { id: "lead", title: "عميل محتمل", badgeVariant: "secondary", accent: "text-muted-foreground" },
-  { id: "qualified", title: "مؤهل", badgeVariant: "info", accent: "text-sky-600" },
-  { id: "showing", title: "معاينة", badgeVariant: "warning", accent: "text-amber-600" },
-  { id: "negotiation", title: "تفاوض", badgeVariant: "orange", accent: "text-orange-600" },
-  { id: "closed", title: "مكتملة", badgeVariant: "success", accent: "text-primary" },
+  { id: "NEW", title: "جديدة", badgeVariant: "secondary", accent: STATUS_COLORS.inactive.text },
+  { id: "NEGOTIATION", title: "تفاوض", badgeVariant: "info", accent: STATUS_COLORS.info.text },
+  { id: "UNDER_OFFER", title: "عرض قائم", badgeVariant: "warning", accent: STATUS_COLORS.warning.text },
+  { id: "WON", title: "مكتملة", badgeVariant: "success", accent: STATUS_COLORS.success.text },
+  { id: "LOST", title: "خاسرة", badgeVariant: "orange", accent: STATUS_COLORS.pending.text },
 ];
 
 const STAGE_LABELS: Record<string, string> = {
-  lead: "عميل محتمل",
-  qualified: "مؤهل",
-  showing: "معاينة",
-  negotiation: "تفاوض",
-  closed: "مكتملة",
+  NEW: "جديدة",
+  NEGOTIATION: "تفاوض",
+  UNDER_OFFER: "عرض قائم",
+  WON: "مكتملة",
+  LOST: "خاسرة",
 };
 
 export default function Pipeline() {
@@ -139,10 +141,15 @@ export default function Pipeline() {
     updateDealMutation.mutate({ id: draggableId, stage: destination.droppableId });
   };
 
-  const getLeadName = (leadId: string | null | undefined) => {
-    if (!leadId) return "عميل غير معروف";
-    const lead = leads?.find((l) => l.id === leadId);
-    return lead ? `${lead.firstName} ${lead.lastName}` : "عميل غير معروف";
+  const getDealCustomerName = (deal: Deal) => {
+    const customer = (deal as any).customer;
+    if (customer) return `${customer.firstName} ${customer.lastName}`;
+    // Fallback to lead lookup for backward compat
+    if (deal.leadId) {
+      const lead = leads?.find((l) => l.id === deal.leadId);
+      if (lead) return `${lead.firstName} ${lead.lastName}`;
+    }
+    return "عميل غير معروف";
   };
 
   const toNumericAmount = (value: string | number | null | undefined): number | null => {
@@ -200,7 +207,7 @@ export default function Pipeline() {
       propertyId: null,
       agentId: '',
       organizationId: null,
-      stage: 'lead',
+      stage: 'NEW',
       status: 'open',
       dealValue: parsedBudget,
       value: parsedBudget,
@@ -264,7 +271,7 @@ export default function Pipeline() {
           {STAGES.map((stage) => {
             const stageDeals = getDealsByStage(stage.id);
             const stageValue = stageDeals.reduce((sum, deal) => {
-              const value = toNumericAmount(deal.dealValue);
+              const value = toNumericAmount(deal.agreedPrice ?? deal.dealValue);
               return sum + (value ?? 0);
             }, 0);
 
@@ -304,17 +311,17 @@ export default function Pipeline() {
                                   >
                                     <CardContent className="p-4 space-y-2 text-end">
                                       <div className="flex items-center justify-between">
-                                        <h4 className="text-sm font-semibold">{getLeadName(deal.leadId)}</h4>
-                                        {deal.dealValue && (
+                                        <h4 className="text-sm font-semibold">{getDealCustomerName(deal)}</h4>
+                                        {(deal.agreedPrice || deal.dealValue) && (
                                           <span className="text-sm font-semibold text-primary">
-                                            {formatCurrency(deal.dealValue)}
+                                            {formatCurrency(deal.agreedPrice ?? deal.dealValue)}
                                           </span>
                                         )}
                                       </div>
 
                                       {deal.expectedCloseDate && (
                                         <div className="text-xs text-muted-foreground">
-                                          متوقع في {new Date(deal.expectedCloseDate).toLocaleDateString(locale)}
+                                          متوقع في {formatAdminDate(deal.expectedCloseDate)}
                                         </div>
                                       )}
 
@@ -323,7 +330,7 @@ export default function Pipeline() {
                                       )}
 
                                       <div className="text-xs text-muted-foreground">
-                                        أُنشئت في {new Date(deal.createdAt).toLocaleDateString(locale)}
+                                        أُنشئت في {formatAdminDate(deal.createdAt)}
                                       </div>
                                     </CardContent>
                                   </Card>

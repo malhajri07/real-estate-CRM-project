@@ -46,7 +46,7 @@ export default function MetricsCard({
   };
 
   return (
-    <Card className="border-0 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6">
+    <Card className="rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6">
       <div className="flex items-center justify-between pb-2">
         <div>
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{title}</p>

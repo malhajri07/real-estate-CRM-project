@@ -19,7 +19,7 @@
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { PAGE_WRAPPER, TYPOGRAPHY } from "@/config/platform-theme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/ui/page-header";
@@ -66,7 +66,7 @@ export default function AgentPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-bold">الإعلانات</CardTitle>
+            <CardTitle className={TYPOGRAPHY.sectionTitle}>الإعلانات</CardTitle>
           </CardHeader>
           <CardContent>
             {data.listings.length === 0 ? (
@@ -76,7 +76,7 @@ export default function AgentPage() {
                 description="لم يتم إضافة أي إعلانات عقارية لهذا الوسيط بعد"
               />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 {data.listings.map((p) => (
                   <Card key={p.id}>
                     <CardContent className="p-5">

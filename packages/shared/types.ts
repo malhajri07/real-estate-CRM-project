@@ -144,6 +144,7 @@ export interface Lead {
   id: string;
   agentId: string;
   organizationId: string | null;
+  customerId?: string | null;
   firstName: string;
   lastName: string;
   email: string | null;
@@ -242,6 +243,7 @@ export interface Deal {
   id: string;
   leadId: string | null;
   propertyId: string | null;
+  customerId?: string | null;
   agentId: string;
   organizationId: string | null;
   stage: string;
@@ -254,10 +256,15 @@ export interface Deal {
   lead?: Lead | null;
   property?: Property | null;
   agent?: User;
+  customer?: { firstName: string; lastName: string; email?: string; phone?: string } | null;
   organization?: Organization | null;
   dealValue?: number | string | null;
+  agreedPrice?: number | string | null;
   expectedCloseDate?: Date | string | null;
   notes?: string | null;
+  source?: string | null;
+  wonAt?: Date | null;
+  lostAt?: Date | null;
 }
 
 export type MarketingRequestStatus =
@@ -471,15 +478,16 @@ export enum ListingStatus {
 // Property creation schema & type
 export const insertPropertySchema = z.object({
   title: z.string().min(1, "العنوان مطلوب"),
-  description: z.string().min(1, "الوصف مطلوب"),
-  address: z.string().min(1, "العنوان مطلوب"),
+  description: z.string().optional().default(""),
+  address: z.string().optional().default(""),
   city: z.string().min(1, "المدينة مطلوبة"),
-  state: z.string().min(1, "المنطقة مطلوبة"),
+  state: z.string().optional().default(""),
   zipCode: z.string().optional(),
-  latitude: z.string().optional(),
-  longitude: z.string().optional(),
+  latitude: z.union([z.coerce.number(), z.string()]).optional(),
+  longitude: z.union([z.coerce.number(), z.string()]).optional(),
   price: z.coerce.number().min(0, "السعر يجب أن يكون أكبر من 0"),
   propertyType: z.string().min(1, "نوع العقار مطلوب"),
+  listingType: z.string().optional(),
   status: z.string().default("active"),
   bedrooms: z.coerce.number().min(0, "عدد الغرف يجب أن يكون أكبر من أو يساوي 0").default(0),
   bathrooms: z.coerce.number().min(0, "عدد الحمامات يجب أن يكون أكبر من أو يساوي 0").default(0),
@@ -489,6 +497,13 @@ export const insertPropertySchema = z.object({
   photoUrls: z.array(z.string()).default([]),
   agentId: z.string().optional(),
   organizationId: z.string().optional(),
+  // Location IDs for region/city/district (mapped from dropdowns)
+  regionId: z.coerce.number().optional(),
+  cityId: z.coerce.number().optional(),
+  districtId: z.coerce.number().optional(),
+  district: z.string().optional(),
+  region: z.string().optional(),
+  category: z.string().optional(),
 }).passthrough();
 
 export type InsertProperty = z.infer<typeof insertPropertySchema>;

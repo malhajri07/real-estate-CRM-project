@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
+import { ADMIN_BUTTON_PRIMARY } from "@/config/design-tokens";
 
 // --- Sub-components ---
 
@@ -58,11 +60,11 @@ const FEATURE_CATEGORIES = [
 
 function ComparisonMatrix() {
     return (
-        <Card className="glass border-0 rounded-3xl overflow-hidden shadow-none">
+        <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
             <Table className="text-end">
                 <TableHeader>
                     <TableRow className="bg-muted/30 border-border">
-                        <TableHead className="p-8 w-[40%]">
+                        <TableHead className="p-6 w-[40%]">
                             <div className="space-y-1">
                                 <h3 className="text-xl font-bold text-foreground tracking-tight">مصفوفة المزايا</h3>
                                 <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest">مقارنة الخصائص بين الخطط</p>
@@ -71,7 +73,7 @@ function ComparisonMatrix() {
                         {PLANS.map((plan, i) => {
                             const Icon = PLAN_ICONS[i];
                             return (
-                                <TableHead key={plan} className="p-8 text-center border-r border-border">
+                                <TableHead key={plan} className="p-6 text-center border-r border-border">
                                     <div className="flex flex-col items-center gap-3">
                                         <div className={cn("h-12 w-12 rounded-2xl bg-card shadow-sm flex items-center justify-center transition-transform hover:scale-110 duration-300", PLAN_COLORS[i])}>
                                             <Icon className="h-6 w-6" />
@@ -92,9 +94,9 @@ function ComparisonMatrix() {
                                 </TableCell>
                             </TableRow>
                             {category.features.map((feature) => (
-                                <TableRow key={feature.id} className="border-b border-slate-50 hover:bg-muted/30 transition-colors group">
+                                <TableRow key={feature.id} className="border-b border-border hover:bg-muted/30 transition-colors group">
                                     <TableCell className="p-6 px-8 flex items-center gap-3">
-                                        <div className="w-2 h-2 rounded-full bg-slate-200 group-hover:bg-blue-400 transition-colors" />
+                                        <div className="w-2 h-2 rounded-full bg-muted group-hover:bg-blue-400 transition-colors" />
                                         <span className="text-sm font-bold text-foreground/80">{feature.name}</span>
                                     </TableCell>
                                     <TableCell className="p-6 text-center border-r border-border">
@@ -112,7 +114,7 @@ function ComparisonMatrix() {
                     ))}
                 </TableBody>
             </Table>
-            <div className="p-8 bg-muted/30 flex justify-between items-center">
+            <div className="p-6 bg-muted/30 flex justify-between items-center">
                 <p className="text-xs font-bold text-muted-foreground/70">آخر تحديث للمصفوفة: منذ ساعتين</p>
                 <div className="flex gap-3">
                     <Button variant="outline" className="h-10 rounded-xl border-border font-bold text-muted-foreground">إلغاء</Button>
@@ -131,7 +133,7 @@ function StatusIcon({ enabled }: { enabled: boolean }) {
                     <Check className="h-4 w-4" />
                 </div>
             ) : (
-                <div className="h-8 w-8 bg-muted/30 text-slate-300 rounded-full flex items-center justify-center">
+                <div className="h-8 w-8 bg-muted/30 text-muted-foreground rounded-full flex items-center justify-center">
                     <MinusCircle className="h-4 w-4" />
                 </div>
             )}
@@ -148,27 +150,27 @@ const FEATURE_LIST = [
 
 function FeaturesList() {
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="relative w-full md:w-96 group">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
-                    <Input placeholder="البحث عن ميزة..." className="h-12 pr-11 rounded-xl bg-card border-border focus:ring-blue-500/20" />
+                    <Search className="absolute end-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
+                    <Input placeholder="البحث عن ميزة..." className="h-12 pe-11 rounded-xl bg-card border-border focus:ring-primary/20" />
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
                     <Button variant="outline" className="h-12 px-6 rounded-xl gap-2 font-bold text-muted-foreground border-border">
                         <Filter className="h-4 w-4" />
                         تصفية
                     </Button>
-                    <Button className="h-12 px-8 rounded-xl premium-gradient text-white border-0 shadow-lg shadow-primary/10 font-bold gap-2 flex-1 md:flex-none">
+                    <Button className={cn(ADMIN_BUTTON_PRIMARY, "gap-2 flex-1 md:flex-none")}>
                         <Plus className="h-5 w-5" />
                         إضافة ميزة جديدة
                     </Button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className={GRID_METRICS}>
                 {FEATURE_LIST.map((feature) => (
-                    <Card key={feature.id} className="glass border-0 rounded-2xl p-6 shadow-none group transition-all hover:bg-card hover:shadow-2xl hover:-translate-y-1 duration-300">
+                    <Card key={feature.id} className="rounded-2xl border border-border bg-card shadow-sm p-6 group transition-all hover:shadow-md hover:-translate-y-1 duration-300">
                         <div className="flex items-start justify-between mb-4">
                             <div className="h-12 w-12 bg-muted/50 text-muted-foreground rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <Zap className="h-6 w-6" />
@@ -181,7 +183,7 @@ function FeaturesList() {
                             </Badge>
                         </div>
                         <h4 className="text-lg font-bold text-foreground mb-2">{feature.name}</h4>
-                        <div className="flex items-center justify-between text-xs font-bold text-muted-foreground/70 border-t border-slate-50 pt-4 mt-2">
+                        <div className="flex items-center justify-between text-xs font-bold text-muted-foreground/70 border-t border-border pt-4 mt-2">
                             <span>{feature.users} مستخدم نشط</span>
                             <div className="flex gap-2">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-muted-foreground/70 hover:text-muted-foreground hover:bg-muted/50 transition-all"><Settings className="h-4 w-4" /></Button>
@@ -206,23 +208,23 @@ export default function FeaturesManagement() {
     };
 
     return (
-        <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-2xl p-8 shadow-none group relative overflow-hidden">
+        <div className={PAGE_WRAPPER}>
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 group relative overflow-hidden">
                 <div className="absolute top-0 end-0 w-[30%] h-[30%] bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                     <div className="flex items-center gap-6">
-                        <div className="h-16 w-16 bg-slate-600 text-white rounded-xl flex items-center justify-center shadow-xl shadow-slate-600/20">
+                        <div className="h-16 w-16 bg-primary text-white rounded-xl flex items-center justify-center shadow-xl shadow-primary/20">
                             <Layers className="h-8 w-8" />
                         </div>
                         <div className="text-center md:text-end">
-                            <h1 className="text-3xl font-bold text-foreground tracking-tight">إدارة ميزات النظام</h1>
+                            <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">إدارة ميزات النظام</h1>
                             <p className="text-muted-foreground font-medium text-lg">تحكم في توافر المزايا وربطها بخطط الاشتراك المختلفة</p>
                         </div>
                     </div>
                 </div>
             </Card>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
                 <TabsList className="bg-muted/50 p-1 rounded-2xl border-0 h-14">
                     <TabsTrigger value="comparison" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">مصفوفة المقارنة</TabsTrigger>
                     <TabsTrigger value="requests" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">طلبات الميزات</TabsTrigger>
@@ -238,7 +240,7 @@ export default function FeaturesManagement() {
                 </TabsContent>
 
                 <TabsContent value="pricing" className="space-y-4">
-                    <Card className="glass border-0 rounded-3xl p-20 text-center bg-muted/30 border-2 border-dashed border-border/50 flex flex-col items-center">
+                    <Card className="rounded-2xl p-20 text-center bg-muted/30 border-2 border-dashed border-border flex flex-col items-center">
                         <div className="h-20 w-20 bg-card rounded-2xl shadow-xl shadow-slate-500/10 flex items-center justify-center text-muted-foreground/70 mb-6 group-hover:scale-110 transition-transform">
                             <Crown className="h-10 w-10 text-muted-foreground" />
                         </div>

@@ -34,7 +34,7 @@ export function PageSectionHeader({
           </div>
         )}
         <div className="min-w-0">
-          <h1 className="text-2xl font-bold text-foreground leading-tight truncate">{title}</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold text-foreground leading-tight truncate">{title}</h1>
           {subtitle && (
             <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
           )}

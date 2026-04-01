@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import PageHeader from "@/components/ui/page-header";
+import { apiPost } from "@/lib/apiClient";
 
 export default function PostListingPage() {
   const { t, dir } = useLanguage();
@@ -48,19 +49,13 @@ export default function PostListingPage() {
     setSubmitting(true);
     setMessage("");
     try {
-      const res = await fetch('/api/listings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
-          latitude: form.latitude ? Number(form.latitude) : undefined,
-          longitude: form.longitude ? Number(form.longitude) : undefined,
-          moderationStatus: 'pending',
-          status: 'draft',
-        }),
+      await apiPost('/api/listings', {
+        ...form,
+        latitude: form.latitude ? Number(form.latitude) : undefined,
+        longitude: form.longitude ? Number(form.longitude) : undefined,
+        moderationStatus: 'pending',
+        status: 'draft',
       });
-      if (!res.ok) throw new Error(await res.text());
-      const json = await res.json();
       setMessage('تم إرسال الإعلان للمراجعة');
     } catch (err: any) {
       setMessage('تعذر إرسال الإعلان');
@@ -84,7 +79,7 @@ export default function PostListingPage() {
                 <Label htmlFor="address">العنوان التفصيلي</Label>
                 <Input id="address" name="address" value={form.address} onChange={onChange} placeholder="العنوان التفصيلي" required />
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="city">المدينة</Label>
                   <Input id="city" name="city" value={form.city} onChange={onChange} placeholder="المدينة" required />
@@ -102,7 +97,7 @@ export default function PostListingPage() {
                 <Label htmlFor="price">السعر</Label>
                 <Input id="price" name="price" value={form.price} onChange={onChange} placeholder="السعر" required />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="propertyType">النوع (مثال: شقة)</Label>
                   <Input id="propertyType" name="propertyType" value={form.propertyType} onChange={onChange} placeholder="النوع" />
@@ -112,14 +107,14 @@ export default function PostListingPage() {
                   <Input id="propertyCategory" name="propertyCategory" value={form.propertyCategory} onChange={onChange} placeholder="التصنيف" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="latitude">خط العرض</Label>
-                  <Input id="latitude" name="latitude" value={form.latitude} onChange={onChange} placeholder="Latitude" />
+                  <Input id="latitude" name="latitude" value={form.latitude} onChange={onChange} placeholder="خط العرض" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="longitude">خط الطول</Label>
-                  <Input id="longitude" name="longitude" value={form.longitude} onChange={onChange} placeholder="Longitude" />
+                  <Input id="longitude" name="longitude" value={form.longitude} onChange={onChange} placeholder="خط الطول" />
                 </div>
               </div>
               <Button disabled={submitting}>

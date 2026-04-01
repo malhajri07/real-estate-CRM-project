@@ -52,7 +52,7 @@ export function PropertiesList({
   // Display empty state if no properties
   if (!properties.length) {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 rounded-3xl border border-dashed border-border/60 bg-muted/10 px-6 py-16 text-center text-muted-foreground">
+      <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-border/60 bg-muted/10 px-6 py-16 text-center text-muted-foreground">
         <MapPin className="h-10 w-10 text-muted-foreground/50" />
         <p className="max-w-sm text-balance text-sm">
           لم يتم العثور على عقارات مطابقة للمعايير الحالية. حاول تعديل البحث أو إعادة تعيين عوامل التصفية.
@@ -77,9 +77,9 @@ export function PropertiesList({
   };
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-sm relative z-50">
+    <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-sm relative z-50">
       <Table className="min-w-[900px] text-end">
-        <TableHeader className="bg-muted/30 border-b border-border">
+        <TableHeader className="bg-muted/50 border-b border-border">
           <TableRow className="text-xs font-medium text-foreground/80 uppercase tracking-wider">
             <TableHead className="px-6 py-3 text-end">الصورة</TableHead>
             <TableHead className="px-6 py-3 text-end">العقار</TableHead>
@@ -92,7 +92,7 @@ export function PropertiesList({
             <TableHead className="px-6 py-3 text-end">الإجراءات</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody className="divide-y divide-slate-200">
+        <TableBody className="divide-y divide-border">
           {properties.map((property) => {
             const isFavourite = favoriteIds.includes(property.id);
             const isActive = highlightedId === property.id;

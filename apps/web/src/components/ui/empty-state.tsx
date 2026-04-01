@@ -18,7 +18,7 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface EmptyStateProps {
-  icon?: LucideIcon | React.ComponentType<{ className?: string }>;
+  icon?: LucideIcon | React.ComponentType<{ className?: string }> | React.ReactNode;
   title: string;
   description?: string;
   action?: React.ReactNode;
@@ -26,25 +26,35 @@ interface EmptyStateProps {
 }
 
 /**
- * Unified Empty State Component
- * 
- * Provides consistent empty state displays across all platform pages with:
- * - Standardized icon, title, and description layout
- * - Optional action buttons
- * - Consistent styling and spacing
- * - RTL support
+ * Check if a value is a renderable React component (function or forwardRef object).
  */
-export default function EmptyState({ 
-  icon: Icon,
-  title, 
-  description, 
+function isReactComponent(value: unknown): value is React.ComponentType<{ className?: string }> {
+  if (typeof value === 'function') return true;
+  // forwardRef components are objects with $$typeof and render
+  if (typeof value === 'object' && value !== null && '$$typeof' in value) {
+    const sym = (value as Record<string, unknown>).$$typeof;
+    return typeof sym === 'symbol';
+  }
+  return false;
+}
+
+export default function EmptyState({
+  icon,
+  title,
+  description,
   action,
-  className 
+  className
 }: EmptyStateProps) {
   return (
-    <div className={cn("text-center py-16 px-4 bg-muted/30 rounded-3xl border border-dashed border-border flex flex-col items-center justify-center gap-3", className)}>
-      {Icon && (
-        <Icon className="h-16 w-16 text-slate-300 mb-4" />
+    <div className={cn("text-center py-16 px-4 bg-muted/30 rounded-2xl border border-dashed border-border flex flex-col items-center justify-center gap-3", className)}>
+      {icon && (
+        isReactComponent(icon) ? (
+          React.createElement(icon, { className: "h-16 w-16 text-muted-foreground mb-4" })
+        ) : (
+          <div className="h-16 w-16 text-muted-foreground mb-4 flex items-center justify-center">
+            {icon as React.ReactNode}
+          </div>
+        )
       )}
       <h3 className="text-xl font-bold text-foreground mb-2">
         {title}

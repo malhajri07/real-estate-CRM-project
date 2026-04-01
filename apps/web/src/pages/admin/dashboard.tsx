@@ -24,6 +24,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { adminSidebarConfig, type AdminSidebarContentSection } from "@/config/admin-sidebar";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiGet } from "@/lib/apiClient";
+import { formatAdminDate } from "@/lib/formatters";
 import UserManagement from "@/pages/admin/user-management";
 import RoleManagement from "@/pages/admin/role-management";
 import OrganizationManagement from "@/pages/admin/organization-management";
@@ -61,6 +62,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { CHART_COLORS, CHART_HEIGHT } from "@/config/design-tokens";
+import { GRID_METRICS, GRID_TWO_COL } from "@/config/platform-theme";
 
 // LABELS mapping removed - now using central LanguageContext translations
 
@@ -154,7 +157,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-card/80 backdrop-blur-md border border-white/20 shadow-xl rounded-2xl p-4 text-xs">
+        <div className="bg-card border border-border shadow-xl rounded-2xl p-4 text-xs">
           <p className="font-bold text-foreground mb-2">{label}</p>
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center gap-2 mb-1 last:mb-0">
@@ -174,9 +177,9 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
   };
 
   return (
-    <div className="space-y-8 animate-in-start">
+    <div className="w-full space-y-6">
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className={GRID_METRICS}>
         <MetricCard
           title="العملاء المحتملون"
           subtitle="أداء اليوم وآخر ٧ / ٣٠ يوم"
@@ -210,8 +213,8 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
 
       {/* Charts Section - NEW! */}
       {!isLoading && metrics && (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <Card className="glass border-0 rounded-2xl overflow-hidden p-2 transition-all hover:shadow-2xl">
+        <div className={GRID_TWO_COL}>
+          <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden hover:shadow-md transition-all">
             <CardHeader className="px-6 pt-6 pb-2">
               <CardTitle className="text-lg font-bold text-foreground tracking-tight">نشاط المبيعات</CardTitle>
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">العملاء المحتملون، الإعلانات، والصفقات</p>
@@ -230,16 +233,16 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                     <Bar dataKey="deals" fill="url(#colorDeals)" name="الصفقات" radius={[8, 8, 0, 0]} maxBarSize={40} />
                     <defs>
                       <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={1} />
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.6} />
+                        <stop offset="5%" stopColor={CHART_COLORS.blue} stopOpacity={1} />
+                        <stop offset="95%" stopColor={CHART_COLORS.blue} stopOpacity={0.6} />
                       </linearGradient>
                       <linearGradient id="colorListings" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={1} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.6} />
+                        <stop offset="5%" stopColor={CHART_COLORS.green} stopOpacity={1} />
+                        <stop offset="95%" stopColor={CHART_COLORS.green} stopOpacity={0.6} />
                       </linearGradient>
                       <linearGradient id="colorDeals" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={1} />
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.6} />
+                        <stop offset="5%" stopColor={CHART_COLORS.purple} stopOpacity={1} />
+                        <stop offset="95%" stopColor={CHART_COLORS.purple} stopOpacity={0.6} />
                       </linearGradient>
                     </defs>
                   </BarChart>
@@ -248,7 +251,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
             </CardContent>
           </Card>
 
-          <Card className="glass border-0 rounded-2xl overflow-hidden p-2 transition-all hover:shadow-2xl">
+          <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden hover:shadow-md transition-all">
             <CardHeader className="px-6 pt-6 pb-2">
               <CardTitle className="text-lg font-bold text-foreground tracking-tight">الإيرادات المالية</CardTitle>
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">قيمة المبيعات، الفواتير، والتحصيلات</p>
@@ -262,9 +265,9 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
                     <Tooltip content={<CustomTooltip />} />
                     <Legend iconType="circle" wrapperStyle={{ paddingTop: '25px', fontSize: '12px', fontWeight: 600, color: '#64748b' }} />
-                    <Line type="monotone" dataKey="gmv" stroke="#10b981" strokeWidth={4} name="قيمة المبيعات" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
-                    <Line type="monotone" dataKey="invoices" stroke="#3b82f6" strokeWidth={4} name="الفواتير" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
-                    <Line type="monotone" dataKey="cash" stroke="#f59e0b" strokeWidth={4} name="التحصيلات" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                    <Line type="monotone" dataKey="gmv" stroke={CHART_COLORS.green} strokeWidth={4} name="قيمة المبيعات" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                    <Line type="monotone" dataKey="invoices" stroke={CHART_COLORS.blue} strokeWidth={4} name="الفواتير" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                    <Line type="monotone" dataKey="cash" stroke={CHART_COLORS.amber} strokeWidth={4} name="التحصيلات" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -274,13 +277,13 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
       )}
 
       {/* Bottom Section */}
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <Card className="glass border-0 rounded-2xl xl:col-span-2 overflow-hidden transition-all hover:shadow-2xl">
-          <CardHeader className="p-8 pb-4">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Card className="rounded-2xl border border-border bg-card shadow-sm xl:col-span-2 overflow-hidden hover:shadow-md transition-all">
+          <CardHeader className="p-6 pb-4">
             <CardTitle className="text-xl font-bold text-foreground tracking-tight">أفضل الوكلاء</CardTitle>
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">النشاط خلال آخر ٩٠ يومًا</p>
           </CardHeader>
-          <CardContent className="p-8 pt-2 space-y-4">
+          <CardContent className="p-6 pt-2 space-y-4">
             {isLoading && <LoadingRows rows={4} />}
             {!isLoading && (!data?.topAgents || data.topAgents.length === 0) ? (
               <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-muted/30 rounded-2xl border border-dashed border-border">
@@ -298,7 +301,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                     className="flex flex-col p-5 rounded-2xl bg-card/50 border border-border hover:bg-card hover:border-primary/20 hover:shadow-md transition-all duration-300 group"
                   >
                     <div className="flex items-center gap-4 mb-3">
-                      <div className="h-10 w-10 rounded-xl bg-muted/50 flex items-center justify-center text-muted-foreground font-bold group-hover:bg-slate-200 group-hover:text-foreground/80 transition-colors duration-300">
+                      <div className="h-10 w-10 rounded-xl bg-muted/50 flex items-center justify-center text-muted-foreground font-bold group-hover:bg-muted group-hover:text-foreground/80 transition-colors duration-300">
                         {agent.name.charAt(0)}
                       </div>
                       <div className="flex flex-col">
@@ -306,7 +309,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                         <span className="text-xs font-bold text-muted-foreground/70 truncate max-w-[150px]">{agent.email || "بدون بريد"}</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between pt-3 border-t border-slate-50">
+                    <div className="flex items-center justify-between pt-3 border-t border-border">
                       <div className="flex flex-col">
                         <span className="text-xs font-extrabold text-muted-foreground/70 uppercase tracking-tighter">الصفقات</span>
                         <span className="text-xs font-bold text-foreground">{agent.dealsWon}</span>
@@ -323,12 +326,12 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
           </CardContent>
         </Card>
 
-        <Card className="glass border-0 rounded-2xl overflow-hidden transition-all hover:shadow-2xl">
-          <CardHeader className="p-8 pb-4">
+        <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden hover:shadow-md transition-all">
+          <CardHeader className="p-6 pb-4">
             <CardTitle className="text-xl font-bold text-foreground tracking-tight">التذاكر الحديثة</CardTitle>
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">آخر التحديثات</p>
           </CardHeader>
-          <CardContent className="p-8 pt-2 space-y-4">
+          <CardContent className="p-6 pt-2 space-y-4">
             {isLoading && <LoadingRows rows={5} />}
             {!isLoading && (!data?.recentTickets || data.recentTickets.length === 0) ? (
               <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-muted/30 rounded-2xl border border-dashed border-border">
@@ -339,7 +342,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                 </div>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {data?.recentTickets.map((ticket) => (
                   <div
                     key={ticket.id}
@@ -353,10 +356,10 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                     </div>
                     <div className="flex items-center justify-between mt-auto">
                       <div className="flex items-center gap-2">
-                        <div className="w-1 h-1 rounded-full bg-slate-300" />
+                        <div className="w-1 h-1 rounded-full bg-muted-foreground/30" />
                         <span className="text-xs font-bold text-muted-foreground">{ticket.customerName || "عميل"}</span>
                       </div>
-                      <span className="text-xs font-bold text-muted-foreground/70">{new Date(ticket.updatedAt).toLocaleDateString("ar-SA")}</span>
+                      <span className="text-xs font-bold text-muted-foreground/70">{formatAdminDate(ticket.updatedAt)}</span>
                     </div>
                   </div>
                 ))}
@@ -451,8 +454,8 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
   const { label, groupLabel, sections } = meta;
 
   return (
-    <div className="space-y-8 animate-in-start">
-      <Card className="glass border-0 rounded-3xl overflow-hidden relative p-4 lg:p-12">
+    <div className="w-full space-y-6">
+      <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden relative p-4 lg:p-6">
         <div className="absolute top-0 end-0 w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
         <CardHeader className="space-y-6 relative z-10 pt-0 ps-0">
           <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-0 rounded-lg text-xs font-bold uppercase tracking-widest w-fit">
@@ -467,7 +470,7 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
           {sections && sections.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
               {sections.map((section) => (
-                <div key={section.title} className="bg-card/40 backdrop-blur-sm p-8 rounded-2xl border border-white/40 shadow-sm transition hover:shadow-xl hover:bg-card/60 hover:-translate-y-1 duration-300">
+                <div key={section.title} className="bg-card p-6 rounded-2xl border border-border shadow-sm transition hover:shadow-md hover:bg-card/60 hover:-translate-y-1 duration-300">
                   <h3 className="text-lg font-bold text-foreground flex items-center gap-3 mb-5">
                     <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_10px_rgba(37,99,235,0.4)]" />
                     {section.title}
@@ -475,7 +478,7 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
                   <ul className="space-y-4 ps-1">
                     {section.items.map((item) => (
                       <li key={item} className="text-sm text-muted-foreground font-semibold flex items-center gap-3 group">
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-200 group-hover:bg-blue-400 transition-colors" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-muted group-hover:bg-blue-400 transition-colors" />
                         {item}
                       </li>
                     ))}
@@ -568,13 +571,13 @@ export default function RBACDashboard() {
       : location;
 
   const dashboard = useQuery({
-    queryKey: ["rbac-admin", "dashboard"],
+    queryKey: ["/api/rbac-admin/dashboard"],
     queryFn: dashboardQuery,
     staleTime: 60_000
   });
 
   const handleRefresh = () => {
-    void queryClient.invalidateQueries({ queryKey: ["rbac-admin", "dashboard"] });
+    void queryClient.invalidateQueries({ queryKey: ["/api/rbac-admin/dashboard"] });
   };
 
   const renderContent = () => {

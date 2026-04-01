@@ -24,7 +24,7 @@ export default function PropertiesTable({
 }: PropertiesTableProps) {
   return (
     <Table className="min-w-[900px]">
-      <TableHeader>
+      <TableHeader className="bg-muted/50">
         <TableRow>
           <TableHead className="text-end">الصورة</TableHead>
           <TableHead className="text-end">العقار</TableHead>

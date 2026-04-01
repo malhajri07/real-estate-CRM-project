@@ -332,7 +332,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
   }
 
   const outerClasses = embedded ? "bg-transparent" : cn("w-full space-y-6", "min-h-screen", dir === "rtl" ? "rtl" : "ltr");
-  const innerClasses = embedded ? "space-y-8" : "space-y-8 p-0";
+  const innerClasses = embedded ? "space-y-6" : "space-y-6 p-0";
 
   return (
     <div className={outerClasses} dir={dir}>
@@ -355,7 +355,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
 
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
             <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "draft" | "published")} className="w-full lg:w-auto">
-              <TabsList className="bg-slate-100/50 p-1 rounded-2xl border-0 h-14 w-full lg:w-auto">
+              <TabsList className="bg-muted/50 p-1 rounded-2xl border-0 h-14 w-full lg:w-auto">
                 <TabsTrigger value="draft" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all flex-1 lg:flex-none">المسودة (قيد التحرير)</TabsTrigger>
                 <TabsTrigger value="published" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all flex-1 lg:flex-none">المنشور حالياً</TabsTrigger>
               </TabsList>
@@ -367,7 +367,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
         </div>
 
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 px-8 pb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 pb-6">
             <Droppable droppableId="sections">
               {(provided) => (
                 <div
@@ -405,13 +405,13 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                                 <div className="flex flex-col items-start gap-1">
                                   <span className={cn(
                                     "text-sm font-bold tracking-tight transition-colors",
-                                    selectedSectionId === section.id ? "text-white" : "text-slate-900 group-hover:text-muted-foreground"
+                                    selectedSectionId === section.id ? "text-white" : "text-foreground group-hover:text-muted-foreground"
                                   )}>
                                     {SECTION_LABELS[section.slug] ?? section.title}
                                   </span>
                                   <span className={cn(
                                     "text-xs font-bold uppercase tracking-tighter opacity-70",
-                                    selectedSectionId === section.id ? "text-slate-300" : "text-slate-400"
+                                    selectedSectionId === section.id ? "text-muted-foreground" : "text-muted-foreground/70"
                                   )}>
                                     {section.slug.replace(/-/g, ' ')}
                                   </span>

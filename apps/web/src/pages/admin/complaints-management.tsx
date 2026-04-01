@@ -36,6 +36,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
+import { ADMIN_BUTTON_PRIMARY } from "@/config/design-tokens";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 import {
@@ -60,8 +62,8 @@ const getStatusBadge = (status: ComplaintStatus) => {
 
 const getPriorityColor = (priority: ComplaintPriority) => {
     switch (priority) {
-        case "URGENT": return "text-red-600 font-bold";
-        case "HIGH": return "text-orange-600 font-medium";
+        case "URGENT": return "text-destructive font-bold";
+        case "HIGH": return "text-amber-700 font-medium";
         case "MEDIUM": return "text-primary";
         case "LOW": return "text-muted-foreground";
     }
@@ -77,7 +79,7 @@ function ComplaintsSummaryCards() {
     const resolved = tickets?.filter(t => t.status === "RESOLVED" || t.status === "CLOSED").length || 0;
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className={`${GRID_METRICS} mb-8`}>
             <MetricCard
                 title="إجمالي التذاكر"
                 subtitle="دعم فني وشكاوي"
@@ -115,7 +117,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
     const updateStatusMutation = useUpdateTicketStatus();
 
     if (isLoading) return <div className="flex justify-center p-20"><Spinner size="xl" className="text-primary" /></div>;
-    if (error) return <div className="p-8 text-center text-red-500 font-bold">فشل تحميل التذاكر</div>;
+    if (error) return <div className="p-6 text-center text-destructive font-bold">فشل تحميل التذاكر</div>;
 
     const filteredData = (tickets || []).filter((item) => {
         if (!filterStatus) return true;
@@ -128,7 +130,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
     };
 
     return (
-        <Card className="glass border-0 rounded-2xl p-8 shadow-none">
+        <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
             <div className="mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 <div>
                     <h2 className="text-2xl font-bold text-foreground tracking-tight">قائمة التذاكر</h2>
@@ -136,8 +138,8 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="relative group w-full lg:w-72">
-                        <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
-                        <Input placeholder="بحث برقم التذكرة..." className="pe-10 h-10 rounded-xl bg-card/50 border-border focus:ring-blue-500/20" />
+                        <Search className="absolute end-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
+                        <Input placeholder="بحث برقم التذكرة..." className="pe-10 h-10 rounded-xl bg-card/50 border-border focus:ring-primary/20" />
                     </div>
                     <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl border-border text-muted-foreground hover:bg-muted/30 transition-all"><Filter className="h-4 w-4" /></Button>
                 </div>
@@ -165,7 +167,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                             </TableRow>
                         ) : (
                             filteredData.map((ticket) => (
-                                <TableRow key={ticket.id} className="border-slate-50 hover:bg-muted/50 transition-colors group">
+                                <TableRow key={ticket.id} className="border-border hover:bg-muted/50 transition-colors group">
                                     <TableCell className="py-4">
                                         <span className="font-bold text-foreground">#{ticket.id.substring(0, 8)}</span>
                                     </TableCell>
@@ -201,13 +203,13 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                                     <TableCell>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 p-0 rounded-lg hover:bg-muted/50 hover:text-muted-foreground outline-none"><MoreHorizontal className="h-4 w-4" /></Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 p-0 rounded-lg hover:bg-muted/50 hover:text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"><MoreHorizontal className="h-4 w-4" /></Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="rounded-2xl border-border shadow-2xl">
                                                 <DropdownMenuLabel className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest pb-1">الإجراءات</DropdownMenuLabel>
                                                 <DropdownMenuItem className="rounded-xl font-bold text-muted-foreground">عرض التفاصيل</DropdownMenuItem>
                                                 <DropdownMenuItem className="rounded-xl font-bold text-primary" onClick={() => handleStatusChange(ticket.id, "RESOLVED")}>تصنيف كمحلول</DropdownMenuItem>
-                                                <DropdownMenuItem className="rounded-xl font-bold text-red-600" onClick={() => handleStatusChange(ticket.id, "CLOSED")}>إغلاق التذكرة</DropdownMenuItem>
+                                                <DropdownMenuItem className="rounded-xl font-bold text-destructive" onClick={() => handleStatusChange(ticket.id, "CLOSED")}>إغلاق التذكرة</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
@@ -227,8 +229,8 @@ function CategoriesTab() {
     if (isLoading) return <div className="flex justify-center p-20"><Spinner size="xl" className="text-primary" /></div>;
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="glass border-0 rounded-2xl p-8 shadow-none">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
                 <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h2 className="text-2xl font-bold text-foreground tracking-tight">فئات الشكاوى</h2>
@@ -238,9 +240,9 @@ function CategoriesTab() {
 
                 <div className="space-y-4">
                     {(categories || []).map((cat) => (
-                        <div key={cat.id} className="flex items-center justify-between p-4 bg-card/50 border border-border rounded-2xl hover:bg-card hover:shadow-xl hover:shadow-primary/10 transition-all group">
+                        <div key={cat.id} className="flex items-center justify-between p-4 bg-card/50 border border-border rounded-2xl hover:bg-card hover:shadow-md hover:shadow-primary/10 transition-all group">
                             <div className="flex items-center gap-4">
-                                <div className={cn("h-3 w-3 rounded-full shadow-sm", cat.active ? 'bg-primary/10 shadow-primary/20' : 'bg-slate-300')} />
+                                <div className={cn("h-3 w-3 rounded-full shadow-sm", cat.active ? 'bg-primary/10 shadow-primary/20' : 'bg-muted-foreground/30')} />
                                 <span className="font-bold text-foreground/80 group-hover:text-foreground/80 transition-colors">{cat.name}</span>
                             </div>
                             <div className="flex items-center gap-4">
@@ -263,7 +265,7 @@ function CategoriesTab() {
                 </div>
             </Card>
 
-            <Card className="glass border-0 rounded-2xl p-12 shadow-none flex items-center justify-center bg-muted/30">
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 flex items-center justify-center bg-muted/30">
                 <div className="text-center space-y-6">
                     <div className="h-20 w-20 bg-card rounded-2xl shadow-xl shadow-primary/10 flex items-center justify-center text-primary mx-auto">
                         <Filter className="h-10 w-10" />
@@ -289,14 +291,14 @@ function TemplatesTab() {
     if (isLoading) return <div className="flex justify-center p-20"><Spinner size="xl" className="text-primary" /></div>;
 
     return (
-        <div className="space-y-8">
-            <Card className="glass border-0 rounded-2xl p-8 shadow-none">
+        <div className="space-y-6">
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
                 <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
                         <h2 className="text-2xl font-bold text-foreground tracking-tight">قوالب الردود الجاهزة</h2>
                         <p className="text-muted-foreground font-medium">تسريع عملية الرد على العملاء باستخدام نماذج احترافية</p>
                     </div>
-                    <Button className="premium-gradient text-white border-0 shadow-lg shadow-primary/10 h-12 px-8 rounded-2xl font-bold">
+                    <Button className={ADMIN_BUTTON_PRIMARY}>
                         <Plus className="h-5 w-5 me-2" />
                         قالب جديد
                     </Button>
@@ -304,7 +306,7 @@ function TemplatesTab() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {(templates || []).map((tpl) => (
-                        <Card key={tpl.id} className="cursor-pointer bg-card/50 border border-border rounded-2xl p-6 hover:bg-card hover:shadow-xl hover:shadow-primary/10 transition-all group overflow-hidden relative">
+                        <Card key={tpl.id} className="cursor-pointer bg-card/50 border border-border rounded-2xl p-6 hover:bg-card hover:shadow-md hover:shadow-primary/10 transition-all group overflow-hidden relative">
                             <div className="mb-6 flex justify-between items-start">
                                 <div className="icon-container-sm transition-transform group-hover:scale-110">
                                     <MessageSquare className="h-5 w-5" />
@@ -313,7 +315,7 @@ function TemplatesTab() {
                                     {tpl.usageCount ?? 0} استخدام
                                 </Badge>
                             </div>
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 <h3 className="text-lg font-bold text-foreground group-hover:text-foreground/80 transition-colors truncate">{tpl.title}</h3>
                                 <p className="text-sm font-medium text-muted-foreground line-clamp-3 leading-relaxed">
                                     {tpl.content}
@@ -324,7 +326,7 @@ function TemplatesTab() {
                     {templates?.length === 0 && (
                         <div className="col-span-full py-20 text-center">
                             <div className="h-16 w-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Inbox className="h-8 w-8 text-slate-200" />
+                                <Inbox className="h-8 w-8 text-muted-foreground" />
                             </div>
                             <p className="text-muted-foreground/70 font-bold italic">لا توجد قوالب ردود جاهزة حالياً</p>
                         </div>
@@ -348,15 +350,15 @@ export default function ComplaintsManagement() {
     };
 
     return (
-        <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-2xl p-8 shadow-none">
+        <div className={PAGE_WRAPPER}>
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="space-y-2 text-center md:text-end">
-                        <h1 className="text-3xl font-bold text-foreground tracking-tight">إدارة الشكاوى والدعم الفني</h1>
+                        <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">إدارة الشكاوى والدعم الفني</h1>
                         <p className="text-muted-foreground font-medium text-lg">متابعة تذاكر الدعم، حل مشاكل العملاء، وإعدادات قسم الشكاوى</p>
                     </div>
                     <Button
-                        className="premium-gradient text-white border-0 shadow-lg shadow-primary/10 h-12 px-8 rounded-2xl font-bold w-full md:w-auto"
+                        className={`${ADMIN_BUTTON_PRIMARY} w-full md:w-auto`}
                         onClick={() => { }}
                     >
                         <Plus className="h-5 w-5 me-2" />
@@ -365,7 +367,7 @@ export default function ComplaintsManagement() {
                 </div>
             </Card>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
                 <TabsList className="bg-muted/50 p-1 rounded-2xl border-0 h-14">
                     <TabsTrigger value="all" className="rounded-xl px-6 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">الكل</TabsTrigger>
                     <TabsTrigger value="open" className="rounded-xl px-6 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">المفتوحة</TabsTrigger>

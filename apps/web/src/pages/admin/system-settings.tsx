@@ -26,6 +26,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 // --- Main Page Component ---
 
@@ -44,8 +45,8 @@ export default function SystemSettings() {
     };
 
     return (
-        <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-2xl p-8 shadow-none group relative overflow-hidden">
+        <div className={PAGE_WRAPPER}>
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 group relative overflow-hidden">
                 <div className="absolute top-0 end-0 w-[30%] h-[30%] bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                     <div className="flex items-center gap-6">
@@ -53,7 +54,7 @@ export default function SystemSettings() {
                             <Settings className="h-8 w-8" />
                         </div>
                         <div className="text-center md:text-end">
-                            <h1 className="text-3xl font-bold text-foreground tracking-tight">إعدادات النظام</h1>
+                            <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">إعدادات النظام</h1>
                             <p className="text-muted-foreground font-medium text-lg">تخصيص وتهيئة الخيارات الأساسية للمنصة</p>
                         </div>
                     </div>
@@ -68,7 +69,7 @@ export default function SystemSettings() {
                 </div>
             </Card>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
                 <TabsList className="bg-muted/50 p-1 rounded-2xl border-0 h-14">
                     <TabsTrigger value="general" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">الإعدادات العامة</TabsTrigger>
                     <TabsTrigger value="branding" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">الهوية البصرية</TabsTrigger>
@@ -76,9 +77,9 @@ export default function SystemSettings() {
                     <TabsTrigger value="advanced" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">إعدادات متقدمة</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="general" className="space-y-8">
+                <TabsContent value="general" className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <Card className="glass border-0 rounded-3xl p-8 shadow-none space-y-8">
+                        <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 space-y-6">
                             <div>
                                 <h3 className="text-xl font-bold text-foreground tracking-tight">معلومات الموقع</h3>
                                 <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest mt-1">المعلومات الأساسية للمنصة</p>
@@ -99,7 +100,7 @@ export default function SystemSettings() {
                             </div>
                         </Card>
 
-                        <Card className="glass border-0 rounded-3xl p-8 shadow-none space-y-8">
+                        <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 space-y-6">
                             <div>
                                 <h3 className="text-xl font-bold text-foreground tracking-tight">التوقيت واللغة</h3>
                                 <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest mt-1">تهيئة التخصيص الإقليمي</p>
@@ -129,7 +130,7 @@ export default function SystemSettings() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="flex items-center justify-between p-6 bg-primary/5 rounded-3xl border border-primary/10 group transition-all hover:bg-card hover:shadow-xl hover:shadow-primary/10">
+                                <div className="flex items-center justify-between p-6 bg-primary/5 rounded-3xl border border-primary/10 group transition-all hover:bg-card hover:shadow-md hover:shadow-primary/10">
                                     <div className="flex items-center gap-4">
                                         <div className="h-10 w-10 bg-card rounded-xl flex items-center justify-center text-primary shadow-sm"><Globe className="h-5 w-5" /></div>
                                         <div>
@@ -144,9 +145,9 @@ export default function SystemSettings() {
                     </div>
                 </TabsContent>
 
-                <TabsContent value="branding" className="space-y-8">
+                <TabsContent value="branding" className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <Card className="glass border-0 rounded-3xl p-8 shadow-none space-y-8">
+                        <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 space-y-6">
                             <div>
                                 <h3 className="text-xl font-bold text-foreground tracking-tight">الشعارات</h3>
                                 <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest mt-1">إدارة الصور والرموز البصرية</p>
@@ -154,7 +155,7 @@ export default function SystemSettings() {
                             <div className="space-y-6">
                                 <div className="p-6 bg-muted/30 rounded-3xl border border-border flex flex-col items-center gap-4 group cursor-pointer hover:bg-card transition-all">
                                     <div className="h-20 w-48 bg-card rounded-2xl shadow-sm flex items-center justify-center border-2 border-dashed border-border group-hover:border-primary/20 transition-all overflow-hidden relative">
-                                        <ImageIcon className="h-8 w-8 text-slate-300 group-hover:scale-110 transition-transform" />
+                                        <ImageIcon className="h-8 w-8 text-muted-foreground group-hover:scale-110 transition-transform" />
                                         <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-all" />
                                     </div>
                                     <div className="text-center">
@@ -164,18 +165,18 @@ export default function SystemSettings() {
                                 </div>
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="p-4 bg-muted/30 rounded-2xl border border-border flex flex-col items-center gap-2">
-                                        <div className="h-12 w-12 bg-card rounded-xl shadow-sm flex items-center justify-center border border-border"><ImageIcon className="h-5 w-5 text-slate-300" /></div>
+                                        <div className="h-12 w-12 bg-card rounded-xl shadow-sm flex items-center justify-center border border-border"><ImageIcon className="h-5 w-5 text-muted-foreground" /></div>
                                         <span className="text-xs font-bold text-foreground">أيقونة الموقع</span>
                                     </div>
                                     <div className="p-4 bg-muted/30 rounded-2xl border border-border flex flex-col items-center gap-2">
-                                        <div className="h-12 w-12 bg-card rounded-xl shadow-sm flex items-center justify-center border border-border"><ImageIcon className="h-5 w-5 text-slate-300" /></div>
+                                        <div className="h-12 w-12 bg-card rounded-xl shadow-sm flex items-center justify-center border border-border"><ImageIcon className="h-5 w-5 text-muted-foreground" /></div>
                                         <span className="text-xs font-bold text-foreground">شعار الجوال</span>
                                     </div>
                                 </div>
                             </div>
                         </Card>
 
-                        <Card className="glass border-0 rounded-3xl p-8 shadow-none space-y-8">
+                        <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 space-y-6">
                             <div>
                                 <h3 className="text-xl font-bold text-foreground tracking-tight">الألوان والسمات</h3>
                                 <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest mt-1">تخصيص ألوان الواجهة</p>
@@ -185,7 +186,7 @@ export default function SystemSettings() {
                                     <Label className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-1">اللون الرئيسي (Primary Color)</Label>
                                     <div className="grid grid-cols-5 gap-3">
                                         {["#3b82f6", "#10b981", "#8b5cf6", "#f43f5e", "#f59e0b"].map((color) => (
-                                            <Button key={color} variant="ghost" className={cn("h-10 rounded-xl transition-all hover:scale-110 active:scale-95 p-0", color === "#3b82f6" ? "ring-4 ring-slate-100" : "")} style={{ backgroundColor: color }} />
+                                            <Button key={color} variant="ghost" className={cn("h-10 rounded-xl transition-all hover:scale-110 active:scale-95 p-0", color === "#3b82f6" ? "ring-4 ring-border" : "")} style={{ backgroundColor: color }} />
                                         ))}
                                     </div>
                                 </div>
@@ -207,9 +208,9 @@ export default function SystemSettings() {
                     </div>
                 </TabsContent>
 
-                <TabsContent value="integrations" className="space-y-8">
+                <TabsContent value="integrations" className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <Card className="glass border-0 rounded-3xl p-8 shadow-none space-y-8">
+                        <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 space-y-6">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-xl font-bold text-foreground tracking-tight">خدمات الرسائل</h3>
@@ -226,7 +227,7 @@ export default function SystemSettings() {
                             </div>
                         </Card>
 
-                        <Card className="glass border-0 rounded-3xl p-8 shadow-none space-y-8">
+                        <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 space-y-6">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-xl font-bold text-foreground tracking-tight">خرائط جوجل</h3>
@@ -245,14 +246,14 @@ export default function SystemSettings() {
                     </div>
                 </TabsContent>
 
-                <TabsContent value="advanced" className="space-y-8">
-                    <Card className="glass border-0 rounded-3xl p-8 shadow-none space-y-8">
+                <TabsContent value="advanced" className="space-y-6">
+                    <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 space-y-6">
                         <div>
                             <h3 className="text-xl font-bold text-foreground tracking-tight">صيانة النظام</h3>
                             <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest mt-1">عمليات قواعد البيانات والذاكرة المؤقتة</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="p-6 bg-muted/30 rounded-3xl border border-border space-y-4 group hover:bg-card hover:shadow-xl transition-all">
+                            <div className="p-6 bg-muted/30 rounded-3xl border border-border space-y-4 group hover:bg-card hover:shadow-md transition-all">
                                 <div className="h-12 w-12 bg-card rounded-2xl shadow-sm flex items-center justify-center text-muted-foreground/70 group-hover:text-muted-foreground transition-colors"><RefreshCcw className="h-6 w-6" /></div>
                                 <div>
                                     <h4 className="text-sm font-bold text-foreground">مسح الذاكرة المؤقتة</h4>
@@ -260,7 +261,7 @@ export default function SystemSettings() {
                                 </div>
                                 <Button size="sm" variant="outline" className="h-9 w-full rounded-xl border-border font-bold">تنفيذ الآن</Button>
                             </div>
-                            <div className="p-6 bg-muted/30 rounded-3xl border border-border space-y-4 group hover:bg-card hover:shadow-xl transition-all">
+                            <div className="p-6 bg-muted/30 rounded-3xl border border-border space-y-4 group hover:bg-card hover:shadow-md transition-all">
                                 <div className="h-12 w-12 bg-card rounded-2xl shadow-sm flex items-center justify-center text-muted-foreground/70 group-hover:text-amber-600 transition-colors"><Database className="h-6 w-6" /></div>
                                 <div>
                                     <h4 className="text-sm font-bold text-foreground">نسخة احتياطية</h4>
@@ -268,7 +269,7 @@ export default function SystemSettings() {
                                 </div>
                                 <Button size="sm" variant="outline" className="h-9 w-full rounded-xl border-border font-bold">بدء التصدير</Button>
                             </div>
-                            <div className="p-6 bg-rose-50/30 rounded-3xl border border-rose-100 space-y-4 group hover:bg-card hover:shadow-xl transition-all">
+                            <div className="p-6 bg-rose-50/30 rounded-3xl border border-rose-100 space-y-4 group hover:bg-card hover:shadow-md transition-all">
                                 <div className="h-12 w-12 bg-card rounded-2xl shadow-sm flex items-center justify-center text-rose-600 "><Zap className="h-6 w-6" /></div>
                                 <div>
                                     <h4 className="text-sm font-bold text-foreground text-rose-700">وضع التصحيح (Debug)</h4>

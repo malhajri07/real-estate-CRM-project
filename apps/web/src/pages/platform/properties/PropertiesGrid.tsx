@@ -71,25 +71,25 @@ export default function PropertiesGrid({
 
             <div className="flex items-center space-x-4 rtl:space-x-reverse text-sm text-muted-foreground mb-4">
               {property.bedrooms && (
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1">
                   <Bed size={14} />
                   <span>{property.bedrooms}</span>
                 </div>
               )}
               {property.bathrooms && (
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1">
                   <Bath size={14} />
                   <span>{property.bathrooms}</span>
                 </div>
               )}
               {property.livingRooms != null && property.livingRooms !== 0 && (
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1">
                   <Sofa size={14} />
                   <span>{property.livingRooms}</span>
                 </div>
               )}
               {property.areaSqm != null && (
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1">
                   <Square size={14} />
                   <span>{typeof property.areaSqm === "number" ? property.areaSqm.toLocaleString("en-US") : property.areaSqm} متر²</span>
                 </div>
@@ -97,11 +97,11 @@ export default function PropertiesGrid({
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-1 text-primary font-semibold text-lg">
+              <div className="flex items-center gap-1 text-primary font-semibold text-lg">
                 <span>{formatCurrency(property.price)}</span>
               </div>
 
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
                   size="icon"

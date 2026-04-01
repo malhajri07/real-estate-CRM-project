@@ -45,7 +45,7 @@ export function AdminLoading({ text = 'جار التحميل...', fullScreen = f
 }
 
 export function AdminSkeleton({ className }: { className?: string }) {
-    return <div className={cn('animate-pulse bg-muted rounded', className)} />;
+    return <div className={cn('animate-pulse bg-muted rounded-lg', className)} />;
 }
 
 export function AdminTableSkeleton({ rows = 5 }: { rows?: number }) {
@@ -60,7 +60,7 @@ export function AdminTableSkeleton({ rows = 5 }: { rows?: number }) {
 
 export function AdminCardSkeleton() {
     return (
-        <div className="rounded-lg border p-6 space-y-3">
+        <div className="rounded-2xl border border-border bg-card p-6 space-y-3">
             <AdminSkeleton className="h-4 w-24" />
             <AdminSkeleton className="h-8 w-32" />
             <AdminSkeleton className="h-3 w-20" />

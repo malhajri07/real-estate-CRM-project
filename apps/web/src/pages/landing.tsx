@@ -18,6 +18,7 @@ import { type LandingPageContent, type PricingPlan } from "@/lib/cms";
 import { useLocation } from "wouter";
 import { useSEO } from "@/hooks/useSEO";
 import { HERO_METRIC_THEME } from "@/lib/landing-theme";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Components
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -91,6 +92,7 @@ export default function Landing() {
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [, setLocation] = useLocation();
+  const { dir } = useLanguage();
 
   useSEO("/", landingContent?.heroTitle, landingContent?.heroSubtitle);
 
@@ -305,7 +307,7 @@ export default function Landing() {
   // Always render content, even during loading
   return (
     <LandingErrorBoundary>
-      <div className="relative min-h-screen bg-white font-sans text-slate-900 antialiased" dir="rtl">
+      <div className="relative min-h-screen bg-white font-sans text-slate-900 antialiased" dir={dir}>
         {/* Debug: Ensure page is rendering */}
         {process.env.NODE_ENV === 'development' && (
           <div className="fixed bottom-4 start-4 z-[9999] bg-red-500 text-white px-2 py-1 text-xs rounded">

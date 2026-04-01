@@ -11,6 +11,7 @@ import { PageSectionHeader } from "@/components/ui/page-section-header";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, XCircle, ShieldCheck, Clock, Check, X } from "lucide-react";
 import { LISTING_STATUS_LABELS, PROPERTY_TYPE_LABELS, LISTING_TYPE_LABELS } from "@/constants/labels";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 export default function ModerationQueuePage() {
   const queryClient = useQueryClient();
@@ -123,7 +124,7 @@ export default function ModerationQueuePage() {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+              className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => handleAction(item.id, "approve")}
               disabled={processingId === item.id}
               title="اعتماد"
@@ -133,7 +134,7 @@ export default function ModerationQueuePage() {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10 transition-all"
+              className="h-8 w-8 p-0 rounded-lg text-destructive hover:text-destructive hover:bg-destructive/10 transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               onClick={() => handleAction(item.id, "reject")}
               disabled={processingId === item.id}
               title="رفض"
@@ -148,7 +149,7 @@ export default function ModerationQueuePage() {
   );
 
   return (
-    <main className="w-full space-y-6" dir="rtl">
+    <div className={PAGE_WRAPPER}>
       <PageSectionHeader
         icon={<ShieldCheck className="h-7 w-7" />}
         title="إدارة المحتوى"
@@ -195,6 +196,6 @@ export default function ModerationQueuePage() {
           />
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

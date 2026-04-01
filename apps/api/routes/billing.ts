@@ -2,18 +2,30 @@ import { Router } from 'express';
 import { prisma } from '../prismaClient';
 import { z } from 'zod';
 import { hasPermission } from '../rbac-policy';
+import { authenticateToken } from '../src/middleware/auth.middleware';
+import { getErrorResponse } from '../i18n';
 
 const router = Router();
 
-// Middleware to check permissions
-const requireBillingPerm = (req: any, res: any, next: any) => {
-    // TODO: Add proper permission check
-    // For now allowing authenticated users to see their own data
-    if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+// Apply authentication to all billing routes
+router.use(authenticateToken as any);
+
+// Permission middleware: admin/corp_owner can see all org billing, others see own only
+const requireBillingAccess = (req: any, res: any, next: any) => {
+    const user = req.user;
+    if (!user) return res.status(401).json(getErrorResponse('UNAUTHORIZED', req.locale));
+
+    // Admin and corp owners have full billing access
+    const hasFullAccess = hasPermission(user.roles, 'system:manage')
+        || hasPermission(user.roles, 'reports:view:all')
+        || hasPermission(user.roles, 'reports:view:corporate');
+
+    // Regular users can only see their own billing data
+    req.billingFullAccess = hasFullAccess;
     next();
 };
 
-router.use(requireBillingPerm);
+router.use(requireBillingAccess);
 
 // --- Billing Accounts ---
 
@@ -71,10 +83,20 @@ router.get('/invoices/:id', async (req: any, res) => {
     try {
         const invoice = await prisma.billing_invoices.findUnique({
             where: { id: req.params.id },
-            include: { items: true, payments: true }
+            include: { items: true, payments: true, account: true }
         });
         if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
-        // TODO: Verify ownership
+
+        // Verify ownership: non-admin users can only see invoices for their own account/org
+        if (!req.billingFullAccess) {
+            const userId = req.user.id;
+            const orgId = req.user.organizationId;
+            const account = invoice.account;
+            if (account.userId !== userId && (!orgId || account.organizationId !== orgId)) {
+                return res.status(403).json({ message: 'Forbidden' });
+            }
+        }
+
         res.json(invoice);
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch invoice' });
@@ -270,7 +292,11 @@ router.get('/plans', async (_req, res) => {
 
 // --- Seeding ---
 
-router.post('/seed', async (req, res) => {
+router.post('/seed', async (req: any, res) => {
+    // Only admins can seed billing data
+    if (!hasPermission(req.user?.roles, 'system:manage')) {
+        return res.status(403).json({ message: 'Admin access required' });
+    }
     try {
         console.log('🚀 Starting billing population via API...');
 

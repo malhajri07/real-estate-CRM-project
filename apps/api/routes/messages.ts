@@ -27,17 +27,25 @@ router.get("/lead/:leadId", async (req, res) => {
 
 router.post("/", async (req, res) => {
     try {
-        const messageData = insertMessageSchema.parse(req.body);
         const auth = decodeAuth(req);
-        const tenantId = auth.organizationId ?? "default-tenant";
-        const message = await storage.createMessage(messageData);
-        res.json(message);
-    } catch (error) {
-        if (error instanceof z.ZodError) {
-            return res.status(400).json({ error: error.errors });
+        if (!auth.id) {
+            return res.status(401).json({ error: "Authentication required" });
         }
-        const message = error instanceof Error ? error.message : "Failed to create message";
-        res.status(500).json({ error: message });
+        const { leadId, content, channel } = req.body;
+        if (!leadId || !content) {
+            return res.status(400).json({ error: "leadId and content are required" });
+        }
+        const message = await storage.createMessage({
+            leadId,
+            agentId: auth.id,
+            content,
+            channel: channel || 'WHATSAPP',
+        });
+        res.status(201).json(message);
+    } catch (error) {
+        console.error("Error creating message:", error);
+        const msg = error instanceof Error ? error.message : "Failed to create message";
+        res.status(500).json({ error: msg });
     }
 });
 

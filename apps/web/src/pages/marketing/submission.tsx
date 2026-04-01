@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { apiPost } from "@/lib/apiClient";
 
 interface FormState {
   title: string;
@@ -127,20 +128,14 @@ export default function MarketingRequestSubmissionPage() {
         propertyId: form.propertyId.trim() || undefined,
       };
 
-      const response = await fetch("/api/marketing-requests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.status === 401) {
-        setMessage("يرجى تسجيل الدخول لإرسال طلب التسويق.");
-        return;
-      }
-
-      if (!response.ok) {
-        const detail = await response.json().catch(() => null);
-        throw new Error(detail?.message || "تعذر إرسال طلب التسويق، حاول مرة أخرى.");
+      try {
+        await apiPost("/api/marketing-requests", payload);
+      } catch (err: any) {
+        if (err?.message?.startsWith("401")) {
+          setMessage("يرجى تسجيل الدخول لإرسال طلب التسويق.");
+          return;
+        }
+        throw new Error("تعذر إرسال طلب التسويق، حاول مرة أخرى.");
       }
 
       setMessage("تم إرسال الطلب بنجاح! سيتم مراجعته وإشعار الوسطاء المعتمدين.");

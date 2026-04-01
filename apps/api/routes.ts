@@ -65,6 +65,7 @@ import sitemapRoutes          from "./routes/sitemap";
 import { localeMiddleware }   from "./src/middleware/locale";
 import { requireOrg, injectOrgFilter } from "./src/middleware/org-isolation.middleware";
 import { authenticateToken }  from "./src/middleware/auth.middleware";
+import { optionalAuth }      from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const rateLimit = (await import("express-rate-limit")).default;
@@ -81,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // General API rate limiter
   const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: process.env.NODE_ENV === "development" ? 1000 : 100,
     message: { error: "TOO_MANY_REQUESTS", message: "Too many requests, please try again later" },
     standardHeaders: true,
     legacyHeaders: false,
@@ -106,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stricter limiter for admin + CMS endpoints
   const adminLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 50,
+    max: process.env.NODE_ENV === "development" ? 500 : 50,
     message: { error: "TOO_MANY_REQUESTS", message: "Too many admin requests, please try again later" },
     standardHeaders: true,
     legacyHeaders: false,
@@ -132,7 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/property-types",     propertyTypesRoutes);
   app.use("/api/agencies",           agenciesRoutes);
   app.use("/api/unverified-listings", unverifiedListingsRoutes);
-  app.use("/api/marketing-requests", marketingRequestRoutes);
+  app.use("/api/marketing-requests", optionalAuth, marketingRequestRoutes);
   app.use("/api/requests",           requestsRoutes);
   app.use("/api/landing",            landingRoutes);
   app.use("/preview/landing",        landingRoutes);   // CMS preview (same handler)
@@ -151,7 +152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/support",        supportRoutes);
   app.use("/api/appointments",   appointmentsRoutes);
   app.use("/api/inquiries",      inquiriesRoutes);
-  app.use("/api/audit-logs",     auditLogsRoutes);
+  app.use("/api/audit-logs",     authenticateToken, auditLogsRoutes);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // 5. ORG-SCOPED ROUTES  (authenticateToken + requireOrg enforced at mount)

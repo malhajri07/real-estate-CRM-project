@@ -14,22 +14,23 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import {
-  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter,
-  AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+  Sheet, SheetContent, SheetHeader, SheetFooter,
+  SheetTitle, SheetDescription,
+} from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/ui/page-header";
 import EmptyState from "@/components/ui/empty-state";
 import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { CSVUploader } from "@/components/admin/data-display/CSVUploader";
 import { Spinner } from "@/components/ui/spinner";
-import { apiDelete } from "@/lib/apiClient";
+import { apiDelete, apiGet, apiPost } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import type { Lead } from "@shared/types";
 import type { UploadResult } from "@uppy/core";
 import { getLeadStatusVariant } from "@/lib/status-variants";
+import { formatAdminDate } from "@/lib/formatters";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import {
@@ -103,12 +104,7 @@ export default function Contacts() {
   // Quick View search query
   const { data: searchResults } = useQuery<Lead[]>({
     queryKey: ["/api/leads/search", quickSearchQuery],
-    queryFn: async () => {
-      if (!quickSearchQuery.trim()) return [];
-      const response = await fetch(`/api/leads/search?q=${encodeURIComponent(quickSearchQuery)}`);
-      if (!response.ok) throw new Error("Search failed");
-      return response.json();
-    },
+    queryFn: () => apiGet<Lead[]>(`/api/leads/search?q=${encodeURIComponent(quickSearchQuery)}`),
     enabled: !!quickSearchQuery.trim(),
   });
 
@@ -136,19 +132,8 @@ export default function Contacts() {
 
   // CSV processing
   const csvProcessMutation = useMutation({
-    mutationFn: async (csvUrl: string) => {
-      const response = await fetch("/api/csv/process-leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ csvUrl }),
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || t("leads.csv_error"));
-      }
-      return response.json();
-    },
-    onSuccess: (data) => {
+    mutationFn: async (csvUrl: string) => apiPost("/api/csv/process-leads", { csvUrl }),
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
       queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
       if (data.results.errors.length > 0) {
@@ -178,12 +163,7 @@ export default function Contacts() {
   };
 
   const handleGetUploadParameters = async () => {
-    const response = await fetch("/api/csv/upload-url", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!response.ok) throw new Error(t("leads.upload_error"));
-    const data = await response.json();
+    const data = await apiPost<{ uploadURL: string }>("/api/csv/upload-url");
     return { method: "PUT" as const, url: data.uploadURL };
   };
 
@@ -219,12 +199,12 @@ export default function Contacts() {
     }
 
     const csvContent = [
-      ["First Name", "Last Name", "Email", "Phone", "Status", "Lead Source", "Interest Type", "Budget Range", "Created At"].join(","),
+      ["الاسم الأول", "الاسم الأخير", "البريد الإلكتروني", "الهاتف", "الحالة", "مصدر العميل", "نوع الاهتمام", "نطاق الميزانية", "تاريخ الإنشاء"].join(","),
       ...quickDisplayLeads.map((lead) =>
         [
           lead.firstName, lead.lastName, lead.email, lead.phone || "",
           lead.status, lead.leadSource || "", lead.interestType || "",
-          lead.budgetRange || "", new Date(lead.createdAt).toLocaleDateString(),
+          lead.budgetRange || "", formatAdminDate(lead.createdAt),
         ].map((field) => `"${field}"`).join(",")
       ),
     ].join("\n");
@@ -391,8 +371,9 @@ export default function Contacts() {
                     : (t("leads.no_leads") || "لا توجد عملاء محتملين")}
                 />
               ) : (
+                <div className="overflow-x-auto">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="bg-muted/50">
                     <TableRow>
                       <TableHead className="text-end">{t("leads.table.name") || "الاسم"}</TableHead>
                       <TableHead className="text-end">{t("leads.table.email") || "البريد الإلكتروني"}</TableHead>
@@ -423,7 +404,7 @@ export default function Contacts() {
                           {lead.interestType ? (t(`interest.${lead.interestType}`) || lead.interestType) : "-"}
                         </TableCell>
                         <TableCell className="text-end">{lead.budgetRange || "-"}</TableCell>
-                        <TableCell className="text-end">{new Date(lead.createdAt).toLocaleDateString(locale)}</TableCell>
+                        <TableCell className="text-end">{formatAdminDate(lead.createdAt)}</TableCell>
                         <TableCell className="text-end">
                           <div className="flex items-center gap-2">
                             {lead.phone && (
@@ -456,6 +437,7 @@ export default function Contacts() {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -486,7 +468,7 @@ export default function Contacts() {
                 <Card>
                   <CardContent className="pt-6 space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium">{t("contacts.search_filters") || "فلاتر البحث"}</h3>
+                      <h3 className="text-xl font-bold text-foreground">{t("contacts.search_filters") || "فلاتر البحث"}</h3>
                       <Button variant="default" size="sm" onClick={resetFilters}>
                         {t("contacts.reset") || "إعادة تعيين"}
                       </Button>
@@ -593,8 +575,9 @@ export default function Contacts() {
                 />
               ) : (
                 <>
+                  <div className="overflow-x-auto">
                   <Table className="min-w-[900px]">
-                    <TableHeader>
+                    <TableHeader className="bg-muted/50">
                       <TableRow>
                         <TableHead className="text-end">{t("contacts.table.customer") || "العميل"}</TableHead>
                         <TableHead className="text-end">{t("contacts.table.city") || "المدينة"}</TableHead>
@@ -629,7 +612,7 @@ export default function Contacts() {
                               {getStatusLabel(lead.status)}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-end">{new Date(lead.createdAt).toLocaleDateString(locale)}</TableCell>
+                          <TableCell className="text-end">{formatAdminDate(lead.createdAt)}</TableCell>
                           <TableCell className="text-end">
                             <div className="flex items-center justify-end gap-1">
                               <Button variant="ghost" size="icon" title={t("contacts.call") || "اتصال"}>
@@ -652,6 +635,7 @@ export default function Contacts() {
                       ))}
                     </TableBody>
                   </Table>
+                  </div>
 
                   {totalPages > 1 && (
                     <div className="flex items-center justify-between px-6 py-4 border-t">
@@ -710,15 +694,15 @@ export default function Contacts() {
         </TabsContent>
       </Tabs>
 
-      {/* Delete Confirmation AlertDialog (shared by both tabs) */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="sm:max-w-md">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-end">
+      {/* Delete Confirmation Sheet (shared by both tabs) */}
+      <Sheet open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <SheetContent side="bottom" className="overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2 text-end">
               <AlertTriangle className="h-5 w-5 text-red-500" />
               {t("contacts.confirm_delete_title") || "تأكيد الحذف"}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-end pt-2" asChild>
+            </SheetTitle>
+            <SheetDescription className="text-end pt-2" asChild>
               <div className="space-y-3">
                 <p className="text-muted-foreground">
                   {t("contacts.confirm_delete_message") || "هل أنت متأكد من حذف العميل التالي؟"}
@@ -747,13 +731,13 @@ export default function Contacts() {
                   </AlertDescription>
                 </Alert>
               </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2 sm:gap-2">
-            <AlertDialogCancel className="flex-1">
+            </SheetDescription>
+          </SheetHeader>
+          <SheetFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" className="flex-1" onClick={() => setDeleteDialogOpen(false)}>
               {t("contacts.cancel") || "إلغاء"}
-            </AlertDialogCancel>
-            <AlertDialogAction
+            </Button>
+            <Button
               onClick={confirmDelete}
               className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90"
               disabled={deleteLeadMutation.isPending}
@@ -761,10 +745,10 @@ export default function Contacts() {
               {deleteLeadMutation.isPending
                 ? (t("contacts.deleting") || "جاري الحذف...")
                 : (t("contacts.confirm_delete") || "تأكيد الحذف")}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
       {/* WhatsApp Modal */}
       {selectedLead && (

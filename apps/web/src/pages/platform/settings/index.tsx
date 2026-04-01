@@ -9,7 +9,7 @@
  *   - PreferencesSection  — notification preferences
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +22,7 @@ import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/component
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import PageHeader from "@/components/ui/page-header";
+import { apiGet, apiPut } from "@/lib/apiClient";
 
 import ProfileSection from "./ProfileSection";
 import type { UserProfile } from "./ProfileSection";
@@ -69,12 +70,12 @@ export default function Settings() {
   });
 
   const [userProfile, setUserProfile] = useState<UserProfile>({
-    firstName: "محمد",
-    lastName: "الأحمد",
-    email: "mohammad.ahmad@aqaraty.com",
-    phone: "+966501234567",
-    title: "مدير المبيعات",
-    department: "المبيعات",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    title: "",
+    department: "",
     avatar: "",
   });
 
@@ -82,6 +83,29 @@ export default function Settings() {
   const [profileOpen, setProfileOpen] = useState(true);
   const [securityOpen, setSecurityOpen] = useState(true);
   const [notificationsOpen, setNotificationsOpen] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  // Load user profile from API on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const data: any = await apiGet("/api/auth/user");
+        if (data) {
+          setUserProfile({
+            firstName: data.firstName || "",
+            lastName: data.lastName || "",
+            email: data.email || "",
+            phone: data.phone || "",
+            title: data.jobTitle || "",
+            department: data.department || "",
+            avatar: data.avatarUrl || "",
+          });
+        }
+      } catch {
+        // Silently fall back to empty profile — user can fill in manually
+      }
+    })();
+  }, []);
 
   const handleAccountSave = () => {
     toast({
@@ -91,17 +115,36 @@ export default function Settings() {
     });
   };
 
-  const handleProfileSave = () => {
-    toast({
-      title: "تم الحفظ بنجاح",
-      description: "تم تحديث الملف الشخصي بنجاح",
-      variant: "default",
-    });
+  const handleProfileSave = async () => {
+    setProfileLoading(true);
+    try {
+      await apiPut("/api/auth/user", {
+        firstName: userProfile.firstName,
+        lastName: userProfile.lastName,
+        email: userProfile.email,
+        phone: userProfile.phone,
+        jobTitle: userProfile.title,
+        department: userProfile.department,
+      });
+      toast({
+        title: "تم الحفظ بنجاح",
+        description: "تم تحديث الملف الشخصي بنجاح",
+        variant: "default",
+      });
+    } catch {
+      toast({
+        title: "خطأ",
+        description: "فشل تحديث الملف الشخصي",
+        variant: "destructive",
+      });
+    } finally {
+      setProfileLoading(false);
+    }
   };
 
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
-      <section className="space-y-8">
+      <section className="space-y-6">
         <PageHeader title={t("الإعدادات")} subtitle={t("إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد")}>
           <Button size="sm" onClick={handleAccountSave}>
             <Save size={16} className="me-2" /> حفظ التغييرات
@@ -113,7 +156,7 @@ export default function Settings() {
           <Collapsible open={companyOpen} onOpenChange={setCompanyOpen}>
             <Card>
               <CardHeader className="pb-5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <span className="rounded-full bg-primary/10 p-2 text-primary"><Building2 size={18} /></span>
                   <div className="text-end">
                     <CardTitle>معلومات الشركة</CardTitle>
@@ -161,7 +204,7 @@ export default function Settings() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                           <Label htmlFor="taxId" className="block text-sm font-medium text-foreground/80">الرقم الضريبي</Label>
                           <Input
@@ -208,7 +251,7 @@ export default function Settings() {
                           data-testid="input-address"
                         />
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                           <Label htmlFor="city" className="block text-sm font-medium text-foreground/80">المدينة</Label>
                           <Input
@@ -246,7 +289,7 @@ export default function Settings() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                           <Label htmlFor="phone" className="block text-sm font-medium text-foreground/80">هاتف الشركة</Label>
                           <Input

@@ -1,7 +1,8 @@
 import { TrendingUp, Users, Building, BarChart3, PieChart, LineChart, Activity, DollarSign, Target } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { ChartTooltip } from "@/components/ui/chart-tooltip";
+import { CHART_HEIGHT, CHART_COLORS } from "@/config/design-tokens";
 import {
   LineChart as RechartsLineChart,
   AreaChart,
@@ -33,33 +34,6 @@ export interface ReportChartsProps {
   formatPercentage: (num: number) => string;
 }
 
-function CustomTooltip({ active, payload, label, formatCurrency, formatNumber }: any) {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-card p-3 border border-border rounded-xl shadow-lg text-end">
-        <p className="text-xs font-bold uppercase tracking-wider text-foreground mb-2">{label}</p>
-        {payload.map((entry: any, index: number) => (
-          <p
-            key={index}
-            className={cn(
-              "flex items-center justify-between text-sm",
-              entry.color ? `text-[${entry.color}]` : "text-foreground",
-            )}
-          >
-            <span>{entry.dataKey}:</span>
-            <span className="font-medium">
-              {entry.dataKey === "revenue" || entry.dataKey === "commission"
-                ? formatCurrency(entry.value)
-                : formatNumber(entry.value)}
-            </span>
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-}
-
 export default function ReportCharts({
   timeSeriesData,
   leadSourceChartData,
@@ -72,7 +46,10 @@ export default function ReportCharts({
   formatNumber,
 }: ReportChartsProps) {
   const renderTooltip = (props: any) => (
-    <CustomTooltip {...props} formatCurrency={formatCurrency} formatNumber={formatNumber} />
+    <ChartTooltip
+      {...props}
+      formatter={(value: number) => formatCurrency(value)}
+    />
   );
 
   return (
@@ -82,22 +59,22 @@ export default function ReportCharts({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <LineChart size={20} />
                 <span>الاتجاهات الزمنية</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
                 <RechartsLineChart data={timeSeriesData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip content={renderTooltip} />
                   <Legend />
-                  <Line type="monotone" dataKey="leads" stroke="hsl(145 35% 58%)" strokeWidth={2} />
-                  <Line type="monotone" dataKey="properties" stroke="hsl(205 70% 27%)" strokeWidth={2} />
-                  <Line type="monotone" dataKey="deals" stroke="hsl(142 76% 36%)" strokeWidth={2} />
+                  <Line type="monotone" dataKey="leads" stroke={CHART_COLORS.primary} strokeWidth={2} />
+                  <Line type="monotone" dataKey="properties" stroke={CHART_COLORS.blue} strokeWidth={2} />
+                  <Line type="monotone" dataKey="deals" stroke={CHART_COLORS.green} strokeWidth={2} />
                 </RechartsLineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -105,13 +82,13 @@ export default function ReportCharts({
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <PieChart size={20} />
                 <span>مصادر العملاء المحتملين</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
                 {leadSourceChartData.length > 0 ? (
                   <RechartsPieChart>
                     <Pie
@@ -121,7 +98,7 @@ export default function ReportCharts({
                       labelLine={false}
                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       outerRadius={80}
-                      fill="hsl(145 35% 58%)"
+                      fill={CHART_COLORS.primary}
                       dataKey="value"
                     >
                       {leadSourceChartData.map((entry, index) => (
@@ -141,19 +118,19 @@ export default function ReportCharts({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <BarChart3 size={20} />
                 <span>أنواع العقارات</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
                 <BarChart data={propertyTypeChartData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip content={renderTooltip} />
-                  <Bar dataKey="value" fill="hsl(145 35% 58%)" />
+                  <Bar dataKey="value" fill={CHART_COLORS.primary} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -161,19 +138,19 @@ export default function ReportCharts({
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <Target size={20} />
                 <span>مراحل الصفقات</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
                 <BarChart data={dealStageData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="stage" />
                   <YAxis />
                   <Tooltip content={renderTooltip} />
-                  <Bar dataKey="count" fill="hsl(205 70% 27%)" />
+                  <Bar dataKey="count" fill={CHART_COLORS.blue} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -186,19 +163,19 @@ export default function ReportCharts({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <Users size={20} />
                 <span>أداء الوسطاء</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
                 <BarChart data={agentPerformanceData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="agent" />
                   <YAxis />
                   <Tooltip content={renderTooltip} />
-                  <Bar dataKey="deals" fill="hsl(145 35% 58%)" />
+                  <Bar dataKey="deals" fill={CHART_COLORS.primary} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -206,19 +183,19 @@ export default function ReportCharts({
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <TrendingUp size={20} />
                 <span>معدلات التحويل</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
                 <BarChart data={agentPerformanceData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="agent" />
                   <YAxis />
                   <Tooltip content={renderTooltip} />
-                  <Bar dataKey="conversion" fill="hsl(35 91% 65%)" />
+                  <Bar dataKey="conversion" fill={CHART_COLORS.amber} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -231,20 +208,20 @@ export default function ReportCharts({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <DollarSign size={20} />
                 <span>اتجاه الإيرادات</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
                 <AreaChart data={revenueData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip content={renderTooltip} />
-                  <Area type="monotone" dataKey="revenue" stackId="1" stroke="hsl(145 35% 58%)" fill="hsl(145 35% 58%)" />
-                  <Area type="monotone" dataKey="commission" stackId="1" stroke="hsl(205 70% 27%)" fill="hsl(205 70% 27%)" />
+                  <Area type="monotone" dataKey="revenue" stackId="1" stroke={CHART_COLORS.primary} fill={CHART_COLORS.primary} />
+                  <Area type="monotone" dataKey="commission" stackId="1" stroke={CHART_COLORS.blue} fill={CHART_COLORS.blue} />
                 </AreaChart>
               </ResponsiveContainer>
             </CardContent>
@@ -252,19 +229,19 @@ export default function ReportCharts({
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <Building size={20} />
                 <span>الإيرادات حسب الوكيل</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
                 <BarChart data={agentPerformanceData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="agent" />
                   <YAxis />
                   <Tooltip content={renderTooltip} />
-                  <Bar dataKey="revenue" fill="hsl(0 84% 60%)" />
+                  <Bar dataKey="revenue" fill={CHART_COLORS.red} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -277,23 +254,23 @@ export default function ReportCharts({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <Activity size={20} />
                 <span>اتجاهات السوق</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
                 <RechartsLineChart data={marketTrendsData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="quarter" />
                   <YAxis />
                   <Tooltip content={renderTooltip} />
                   <Legend />
-                  <Line type="monotone" dataKey="residential" stroke="hsl(145 35% 58%)" strokeWidth={2} />
-                  <Line type="monotone" dataKey="commercial" stroke="hsl(205 70% 27%)" strokeWidth={2} />
-                  <Line type="monotone" dataKey="industrial" stroke="hsl(35 91% 65%)" strokeWidth={2} />
-                  <Line type="monotone" dataKey="land" stroke="hsl(0 84% 60%)" strokeWidth={2} />
+                  <Line type="monotone" dataKey="residential" stroke={CHART_COLORS.primary} strokeWidth={2} />
+                  <Line type="monotone" dataKey="commercial" stroke={CHART_COLORS.blue} strokeWidth={2} />
+                  <Line type="monotone" dataKey="industrial" stroke={CHART_COLORS.amber} strokeWidth={2} />
+                  <Line type="monotone" dataKey="land" stroke={CHART_COLORS.red} strokeWidth={2} />
                 </RechartsLineChart>
               </ResponsiveContainer>
             </CardContent>
@@ -301,13 +278,13 @@ export default function ReportCharts({
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <PieChart size={20} />
                 <span>توزيع العقارات</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
                 <RechartsPieChart>
                   <Pie
                     data={propertyTypeChartData}
@@ -316,7 +293,7 @@ export default function ReportCharts({
                     labelLine={false}
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     outerRadius={80}
-                    fill="hsl(145 35% 58%)"
+                    fill={CHART_COLORS.primary}
                     dataKey="value"
                   >
                     {propertyTypeChartData.map((entry, index) => (

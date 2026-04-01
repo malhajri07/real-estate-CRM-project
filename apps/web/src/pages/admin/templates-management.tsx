@@ -17,6 +17,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { PageSectionHeader } from "@/components/ui/page-section-header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/apiClient";
 import {
@@ -48,6 +49,7 @@ import {
 import { Plus, Edit, Trash2, Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 interface Template {
   id: string;
@@ -160,17 +162,17 @@ export default function TemplatesManagement() {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">إدارة القوالب</h1>
-          <p className="text-muted-foreground">قوالب البريد الإلكتروني والمقالات وصفحات الهبوط</p>
-        </div>
-        <Button onClick={handleCreate}>
-          <Plus className="ml-2 h-4 w-4" />
-          إنشاء قالب جديد
-        </Button>
-      </div>
+    <div className={PAGE_WRAPPER}>
+      <PageSectionHeader
+        title="إدارة القوالب"
+        subtitle="قوالب البريد الإلكتروني والمقالات وصفحات الهبوط"
+        actions={
+          <Button onClick={handleCreate}>
+            <Plus className="ml-2 h-4 w-4" />
+            إنشاء قالب جديد
+          </Button>
+        }
+      />
 
       <div className="space-y-6">
         {/* ... (rest of the content remains same) */}
@@ -202,7 +204,7 @@ export default function TemplatesManagement() {
             {isLoading ? (
               <div className="text-center py-8">جار التحميل...</div>
             ) : error ? (
-              <div className="text-center py-8 text-red-600">
+              <div className="text-center py-8 text-destructive">
                 حدث خطأ في تحميل القوالب
               </div>
             ) : !data?.items.length ? (
@@ -384,8 +386,8 @@ function TemplateDialog({
 
           <div className="space-y-2">
             <Label htmlFor="content">المحتوى</Label>
-            <div className="relative border rounded-xl overflow-hidden bg-slate-900 shadow-sm group">
-              <div className="absolute top-2 right-2 px-2 py-1 bg-slate-800 text-xs text-muted-foreground/70 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <div className="relative border rounded-xl overflow-hidden bg-foreground shadow-sm group">
+              <div className="absolute top-2 right-2 px-2 py-1 bg-foreground/80 text-xs text-muted-foreground/70 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                 HTML / Text
               </div>
               <Textarea
@@ -394,7 +396,7 @@ function TemplateDialog({
                 onChange={(e) => setContent(e.target.value)}
                 rows={16}
                 required
-                className="bg-slate-900 border-0 focus-visible:ring-0 text-slate-50 font-mono text-sm resize-none p-4 leading-relaxed"
+                className="bg-foreground border-0 focus-visible:ring-0 text-background font-mono text-sm resize-none p-4 leading-relaxed"
                 dir="ltr"
                 spellCheck={false}
               />
@@ -410,7 +412,7 @@ function TemplateDialog({
             >
               إلغاء
             </Button>
-            <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 min-w-[100px]">
+            <Button type="submit" disabled={isLoading} className="bg-primary hover:bg-primary/90 min-w-[100px]">
               {isLoading ? "جاري الحفظ..." : template ? "تحديث" : "إنشاء"}
             </Button>
           </AdminSheetFooter>

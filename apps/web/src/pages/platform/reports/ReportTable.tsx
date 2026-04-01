@@ -43,14 +43,15 @@ export default function ReportTable({
         <div className="grid grid-cols-1 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <Users size={20} />
                 <span>جدول أداء الوسطاء</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="overflow-x-auto">
               <Table>
-                <TableHeader>
+                <TableHeader className="bg-muted/50">
                   <TableRow>
                     <TableHead>الوكيل</TableHead>
                     <TableHead>عدد الصفقات</TableHead>
@@ -75,6 +76,7 @@ export default function ReportTable({
                   ))}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -85,7 +87,7 @@ export default function ReportTable({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <Target size={20} />
                 <span>ملخص خط الأنابيب</span>
               </CardTitle>
@@ -118,7 +120,7 @@ export default function ReportTable({
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <Building size={20} />
                 <span>تحليلات العقارات</span>
               </CardTitle>
@@ -151,7 +153,7 @@ export default function ReportTable({
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center space-x-2 rtl:space-x-reverse">
+              <CardTitle className="flex items-center gap-3">
                 <Zap size={20} />
                 <span>مقاييس الأداء</span>
               </CardTitle>

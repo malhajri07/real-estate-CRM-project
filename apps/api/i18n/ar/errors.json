@@ -20,5 +20,17 @@
     "SEARCH_MEMORIES_FAILED": "فشل البحث في الذكريات",
     "GET_HISTORY_FAILED": "فشل استرداد سجل الوكيل",
     "LISTING_NOT_FOUND": "العقار غير موجود",
-    "LEAD_NOT_FOUND": "العميل غير موجود"
+    "LEAD_NOT_FOUND": "العميل غير موجود",
+    "DEAL_NOT_FOUND": "الصفقة غير موجودة",
+    "INQUIRY_NOT_FOUND": "الاستفسار غير موجود",
+    "NOTIFICATION_NOT_FOUND": "الإشعار غير موجود",
+    "ORG_REQUIRED": "السياق التنظيمي مطلوب",
+    "FETCH_FAILED": "فشل جلب البيانات",
+    "CREATE_FAILED": "فشل إنشاء السجل",
+    "UPDATE_FAILED": "فشل تحديث السجل",
+    "DELETE_FAILED": "فشل حذف السجل",
+    "EXPORT_FAILED": "فشل التصدير",
+    "IMPORT_FAILED": "فشل الاستيراد",
+    "BILLING_FETCH_FAILED": "فشل جلب بيانات الفواتير",
+    "BILLING_ADMIN_REQUIRED": "يتطلب الوصول صلاحيات المسؤول لعمليات الفوترة"
 }

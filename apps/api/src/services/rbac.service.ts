@@ -157,6 +157,21 @@ export class RbacService {
             }
         } catch (e) { console.error('Top Agents fetch failed', e); }
 
+        // Additional metrics: complaints, articles, total revenue
+        const complaintsTotal = await safeCount('support_tickets');
+        const complaintsOpen = await safeCount('support_tickets', { where: { status: 'OPEN' } });
+        const articlesTotal = await safeCount('cms_articles' as any).catch(() => 0);
+        const totalRevenueAgg = await (async () => {
+            try {
+                if (!(prisma as any).billing_invoices) return 0;
+                const agg = await (prisma as any).billing_invoices.aggregate({
+                    _sum: { amountPaid: true },
+                    where: { status: 'PAID' }
+                });
+                return Number(agg._sum.amountPaid || 0);
+            } catch { return 0; }
+        })();
+
         return {
             metrics: {
                 currency: 'SAR',
@@ -166,7 +181,10 @@ export class RbacService {
                 dealsWon: { today: dealsToday, last7Days: deals7Days, last30Days: deals30Days },
                 gmv: { today: gmvToday, last7Days: gmv7Days, last30Days: gmv30Days, currency: 'SAR' },
                 invoiceTotal: { today: finToday.due, last7Days: fin7Days.due, last30Days: fin30Days.due, currency: 'SAR' },
-                cashCollected: { today: finToday.paid, last7Days: fin7Days.paid, last30Days: fin30Days.paid, currency: 'SAR' }
+                cashCollected: { today: finToday.paid, last7Days: fin7Days.paid, last30Days: fin30Days.paid, currency: 'SAR' },
+                complaints: { total: complaintsTotal, open: complaintsOpen },
+                articles: { total: articlesTotal },
+                totalRevenue: { total: totalRevenueAgg, currency: 'SAR' }
             },
             topAgents
         };

@@ -24,13 +24,15 @@ import agarkomLogo from '@assets/Aqarkom (3)_1756501849666.png';
 import { useLocation } from 'wouter';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
+import { Globe } from 'lucide-react';
 
 export default function RBACLoginPage() {
   const { login, logout, isLoading, user } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [, setLocation] = useLocation();
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const { dir } = useLanguage();
+  const { dir, language, setLanguage } = useLanguage();
+  const isAr = language === "ar";
 
   const handleGoToDashboard = () => {
     // Check if user has admin role
@@ -47,7 +49,7 @@ export default function RBACLoginPage() {
       // Don't reset isRedirecting here - let it stay true to show loading during redirect
     } catch (err) {
       setIsRedirecting(false);
-      setError(err instanceof Error ? err.message : 'حدث خطأ أثناء تسجيل الدخول');
+      setError(err instanceof Error ? err.message : (isAr ? 'حدث خطأ أثناء تسجيل الدخول' : 'An error occurred during login'));
     }
   };
 
@@ -73,7 +75,7 @@ export default function RBACLoginPage() {
         <div className="text-center space-y-4">
           <Spinner size="xl" className="text-primary mx-auto" />
           <p className="text-sm font-medium text-muted-foreground animate-pulse">
-            {isRedirecting ? 'جاري التحقق من البيانات...' : 'جاري التوجيه...'}
+            {isRedirecting ? (isAr ? 'جاري التحقق من البيانات...' : 'Verifying credentials...') : (isAr ? 'جاري التوجيه...' : 'Redirecting...')}
           </p>
         </div>
       </div>
@@ -87,7 +89,7 @@ export default function RBACLoginPage() {
       <Card className="w-full rounded-3xl border border-border bg-card shadow-sm">
         <CardContent className="py-16 text-center space-y-6">
           <Spinner size="xl" className="mx-auto text-primary" />
-          <p className="text-sm font-medium text-muted-foreground">جاري التحميل...</p>
+          <p className="text-sm font-medium text-muted-foreground">{isAr ? "جاري التحميل..." : "Loading..."}</p>
         </CardContent>
       </Card>
     );
@@ -118,7 +120,16 @@ export default function RBACLoginPage() {
           className="group flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-card/50 rounded-full px-4 py-2 transition-all"
         >
           <ArrowRight className={cn("h-4 w-4 transition-transform group-hover:translate-x-1", dir === 'rtl' ? "rotate-180 group-hover:-translate-x-1" : "")} />
-          <span className="font-medium">العودة للرئيسية</span>
+          <span className="font-medium">{isAr ? "العودة للرئيسية" : "Back to Home"}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setLanguage(language === "ar" ? "en" : "ar")}
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground hover:bg-card/50 rounded-full px-4 py-2 transition-all"
+        >
+          <Globe className="h-4 w-4" />
+          <span className="font-medium">{language === "ar" ? "English" : "العربية"}</span>
         </Button>
       </div>
 
@@ -141,18 +152,18 @@ export default function RBACLoginPage() {
         {/* Footer Links */}
         <div className="text-center space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
           <p className="text-sm text-muted-foreground">
-            لا تملك حساباً بعد؟{' '}
+            {isAr ? "لا تملك حساباً بعد؟" : "Don't have an account?"}{' '}
             <Button
               variant="link"
               onClick={() => setLocation('/signup')}
               className="font-bold text-primary hover:text-primary/80 hover:underline transition-colors p-0 h-auto"
             >
-              إنشاء حساب جديد
+              {isAr ? "إنشاء حساب جديد" : "Create an account"}
             </Button>
           </p>
-          
+
           <div className="pt-8 text-xs text-muted-foreground/70 font-medium">
-            جميع الحقوق محفوظة © {new Date().getFullYear()} منصة عقاراتي
+            {isAr ? `جميع الحقوق محفوظة © ${new Date().getFullYear()} منصة عقاراتي` : `© ${new Date().getFullYear()} Aqarkom. All rights reserved.`}
           </div>
         </div>
       </div>

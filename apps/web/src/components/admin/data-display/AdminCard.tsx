@@ -22,8 +22,8 @@ export function AdminCard({
     return (
         <Card
             className={cn(
-                'glass border-0 rounded-2xl transition-all duration-300',
-                onClick && 'cursor-pointer hover:shadow-2xl hover:-translate-y-1',
+                'rounded-2xl border border-border bg-card shadow-sm transition-all duration-300',
+                onClick && 'cursor-pointer hover:shadow-md hover:-translate-y-1',
                 className
             )}
             onClick={onClick}
@@ -61,7 +61,7 @@ export function MetricCard({
     const formatCurrency = (val?: number, curr = 'SAR') => formatPrice(val, curr);
 
     return (
-        <Card className={cn("glass border-0 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 rounded-2xl group", className)}>
+        <Card className={cn("rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 group", className)}>
             <CardHeader className="flex flex-row items-center justify-between pb-2 px-6 pt-6">
                 <div className="space-y-1">
                     <CardTitle className="text-sm font-bold text-foreground tracking-tight">{title}</CardTitle>
@@ -73,7 +73,7 @@ export function MetricCard({
             </CardHeader>
             <CardContent className="px-6 pb-6 pt-2">
                 {loading ? (
-                    <div className="h-10 w-full animate-pulse bg-slate-100 rounded-xl" />
+                    <div className="h-10 w-full animate-pulse bg-muted rounded-xl" />
                 ) : (
                     <div className="grid grid-cols-3 gap-2 mt-2">
                         <div className="flex flex-col">

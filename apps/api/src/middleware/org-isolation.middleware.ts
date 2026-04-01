@@ -27,6 +27,18 @@ export const requireOrg = (req: Request, res: Response, next: NextFunction): voi
         return;
     }
 
+    // Global admins always pass
+    const roles = user.roles ?? [];
+    if (roles.includes(UserRole.WEBSITE_ADMIN)) {
+        return next();
+    }
+
+    // Individual agents without an org are allowed through — they get user-scoped access
+    if (!user.organizationId && roles.includes(UserRole.INDIV_AGENT)) {
+        logger.debug({ userId: user.id, path: req.path }, 'Individual agent accessing org-scoped route (user-scoped)');
+        return next();
+    }
+
     if (!user.organizationId) {
         logger.warn({ userId: user.id, path: req.path }, 'Org-isolated route accessed without organizationId');
         res.status(403).json({
@@ -58,6 +70,9 @@ export const injectOrgFilter = (req: Request, _res: Response, next: NextFunction
         (req as any).orgFilter = {};
     } else if (user?.organizationId) {
         (req as any).orgFilter = { organizationId: user.organizationId };
+    } else if (user && roles.includes(UserRole.INDIV_AGENT)) {
+        // Individual agents without org see their own data only
+        (req as any).orgFilter = { userId: user.id };
     } else {
         // Unauthenticated or missing org — return empty results, not an error
         (req as any).orgFilter = { organizationId: '__none__' };

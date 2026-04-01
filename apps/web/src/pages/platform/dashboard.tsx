@@ -63,7 +63,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import EmptyState from "@/components/ui/empty-state";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
 
 type MetricResponse = {
   totalLeads: number;
@@ -273,7 +273,7 @@ export default function Dashboard() {
           subtitle={t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
         />
       
-      <section aria-label={t("dashboard.quick_summary")} className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-label={t("dashboard.quick_summary")} className={GRID_METRICS}>
         {metricCards.map((metric) => (
           <MetricCard
             key={metric.id}
@@ -283,11 +283,11 @@ export default function Dashboard() {
       </section>
 
       {/* Main Content Grid */}
-      <div className="grid gap-8 lg:grid-cols-3" aria-label={t("dashboard.details_section")}>
+      <div className="grid gap-6 lg:grid-cols-3" aria-label={t("dashboard.details_section")}>
         {/* Left Column - Main Content */}
-        <div className="space-y-8 lg:col-span-2">
+        <div className="space-y-6 lg:col-span-2">
           {/* Pipeline Flow + Revenue Chart - side by side on large screens */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Clean Pipeline Flow */}
             <Card className="rounded-2xl">
               <CardContent className="p-6">
@@ -381,7 +381,7 @@ export default function Dashboard() {
           </Card>
 
         {/* Right Column - Sidebar */}
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Quick Actions */}
           <Card>
             <CardHeader>
@@ -399,7 +399,7 @@ export default function Dashboard() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               {quickActions.map((action, index) => (
                 <ActionCard
                   key={action.id}
@@ -445,7 +445,7 @@ export default function Dashboard() {
                   description={t("dashboard.no_tasks_description")}
                 />
               ) : (
-                <ul className="space-y-3" aria-live="polite">
+                <ul className="space-y-4" aria-live="polite">
                   {todaysActivities.map((activity, index) => (
                     <TaskCard
                       key={activity.id}

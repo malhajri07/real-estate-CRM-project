@@ -30,7 +30,7 @@ import { asNumber, sqmFromSquareFeet } from "../utils/formatters";
 export function useMapProperties() {
   // Load ALL listing data from the backend. We fetch all records and do client-side filtering/pagination.
   const listingsQuery = useQuery<ListingsResponse>({
-    queryKey: ["public-property-search-all"],
+    queryKey: ["/api/listings", "all"],
     queryFn: async () =>
       apiGet<ListingsResponse>("api/listings?page=1&pageSize=all"),
     staleTime: 5 * 60 * 1000, // 5 minutes

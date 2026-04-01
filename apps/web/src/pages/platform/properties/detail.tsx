@@ -28,8 +28,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { getPropertyStatusVariant } from "@/lib/status-variants";
+import { formatAdminDate } from "@/lib/formatters";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import PageHeader from "@/components/ui/page-header";
+import { apiGet } from "@/lib/apiClient";
 import type { Property } from "@shared/types";
 
 export default function PropertyDetail() {
@@ -41,11 +43,7 @@ export default function PropertyDetail() {
 
   const { data: property, isLoading, error } = useQuery<Property>({
     queryKey: ["/api/listings", id],
-    queryFn: async () => {
-      const response = await fetch(`/api/listings/${id}`);
-      if (!response.ok) throw new Error('Property not found');
-      return response.json();
-    },
+    queryFn: () => apiGet<Property>(`/api/listings/${id}`),
     enabled: !!id,
   });
 
@@ -93,14 +91,14 @@ export default function PropertyDetail() {
         <PageHeader title="تفاصيل العقار" />
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-4 w-48" />
-        <Skeleton className="h-[400px] w-full rounded-lg" />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <Skeleton className="h-[400px] w-full rounded-2xl" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4">
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
           </div>
-          <Skeleton className="h-48 w-full rounded-lg" />
+          <Skeleton className="h-48 w-full rounded-2xl" />
         </div>
       </div>
     );
@@ -148,7 +146,7 @@ export default function PropertyDetail() {
               </Button>
 
               {/* Share Dropdown Menu */}
-              <div className="absolute top-full start-0 mt-2 bg-card rounded-lg shadow-lg border border-border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-[140px]">
+              <div className="absolute top-full start-0 mt-2 bg-card rounded-2xl shadow-lg border border-border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-[140px]">
                 <div className="p-2 space-y-1">
                   <Button
                     variant="ghost"
@@ -186,7 +184,7 @@ export default function PropertyDetail() {
         <div className="max-w-[1600px] mx-auto">
           <PageHeader title={property.title} subtitle={`${property.address}, ${property.city}`} />
         </div>
-        <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Property Images Carousel */}
@@ -230,7 +228,7 @@ export default function PropertyDetail() {
                     {formatCurrency(property.price)}
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-3 gap-6">
                     {property.bedrooms && (
                       <div className="flex items-center space-x-2 rtl:space-x-reverse text-muted-foreground">
                         <Bed size={20} />
@@ -272,11 +270,11 @@ export default function PropertyDetail() {
 
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">تاريخ الإضافة</span>
-                        <span>{new Date(property.createdAt).toLocaleDateString(locale)}</span>
+                        <span>{formatAdminDate(property.createdAt)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">آخر تحديث</span>
-                        <span>{new Date(property.updatedAt).toLocaleDateString(locale)}</span>
+                        <span>{formatAdminDate(property.updatedAt)}</span>
                       </div>
                     </div>
                   </div>
@@ -315,7 +313,7 @@ export default function PropertyDetail() {
               <CardHeader>
                 <CardTitle className="text-lg">إجراءات سريعة</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 <Button className="w-full ui-transition">
                   جدولة معاينة
                 </Button>
@@ -333,7 +331,7 @@ export default function PropertyDetail() {
               <CardHeader>
                 <CardTitle className="text-lg">إحصائيات العقار</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">المشاهدات</span>
                   <span className="font-medium">-</span>

@@ -1,20 +1,62 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bell, Users, CheckCircle, TrendingUp, ChevronDown } from "lucide-react";
+import { Bell, Users, CheckCircle, TrendingUp, ChevronDown, Save } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { apiGet, apiPut } from "@/lib/apiClient";
+import { useToast } from "@/hooks/use-toast";
 
 export interface PreferencesSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
+interface NotificationPrefs {
+  newLeads: boolean;
+  taskUpdates: boolean;
+  newDeals: boolean;
+}
+
 export default function PreferencesSection({ isOpen, onOpenChange }: PreferencesSectionProps) {
+  const { toast } = useToast();
+  const [prefs, setPrefs] = useState<NotificationPrefs>({ newLeads: true, taskUpdates: true, newDeals: true });
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data: any = await apiGet("/api/auth/preferences");
+        if (data?.preferences) {
+          setPrefs({
+            newLeads: data.preferences.newLeads ?? true,
+            taskUpdates: data.preferences.taskUpdates ?? true,
+            newDeals: data.preferences.newDeals ?? true,
+          });
+        }
+      } catch {
+        // Use defaults on error
+      }
+    })();
+  }, []);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await apiPut("/api/auth/preferences", prefs);
+      toast({ title: "تم الحفظ بنجاح", description: "تم تحديث إعدادات الإشعارات" });
+    } catch {
+      toast({ title: "خطأ", description: "فشل حفظ الإعدادات", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <Collapsible open={isOpen} onOpenChange={onOpenChange}>
       <Card>
-        <CardHeader className="border-b border-white/60 pb-5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <CardHeader className="border-b border-border pb-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <span className="rounded-full bg-primary/10 p-2 text-primary"><Bell size={18} /></span>
             <div className="text-end">
               <CardTitle>إعدادات الإشعارات</CardTitle>
@@ -37,7 +79,7 @@ export default function PreferencesSection({ isOpen, onOpenChange }: Preferences
           <CardContent className="space-y-4 pt-6">
             <Card className="rounded-2xl bg-muted/30 p-4">
               <div className="flex items-center justify-between">
-                <Switch defaultChecked data-testid="toggle-new-leads" />
+                <Switch checked={prefs.newLeads} onCheckedChange={(v) => setPrefs((p) => ({ ...p, newLeads: v }))} data-testid="toggle-new-leads" />
                 <div className="flex-1 pe-4 ps-4">
                   <div className="font-medium text-foreground mb-1">عملاء محتملين جدد</div>
                   <div className="text-sm text-muted-foreground">إشعار عند إضافة عملاء محتملين جدد</div>
@@ -49,7 +91,7 @@ export default function PreferencesSection({ isOpen, onOpenChange }: Preferences
             </Card>
             <Card className="rounded-2xl bg-muted/30 p-4">
               <div className="flex items-center justify-between">
-                <Switch defaultChecked data-testid="toggle-task-updates" />
+                <Switch checked={prefs.taskUpdates} onCheckedChange={(v) => setPrefs((p) => ({ ...p, taskUpdates: v }))} data-testid="toggle-task-updates" />
                 <div className="flex-1 pe-4 ps-4">
                   <div className="font-medium text-foreground mb-1">تحديثات المهام</div>
                   <div className="text-sm text-muted-foreground">إشعار عند اكتمال أو تحديث المهام</div>
@@ -61,16 +103,22 @@ export default function PreferencesSection({ isOpen, onOpenChange }: Preferences
             </Card>
             <Card className="rounded-2xl bg-muted/30 p-4">
               <div className="flex items-center justify-between">
-                <Switch defaultChecked data-testid="toggle-new-deals" />
+                <Switch checked={prefs.newDeals} onCheckedChange={(v) => setPrefs((p) => ({ ...p, newDeals: v }))} data-testid="toggle-new-deals" />
                 <div className="flex-1 pe-4 ps-4">
                   <div className="font-medium text-foreground mb-1">صفقات جديدة</div>
                   <div className="text-sm text-muted-foreground">إشعار عند إنشاء صفقات جديدة</div>
                 </div>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100 text-orange-600">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
                   <TrendingUp size={18} />
                 </div>
               </div>
             </Card>
+            <div className="flex justify-start pt-2">
+              <Button onClick={handleSave} disabled={isSaving} className="flex items-center gap-2">
+                <Save size={16} />
+                {isSaving ? "جاري الحفظ..." : "حفظ إعدادات الإشعارات"}
+              </Button>
+            </div>
           </CardContent>
         </CollapsibleContent>
       </Card>

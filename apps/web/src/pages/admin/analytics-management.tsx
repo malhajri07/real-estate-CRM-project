@@ -35,6 +35,8 @@ import {
     Cell
 } from "recharts";
 import { cn } from "@/lib/utils";
+import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
+import { CHART_COLORS } from "@/config/design-tokens";
 
 // --- Sub-components ---
 
@@ -83,8 +85,8 @@ export default function AnalyticsManagement() {
     const pageViews = analyticsData?.pageViews || [];
 
     return (
-        <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-2xl p-8 shadow-none group relative overflow-hidden">
+        <div className={PAGE_WRAPPER}>
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 group relative overflow-hidden">
                 <div className="absolute top-0 end-0 w-[40%] h-[40%] bg-primary/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                     <div className="flex items-center gap-6">
@@ -92,7 +94,7 @@ export default function AnalyticsManagement() {
                             <BarChart3 className="h-8 w-8" />
                         </div>
                         <div className="text-center md:text-end">
-                            <h1 className="text-3xl font-bold text-foreground tracking-tight">تحليلات المنصة</h1>
+                            <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">تحليلات المنصة</h1>
                             <p className="text-muted-foreground font-medium text-lg">مراقبة أداء النظام وتفاعل المستخدمين في الوقت الفعلي</p>
                         </div>
                     </div>
@@ -121,10 +123,10 @@ export default function AnalyticsManagement() {
                 </div>
             </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className={GRID_METRICS}>
                 {isLoading ? (
                     Array.from({ length: 4 }).map((_, i) => (
-                        <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none">
+                        <Card key={i} className="rounded-2xl border border-border bg-card shadow-sm p-6">
                             <Skeleton className="h-20 w-full" />
                         </Card>
                     ))
@@ -135,7 +137,7 @@ export default function AnalyticsManagement() {
                         { title: "معدل التحويل", value: metrics?.conversionRate || "0%", change: "+0%", icon: Zap, color: "text-muted-foreground", bg: "bg-muted/50" },
                         { title: "وقت الجلسة", value: metrics?.avgSessionTime || "0 د", change: "+0%", icon: Clock, color: "text-muted-foreground", bg: "bg-muted/50" },
                     ].map((metric, i) => (
-                        <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none flex flex-col justify-between hover:bg-card hover:shadow-2xl transition-all duration-300">
+                        <Card key={i} className="rounded-2xl border border-border bg-card shadow-sm p-6 flex flex-col justify-between hover:bg-card hover:shadow-md transition-all duration-300">
                             <div className="flex items-center justify-between mb-4">
                                 <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", metric.bg, metric.color)}>
                                     <metric.icon className="h-6 w-6" />
@@ -156,8 +158,8 @@ export default function AnalyticsManagement() {
                 )}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <Card className="glass border-0 rounded-3xl p-8 shadow-none lg:col-span-2">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 lg:col-span-2">
                     <div className="mb-8 flex items-center justify-between">
                         <div>
                             <h3 className="text-xl font-bold text-foreground tracking-tight">نظرة عامة على النشاط</h3>
@@ -182,27 +184,27 @@ export default function AnalyticsManagement() {
                                 <AreaChart data={visitorData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                        <stop offset="5%" stopColor={CHART_COLORS.blue} stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor={CHART_COLORS.blue} stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                        <stop offset="5%" stopColor={CHART_COLORS.green} stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor={CHART_COLORS.green} stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
                                 <Tooltip content={<CustomTooltip />} />
-                                <Area type="monotone" dataKey="visits" name="الزيارات" stroke="#3b82f6" strokeWidth={4} fillOpacity={1} fill="url(#colorVisits)" />
-                                <Area type="monotone" dataKey="users" name="المستخدمين" stroke="#10b981" strokeWidth={4} fillOpacity={1} fill="url(#colorUsers)" />
+                                <Area type="monotone" dataKey="visits" name="الزيارات" stroke={CHART_COLORS.blue} strokeWidth={4} fillOpacity={1} fill="url(#colorVisits)" />
+                                <Area type="monotone" dataKey="users" name="المستخدمين" stroke={CHART_COLORS.green} strokeWidth={4} fillOpacity={1} fill="url(#colorUsers)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         )}
                     </div>
                 </Card>
 
-                <Card className="glass border-0 rounded-3xl p-8 shadow-none">
+                <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
                     <div className="mb-8">
                         <h3 className="text-xl font-bold text-foreground tracking-tight">توزيع الأجهزة</h3>
                         <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest mt-1">نسبة استخدام المنصة حسب الجهاز</p>
@@ -237,7 +239,7 @@ export default function AnalyticsManagement() {
                             </div>
                         )}
                     </div>
-                    <div className="space-y-3 mt-6">
+                    <div className="space-y-4 mt-6">
                         {deviceData.map((device, i) => (
                             <div key={i} className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border border-border">
                                 <div className="flex items-center gap-3">
@@ -251,7 +253,7 @@ export default function AnalyticsManagement() {
                 </Card>
             </div>
 
-            <Card className="glass border-0 rounded-3xl p-8 shadow-none">
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
                 <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h3 className="text-xl font-bold text-foreground tracking-tight">الصفحات الأكثر زيارة</h3>
@@ -289,7 +291,7 @@ export default function AnalyticsManagement() {
                                 </TableRow>
                             ) : (
                                 pageViews.map((page, i) => (
-                                <TableRow key={i} className="hover:bg-primary/5 transition-colors group border-slate-50">
+                                <TableRow key={i} className="hover:bg-primary/5 transition-colors group border-border">
                                     <TableCell className="py-4"><span className="text-sm font-bold text-foreground/80">{page.page}</span></TableCell>
                                     <TableCell className="py-4"><span className="text-sm font-bold text-foreground">{page.views}</span></TableCell>
                                     <TableCell className="py-4">

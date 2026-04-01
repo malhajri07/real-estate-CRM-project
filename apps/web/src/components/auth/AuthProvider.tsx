@@ -17,7 +17,7 @@
 
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { UserRole, ROLE_PERMISSIONS, normalizeRoleKeys } from '@shared/rbac';
 import { logger } from '@/lib/logger';
@@ -447,7 +447,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={value}>
       {children}
-      <Dialog
+      <Sheet
         open={showSessionWarning || sessionExpired}
         onOpenChange={(open) => {
           if (!open) {
@@ -456,16 +456,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }}
       >
-        <DialogContent className="sm:max-w-md text-end" dir="rtl">
-          <DialogHeader>
-            <DialogTitle className="text-end">{sessionExpired ? 'تم إنهاء الجلسة بسبب عدم النشاط' : 'انتهاء الجلسة قريباً'}</DialogTitle>
-            <DialogDescription className="text-end">
+        <SheetContent side="bottom" className="overflow-y-auto text-end" dir="rtl">
+          <SheetHeader>
+            <SheetTitle className="text-end">{sessionExpired ? 'تم إنهاء الجلسة بسبب عدم النشاط' : 'انتهاء الجلسة قريباً'}</SheetTitle>
+            <SheetDescription className="text-end">
               {sessionExpired
                 ? 'لقد تم إنهاء جلستك تلقائياً بسبب عدم النشاط. الرجاء تسجيل الدخول مرة أخرى لمتابعة العمل.'
                 : 'بسبب عدم النشاط سيتم إغلاق الجلسة قريباً. يرجى الضغط على "متابعة" للحفاظ على تسجيل الدخول.'}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex flex-row-reverse items-center gap-2 justify-start">
+            </SheetDescription>
+          </SheetHeader>
+          <SheetFooter className="flex flex-row-reverse items-center gap-2 justify-start">
             {sessionExpired ? (
               <Button
                 onClick={() => {
@@ -521,9 +521,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 </Button>
               </>
             )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </AuthContext.Provider>
   );
 }

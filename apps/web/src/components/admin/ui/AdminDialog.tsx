@@ -1,60 +1,43 @@
 import * as React from "react";
-import { Dialog, DialogPortal, DialogOverlay, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DialogClose, DialogTrigger } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription, SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
 
 /**
- * AdminDialog - RTL-aware wrapper for Shadcn Dialog
- * Enforces correct close button positioning and overlay behavior.
+ * AdminDialog - Now implemented as a bottom drawer (Sheet side="bottom")
+ * for a unified mobile-first UX. Drop-in replacement for the old centered Dialog.
  */
 
-const AdminDialog = Dialog;
-const AdminDialogTrigger = DialogTrigger;
-const AdminDialogPortal = DialogPortal;
-const AdminDialogClose = DialogClose;
+const AdminDialog = Sheet;
+const AdminDialogTrigger = ({ children, ...props }: React.ComponentPropsWithoutRef<"button">) => (
+  <button {...props}>{children}</button>
+);
+const AdminDialogClose = SheetClose;
 
 const AdminDialogContent = React.forwardRef<
-    React.ElementRef<typeof DialogContent>,
-    React.ComponentPropsWithoutRef<typeof DialogContent>
+    HTMLDivElement,
+    React.ComponentPropsWithoutRef<typeof SheetContent>
 >(({ className, children, ...props }, ref) => (
-    <DialogContent
+    <SheetContent
         ref={ref}
+        side="bottom"
         className={cn(
-            "sm:max-w-lg",
-            // Remove default absolute close button style if needed, or override it to start/end logic
-            // Assuming standard shadcn uses absolute right-4 top-4.
-            // In RTL, we want left-4 top-4 (which is end-4).
-            // CSS logical properties: inset-inline-end-4
-            "[&>button]:right-auto [&>button]:end-4",
-            "[&>button]:right-auto [&>button]:end-4",
-            "data-[state=open]:duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95", // Smooth entry/exit
-            "bg-white/85 backdrop-blur-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.12)] ring-1 ring-white/40", // Aurora Deluxe
+            "max-h-[85vh] rounded-t-2xl overflow-y-auto",
+            "bg-card border-t border-border shadow-lg",
             className
         )}
         {...props}
     >
         {children}
-    </DialogContent>
+    </SheetContent>
 ));
 AdminDialogContent.displayName = "AdminDialogContent";
-
-export {
-    AdminDialog,
-    AdminDialogTrigger,
-    AdminDialogContent,
-    AdminDialogHeader,
-    AdminDialogFooter,
-    AdminDialogTitle,
-    AdminDialogDescription,
-    AdminDialogClose
-};
 
 const AdminDialogHeader = ({
     className,
     ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-    <DialogHeader
-        className={cn("flex flex-col space-y-1.5 text-center sm:text-start", className)}
+    <SheetHeader
+        className={cn("text-start", className)}
         {...props}
     />
 );
@@ -64,9 +47,9 @@ const AdminDialogFooter = ({
     className,
     ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-    <DialogFooter
+    <SheetFooter
         className={cn(
-            "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 sm:space-x-reverse", // Logical spacing
+            "flex flex-col-reverse sm:flex-row sm:justify-end gap-2",
             className
         )}
         {...props}
@@ -74,5 +57,16 @@ const AdminDialogFooter = ({
 );
 AdminDialogFooter.displayName = "AdminDialogFooter";
 
-const AdminDialogTitle = DialogTitle;
-const AdminDialogDescription = DialogDescription;
+const AdminDialogTitle = SheetTitle;
+const AdminDialogDescription = SheetDescription;
+
+export {
+    AdminDialog,
+    AdminDialogTrigger,
+    AdminDialogContent,
+    AdminDialogHeader,
+    AdminDialogFooter,
+    AdminDialogTitle,
+    AdminDialogDescription,
+    AdminDialogClose,
+};

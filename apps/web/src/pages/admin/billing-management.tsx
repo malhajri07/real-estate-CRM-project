@@ -29,6 +29,9 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { formatAdminDate } from "@/lib/formatters";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { STATUS_COLORS } from "@/config/design-tokens";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 
@@ -67,11 +70,11 @@ type BillingStats = {
 
 function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading: boolean }) {
     return (
-        <Card className="glass border-0 rounded-3xl overflow-hidden shadow-none">
-            <div className="p-8 border-b border-border flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
+        <Card className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-border flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40">
                 <div className="relative w-full md:w-96 group">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
-                    <Input placeholder="البحث عن فاتورة أو عميل..." className="h-12 pr-11 rounded-2xl bg-card border-border focus:ring-blue-500/20" />
+                    <Search className="absolute end-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
+                    <Input placeholder="البحث عن فاتورة أو عميل..." className="h-12 pe-11 rounded-2xl bg-card border-border focus:ring-primary/20" />
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
                     <Button variant="outline" className="h-12 px-6 rounded-2xl border-border font-bold text-muted-foreground">
@@ -123,16 +126,16 @@ function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading:
                             const amount = Number(inv.amountPaid || inv.amountDue || 0);
                             const formattedAmount = amount.toLocaleString('en-US');
                             const statusMap: Record<string, { label: string; className: string }> = {
-                                'PAID': { label: 'مدفوعة', className: 'bg-primary/10 text-primary' },
-                                'PENDING': { label: 'معلقة', className: 'bg-amber-50 text-amber-700' },
-                                'OVERDUE': { label: 'متأخرة', className: 'bg-rose-50 text-rose-700' },
-                                'DRAFT': { label: 'مسودة', className: 'bg-muted/30 text-foreground/80' }
+                                'PAID': { label: 'مدفوعة', className: `${STATUS_COLORS.success.bg} ${STATUS_COLORS.success.text}` },
+                                'PENDING': { label: 'معلقة', className: `${STATUS_COLORS.pending.bg} ${STATUS_COLORS.pending.text}` },
+                                'OVERDUE': { label: 'متأخرة', className: `${STATUS_COLORS.error.bg} ${STATUS_COLORS.error.text}` },
+                                'DRAFT': { label: 'مسودة', className: `${STATUS_COLORS.inactive.bg} ${STATUS_COLORS.inactive.text}` }
                             };
                             const statusInfo = statusMap[inv.status] || { label: inv.status, className: 'bg-muted/30 text-foreground/80' };
-                            const issueDate = new Date(inv.issueDate).toLocaleDateString('ar-SA');
+                            const issueDate = formatAdminDate(inv.issueDate);
 
                             return (
-                                <TableRow key={inv.id} className="hover:bg-primary/5 transition-colors group border-slate-50">
+                                <TableRow key={inv.id} className="hover:bg-primary/5 transition-colors group border-border">
                                     <TableCell className="py-4"><span className="text-sm font-bold text-foreground">{inv.number}</span></TableCell>
                                     <TableCell className="py-4">
                                         <div className="flex flex-col">
@@ -188,8 +191,8 @@ export default function BillingManagement() {
     const stats = statsData?.stats;
 
     return (
-        <div className="space-y-8 animate-in-start" dir="rtl">
-            <Card className="glass border-0 rounded-2xl p-8 shadow-none group relative overflow-hidden">
+        <div className={PAGE_WRAPPER}>
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 group relative overflow-hidden">
                 <div className="absolute top-0 end-0 w-[30%] h-[30%] bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
                     <div className="flex items-center gap-6">
@@ -197,7 +200,7 @@ export default function BillingManagement() {
                             <CreditCard className="h-8 w-8" />
                         </div>
                         <div className="text-center md:text-end">
-                            <h1 className="text-3xl font-bold text-foreground tracking-tight">إدارة الفواتير والاشتراكات</h1>
+                            <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">إدارة الفواتير والاشتراكات</h1>
                             <p className="text-muted-foreground font-medium text-lg">متابعة العمليات المالية وإصدار الفواتير للعملاء</p>
                         </div>
                     </div>
@@ -207,7 +210,7 @@ export default function BillingManagement() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {statsLoading ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                        <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none">
+                        <Card key={i} className="rounded-2xl border border-border bg-card shadow-sm p-6">
                             <Skeleton className="h-20 w-full" />
                         </Card>
                     ))
@@ -235,7 +238,7 @@ export default function BillingManagement() {
                             bg: "bg-muted/50" 
                         },
                     ].map((stat, i) => (
-                        <Card key={i} className="glass border-0 rounded-2xl p-6 shadow-none hover:bg-card hover:shadow-xl transition-all">
+                        <Card key={i} className="rounded-2xl border border-border bg-card shadow-sm p-6 hover:shadow-md transition-all">
                             <div className="flex items-center gap-4">
                                 <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", stat.bg, stat.color)}>
                                     <stat.icon className="h-6 w-6" />
@@ -250,7 +253,7 @@ export default function BillingManagement() {
                 )}
             </div>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-8">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
                 <TabsList className="bg-muted/50 p-1 rounded-2xl border-0 h-14">
                     <TabsTrigger value="invoices" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">الفواتير</TabsTrigger>
                     <TabsTrigger value="subscriptions" className="rounded-xl px-8 h-12 data-[state=active]:bg-card data-[state=active]:shadow-lg data-[state=active]:text-primary font-bold transition-all">الاشتراكات</TabsTrigger>
@@ -262,7 +265,7 @@ export default function BillingManagement() {
                 </TabsContent>
 
                 <TabsContent value="subscriptions" className="space-y-4">
-                    <Card className="glass border-0 rounded-3xl p-20 text-center bg-muted/30 border-2 border-dashed border-border/50 flex flex-col items-center">
+                    <Card className="rounded-2xl p-20 text-center bg-muted/30 border-2 border-dashed border-border flex flex-col items-center">
                         <div className="h-20 w-20 bg-card rounded-2xl shadow-xl shadow-slate-500/10 flex items-center justify-center text-muted-foreground/70 mb-6 group-hover:scale-110 transition-transform">
                             <FileText className="h-10 w-10 text-primary opacity-20" />
                         </div>
@@ -274,7 +277,7 @@ export default function BillingManagement() {
                 </TabsContent>
 
                 <TabsContent value="settings" className="space-y-4">
-                    <Card className="glass border-0 rounded-3xl p-10 shadow-none">
+                    <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-6">
                                 <h3 className="text-lg font-bold text-foreground tracking-tight">إعدادات الفاتورة</h3>

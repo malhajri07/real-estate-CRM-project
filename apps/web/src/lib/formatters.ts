@@ -30,14 +30,15 @@ const DEFAULT_DATETIME_OPTIONS: Intl.DateTimeFormatOptions = {
   minute: "2-digit",
 };
 
-const safeDate = (value?: string | null): Date | null => {
+const safeDate = (value?: string | Date | null): Date | null => {
   if (!value) return null;
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 };
 
 export const formatAdminDate = (
-  value?: string | null,
+  value?: string | Date | null,
   options: Intl.DateTimeFormatOptions = DEFAULT_DATE_OPTIONS,
 ): string => {
   const date = safeDate(value);

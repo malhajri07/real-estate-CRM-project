@@ -51,7 +51,7 @@ export default function PropertiesFilters({
     <Card>
       <CardContent className="pt-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold tracking-tight">فلاتر البحث</h3>
+          <h3 className="text-xl font-bold text-foreground">فلاتر البحث</h3>
           <Button variant="ghost" size="sm" onClick={onResetFilters}>
             إعادة تعيين
           </Button>

@@ -50,6 +50,18 @@ const needsModerationReview = (property: any): boolean => {
   return false;
 };
 
+// GET /api/moderation — alias for /queue (default root)
+router.get("/", async (_req, res) => {
+  try {
+    const all = await storage.getAllProperties();
+    const pending = all.filter(needsModerationReview);
+    res.json(pending);
+  } catch (err) {
+    console.error("Error fetching moderation queue:", err);
+    res.status(500).json({ message: "Failed to fetch moderation queue" });
+  }
+});
+
 // Simple moderation queue: listings awaiting moderation
 router.get("/queue", async (_req, res) => {
   try {

@@ -35,19 +35,19 @@ import EmptyState from "@/components/ui/empty-state";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { PAGE_WRAPPER, TYPOGRAPHY } from "@/config/platform-theme";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiGet, apiPost } from "@/lib/apiClient";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -230,194 +230,182 @@ export default function ForumPage() {
 
   return (
     <div className={PAGE_WRAPPER} dir={dir}>
-      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <PageHeader title={t("forum.title") || t("nav.forum") || "المنتدى العقاري"} />
 
-        <motion.div
-          initial={{ opacity: 0, x: dir === "rtl" ? -20 : 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="flex gap-2"
-        >
-          <Dialog open={isChannelOpen} onOpenChange={setIsChannelOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <Plus className="h-4 w-4" />
-                <span>{t("forum.create_channel")}</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent dir={dir} className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>{t("forum.create_channel")}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label>{t("forum.channel_name_ar")}</Label>
-                  <Input
-                    value={newChannelNameAr}
-                    onChange={(e) => setNewChannelNameAr(e.target.value)}
-                    placeholder="مثال: أخبار السوق"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("forum.channel_name_en")}</Label>
-                  <Input
-                    value={newChannelNameEn}
-                    onChange={(e) => setNewChannelNameEn(e.target.value)}
-                    placeholder="e.g. Market News"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("forum.channel_description")}</Label>
-                  <Textarea
-                    value={newChannelDescription}
-                    onChange={(e) => setNewChannelDescription(e.target.value)}
-                    placeholder={t("forum.channel_description")}
-                    rows={2}
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsChannelOpen(false)}>
-                  {t("forum.cancel")}
-                </Button>
-                <Button
-                  onClick={() => createChannelMutation.mutate()}
-                  disabled={
-                    createChannelMutation.isPending || !newChannelNameAr.trim()
-                  }
-                >
-                  {createChannelMutation.isPending ? "..." : t("forum.create_channel")}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => setIsChannelOpen(true)}>
+            <Plus className="h-4 w-4" />
+            <span>{t("forum.create_channel")}</span>
+          </Button>
+          <Button className="gap-2" onClick={() => setIsCreateOpen(true)}>
+            <PenLine className="h-4 w-4" />
+            <span>{t("forum.create_post")}</span>
+          </Button>
+        </div>
 
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2">
-                <PenLine className="h-4 w-4" />
-                <span>{t("forum.create_post")}</span>
+        {/* ── Bottom Drawer: Create Channel ── */}
+        <Sheet open={isChannelOpen} onOpenChange={setIsChannelOpen}>
+          <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl" dir={dir}>
+            <SheetHeader>
+              <SheetTitle>{t("forum.create_channel")}</SheetTitle>
+              <SheetDescription>{t("forum.channel_description") || "إنشاء قناة جديدة في المنتدى"}</SheetDescription>
+            </SheetHeader>
+            <div className="space-y-4 py-4 max-w-lg mx-auto">
+              <div className="space-y-2">
+                <Label>{t("forum.channel_name_ar")}</Label>
+                <Input
+                  value={newChannelNameAr}
+                  onChange={(e) => setNewChannelNameAr(e.target.value)}
+                  placeholder="مثال: أخبار السوق"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t("forum.channel_name_en")}</Label>
+                <Input
+                  value={newChannelNameEn}
+                  onChange={(e) => setNewChannelNameEn(e.target.value)}
+                  placeholder="مثال: Market News"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t("forum.channel_description")}</Label>
+                <Textarea
+                  value={newChannelDescription}
+                  onChange={(e) => setNewChannelDescription(e.target.value)}
+                  placeholder={t("forum.channel_description")}
+                  rows={2}
+                />
+              </div>
+            </div>
+            <SheetFooter className="max-w-lg mx-auto">
+              <Button variant="outline" onClick={() => setIsChannelOpen(false)}>
+                {t("forum.cancel")}
               </Button>
-            </DialogTrigger>
-            <DialogContent dir={dir} className="max-w-lg">
-              <DialogHeader>
-                <DialogTitle>{t("forum.start_discussion")}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
+              <Button
+                onClick={() => createChannelMutation.mutate()}
+                disabled={createChannelMutation.isPending || !newChannelNameAr.trim()}
+              >
+                {createChannelMutation.isPending ? "..." : t("forum.create_channel")}
+              </Button>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+
+        {/* ── Bottom Drawer: Create Post ── */}
+        <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto rounded-t-2xl" dir={dir}>
+            <SheetHeader>
+              <SheetTitle>{t("forum.start_discussion")}</SheetTitle>
+              <SheetDescription>{t("forum.placeholder") || "ابدأ نقاشاً جديداً"}</SheetDescription>
+            </SheetHeader>
+            <div className="space-y-4 py-4 max-w-lg mx-auto">
+              <div className="space-y-2">
+                <Label>{t("forum.post_type.discussion")}</Label>
+                <Select value={newPostType} onValueChange={setNewPostType}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {POST_TYPES.map((pt) => (
+                      <SelectItem key={pt.value} value={pt.value}>
+                        {t(pt.key)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {channels.length > 0 && (
                 <div className="space-y-2">
-                  <Label>{t("forum.post_type.discussion")}</Label>
+                  <Label>{t("forum.channels")}</Label>
                   <Select
-                    value={newPostType}
-                    onValueChange={setNewPostType}
+                    value={newPostChannelId || "none"}
+                    onValueChange={(v) => setNewPostChannelId(v === "none" ? "" : v)}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder={t("forum.all_channels")} />
                     </SelectTrigger>
                     <SelectContent>
-                      {POST_TYPES.map((pt) => (
-                        <SelectItem key={pt.value} value={pt.value}>
-                          {t(pt.key)}
+                      <SelectItem value="none">{t("forum.all_channels")}</SelectItem>
+                      {channels.map((ch) => (
+                        <SelectItem key={ch.id} value={ch.id}>
+                          {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                {channels.length > 0 && (
-                  <div className="space-y-2">
-                    <Label>{t("forum.channels")}</Label>
-                    <Select
-                      value={newPostChannelId || "none"}
-                      onValueChange={(v) => setNewPostChannelId(v === "none" ? "" : v)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("forum.all_channels")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">{t("forum.all_channels")}</SelectItem>
-                        {channels.map((ch) => (
-                          <SelectItem key={ch.id} value={ch.id}>
-                            {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              )}
+              <div className="space-y-2">
+                <Label>{t("forum.placeholder")}</Label>
+                <Textarea
+                  placeholder={t("forum.placeholder")}
+                  className="min-h-[120px] resize-none"
+                  value={newPostContent}
+                  onChange={(e) => setNewPostContent(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{t("forum.media_url_placeholder")}</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://..."
+                    value={newMediaUrl}
+                    onChange={(e) => setNewMediaUrl(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addMedia())}
+                  />
+                  <Button type="button" variant="outline" size="icon" onClick={addMedia}>
+                    <ImageIcon className="h-4 w-4" />
+                  </Button>
+                </div>
+                {mediaUrls.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {mediaUrls.map((m, i) => (
+                      <div
+                        key={i}
+                        className="relative inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs"
+                      >
+                        {m.type === "IMAGE" ? (
+                          <ImageIcon className="h-3 w-3" />
+                        ) : (
+                          <Video className="h-3 w-3" />
+                        )}
+                        <span className="max-w-[120px] truncate">{m.url}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeMedia(i)}
+                          className="rounded p-0.5 hover:bg-muted"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
-                <div className="space-y-2">
-                  <Label>{t("forum.placeholder")}</Label>
-                  <Textarea
-                    placeholder={t("forum.placeholder")}
-                    className="min-h-[120px] resize-none"
-                    value={newPostContent}
-                    onChange={(e) => setNewPostContent(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t("forum.media_url_placeholder")}</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="https://..."
-                      value={newMediaUrl}
-                      onChange={(e) => setNewMediaUrl(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addMedia())}
-                    />
-                    <Button type="button" variant="outline" size="icon" onClick={addMedia}>
-                      <ImageIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  {mediaUrls.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {mediaUrls.map((m, i) => (
-                        <div
-                          key={i}
-                          className="relative inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs"
-                        >
-                          {m.type === "IMAGE" ? (
-                            <ImageIcon className="h-3 w-3" />
-                          ) : (
-                            <Video className="h-3 w-3" />
-                          )}
-                          <span className="max-w-[120px] truncate">{m.url}</span>
-                          <button
-                            type="button"
-                            onClick={() => removeMedia(i)}
-                            className="rounded p-0.5 hover:bg-muted"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
-                  {t("forum.cancel")}
-                </Button>
-                <Button
-                  onClick={() => createPostMutation.mutate()}
-                  disabled={
-                    createPostMutation.isPending || !newPostContent.trim()
-                  }
-                >
-                  {createPostMutation.isPending
-                    ? t("forum.posting")
-                    : t("forum.post")}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </motion.div>
+            </div>
+            <SheetFooter className="max-w-lg mx-auto">
+              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+                {t("forum.cancel")}
+              </Button>
+              <Button
+                onClick={() => createPostMutation.mutate()}
+                disabled={createPostMutation.isPending || !newPostContent.trim()}
+              >
+                {createPostMutation.isPending ? t("forum.posting") : t("forum.post")}
+              </Button>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-4">
+      <div className="grid gap-6 lg:grid-cols-4">
         {/* Channel Sidebar */}
         <div className="hidden space-y-6 lg:block lg:col-span-1">
           <Card>
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">{t("forum.channels")}</h3>
-              <ul className="space-y-3">
+              <h3 className={`${TYPOGRAPHY.sectionTitle} mb-4`}>{t("forum.channels")}</h3>
+              <ul className="space-y-4">
                 <li
                   className={cn(
                     "flex items-center justify-between rounded-xl p-2 text-sm cursor-pointer transition-colors",
@@ -469,7 +457,7 @@ export default function ForumPage() {
           {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-40 w-full rounded-lg" />
+                <Skeleton key={i} className="h-40 w-full rounded-2xl" />
               ))}
             </div>
           ) : posts.length === 0 ? (
@@ -545,7 +533,7 @@ export default function ForumPage() {
                               >
                                 <img
                                   src={m.url}
-                                  alt={`Forum post image`}
+                                  alt="صورة المنشور"
                                   className="w-full h-full object-cover"
                                   loading="lazy"
                                 />
@@ -564,14 +552,14 @@ export default function ForumPage() {
                                     {ytEmbed ? (
                                       <iframe
                                         src={ytEmbed}
-                                        title="YouTube"
+                                        title="فيديو يوتيوب"
                                         className="w-full h-full"
                                         allowFullScreen
                                       />
                                     ) : vimeoEmbed ? (
                                       <iframe
                                         src={vimeoEmbed}
-                                        title="Vimeo"
+                                        title="فيديو فيميو"
                                         className="w-full h-full"
                                         allowFullScreen
                                       />
@@ -629,7 +617,7 @@ export default function ForumPage() {
         <div className="hidden lg:block lg:col-span-1">
           <Card className="border-s-4 border-primary/20">
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2">{t("forum.trending_topics")}</h3>
+              <h3 className={`${TYPOGRAPHY.sectionTitle} mb-2`}>{t("forum.trending_topics")}</h3>
               <p className="text-sm text-muted-foreground">
                 {t("forum.no_posts_description")}
               </p>

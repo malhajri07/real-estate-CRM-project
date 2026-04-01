@@ -58,6 +58,9 @@ import {
 } from "@/lib/rbacAdmin";
 import { formatAdminDate, formatAdminDateTime } from "@/lib/formatters";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { ADMIN_BUTTON_PRIMARY, DELETE_BUTTON_STYLES, ACTION_BUTTON_ICON } from "@/config/design-tokens";
+import { GRID_METRICS } from "@/config/platform-theme";
 
 interface UserFormState {
   id?: string;
@@ -362,13 +365,13 @@ export default function UserManagement() {
       className: "w-20 text-center",
       render: (user) => (
         <div className="flex items-center justify-center gap-1">
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-muted/50 hover:text-foreground/80 transition-all" onClick={() => handleOpenEditDialog(user)}>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg hover:bg-muted/50 hover:text-foreground/80 transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" onClick={() => handleOpenEditDialog(user)}>
             <Edit className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-all"
+            className={`${ACTION_BUTTON_ICON} ${DELETE_BUTTON_STYLES} transition-all focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}
             onClick={() => handleOpenDeleteDialog(user)}
           >
             <Trash2 className="h-4 w-4" />
@@ -401,9 +404,9 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="space-y-8 animate-in-start" dir="rtl">
+    <div className={PAGE_WRAPPER}>
       {/* Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className={GRID_METRICS}>
         <MetricCard
           title="إجمالي المستخدمين"
           subtitle="مستخدم مسجل"
@@ -434,15 +437,15 @@ export default function UserManagement() {
         />
       </div>
 
-      <Card className="glass border-0 rounded-2xl p-8 shadow-none mb-6">
+      <Card className="rounded-2xl border border-border bg-card shadow-sm p-6 mb-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">إدارة المستخدمين</h1>
+            <h1 className="text-2xl lg:text-3xl font-black text-foreground tracking-tight">إدارة المستخدمين</h1>
             <p className="text-muted-foreground font-medium">تحكم كامل في صلاحيات وحسابات المستخدمين والمنظمات</p>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
             <AdminExport data={users} filename="users" formats={["csv", "json"]} />
-            <Button className="premium-gradient text-white border-0 shadow-lg shadow-primary/10 h-12 px-6 rounded-2xl font-bold flex-1 md:flex-none" onClick={handleOpenCreateDialog}>
+            <Button className={`${ADMIN_BUTTON_PRIMARY} px-6 flex-1 md:flex-none`} onClick={handleOpenCreateDialog}>
               <UserPlus className="h-5 w-5 me-2" />
               إضافة مستخدم جديد
             </Button>
@@ -451,13 +454,13 @@ export default function UserManagement() {
       </Card>
 
       {/* Filters & Actions Container */}
-      <Card className="glass border-0 rounded-2xl p-6 shadow-none">
+      <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
         <div className="flex flex-col lg:flex-row items-end gap-6">
           <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="status-filter" className="text-xs font-bold text-muted-foreground uppercase tracking-widest ps-1">الحالة</Label>
               <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
-                <SelectTrigger id="status-filter" className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-blue-500/20">
+                <SelectTrigger id="status-filter" className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-primary/20">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-border shadow-2xl">
@@ -474,7 +477,7 @@ export default function UserManagement() {
             <div className="space-y-2">
               <Label htmlFor="role-filter" className="text-xs font-bold text-muted-foreground uppercase tracking-widest ps-1">الدور الوظيفي</Label>
               <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value as "all" | UserRole)}>
-                <SelectTrigger id="role-filter" className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-blue-500/20">
+                <SelectTrigger id="role-filter" className="h-11 bg-card/50 border-border/60 rounded-xl focus:ring-primary/20">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-border shadow-2xl">
@@ -542,7 +545,7 @@ export default function UserManagement() {
             </AdminSheetDescription>
           </AdminSheetHeader>
 
-          <div className="space-y-8 py-6">
+          <div className="space-y-6 py-6">
 
             {/* Section: Personal Info */}
             <div className="space-y-4">
@@ -555,12 +558,12 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">الاسم الأول *</Label>
                   <div className="relative group">
-                    <Users className="absolute right-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
+                    <Users className="absolute end-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
                     <Input
                       id="firstName"
                       value={formState.firstName}
                       onChange={(e) => setFormState({ ...formState, firstName: e.target.value })}
-                      className="pr-10 bg-card/50 border-border focus:bg-card focus:border-primary/30 focus:ring-4 focus:ring-primary/10 transition-all h-11 rounded-xl shadow-sm"
+                      className="pe-10 bg-card/50 border-border focus:bg-card focus:border-primary/30 focus:ring-4 focus:ring-primary/10 transition-all h-11 rounded-xl shadow-sm"
                       placeholder="الاسم الأول"
                     />
                   </div>
@@ -568,12 +571,12 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="lastName" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">الاسم الأخير *</Label>
                   <div className="relative group">
-                    <Users className="absolute right-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
+                    <Users className="absolute end-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
                     <Input
                       id="lastName"
                       value={formState.lastName}
                       onChange={(e) => setFormState({ ...formState, lastName: e.target.value })}
-                      className="pr-10 bg-card/50 border-border focus:bg-card focus:border-primary/30 focus:ring-4 focus:ring-primary/10 transition-all h-11 rounded-xl shadow-sm"
+                      className="pe-10 bg-card/50 border-border focus:bg-card focus:border-primary/30 focus:ring-4 focus:ring-primary/10 transition-all h-11 rounded-xl shadow-sm"
                       placeholder="الاسم الأخير"
                     />
                   </div>
@@ -581,7 +584,7 @@ export default function UserManagement() {
               </div>
             </div>
 
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
             {/* Section: Contact & Access */}
             <div className="space-y-4">
@@ -594,13 +597,13 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">البريد الإلكتروني *</Label>
                   <div className="relative group">
-                    <Building2 className="absolute right-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
+                    <Building2 className="absolute end-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
                     <Input
                       id="email"
                       type="email"
                       value={formState.email}
                       onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                      className="pr-10 bg-card/50 border-border focus:bg-card focus:border-primary/20 focus:ring-4 focus:ring-primary/30 transition-all h-11 rounded-xl shadow-sm text-right"
+                      className="pe-10 bg-card/50 border-border focus:bg-card focus:border-primary/20 focus:ring-4 focus:ring-primary/30 transition-all h-11 rounded-xl shadow-sm text-end"
                       placeholder="example@domain.com"
                       dir="ltr"
                     />
@@ -627,12 +630,12 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="username" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">اسم المستخدم *</Label>
                   <div className="relative group">
-                    <Shield className="absolute right-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
+                    <Shield className="absolute end-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
                     <Input
                       id="username"
                       value={formState.username}
                       onChange={(e) => setFormState({ ...formState, username: e.target.value })}
-                      className="pr-10 bg-card/50 border-border focus:bg-card focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10 transition-all h-11 rounded-xl shadow-sm"
+                      className="pe-10 bg-card/50 border-border focus:bg-card focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all h-11 rounded-xl shadow-sm"
                       placeholder="username"
                       dir="ltr"
                     />
@@ -660,13 +663,13 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">كلمة المرور *</Label>
                   <div className="relative group">
-                    <Shield className="absolute right-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
+                    <Shield className="absolute end-3 top-3 h-4 w-4 text-muted-foreground/70 group-focus-within:text-muted-foreground transition-colors" />
                     <Input
                       id="password"
                       type="password"
                       value={formState.password}
                       onChange={(e) => setFormState({ ...formState, password: e.target.value })}
-                      className="pr-10 bg-card/50 border-border focus:bg-card focus:border-red-500/50 focus:ring-4 focus:ring-red-500/10 transition-all h-11 rounded-xl shadow-sm"
+                      className="pe-10 bg-card/50 border-border focus:bg-card focus:border-destructive/50 focus:ring-4 focus:ring-destructive/10 transition-all h-11 rounded-xl shadow-sm"
                     />
                   </div>
                 </div>
@@ -699,7 +702,7 @@ export default function UserManagement() {
             <Button
               onClick={handleSubmit}
               disabled={disableSubmit || isSubmitting}
-              className="bg-primary hover:bg-blue-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-white"
             >
               {isSubmitting && <Spinner size="sm" className="me-2" />}
               {dialogMode === "create" ? "إنشاء" : "حفظ"}

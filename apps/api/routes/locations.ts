@@ -30,6 +30,17 @@ function asCenter(latitude: number | null, longitude: number | null) {
   return { latitude, longitude };
 }
 
+// GET /api/locations — list all regions as default root response
+router.get("/", async (_req, res) => {
+  try {
+    const regions = await storage.getSaudiRegionsBasic();
+    res.json(regions);
+  } catch (error) {
+    console.error("Error fetching locations:", error);
+    res.status(500).json({ message: "Failed to fetch locations" });
+  }
+});
+
 router.get("/regions", async (req, res) => {
   try {
     const includeBoundary = req.query.includeBoundary === "true";

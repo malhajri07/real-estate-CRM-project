@@ -17,6 +17,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { PageSectionHeader } from "@/components/ui/page-section-header";
 import { useState } from "react";
 import { CheckCircle2, XCircle, Eye, Phone, Mail, MapPin, Bed, Bath, Square } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
@@ -37,6 +38,8 @@ import {
 } from "@/components/admin";
 import { apiGet, apiPost } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { DELETE_BUTTON_STYLES } from "@/config/design-tokens";
 import { PhotoCarousel } from "@/components/ui/photo-carousel";
 
 interface UnverifiedListing {
@@ -188,14 +191,12 @@ export default function UnverifiedListingsManagement() {
   };
 
   return (
-    <div className="w-full space-y-6" dir="rtl">
+    <div className={PAGE_WRAPPER}>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">إعلانات غير موثقة</h1>
-            <p className="text-sm text-muted-foreground">مراجعة وقبول أو رفض الإعلانات المقدمة</p>
-          </div>
-          <div className="flex items-center gap-2">
+        <PageSectionHeader
+          title="إعلانات غير موثقة"
+          subtitle="مراجعة وقبول أو رفض الإعلانات المقدمة"
+          actions={
             <Select value={statusFilter || "all"} onValueChange={(v) => setStatusFilter(v === "all" ? "" : v)}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="حالة الطلب" />
@@ -207,15 +208,15 @@ export default function UnverifiedListingsManagement() {
                 <SelectItem value="all">الكل</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-        </div>
+          }
+        />
 
         {isLoading ? (
           <Card>
             <CardContent className="p-6 space-y-4">
               <Skeleton className="h-8 w-1/3" />
               <Skeleton className="h-4 w-1/2" />
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Skeleton className="h-12 w-full" />
                 <Skeleton className="h-12 w-full" />
                 <Skeleton className="h-12 w-full" />
@@ -299,7 +300,7 @@ export default function UnverifiedListingsManagement() {
                                 size="sm"
                                 onClick={() => handleReject(listing)}
                                 disabled={rejectMutation.isPending}
-                                className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                className={`h-8 w-8 p-0 ${DELETE_BUTTON_STYLES}`}
                               >
                                 {rejectMutation.isPending ? (
                                   <Spinner size="sm" />
@@ -331,7 +332,7 @@ export default function UnverifiedListingsManagement() {
           </AdminSheetHeader>
 
           {selectedListing && (
-            <div className="space-y-8 py-6">
+            <div className="space-y-6 py-6">
               {/* Images */}
               {selectedListing.imageGallery && selectedListing.imageGallery.length > 0 && (
                 <div>
@@ -490,12 +491,12 @@ export default function UnverifiedListingsManagement() {
 
               {/* Actions */}
               {selectedListing.status === "Pending" && (
-                <div className="sticky bottom-0 bg-card/95 backdrop-blur-sm border-t p-6 mt-6 -mx-6 mb-[-1.5rem] flex items-center justify-end gap-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <div className="sticky bottom-0 bg-card border-t p-6 mt-6 -mx-6 mb-[-1.5rem] flex items-center justify-end gap-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                   <Button
                     variant="outline"
                     onClick={() => handleReject(selectedListing)}
                     disabled={rejectMutation.isPending}
-                    className="h-11 px-6 rounded-xl text-red-600 border-red-200 hover:bg-red-50"
+                    className={`h-11 px-6 rounded-xl ${DELETE_BUTTON_STYLES} border-destructive/20`}
                   >
                     {rejectMutation.isPending ? (
                       <>

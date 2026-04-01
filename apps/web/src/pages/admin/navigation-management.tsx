@@ -17,6 +17,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { PageSectionHeader } from "@/components/ui/page-section-header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiGet, apiPost, apiPut } from "@/lib/apiClient";
 import {
@@ -57,6 +58,7 @@ import { Plus, Edit, Trash2, GripVertical, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
 
 interface NavigationLink {
   id: string;
@@ -175,17 +177,17 @@ export default function NavigationManagement() {
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">إدارة روابط التنقل</h1>
-          <p className="text-muted-foreground">تخصيص القائمة العلوية وروابط الموقع</p>
-        </div>
-        <Button onClick={handleCreate}>
-          <Plus className="me-2 h-4 w-4" />
-          إضافة رابط جديد
-        </Button>
-      </div>
+    <div className={PAGE_WRAPPER}>
+      <PageSectionHeader
+        title="إدارة روابط التنقل"
+        subtitle="تخصيص القائمة العلوية وروابط الموقع"
+        actions={
+          <Button onClick={handleCreate}>
+            <Plus className="me-2 h-4 w-4" />
+            إضافة رابط جديد
+          </Button>
+        }
+      />
 
       <div className="space-y-6">
         {/* ... (rest of the content remains same) */}
@@ -194,7 +196,7 @@ export default function NavigationManagement() {
             {isLoading ? (
               <div className="text-center py-8">جار التحميل...</div>
             ) : error ? (
-              <div className="text-center py-8 text-red-600">
+              <div className="text-center py-8 text-destructive">
                 حدث خطأ في تحميل روابط التنقل
               </div>
             ) : !links.length ? (
@@ -437,7 +439,7 @@ function NavigationLinkDialog({
             >
               إلغاء
             </Button>
-            <Button type="submit" disabled={isLoading} className="bg-primary hover:bg-blue-700">
+            <Button type="submit" disabled={isLoading} className="bg-primary hover:bg-primary/90">
               {isLoading ? "جاري الحفظ..." : link ? "تحديث" : "إنشاء"}
             </Button>
           </AdminSheetFooter>

@@ -13,7 +13,7 @@
  * - apps/web/src/pages/leads.tsx - Leads page uses this
  */
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
@@ -132,17 +132,17 @@ export default function SendWhatsAppModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md" dir={dir}>
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="overflow-y-auto" dir={dir}>
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-3">
             {getStatusIcon()}
             {t('whatsapp.send_message')}
-          </DialogTitle>
+          </SheetTitle>
           <div className="text-sm text-muted-foreground mt-2">
             {t('whatsapp.to')}: {leadName} ({phoneNumber})
           </div>
-        </DialogHeader>
+        </SheetHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -189,7 +189,7 @@ export default function SendWhatsAppModal({
             </div>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

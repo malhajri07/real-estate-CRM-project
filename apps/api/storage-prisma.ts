@@ -22,7 +22,7 @@
  * the essential functionality needed for the admin dashboard to work.
  */
 
-import { Prisma, PropertyStatus, ListingType, ClaimStatus } from '@prisma/client';
+import { Prisma, PropertyStatus, ListingType, ClaimStatus, DealStage } from '@prisma/client';
 import { prisma, basePrisma } from './prismaClient';
 import { normalizeSaudiPhone } from './utils/phone';
 
@@ -273,6 +273,7 @@ class PrismaStorageSimple {
       const leads = await prisma.leads.findMany({
         include: {
           users: true,
+          customer: true,
           buyer_requests: true,
           seller_submissions: true,
         },
@@ -368,7 +369,7 @@ class PrismaStorageSimple {
     try {
       const lead = await prisma.leads.findUnique({
         where: { id },
-        include: { users: true, buyer_requests: true, seller_submissions: true },
+        include: { users: true, customer: true, buyer_requests: true, seller_submissions: true },
       });
       return lead || undefined;
     } catch (error) {
@@ -387,11 +388,32 @@ class PrismaStorageSimple {
   }
 
   async updateLead(id: string, data: any): Promise<any> {
-    return await prisma.leads.update({ where: { id }, data });
+    return await prisma.leads.update({
+      where: { id },
+      data,
+      include: { users: true, customer: true, buyer_requests: true, seller_submissions: true },
+    });
   }
 
   async deleteLead(id: string): Promise<void> {
     await prisma.leads.delete({ where: { id } });
+  }
+
+  // Customer management methods
+  async findCustomerByEmailOrPhone(email: string | undefined, phone: string | undefined, organizationId: string): Promise<any | null> {
+    if (!email && !phone) return null;
+    const orConditions: any[] = [];
+    if (email) orConditions.push({ email, organizationId });
+    if (phone) orConditions.push({ phone, organizationId });
+    return await prisma.customers.findFirst({ where: { OR: orConditions } });
+  }
+
+  async createCustomer(data: any): Promise<any> {
+    return await prisma.customers.create({ data });
+  }
+
+  async updateCustomer(id: string, data: any): Promise<any> {
+    return await prisma.customers.update({ where: { id }, data });
   }
 
   // Property management methods
@@ -413,11 +435,45 @@ class PrismaStorageSimple {
   }
 
   async createProperty(data: any, userId?: string, tenantId?: string): Promise<any> {
-    const propertyData = {
-      ...data,
-      ...(userId && { userId }),
-      ...(tenantId && { tenantId })
+    // Map form field names to actual DB column names on the `properties` table.
+    // The form sends: propertyType, squareFeet, livingRooms, features[], photoUrls[], lat/lng as strings.
+    // The DB expects: type, areaSqm (Decimal), no livingRooms, features (String/JSON), photos (String/JSON), lat/lng (Decimal).
+    const propertyData: Record<string, any> = {
+      title: data.title || null,
+      description: data.description || null,
+      type: data.propertyType || data.type || null,
+      category: data.propertyCategory || data.category || null,
+      city: data.city || null,
+      district: data.district || null,
+      address: data.address || null,
+      bedrooms: data.bedrooms != null ? Number(data.bedrooms) : null,
+      bathrooms: data.bathrooms != null ? Number(data.bathrooms) : null,
+      areaSqm: data.squareFeet != null && Number(data.squareFeet) > 0
+        ? String(data.squareFeet)
+        : (data.areaSqm != null ? String(data.areaSqm) : null),
+      price: data.price != null ? String(data.price) : null,
+      status: data.status ? (data.status as string).toUpperCase() as any : 'ACTIVE',
+      visibility: data.visibility || null,
+      latitude: data.latitude != null && data.latitude !== '' && data.latitude !== 0
+        ? String(data.latitude) : null,
+      longitude: data.longitude != null && data.longitude !== '' && data.longitude !== 0
+        ? String(data.longitude) : null,
+      features: Array.isArray(data.features) ? JSON.stringify(data.features) : (data.features || null),
+      photos: Array.isArray(data.photoUrls) ? JSON.stringify(data.photoUrls) : (data.photos || null),
+      agentId: data.agentId || null,
+      organizationId: data.organizationId || null,
+      regionId: data.regionId != null ? Number(data.regionId) : null,
+      cityId: data.cityId != null ? Number(data.cityId) : null,
+      districtId: data.districtId != null ? BigInt(data.districtId) : null,
     };
+
+    // Remove null/undefined values so Prisma uses DB defaults instead of failing
+    Object.keys(propertyData).forEach(key => {
+      if (propertyData[key] === null || propertyData[key] === undefined) {
+        delete propertyData[key];
+      }
+    });
+
     return await prisma.properties.create({ data: propertyData });
   }
 
@@ -429,16 +485,25 @@ class PrismaStorageSimple {
     await prisma.properties.delete({ where: { id } });
   }
 
-  // Deal management methods (using claims table)
-  async getAllDeals(): Promise<any[]> {
-    return this.getAllClaims();
+  // Deal management methods (using deals table)
+  async getAllDeals(orgFilter: Record<string, unknown> = {}): Promise<any[]> {
+    try {
+      return await prisma.deals.findMany({
+        where: orgFilter,
+        include: { customer: true, agent: true, property: true, listing: true },
+        orderBy: { createdAt: 'desc' },
+      });
+    } catch (error) {
+      console.error('Error fetching deals:', error);
+      return [];
+    }
   }
 
-  async getDealsByStage(stage: string): Promise<any[]> {
+  async getDealsByStage(stage: string, orgFilter: Record<string, unknown> = {}): Promise<any[]> {
     try {
-      return await prisma.claims.findMany({
-        where: { status: stage as ClaimStatus },
-        include: { users: true, buyer_requests: true },
+      return await prisma.deals.findMany({
+        where: { ...orgFilter, stage: stage as DealStage },
+        include: { customer: true, agent: true, property: true },
       });
     } catch (error) {
       console.error('Error fetching deals by stage:', error);
@@ -447,11 +512,18 @@ class PrismaStorageSimple {
   }
 
   async createDeal(data: any): Promise<any> {
-    return await prisma.claims.create({ data });
+    return await prisma.deals.create({ data });
   }
 
   async updateDeal(id: string, data: any): Promise<any> {
-    return await prisma.claims.update({ where: { id }, data });
+    return await prisma.deals.update({ where: { id }, data });
+  }
+
+  async getDealById(id: string): Promise<any> {
+    return await prisma.deals.findUnique({
+      where: { id },
+      include: { customer: true, agent: true, property: true },
+    });
   }
 
   // Activity management methods (stub implementations)
@@ -594,19 +666,32 @@ class PrismaStorageSimple {
 
   // Message management methods (stub implementations)
   async getAllMessages(): Promise<any[]> {
-    return [];
+    return prisma.contact_logs.findMany({
+      include: { users: { select: { firstName: true, lastName: true } }, leads: true },
+      orderBy: { contactedAt: 'desc' },
+      take: 100,
+    });
   }
 
   async getMessagesByLead(leadId: string): Promise<any[]> {
-    return [];
+    return prisma.contact_logs.findMany({
+      where: { leadId },
+      include: { users: { select: { firstName: true, lastName: true } } },
+      orderBy: { contactedAt: 'desc' },
+    });
   }
 
   async createMessage(data: any, tenantId?: string): Promise<any> {
-    const messageData = {
-      ...data,
-      ...(tenantId && { tenantId })
-    };
-    return { id: 'stub', ...messageData };
+    const channel = (data.channel || 'WHATSAPP').toUpperCase();
+    const validChannels = ['PHONE', 'EMAIL', 'WHATSAPP', 'SMS', 'IN_PERSON'];
+    return prisma.contact_logs.create({
+      data: {
+        leadId: data.leadId,
+        agentId: data.agentId || data.userId || 'unknown',
+        note: data.content || data.message || data.note || '',
+        channel: validChannels.includes(channel) ? channel : 'WHATSAPP',
+      },
+    });
   }
 
   // Notification methods (stub implementation)
