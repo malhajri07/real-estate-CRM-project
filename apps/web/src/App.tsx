@@ -63,7 +63,7 @@ const CMSAdmin = lazy(() => import("@/pages/admin/cms"));
 const Dashboard = lazy(() => import("@/pages/platform/dashboard"));
 const MapPage = lazy(() => import("@/pages/map"));
 const Leads = lazy(() => import("@/pages/platform/leads"));
-const Customers = lazy(() => import("@/pages/platform/customers"));
+// Removed: Customers was duplicate re-export of Leads
 const Properties = lazy(() => import("@/pages/platform/properties"));
 const Pipeline = lazy(() => import("@/pages/platform/pipeline"));
 const Clients = lazy(() => import("@/pages/platform/clients"));
@@ -316,7 +316,7 @@ function Router() {
     allowedRoles?: readonly UserRole[];
     requiredPermission?: string;
   }> = [
-      { path: '/home/platform/customers', component: Customers, aliases: ['/customers'], allowedRoles: PLATFORM_CORE_ROLES },
+      // Removed: /customers was duplicate of /leads
       { path: '/home/platform/properties', component: Properties, aliases: ['/properties'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/leads', component: Leads, aliases: ['/leads'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/pipeline', component: Pipeline, aliases: ['/pipeline'], allowedRoles: PLATFORM_CORE_ROLES },
@@ -389,7 +389,7 @@ function Router() {
     new Set<string>([
       "/dashboard",
       "/leads",
-      "/customers",
+      // "/customers" removed (duplicate of /leads)
       "/properties",
       "/pipeline",
       "/clients",
