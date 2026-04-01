@@ -447,13 +447,87 @@ export default function ForumPage() {
 
         {/* Feed */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="flex items-center p-3 lg:hidden">
-            <Search className={cn("h-5 w-5 text-muted-foreground", dir === "rtl" ? "ms-2" : "me-2")} />
-            <Input
-              type="text"
-              placeholder={t("forum.search_placeholder")}
-              className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0"
-            />
+          {/* ── Twitter-style Compose Box ── */}
+          <Card className="p-4">
+            <div className="flex gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 shrink-0">
+                <User className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 space-y-3">
+                <Textarea
+                  placeholder={t("forum.placeholder") || "ماذا يحدث في السوق العقاري؟"}
+                  className="min-h-[80px] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 text-base p-0"
+                  value={newPostContent}
+                  onChange={(e) => setNewPostContent(e.target.value)}
+                />
+                {/* Media previews */}
+                {mediaUrls.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {mediaUrls.map((m, i) => (
+                      <div key={i} className="relative inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs bg-muted/50">
+                        {m.type === "IMAGE" ? <ImageIcon className="h-3 w-3" /> : <Video className="h-3 w-3" />}
+                        <span className="max-w-[100px] truncate">{m.url}</span>
+                        <button type="button" onClick={() => removeMedia(i)} className="rounded p-0.5 hover:bg-muted"><X className="h-3 w-3" /></button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex items-center justify-between border-t pt-3">
+                  <div className="flex items-center gap-1">
+                    {/* Channel selector */}
+                    <Select value={newPostChannelId || "none"} onValueChange={(v) => setNewPostChannelId(v === "none" ? "" : v)}>
+                      <SelectTrigger className="h-8 w-auto border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-primary hover:bg-primary/5 rounded-full px-3">
+                        <TrendingUp className="h-3.5 w-3.5" />
+                        <SelectValue placeholder={t("forum.all_channels") || "جميع القنوات"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">{t("forum.all_channels") || "جميع القنوات"}</SelectItem>
+                        {channels.map((ch) => (
+                          <SelectItem key={ch.id} value={ch.id}>
+                            {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {/* Post type */}
+                    <Select value={newPostType} onValueChange={setNewPostType}>
+                      <SelectTrigger className="h-8 w-auto border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-muted-foreground hover:bg-muted/50 rounded-full px-3">
+                        <Award className="h-3.5 w-3.5" />
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {POST_TYPES.map((pt) => (
+                          <SelectItem key={pt.value} value={pt.value}>{t(pt.key)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {/* Media button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5"
+                      onClick={() => {
+                        const url = prompt(t("forum.media_url_placeholder") || "أدخل رابط الصورة أو الفيديو");
+                        if (url?.trim()) {
+                          const type = isVideoUrl(url) ? "VIDEO" : "IMAGE";
+                          setMediaUrls((prev) => [...prev, { url: url.trim(), type }]);
+                        }
+                      }}
+                    >
+                      <ImageIcon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="rounded-full px-6 font-bold"
+                    onClick={() => createPostMutation.mutate()}
+                    disabled={createPostMutation.isPending || !newPostContent.trim()}
+                  >
+                    {createPostMutation.isPending ? "..." : (t("forum.post") || "نشر")}
+                  </Button>
+                </div>
+              </div>
+            </div>
           </Card>
 
           {(isLoading || showSkeleton) ? (
