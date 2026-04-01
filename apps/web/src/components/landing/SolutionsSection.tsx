@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { LandingPageContent } from "@/lib/cms";
 import { ComponentType } from "react";
 import { CheckCircle2, Sparkles, Target } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface SolutionsSectionProps {
     content: LandingPageContent;
@@ -70,49 +71,51 @@ export const SolutionsSection = ({ content, iconMap }: SolutionsSectionProps) =>
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.15, duration: 0.6 }}
                                 viewport={{ once: true }}
-                                className="group relative bg-white rounded-3xl p-8 shadow-xl shadow-slate-200/50 border-2 border-border hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+                                className="group relative"
                             >
-                                {/* Gradient Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-50/0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                <Card className="relative rounded-3xl border-2 border-border shadow-xl shadow-slate-200/50 hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl bg-white">
+                                    {/* Gradient Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-50/0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                                <div className="relative z-10">
-                                    {/* Icon */}
-                                    <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-6 text-muted-foreground group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
-                                        <Icon className="w-8 h-8" />
-                                    </div>
+                                    <CardContent className="relative z-10 p-8">
+                                        {/* Icon */}
+                                        <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-6 text-muted-foreground group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
+                                            <Icon className="w-8 h-8" />
+                                        </div>
 
-                                    {/* Title */}
-                                    <h3 className="text-2xl font-black text-foreground mb-4 group-hover:text-foreground/80 transition-colors duration-300">
-                                        {solution.title}
-                                    </h3>
-                                    
-                                    {/* Description */}
-                                    <p className="text-muted-foreground mb-8 leading-relaxed" style={{ lineHeight: '1.8' }}>
-                                        {solution.description}
-                                    </p>
+                                        {/* Title */}
+                                        <h3 className="text-2xl font-black text-foreground mb-4 group-hover:text-foreground/80 transition-colors duration-300">
+                                            {solution.title}
+                                        </h3>
 
-                                    {/* Features List */}
-                                    {solution.features && solution.features.length > 0 && (
-                                        <ul className="space-y-4">
-                                            {solution.features.map((feature: any, i: number) => {
-                                                const text = typeof feature === 'string' ? feature : feature.text;
-                                                return (
-                                                    <motion.li
-                                                        key={i}
-                                                        initial={{ opacity: 0, x: -10 }}
-                                                        whileInView={{ opacity: 1, x: 0 }}
-                                                        transition={{ delay: index * 0.15 + i * 0.05 }}
-                                                        viewport={{ once: true }}
-                                                        className="flex items-start gap-3 text-foreground/80"
-                                                    >
-                                                        <CheckCircle2 className="w-6 h-6 text-muted-foreground shrink-0 mt-0.5" />
-                                                        <span className="leading-relaxed" style={{ lineHeight: '1.8' }}>{text}</span>
-                                                    </motion.li>
-                                                )
-                                            })}
-                                        </ul>
-                                    )}
-                                </div>
+                                        {/* Description */}
+                                        <p className="text-muted-foreground mb-8 leading-relaxed" style={{ lineHeight: '1.8' }}>
+                                            {solution.description}
+                                        </p>
+
+                                        {/* Features List */}
+                                        {solution.features && solution.features.length > 0 && (
+                                            <ul className="space-y-4">
+                                                {solution.features.map((feature: any, i: number) => {
+                                                    const text = typeof feature === 'string' ? feature : feature.text;
+                                                    return (
+                                                        <motion.li
+                                                            key={i}
+                                                            initial={{ opacity: 0, x: -10 }}
+                                                            whileInView={{ opacity: 1, x: 0 }}
+                                                            transition={{ delay: index * 0.15 + i * 0.05 }}
+                                                            viewport={{ once: true }}
+                                                            className="flex items-start gap-3 text-foreground/80"
+                                                        >
+                                                            <CheckCircle2 className="w-6 h-6 text-muted-foreground shrink-0 mt-0.5" />
+                                                            <span className="leading-relaxed" style={{ lineHeight: '1.8' }}>{text}</span>
+                                                        </motion.li>
+                                                    )
+                                                })}
+                                            </ul>
+                                        )}
+                                    </CardContent>
+                                </Card>
                             </motion.div>
                         );
                     })}

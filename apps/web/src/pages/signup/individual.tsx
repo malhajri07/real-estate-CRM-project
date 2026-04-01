@@ -1,31 +1,34 @@
 /**
  * signup-individual.tsx - Individual Agent Signup Page
- * 
+ *
  * Location: apps/web/src/ → Pages/ → Public Pages → signup-individual.tsx
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
+ *
  * Individual agent signup page. Provides:
  * - Individual agent registration form
  * - KYC document upload
  * - Account creation
- * 
+ *
  * Route: /signup/individual
  */
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Upload, ArrowRight, UserRound, Check, ChevronRight, ChevronLeft } from "lucide-react";
+import { Upload, UserRound, Check, ChevronRight, ChevronLeft } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { cn } from "@/lib/utils";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 // Step definitions
 const STEPS = [
@@ -35,22 +38,43 @@ const STEPS = [
   { id: 4, title: "الشروط والأحكام", description: "الموافقة على السياسات" },
 ];
 
+const STEP_FIELDS = {
+  1: ["username", "password", "confirmPassword"] as const,
+  2: ["firstName", "lastName", "mobileNumber", "gender", "city", "saudiId"] as const,
+  3: ["certificationNumber", "certificationStartDate", "certificationFile"] as const,
+  4: ["agreedToTerms"] as const,
+};
+
+const individualSchema = z.object({
+  username: z.string()
+    .min(3, "اسم المستخدم يجب أن يتكون من 3 أحرف على الأقل")
+    .max(32, "اسم المستخدم لا يتجاوز 32 حرفاً")
+    .regex(/^[a-z0-9_.]+$/, "اسم المستخدم يجب أن يحتوي على حروف إنجليزية صغيرة أو أرقام أو (_) أو (.) فقط")
+    .transform((v) => v.trim().toLowerCase()),
+  password: z.string().min(6, "يجب أن تكون كلمة المرور 6 أحرف على الأقل"),
+  confirmPassword: z.string().min(1, "تأكيد كلمة المرور مطلوب"),
+  firstName: z.string().min(1, "الاسم الأول مطلوب"),
+  lastName: z.string().min(1, "اسم العائلة مطلوب"),
+  saudiId: z.string().regex(/^\d{10}$/, "رقم الهوية الوطنية يجب أن يكون 10 أرقام"),
+  mobileNumber: z.string().regex(/^05\d{8}$/, "الرجاء إدخال رقم جوال سعودي صحيح (05xxxxxxxx)"),
+  gender: z.string().min(1, "النوع مطلوب"),
+  city: z.string().min(1, "المنطقة مطلوبة"),
+  certificationNumber: z.string().min(1, "رقم رخصة فال مطلوب"),
+  certificationStartDate: z.string().min(1, "تاريخ بداية الترخيص مطلوب"),
+  certificationFile: z
+    .instanceof(FileList)
+    .refine((files) => files && files.length > 0, "يجب إرفاق ملف الترخيص"),
+  agreedToTerms: z.literal(true, {
+    errorMap: () => ({ message: "يجب الموافقة على الشروط والأحكام للمتابعة" }),
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "الرجاء التأكد من تطابق كلمتي المرور",
+  path: ["confirmPassword"],
+});
+
+type IndividualFormData = z.infer<typeof individualSchema>;
+
 export default function SignupIndividual() {
-  // Account credentials
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [saudiId, setSaudiId] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [certificationNumber, setCertificationNumber] = useState("");
-  const [certificationStartDate, setCertificationStartDate] = useState("");
-  const [certificationFile, setCertificationFile] = useState<FileList | null>(null);
-  const [gender, setGender] = useState("");
-  const [city, setCity] = useState("");
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-  
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -60,122 +84,46 @@ export default function SignupIndividual() {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
+  const form = useForm<IndividualFormData>({
+    resolver: zodResolver(individualSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      confirmPassword: "",
+      firstName: "",
+      lastName: "",
+      saudiId: "",
+      mobileNumber: "",
+      gender: "",
+      city: "",
+      certificationNumber: "",
+      certificationStartDate: "",
+      certificationFile: undefined as unknown as FileList,
+      agreedToTerms: undefined as unknown as true,
+    },
+    mode: "onTouched",
+  });
+
   // Saudi regions
   const saudiRegions = [
     "الرياض", "مكة المكرمة", "المدينة المنورة", "المنطقة الشرقية", "عسير",
     "تبوك", "القصيم", "حائل", "الحدود الشمالية", "جازان", "نجران", "الباحة", "الجوف"
   ];
 
-  const handleNumericInput = (value: string, setter: (val: string) => void) => {
+  const handleNumericInput = (value: string, onChange: (val: string) => void) => {
     const digitsOnly = value.replace(/[^0-9]/g, "");
-    setter(digitsOnly);
+    onChange(digitsOnly);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCertificationFile(e.target.files);
+  const validateCurrentStep = async (): Promise<boolean> => {
+    const fields = STEP_FIELDS[currentStep as keyof typeof STEP_FIELDS];
+    const result = await form.trigger(fields as any);
+    return result;
   };
 
-  // Validation functions per step
-  const validateStep1 = (): boolean => {
-    const normalizedUsername = (username || '').trim().toLowerCase();
-    if (!normalizedUsername || !/^[a-z0-9_.]{3,32}$/.test(normalizedUsername)) {
-      toast({
-        title: "اسم المستخدم غير صالح",
-        description: "اسم المستخدم يجب أن يتكون من 3-32 حرفاً ويحتوي على حروف إنجليزية صغيرة أو أرقام أو (_) أو (.)",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (!password || password.length < 6) {
-      toast({
-        title: "كلمة المرور قصيرة",
-        description: "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (password !== confirmPassword) {
-      toast({
-        title: "تأكيد كلمة المرور غير مطابق",
-        description: "الرجاء التأكد من تطابق كلمتي المرور",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
-  };
-
-  const validateStep2 = (): boolean => {
-    if (!firstName || !lastName || !saudiId || !mobileNumber || !gender || !city) {
-      toast({
-        title: "بيانات ناقصة",
-        description: "الرجاء ملء جميع الحقول المطلوبة",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    const normalizedMobile = mobileNumber.trim();
-    if (!/^05\d{8}$/.test(normalizedMobile)) {
-      toast({
-        title: "رقم الجوال غير صحيح",
-        description: "الرجاء إدخال رقم جوال سعودي صحيح (05xxxxxxxx)",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    const normalizedSaudiId = saudiId.trim();
-    if (!/^\d{10}$/.test(normalizedSaudiId)) {
-      toast({
-        title: "رقم الهوية غير صحيح",
-        description: "رقم الهوية الوطنية يجب أن يكون ١٠ أرقام",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const validateStep3 = (): boolean => {
-    if (!certificationNumber || !certificationStartDate || !certificationFile || certificationFile.length === 0) {
-      toast({
-        title: "بيانات ناقصة",
-        description: "الرجاء إدخال جميع بيانات الترخيص وإرفاق الملف",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
-  };
-
-  const validateStep4 = (): boolean => {
-    if (!agreedToTerms) {
-      toast({
-        title: "الموافقة مطلوبة",
-        description: "يجب الموافقة على الشروط والأحكام للمتابعة",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
-  };
-
-  const validateCurrentStep = (): boolean => {
-    switch (currentStep) {
-      case 1: return validateStep1();
-      case 2: return validateStep2();
-      case 3: return validateStep3();
-      case 4: return validateStep4();
-      default: return false;
-    }
-  };
-
-  const handleNext = () => {
-    if (validateCurrentStep()) {
+  const handleNext = async () => {
+    const isValid = await validateCurrentStep();
+    if (isValid) {
       if (!completedSteps.includes(currentStep)) {
         setCompletedSteps([...completedSteps, currentStep]);
       }
@@ -193,66 +141,52 @@ export default function SignupIndividual() {
     }
   };
 
-  const handleStepClick = (stepId: number) => {
+  const handleStepClick = async (stepId: number) => {
     const maxAllowedStep = completedSteps.length + 1;
-    // Allow going to any completed step OR the immediate next step if current is completed (logic simplified: usually user can go back to any previous step, and forward only if steps are completed)
-    // Here: allow jump if stepId <= maxAllowedStep and stepId <= currentStep (wait, allow jumping forward only if intervening steps completed? easier: only allow click if stepId <= maxAllowedStep)
-    // Actually simpler: allow clicking any step <= maxAllowedStep.
-    
-    // But we should also validate current step before leaving it if moving forward?
-    // Usually sidebar navigation allows moving freely among visited/completed steps.
-    
     if (stepId < currentStep) {
       setCurrentStep(stepId);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else if (stepId > currentStep) {
-      // Trying to move forward via sidebar
-      if (stepId <= maxAllowedStep && validateCurrentStep()) {
-         // Mark current as complete if we are moving past it
-         if (!completedSteps.includes(currentStep)) {
+      if (stepId <= maxAllowedStep) {
+        const isValid = await validateCurrentStep();
+        if (isValid) {
+          if (!completedSteps.includes(currentStep)) {
             setCompletedSteps([...completedSteps, currentStep]);
-         }
-         setCurrentStep(stepId);
-         window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+          setCurrentStep(stepId);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       }
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateStep4()) return; // Ensure final step valid
-
+  const onSubmit = async (data: IndividualFormData) => {
     setIsLoading(true);
 
     try {
-      const normalizedUsername = (username || '').trim().toLowerCase();
-      const normalizedMobile = mobileNumber.trim();
-      const normalizedSaudiId = saudiId.trim();
-
       const registerRes = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: normalizedUsername,
-          email: `${normalizedSaudiId}@temp.aqaraty.sa`,
-          password,
-          firstName,
-          lastName,
-          phone: normalizedMobile,
+          username: data.username,
+          email: `${data.saudiId}@temp.aqaraty.sa`,
+          password: data.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.mobileNumber,
           roles: JSON.stringify(['INDIV_AGENT'])
         })
       });
 
       const raw = await registerRes.text();
-      const data = raw ? JSON.parse(raw) : {};
-      if (!registerRes.ok || !data?.success) {
-        throw new Error(data?.error || data?.message || 'فشل في إنشاء الحساب');
+      const responseData = raw ? JSON.parse(raw) : {};
+      if (!registerRes.ok || !responseData?.success) {
+        throw new Error(responseData?.error || responseData?.message || 'فشل في إنشاء الحساب');
       }
 
-      if (data.token && data.user) {
-        localStorage.setItem('auth_token', data.token);
-        localStorage.setItem('user_data', JSON.stringify(data.user));
+      if (responseData.token && responseData.user) {
+        localStorage.setItem('auth_token', responseData.token);
+        localStorage.setItem('user_data', JSON.stringify(responseData.user));
       }
 
       toast({
@@ -260,6 +194,7 @@ export default function SignupIndividual() {
         description: "تم تسجيل المستخدم كوكيل مستقل. سيتم متابعة التحقق من البيانات.",
       });
 
+      form.reset();
       setLocation("/signup/success");
     } catch (error) {
       console.error('Registration error:', error);
@@ -368,321 +303,411 @@ export default function SignupIndividual() {
               transition={{ delay: 0.2 }}
               className="lg:col-span-9"
             >
-              <form
-                onSubmit={handleSubmit}
-                className="glass rounded-2xl p-8 md:p-12 shadow-2xl space-y-8"
-              >
-                {/* Step 1: Account Credentials */}
-                {currentStep === 1 && (
-                  <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-border">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">1</span>
-                      <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-foreground">بيانات الحساب الأساسية</h2>
-                        <p className="text-sm text-muted-foreground">قم بتعيين بيانات الدخول الخاصة بحسابك</p>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="glass rounded-2xl p-8 md:p-12 shadow-2xl space-y-8"
+                >
+                  {/* Step 1: Account Credentials */}
+                  {currentStep === 1 && (
+                    <section className="space-y-8">
+                      <div className="flex items-center gap-4 pb-4 border-b border-border">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">1</span>
+                        <div className="space-y-1">
+                          <h2 className="text-xl font-bold text-foreground">بيانات الحساب الأساسية</h2>
+                          <p className="text-sm text-muted-foreground">قم بتعيين بيانات الدخول الخاصة بحسابك</p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="username" className="text-sm font-medium text-foreground/80">اسم المستخدم <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="username"
-                          type="text"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
-                          required
-                          dir="ltr"
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="username"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">اسم المستخدم <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  dir="ltr"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="password"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">كلمة المرور <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="password"
+                                  placeholder="••••••••"
+                                  dir="ltr"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="confirmPassword"
+                          render={({ field }) => (
+                            <FormItem className="md:col-span-2">
+                              <FormLabel className="text-sm font-medium text-foreground/80">تأكيد كلمة المرور <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="password"
+                                  placeholder="••••••••"
+                                  dir="ltr"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
                       </div>
+                    </section>
+                  )}
 
-                      <div className="space-y-2">
-                        <Label htmlFor="password" className="text-sm font-medium text-foreground/80">كلمة المرور <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="••••••••"
-                          required
-                          dir="ltr"
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
-                        />
+                  {/* Step 2: Personal Information */}
+                  {currentStep === 2 && (
+                    <section className="space-y-8">
+                      <div className="flex items-center gap-4 pb-4 border-b border-border">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">2</span>
+                        <div className="space-y-1">
+                          <h2 className="text-xl font-bold text-foreground">المعلومات الشخصية</h2>
+                          <p className="text-sm text-muted-foreground">بياناتك الشخصية للتواصل والتحقق</p>
+                        </div>
                       </div>
 
-                      <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground/80">تأكيد كلمة المرور <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="confirmPassword"
-                          type="password"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="••••••••"
-                          required
-                          dir="ltr"
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
-                        />
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                {/* Step 2: Personal Information */}
-                {currentStep === 2 && (
-                  <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-border">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">2</span>
-                      <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-foreground">المعلومات الشخصية</h2>
-                        <p className="text-sm text-muted-foreground">بياناتك الشخصية للتواصل والتحقق</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 mb-6">
-                      <Label htmlFor="mobileNumber" className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></Label>
-                      <Input
-                        id="mobileNumber"
-                        type="tel"
-                        value={mobileNumber}
-                        onChange={(e) => handleNumericInput(e.target.value, setMobileNumber)}
-                        placeholder="05XXXXXXXX"
-                        required
-                        maxLength={10}
-                        dir="ltr"
-                        className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                      <FormField
+                        control={form.control}
+                        name="mobileNumber"
+                        render={({ field }) => (
+                          <FormItem className="mb-6">
+                            <FormLabel className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="tel"
+                                placeholder="05XXXXXXXX"
+                                maxLength={10}
+                                dir="ltr"
+                                className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
 
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="firstName" className="text-sm font-medium text-foreground/80">الاسم الأول <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="firstName"
-                          type="text"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
-                          required
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="firstName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">الاسم الأول <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="lastName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">اسم العائلة <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="lastName" className="text-sm font-medium text-foreground/80">اسم العائلة <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="lastName"
-                          type="text"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                          required
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 mt-6">
+                        <FormField
+                          control={form.control}
+                          name="gender"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">النوع <span className="text-red-500">*</span></FormLabel>
+                              <Select value={field.value} onValueChange={field.onChange}>
+                                <FormControl>
+                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
+                                    <SelectValue placeholder="اختر النوع" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent position="popper" sideOffset={4} className="z-[100]">
+                                  <SelectItem value="male">ذكر</SelectItem>
+                                  <SelectItem value="female">أنثى</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="city"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">المنطقة <span className="text-red-500">*</span></FormLabel>
+                              <Select value={field.value} onValueChange={field.onChange}>
+                                <FormControl>
+                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
+                                    <SelectValue placeholder="اختر المنطقة" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent position="popper" sideOffset={4} className="z-[100]">
+                                  {saudiRegions.map((region) => (
+                                    <SelectItem key={region} value={region}>{region}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
                       </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 mt-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="gender" className="text-sm font-medium text-foreground/80">النوع <span className="text-red-500">*</span></Label>
-                        <Select value={gender} onValueChange={setGender} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
-                            <SelectValue placeholder="اختر النوع" />
-                          </SelectTrigger>
-                          <SelectContent position="popper" sideOffset={4} className="z-[100]">
-                            <SelectItem value="male">ذكر</SelectItem>
-                            <SelectItem value="female">أنثى</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="city" className="text-sm font-medium text-foreground/80">المنطقة <span className="text-red-500">*</span></Label>
-                        <Select value={city} onValueChange={setCity} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
-                            <SelectValue placeholder="اختر المنطقة" />
-                          </SelectTrigger>
-                          <SelectContent position="popper" sideOffset={4} className="z-[100]">
-                            {saudiRegions.map((region) => (
-                              <SelectItem key={region} value={region}>{region}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 mt-6">
-                      <Label htmlFor="saudiId" className="text-sm font-medium text-foreground/80">رقم الهوية الوطنية <span className="text-red-500">*</span></Label>
-                      <Input
-                        id="saudiId"
-                        type="text"
-                        value={saudiId}
-                        onChange={(e) => handleNumericInput(e.target.value, setSaudiId)}
-                        placeholder="10 أرقام"
-                        required
-                        maxLength={10}
-                        dir="ltr"
-                        className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                      <FormField
+                        control={form.control}
+                        name="saudiId"
+                        render={({ field }) => (
+                          <FormItem className="mt-6">
+                            <FormLabel className="text-sm font-medium text-foreground/80">رقم الهوية الوطنية <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="10 أرقام"
+                                maxLength={10}
+                                dir="ltr"
+                                className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
-                  </section>
-                )}
+                    </section>
+                  )}
 
-                {/* Step 3: Certification Information */}
-                {currentStep === 3 && (
-                  <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-border">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">3</span>
-                      <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-foreground">معلومات رخصة فال</h2>
-                        <p className="text-sm text-muted-foreground">بيانات الترخيص المهني</p>
+                  {/* Step 3: Certification Information */}
+                  {currentStep === 3 && (
+                    <section className="space-y-8">
+                      <div className="flex items-center gap-4 pb-4 border-b border-border">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">3</span>
+                        <div className="space-y-1">
+                          <h2 className="text-xl font-bold text-foreground">معلومات رخصة فال</h2>
+                          <p className="text-sm text-muted-foreground">بيانات الترخيص المهني</p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="certificationNumber" className="text-sm font-medium text-foreground/80">رقم رخصة فال العقاري <span className="text-red-500">*</span></Label>
-                      <Input
-                        id="certificationNumber"
-                        type="text"
-                        value={certificationNumber}
-                        onChange={(e) => setCertificationNumber(e.target.value)}
-                        required
-                        className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                      <FormField
+                        control={form.control}
+                        name="certificationNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium text-foreground/80">رقم رخصة فال العقاري <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
 
-                    <div className="space-y-2 mt-6">
-                      <Label htmlFor="certificationStartDate" className="text-sm font-medium text-foreground/80">تاريخ بداية الترخيص <span className="text-red-500">*</span></Label>
-                      <Input
-                        id="certificationStartDate"
-                        type="date"
-                        value={certificationStartDate}
-                        onChange={(e) => setCertificationStartDate(e.target.value)}
-                        required
-                        className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                      <FormField
+                        control={form.control}
+                        name="certificationStartDate"
+                        render={({ field }) => (
+                          <FormItem className="mt-6">
+                            <FormLabel className="text-sm font-medium text-foreground/80">تاريخ بداية الترخيص <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="date"
+                                className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
 
-                    <div className="space-y-2 mt-6">
-                      <Label htmlFor="certificationFile" className="text-sm font-medium text-foreground/80">ملف ترخيص فال العقاري (PDF) <span className="text-red-500">*</span></Label>
-                      <div className="relative group">
-                        <Input
-                          id="certificationFile"
-                          type="file"
-                          accept="application/pdf"
-                          onChange={handleFileChange}
-                          required
-                          className="h-14 rounded-xl border-border bg-card/50 text-end focus:ring-primary/30 file:mr-10 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-primary/10 file:px-6 file:py-0 file:text-sm file:font-medium file:text-primary hover:file:bg-primary/10 pl-10 cursor-pointer transition-all"
-                        />
-                        <Upload className="w-5 h-5 text-primary absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <FormField
+                        control={form.control}
+                        name="certificationFile"
+                        render={({ field: { onChange, value, ...fieldRest } }) => (
+                          <FormItem className="mt-6">
+                            <FormLabel className="text-sm font-medium text-foreground/80">ملف ترخيص فال العقاري (PDF) <span className="text-red-500">*</span></FormLabel>
+                            <FormControl>
+                              <div className="relative group">
+                                <Input
+                                  {...fieldRest}
+                                  type="file"
+                                  accept="application/pdf"
+                                  onChange={(e) => onChange(e.target.files)}
+                                  className="h-14 rounded-xl border-border bg-card/50 text-end focus:ring-primary/30 file:mr-10 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-primary/10 file:px-6 file:py-0 file:text-sm file:font-medium file:text-primary hover:file:bg-primary/10 pl-10 cursor-pointer transition-all"
+                                />
+                                <Upload className="w-5 h-5 text-primary absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              </div>
+                            </FormControl>
+                            <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                              <span className="flex items-center justify-center w-4 h-4 rounded-full bg-primary/10 text-primary">
+                                <Check className="w-2.5 h-2.5" />
+                              </span>
+                              يجب رفع ملف بصيغة PDF فقط
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </section>
+                  )}
+
+                  {/* Step 4: Terms and Conditions */}
+                  {currentStep === 4 && (
+                    <section className="space-y-6">
+                      <div className="flex items-center gap-4 pb-4 border-b border-border">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">4</span>
+                        <div className="space-y-1">
+                          <h2 className="text-xl font-bold text-foreground">الشروط والأحكام</h2>
+                          <p className="text-sm text-muted-foreground">موافقتك على سياسات المنصة</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                        <span className="flex items-center justify-center w-4 h-4 rounded-full bg-primary/10 text-primary">
-                          <Check className="w-2.5 h-2.5" />
-                        </span>
-                        يجب رفع ملف بصيغة PDF فقط
-                      </div>
-                    </div>
-                  </section>
-                )}
 
-                {/* Step 4: Terms and Conditions */}
-                {currentStep === 4 && (
-                  <section className="space-y-6">
-                    <div className="flex items-center gap-4 pb-4 border-b border-border">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">4</span>
-                      <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-foreground">الشروط والأحكام</h2>
-                        <p className="text-sm text-muted-foreground">موافقتك على سياسات المنصة</p>
-                      </div>
-                    </div>
+                      <div className="rounded-2xl border border-border bg-card/50 p-6 shadow-inner">
+                        <div className="space-y-4 text-sm leading-7 text-muted-foreground max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                          <h3 className="text-base font-bold text-foreground mb-2">شروط استخدام منصة عقاراتي للوسطاء العقاريين:</h3>
 
-                    <div className="rounded-2xl border border-border bg-card/50 p-6 shadow-inner">
-                      <div className="space-y-4 text-sm leading-7 text-muted-foreground max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                        <h3 className="text-base font-bold text-foreground mb-2">شروط استخدام منصة عقاراتي للوسطاء العقاريين:</h3>
-                        
-                        <div className="space-y-4">
-                          <div>
-                            <strong className="block text-foreground mb-1">1. الأهلية والتسجيل:</strong>
-                            <p>يجب أن يكون المتقدم حاصلاً على ترخيص فال عقاري ساري المفعول وأن يكون مؤهلاً لممارسة الوساطة العقارية في المملكة العربية السعودية وفقاً للأنظمة المعمول بها.</p>
-                          </div>
-                          
-                          <div>
-                            <strong className="block text-foreground mb-1">2. صحة البيانات والمعلومات:</strong>
-                            <p>يتعهد المستخدم بتقديم معلومات صحيحة ودقيقة عن هويته الشخصية وترخيصه المهني، وتحديث هذه المعلومات عند الحاجة. أي معلومات مضللة قد تؤدي إلى إلغاء الحساب نهائياً.</p>
-                          </div>
+                          <div className="space-y-4">
+                            <div>
+                              <strong className="block text-foreground mb-1">1. الأهلية والتسجيل:</strong>
+                              <p>يجب أن يكون المتقدم حاصلاً على ترخيص فال عقاري ساري المفعول وأن يكون مؤهلاً لممارسة الوساطة العقارية في المملكة العربية السعودية وفقاً للأنظمة المعمول بها.</p>
+                            </div>
 
-                          <div>
-                            <strong className="block text-foreground mb-1">3. استخدام النظام:</strong>
-                            <ul className="list-disc list-inside space-y-1 marker:text-primary">
-                              <li>الالتزام بأخلاقيات المهنة وقواعد السلوك المهني</li>
-                              <li>عدم استخدام النظام لأغراض غير مشروعة</li>
-                              <li>الحفاظ على سرية بيانات العملاء</li>
-                              <li>عدم نشر إعلانات مضللة للعقارات</li>
-                            </ul>
-                          </div>
+                            <div>
+                              <strong className="block text-foreground mb-1">2. صحة البيانات والمعلومات:</strong>
+                              <p>يتعهد المستخدم بتقديم معلومات صحيحة ودقيقة عن هويته الشخصية وترخيصه المهني، وتحديث هذه المعلومات عند الحاجة. أي معلومات مضللة قد تؤدي إلى إلغاء الحساب نهائياً.</p>
+                            </div>
 
-                          <div>
-                            <strong className="block text-foreground mb-1">4. الترخيص المهني:</strong>
-                            <p>يجب المحافظة على سريان ترخيص فال العقاري وإشعار المنصة بأي تغيير في حالة الترخيص فوراً.</p>
+                            <div>
+                              <strong className="block text-foreground mb-1">3. استخدام النظام:</strong>
+                              <ul className="list-disc list-inside space-y-1 marker:text-primary">
+                                <li>الالتزام بأخلاقيات المهنة وقواعد السلوك المهني</li>
+                                <li>عدم استخدام النظام لأغراض غير مشروعة</li>
+                                <li>الحفاظ على سرية بيانات العملاء</li>
+                                <li>عدم نشر إعلانات مضللة للعقارات</li>
+                              </ul>
+                            </div>
+
+                            <div>
+                              <strong className="block text-foreground mb-1">4. الترخيص المهني:</strong>
+                              <p>يجب المحافظة على سريان ترخيص فال العقاري وإشعار المنصة بأي تغيير في حالة الترخيص فوراً.</p>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    <Label className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer group">
-                      <div className="relative flex items-center mt-1">
-                        <Checkbox
-                          checked={agreedToTerms}
-                          onCheckedChange={(checked) => setAgreedToTerms(Boolean(checked))}
-                          className="h-5 w-5"
-                        />
-                      </div>
-                      <span className="text-sm font-medium text-foreground/80 leading-relaxed group-hover:text-foreground transition-colors">
-                        أوافق على جميع الشروط والأحكام المذكورة أعلاه وأقر بأنني قد قرأتها وفهمتها بالكامل. كما أتعهد بالالتزام بأخلاقيات المهنة وقواعد السلوك للوسطاء العقاريين وأؤكد صحة جميع البيانات المقدمة.
-                      </span>
-                    </Label>
-                  </section>
-                )}
+                      <FormField
+                        control={form.control}
+                        name="agreedToTerms"
+                        render={({ field }) => (
+                          <FormItem>
+                            <label className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer group">
+                              <div className="relative flex items-center mt-1">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value === true}
+                                    onCheckedChange={field.onChange}
+                                    className="h-5 w-5"
+                                  />
+                                </FormControl>
+                              </div>
+                              <span className="text-sm font-medium text-foreground/80 leading-relaxed group-hover:text-foreground transition-colors">
+                                أوافق على جميع الشروط والأحكام المذكورة أعلاه وأقر بأنني قد قرأتها وفهمتها بالكامل. كما أتعهد بالالتزام بأخلاقيات المهنة وقواعد السلوك للوسطاء العقاريين وأؤكد صحة جميع البيانات المقدمة.
+                              </span>
+                            </label>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </section>
+                  )}
 
-                {/* Navigation Buttons */}
-                <div className="flex items-center justify-between pt-6 border-t border-border">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handlePrevious}
-                    disabled={currentStep === 1}
-                    className="h-12 rounded-2xl border-border px-8 text-muted-foreground transition-colors hover:bg-muted/50"
-                  >
-                    <ChevronRight className={cn("me-2", "h-4 w-4")} />
-                    السابق
-                  </Button>
-
-                  {currentStep < STEPS.length ? (
+                  {/* Navigation Buttons */}
+                  <div className="flex items-center justify-between pt-6 border-t border-border">
                     <Button
                       type="button"
-                      onClick={handleNext}
-                      className="h-12 rounded-2xl bg-primary/10 px-8 text-white hover:bg-primary/10"
+                      variant="outline"
+                      onClick={handlePrevious}
+                      disabled={currentStep === 1}
+                      className="h-12 rounded-2xl border-border px-8 text-muted-foreground transition-colors hover:bg-muted/50"
                     >
-                      التالي
-                      <ChevronLeft className={cn(dir === "rtl" ? "me-2" : "ms-2", "h-4 w-4")} />
+                      <ChevronRight className={cn("me-2", "h-4 w-4")} />
+                      السابق
                     </Button>
-                  ) : (
-                    <Button
-                      type="submit"
-                      disabled={isLoading || !agreedToTerms}
-                      className="h-12 rounded-2xl bg-primary/10 px-8 text-white shadow-lg shadow-primary/20 hover:bg-primary/10 disabled:opacity-60"
-                    >
-                      {isLoading ? (
-                        <>
-                          <Spinner size="sm" className="me-2" />
-                          جاري الإنشاء...
-                        </>
-                      ) : (
-                        "إنشاء الحساب"
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </form>
+
+                    {currentStep < STEPS.length ? (
+                      <Button
+                        type="button"
+                        onClick={handleNext}
+                        className="h-12 rounded-2xl bg-primary/10 px-8 text-white hover:bg-primary/10"
+                      >
+                        التالي
+                        <ChevronLeft className={cn(dir === "rtl" ? "me-2" : "ms-2", "h-4 w-4")} />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        disabled={isLoading || form.watch("agreedToTerms") !== true}
+                        className="h-12 rounded-2xl bg-primary/10 px-8 text-white shadow-lg shadow-primary/20 hover:bg-primary/10 disabled:opacity-60"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Spinner size="sm" className="me-2" />
+                            جاري الإنشاء...
+                          </>
+                        ) : (
+                          "إنشاء الحساب"
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </Form>
             </motion.div>
           </div>
         </div>

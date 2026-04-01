@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { LandingPageContent } from "@/lib/cms";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface StatsBannerProps {
     content: LandingPageContent;
@@ -65,18 +66,22 @@ export const StatsBanner = ({ content }: StatsBannerProps) => {
                             whileInView={{ opacity: 1, y: 0, scale: 1 }}
                             transition={{ delay: index * 0.1, duration: 0.5 }}
                             viewport={{ once: true }}
-                            className="group relative p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+                            className="group relative"
                         >
-                            <div className="text-5xl lg:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/70 mb-3">
-                                {stat.number}
-                                {stat.suffix && <span className="text-3xl">{stat.suffix}</span>}
-                            </div>
-                            <div className="text-primary font-bold text-sm uppercase tracking-wider">
-                                {stat.label}
-                            </div>
-                            
-                            {/* Hover Glow Effect */}
-                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 to-blue-500/0 group-hover:from-primary/10 group-hover:to-blue-500/10 transition-all duration-300 pointer-events-none" />
+                            <Card className="bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 rounded-2xl">
+                                <CardContent className="text-center p-6">
+                                    <div className="text-5xl lg:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/70 mb-3">
+                                        {stat.number}
+                                        {stat.suffix && <span className="text-3xl">{stat.suffix}</span>}
+                                    </div>
+                                    <div className="text-primary font-bold text-sm uppercase tracking-wider">
+                                        {stat.label}
+                                    </div>
+                                </CardContent>
+
+                                {/* Hover Glow Effect */}
+                                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 to-blue-500/0 group-hover:from-primary/10 group-hover:to-blue-500/10 transition-all duration-300 pointer-events-none" />
+                            </Card>
                         </motion.div>
                     ))}
                 </div>

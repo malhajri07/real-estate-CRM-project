@@ -1,15 +1,15 @@
 /**
  * real-estate-requests.tsx - Real Estate Request Form Page
- * 
+ *
  * Location: apps/web/src/ → Pages/ → Public Pages → real-estate-requests.tsx
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
+ *
  * Public real estate service request form. Provides:
  * - Real estate request form
  * - Request submission
- * 
+ *
  * Route: /real-estate-requests
- * 
+ *
  * Related Files:
  * - apps/api/routes/requests.ts - Requests API routes
  */
@@ -32,6 +32,10 @@ import { useQuery } from "@tanstack/react-query";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 const PROPERTY_TYPES = [
   "شقة",
@@ -82,6 +86,68 @@ function formatMobileInput(value: string): string {
   return `+966${digits.slice(-9)}`;
 }
 
+const realEstateSchema = z.object({
+  firstName: z.string().min(1, "الاسم الأول مطلوب"),
+  lastName: z.string().min(1, "اسم العائلة مطلوب"),
+  mobileNumber: z.string().min(1, "رقم الجوال مطلوب"),
+  email: z.string().min(1, "البريد الإلكتروني مطلوب").email("الرجاء إدخال بريد إلكتروني صحيح"),
+  nationality: z.string().min(1, "الجنسية مطلوبة"),
+  age: z.string().min(1, "العمر مطلوب"),
+  monthlyIncome: z.string().min(1, "الدخل الشهري مطلوب"),
+  gender: z.string().min(1, "الجنس مطلوب"),
+  typeOfProperty: z.string().min(1, "نوع العقار مطلوب"),
+  typeOfContract: z.string().min(1, "نوع العقد مطلوب"),
+  numberOfRooms: z.string().min(1, "عدد الغرف مطلوب"),
+  numberOfBathrooms: z.string().min(1, "عدد دورات المياه مطلوب"),
+  numberOfLivingRooms: z.string().min(1, "عدد صالات المعيشة مطلوب"),
+  houseDirection: z.string().optional().default(""),
+  budgetSize: z.string().min(1, "الميزانية مطلوبة"),
+  hasMaidRoom: z.boolean().default(false),
+  hasDriverRoom: z.boolean().default(false),
+  kitchenInstalled: z.boolean().default(false),
+  hasElevator: z.boolean().default(false),
+  parkingAvailable: z.boolean().default(false),
+  regionId: z.string().optional().default(""),
+  cityId: z.string().optional().default(""),
+  city: z.string().min(1, "المدينة مطلوبة"),
+  district: z.string().optional().default(""),
+  region: z.string().optional().default(""),
+  sqm: z.string().optional().default(""),
+  notes: z.string().optional().default(""),
+});
+
+type RealEstateFormData = z.infer<typeof realEstateSchema>;
+
+const DEFAULT_VALUES: RealEstateFormData = {
+  firstName: "",
+  lastName: "",
+  mobileNumber: "",
+  email: "",
+  nationality: "",
+  age: "",
+  monthlyIncome: "",
+  gender: "",
+  typeOfProperty: "",
+  typeOfContract: "",
+  numberOfRooms: "",
+  numberOfBathrooms: "",
+  numberOfLivingRooms: "",
+  houseDirection: "",
+  budgetSize: "",
+  hasMaidRoom: false,
+  hasDriverRoom: false,
+  kitchenInstalled: false,
+  hasElevator: false,
+  parkingAvailable: false,
+  regionId: "",
+  cityId: "",
+  city: "",
+  district: "",
+  region: "",
+  sqm: "",
+  notes: "",
+};
+
 export default function RealEstateRequestsPage() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -90,23 +156,22 @@ export default function RealEstateRequestsPage() {
   const [submitted, setSubmitted] = useState(false);
   const [seekerId, setSeekerId] = useState<string | null>(null);
 
+  const form = useForm<RealEstateFormData>({
+    resolver: zodResolver(realEstateSchema),
+    defaultValues: DEFAULT_VALUES,
+    mode: "onTouched",
+  });
+
   // Ensure back button returns to landing page
   useEffect(() => {
-    // Always ensure landing page is in history before this page
-    // This makes the back button return to landing page
     const currentPath = window.location.pathname;
     if (currentPath === '/real-estate-requests') {
-      // Replace current history entry with landing page
       window.history.replaceState({ from: 'landing' }, '', '/');
-      // Then push the real-estate-requests page
       window.history.pushState({ from: 'real-estate-requests' }, '', '/real-estate-requests');
     }
 
-    // Handle browser back button
     const handlePopState = (event: PopStateEvent) => {
-      // If we're going back to landing page
       if (event.state?.from === 'landing' || window.location.pathname === '/') {
-        // Use router to navigate (which will handle the route change)
         setLocation('/');
       }
     };
@@ -136,35 +201,8 @@ export default function RealEstateRequestsPage() {
   const [cityOpen, setCityOpen] = useState(false);
   const [districtOpen, setDistrictOpen] = useState(false);
 
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    mobileNumber: "",
-    email: "",
-    nationality: "",
-    age: "",
-    monthlyIncome: "",
-    gender: "",
-    typeOfProperty: "",
-    typeOfContract: "",
-    numberOfRooms: "",
-    numberOfBathrooms: "",
-    numberOfLivingRooms: "",
-    houseDirection: "",
-    budgetSize: "",
-    hasMaidRoom: false,
-    hasDriverRoom: false,
-    kitchenInstalled: false,
-    hasElevator: false,
-    parkingAvailable: false,
-    regionId: "",
-    cityId: "",
-    city: "",
-    district: "",
-    region: "",
-    sqm: "",
-    notes: "",
-  });
+  const watchRegionId = form.watch("regionId");
+  const watchCityId = form.watch("cityId");
 
   const { data: regions } = useQuery<any[]>({
     queryKey: ["/api/locations/regions"],
@@ -176,75 +214,34 @@ export default function RealEstateRequestsPage() {
   });
 
   const { data: cities } = useQuery<any[]>({
-    queryKey: ["/api/locations/cities", form.regionId],
+    queryKey: ["/api/locations/cities", watchRegionId],
     queryFn: async () => {
-      if (!form.regionId) return [];
-      const res = await fetch(`/api/locations/cities?regionId=${form.regionId}`);
+      if (!watchRegionId) return [];
+      const res = await fetch(`/api/locations/cities?regionId=${watchRegionId}`);
       if (!res.ok) throw new Error("Failed to fetch cities");
       return res.json();
     },
-    enabled: !!form.regionId,
+    enabled: !!watchRegionId,
   });
 
   const { data: districts } = useQuery<any[]>({
-    queryKey: ["/api/locations/districts", form.cityId],
+    queryKey: ["/api/locations/districts", watchCityId],
     queryFn: async () => {
-      if (!form.cityId) return [];
-      const res = await fetch(`/api/locations/districts?cityId=${form.cityId}`);
+      if (!watchCityId) return [];
+      const res = await fetch(`/api/locations/districts?cityId=${watchCityId}`);
       if (!res.ok) throw new Error("Failed to fetch districts");
       return res.json();
     },
-    enabled: !!form.cityId,
+    enabled: !!watchCityId,
   });
 
-  const validateRequiredFields = () => {
-    const requiredFields: Array<{ key: keyof typeof form; label: string }> = [
-      { key: "firstName", label: "الاسم الأول" },
-      { key: "lastName", label: "اسم العائلة" },
-      { key: "mobileNumber", label: "رقم الجوال" },
-      { key: "email", label: "البريد الإلكتروني" },
-      { key: "nationality", label: "الجنسية" },
-      { key: "age", label: "العمر" },
-      { key: "monthlyIncome", label: "الدخل الشهري" },
-      { key: "gender", label: "الجنس" },
-      { key: "typeOfProperty", label: "نوع العقار" },
-      { key: "typeOfContract", label: "نوع العقد" },
-      { key: "numberOfRooms", label: "عدد الغرف" },
-      { key: "numberOfBathrooms", label: "عدد دورات المياه" },
-      { key: "numberOfLivingRooms", label: "عدد صالات المعيشة" },
-      { key: "city", label: "المدينة" },
-      { key: "budgetSize", label: "الميزانية" },
-    ];
-
-    const missingField = requiredFields.find(({ key }) => {
-      const value = form[key];
-      return value === undefined || value === null || String(value).trim() === "";
-    });
-
-    if (missingField) {
-      toast({
-        title: "تحقق من البيانات",
-        description: `يرجى تعبئة حقل ${missingField.label}`,
-      });
-      return false;
-    }
-
-    return true;
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!validateRequiredFields()) {
-      return;
-    }
-
-    const age = Number(form.age);
-    const monthlyIncome = Number(form.monthlyIncome);
-    const numberOfRooms = Number(form.numberOfRooms);
-    const numberOfBathrooms = Number(form.numberOfBathrooms);
-    const numberOfLivingRooms = Number(form.numberOfLivingRooms);
-    const budgetSize = Number(form.budgetSize);
+  const onSubmit = async (data: RealEstateFormData) => {
+    const age = Number(data.age);
+    const monthlyIncome = Number(data.monthlyIncome);
+    const numberOfRooms = Number(data.numberOfRooms);
+    const numberOfBathrooms = Number(data.numberOfBathrooms);
+    const numberOfLivingRooms = Number(data.numberOfLivingRooms);
+    const budgetSize = Number(data.budgetSize);
 
     const optionalText = (value: string) => {
       const trimmed = value.trim();
@@ -278,8 +275,8 @@ export default function RealEstateRequestsPage() {
       return;
     }
 
-    const city = form.city.trim();
-    const sqmValue = optionalNumber(form.sqm);
+    const city = data.city.trim();
+    const sqmValue = optionalNumber(data.sqm);
 
     try {
       setLoading(true);
@@ -287,31 +284,31 @@ export default function RealEstateRequestsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          firstName: form.firstName.trim(),
-          lastName: form.lastName.trim(),
-          mobileNumber: form.mobileNumber.trim(),
-          email: form.email.trim(),
-          nationality: form.nationality.trim(),
+          firstName: data.firstName.trim(),
+          lastName: data.lastName.trim(),
+          mobileNumber: data.mobileNumber.trim(),
+          email: data.email.trim(),
+          nationality: data.nationality.trim(),
           age,
           monthlyIncome,
-          gender: form.gender,
-          typeOfProperty: form.typeOfProperty.trim(),
-          typeOfContract: form.typeOfContract.trim(),
+          gender: data.gender,
+          typeOfProperty: data.typeOfProperty.trim(),
+          typeOfContract: data.typeOfContract.trim(),
           numberOfRooms,
           numberOfBathrooms,
           numberOfLivingRooms,
-          houseDirection: optionalText(form.houseDirection),
+          houseDirection: optionalText(data.houseDirection || ""),
           budgetSize,
-          hasMaidRoom: form.hasMaidRoom,
-          hasDriverRoom: form.hasDriverRoom,
-          kitchenInstalled: form.kitchenInstalled,
-          hasElevator: form.hasElevator,
-          parkingAvailable: form.parkingAvailable,
+          hasMaidRoom: data.hasMaidRoom,
+          hasDriverRoom: data.hasDriverRoom,
+          kitchenInstalled: data.kitchenInstalled,
+          hasElevator: data.hasElevator,
+          parkingAvailable: data.parkingAvailable,
           city,
-          district: optionalText(form.district),
-          region: optionalText(form.region),
+          district: optionalText(data.district || ""),
+          region: optionalText(data.region || ""),
           sqm: sqmValue,
-          notes: optionalText(form.notes),
+          notes: optionalText(data.notes || ""),
         }),
       });
 
@@ -322,39 +319,10 @@ export default function RealEstateRequestsPage() {
       }
 
       toast({ title: "تم الإرسال", description: "تم تسجيل طلب الباحث العقاري بنجاح" });
-      // Extract seekerId from response (check multiple possible fields)
       const extractedSeekerId = responseData?.seekerId || responseData?.id || responseData?.seeker_id || null;
       setSeekerId(extractedSeekerId);
       setSubmitted(true);
-      setForm({
-        firstName: "",
-        lastName: "",
-        mobileNumber: "",
-        email: "",
-        nationality: "",
-        age: "",
-        monthlyIncome: "",
-        gender: "",
-        typeOfProperty: "",
-        typeOfContract: "",
-        numberOfRooms: "",
-        numberOfBathrooms: "",
-        numberOfLivingRooms: "",
-        houseDirection: "",
-        budgetSize: "",
-        hasMaidRoom: false,
-        hasDriverRoom: false,
-        kitchenInstalled: false,
-        hasElevator: false,
-        parkingAvailable: false,
-        regionId: "",
-        cityId: "",
-        city: "",
-        district: "",
-        region: "",
-        sqm: "",
-        notes: "",
-      });
+      form.reset(DEFAULT_VALUES);
     } catch (error: any) {
       if ((error as Error)?.name === "AbortError") {
         toast({ title: "انتهت المهلة", description: "انتهى وقت الإرسال قبل وصول الرد. حاول مرة أخرى." });
@@ -462,308 +430,537 @@ export default function RealEstateRequestsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <form
-              onSubmit={handleSubmit}
-              className="glass rounded-2xl p-8 md:p-12 shadow-2xl"
-            >
-              <section className="space-y-8 mb-12">
-                <div className="flex items-center gap-4 pb-4 border-b border-border">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">1</span>
-                  <h2 className="text-xl font-bold text-foreground">البيانات الشخصية</h2>
-                </div>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="glass rounded-2xl p-8 md:p-12 shadow-2xl"
+              >
+                <section className="space-y-8 mb-12">
+                  <div className="flex items-center gap-4 pb-4 border-b border-border">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">1</span>
+                    <h2 className="text-xl font-bold text-foreground">البيانات الشخصية</h2>
+                  </div>
 
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">الاسم الأول <span className="text-red-500">*</span></Label>
-                    <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">اسم العائلة <span className="text-red-500">*</span></Label>
-                    <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></Label>
-                    <Input
-                      type="tel"
-                      inputMode="numeric"
-                      autoComplete="tel"
-                      className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end font-mono tracking-wide"
-                      dir="ltr"
-                      placeholder="+966 5xxxxxxxx"
-                      value={form.mobileNumber}
-                      onChange={(e) => setForm({ ...form, mobileNumber: formatMobileInput(e.target.value) })}
-                      required
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="firstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">الاسم الأول <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">اسم العائلة <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="mobileNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input
+                              type="tel"
+                              inputMode="numeric"
+                              autoComplete="tel"
+                              className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end font-mono tracking-wide"
+                              dir="ltr"
+                              placeholder="+966 5xxxxxxxx"
+                              {...field}
+                              onChange={(e) => field.onChange(formatMobileInput(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">البريد الإلكتروني <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="email" className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end" dir="ltr" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="nationality"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">الجنسية <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="age"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">العمر <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="monthlyIncome"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">الدخل الشهري (&#xFDFC;) <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">الجنس <span className="text-red-500">*</span></FormLabel>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <FormControl>
+                              <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="اختر" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {GENDER_OPTIONS.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">البريد الإلكتروني <span className="text-red-500">*</span></Label>
-                    <Input type="email" className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end" dir="ltr" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">الجنسية <span className="text-red-500">*</span></Label>
-                    <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.nationality} onChange={(e) => setForm({ ...form, nationality: e.target.value })} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">العمر <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">الدخل الشهري (﷼) <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.monthlyIncome} onChange={(e) => setForm({ ...form, monthlyIncome: e.target.value })} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">الجنس <span className="text-red-500">*</span></Label>
-                    <Select value={form.gender} onValueChange={(value) => setForm({ ...form, gender: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="اختر" /></SelectTrigger>
-                      <SelectContent>
-                        {GENDER_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </section>
+                </section>
 
-              <section className="space-y-8 mb-12">
-                <div className="flex items-center gap-4 pb-4 border-b border-border">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">2</span>
-                  <h2 className="text-xl font-bold text-foreground">تفاصيل العقار المطلوب</h2>
-                </div>
+                <section className="space-y-8 mb-12">
+                  <div className="flex items-center gap-4 pb-4 border-b border-border">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">2</span>
+                    <h2 className="text-xl font-bold text-foreground">تفاصيل العقار المطلوب</h2>
+                  </div>
 
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">نوع العقار <span className="text-red-500">*</span></Label>
-                    <Select value={form.typeOfProperty} onValueChange={(value) => setForm({ ...form, typeOfProperty: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="اختر نوع العقار" /></SelectTrigger>
-                      <SelectContent>
-                        {PROPERTY_TYPES.map((type) => (
-                          <SelectItem key={type} value={type}>{type}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">نوع العقد <span className="text-red-500">*</span></Label>
-                    <Select value={form.typeOfContract} onValueChange={(value) => setForm({ ...form, typeOfContract: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="شراء أم إيجار؟" /></SelectTrigger>
-                      <SelectContent>
-                        {CONTRACT_TYPES.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">عدد الغرف <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.numberOfRooms} onChange={(e) => setForm({ ...form, numberOfRooms: e.target.value })} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">عدد الحمامات <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.numberOfBathrooms} onChange={(e) => setForm({ ...form, numberOfBathrooms: e.target.value })} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">عدد صالات المعيشة <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.numberOfLivingRooms} onChange={(e) => setForm({ ...form, numberOfLivingRooms: e.target.value })} required />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">اتجاه المنزل</Label>
-                    <Select value={form.houseDirection} onValueChange={(value) => setForm({ ...form, houseDirection: value })}>
-                      <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="غير محدد" /></SelectTrigger>
-                      <SelectContent>
-                        {HOUSE_DIRECTIONS.map((direction) => (
-                          <SelectItem key={direction.value} value={direction.value}>{direction.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">الميزانية المتاحة (﷼) <span className="text-red-500">*</span></Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.budgetSize} onChange={(e) => setForm({ ...form, budgetSize: e.target.value })} required />
-                  </div>
-                </div>
-              </section>
-
-              <section className="space-y-8 mb-12">
-                <div className="flex items-center gap-4 pb-4 border-b border-border">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">3</span>
-                  <h2 className="text-xl font-bold text-foreground">الموقع والمواصفات الإضافية</h2>
-                </div>
-
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">المنطقة</Label>
-                    <Popover open={regionOpen} onOpenChange={setRegionOpen}>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" role="combobox" aria-expanded={regionOpen} className={cn("w-full justify-between h-12 rounded-xl", !form.region && "text-muted-foreground")}>
-                          {form.region || "اختر المنطقة"}
-                          <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                        <Command>
-                          <CommandInput placeholder="ابحث عن المنطقة..." />
-                          <CommandList>
-                            <CommandEmpty>لم يتم العثور على المنطقة.</CommandEmpty>
-                            <CommandGroup>
-                              {(regions || []).map((r: any) => (
-                                <CommandItem
-                                  key={r.id}
-                                  value={`${r.id} ${r.nameAr || ""} ${r.nameEn || ""}`}
-                                  onSelect={() => {
-                                    setForm({ ...form, region: r.nameAr || r.nameEn, regionId: String(r.id), city: "", cityId: "", district: "" });
-                                    setRegionOpen(false);
-                                  }}
-                                >
-                                  <Check className={cn("me-2", "h-4 w-4", form.regionId === String(r.id) ? "opacity-100" : "opacity-0")} />
-                                  {r.nameAr || r.nameEn}
-                                </CommandItem>
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="typeOfProperty"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">نوع العقار <span className="text-red-500">*</span></FormLabel>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <FormControl>
+                              <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="اختر نوع العقار" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {PROPERTY_TYPES.map((type) => (
+                                <SelectItem key={type} value={type}>{type}</SelectItem>
                               ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">المدينة <span className="text-red-500">*</span></Label>
-                    <Popover open={cityOpen} onOpenChange={setCityOpen}>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" role="combobox" aria-expanded={cityOpen} disabled={!form.regionId} className={cn("w-full justify-between h-12 rounded-xl", !form.city && "text-muted-foreground")}>
-                          {form.city || "اختر المدينة"}
-                          <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                        <Command>
-                          <CommandInput placeholder="ابحث عن المدينة..." />
-                          <CommandList>
-                            <CommandEmpty>لم يتم العثور على المدينة.</CommandEmpty>
-                            <CommandGroup>
-                              {(cities || []).map((c: any) => (
-                                <CommandItem
-                                  key={c.id}
-                                  value={`${c.id} ${c.nameAr || ""} ${c.nameEn || ""}`}
-                                  onSelect={() => {
-                                    setForm({ ...form, city: c.nameAr || c.nameEn, cityId: String(c.id), district: "" });
-                                    setCityOpen(false);
-                                  }}
-                                >
-                                  <Check className={cn("me-2", "h-4 w-4", form.cityId === String(c.id) ? "opacity-100" : "opacity-0")} />
-                                  {c.nameAr || c.nameEn}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">الحي</Label>
-                    <Popover open={districtOpen} onOpenChange={setDistrictOpen}>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" role="combobox" aria-expanded={districtOpen} disabled={!form.cityId} className={cn("w-full justify-between h-12 rounded-xl", !form.district && "text-muted-foreground")}>
-                          {form.district || "اختر الحي"}
-                          <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                        <Command>
-                          <CommandInput placeholder="ابحث عن الحي..." />
-                          <CommandList>
-                            <CommandEmpty>لم يتم العثور على الحي.</CommandEmpty>
-                            <CommandGroup>
-                              {(districts || []).map((d: any) => (
-                                <CommandItem
-                                  key={d.id}
-                                  value={`${d.id} ${d.nameAr || ""} ${d.nameEn || ""}`}
-                                  onSelect={() => {
-                                    setForm({ ...form, district: d.nameAr || d.nameEn });
-                                    setDistrictOpen(false);
-                                  }}
-                                >
-                                  <Check className={cn("me-2", "h-4 w-4", form.district === (d.nameAr || d.nameEn) ? "opacity-100" : "opacity-0")} />
-                                  {d.nameAr || d.nameEn}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-foreground/80">المساحة المطلوبة (م²)</Label>
-                    <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" value={form.sqm} onChange={(e) => setForm({ ...form, sqm: e.target.value })} />
-                  </div>
-                </div>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3 pt-2">
-                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
-                    <Checkbox checked={form.hasMaidRoom} onCheckedChange={(value) => setForm({ ...form, hasMaidRoom: Boolean(value) })} />
-                    <span className="text-foreground/80 font-medium">غرفة خادمة</span>
-                  </Label>
-                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
-                    <Checkbox checked={form.hasDriverRoom} onCheckedChange={(value) => setForm({ ...form, hasDriverRoom: Boolean(value) })} />
-                    <span className="text-foreground/80 font-medium">غرفة سائق</span>
-                  </Label>
-                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
-                    <Checkbox checked={form.kitchenInstalled} onCheckedChange={(value) => setForm({ ...form, kitchenInstalled: Boolean(value) })} />
-                    <span className="text-foreground/80 font-medium">مطبخ مركب</span>
-                  </Label>
-                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
-                    <Checkbox checked={form.hasElevator} onCheckedChange={(value) => setForm({ ...form, hasElevator: Boolean(value) })} />
-                    <span className="text-foreground/80 font-medium">يوجد مصعد</span>
-                  </Label>
-                  <Label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
-                    <Checkbox checked={form.parkingAvailable} onCheckedChange={(value) => setForm({ ...form, parkingAvailable: Boolean(value) })} />
-                    <span className="text-foreground/80 font-medium">موقف سيارة</span>
-                  </Label>
-                </div>
+                    <FormField
+                      control={form.control}
+                      name="typeOfContract"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">نوع العقد <span className="text-red-500">*</span></FormLabel>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <FormControl>
+                              <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="شراء أم إيجار؟" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {CONTRACT_TYPES.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-foreground/80">ملاحظات إضافية</Label>
-                  <Textarea
-                    rows={4}
-                    value={form.notes}
-                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    className="rounded-2xl bg-card/50 border-border focus:ring-primary/30"
-                    placeholder="أي تفاصيل أخرى تود إضافتها..."
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    <FormField
+                      control={form.control}
+                      name="numberOfRooms"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">عدد الغرف <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="numberOfBathrooms"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">عدد الحمامات <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="numberOfLivingRooms"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">عدد صالات المعيشة <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="houseDirection"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">اتجاه المنزل</FormLabel>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <FormControl>
+                              <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="غير محدد" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {HOUSE_DIRECTIONS.map((direction) => (
+                                <SelectItem key={direction.value} value={direction.value}>{direction.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="budgetSize"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">الميزانية المتاحة (&#xFDFC;) <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </section>
+
+                <section className="space-y-8 mb-12">
+                  <div className="flex items-center gap-4 pb-4 border-b border-border">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">3</span>
+                    <h2 className="text-xl font-bold text-foreground">الموقع والمواصفات الإضافية</h2>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-foreground/80">المنطقة</Label>
+                      <Popover open={regionOpen} onOpenChange={setRegionOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" role="combobox" aria-expanded={regionOpen} className={cn("w-full justify-between h-12 rounded-xl", !form.getValues("region") && "text-muted-foreground")}>
+                            {form.getValues("region") || "اختر المنطقة"}
+                            <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="ابحث عن المنطقة..." />
+                            <CommandList>
+                              <CommandEmpty>لم يتم العثور على المنطقة.</CommandEmpty>
+                              <CommandGroup>
+                                {(regions || []).map((r: any) => (
+                                  <CommandItem
+                                    key={r.id}
+                                    value={`${r.id} ${r.nameAr || ""} ${r.nameEn || ""}`}
+                                    onSelect={() => {
+                                      form.setValue("region", r.nameAr || r.nameEn);
+                                      form.setValue("regionId", String(r.id));
+                                      form.setValue("city", "");
+                                      form.setValue("cityId", "");
+                                      form.setValue("district", "");
+                                      setRegionOpen(false);
+                                    }}
+                                  >
+                                    <Check className={cn("me-2", "h-4 w-4", form.getValues("regionId") === String(r.id) ? "opacity-100" : "opacity-0")} />
+                                    {r.nameAr || r.nameEn}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-foreground/80">المدينة <span className="text-red-500">*</span></Label>
+                      <Popover open={cityOpen} onOpenChange={setCityOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" role="combobox" aria-expanded={cityOpen} disabled={!watchRegionId} className={cn("w-full justify-between h-12 rounded-xl", !form.getValues("city") && "text-muted-foreground")}>
+                            {form.getValues("city") || "اختر المدينة"}
+                            <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="ابحث عن المدينة..." />
+                            <CommandList>
+                              <CommandEmpty>لم يتم العثور على المدينة.</CommandEmpty>
+                              <CommandGroup>
+                                {(cities || []).map((c: any) => (
+                                  <CommandItem
+                                    key={c.id}
+                                    value={`${c.id} ${c.nameAr || ""} ${c.nameEn || ""}`}
+                                    onSelect={() => {
+                                      form.setValue("city", c.nameAr || c.nameEn);
+                                      form.setValue("cityId", String(c.id));
+                                      form.setValue("district", "");
+                                      setCityOpen(false);
+                                    }}
+                                  >
+                                    <Check className={cn("me-2", "h-4 w-4", form.getValues("cityId") === String(c.id) ? "opacity-100" : "opacity-0")} />
+                                    {c.nameAr || c.nameEn}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-foreground/80">الحي</Label>
+                      <Popover open={districtOpen} onOpenChange={setDistrictOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" role="combobox" aria-expanded={districtOpen} disabled={!watchCityId} className={cn("w-full justify-between h-12 rounded-xl", !form.getValues("district") && "text-muted-foreground")}>
+                            {form.getValues("district") || "اختر الحي"}
+                            <ChevronsUpDown className={cn("me-2", "h-4 w-4 shrink-0 opacity-50")} />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                          <Command>
+                            <CommandInput placeholder="ابحث عن الحي..." />
+                            <CommandList>
+                              <CommandEmpty>لم يتم العثور على الحي.</CommandEmpty>
+                              <CommandGroup>
+                                {(districts || []).map((d: any) => (
+                                  <CommandItem
+                                    key={d.id}
+                                    value={`${d.id} ${d.nameAr || ""} ${d.nameEn || ""}`}
+                                    onSelect={() => {
+                                      form.setValue("district", d.nameAr || d.nameEn);
+                                      setDistrictOpen(false);
+                                    }}
+                                  >
+                                    <Check className={cn("me-2", "h-4 w-4", form.getValues("district") === (d.nameAr || d.nameEn) ? "opacity-100" : "opacity-0")} />
+                                    {d.nameAr || d.nameEn}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="sqm"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-medium text-foreground/80">المساحة المطلوبة (م&#xB2;)</FormLabel>
+                          <FormControl>
+                            <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3 pt-2">
+                    <FormField
+                      control={form.control}
+                      name="hasMaidRoom"
+                      render={({ field }) => (
+                        <FormItem>
+                          <label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
+                            <FormControl>
+                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <span className="text-foreground/80 font-medium">غرفة خادمة</span>
+                          </label>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="hasDriverRoom"
+                      render={({ field }) => (
+                        <FormItem>
+                          <label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
+                            <FormControl>
+                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <span className="text-foreground/80 font-medium">غرفة سائق</span>
+                          </label>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="kitchenInstalled"
+                      render={({ field }) => (
+                        <FormItem>
+                          <label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
+                            <FormControl>
+                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <span className="text-foreground/80 font-medium">مطبخ مركب</span>
+                          </label>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="hasElevator"
+                      render={({ field }) => (
+                        <FormItem>
+                          <label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
+                            <FormControl>
+                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <span className="text-foreground/80 font-medium">يوجد مصعد</span>
+                          </label>
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="parkingAvailable"
+                      render={({ field }) => (
+                        <FormItem>
+                          <label className="flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/10 transition-all cursor-pointer">
+                            <FormControl>
+                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                            <span className="text-foreground/80 font-medium">موقف سيارة</span>
+                          </label>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-foreground/80">ملاحظات إضافية</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            rows={4}
+                            {...field}
+                            className="rounded-2xl bg-card/50 border-border focus:ring-primary/30"
+                            placeholder="أي تفاصيل أخرى تود إضافتها..."
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-              </section>
+                </section>
 
-              <div className="flex justify-end pt-6 border-t border-border">
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="h-14 rounded-full bg-primary/10 px-10 text-lg font-bold text-white shadow-lg shadow-primary/500 hover:bg-primary/10 hover:shadow-primary/500 disabled:opacity-60 transition-all"
-                >
-                  {loading ? (
-                    <>
-                      <Spinner size="sm" className="me-2" />
-                      جاري الإرسال...
-                    </>
-                  ) : (
-                    <>
-                      إرسال الطلب
-                      <ArrowRight className={cn("me-2", "h-5 w-5 transform rotate-180")} />
-                    </>
-                  )}
-                </Button>
-              </div>
-
-              {loading && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-sm">
-                  {/* Loader overlay handled by button state mainly, but keep if user wants generic block */}
+                <div className="flex justify-end pt-6 border-t border-border">
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="h-14 rounded-full bg-primary/10 px-10 text-lg font-bold text-white shadow-lg shadow-primary/500 hover:bg-primary/10 hover:shadow-primary/500 disabled:opacity-60 transition-all"
+                  >
+                    {loading ? (
+                      <>
+                        <Spinner size="sm" className="me-2" />
+                        جاري الإرسال...
+                      </>
+                    ) : (
+                      <>
+                        إرسال الطلب
+                        <ArrowRight className={cn("me-2", "h-5 w-5 transform rotate-180")} />
+                      </>
+                    )}
+                  </Button>
                 </div>
-              )}
-            </form>
+
+                {loading && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-sm">
+                    {/* Loader overlay handled by button state mainly, but keep if user wants generic block */}
+                  </div>
+                )}
+              </form>
+            </Form>
           </motion.div>
         </div>
       </main>

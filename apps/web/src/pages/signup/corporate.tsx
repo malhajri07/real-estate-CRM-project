@@ -1,14 +1,14 @@
 /**
  * signup-corporate.tsx - Corporate Signup Page
- * 
+ *
  * Location: apps/web/src/ → Pages/ → Public Pages → signup-corporate.tsx
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
+ *
  * Corporate signup page. Provides:
  * - Corporate account registration form
  * - Company information input
  * - Account creation
- * 
+ *
  * Route: /signup/corporate
  */
 
@@ -16,17 +16,20 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Upload, ArrowRight, Building2, Check, ChevronRight, ChevronLeft } from "lucide-react";
+import { Upload, Building2, Check, ChevronRight, ChevronLeft } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { cn } from "@/lib/utils";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 // Step definitions
 const STEPS = [
@@ -37,34 +40,55 @@ const STEPS = [
   { id: 5, title: "الشروط والأحكام", description: "سياسات المنصة" },
 ];
 
+const STEP_FIELDS = {
+  1: ["username", "password", "confirmPassword"] as const,
+  2: ["companyName", "companyType", "commercialRegistration", "companyCity", "taxNumber", "establishmentDate", "employeesCount", "companyAddress", "companyWebsite", "companyDescription"] as const,
+  3: ["contactName", "contactPosition", "contactEmail", "contactPhone"] as const,
+  4: ["commercialRegDoc", "vatCertificate", "companyProfile"] as const,
+  5: ["agreedToTerms"] as const,
+};
+
+const corporateSchema = z.object({
+  // Step 1 - Account
+  username: z.string()
+    .min(3, "اسم المستخدم يجب أن يتكون من 3 أحرف على الأقل")
+    .max(32, "اسم المستخدم لا يتجاوز 32 حرفاً")
+    .regex(/^[a-z0-9_.]+$/, "اسم المستخدم يجب أن يحتوي على حروف إنجليزية صغيرة أو أرقام أو (_) أو (.) فقط")
+    .transform((v) => v.trim().toLowerCase()),
+  password: z.string().min(6, "يجب أن تكون كلمة المرور 6 أحرف على الأقل"),
+  confirmPassword: z.string().min(1, "تأكيد كلمة المرور مطلوب"),
+  // Step 2 - Company
+  companyName: z.string().min(1, "اسم الشركة مطلوب"),
+  companyType: z.string().min(1, "نوع الشركة مطلوب"),
+  commercialRegistration: z.string().min(1, "رقم السجل التجاري مطلوب"),
+  taxNumber: z.string().optional().default(""),
+  companyAddress: z.string().optional().default(""),
+  companyCity: z.string().min(1, "المدينة الرئيسية مطلوبة"),
+  companyWebsite: z.string().optional().default(""),
+  companyDescription: z.string().optional().default(""),
+  establishmentDate: z.string().optional().default(""),
+  employeesCount: z.string().optional().default(""),
+  // Step 3 - Contact
+  contactName: z.string().min(1, "الاسم الكامل مطلوب"),
+  contactPosition: z.string().optional().default(""),
+  contactEmail: z.string().min(1, "البريد الإلكتروني مطلوب").email("الرجاء إدخال بريد إلكتروني صحيح"),
+  contactPhone: z.string().regex(/^05\d{8}$/, "الرجاء إدخال رقم جوال سعودي صحيح (05xxxxxxxx)"),
+  // Step 4 - Documents (optional)
+  commercialRegDoc: z.instanceof(FileList).optional().nullable(),
+  vatCertificate: z.instanceof(FileList).optional().nullable(),
+  companyProfile: z.instanceof(FileList).optional().nullable(),
+  // Step 5 - Terms
+  agreedToTerms: z.literal(true, {
+    errorMap: () => ({ message: "يجب الموافقة على الشروط والأحكام للمتابعة" }),
+  }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "الرجاء التأكد من تطابق كلمتي المرور",
+  path: ["confirmPassword"],
+});
+
+type CorporateFormData = z.infer<typeof corporateSchema>;
+
 export default function SignupCorporate() {
-  // Account credentials
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [companyType, setCompanyType] = useState("");
-  const [commercialRegistration, setCommercialRegistration] = useState("");
-  const [taxNumber, setTaxNumber] = useState("");
-  const [companyAddress, setCompanyAddress] = useState("");
-  const [companyCity, setCompanyCity] = useState("");
-  const [companyWebsite, setCompanyWebsite] = useState("");
-  const [companyDescription, setCompanyDescription] = useState("");
-  const [establishmentDate, setEstablishmentDate] = useState("");
-  const [employeesCount, setEmployeesCount] = useState("");
-
-  // Contact Person Info
-  const [contactName, setContactName] = useState("");
-  const [contactPosition, setContactPosition] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [contactPhone, setContactPhone] = useState("");
-
-  // Documents
-  const [commercialRegDoc, setCommercialRegDoc] = useState<FileList | null>(null);
-  const [vatCertificate, setVatCertificate] = useState<FileList | null>(null);
-  const [companyProfile, setCompanyProfile] = useState<FileList | null>(null);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -74,126 +98,53 @@ export default function SignupCorporate() {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
+  const form = useForm<CorporateFormData>({
+    resolver: zodResolver(corporateSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      confirmPassword: "",
+      companyName: "",
+      companyType: "",
+      commercialRegistration: "",
+      taxNumber: "",
+      companyAddress: "",
+      companyCity: "",
+      companyWebsite: "",
+      companyDescription: "",
+      establishmentDate: "",
+      employeesCount: "",
+      contactName: "",
+      contactPosition: "",
+      contactEmail: "",
+      contactPhone: "",
+      commercialRegDoc: null,
+      vatCertificate: null,
+      companyProfile: null,
+      agreedToTerms: undefined as unknown as true,
+    },
+    mode: "onTouched",
+  });
+
   const saudiRegions = [
     "الرياض", "مكة المكرمة", "المدينة المنورة", "المنطقة الشرقية", "عسير",
     "تبوك", "القصيم", "حائل", "الحدود الشمالية", "جازان", "نجران", "الباحة", "الجوف",
   ];
 
-  const handleNumericInput = (value: string, setter: (val: string) => void) => {
+  const handleNumericInput = (value: string, onChange: (val: string) => void) => {
     const digitsOnly = value.replace(/[^0-9]/g, "");
-    setter(digitsOnly);
+    onChange(digitsOnly);
   };
 
-  // Validation functions
-  const validateStep1 = (): boolean => {
-    const normalizedUsername = (username || "").trim().toLowerCase();
-    if (!normalizedUsername || !/^[a-z0-9_.]{3,32}$/.test(normalizedUsername)) {
-      toast({
-        title: "اسم المستخدم غير صالح",
-        description: "اسم المستخدم يجب أن يتكون من 3-32 حرفاً ويحتوي على حروف إنجليزية صغيرة أو أرقام أو (_) أو (.)",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (!password || password.length < 6) {
-      toast({
-        title: "كلمة المرور قصيرة",
-        description: "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (password !== confirmPassword) {
-      toast({
-        title: "تأكيد كلمة المرور غير مطابق",
-        description: "الرجاء التأكد من تطابق كلمتي المرور",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
+  const validateCurrentStep = async (): Promise<boolean> => {
+    const fields = STEP_FIELDS[currentStep as keyof typeof STEP_FIELDS];
+    const result = await form.trigger(fields as any);
+    return result;
   };
 
-  const validateStep2 = (): boolean => {
-    if (!companyName || !companyType || !commercialRegistration || !companyCity) {
-      toast({
-        title: "بيانات ناقصة",
-        description: "الرجاء تعبئة البيانات الأساسية للشركة (الاسم، النوع، السجل، المدينة)",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
-  };
-
-  const validateStep3 = (): boolean => {
-    if (!contactName || !contactEmail || !contactPhone) {
-      toast({
-        title: "بيانات ناقصة",
-        description: "الرجاء تعبئة جميع بيانات مسؤول الاتصال",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) {
-      toast({
-        title: "البريد الإلكتروني غير صحيح",
-        description: "الرجاء إدخال بريد إلكتروني صحيح",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    const normalizedPhone = contactPhone.trim();
-    if (!/^05\d{8}$/.test(normalizedPhone)) {
-      toast({
-        title: "رقم الجوال غير صحيح",
-        description: "الرجاء إدخال رقم جوال سعودي صحيح",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
-  };
-
-  const validateStep4 = (): boolean => {
-    // Documents are technically optional in the API or marked as optional in UI, 
-    // but usually CR is required. Let's make at least CR doc optional-but-recommended 
-    // or strictly required based on business logic. 
-    // Previous code didn't strictly validate files before submit except as a general check.
-    // Let's assume they are optional for initial signup step or allow proceeding if UI says "Optional".
-    // The previous UI said "المستندات المساندة (اختيارية)". So we return true.
-    return true;
-  };
-
-  const validateStep5 = (): boolean => {
-    if (!agreedToTerms) {
-      toast({
-        title: "الموافقة مطلوبة",
-        description: "يجب الموافقة على الشروط والأحكام للمتابعة",
-        variant: "destructive",
-      });
-      return false;
-    }
-    return true;
-  };
-
-  const validateCurrentStep = (): boolean => {
-    switch (currentStep) {
-      case 1: return validateStep1();
-      case 2: return validateStep2();
-      case 3: return validateStep3();
-      case 4: return validateStep4();
-      case 5: return validateStep5();
-      default: return false;
-    }
-  };
-
-  const handleNext = () => {
-    if (validateCurrentStep()) {
+  const handleNext = async () => {
+    const isValid = await validateCurrentStep();
+    if (isValid) {
       if (!completedSteps.includes(currentStep)) {
         setCompletedSteps([...completedSteps, currentStep]);
       }
@@ -211,59 +162,57 @@ export default function SignupCorporate() {
     }
   };
 
-  const handleStepClick = (stepId: number) => {
+  const handleStepClick = async (stepId: number) => {
     const maxAllowedStep = completedSteps.length + 1;
     if (stepId < currentStep) {
       setCurrentStep(stepId);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else if (stepId > currentStep) {
-      if (stepId <= maxAllowedStep && validateCurrentStep()) {
-         if (!completedSteps.includes(currentStep)) {
+      if (stepId <= maxAllowedStep) {
+        const isValid = await validateCurrentStep();
+        if (isValid) {
+          if (!completedSteps.includes(currentStep)) {
             setCompletedSteps([...completedSteps, currentStep]);
-         }
-         setCurrentStep(stepId);
-         window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+          setCurrentStep(stepId);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       }
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateStep5()) return;
-
+  const onSubmit = async (data: CorporateFormData) => {
     setIsLoading(true);
 
     try {
-      const nameParts = contactName.trim().split(/\s+/).filter(Boolean);
+      const nameParts = data.contactName.trim().split(/\s+/).filter(Boolean);
       const firstName = nameParts[0] || "مدير";
       const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "الحساب";
-      const normalizedUsername = (username || "").trim().toLowerCase();
-      const normalizedPhone = contactPhone.trim();
 
       const registerRes = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: normalizedUsername,
-          email: contactEmail,
-          password,
+          username: data.username,
+          email: data.contactEmail,
+          password: data.password,
           firstName,
           lastName,
-          phone: normalizedPhone,
+          phone: data.contactPhone,
           roles: JSON.stringify(['CORP_OWNER'])
         })
       });
 
       const raw = await registerRes.text();
-      const data = raw ? JSON.parse(raw) : {};
-      if (!registerRes.ok || !data?.success) {
-        const apiMessage = data?.errors?.[0]?.message || data?.error || data?.message;
+      const responseData = raw ? JSON.parse(raw) : {};
+      if (!registerRes.ok || !responseData?.success) {
+        const apiMessage = responseData?.errors?.[0]?.message || responseData?.error || responseData?.message;
         throw new Error(apiMessage || 'فشل في إنشاء الحساب');
       }
 
-      if (data.token && data.user) {
-        localStorage.setItem('auth_token', data.token);
-        localStorage.setItem('user_data', JSON.stringify(data.user));
+      if (responseData.token && responseData.user) {
+        localStorage.setItem('auth_token', responseData.token);
+        localStorage.setItem('user_data', JSON.stringify(responseData.user));
       }
 
       toast({
@@ -271,6 +220,7 @@ export default function SignupCorporate() {
         description: "تم تسجيل المستخدم كمالك شركة. سيتم متابعة التحقق من بيانات الشركة.",
       });
 
+      form.reset();
       setLocation("/signup/kyc-submitted");
     } catch (error) {
       const message = error instanceof Error ? error.message : "حدث خطأ أثناء إرسال طلبك، الرجاء المحاولة مرة أخرى";
@@ -379,419 +329,578 @@ export default function SignupCorporate() {
               transition={{ delay: 0.2 }}
               className="lg:col-span-9"
             >
-              <form
-                onSubmit={handleSubmit}
-                className="glass rounded-2xl p-8 md:p-12 shadow-2xl space-y-8"
-              >
-                {/* Step 1: Account Credentials */}
-                {currentStep === 1 && (
-                  <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-border">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">1</span>
-                      <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-foreground">بيانات الحساب الأساسية</h2>
-                        <p className="text-sm text-muted-foreground">قم بتعيين بيانات الدخول الخاصة بمدير الحساب</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="username" className="text-sm font-medium text-foreground/80">اسم المستخدم <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="username"
-                          type="text"
-                          dir="ltr"
-                          value={username}
-                          onChange={(e) => setUsername(e.target.value)}
-                          required
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
-                        />
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="glass rounded-2xl p-8 md:p-12 shadow-2xl space-y-8"
+                >
+                  {/* Step 1: Account Credentials */}
+                  {currentStep === 1 && (
+                    <section className="space-y-8">
+                      <div className="flex items-center gap-4 pb-4 border-b border-border">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">1</span>
+                        <div className="space-y-1">
+                          <h2 className="text-xl font-bold text-foreground">بيانات الحساب الأساسية</h2>
+                          <p className="text-sm text-muted-foreground">قم بتعيين بيانات الدخول الخاصة بمدير الحساب</p>
+                        </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="password" className="text-sm font-medium text-foreground/80">كلمة المرور <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          dir="ltr"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="••••••••"
-                          required
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <FormField
+                          control={form.control}
+                          name="username"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">اسم المستخدم <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  dir="ltr"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="password"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">كلمة المرور <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="password"
+                                  dir="ltr"
+                                  placeholder="••••••••"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="confirmPassword"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">تأكيد كلمة المرور <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="password"
+                                  dir="ltr"
+                                  placeholder="••••••••"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Step 2: Company Information */}
+                  {currentStep === 2 && (
+                    <section className="space-y-8">
+                      <div className="flex items-center gap-4 pb-4 border-b border-border">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">2</span>
+                        <div className="space-y-1">
+                          <h2 className="text-xl font-bold text-foreground">معلومات الشركة</h2>
+                          <p className="text-sm text-muted-foreground">بيانات السجل التجاري والنشاط</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="companyName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">اسم الشركة <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="companyType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">نوع الشركة <span className="text-red-500">*</span></FormLabel>
+                              <Select value={field.value} onValueChange={field.onChange}>
+                                <FormControl>
+                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
+                                    <SelectValue placeholder="اختر نوع الشركة" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent position="popper" sideOffset={4} className="z-[100]">
+                                  <SelectItem value="llc">شركة ذات مسؤولية محدودة</SelectItem>
+                                  <SelectItem value="corporation">شركة مساهمة</SelectItem>
+                                  <SelectItem value="partnership">شركة تضامن</SelectItem>
+                                  <SelectItem value="sole-proprietorship">مؤسسة فردية</SelectItem>
+                                  <SelectItem value="other">أخرى</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground/80">تأكيد كلمة المرور <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="confirmPassword"
-                          type="password"
-                          dir="ltr"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="••••••••"
-                          required
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start font-password"
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <FormField
+                          control={form.control}
+                          name="commercialRegistration"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">رقم السجل التجاري <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="10 أرقام"
+                                  dir="ltr"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                  onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </div>
-                    </div>
-                  </section>
-                )}
 
-                {/* Step 2: Company Information */}
-                {currentStep === 2 && (
-                  <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-border">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">2</span>
-                      <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-foreground">معلومات الشركة</h2>
-                        <p className="text-sm text-muted-foreground">بيانات السجل التجاري والنشاط</p>
-                      </div>
-                    </div>
+                        <FormField
+                          control={form.control}
+                          name="taxNumber"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">الرقم الضريبي</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  dir="ltr"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                  onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="companyName" className="text-sm font-medium text-foreground/80">اسم الشركة <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="companyName"
-                          type="text"
-                          value={companyName}
-                          onChange={(e) => setCompanyName(e.target.value)}
-                          required
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                        <FormField
+                          control={form.control}
+                          name="establishmentDate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">تاريخ التأسيس</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="date"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="companyType" className="text-sm font-medium text-foreground/80">نوع الشركة <span className="text-red-500">*</span></Label>
-                        <Select value={companyType} onValueChange={setCompanyType} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
-                            <SelectValue placeholder="اختر نوع الشركة" />
-                          </SelectTrigger>
-                          <SelectContent position="popper" sideOffset={4} className="z-[100]">
-                            <SelectItem value="llc">شركة ذات مسؤولية محدودة</SelectItem>
-                            <SelectItem value="corporation">شركة مساهمة</SelectItem>
-                            <SelectItem value="partnership">شركة تضامن</SelectItem>
-                            <SelectItem value="sole-proprietorship">مؤسسة فردية</SelectItem>
-                            <SelectItem value="other">أخرى</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="commercialRegistration" className="text-sm font-medium text-foreground/80">رقم السجل التجاري <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="commercialRegistration"
-                          type="text"
-                          value={commercialRegistration}
-                          onChange={(e) => handleNumericInput(e.target.value, setCommercialRegistration)}
-                          placeholder="10 أرقام"
-                          dir="ltr"
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="employeesCount"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">عدد الموظفين التقريبي</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                                  onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="taxNumber" className="text-sm font-medium text-foreground/80">الرقم الضريبي</Label>
-                        <Input
-                          id="taxNumber"
-                          type="text"
-                          value={taxNumber}
-                          onChange={(e) => handleNumericInput(e.target.value, setTaxNumber)}
-                          dir="ltr"
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="establishmentDate" className="text-sm font-medium text-foreground/80">تاريخ التأسيس</Label>
-                        <Input
-                          id="establishmentDate"
-                          type="date"
-                          value={establishmentDate}
-                          onChange={(e) => setEstablishmentDate(e.target.value)}
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
-                        />
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="employeesCount" className="text-sm font-medium text-foreground/80">عدد الموظفين التقريبي</Label>
-                        <Input
-                          id="employeesCount"
-                          type="text"
-                          value={employeesCount}
-                          onChange={(e) => handleNumericInput(e.target.value, setEmployeesCount)}
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                        <FormField
+                          control={form.control}
+                          name="companyCity"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">المدينة الرئيسية <span className="text-red-500">*</span></FormLabel>
+                              <Select value={field.value} onValueChange={field.onChange}>
+                                <FormControl>
+                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
+                                    <SelectValue placeholder="اختر المدينة" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent position="popper" sideOffset={4} className="z-[100]">
+                                  {saudiRegions.map((region) => (
+                                    <SelectItem key={region} value={region}>
+                                      {region}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="companyCity" className="text-sm font-medium text-foreground/80">المدينة الرئيسية <span className="text-red-500">*</span></Label>
-                        <Select value={companyCity} onValueChange={setCompanyCity} required>
-                          <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
-                            <SelectValue placeholder="اختر المدينة" />
-                          </SelectTrigger>
-                          <SelectContent position="popper" sideOffset={4} className="z-[100]">
-                            {saudiRegions.map((region) => (
-                              <SelectItem key={region} value={region}>
-                                {region}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="companyAddress" className="text-sm font-medium text-foreground/80">العنوان الكامل</Label>
-                        <Input
-                          id="companyAddress"
-                          type="text"
-                          value={companyAddress}
-                          onChange={(e) => setCompanyAddress(e.target.value)}
-                          placeholder="المدينة، الحي، الشارع"
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="companyAddress"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">العنوان الكامل</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="المدينة، الحي، الشارع"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="companyWebsite" className="text-sm font-medium text-foreground/80">الموقع الإلكتروني</Label>
-                        <Input
-                          id="companyWebsite"
-                          type="url"
-                          dir="ltr"
-                          value={companyWebsite}
-                          onChange={(e) => setCompanyWebsite(e.target.value)}
-                          placeholder="https://company.sa"
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
-                        />
-                      </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="companyDescription" className="text-sm font-medium text-foreground/80">نبذة عن الشركة</Label>
-                      <Textarea
-                        id="companyDescription"
-                        value={companyDescription}
-                        onChange={(e) => setCompanyDescription(e.target.value)}
-                        placeholder="صف مجالات عمل الشركة والخدمات التي تقدمها..."
-                        className="min-h-[120px] rounded-2xl bg-card/50 border-border focus:ring-primary/30"
+                        <FormField
+                          control={form.control}
+                          name="companyWebsite"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">الموقع الإلكتروني</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="url"
+                                  dir="ltr"
+                                  placeholder="https://company.sa"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="companyDescription"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium text-foreground/80">نبذة عن الشركة</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                {...field}
+                                placeholder="صف مجالات عمل الشركة والخدمات التي تقدمها..."
+                                className="min-h-[120px] rounded-2xl bg-card/50 border-border focus:ring-primary/30"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </div>
-                  </section>
-                )}
+                    </section>
+                  )}
 
-                {/* Step 3: Contact Person */}
-                {currentStep === 3 && (
-                  <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-border">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">3</span>
-                      <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-foreground">مسؤول الاتصال</h2>
-                        <p className="text-sm text-muted-foreground">بيانات المفوض بالتواصل</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="contactName" className="text-sm font-medium text-foreground/80">الاسم الكامل <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="contactName"
-                          type="text"
-                          value={contactName}
-                          onChange={(e) => setContactName(e.target.value)}
-                          required
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="contactPosition" className="text-sm font-medium text-foreground/80">المسمى الوظيفي</Label>
-                        <Input
-                          id="contactPosition"
-                          type="text"
-                          value={contactPosition}
-                          onChange={(e) => setContactPosition(e.target.value)}
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="contactEmail" className="text-sm font-medium text-foreground/80">البريد الإلكتروني <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="contactEmail"
-                          type="email"
-                          dir="ltr"
-                          value={contactEmail}
-                          onChange={(e) => setContactEmail(e.target.value)}
-                          required
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="contactPhone" className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></Label>
-                        <Input
-                          id="contactPhone"
-                          type="tel"
-                          value={contactPhone}
-                          onChange={(e) => handleNumericInput(e.target.value, setContactPhone)}
-                          placeholder="05XXXXXXXX"
-                          required
-                          maxLength={10}
-                          dir="ltr"
-                          className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
-                        />
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                {/* Step 4: Documents */}
-                {currentStep === 4 && (
-                  <section className="space-y-8">
-                    <div className="flex items-center gap-4 pb-4 border-b border-border">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">4</span>
-                      <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-foreground">المستندات المساندة</h2>
-                        <p className="text-sm text-muted-foreground">رفع الوثائق الرسمية (اختياري)</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="commercialRegDoc" className="text-sm font-medium text-foreground/80">صورة السجل التجاري</Label>
-                        <div className="relative group">
-                          <Input
-                            id="commercialRegDoc"
-                            type="file"
-                            accept="application/pdf"
-                            onChange={(e) => setCommercialRegDoc(e.target.files)}
-                            className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
-                          />
-                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                  {/* Step 3: Contact Person */}
+                  {currentStep === 3 && (
+                    <section className="space-y-8">
+                      <div className="flex items-center gap-4 pb-4 border-b border-border">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">3</span>
+                        <div className="space-y-1">
+                          <h2 className="text-xl font-bold text-foreground">مسؤول الاتصال</h2>
+                          <p className="text-sm text-muted-foreground">بيانات المفوض بالتواصل</p>
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="vatCertificate" className="text-sm font-medium text-foreground/80">شهادة الضريبة</Label>
-                        <div className="relative group">
-                          <Input
-                            id="vatCertificate"
-                            type="file"
-                            accept="application/pdf"
-                            onChange={(e) => setVatCertificate(e.target.files)}
-                            className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
-                          />
-                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
-                        </div>
-                      </div>
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="contactName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">الاسم الكامل <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      <div className="space-y-2">
-                        <Label htmlFor="companyProfile" className="text-sm font-medium text-foreground/80">ملف تعريف الشركة</Label>
-                        <div className="relative group">
-                          <Input
-                            id="companyProfile"
-                            type="file"
-                            accept="application/pdf"
-                            onChange={(e) => setCompanyProfile(e.target.files)}
-                            className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
-                          />
-                          <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground bg-blue-50/50 p-3 rounded-xl border border-blue-100">
-                      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-100 text-blue-600">
-                        <Check className="w-2.5 h-2.5" />
-                      </span>
-                      جميع الملفات يجب أن تكون بصيغة PDF وبحجم لا يتجاوز 5MB
-                    </div>
-                  </section>
-                )}
-
-                {/* Step 5: Terms and Conditions */}
-                {currentStep === 5 && (
-                  <section className="space-y-6">
-                    <div className="flex items-center gap-4 pb-4 border-b border-border">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">5</span>
-                      <div className="space-y-1">
-                        <h2 className="text-xl font-bold text-foreground">الشروط والأحكام</h2>
-                        <p className="text-sm text-muted-foreground">موافقتك على سياسات المنصة</p>
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl border border-border bg-card/50 p-6 shadow-inner">
-                      <div className="space-y-4 text-sm leading-7 text-muted-foreground max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                        <h3 className="text-base font-bold text-foreground mb-2">شروط استخدام المنصة للمنشآت:</h3>
-                        
-                        <div className="space-y-3">
-                          <p><strong>1. القبول والاتفاقية:</strong> باستخدام المنصة فإنك توافق على شروط الاستخدام وسياسة الخصوصية. إذا لم توافق على البنود فلا يمكنك المتابعة.</p>
-                          <p><strong>2. صحة البيانات:</strong> تلتزم الشركة بتقديم معلومات صحيحة وحديثة، وسيؤدي أي تلاعب أو بيانات مضللة إلى إيقاف الحساب.</p>
-                          <p><strong>3. حماية الحساب:</strong> أنت مسؤول عن سرية بيانات الدخول والحفاظ على أمانها وعدم مشاركتها مع أي طرف غير مخول.</p>
-                          <p><strong>4. الاستخدام المصرح:</strong> يمنع استخدام المنصة في أنشطة مخالفة للقوانين أو انتهاك حقوق الأطراف الأخرى أو إعادة بيع الخدمات دون إذن كتابي.</p>
-                          <p><strong>5. المستندات:</strong> قد نطلب مستندات إضافية لإثبات النشاط التجاري أو التراخيص الرسمية.</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <Label className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group">
-                      <div className="relative flex items-center mt-1">
-                        <Checkbox
-                          checked={agreedToTerms}
-                          onCheckedChange={(checked) => setAgreedToTerms(Boolean(checked))}
-                          className="h-5 w-5"
+                        <FormField
+                          control={form.control}
+                          name="contactPosition"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">المسمى الوظيفي</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
                       </div>
-                      <span className="text-sm font-medium text-foreground/80 leading-relaxed group-hover:text-foreground transition-colors">
-                        أوافق على جميع الشروط والأحكام المذكورة أعلاه وأؤكد صحة البيانات التجارية المقدمة.
-                      </span>
-                    </Label>
-                  </section>
-                )}
 
-                {/* Navigation Buttons */}
-                <div className="flex items-center justify-between pt-6 border-t border-border">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handlePrevious}
-                    disabled={currentStep === 1}
-                    className="h-12 rounded-2xl border-border px-8 text-muted-foreground transition-colors hover:bg-muted/50"
-                  >
-                    <ChevronRight className={cn("me-2", "h-4 w-4")} />
-                    السابق
-                  </Button>
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="contactEmail"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">البريد الإلكتروني <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="email"
+                                  dir="ltr"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                  {currentStep < STEPS.length ? (
+                        <FormField
+                          control={form.control}
+                          name="contactPhone"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="tel"
+                                  placeholder="05XXXXXXXX"
+                                  maxLength={10}
+                                  dir="ltr"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                  onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Step 4: Documents */}
+                  {currentStep === 4 && (
+                    <section className="space-y-8">
+                      <div className="flex items-center gap-4 pb-4 border-b border-border">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">4</span>
+                        <div className="space-y-1">
+                          <h2 className="text-xl font-bold text-foreground">المستندات المساندة</h2>
+                          <p className="text-sm text-muted-foreground">رفع الوثائق الرسمية (اختياري)</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <FormField
+                          control={form.control}
+                          name="commercialRegDoc"
+                          render={({ field: { onChange, value, ...fieldRest } }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">صورة السجل التجاري</FormLabel>
+                              <FormControl>
+                                <div className="relative group">
+                                  <Input
+                                    {...fieldRest}
+                                    type="file"
+                                    accept="application/pdf"
+                                    onChange={(e) => onChange(e.target.files)}
+                                    className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
+                                  />
+                                  <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="vatCertificate"
+                          render={({ field: { onChange, value, ...fieldRest } }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">شهادة الضريبة</FormLabel>
+                              <FormControl>
+                                <div className="relative group">
+                                  <Input
+                                    {...fieldRest}
+                                    type="file"
+                                    accept="application/pdf"
+                                    onChange={(e) => onChange(e.target.files)}
+                                    className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
+                                  />
+                                  <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="companyProfile"
+                          render={({ field: { onChange, value, ...fieldRest } }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">ملف تعريف الشركة</FormLabel>
+                              <FormControl>
+                                <div className="relative group">
+                                  <Input
+                                    {...fieldRest}
+                                    type="file"
+                                    accept="application/pdf"
+                                    onChange={(e) => onChange(e.target.files)}
+                                    className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
+                                  />
+                                  <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                        <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-100 text-blue-600">
+                          <Check className="w-2.5 h-2.5" />
+                        </span>
+                        جميع الملفات يجب أن تكون بصيغة PDF وبحجم لا يتجاوز 5MB
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Step 5: Terms and Conditions */}
+                  {currentStep === 5 && (
+                    <section className="space-y-6">
+                      <div className="flex items-center gap-4 pb-4 border-b border-border">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">5</span>
+                        <div className="space-y-1">
+                          <h2 className="text-xl font-bold text-foreground">الشروط والأحكام</h2>
+                          <p className="text-sm text-muted-foreground">موافقتك على سياسات المنصة</p>
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-border bg-card/50 p-6 shadow-inner">
+                        <div className="space-y-4 text-sm leading-7 text-muted-foreground max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                          <h3 className="text-base font-bold text-foreground mb-2">شروط استخدام المنصة للمنشآت:</h3>
+
+                          <div className="space-y-3">
+                            <p><strong>1. القبول والاتفاقية:</strong> باستخدام المنصة فإنك توافق على شروط الاستخدام وسياسة الخصوصية. إذا لم توافق على البنود فلا يمكنك المتابعة.</p>
+                            <p><strong>2. صحة البيانات:</strong> تلتزم الشركة بتقديم معلومات صحيحة وحديثة، وسيؤدي أي تلاعب أو بيانات مضللة إلى إيقاف الحساب.</p>
+                            <p><strong>3. حماية الحساب:</strong> أنت مسؤول عن سرية بيانات الدخول والحفاظ على أمانها وعدم مشاركتها مع أي طرف غير مخول.</p>
+                            <p><strong>4. الاستخدام المصرح:</strong> يمنع استخدام المنصة في أنشطة مخالفة للقوانين أو انتهاك حقوق الأطراف الأخرى أو إعادة بيع الخدمات دون إذن كتابي.</p>
+                            <p><strong>5. المستندات:</strong> قد نطلب مستندات إضافية لإثبات النشاط التجاري أو التراخيص الرسمية.</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="agreedToTerms"
+                        render={({ field }) => (
+                          <FormItem>
+                            <label className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group">
+                              <div className="relative flex items-center mt-1">
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value === true}
+                                    onCheckedChange={field.onChange}
+                                    className="h-5 w-5"
+                                  />
+                                </FormControl>
+                              </div>
+                              <span className="text-sm font-medium text-foreground/80 leading-relaxed group-hover:text-foreground transition-colors">
+                                أوافق على جميع الشروط والأحكام المذكورة أعلاه وأؤكد صحة البيانات التجارية المقدمة.
+                              </span>
+                            </label>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </section>
+                  )}
+
+                  {/* Navigation Buttons */}
+                  <div className="flex items-center justify-between pt-6 border-t border-border">
                     <Button
                       type="button"
-                      onClick={handleNext}
-                      className="h-12 rounded-2xl bg-primary/10 px-8 text-white hover:bg-primary/10"
+                      variant="outline"
+                      onClick={handlePrevious}
+                      disabled={currentStep === 1}
+                      className="h-12 rounded-2xl border-border px-8 text-muted-foreground transition-colors hover:bg-muted/50"
                     >
-                      التالي
-                      <ChevronLeft className={cn(dir === "rtl" ? "me-2" : "ms-2", "h-4 w-4")} />
+                      <ChevronRight className={cn("me-2", "h-4 w-4")} />
+                      السابق
                     </Button>
-                  ) : (
-                    <Button
-                      type="submit"
-                      disabled={isLoading || !agreedToTerms}
-                      className="h-12 rounded-2xl bg-primary/10 px-8 text-white shadow-lg shadow-primary/20 hover:bg-primary/10 disabled:opacity-60"
-                    >
-                      {isLoading ? (
-                        <>
-                          <Spinner size="sm" className="me-2" />
-                          جاري الإرسال...
-                        </>
-                      ) : (
-                        "إرسال طلب التحقق"
-                      )}
-                    </Button>
-                  )}
-                </div>
-              </form>
+
+                    {currentStep < STEPS.length ? (
+                      <Button
+                        type="button"
+                        onClick={handleNext}
+                        className="h-12 rounded-2xl bg-primary/10 px-8 text-white hover:bg-primary/10"
+                      >
+                        التالي
+                        <ChevronLeft className={cn(dir === "rtl" ? "me-2" : "ms-2", "h-4 w-4")} />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        disabled={isLoading || form.watch("agreedToTerms") !== true}
+                        className="h-12 rounded-2xl bg-primary/10 px-8 text-white shadow-lg shadow-primary/20 hover:bg-primary/10 disabled:opacity-60"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Spinner size="sm" className="me-2" />
+                            جاري الإرسال...
+                          </>
+                        ) : (
+                          "إرسال طلب التحقق"
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </Form>
             </motion.div>
           </div>
         </div>

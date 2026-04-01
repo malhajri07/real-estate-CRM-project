@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { LandingPageContent, PricingPlan } from "@/lib/cms";
 import { CheckCircle2, Star, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface PricingCardsProps {
@@ -71,74 +73,79 @@ export const PricingCards = ({ content, pricingPlans, onSelectPlan }: PricingCar
                                 transition={{ delay: index * 0.15, duration: 0.6 }}
                                 viewport={{ once: true }}
                                 className={cn(
-                                    "relative p-8 rounded-3xl border-2 transition-all duration-500 group",
-                                    isPopular
-                                        ? "bg-gradient-to-br from-card to-primary/10 shadow-2xl border-primary/30 scale-105 z-10"
-                                        : "bg-card shadow-xl border-border hover:border-primary/20 hover:scale-105 hover:shadow-2xl"
+                                    "relative group",
+                                    isPopular ? "scale-105 z-10" : "hover:scale-105"
                                 )}
                             >
-                                {/* Popular Badge */}
-                                {isPopular && (
-                                    <div className="absolute -top-5 start-1/2 -translate-x-1/2 px-5 py-2 bg-primary rounded-full text-primary-foreground text-sm font-black shadow-xl flex items-center gap-2">
-                                        <Star className="w-4 h-4 fill-current" />
-                                        <span>الأكثر طلباً</span>
-                                    </div>
-                                )}
+                                <Card className={cn(
+                                    "relative rounded-3xl border-2 transition-all duration-500 overflow-visible",
+                                    isPopular
+                                        ? "bg-gradient-to-br from-card to-primary/10 shadow-2xl border-primary/30"
+                                        : "bg-card shadow-xl border-border hover:border-primary/20 hover:shadow-2xl"
+                                )}>
+                                    {/* Popular Badge */}
+                                    {isPopular && (
+                                        <Badge className="absolute -top-5 start-1/2 -translate-x-1/2 px-5 py-2 bg-primary rounded-full text-primary-foreground text-sm font-black shadow-xl flex items-center gap-2 hover:bg-primary">
+                                            <Star className="w-4 h-4 fill-current" />
+                                            <span>الأكثر طلباً</span>
+                                        </Badge>
+                                    )}
 
-                                {/* Gradient Overlay for Popular */}
-                                {isPopular && (
-                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                )}
+                                    {/* Gradient Overlay for Popular */}
+                                    {isPopular && (
+                                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                    )}
 
-                                <div className="relative z-10">
-                                    {/* Plan Name */}
-                                    <div className="text-center mb-8">
-                                        <h3 className="text-2xl font-black text-foreground mb-4">{plan.name}</h3>
-                                        <div className="flex items-baseline justify-center gap-2 mb-4">
-                                            <span className="text-5xl font-black text-foreground">{plan.price}</span>
-                                            <span className="text-lg text-muted-foreground font-bold">
-                                                {plan.period === "monthly" ? "ريال/شهر" : "ريال/سنة"}
-                                            </span>
-                                        </div>
-                                        {plan.description && (
-                                            <p className="text-sm text-muted-foreground leading-relaxed" style={{ lineHeight: '1.8' }}>
-                                                {plan.description}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {/* Features List */}
-                                    <ul className="space-y-4 mb-8 min-h-[200px]">
-                                        {plan.features.map((feature, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-sm text-foreground/80">
-                                                <CheckCircle2 className={cn(
-                                                    "w-5 h-5 shrink-0 mt-0.5",
-                                                    feature.included !== false ? "text-primary" : "text-muted-foreground/40"
-                                                )} />
-                                                <span className={cn(
-                                                    "leading-relaxed",
-                                                    feature.included === false && "line-through text-muted-foreground/70"
-                                                )} style={{ lineHeight: '1.8' }}>
-                                                    {feature.text}
+                                    <CardContent className="relative z-10 p-8">
+                                        {/* Plan Name */}
+                                        <div className="text-center mb-8">
+                                            <h3 className="text-2xl font-black text-foreground mb-4">{plan.name}</h3>
+                                            <div className="flex items-baseline justify-center gap-2 mb-4">
+                                                <span className="text-5xl font-black text-foreground">{plan.price}</span>
+                                                <span className="text-lg text-muted-foreground font-bold">
+                                                    {plan.period === "monthly" ? "ريال/شهر" : "ريال/سنة"}
                                                 </span>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                            </div>
+                                            {plan.description && (
+                                                <p className="text-sm text-muted-foreground leading-relaxed" style={{ lineHeight: '1.8' }}>
+                                                    {plan.description}
+                                                </p>
+                                            )}
+                                        </div>
 
-                                    {/* CTA Button */}
-                                    <Button
-                                        onClick={() => onSelectPlan(plan)}
-                                        size="lg"
-                                        className={cn(
-                                            "w-full rounded-2xl py-7 font-black text-lg shadow-xl transition-all duration-300",
-                                            isPopular
-                                                ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/30 hover:shadow-primary/40"
-                                                : "bg-card text-foreground border-2 border-border hover:bg-muted hover:border-primary/30 shadow-sm"
-                                        )}
-                                    >
-                                        {plan.buttonText || "اختر الباقة"}
-                                    </Button>
-                                </div>
+                                        {/* Features List */}
+                                        <ul className="space-y-4 mb-8 min-h-[200px]">
+                                            {plan.features.map((feature, i) => (
+                                                <li key={i} className="flex items-start gap-3 text-sm text-foreground/80">
+                                                    <CheckCircle2 className={cn(
+                                                        "w-5 h-5 shrink-0 mt-0.5",
+                                                        feature.included !== false ? "text-primary" : "text-muted-foreground/40"
+                                                    )} />
+                                                    <span className={cn(
+                                                        "leading-relaxed",
+                                                        feature.included === false && "line-through text-muted-foreground/70"
+                                                    )} style={{ lineHeight: '1.8' }}>
+                                                        {feature.text}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+
+                                        {/* CTA Button */}
+                                        <Button
+                                            onClick={() => onSelectPlan(plan)}
+                                            size="lg"
+                                            className={cn(
+                                                "w-full rounded-2xl py-7 font-black text-lg shadow-xl transition-all duration-300",
+                                                isPopular
+                                                    ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/30 hover:shadow-primary/40"
+                                                    : "bg-card text-foreground border-2 border-border hover:bg-muted hover:border-primary/30 shadow-sm"
+                                            )}
+                                        >
+                                            {plan.buttonText || "اختر الباقة"}
+                                        </Button>
+                                    </CardContent>
+                                </Card>
                             </motion.div>
                         );
                     })}

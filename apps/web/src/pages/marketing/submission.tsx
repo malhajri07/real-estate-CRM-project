@@ -1,15 +1,15 @@
 /**
  * marketing-request.tsx - Marketing Request Form Page
- * 
+ *
  * Location: apps/web/src/ → Pages/ → Public Pages → marketing-request.tsx
  * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
+ *
  * Public marketing request submission form. Provides:
  * - Marketing request form
  * - Request submission
- * 
+ *
  * Route: /marketing-request
- * 
+ *
  * Related Files:
  * - apps/web/src/pages/marketing-requests.tsx - Marketing requests board
  * - apps/api/routes/marketing-requests.ts - Marketing requests API routes
@@ -20,33 +20,55 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiPost } from "@/lib/apiClient";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
-interface FormState {
-  title: string;
-  summary: string;
-  requirements: string;
-  propertyType: string;
-  listingType: string;
-  city: string;
-  district: string;
-  region: string;
-  budgetMin: string;
-  budgetMax: string;
-  preferredStartDate: string;
-  preferredEndDate: string;
-  commissionExpectation: string;
-  seriousnessTier: "STANDARD" | "SERIOUS" | "ENTERPRISE";
-  contactName: string;
-  contactPhone: string;
-  contactEmail: string;
-  propertyId: string;
-}
+const marketingSchema = z.object({
+  title: z.string().min(3, "يرجى إدخال عنوان واضح للطلب (3 أحرف على الأقل)"),
+  summary: z.string().min(20, "الوصف المختصر يجب أن يكون 20 حرفًا على الأقل"),
+  requirements: z.string().optional().default(""),
+  propertyType: z.string().min(1, "نوع العقار مطلوب"),
+  listingType: z.string().optional().default(""),
+  city: z.string().min(1, "المدينة مطلوبة"),
+  district: z.string().optional().default(""),
+  region: z.string().optional().default(""),
+  budgetMin: z.string().optional().default(""),
+  budgetMax: z.string().optional().default(""),
+  preferredStartDate: z.string().optional().default(""),
+  preferredEndDate: z.string().optional().default(""),
+  commissionExpectation: z.string().optional().default(""),
+  seriousnessTier: z.enum(["STANDARD", "SERIOUS", "ENTERPRISE"]).default("STANDARD"),
+  contactName: z.string().min(1, "اسم جهة التواصل مطلوب"),
+  contactPhone: z.string().optional().default(""),
+  contactEmail: z.string().optional().default(""),
+  propertyId: z.string().optional().default(""),
+}).refine(
+  (data) => data.contactPhone?.trim() || data.contactEmail?.trim(),
+  {
+    message: "يرجى إدخال رقم تواصل أو بريد إلكتروني",
+    path: ["contactPhone"],
+  }
+).refine(
+  (data) => {
+    if (data.budgetMin && data.budgetMax) {
+      return Number(data.budgetMin) <= Number(data.budgetMax);
+    }
+    return true;
+  },
+  {
+    message: "الحد الأدنى للميزانية لا يمكن أن يتجاوز الحد الأعلى",
+    path: ["budgetMin"],
+  }
+);
 
-const INITIAL_FORM: FormState = {
+type MarketingFormData = z.infer<typeof marketingSchema>;
+
+const DEFAULT_VALUES: MarketingFormData = {
   title: "",
   summary: "",
   requirements: "",
@@ -68,64 +90,41 @@ const INITIAL_FORM: FormState = {
 };
 
 export default function MarketingRequestSubmissionPage() {
-  const [form, setForm] = useState<FormState>(INITIAL_FORM);
-  const [errors, setErrors] = useState<string[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = event.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const form = useForm<MarketingFormData>({
+    resolver: zodResolver(marketingSchema),
+    defaultValues: DEFAULT_VALUES,
+    mode: "onTouched",
+  });
 
-  const validate = (): string[] => {
-    const nextErrors: string[] = [];
-    if (form.title.trim().length < 3) nextErrors.push("يرجى إدخال عنوان واضح للطلب.");
-    if (form.summary.trim().length < 20) nextErrors.push("الوصف المختصر يجب أن يكون 20 حرفًا على الأقل.");
-    if (!form.propertyType.trim()) nextErrors.push("نوع العقار مطلوب.");
-    if (!form.city.trim()) nextErrors.push("المدينة مطلوبة.");
-    if (!form.contactName.trim()) nextErrors.push("اسم جهة التواصل مطلوب.");
-    if (!form.contactPhone.trim() && !form.contactEmail.trim()) nextErrors.push("يرجى إدخال رقم تواصل أو بريد إلكتروني.");
-    if (form.budgetMin && form.budgetMax && Number(form.budgetMin) > Number(form.budgetMax)) {
-      nextErrors.push("الحد الأدنى للميزانية لا يمكن أن يتجاوز الحد الأعلى.");
-    }
-    return nextErrors;
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setErrors([]);
+  const onSubmit = async (data: MarketingFormData) => {
     setMessage(null);
-
-    const validationErrors = validate();
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
     setSubmitting(true);
+
     try {
       const payload = {
-        title: form.title.trim(),
-        summary: form.summary.trim(),
-        requirements: form.requirements.trim() || undefined,
-        propertyType: form.propertyType.trim(),
-        listingType: form.listingType.trim() || undefined,
-        city: form.city.trim(),
-        district: form.district.trim() || undefined,
-        region: form.region.trim() || undefined,
-        budgetMin: form.budgetMin ? Number(form.budgetMin) : undefined,
-        budgetMax: form.budgetMax ? Number(form.budgetMax) : undefined,
-        preferredStartDate: form.preferredStartDate ? new Date(form.preferredStartDate).toISOString() : undefined,
-        preferredEndDate: form.preferredEndDate ? new Date(form.preferredEndDate).toISOString() : undefined,
-        commissionExpectation: form.commissionExpectation ? Number(form.commissionExpectation) : undefined,
-        seriousnessTier: form.seriousnessTier,
-        contactName: form.contactName.trim(),
-        contactPhone: form.contactPhone.trim() || undefined,
-        contactEmail: form.contactEmail.trim() || undefined,
-        propertyId: form.propertyId.trim() || undefined,
+        title: data.title.trim(),
+        summary: data.summary.trim(),
+        requirements: data.requirements?.trim() || undefined,
+        propertyType: data.propertyType.trim(),
+        listingType: data.listingType?.trim() || undefined,
+        city: data.city.trim(),
+        district: data.district?.trim() || undefined,
+        region: data.region?.trim() || undefined,
+        budgetMin: data.budgetMin ? Number(data.budgetMin) : undefined,
+        budgetMax: data.budgetMax ? Number(data.budgetMax) : undefined,
+        preferredStartDate: data.preferredStartDate ? new Date(data.preferredStartDate).toISOString() : undefined,
+        preferredEndDate: data.preferredEndDate ? new Date(data.preferredEndDate).toISOString() : undefined,
+        commissionExpectation: data.commissionExpectation ? Number(data.commissionExpectation) : undefined,
+        seriousnessTier: data.seriousnessTier,
+        contactName: data.contactName.trim(),
+        contactPhone: data.contactPhone?.trim() || undefined,
+        contactEmail: data.contactEmail?.trim() || undefined,
+        propertyId: data.propertyId?.trim() || undefined,
       };
 
       try {
@@ -143,7 +142,7 @@ export default function MarketingRequestSubmissionPage() {
         title: "تم استلام طلب التسويق",
         description: "سيتم إخطار الوسطاء المؤهلين بعد مراجعة البيانات.",
       });
-      setForm(INITIAL_FORM);
+      form.reset(DEFAULT_VALUES);
       setTimeout(() => navigate("/home/platform"), 2500);
     } catch (error) {
       console.error("Marketing request submission error", error);
@@ -168,244 +167,386 @@ export default function MarketingRequestSubmissionPage() {
           </p>
         </header>
 
-        <form onSubmit={handleSubmit} className="bg-card shadow-xl rounded-3xl border border-border p-6 md:p-10 space-y-8">
-          {errors.length > 0 && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4" role="alert">
-              <strong className="block mb-2">يرجى مراجعة البيانات التالية:</strong>
-              <ul className="list-disc list-inside space-y-1 text-sm">
-                {errors.map((error) => (
-                  <li key={error}>{error}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {message && (
-            <div className="rounded-2xl border border-primary/20 bg-primary/10 text-primary p-4" role="status">
-              {message}
-            </div>
-          )}
-
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">عنوان الطلب *</span>
-              <Input
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="مثال: حملة تسويق لفيلا في حي الياسمين"
-                required
-              />
-            </Label>
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">نوع العقار *</span>
-              <Input
-                name="propertyType"
-                value={form.propertyType}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="مثال: فيلا، شقة، أرض"
-                required
-              />
-            </Label>
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">نوع العرض</span>
-              <Input
-                name="listingType"
-                value={form.listingType}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="بيع، إيجار، استثمار"
-              />
-            </Label>
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">المدينة *</span>
-              <Input
-                name="city"
-                value={form.city}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="مثال: الرياض"
-                required
-              />
-            </Label>
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">الحي</span>
-              <Input
-                name="district"
-                value={form.district}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="مثال: حي الياسمين"
-              />
-            </Label>
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">المنطقة</span>
-              <Input
-                name="region"
-                value={form.region}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="مثال: منطقة الرياض"
-              />
-            </Label>
-          </section>
-
-          <section className="space-y-4">
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">وصف مختصر للحملة *</span>
-              <Textarea
-                name="summary"
-                value={form.summary}
-                onChange={handleChange}
-                className="mt-1 w-full min-h-[140px] rounded-2xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="عرّفنا بالعقار وأهداف الحملة التسويقية والنتيجة المتوقعة"
-                required
-              />
-            </Label>
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">تفاصيل إضافية (اختياري)</span>
-              <Textarea
-                name="requirements"
-                value={form.requirements}
-                onChange={handleChange}
-                className="mt-1 w-full min-h-[120px] rounded-2xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="اذكر المتطلبات الخاصة أو المستندات المساندة"
-              />
-            </Label>
-          </section>
-
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <span className="text-sm text-muted-foreground">الميزانية التقديرية للحملة</span>
-              <div className="grid grid-cols-2 gap-4 mt-2">
-                <Input
-                  name="budgetMin"
-                  value={form.budgetMin}
-                  onChange={handleChange}
-                  type="number"
-                  min="0"
-                  className="rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                  placeholder="الحد الأدنى"
-                />
-                <Input
-                  name="budgetMax"
-                  value={form.budgetMax}
-                  onChange={handleChange}
-                  type="number"
-                  min="0"
-                  className="rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                  placeholder="الحد الأعلى"
-                />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="bg-card shadow-xl rounded-3xl border border-border p-6 md:p-10 space-y-8">
+            {Object.keys(form.formState.errors).length > 0 && form.formState.isSubmitted && (
+              <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4" role="alert">
+                <strong className="block mb-2">يرجى مراجعة البيانات التالية:</strong>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  {Object.values(form.formState.errors).map((error, idx) => (
+                    <li key={idx}>{error?.message as string}</li>
+                  ))}
+                </ul>
               </div>
-            </div>
-            <div>
-              <span className="text-sm text-muted-foreground">نسبة السعي المتوقعة</span>
-              <Input
+            )}
+
+            {message && (
+              <div className="rounded-2xl border border-primary/20 bg-primary/10 text-primary p-4" role="status">
+                {message}
+              </div>
+            )}
+
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">عنوان الطلب *</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="مثال: حملة تسويق لفيلا في حي الياسمين"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="propertyType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">نوع العقار *</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="مثال: فيلا، شقة، أرض"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="listingType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">نوع العرض</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="بيع، إيجار، استثمار"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">المدينة *</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="مثال: الرياض"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="district"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">الحي</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="مثال: حي الياسمين"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="region"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">المنطقة</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="مثال: منطقة الرياض"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </section>
+
+            <section className="space-y-4">
+              <FormField
+                control={form.control}
+                name="summary"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">وصف مختصر للحملة *</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        className="mt-1 w-full min-h-[140px] rounded-2xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="عرّفنا بالعقار وأهداف الحملة التسويقية والنتيجة المتوقعة"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="requirements"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">تفاصيل إضافية (اختياري)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        className="mt-1 w-full min-h-[120px] rounded-2xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="اذكر المتطلبات الخاصة أو المستندات المساندة"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </section>
+
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <span className="text-sm text-muted-foreground">الميزانية التقديرية للحملة</span>
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                  <FormField
+                    control={form.control}
+                    name="budgetMin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="0"
+                            className="rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                            placeholder="الحد الأدنى"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="budgetMax"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="number"
+                            min="0"
+                            className="rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                            placeholder="الحد الأعلى"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <FormField
+                control={form.control}
                 name="commissionExpectation"
-                value={form.commissionExpectation}
-                onChange={handleChange}
-                type="number"
-                min="0"
-                step="0.1"
-                className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="مثال: 2.5"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">نسبة السعي المتوقعة</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="مثال: 2.5"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div>
-              <span className="text-sm text-muted-foreground">تاريخ البدء المفضل</span>
-              <Input
+
+              <FormField
+                control={form.control}
                 name="preferredStartDate"
-                value={form.preferredStartDate}
-                onChange={handleChange}
-                type="date"
-                className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">تاريخ البدء المفضل</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="date"
+                        className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div>
-              <span className="text-sm text-muted-foreground">تاريخ الانتهاء المتوقع</span>
-              <Input
+
+              <FormField
+                control={form.control}
                 name="preferredEndDate"
-                value={form.preferredEndDate}
-                onChange={handleChange}
-                type="date"
-                className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">تاريخ الانتهاء المتوقع</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type="date"
+                        className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-          </section>
+            </section>
 
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="block">
-              <Label className="text-sm text-muted-foreground">فئة الطلب</Label>
-              <Select value={form.seriousnessTier} onValueChange={(value) => setForm((prev) => ({ ...prev, seriousnessTier: value as FormState["seriousnessTier"] }))}>
-                <SelectTrigger className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="STANDARD">أساسي</SelectItem>
-                  <SelectItem value="SERIOUS">جاد (أولوية وسرعة أعلى)</SelectItem>
-                  <SelectItem value="ENTERPRISE">مؤسسي (متطلبات متقدمة)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">معرف العقار (اختياري)</span>
-              <Input
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="seriousnessTier"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">فئة الطلب</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="STANDARD">أساسي</SelectItem>
+                        <SelectItem value="SERIOUS">جاد (أولوية وسرعة أعلى)</SelectItem>
+                        <SelectItem value="ENTERPRISE">مؤسسي (متطلبات متقدمة)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="propertyId"
-                value={form.propertyId}
-                onChange={handleChange}
-                className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="اربط الطلب بعقار مسجل في النظام"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">معرف العقار (اختياري)</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="اربط الطلب بعقار مسجل في النظام"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </Label>
-          </section>
+            </section>
 
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">اسم جهة التواصل *</span>
-              <Input
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
                 name="contactName"
-                value={form.contactName}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="مثال: أحمد العتيبي"
-                required
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">اسم جهة التواصل *</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="مثال: أحمد العتيبي"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </Label>
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">رقم التواصل</span>
-              <Input
-                name="contactPhone"
-                value={form.contactPhone}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="05XXXXXXXX"
-              />
-            </Label>
-            <Label className="block">
-              <span className="text-sm text-muted-foreground">البريد الإلكتروني</span>
-              <Input
-                name="contactEmail"
-                value={form.contactEmail}
-                onChange={handleChange}
-                className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                placeholder="example@email.com"
-                type="email"
-              />
-            </Label>
-          </section>
 
-          <div className="pt-6 border-t border-border">
-            <Button
-              type="submit"
-              disabled={submitting}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {submitting ? "جاري إرسال الطلب..." : "إرسال الطلب للمراجعة"}
-            </Button>
-          </div>
-        </form>
+              <FormField
+                control={form.control}
+                name="contactPhone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">رقم التواصل</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="05XXXXXXXX"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="contactEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm text-muted-foreground">البريد الإلكتروني</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
+                        placeholder="example@email.com"
+                        type="email"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </section>
+
+            <div className="pt-6 border-t border-border">
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {submitting ? "جاري إرسال الطلب..." : "إرسال الطلب للمراجعة"}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </div>
     </div>
   );

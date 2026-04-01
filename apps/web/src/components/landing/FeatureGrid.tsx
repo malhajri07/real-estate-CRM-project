@@ -3,6 +3,7 @@ import { LandingPageContent } from "@/lib/cms";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { ComponentType } from "react";
 import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface FeatureGridProps {
     content: LandingPageContent;
@@ -89,36 +90,38 @@ export const FeatureGrid = ({ content, iconMap }: FeatureGridProps) => {
                             <motion.div
                                 key={feature.id}
                                 variants={item}
-                                className="group relative p-8 rounded-3xl bg-white border-2 border-border hover:border-primary/20 shadow-lg hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 hover:-translate-y-2"
+                                className="group relative"
                             >
-                                {/* Gradient Background on Hover */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-50/0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                
-                                {/* Accent Border */}
-                                <div className="absolute inset-0 rounded-3xl border-2 border-primary/20 group-hover:border-primary/20 transition-all duration-500" />
+                                <Card className="relative rounded-3xl border-2 border-border hover:border-primary/20 shadow-lg hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 hover:-translate-y-2 bg-white">
+                                    {/* Gradient Background on Hover */}
+                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-50/0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                                <div className="relative z-10">
-                                    {/* Icon */}
-                                    <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
-                                        {Icon && <Icon className="w-8 h-8 text-muted-foreground" />}
-                                    </div>
+                                    {/* Accent Border */}
+                                    <div className="absolute inset-0 rounded-3xl border-2 border-primary/20 group-hover:border-primary/20 transition-all duration-500" />
 
-                                    {/* Title */}
-                                    <h3 className="text-2xl font-black text-foreground mb-4 group-hover:text-foreground/80 transition-colors duration-300">
-                                        {feature.title}
-                                    </h3>
+                                    <CardContent className="relative z-10 p-8">
+                                        {/* Icon */}
+                                        <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
+                                            {Icon && <Icon className="w-8 h-8 text-muted-foreground" />}
+                                        </div>
 
-                                    {/* Description */}
-                                    <p className="text-muted-foreground leading-relaxed mb-6" style={{ lineHeight: '1.8' }}>
-                                        {feature.description}
-                                    </p>
+                                        {/* Title */}
+                                        <h3 className="text-2xl font-black text-foreground mb-4 group-hover:text-foreground/80 transition-colors duration-300">
+                                            {feature.title}
+                                        </h3>
 
-                                    {/* Read More Link */}
-                                    <div className="flex items-center text-primary font-bold text-sm gap-2 opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                                        <span>اقرأ المزيد</span>
-                                        <ArrowLeft className="w-4 h-4" />
-                                    </div>
-                                </div>
+                                        {/* Description */}
+                                        <p className="text-muted-foreground leading-relaxed mb-6" style={{ lineHeight: '1.8' }}>
+                                            {feature.description}
+                                        </p>
+
+                                        {/* Read More Link */}
+                                        <div className="flex items-center text-primary font-bold text-sm gap-2 opacity-0 translate-x-[-10px] group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                                            <span>اقرأ المزيد</span>
+                                            <ArrowLeft className="w-4 h-4" />
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             </motion.div>
                         );
                     })}

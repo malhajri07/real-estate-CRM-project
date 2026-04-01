@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { LandingPageContent } from "@/lib/cms";
 import { ComponentType } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Sparkles, Mail, Phone, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -86,6 +87,8 @@ export const ContactSection = ({ content, iconMap }: ContactSectionProps) => {
                                         <h3 className="text-xl font-black text-foreground mb-4 group-hover:text-foreground/80 transition-colors duration-300">
                                             {info.label}
                                         </h3>
+
+                                        <Separator className="mb-4" />
 
                                         {/* Value */}
                                         <p className={cn(
