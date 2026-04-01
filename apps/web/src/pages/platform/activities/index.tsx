@@ -90,45 +90,41 @@ export default function Activities() {
                         <Table>
                             <TableHeader className="bg-muted/50">
                                 <TableRow>
-                                    <TableHead className="text-end">{t("activities.table.title")}</TableHead>
-                                    <TableHead className="text-end">{t("activities.table.type")}</TableHead>
-                                    <TableHead className="text-end">{t("activities.table.date")}</TableHead>
-                                    <TableHead className="text-end">{t("activities.table.status")}</TableHead>
-                                    <TableHead className="text-end w-[100px]">{t("activities.table.actions")}</TableHead>
+                                    <TableHead className="text-start w-[80px]">{"الإجراءات"}</TableHead>
+                                    <TableHead className="text-start">{"الحالة"}</TableHead>
+                                    <TableHead className="text-start">{"التاريخ"}</TableHead>
+                                    <TableHead className="text-start">{"النوع"}</TableHead>
+                                    <TableHead className="text-start">{"العنوان"}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {filteredActivities.map((activity) => (
                                     <TableRow key={activity.id}>
-                                        <TableCell className="text-end font-medium">
-                                            {activity.title}
+                                        <TableCell>
+                                            <Button variant="ghost" size="sm" onClick={() => { }}>
+                                                <Check className="w-4 h-4" />
+                                            </Button>
                                         </TableCell>
-                                        <TableCell className="text-end">
-                                            <Badge variant="outline" className="capitalize">{activity.type}</Badge>
+                                        <TableCell>
+                                            <Badge variant={activity.completed ? "success" : "secondary"}>
+                                                {activity.completed ? "مكتمل" : "قيد الانتظار"}
+                                            </Badge>
                                         </TableCell>
-                                        <TableCell className="text-end">
+                                        <TableCell>
                                             <div className="flex items-center gap-2">
                                                 <Clock className="w-4 h-4 text-muted-foreground" />
                                                 <span>
                                                     {activity.scheduledDate
                                                         ? formatAdminDate(activity.scheduledDate)
-                                                        : t("common.no_date")}
-                                                    {' '}
-                                                    {activity.scheduledDate
-                                                        ? new Date(activity.scheduledDate).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })
-                                                        : ''}
+                                                        : "لا يوجد تاريخ"}
                                                 </span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-end">
-                                            <Badge variant={activity.completed ? "success" : "secondary"}>
-                                                {activity.completed ? t("status.completed") : t("status.pending")}
-                                            </Badge>
+                                        <TableCell>
+                                            <Badge variant="outline" className="capitalize">{activity.type}</Badge>
                                         </TableCell>
-                                        <TableCell className="text-end">
-                                            <Button variant="ghost" size="sm" onClick={() => { }}>
-                                                <Check className="w-4 h-4" />
-                                            </Button>
+                                        <TableCell className="font-bold">
+                                            {activity.title}
                                         </TableCell>
                                     </TableRow>
                                 ))}

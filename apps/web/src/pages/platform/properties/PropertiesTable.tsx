@@ -26,15 +26,15 @@ export default function PropertiesTable({
     <Table className="min-w-[900px]">
       <TableHeader className="bg-muted/50">
         <TableRow>
-          <TableHead className="text-end">الصورة</TableHead>
-          <TableHead className="text-end">العقار</TableHead>
-          <TableHead className="text-end">الموقع</TableHead>
-          <TableHead className="text-end">النوع</TableHead>
-          <TableHead className="text-end">الحالة</TableHead>
-          <TableHead className="text-end">السعر</TableHead>
-          <TableHead className="text-end">المساحة</TableHead>
-          <TableHead className="text-end">الغرف</TableHead>
-          <TableHead className="text-end">الإجراءات</TableHead>
+          <TableHead className="text-start w-[120px]">{"الإجراءات"}</TableHead>
+          <TableHead className="text-start">{"الغرف"}</TableHead>
+          <TableHead className="text-start">{"المساحة"}</TableHead>
+          <TableHead className="text-start">{"السعر"}</TableHead>
+          <TableHead className="text-start">{"الحالة"}</TableHead>
+          <TableHead className="text-start">{"النوع"}</TableHead>
+          <TableHead className="text-start">{"الموقع"}</TableHead>
+          <TableHead className="text-start">{"العقار"}</TableHead>
+          <TableHead className="text-start">{"الصورة"}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -45,12 +45,57 @@ export default function PropertiesTable({
             onClick={() => onNavigate(property.id)}
           >
             <TableCell>
+              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onNavigate(property.id); }} title="عرض">
+                  <Eye size={14} />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onShare(property, "whatsapp"); }} title="مشاركة">
+                  <Share2 size={14} />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()} title="تعديل">
+                  <Edit size={14} />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onDelete(property.id); }} disabled={isDeletePending} title="حذف">
+                  <Trash2 size={14} />
+                </Button>
+              </div>
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                {property.bedrooms && (
+                  <span className="flex items-center gap-1"><Bed size={12} />{property.bedrooms}</span>
+                )}
+                {property.bathrooms && (
+                  <span className="flex items-center gap-1"><Bath size={12} />{property.bathrooms}</span>
+                )}
+                {property.livingRooms != null && property.livingRooms !== 0 && (
+                  <span className="flex items-center gap-1"><Sofa size={12} />{property.livingRooms}</span>
+                )}
+              </div>
+            </TableCell>
+            <TableCell>
+              {property.areaSqm != null ? `${typeof property.areaSqm === "number" ? property.areaSqm.toLocaleString("en-US") : property.areaSqm} متر²` : "-"}
+            </TableCell>
+            <TableCell>
+              <div className="font-bold text-primary">{formatCurrency(property.price)}</div>
+            </TableCell>
+            <TableCell>
+              <Badge variant={getPropertyStatusVariant(property.status)}>{property.status}</Badge>
+            </TableCell>
+            <TableCell>{property.propertyType}</TableCell>
+            <TableCell>
+              <div>{property.city}{property.state ? `, ${property.state}` : ""}</div>
+              <div className="mt-1 text-xs text-muted-foreground">{property.address}</div>
+            </TableCell>
+            <TableCell>
+              <div className="font-bold line-clamp-1">{property.title}</div>
+              <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1"><Square size={12} />{property.propertyType}</span>
+              </div>
+            </TableCell>
+            <TableCell>
               {property.photoUrls && property.photoUrls.length > 0 ? (
-                <img
-                  src={property.photoUrls[0]}
-                  alt={property.title}
-                  className="w-16 h-12 object-cover rounded"
-                />
+                <img src={property.photoUrls[0]} alt={property.title} className="w-16 h-12 object-cover rounded" />
               ) : (
                 <div className="w-16 h-12 bg-muted rounded flex items-center justify-center">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
@@ -60,87 +105,6 @@ export default function PropertiesTable({
                   </svg>
                 </div>
               )}
-            </TableCell>
-            <TableCell>
-              <div className="font-semibold line-clamp-1">{property.title}</div>
-              <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Square size={12} />
-                  {property.propertyType}
-                </span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <div>{property.city}, {property.state}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{property.address}</div>
-            </TableCell>
-            <TableCell>{property.propertyType}</TableCell>
-            <TableCell>
-              <Badge variant={getPropertyStatusVariant(property.status)}>
-                {property.status}
-              </Badge>
-            </TableCell>
-            <TableCell>
-              <div className="font-semibold text-primary">
-                {formatCurrency(property.price)}
-              </div>
-            </TableCell>
-            <TableCell>
-              {property.areaSqm != null ? `${typeof property.areaSqm === "number" ? property.areaSqm.toLocaleString("en-US") : property.areaSqm} متر²` : "-"}
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                {property.bedrooms && (
-                  <span className="flex items-center gap-1">
-                    <Bed size={12} />
-                    {property.bedrooms}
-                  </span>
-                )}
-                {property.bathrooms && (
-                  <span className="flex items-center gap-1">
-                    <Bath size={12} />
-                    {property.bathrooms}
-                  </span>
-                )}
-                {property.livingRooms != null && property.livingRooms !== 0 && (
-                  <span className="flex items-center gap-1">
-                    <Sofa size={12} />
-                    {property.livingRooms}
-                  </span>
-                )}
-              </div>
-            </TableCell>
-            <TableCell>
-              <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => { e.stopPropagation(); onNavigate(property.id); }}
-                  title="عرض التفاصيل"
-                >
-                  <Eye size={14} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => { e.stopPropagation(); onShare(property, "whatsapp"); }}
-                  title="مشاركة العقار"
-                >
-                  <Share2 size={14} />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()} title="تعديل العقار">
-                  <Edit size={14} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => { e.stopPropagation(); onDelete(property.id); }}
-                  disabled={isDeletePending}
-                  title="حذف العقار"
-                >
-                  <Trash2 size={14} />
-                </Button>
-              </div>
             </TableCell>
           </TableRow>
         ))}

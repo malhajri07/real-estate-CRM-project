@@ -367,17 +367,17 @@ export default function Requests() {
                                 <Table className="min-w-[900px]">
                                     <TableHeader className="bg-muted/50">
                                         <TableRow>
-                                            <TableHead className="text-end">{t("pool.table.type")}</TableHead>
-                                            <TableHead className="text-end">{t("pool.table.city")}</TableHead>
-                                            <TableHead className="text-end">{t("pool.table.region")}</TableHead>
-                                            <TableHead className="text-end">{t("pool.table.budget")}</TableHead>
-                                            <TableHead className="text-end">{t("pool.table.bedrooms")}</TableHead>
-                                            <TableHead className="text-end">{t("pool.table.bathrooms")}</TableHead>
-                                            <TableHead className="text-end">{t("pool.table.living_rooms")}</TableHead>
-                                            <TableHead className="text-end">{t("pool.table.notes")}</TableHead>
-                                            <TableHead className="text-end">{t("pool.table.source")}</TableHead>
-                                            <TableHead className="text-end">{t("pool.table.date")}</TableHead>
-                                            <TableHead className="text-end">{t("pool.table.actions")}</TableHead>
+                                            <TableHead className="text-start w-[140px]">{"الإجراءات"}</TableHead>
+                                            <TableHead className="text-start">{"التاريخ"}</TableHead>
+                                            <TableHead className="text-start">{"المصدر"}</TableHead>
+                                            <TableHead className="text-start">{"ملاحظات"}</TableHead>
+                                            <TableHead className="text-start">{"صالات"}</TableHead>
+                                            <TableHead className="text-start">{"حمامات"}</TableHead>
+                                            <TableHead className="text-start">{"غرف"}</TableHead>
+                                            <TableHead className="text-start">{"الميزانية"}</TableHead>
+                                            <TableHead className="text-start">{"المنطقة"}</TableHead>
+                                            <TableHead className="text-start">{"المدينة"}</TableHead>
+                                            <TableHead className="text-start">{"النوع"}</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -387,54 +387,41 @@ export default function Requests() {
                                             return (
                                             <TableRow key={reqId ?? `row-${idx}`}>
                                                 <TableCell>
-                                                    <Badge variant={req.type === "Buy" || req.type === "شراء" ? "info" : "purple"}>
-                                                        {req.type || "—"}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>{req.city || "—"}</TableCell>
-                                                <TableCell>{req.region || "—"}</TableCell>
-                                                <TableCell className="font-medium text-primary">
-                                                    {req.minPrice != null && req.maxPrice != null
-                                                        ? `${Number(req.minPrice).toLocaleString("en-US")} - ${Number(req.maxPrice).toLocaleString("en-US")}`
-                                                        : req.minPrice != null
-                                                            ? Number(req.minPrice).toLocaleString("en-US")
-                                                            : "—"}
-                                                </TableCell>
-                                                <TableCell>{req.minBedrooms ?? req.maxBedrooms ?? "—"}</TableCell>
-                                                <TableCell>{req.bathrooms ?? "—"}</TableCell>
-                                                <TableCell>{req.livingRooms ?? "—"}</TableCell>
-                                                <TableCell className="max-w-[200px] truncate text-muted-foreground" title={req.notes || ""}>
-                                                    {req.notes || "—"}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <span className={cn(
-                                                        "text-xs font-medium",
-                                                        reqSource === "customer_request" ? STATUS_COLORS.warning.text : "text-muted-foreground",
-                                                    )}>
-                                                        {reqSource === "customer_request" ? t("pool.customer_request") : t("pool.buyer_pool")}
-                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        {reqSource === "customer_request" && req.canSendSms && (
+                                                            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { setSmsTargetId(reqId ?? null); setSmsDialogOpen(true); }}>
+                                                                <MessageSquare className="h-4 w-4" />
+                                                                {"رسالة"}
+                                                            </Button>
+                                                        )}
+                                                        <Button size="sm" onClick={() => reqId && claimMutation.mutate({ requestId: reqId, source: reqSource })} disabled={claimMutation.isPending}>
+                                                            {claimMutation.isPending ? "جاري..." : "استلام"}
+                                                        </Button>
+                                                    </div>
                                                 </TableCell>
                                                 <TableCell className="text-muted-foreground">
                                                     {req.createdAt
                                                         ? formatDistanceToNow(new Date(req.createdAt), { addSuffix: true, locale: dir === "rtl" ? ar : undefined })
                                                         : "—"}
                                                 </TableCell>
-                                                <TableCell className="text-end">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        {reqSource === "customer_request" && req.canSendSms && (
-                                                            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { setSmsTargetId(reqId ?? null); setSmsDialogOpen(true); }}>
-                                                                <MessageSquare className="h-4 w-4" />
-                                                                {t("pool.send_sms")}
-                                                            </Button>
-                                                        )}
-                                                        <Button
-                                                            size="sm"
-                                                            onClick={() => reqId && claimMutation.mutate({ requestId: reqId, source: reqSource })}
-                                                            disabled={claimMutation.isPending}
-                                                        >
-                                                            {claimMutation.isPending ? t("pool.claiming") : t("pool.claim")}
-                                                        </Button>
-                                                    </div>
+                                                <TableCell>
+                                                    <span className={cn("text-xs font-bold", reqSource === "customer_request" ? STATUS_COLORS.warning.text : "text-muted-foreground")}>
+                                                        {reqSource === "customer_request" ? "طلب عميل" : "مجمع المشترين"}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell className="max-w-[200px] truncate text-muted-foreground" title={req.notes || ""}>{req.notes || "—"}</TableCell>
+                                                <TableCell>{req.livingRooms ?? "—"}</TableCell>
+                                                <TableCell>{req.bathrooms ?? "—"}</TableCell>
+                                                <TableCell>{req.minBedrooms ?? req.maxBedrooms ?? "—"}</TableCell>
+                                                <TableCell className="font-bold text-primary">
+                                                    {req.minPrice != null && req.maxPrice != null
+                                                        ? `${Number(req.minPrice).toLocaleString("en-US")} - ${Number(req.maxPrice).toLocaleString("en-US")}`
+                                                        : req.minPrice != null ? Number(req.minPrice).toLocaleString("en-US") : "—"}
+                                                </TableCell>
+                                                <TableCell>{req.region || "—"}</TableCell>
+                                                <TableCell>{req.city || "—"}</TableCell>
+                                                <TableCell>
+                                                    <Badge variant={req.type === "Buy" || req.type === "شراء" ? "info" : "purple"}>{req.type || "—"}</Badge>
                                                 </TableCell>
                                             </TableRow>
                                         );
