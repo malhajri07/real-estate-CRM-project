@@ -172,152 +172,6 @@ model districts {
   @@index([regionId])
 }
 
-model file_assets {
-  id             String         @id @default(uuid())
-  ownerUserId    String?
-  organizationId String?
-  entity         String
-  entityId       String
-  url            String
-  mime           String
-  size           Int
-  filename       String
-  createdAt      DateTime       @default(now())
-  organizations  organizations? @relation(fields: [organizationId], references: [id])
-  users          users?         @relation(fields: [ownerUserId], references: [id])
-
-  @@index([entityId])
-  @@index([entity])
-  @@index([organizationId])
-  @@index([ownerUserId])
-}
-
-model landing_page_contact_info {
-  id                   String               @id @default(uuid())
-  type                 String
-  label                String
-  value                String
-  icon                 String
-  order                Int                  @default(0)
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-  landingPageContentId String
-  landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-}
-
-model landing_page_content {
-  id                        String                      @id @default(uuid())
-  createdAt                 DateTime                    @default(now())
-  updatedAt                 DateTime                    @updatedAt
-  loadingText               String                      @default("جار تحميل المحتوى...")
-  heroWelcomeText           String                      @default("مرحباً بك في")
-  heroTitle                 String                      @default("منصة عقاراتي للوساطة العقارية")
-  heroSubtitle              String                      @default("منصة شاملة لإدارة العقارات والوساطة العقارية مع أدوات تسويق متقدمة")
-  heroButton                String                      @default("ابدأ رحلتك المجانية")
-  heroLoginButton           String                      @default("تسجيل الدخول")
-  heroDashboardTitle        String                      @default("منصة عقاراتي - لوحة التحكم")
-  featuresTitle             String                      @default("لماذا تختار منصة عقاراتي؟")
-  featuresDescription       String                      @default("عندما يجتمع التحديث بالاحترافية، تكون منصة عقاراتي هي الخيار الأمثل لإدارة عقاراتك بكفاءة")
-  solutionsTitle            String                      @default("حلول شاملة لإدارة العقارات")
-  solutionsDescription      String                      @default("أدوات متكاملة تساعدك في إدارة جميع جوانب أعمالك العقارية")
-  statsTitle                String                      @default("أرقامنا تتحدث")
-  pricingTitle              String                      @default("خطط الأسعار")
-  pricingSubtitle           String                      @default("اختر الخطة المناسبة لك")
-  contactTitle              String                      @default("تواصل معنا")
-  contactDescription        String                      @default("نحن هنا لمساعدتك في رحلتك العقارية")
-  footerDescription         String                      @default("منصة عقاراتي - الحل الشامل لإدارة العقارات والوساطة العقارية")
-  footerCopyright           String                      @default("© 2024 منصة عقاراتي. جميع الحقوق محفوظة.")
-  landing_page_contact_info landing_page_contact_info[]
-  landing_page_features     landing_page_features[]
-  landing_page_footer_links landing_page_footer_links[]
-  landing_page_hero_metrics landing_page_hero_metrics[]
-  landing_page_navigation   landing_page_navigation[]
-  landing_page_solutions    landing_page_solutions[]
-  landing_page_stats        landing_page_stats[]
-}
-
-model landing_page_features {
-  id                   String               @id @default(uuid())
-  title                String
-  description          String
-  icon                 String
-  order                Int                  @default(0)
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-  landingPageContentId String
-  landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-}
-
-model landing_page_footer_links {
-  id                   String               @id @default(uuid())
-  text                 String
-  url                  String
-  category             String
-  order                Int                  @default(0)
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-  landingPageContentId String
-  landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-}
-
-model landing_page_hero_metrics {
-  id                   String               @id @default(uuid())
-  value                String
-  label                String
-  color                String
-  order                Int                  @default(0)
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-  landingPageContentId String
-  landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-}
-
-model landing_page_navigation {
-  id                   String               @id @default(uuid())
-  text                 String
-  url                  String
-  order                Int                  @default(0)
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-  landingPageContentId String
-  landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-}
-
-model landing_page_solution_features {
-  id                     String                 @id @default(uuid())
-  text                   String
-  icon                   String
-  order                  Int                    @default(0)
-  createdAt              DateTime               @default(now())
-  updatedAt              DateTime               @updatedAt
-  solutionId             String
-  landing_page_solutions landing_page_solutions @relation(fields: [solutionId], references: [id], onDelete: Cascade)
-}
-
-model landing_page_solutions {
-  id                             String                           @id @default(uuid())
-  title                          String
-  description                    String
-  icon                           String
-  order                          Int                              @default(0)
-  createdAt                      DateTime                         @default(now())
-  updatedAt                      DateTime                         @updatedAt
-  landingPageContentId           String
-  landing_page_solution_features landing_page_solution_features[]
-  landing_page_content           landing_page_content             @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-}
-
-model landing_page_stats {
-  id                   String               @id @default(uuid())
-  number               String
-  label                String
-  suffix               String?
-  order                Int                  @default(0)
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
-  landingPageContentId String
-  landing_page_content landing_page_content @relation(fields: [landingPageContentId], references: [id], onDelete: Cascade)
-}
 
 model leads {
   id                 String              @id @default(uuid())
@@ -367,7 +221,6 @@ model listings {
   users            users           @relation(fields: [agentId], references: [id])
   organizations    organizations?  @relation(fields: [organizationId], references: [id])
   properties       properties      @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "listings_propertyid_fkey")
-  unit             property_units? @relation("ListingUnit", fields: [unitId], references: [id], onDelete: SetNull)
   seller           customers?      @relation("listing_seller", fields: [sellerCustomerId], references: [id], onDelete: SetNull)
   inquiries        inquiries[]
   appointments     appointments[]
@@ -405,14 +258,12 @@ model organizations {
   createdAt            DateTime                   @default(now())
   updatedAt            DateTime                   @updatedAt
   agent_profiles       agent_profiles[]
-  file_assets          file_assets[]
   listings             listings[]
   users                users[]
   primaryContact       users?                     @relation("organization_primary_contact", fields: [primaryContactId], references: [id])
   memberships          organization_memberships[]
   billing_accounts     billing_accounts[]
   settings             organization_settings?
-  organization_invites organization_invites[]
   analytics_event_logs analytics_event_logs[]
   leads                leads[]
   customers            customers[]
@@ -420,7 +271,6 @@ model organizations {
   appointments         appointments[]
   deals                deals[]
   support_tickets      support_tickets[]
-  billing_payouts      billing_payouts[]
 
   @@index([industry])
   @@index([licenseNo])
@@ -485,8 +335,6 @@ model properties {
   districtId     BigInt?
   regionId       Int?
   listings       listings[]
-  units          property_units[]
-  media          property_media[]
   inquiries      inquiries[]
   appointments   appointments[]
   deals          deals[]
@@ -505,38 +353,7 @@ model properties {
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model property_units {
-  id          String     @id @default(uuid())
-  propertyId  String
-  unitType    String?
-  bedrooms    Int?
-  bathrooms   Decimal?   @db.Decimal(6, 2)
-  areaSqm     Decimal?   @db.Decimal(10, 2)
-  price       Decimal?   @db.Decimal(14, 2)
-  floor       Int?
-  isFurnished Boolean?   @default(false)
-  hasBalcony  Boolean?   @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  property    properties @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  listings    listings[] @relation("ListingUnit")
 
-  @@index([propertyId])
-}
-
-model property_media {
-  id         String     @id @default(uuid())
-  propertyId String
-  mediaType  String     @default("PHOTO")
-  url        String
-  isPrimary  Boolean    @default(false)
-  metadata   Json?
-  createdAt  DateTime   @default(now())
-  property   properties @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-
-  @@index([propertyId])
-  @@index([mediaType])
-}
 
 model properties_seeker {
   seeker_num             BigInt   @id @default(autoincrement())
@@ -824,7 +641,6 @@ model users {
   buyer_requests           buyer_requests[]
   claims                   claims[]
   contact_logs             contact_logs[]
-  file_assets              file_assets[]
   leads                    leads[]
   listings                 listings[]
   seller_submissions       seller_submissions[]
@@ -832,7 +648,6 @@ model users {
   organization_memberships organization_memberships[]
   user_roles               user_roles[]
   billing_accounts         billing_accounts[]
-  billing_payment_methods  billing_payment_methods[]  @relation("user_billing_payment_methods")
   primaryContactFor        organizations[]            @relation("organization_primary_contact")
   analytics_event_logs     analytics_event_logs[]
   supportTicketsCreated    support_tickets[]          @relation("SupportTicketsCreated")
@@ -1108,7 +923,6 @@ model system_roles {
   role_permissions         role_permissions[]
   user_roles               user_roles[]
   organization_memberships organization_memberships[]
-  organization_invites     organization_invites[]
 
   @@index([scope])
   @@index([isSystem])
@@ -1179,25 +993,6 @@ model organization_settings {
   organization       organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
-model organization_invites {
-  id             String           @id @default(uuid())
-  organizationId String
-  email          String
-  roleId         String?
-  status         MembershipStatus @default(INVITED)
-  invitedBy      String?
-  invitedAt      DateTime         @default(now())
-  expiresAt      DateTime?
-  acceptedAt     DateTime?
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  organization   organizations    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  role           system_roles?    @relation(fields: [roleId], references: [id], onDelete: SetNull)
-
-  @@index([organizationId])
-  @@index([email])
-  @@index([status])
-}
 
 model billing_accounts {
   id              String                    @id @default(uuid())
@@ -1220,40 +1015,13 @@ model billing_accounts {
   organization    organizations?            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   user            users?                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   subscriptions   billing_subscriptions[]
-  payment_methods billing_payment_methods[]
   invoices        billing_invoices[]
-  payments        billing_payments[]
-  billing_payouts billing_payouts[]
 
   @@index([organizationId])
   @@index([userId])
   @@index([status])
 }
 
-model billing_payment_methods {
-  id            String                     @id @default(uuid())
-  accountId     String
-  ownerUserId   String?
-  type          PaymentMethodType
-  status        PaymentMethodStatus        @default(ACTIVE)
-  vendor        String?
-  reference     String?
-  maskedDetails String?
-  expiresAt     DateTime?
-  isDefault     Boolean                    @default(false)
-  metadata      Json?
-  createdAt     DateTime                   @default(now())
-  updatedAt     DateTime                   @updatedAt
-  account       billing_accounts           @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  owner         users?                     @relation("user_billing_payment_methods", fields: [ownerUserId], references: [id], onDelete: SetNull)
-  payments      billing_payments[]
-  attempts      billing_payment_attempts[]
-
-  @@index([accountId])
-  @@index([ownerUserId])
-  @@index([type])
-  @@index([status])
-}
 
 model billing_subscriptions {
   id                    String                  @id @default(uuid())
@@ -1273,27 +1041,12 @@ model billing_subscriptions {
   account               billing_accounts        @relation(fields: [accountId], references: [id], onDelete: Cascade)
   plan                  pricing_plans           @relation(fields: [planId], references: [id], onDelete: Restrict)
   invoices              billing_invoices[]
-  usage_records         billing_usage_records[]
-  billing_invoice_items billing_invoice_items[]
 
   @@index([accountId])
   @@index([planId])
   @@index([status])
 }
 
-model billing_usage_records {
-  id             String                @id @default(uuid())
-  subscriptionId String
-  metric         String
-  quantity       Decimal               @db.Decimal(14, 2)
-  recordedAt     DateTime
-  createdAt      DateTime              @default(now())
-  subscription   billing_subscriptions @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-
-  @@index([subscriptionId])
-  @@index([metric])
-  @@index([recordedAt])
-}
 
 model billing_invoices {
   id             String                  @id @default(uuid())
@@ -1313,123 +1066,12 @@ model billing_invoices {
   updatedAt      DateTime                @updatedAt
   account        billing_accounts        @relation(fields: [accountId], references: [id], onDelete: Cascade)
   subscription   billing_subscriptions?  @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
-  items          billing_invoice_items[]
-  payments       billing_payments[]
 
   @@index([accountId])
   @@index([subscriptionId])
   @@index([status])
 }
 
-model billing_invoice_items {
-  id             String                 @id @default(uuid())
-  invoiceId      String
-  subscriptionId String?
-  description    String
-  quantity       Decimal                @default(1) @db.Decimal(14, 2)
-  unitAmount     Decimal                @db.Decimal(14, 2)
-  total          Decimal                @db.Decimal(14, 2)
-  metadata       Json?
-  createdAt      DateTime               @default(now())
-  invoice        billing_invoices       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  subscription   billing_subscriptions? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
-
-  @@index([invoiceId])
-  @@index([subscriptionId])
-}
-
-model billing_payments {
-  id                   String                     @id @default(uuid())
-  invoiceId            String
-  accountId            String
-  methodId             String?
-  status               PaymentStatus              @default(PENDING)
-  amount               Decimal                    @db.Decimal(14, 2)
-  currency             String                     @default("SAR")
-  transactionReference String?
-  gateway              String?
-  processedAt          DateTime?
-  metadata             Json?
-  createdAt            DateTime                   @default(now())
-  updatedAt            DateTime                   @updatedAt
-  invoice              billing_invoices           @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  account              billing_accounts           @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  method               billing_payment_methods?   @relation(fields: [methodId], references: [id], onDelete: SetNull)
-  attempts             billing_payment_attempts[]
-
-  @@index([invoiceId])
-  @@index([methodId])
-  @@index([status])
-}
-
-model billing_payouts {
-  id             String           @id @default(uuid())
-  organizationId String?
-  accountId      String
-  amount         Decimal          @db.Decimal(14, 2)
-  currency       String           @default("SAR")
-  status         PaymentStatus    @default(PENDING)
-  reference      String?
-  beneficiary    String?
-  processedAt    DateTime?
-  periodStart    DateTime?
-  periodEnd      DateTime?
-  metadata       Json?
-  createdAt      DateTime         @default(now())
-  account        billing_accounts @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  organization   organizations?   @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-
-  @@index([organizationId])
-  @@index([accountId])
-  @@index([status])
-}
-
-model billing_payment_attempts {
-  id            String                   @id @default(uuid())
-  paymentId     String
-  methodId      String?
-  status        PaymentStatus            @default(PENDING)
-  amount        Decimal                  @db.Decimal(14, 2)
-  failureReason String?
-  processedAt   DateTime?
-  createdAt     DateTime                 @default(now())
-  payment       billing_payments         @relation(fields: [paymentId], references: [id], onDelete: Cascade)
-  method        billing_payment_methods? @relation(fields: [methodId], references: [id], onDelete: SetNull)
-
-  @@index([paymentId])
-  @@index([methodId])
-  @@index([status])
-}
-
-model revenue_snapshots {
-  id           String            @id @default(uuid())
-  snapshotDate DateTime
-  metric       RevenueMetricType
-  dimension    String?
-  dimensionId  String?
-  value        Decimal           @db.Decimal(18, 4)
-  currency     String            @default("SAR")
-  notes        String?
-  createdAt    DateTime          @default(now())
-
-  @@unique([snapshotDate, metric, dimension, dimensionId])
-  @@index([metric, snapshotDate])
-}
-
-model analytics_daily_metrics {
-  id             String              @id @default(uuid())
-  metric         AnalyticsMetricType
-  recordedFor    DateTime
-  dimension      String?
-  dimensionValue String?
-  total          Decimal?            @db.Decimal(18, 4)
-  count          Int?
-  changePercent  Decimal?            @db.Decimal(9, 4)
-  createdAt      DateTime            @default(now())
-
-  @@unique([metric, recordedFor, dimension, dimensionValue])
-  @@index([metric, recordedFor])
-}
 
 model analytics_event_logs {
   id             String         @id @default(uuid())
@@ -1448,18 +1090,6 @@ model analytics_event_logs {
   @@index([organizationId])
 }
 
-model cms_content_blocks {
-  id        String   @id @default(uuid())
-  key       String
-  locale    String   @default("en")
-  value     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // TODO: Review if this model needs relations or should be removed
-  @@unique([key, locale])
-  @@index([locale])
-}
 
 // CMS Tables for Landing Page Management
 model LandingSection {
@@ -1513,31 +1143,6 @@ model LandingCard {
   @@index([orderIndex])
 }
 
-model LandingAuditLog {
-  id          BigInt   @id @default(autoincrement())
-  actor       String
-  entityType  String
-  entityId    String
-  action      String
-  fromVersion Int?
-  toVersion   Int?
-  createdAt   DateTime @default(now())
-
-  @@index([entityType, entityId])
-}
-
-model LandingVersion {
-  id         BigInt   @id @default(autoincrement())
-  entityType String
-  entityId   String
-  version    Int
-  snapshot   Json
-  createdBy  String?
-  createdAt  DateTime @default(now())
-
-  @@unique([entityType, entityId, version])
-  @@index([entityType, entityId])
-}
 
 // CMS Article Management
 model CMSArticle {
@@ -1561,9 +1166,6 @@ model CMSArticle {
   ogImage        String?
   
   // Relationships
-  categories     CMSArticleCategoryRelation[]
-  tags           CMSArticleTagRelation[]
-  versions       CMSArticleVersion[]
   featuredImage  MediaLibrary?      @relation("ArticleFeaturedImage", fields: [featuredImageId], references: [id], onDelete: SetNull)
   
   @@index([slug])
@@ -1573,71 +1175,6 @@ model CMSArticle {
   @@index([createdAt])
 }
 
-model CMSArticleCategory {
-  id          String       @id @default(uuid())
-  name        String
-  slug        String       @unique
-  description String?      @db.Text
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  
-  articles    CMSArticleCategoryRelation[]
-  
-  @@index([slug])
-}
-
-model CMSArticleCategoryRelation {
-  id         String            @id @default(uuid())
-  articleId  String
-  categoryId String
-  createdAt  DateTime          @default(now())
-  
-  article    CMSArticle        @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  category   CMSArticleCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  
-  @@unique([articleId, categoryId])
-  @@index([articleId])
-  @@index([categoryId])
-}
-
-model CMSArticleTag {
-  id        String       @id @default(uuid())
-  name      String
-  slug      String       @unique
-  createdAt DateTime     @default(now())
-  
-  articles  CMSArticleTagRelation[]
-  
-  @@index([slug])
-}
-
-model CMSArticleTagRelation {
-  id        String       @id @default(uuid())
-  articleId String
-  tagId     String
-  createdAt DateTime     @default(now())
-  
-  article   CMSArticle   @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  tag       CMSArticleTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  
-  @@unique([articleId, tagId])
-  @@index([articleId])
-  @@index([tagId])
-}
-
-model CMSArticleVersion {
-  id         BigInt   @id @default(autoincrement())
-  articleId  String
-  version    Int
-  snapshot   Json
-  createdBy  String?
-  createdAt  DateTime @default(now())
-  
-  article    CMSArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  
-  @@unique([articleId, version])
-  @@index([articleId])
-}
 
 // Media Library
 model MediaLibrary {
@@ -1657,7 +1194,6 @@ model MediaLibrary {
   updatedAt   DateTime    @updatedAt
   
   // Relationships
-  usages      MediaUsage[]
   featuredArticles CMSArticle[] @relation("ArticleFeaturedImage")
   
   @@index([mimeType])
@@ -1665,18 +1201,6 @@ model MediaLibrary {
   @@index([createdAt])
 }
 
-model MediaUsage {
-  id          BigInt   @id @default(autoincrement())
-  mediaId     String
-  entityType  String   // e.g., "article", "landing_section", "template"
-  entityId    String
-  createdAt   DateTime @default(now())
-  
-  media       MediaLibrary @relation(fields: [mediaId], references: [id], onDelete: Cascade)
-  
-  @@index([mediaId])
-  @@index([entityType, entityId])
-}
 
 // SEO Settings
 model SEOSettings {
@@ -1702,40 +1226,7 @@ model SEOSettings {
 }
 
 // Content Templates
-model ContentTemplate {
-  id          String              @id @default(uuid())
-  name        String
-  slug        String              @unique
-  type        String              // e.g., "email", "landing_section", "article"
-  content     String              @db.Text
-  contentJson Json?               // For structured content
-  variables   Json?               // Template variables/placeholders
-  description String?             @db.Text
-  category    String?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  createdBy   String?
-  
-  versions    ContentTemplateVersion[]
-  
-  @@index([slug])
-  @@index([type])
-  @@index([category])
-}
 
-model ContentTemplateVersion {
-  id         BigInt   @id @default(autoincrement())
-  templateId String
-  version    Int
-  snapshot   Json
-  createdBy  String?
-  createdAt  DateTime @default(now())
-  
-  template   ContentTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  
-  @@unique([templateId, version])
-  @@index([templateId])
-}
 
 // Navigation Links
 model NavigationLink {
@@ -1862,20 +1353,6 @@ model property_type {
   @@map("property_type")
 }
 
-model daily_system_stats {
-  id              String   @id @default(uuid())
-  date            DateTime @unique @db.Date
-  totalUsers      Int      @default(0)
-  activeUsers     Int      @default(0)
-  totalListings   Int      @default(0)
-  totalRevenue    Decimal  @default(0) @db.Decimal(14, 2)
-  totalOrders     Int      @default(0)
-  disputesOpened  Int      @default(0)
-  createdAt       DateTime @default(now())
-
-  // TODO: Review if this model needs relations or should be removed
-  @@index([date])
-}
 
 model forum_channels {
   id          String   @id @default(uuid())
