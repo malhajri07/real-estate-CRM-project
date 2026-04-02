@@ -3,12 +3,21 @@
 @tailwind utilities;
 
 @layer base {
-  /* Prevent Radix scroll-lock from adding padding that shifts layout.
-     Radix Sheet/Dialog add padding-right to body to compensate for scrollbar.
-     We zero it out so the sidebar doesn't shift. */
-  body {
+  /* Prevent react-remove-scroll-bar from shifting layout.
+     It injects margin-right on body[data-scroll-locked] to compensate for scrollbar.
+     We force the body and root to ignore all injected spacing. */
+  body, body[data-scroll-locked] {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
     padding-right: 0 !important;
     padding-left: 0 !important;
+  }
+
+  /* The app root must be isolated from body margin/padding changes */
+  #root {
+    position: fixed;
+    inset: 0;
+    overflow: auto;
   }
 
   :root {
