@@ -28,6 +28,7 @@ import {
   Image as ImageIcon,
   Video,
   X,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -53,13 +54,7 @@ import {
   SheetFooter,
   SheetDescription,
 } from "@/components/ui/sheet";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// Select replaced with DropdownMenu to prevent scroll-lock layout shift
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -370,23 +365,26 @@ export default function ForumPage() {
                   <FormField
                     control={postForm.control}
                     name="type"
-                    render={({ field }) => (
+                    render={() => (
                       <FormItem>
                         <FormLabel>{t("forum.post_type.discussion")}</FormLabel>
-                        <FormControl>
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {POST_TYPES.map((pt) => (
-                                <SelectItem key={pt.value} value={pt.value}>
-                                  {t(pt.key)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button type="button" variant="outline" className="w-full justify-between h-10 font-normal">
+                              {POST_TYPES.find(pt => pt.value === postForm.watch("type"))
+                                ? t(POST_TYPES.find(pt => pt.value === postForm.watch("type"))!.key)
+                                : t("forum.post_type.discussion")}
+                              <ChevronDown className="h-4 w-4 opacity-50" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
+                            {POST_TYPES.map((pt) => (
+                              <DropdownMenuItem key={pt.value} onClick={() => postForm.setValue("type", pt.value as any)}>
+                                {t(pt.key)}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -395,27 +393,29 @@ export default function ForumPage() {
                     <FormField
                       control={postForm.control}
                       name="channelId"
-                      render={({ field }) => (
+                      render={() => (
                         <FormItem>
                           <FormLabel>{t("forum.channels")}</FormLabel>
-                          <FormControl>
-                            <Select
-                              value={field.value || "none"}
-                              onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder={t("forum.all_channels")} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="none">{t("forum.all_channels")}</SelectItem>
-                                {channels.map((ch) => (
-                                  <SelectItem key={ch.id} value={ch.id}>
-                                    {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button type="button" variant="outline" className="w-full justify-between h-10 font-normal">
+                                {postForm.watch("channelId")
+                                  ? channels.find(c => c.id === postForm.watch("channelId"))?.nameAr || t("forum.all_channels")
+                                  : t("forum.all_channels")}
+                                <ChevronDown className="h-4 w-4 opacity-50" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
+                              <DropdownMenuItem onClick={() => postForm.setValue("channelId", "")}>
+                                {t("forum.all_channels")}
+                              </DropdownMenuItem>
+                              {channels.map((ch) => (
+                                <DropdownMenuItem key={ch.id} onClick={() => postForm.setValue("channelId", ch.id)}>
+                                  {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                           <FormMessage />
                         </FormItem>
                       )}
