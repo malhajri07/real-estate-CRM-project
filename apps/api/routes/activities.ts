@@ -64,4 +64,23 @@ router.post("/", async (req, res) => {
     }
 });
 
+// PATCH /:id/toggle-complete — Mark/unmark an activity as completed
+router.patch("/:id/toggle-complete", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const existing = await storage.getActivityById(id);
+        if (!existing) return res.status(404).json({ message: "Activity not found" });
+
+        const currentJson = existing.afterJson ? JSON.parse(existing.afterJson) : {};
+        const nowCompleted = !currentJson.completed;
+        const updatedJson = JSON.stringify({ ...currentJson, completed: nowCompleted });
+
+        const updated = await storage.updateActivity(id, { afterJson: updatedJson });
+        res.json({ ...updated, completed: nowCompleted });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to toggle activity";
+        res.status(500).json({ message });
+    }
+});
+
 export default router;

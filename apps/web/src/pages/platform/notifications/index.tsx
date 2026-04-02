@@ -273,7 +273,15 @@ export default function Notifications() {
                                 واتساب
                               </Button>
                             )}
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={() => {
+                              if (!selectedLeads.includes(lead.id)) {
+                                handleLeadSelection(lead.id);
+                              }
+                              toast({
+                                title: "تم تحديد العميل",
+                                description: `تم تحديد ${lead.firstName} ${lead.lastName}. انتقل إلى تبويب "إنشاء حملة" لإرسال إشعار.`,
+                              });
+                            }}>
                               <Bell size={14} className={"me-2"} />
                               إشعار
                             </Button>

@@ -17,6 +17,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import { Phone, Mail, Calendar, MessageCircle, Plus, Users as UsersIcon, ListChecks, CheckCircle2, UserPlus } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,7 @@ export default function Clients() {
   const { t, dir, language } = useLanguage();
   const showSkeleton = useMinLoadTime();
   const locale = language === "ar" ? "ar-SA" : "en-US";
+  const [, setLocation] = useLocation();
 
   const { data: leads, isLoading, isError, refetch } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
@@ -158,7 +160,7 @@ export default function Clients() {
               <CardHeader className="sticky top-0 z-10 border-b bg-background/90 backdrop-blur">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-end">العملاء ({filteredLeads.length})</CardTitle>
-                  <Button size="sm">
+                  <Button size="sm" onClick={() => setLocation("/home/platform/leads")}>
                     <UserPlus className={"me-2"} size={16} />
                     إضافة عميل
                   </Button>
@@ -283,15 +285,23 @@ export default function Clients() {
                     )}
 
                     <div className="flex flex-wrap items-center gap-2">
-                      <Button size="sm">
+                      <Button size="sm" onClick={() => {
+                        if (selectedLead.phone) {
+                          window.open(`tel:${selectedLead.phone}`, '_self');
+                        }
+                      }} disabled={!selectedLead.phone}>
                         <Phone className={"me-2"} size={16} />
                         اتصال
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => {
+                        if (selectedLead.email) {
+                          window.open(`mailto:${selectedLead.email}`, '_self');
+                        }
+                      }} disabled={!selectedLead.email}>
                         <Mail className={"me-2"} size={16} />
                         بريد
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => setLocation("/home/platform/calendar")}>
                         <Calendar className={"me-2"} size={16} />
                         جدولة
                       </Button>
@@ -312,7 +322,7 @@ export default function Clients() {
                     <TabsContent value="activities" className="p-6">
                       <div className="mb-4 flex items-center justify-between">
                         <h3 className={`${TYPOGRAPHY.sectionTitle} text-end`}>{language === "ar" ? "سجل الأنشطة" : "Activity Log"}</h3>
-                      <Button size="sm">
+                      <Button size="sm" onClick={() => setLocation("/home/platform/activities")}>
                         <Plus className={"me-2"} size={16} />
                           إضافة نشاط
                         </Button>

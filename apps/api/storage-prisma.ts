@@ -571,6 +571,14 @@ class PrismaStorageSimple {
     });
   }
 
+  async getActivityById(id: string): Promise<any | null> {
+    return await prisma.audit_logs.findUnique({ where: { id } });
+  }
+
+  async updateActivity(id: string, data: { afterJson?: string }): Promise<any> {
+    return await prisma.audit_logs.update({ where: { id }, data });
+  }
+
   // Agency/Organization methods
   async listAgencies(): Promise<any[]> {
     try {

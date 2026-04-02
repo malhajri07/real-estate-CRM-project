@@ -22,7 +22,7 @@ import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { formatAdminDate } from "@/lib/formatters";
-import { apiPost } from "@/lib/apiClient";
+import { apiPost, apiPatch } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Activity, Lead } from "@shared/types";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
@@ -74,6 +74,17 @@ export default function Activities() {
         },
         onError: () => {
             toast({ title: "خطأ", description: "فشل إنشاء النشاط", variant: "destructive" });
+        },
+    });
+
+    const toggleCompleteMutation = useMutation({
+        mutationFn: async (id: string) => apiPatch(`/api/activities/${id}/toggle-complete`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["/api/activities"] });
+            toast({ title: "تم التحديث", description: "تم تحديث حالة النشاط" });
+        },
+        onError: () => {
+            toast({ title: "خطأ", description: "فشل تحديث حالة النشاط", variant: "destructive" });
         },
     });
 
@@ -156,11 +167,11 @@ export default function Activities() {
                                         <TableCell>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <Button variant="ghost" size="sm">
+                                                    <Button variant="ghost" size="sm" onClick={() => toggleCompleteMutation.mutate(activity.id)} disabled={toggleCompleteMutation.isPending}>
                                                         <Check className="w-4 h-4" />
                                                     </Button>
                                                 </TooltipTrigger>
-                                                <TooltipContent>إكمال</TooltipContent>
+                                                <TooltipContent>{activity.completed ? "إلغاء الإكمال" : "إكمال"}</TooltipContent>
                                             </Tooltip>
                                         </TableCell>
                                         <TableCell>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Ticket, MessageSquare, RefreshCw, Download, Mail, Phone, RefreshCcw } from "lucide-react";
+import { Search, Filter, Ticket, MessageSquare, RefreshCw, Download, Mail, Phone, RefreshCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -140,6 +140,9 @@ export default function Requests() {
 
     // ── Pool state ──
     const [searchQuery, setSearchQuery] = useState("");
+    const [showPoolFilters, setShowPoolFilters] = useState(false);
+    const [poolTypeFilter, setPoolTypeFilter] = useState<string>("all");
+    const [poolSourceFilter, setPoolSourceFilter] = useState<string>("all");
     const [smsDialogOpen, setSmsDialogOpen] = useState(false);
     const [smsTargetId, setSmsTargetId] = useState<string | null>(null);
     const [poolPage, setPoolPage] = useState(1);
@@ -255,7 +258,12 @@ export default function Requests() {
         },
     });
 
-    const poolRequests: PoolRequest[] = Array.isArray(poolData?.data) ? poolData.data : [];
+    const rawPoolRequests: PoolRequest[] = Array.isArray(poolData?.data) ? poolData.data : [];
+    const poolRequests = rawPoolRequests.filter((req) => {
+        if (poolTypeFilter !== "all" && req.type !== poolTypeFilter) return false;
+        if (poolSourceFilter !== "all" && req.source !== poolSourceFilter) return false;
+        return true;
+    });
 
     // ── Customer Requests state ──
     const {
@@ -338,7 +346,7 @@ export default function Requests() {
                                 <RefreshCw className={cn("h-4 w-4", poolLoading && "animate-spin")} />
                                 {t("pool.refresh")}
                             </Button>
-                            <Button variant="outline" className="gap-2">
+                            <Button variant="outline" className="gap-2" onClick={() => setShowPoolFilters(!showPoolFilters)}>
                                 <Filter className="h-4 w-4" />
                                 <span>{t("pool.filter")}</span>
                             </Button>
@@ -361,6 +369,54 @@ export default function Requests() {
                             </Badge>
                         </Card>
                     </motion.div>
+
+                    {/* Pool filters */}
+                    {showPoolFilters && (
+                        <Card>
+                            <CardContent className="flex flex-wrap items-center gap-4 py-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-muted-foreground">النوع:</span>
+                                    <div className="flex gap-1">
+                                        {["all", "Buy", "Rent"].map((type) => (
+                                            <Button
+                                                key={type}
+                                                size="sm"
+                                                variant={poolTypeFilter === type ? "default" : "outline"}
+                                                onClick={() => setPoolTypeFilter(type)}
+                                            >
+                                                {type === "all" ? "الكل" : type === "Buy" ? "شراء" : "إيجار"}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-muted-foreground">المصدر:</span>
+                                    <div className="flex gap-1">
+                                        {["all", "customer_request", "buyer_pool"].map((source) => (
+                                            <Button
+                                                key={source}
+                                                size="sm"
+                                                variant={poolSourceFilter === source ? "default" : "outline"}
+                                                onClick={() => setPoolSourceFilter(source)}
+                                            >
+                                                {source === "all" ? "الكل" : source === "customer_request" ? "طلب عميل" : "مجمع المشترين"}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+                                {(poolTypeFilter !== "all" || poolSourceFilter !== "all") && (
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => { setPoolTypeFilter("all"); setPoolSourceFilter("all"); }}
+                                    >
+                                        <X className="h-4 w-4 me-1" />
+                                        مسح الفلاتر
+                                    </Button>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
 
                     {/* Pool table */}
                     <Card className="overflow-hidden">
