@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  /* Prevent scrollbar-induced layout shift globally */
+  html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
+
   :root {
     /* Emerald Green Theme - HSL */
     --primary: 164 72% 40%;
