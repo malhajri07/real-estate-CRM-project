@@ -83,6 +83,7 @@ const SelectContent = React.forwardRef<
       align="start"
       sideOffset={4}
       collisionPadding={8}
+      onCloseAutoFocus={(e) => e.preventDefault()}
       {...props}
     >
       <SelectPrimitive.Viewport className="max-h-96 overflow-y-auto p-1">

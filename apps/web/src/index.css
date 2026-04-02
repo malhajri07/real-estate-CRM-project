@@ -5,13 +5,13 @@
 @layer base {
   /* Prevent Radix scroll-lock from shifting layout.
      Radix adds overflow:hidden + padding-right to body when Select/Dialog opens.
-     This zeroes out the padding so nothing shifts. */
-  body[data-scroll-locked],
-  body[style*="overflow"] {
+     This rule has maximum specificity to override inline styles. */
+  body {
     padding-right: 0 !important;
     margin-right: 0 !important;
     padding-left: 0 !important;
     margin-left: 0 !important;
+    overflow: visible !important;
   }
 
   :root {
