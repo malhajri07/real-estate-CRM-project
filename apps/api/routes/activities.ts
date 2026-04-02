@@ -8,6 +8,7 @@ const router = express.Router();
 const insertActivitySchema = z.object({
     leadId: z.string().min(1),
     type: z.string().min(1),
+    title: z.string().optional(),
     notes: z.string().optional(),
     scheduledAt: z.union([z.string(), z.date()]).optional(),
 }).passthrough();
@@ -44,8 +45,15 @@ router.post("/", async (req, res) => {
     try {
         const validatedData = insertActivitySchema.parse(req.body);
         const auth = decodeAuth(req);
-        const tenantId = auth.organizationId ?? "default-tenant";
-        const activity = await storage.createActivity(validatedData);
+        if (!auth.id) return res.status(401).json({ message: "Authentication required" });
+        const activity = await storage.createActivity({
+            ...validatedData,
+            userId: auth.id,
+            action: validatedData.type,
+            entity: "lead",
+            entityId: validatedData.leadId,
+            afterJson: JSON.stringify({ title: validatedData.title, notes: validatedData.notes }),
+        });
         res.status(201).json(activity);
     } catch (error) {
         if (error instanceof z.ZodError) {
