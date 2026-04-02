@@ -30,6 +30,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -580,45 +581,45 @@ export default function ForumPage() {
                     )}
                     <div className="flex items-center justify-between border-t pt-3">
                       <div className="flex items-center gap-1">
-                        {/* Channel selector */}
-                        <FormField
-                          control={postForm.control}
-                          name="channelId"
-                          render={({ field }) => (
-                            <Select value={field.value || "none"} onValueChange={(v) => field.onChange(v === "none" ? "" : v)}>
-                              <SelectTrigger className="h-8 min-w-[110px] border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-primary hover:bg-primary/5 rounded-full px-3">
-                                <TrendingUp className="h-3.5 w-3.5 shrink-0" />
-                                <SelectValue placeholder={t("forum.all_channels") || "جميع القنوات"} />
-                              </SelectTrigger>
-                              <SelectContent align="start" sideOffset={4}>
-                                <SelectItem value="none">{t("forum.all_channels") || "جميع القنوات"}</SelectItem>
-                                {channels.map((ch) => (
-                                  <SelectItem key={ch.id} value={ch.id}>
-                                    {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        {/* Post type */}
-                        <FormField
-                          control={postForm.control}
-                          name="type"
-                          render={({ field }) => (
-                            <Select value={field.value} onValueChange={field.onChange}>
-                              <SelectTrigger className="h-8 min-w-[80px] border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-muted-foreground hover:bg-muted/50 rounded-full px-3">
-                                <Award className="h-3.5 w-3.5 shrink-0" />
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent align="start" sideOffset={4}>
-                                {POST_TYPES.map((pt) => (
-                                  <SelectItem key={pt.value} value={pt.value}>{t(pt.key)}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
+                        {/* Channel selector — DropdownMenu (no scroll lock) */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button type="button" variant="ghost" className="h-8 gap-1 text-xs font-bold text-primary hover:bg-primary/5 rounded-full px-3">
+                              <TrendingUp className="h-3.5 w-3.5 shrink-0" />
+                              {postForm.watch("channelId")
+                                ? channels.find(c => c.id === postForm.watch("channelId"))?.nameAr || t("forum.all_channels") || "جميع القنوات"
+                                : t("forum.all_channels") || "جميع القنوات"}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start">
+                            <DropdownMenuItem onClick={() => postForm.setValue("channelId", "")}>
+                              {t("forum.all_channels") || "جميع القنوات"}
+                            </DropdownMenuItem>
+                            {channels.map((ch) => (
+                              <DropdownMenuItem key={ch.id} onClick={() => postForm.setValue("channelId", ch.id)}>
+                                {dir === "rtl" ? ch.nameAr : ch.nameEn || ch.nameAr}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        {/* Post type — DropdownMenu (no scroll lock) */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button type="button" variant="ghost" className="h-8 gap-1 text-xs font-bold text-muted-foreground hover:bg-muted/50 rounded-full px-3">
+                              <Award className="h-3.5 w-3.5 shrink-0" />
+                              {POST_TYPES.find(pt => pt.value === postForm.watch("type"))
+                                ? t(POST_TYPES.find(pt => pt.value === postForm.watch("type"))!.key)
+                                : t("forum.post_type.discussion")}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start">
+                            {POST_TYPES.map((pt) => (
+                              <DropdownMenuItem key={pt.value} onClick={() => postForm.setValue("type", pt.value as any)}>
+                                {t(pt.key)}
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         {/* Media button */}
                         <Button
                           type="button"

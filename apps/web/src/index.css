@@ -3,15 +3,12 @@
 @tailwind utilities;
 
 @layer base {
-  /* Prevent Radix scroll-lock from shifting layout.
-     Radix adds overflow:hidden + padding-right to body when Select/Dialog opens.
-     This rule has maximum specificity to override inline styles. */
+  /* Prevent Radix scroll-lock from adding padding that shifts layout.
+     Radix Sheet/Dialog add padding-right to body to compensate for scrollbar.
+     We zero it out so the sidebar doesn't shift. */
   body {
     padding-right: 0 !important;
-    margin-right: 0 !important;
     padding-left: 0 !important;
-    margin-left: 0 !important;
-    overflow: visible !important;
   }
 
   :root {
