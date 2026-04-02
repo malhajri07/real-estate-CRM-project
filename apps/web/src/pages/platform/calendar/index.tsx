@@ -100,11 +100,14 @@ function AppointmentForm({
         }
     };
 
-    const selectedLead = leads.find((l) => l.id === form.watch("customerId"));
+    const selectedLead = leads.find((l) => l.id === form.watch("customerId") || l.customerId === form.watch("customerId"));
 
     const handleSubmit = (data: AppointmentFormData) => {
+        // Send the actual customer ID (not the lead ID)
+        const lead = leads.find((l) => l.id === data.customerId);
+        const actualCustomerId = lead?.customerId || data.customerId;
         onSubmit({
-            customerId: data.customerId,
+            customerId: actualCustomerId,
             scheduledAt: data.scheduledAt,
             notes: data.notes || undefined,
         });

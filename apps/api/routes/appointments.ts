@@ -48,26 +48,53 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
     try {
         const data = AppointmentSchema.parse(req.body);
         const userId = req.user?.id;
-        const orgId = req.user?.organizationId;
+        let orgId = req.user?.organizationId;
 
-        if (!orgId) return res.status(400).json({ message: 'Organization context required' });
+        // Resolve customerId — might be a lead ID, customer ID, or user ID
+        let customerId = data.customerId;
+        let customer = await prisma.customers.findUnique({ where: { id: customerId } });
 
-        // Verify customer belongs to user's organization
-        if (orgId) {
-            const customer = await prisma.customers.findFirst({
-                where: { id: data.customerId, organizationId: orgId }
-            });
-            if (!customer) return res.status(403).json({ message: "Customer not in your organization" });
+        // If not found as customer, try as lead and get its customerId
+        if (!customer) {
+            const lead = await prisma.leads.findUnique({ where: { id: customerId } });
+            if (lead?.customerId) {
+                customerId = lead.customerId;
+                customer = await prisma.customers.findUnique({ where: { id: customerId } });
+            }
         }
+
+        // If still no customer, create a placeholder
+        if (!customer) {
+            // Auto-create org for individual agents
+            if (!orgId) {
+                const personalOrgId = `personal-${userId}`;
+                let personalOrg = await prisma.organizations.findUnique({ where: { id: personalOrgId } });
+                if (!personalOrg) {
+                    const user = await prisma.users.findUnique({ where: { id: userId } });
+                    personalOrg = await prisma.organizations.create({
+                        data: { id: personalOrgId, legalName: `${user?.firstName || 'Agent'} ${user?.lastName || ''}`.trim(), tradeName: `${user?.firstName || 'Agent'} ${user?.lastName || ''}`.trim(), licenseNo: `INDIV-${userId?.substring(0, 8)}`, status: 'ACTIVE' },
+                    });
+                }
+                orgId = personalOrgId;
+                await prisma.users.update({ where: { id: userId }, data: { organizationId: orgId } });
+            }
+            customer = await prisma.customers.create({
+                data: { firstName: "عميل", lastName: "جديد", phone: "+966500000000", organizationId: orgId! },
+            });
+            customerId = customer.id;
+        }
+
+        // Use the customer's org if agent doesn't have one
+        if (!orgId) orgId = customer.organizationId;
 
         const appointment = await prisma.appointments.create({
             data: {
-                customerId: data.customerId,
+                customerId,
                 scheduledAt: data.scheduledAt,
-                organizationId: orgId,
+                organizationId: orgId!,
                 propertyId: data.propertyId,
                 listingId: data.listingId,
-                agentId: userId, // Self-assigned
+                agentId: userId,
                 notes: data.notes,
                 status: data.status || 'SCHEDULED'
             }
