@@ -3,21 +3,15 @@
 @tailwind utilities;
 
 @layer base {
-  /* Prevent scrollbar-induced layout shift globally.
-     Radix Select/Dialog adds overflow:hidden to body when open,
-     which removes the scrollbar and shifts content. This counteracts it. */
-  html {
-    overflow-y: scroll;
-    scrollbar-gutter: stable;
-  }
-
-  /* When Radix adds overflow:hidden to body, keep the scrollbar gutter */
-  body[style*="overflow: hidden"],
-  body[data-scroll-locked] {
-    overflow: hidden !important;
-    scrollbar-gutter: stable !important;
+  /* Prevent Radix scroll-lock from shifting layout.
+     Radix adds overflow:hidden + padding-right to body when Select/Dialog opens.
+     This zeroes out the padding so nothing shifts. */
+  body[data-scroll-locked],
+  body[style*="overflow"] {
     padding-right: 0 !important;
     margin-right: 0 !important;
+    padding-left: 0 !important;
+    margin-left: 0 !important;
   }
 
   :root {
