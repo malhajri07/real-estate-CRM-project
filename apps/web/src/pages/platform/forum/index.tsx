@@ -586,11 +586,11 @@ export default function ForumPage() {
                           name="channelId"
                           render={({ field }) => (
                             <Select value={field.value || "none"} onValueChange={(v) => field.onChange(v === "none" ? "" : v)}>
-                              <SelectTrigger className="h-8 w-auto border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-primary hover:bg-primary/5 rounded-full px-3">
-                                <TrendingUp className="h-3.5 w-3.5" />
+                              <SelectTrigger className="h-8 min-w-[110px] border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-primary hover:bg-primary/5 rounded-full px-3">
+                                <TrendingUp className="h-3.5 w-3.5 shrink-0" />
                                 <SelectValue placeholder={t("forum.all_channels") || "جميع القنوات"} />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent align="start" sideOffset={4}>
                                 <SelectItem value="none">{t("forum.all_channels") || "جميع القنوات"}</SelectItem>
                                 {channels.map((ch) => (
                                   <SelectItem key={ch.id} value={ch.id}>
@@ -607,11 +607,11 @@ export default function ForumPage() {
                           name="type"
                           render={({ field }) => (
                             <Select value={field.value} onValueChange={field.onChange}>
-                              <SelectTrigger className="h-8 w-auto border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-muted-foreground hover:bg-muted/50 rounded-full px-3">
-                                <Award className="h-3.5 w-3.5" />
+                              <SelectTrigger className="h-8 min-w-[80px] border-0 bg-transparent shadow-none gap-1 text-xs font-bold text-muted-foreground hover:bg-muted/50 rounded-full px-3">
+                                <Award className="h-3.5 w-3.5 shrink-0" />
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent align="start" sideOffset={4}>
                                 {POST_TYPES.map((pt) => (
                                   <SelectItem key={pt.value} value={pt.value}>{t(pt.key)}</SelectItem>
                                 ))}
