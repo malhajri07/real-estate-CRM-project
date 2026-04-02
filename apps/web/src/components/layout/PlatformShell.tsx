@@ -23,8 +23,6 @@ import { getHeaderConfigForPath } from "@/config/platform-header-config";
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
 } from "@/components/ui/sidebar";
 
 type PlatformShellProps = PropsWithChildren<{
@@ -43,7 +41,6 @@ function PlatformShellContent({
 }: PlatformShellProps) {
   const { dir, t } = useLanguage();
   const [location] = useLocation();
-  const { toggleSidebar, openMobile } = useSidebar();
 
   const headerConfig = getHeaderConfigForPath(location);
   const title = titleOverride ?? t(headerConfig.titleKey);
@@ -61,8 +58,6 @@ function PlatformShellContent({
           title={title}
           showSearch={showSearch}
           extraContent={headerExtraContent}
-          onToggleSidebar={toggleSidebar}
-          isSidebarOpen={openMobile}
         />
         <div className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="w-full max-w-7xl mx-auto">

@@ -1,29 +1,21 @@
 /**
  * header.tsx - Platform Header Component
- * 
- * Location: apps/web/src/ → Components/ → Layout Components → header.tsx
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * Platform header component for authenticated pages. Provides:
- * - Navigation and search
- * - User menu and notifications
- * - Responsive mobile menu
- * 
- * Related Files:
- * - apps/web/src/components/layout/PlatformShell.tsx - Uses this header
- * - apps/web/src/components/layout/sidebar.tsx - Sidebar component
+ *
+ * Standard shadcn dashboard header using SidebarTrigger, Separator, Avatar.
  */
 
 import { useState, type ReactNode } from "react";
 import type { ChangeEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import { Bell, Menu, Search, User } from "lucide-react";
+import { Bell, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { cn } from "@/lib/utils";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -36,11 +28,6 @@ interface HeaderProps {
   isSidebarOpen?: boolean;
 }
 
-const HEADER_VARIANTS = {
-  hidden: { opacity: 0, y: -18 },
-  visible: { opacity: 1, y: 0 },
-};
-
 export default function Header({
   onSearch,
   searchPlaceholder,
@@ -48,8 +35,6 @@ export default function Header({
   showActions = true,
   extraContent,
   title,
-  onToggleSidebar,
-  isSidebarOpen,
 }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const { dir, t } = useLanguage();
@@ -71,83 +56,88 @@ export default function Header({
     : 0;
 
   const username = user?.name || user?.username || user?.email?.split("@")[0] || "المستخدم";
+  const initials = `${user?.firstName?.[0] || ""}${user?.lastName?.[0] || ""}`.toUpperCase() || "U";
 
   return (
-    <motion.header
-      variants={HEADER_VARIANTS}
-      initial="hidden"
-      animate="visible"
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className="sticky top-0 z-30 h-16 bg-card border-b border-border/60 shadow-sm transition-all duration-300"
-      aria-label={title || "الشريط العلوي"}
+    <header
+      className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b bg-card px-4 transition-[width,height] ease-linear"
+      dir={dir}
     >
-      <div className="w-full px-6 sm:px-8 lg:px-12 h-full" dir={dir}>
-        <div className="flex items-center justify-between h-full gap-4">
-          {onToggleSidebar && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={onToggleSidebar}
-              aria-label={isSidebarOpen ? t("header.toggleSidebarClose") : t("header.toggleSidebarOpen")}
-              className={cn("inline-flex border border-white/60 bg-card/50 text-muted-foreground shadow-sm transition hover:bg-card/80 hover:text-foreground focus-visible:ring-primary/30 lg:hidden rounded-2xl h-11 w-11")}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          )}
+      {/* Standard shadcn SidebarTrigger */}
+      <SidebarTrigger className="-ms-1" />
+      <Separator orientation="vertical" className="mx-2 h-4" />
 
+      {/* Title */}
+      {title && (
+        <span className="text-sm font-bold text-foreground truncate hidden sm:inline">
+          {title}
+        </span>
+      )}
 
-          <div className="flex-1 max-w-2xl mx-auto hidden md:block">
-            {showSearch && (
-              <div className="relative">
-                <Input
-                  type="search"
-                  placeholder={defaultPlaceholder}
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  className="w-full h-11 border-0 bg-muted/50 hover:bg-card focus:bg-card ring-1 ring-slate-200/60 ps-12 pe-4 text-sm shadow-sm transition-all placeholder:text-muted-foreground/70 focus:ring-2 focus:ring-primary/30 text-start placeholder:text-start rounded-2xl"
-                />
-                <Search className="absolute start-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/70" />
-              </div>
-            )}
+      {/* Search */}
+      <div className="flex-1 max-w-xl mx-auto hidden md:block">
+        {showSearch && (
+          <div className="relative">
+            <Input
+              type="search"
+              placeholder={defaultPlaceholder}
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="w-full h-9 border-0 bg-muted/50 hover:bg-card focus:bg-card ring-1 ring-border ps-10 pe-4 text-sm shadow-sm transition-all placeholder:text-muted-foreground/70 focus:ring-2 focus:ring-primary/30 rounded-xl"
+            />
+            <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/70" />
           </div>
+        )}
+      </div>
 
-          <div className="flex items-center gap-3">
-            {extraContent && (
-              <div className="hidden items-center gap-2 sm:flex" dir={dir}>
-                {extraContent}
-              </div>
-            )}
+      {/* Right side actions */}
+      <div className="flex items-center gap-2 ms-auto">
+        {extraContent && (
+          <div className="hidden items-center gap-2 sm:flex">
+            {extraContent}
+          </div>
+        )}
 
-            {showActions && (
-              <>
+        {showActions && (
+          <>
+            {/* Notifications */}
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size="sm"
-                  className="relative h-11 w-11 p-0 hover:bg-muted/50 rounded-2xl transition-colors"
+                  size="icon"
+                  className="relative h-9 w-9 rounded-lg"
                 >
-                  <Bell className="h-5 w-5 text-muted-foreground" />
+                  <Bell className="h-4 w-4 text-muted-foreground" />
                   {notificationCount > 0 && (
-                    <span className="absolute top-2.5 end-2.5 h-4 w-4 bg-red-500 border-2 border-white text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
-                      {notificationCount > 9 ? '9+' : notificationCount}
+                    <span className="absolute -top-0.5 -end-0.5 h-4 w-4 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {notificationCount > 9 ? "9+" : notificationCount}
                     </span>
                   )}
                 </Button>
-                
-                <div className="flex items-center gap-3 ps-3 border-s border-border/50">
-                  <div className="hidden flex-col items-end sm:flex">
-                    <span className="text-xs font-semibold text-foreground leading-none mb-1">{username}</span>
-                    <span className="text-xs font-bold text-primary uppercase tracking-wider leading-none">{t("auth.loggedIn") || "مرحباً بعودتك"}</span>
-                  </div>
-                  <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-white shadow-md shadow-primary/20">
-                    <User className="h-5 w-5" />
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+              </TooltipTrigger>
+              <TooltipContent>الإشعارات</TooltipContent>
+            </Tooltip>
+
+            <Separator orientation="vertical" className="mx-1 h-4" />
+
+            {/* User info */}
+            <div className="flex items-center gap-2">
+              <div className="hidden flex-col items-end sm:flex">
+                <span className="text-xs font-bold text-foreground leading-none">{username}</span>
+                <span className="text-[10px] font-bold text-muted-foreground leading-none mt-0.5">
+                  {t("auth.loggedIn") || "متصل"}
+                </span>
+              </div>
+              <Avatar className="h-8 w-8">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+          </>
+        )}
       </div>
-    </motion.header>
+    </header>
   );
 }
