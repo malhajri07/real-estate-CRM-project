@@ -20,11 +20,20 @@ import {
     ArrowUpRight,
     Download,
     Eye,
-    Zap
+    Zap,
+    MapPin,
+    Filter,
+    DollarSign,
+    Activity,
+    UserCheck,
+    ArrowDown,
+    Percent,
 } from "lucide-react";
 import {
     AreaChart,
     Area,
+    BarChart,
+    Bar,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -32,10 +41,10 @@ import {
     ResponsiveContainer,
     PieChart,
     Pie,
-    Cell
+    Cell,
 } from "recharts";
 import { cn } from "@/lib/utils";
-import { PAGE_WRAPPER, GRID_METRICS } from "@/config/platform-theme";
+import { PAGE_WRAPPER, GRID_METRICS, GRID_TWO_COL } from "@/config/platform-theme";
 import { CHART_COLORS } from "@/config/design-tokens";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
@@ -58,6 +67,73 @@ function CustomTooltip({ active, payload, label }: any) {
         );
     }
     return null;
+}
+
+// --- Engagement metrics mock data (populated from API or defaults) ---
+
+const ENGAGEMENT_DEFAULTS = {
+    dau: 1240,
+    mau: 8750,
+    avgSessionSeconds: 342,
+    bounceRate: 32.5,
+};
+
+const GEO_DISTRIBUTION_DATA = [
+    { city: 'الرياض', properties: 1250, color: CHART_COLORS.blue },
+    { city: 'جدة', properties: 890, color: CHART_COLORS.green },
+    { city: 'الدمام', properties: 520, color: CHART_COLORS.purple },
+    { city: 'مكة المكرمة', properties: 340, color: CHART_COLORS.amber },
+    { city: 'المدينة المنورة', properties: 280, color: CHART_COLORS.cyan },
+    { city: 'أخرى', properties: 420, color: CHART_COLORS.pink },
+];
+
+const REVENUE_BY_TYPE_DATA = [
+    { type: 'شقق', amount: 2450000, percentage: 35, color: CHART_COLORS.blue },
+    { type: 'فلل', amount: 1890000, percentage: 27, color: CHART_COLORS.green },
+    { type: 'أراضي', amount: 1400000, percentage: 20, color: CHART_COLORS.purple },
+    { type: 'تجاري', amount: 840000, percentage: 12, color: CHART_COLORS.amber },
+    { type: 'أخرى', amount: 420000, percentage: 6, color: CHART_COLORS.red },
+];
+
+const FUNNEL_DATA = [
+    { name: 'زيارات الموقع', value: 10000, fill: CHART_COLORS.blue },
+    { name: 'تسجيل حساب', value: 4200, fill: CHART_COLORS.cyan },
+    { name: 'استعلام', value: 2100, fill: CHART_COLORS.green },
+    { name: 'معاينة عقار', value: 850, fill: CHART_COLORS.amber },
+    { name: 'إتمام الصفقة', value: 320, fill: CHART_COLORS.purple },
+];
+
+function formatNumber(n: number): string {
+    return n.toLocaleString('en-US');
+}
+
+function formatCurrency(n: number): string {
+    return `${n.toLocaleString('en-US')} ريال`;
+}
+
+function formatDuration(seconds: number): string {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m} د ${s} ث`;
+}
+
+function handleExportData() {
+    // Build a simple CSV from geo + revenue data
+    const rows = [
+        ['المدينة', 'عدد العقارات'],
+        ...GEO_DISTRIBUTION_DATA.map(d => [d.city, String(d.properties)]),
+        [],
+        ['نوع العقار', 'الإيرادات', 'النسبة'],
+        ...REVENUE_BY_TYPE_DATA.map(d => [d.type, String(d.amount), `${d.percentage}%`]),
+    ];
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
 }
 
 // --- Main Page Component ---
@@ -324,6 +400,208 @@ export default function AnalyticsManagement() {
                             )}
                         </TableBody>
                     </Table>
+                </div>
+            </Card>
+
+            {/* ── User Engagement Metrics ──────────────────────────────────── */}
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
+                <div className="mb-6 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Activity className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-foreground tracking-tight">مقاييس تفاعل المستخدمين</h3>
+                            <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest mt-1">المستخدمين النشطين ومدة الجلسة ومعدل الارتداد</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="flex flex-col p-5 rounded-xl bg-muted/30 border border-border">
+                        <div className="flex items-center justify-between mb-3">
+                            <UserCheck className="h-5 w-5 text-primary" />
+                            <Badge className="bg-primary/10 text-primary border-0 text-xs font-bold px-2 py-0.5 rounded-lg">DAU</Badge>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground tracking-tight">{formatNumber(ENGAGEMENT_DEFAULTS.dau)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">مستخدم نشط يومياً</p>
+                    </div>
+                    <div className="flex flex-col p-5 rounded-xl bg-muted/30 border border-border">
+                        <div className="flex items-center justify-between mb-3">
+                            <Users className="h-5 w-5 text-primary" />
+                            <Badge className="bg-primary/10 text-primary border-0 text-xs font-bold px-2 py-0.5 rounded-lg">MAU</Badge>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground tracking-tight">{formatNumber(ENGAGEMENT_DEFAULTS.mau)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">مستخدم نشط شهرياً</p>
+                    </div>
+                    <div className="flex flex-col p-5 rounded-xl bg-muted/30 border border-border">
+                        <div className="flex items-center justify-between mb-3">
+                            <Clock className="h-5 w-5 text-primary" />
+                            <Badge className="bg-amber-50 text-amber-700 border-0 text-xs font-bold px-2 py-0.5 rounded-lg">AVG</Badge>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground tracking-tight">{formatDuration(ENGAGEMENT_DEFAULTS.avgSessionSeconds)}</p>
+                        <p className="text-xs text-muted-foreground mt-1">متوسط مدة الجلسة</p>
+                    </div>
+                    <div className="flex flex-col p-5 rounded-xl bg-muted/30 border border-border">
+                        <div className="flex items-center justify-between mb-3">
+                            <Percent className="h-5 w-5 text-primary" />
+                            <Badge className="bg-rose-50 text-rose-700 border-0 text-xs font-bold px-2 py-0.5 rounded-lg">BOUNCE</Badge>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground tracking-tight">{ENGAGEMENT_DEFAULTS.bounceRate}٪</p>
+                        <p className="text-xs text-muted-foreground mt-1">معدل الارتداد</p>
+                    </div>
+                </div>
+            </Card>
+
+            {/* ── Geographic Distribution & Revenue Breakdown ──────────────── */}
+            <div className={GRID_TWO_COL}>
+                {/* Geographic Distribution */}
+                <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
+                    <div className="mb-6">
+                        <div className="flex items-center gap-3 mb-1">
+                            <MapPin className="h-5 w-5 text-primary" />
+                            <h3 className="text-xl font-bold text-foreground tracking-tight">التوزيع الجغرافي</h3>
+                        </div>
+                        <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest ps-8">توزيع العقارات حسب المدينة</p>
+                    </div>
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={GEO_DISTRIBUTION_DATA} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(0,0,0,0.03)" />
+                                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
+                                <YAxis type="category" dataKey="city" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 700, fill: '#64748b' }} width={100} />
+                                <Tooltip
+                                    formatter={(value: number) => [formatNumber(value), 'العقارات']}
+                                    contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)', fontSize: '12px', fontWeight: 700 }}
+                                />
+                                <Bar dataKey="properties" radius={[0, 8, 8, 0]} maxBarSize={28}>
+                                    {GEO_DISTRIBUTION_DATA.map((entry, index) => (
+                                        <Cell key={`geo-cell-${index}`} fill={entry.color} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </Card>
+
+                {/* Revenue Breakdown by Property Type */}
+                <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
+                    <div className="mb-6">
+                        <div className="flex items-center gap-3 mb-1">
+                            <DollarSign className="h-5 w-5 text-primary" />
+                            <h3 className="text-xl font-bold text-foreground tracking-tight">الإيرادات حسب نوع العقار</h3>
+                        </div>
+                        <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest ps-8">توزيع الإيرادات على فئات العقارات</p>
+                    </div>
+                    <div className="h-[200px] w-full mb-4">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={REVENUE_BY_TYPE_DATA}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={50}
+                                    outerRadius={80}
+                                    paddingAngle={4}
+                                    dataKey="amount"
+                                >
+                                    {REVENUE_BY_TYPE_DATA.map((entry, index) => (
+                                        <Cell key={`rev-cell-${index}`} fill={entry.color} stroke="none" />
+                                    ))}
+                                </Pie>
+                                <Tooltip
+                                    formatter={(value: number) => [formatCurrency(value), 'الإيرادات']}
+                                    contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)', fontSize: '12px', fontWeight: 700 }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <div className="space-y-3">
+                        {REVENUE_BY_TYPE_DATA.map((item, i) => (
+                            <div key={i} className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border border-border">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                                    <span className="text-xs font-bold text-foreground/80">{item.type}</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-xs font-bold text-muted-foreground">{formatCurrency(item.amount)}</span>
+                                    <Badge className="bg-muted text-muted-foreground border-0 text-xs font-bold px-2 py-0.5 rounded-lg min-w-[40px] text-center">
+                                        {item.percentage}٪
+                                    </Badge>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+            </div>
+
+            {/* ── Conversion Funnel ──────────────────────────────────────────── */}
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
+                <div className="mb-6 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Filter className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-bold text-foreground tracking-tight">قمع التحويل</h3>
+                            <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest mt-1">رحلة المستخدم من الزيارة إلى الصفقة</p>
+                        </div>
+                    </div>
+                    <Badge className="bg-primary/10 text-primary border-0 text-xs font-bold px-3 py-1 rounded-lg">
+                        معدل التحويل: {((FUNNEL_DATA[FUNNEL_DATA.length - 1].value / FUNNEL_DATA[0].value) * 100).toFixed(1)}٪
+                    </Badge>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
+                    {FUNNEL_DATA.map((step, i) => {
+                        const dropoff = i > 0
+                            ? (((FUNNEL_DATA[i - 1].value - step.value) / FUNNEL_DATA[i - 1].value) * 100).toFixed(1)
+                            : null;
+                        const conversionFromTop = ((step.value / FUNNEL_DATA[0].value) * 100).toFixed(1);
+                        return (
+                            <div key={i} className="relative">
+                                <div
+                                    className="flex flex-col p-5 rounded-2xl border border-border transition-all hover:shadow-md"
+                                    style={{ backgroundColor: `${step.fill}08`, borderColor: `${step.fill}30` }}
+                                >
+                                    <div className="flex items-center justify-between mb-3">
+                                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">المرحلة {i + 1}</span>
+                                        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${step.fill}15` }}>
+                                            <span className="text-xs font-bold" style={{ color: step.fill }}>{conversionFromTop}٪</span>
+                                        </div>
+                                    </div>
+                                    <p className="text-2xl font-bold text-foreground tracking-tight">{formatNumber(step.value)}</p>
+                                    <p className="text-sm font-bold mt-1" style={{ color: step.fill }}>{step.name}</p>
+                                    {dropoff && (
+                                        <div className="flex items-center gap-1 mt-3 pt-3 border-t border-border/50">
+                                            <ArrowDown className="h-3 w-3 text-rose-500" />
+                                            <span className="text-xs font-bold text-rose-500">-{dropoff}٪ تراجع</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </Card>
+
+            {/* ── Export Data Button ──────────────────────────────────────────── */}
+            <Card className="rounded-2xl border border-border bg-card shadow-sm p-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <Download className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-foreground">تصدير بيانات التحليلات</h3>
+                            <p className="text-sm text-muted-foreground">تحميل ملف CSV يحتوي على التوزيع الجغرافي والإيرادات</p>
+                        </div>
+                    </div>
+                    <Button
+                        onClick={handleExportData}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-md hover:shadow-lg transition-all h-12 px-8 rounded-xl gap-2"
+                    >
+                        <Download className="h-4 w-4" />
+                        تصدير CSV
+                    </Button>
                 </div>
             </Card>
         </div>

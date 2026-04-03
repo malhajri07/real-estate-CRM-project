@@ -18,7 +18,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { Phone, Mail, Calendar, MessageCircle, Plus, Users as UsersIcon, ListChecks, CheckCircle2, UserPlus } from "lucide-react";
+import {
+  Phone, Mail, Calendar, MessageCircle, Plus, Users as UsersIcon,
+  ListChecks, CheckCircle2, UserPlus, Tag, DollarSign, Building2,
+  Eye, Clock, TrendingUp, Star, Activity as ActivityIcon, FileText, Briefcase,
+  Home, Heart,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +33,8 @@ import { ClientDetailSkeleton } from "@/components/skeletons/page-skeletons";
 import { PAGE_WRAPPER, GRID_THREE_COL, TYPOGRAPHY } from "@/config/platform-theme";
 import type { Lead, Activity } from "@shared/types";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
 import { getLeadStatusVariant } from "@/lib/status-variants";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import EmptyState from "@/components/ui/empty-state";
@@ -309,13 +316,116 @@ export default function Clients() {
                   </CardContent>
                 </Card>
 
+                {/* Client Value Indicator */}
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">تقييم العميل</h3>
+                      <Badge variant={
+                        selectedLead.status === "qualified" ? "success" :
+                        selectedLead.status === "contacted" ? "info" :
+                        selectedLead.status === "closed" ? "default" : "secondary"
+                      }>
+                        {selectedLead.status === "qualified" ? "عميل مؤهل" :
+                         selectedLead.status === "contacted" ? "تم التواصل" :
+                         selectedLead.status === "closed" ? "مغلق" : "جديد"}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="text-center p-3 bg-muted/30 rounded-xl">
+                        <DollarSign className="h-5 w-5 mx-auto mb-1 text-primary" />
+                        <p className="text-xs text-muted-foreground">الميزانية</p>
+                        <p className="text-sm font-bold">{selectedLead.budgetRange || "غير محدد"}</p>
+                      </div>
+                      <div className="text-center p-3 bg-muted/30 rounded-xl">
+                        <ActivityIcon className="h-5 w-5 mx-auto mb-1 text-primary" />
+                        <p className="text-xs text-muted-foreground">الأنشطة</p>
+                        <p className="text-sm font-bold">{activities?.length || 0}</p>
+                      </div>
+                      <div className="text-center p-3 bg-muted/30 rounded-xl">
+                        <Clock className="h-5 w-5 mx-auto mb-1 text-primary" />
+                        <p className="text-xs text-muted-foreground">عمر العميل</p>
+                        <p className="text-sm font-bold">
+                          {Math.floor((Date.now() - new Date(selectedLead.createdAt).getTime()) / (1000 * 60 * 60 * 24))} يوم
+                        </p>
+                      </div>
+                    </div>
+                    {/* Score bar */}
+                    {(() => {
+                      let score = 30;
+                      if (selectedLead.phone) score += 10;
+                      if (selectedLead.email) score += 10;
+                      if (selectedLead.budgetRange) score += 15;
+                      if (selectedLead.interestType) score += 10;
+                      if (selectedLead.city) score += 5;
+                      if (selectedLead.status === "qualified") score += 20;
+                      if (selectedLead.status === "contacted") score += 10;
+                      score = Math.min(100, score);
+                      return (
+                        <div className="mt-4">
+                          <div className="flex items-center justify-between text-xs mb-1">
+                            <span className="text-muted-foreground">درجة التأهيل</span>
+                            <span className={cn(
+                              "font-bold",
+                              score >= 80 ? "text-emerald-600" : score >= 50 ? "text-amber-600" : "text-blue-600"
+                            )}>
+                              {score}/100 ({score >= 80 ? "ساخن" : score >= 50 ? "دافئ" : "بارد"})
+                            </span>
+                          </div>
+                          <Progress value={score} className="h-2" />
+                        </div>
+                      );
+                    })()}
+                  </CardContent>
+                </Card>
+
+                {/* Client Tags */}
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">العلامات والتصنيفات</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedLead.interestType && (
+                        <Badge variant="outline" className="rounded-full flex items-center gap-1">
+                          <Home size={12} />
+                          {selectedLead.interestType}
+                        </Badge>
+                      )}
+                      {selectedLead.city && (
+                        <Badge variant="outline" className="rounded-full flex items-center gap-1">
+                          <Building2 size={12} />
+                          {selectedLead.city}
+                        </Badge>
+                      )}
+                      {selectedLead.leadSource && (
+                        <Badge variant="outline" className="rounded-full flex items-center gap-1">
+                          <Tag size={12} />
+                          {selectedLead.leadSource}
+                        </Badge>
+                      )}
+                      {selectedLead.status && (
+                        <Badge variant={getLeadStatusVariant(selectedLead.status)} className="rounded-full">
+                          {selectedLead.status}
+                        </Badge>
+                      )}
+                      {selectedLead.budgetRange && (
+                        <Badge variant="outline" className="rounded-full flex items-center gap-1">
+                          <DollarSign size={12} />
+                          {selectedLead.budgetRange}
+                        </Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
                 <Card>
                   <Tabs defaultValue="activities" className="w-full">
                     <CardHeader className="border-b">
-                      <TabsList className="grid w-full grid-cols-3">
+                      <TabsList className="grid w-full grid-cols-5">
                         <TabsTrigger value="activities">الأنشطة</TabsTrigger>
-                        <TabsTrigger value="notes">الملاحظات</TabsTrigger>
                         <TabsTrigger value="timeline">الخط الزمني</TabsTrigger>
+                        <TabsTrigger value="properties">العقارات</TabsTrigger>
+                        <TabsTrigger value="communication">التواصل</TabsTrigger>
+                        <TabsTrigger value="notes">الملاحظات</TabsTrigger>
                       </TabsList>
                     </CardHeader>
 
@@ -371,12 +481,278 @@ export default function Clients() {
                       )}
                     </TabsContent>
 
-                    <TabsContent value="notes" className="p-6">
-                      <div className="py-8 text-center text-muted-foreground">ميزة الملاحظات ستتوفر قريبًا…</div>
+                    {/* Timeline Tab - Activity Timeline */}
+                    <TabsContent value="timeline" className="p-6">
+                      <h3 className={`${TYPOGRAPHY.sectionTitle} text-end mb-4`}>الخط الزمني</h3>
+                      <div className="relative">
+                        <div className="absolute start-5 top-0 bottom-0 w-px bg-border" />
+
+                        {/* Creation event */}
+                        <div className="relative flex gap-3 pb-6 ms-1">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 z-10">
+                            <UserPlus size={16} />
+                          </div>
+                          <div className="flex-1 pt-1">
+                            <p className="text-sm font-medium">تم إضافة العميل</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {formatAdminDate(selectedLead.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Activities on timeline */}
+                        {activities && activities.length > 0 ? (
+                          activities.map((activity) => (
+                            <div key={activity.id} className="relative flex gap-3 pb-6 ms-1">
+                              <div className={cn(
+                                "flex h-10 w-10 items-center justify-center rounded-full z-10",
+                                activity.completed
+                                  ? "bg-emerald-100 text-emerald-600"
+                                  : "bg-muted text-muted-foreground"
+                              )}>
+                                {getActivityIcon(activity.activityType)}
+                              </div>
+                              <div className="flex-1 pt-1">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-medium">{activity.title}</p>
+                                  <Badge variant="outline" className="text-xs">
+                                    {activity.activityType}
+                                  </Badge>
+                                  {activity.completed && (
+                                    <CheckCircle2 size={14} className="text-emerald-600" />
+                                  )}
+                                </div>
+                                {activity.description && (
+                                  <p className="text-xs text-muted-foreground mt-0.5">{activity.description}</p>
+                                )}
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {formatAdminDate(activity.createdAt)}
+                                </p>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="relative flex gap-3 pb-6 ms-1">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground z-10">
+                              <Clock size={16} />
+                            </div>
+                            <div className="flex-1 pt-2">
+                              <p className="text-sm text-muted-foreground">لا توجد أنشطة مسجلة بعد</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Status update event */}
+                        {selectedLead.updatedAt !== selectedLead.createdAt && (
+                          <div className="relative flex gap-3 pb-6 ms-1">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 z-10">
+                              <TrendingUp size={16} />
+                            </div>
+                            <div className="flex-1 pt-1">
+                              <p className="text-sm font-medium">تم تحديث بيانات العميل</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {formatAdminDate(selectedLead.updatedAt)}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </TabsContent>
 
-                    <TabsContent value="timeline" className="p-6">
-                      <div className="py-8 text-center text-muted-foreground">عرض الخط الزمني قريبًا…</div>
+                    {/* Properties Tab - Properties They've Viewed/Inquired About */}
+                    <TabsContent value="properties" className="p-6">
+                      <h3 className={`${TYPOGRAPHY.sectionTitle} text-end mb-4`}>العقارات المرتبطة</h3>
+                      <div className="space-y-4">
+                        {/* Placeholder for properties the client showed interest in */}
+                        <div className="py-8 text-center text-muted-foreground">
+                          <Building2 className="h-12 w-12 mx-auto mb-3 opacity-40" />
+                          <p className="text-sm font-medium mb-1">لا توجد عقارات مرتبطة</p>
+                          <p className="text-xs text-muted-foreground mb-4">
+                            سيظهر هنا العقارات التي أبدى العميل اهتماما بها أو استفسر عنها
+                          </p>
+                          <Button size="sm" variant="outline" onClick={() => setLocation("/home/platform/properties")}>
+                            <Building2 size={14} className="me-2" />
+                            تصفح العقارات
+                          </Button>
+                        </div>
+
+                        <Separator />
+
+                        {/* Interest Summary */}
+                        <div>
+                          <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">ملخص الاهتمامات</h4>
+                          <div className="grid grid-cols-2 gap-3">
+                            <Card>
+                              <CardContent className="p-3">
+                                <p className="text-xs text-muted-foreground">نوع الاهتمام</p>
+                                <p className="text-sm font-bold mt-0.5">{selectedLead.interestType || "غير محدد"}</p>
+                              </CardContent>
+                            </Card>
+                            <Card>
+                              <CardContent className="p-3">
+                                <p className="text-xs text-muted-foreground">نطاق الميزانية</p>
+                                <p className="text-sm font-bold mt-0.5">{selectedLead.budgetRange || "غير محدد"}</p>
+                              </CardContent>
+                            </Card>
+                            <Card>
+                              <CardContent className="p-3">
+                                <p className="text-xs text-muted-foreground">المدينة المفضلة</p>
+                                <p className="text-sm font-bold mt-0.5">{selectedLead.city || "غير محدد"}</p>
+                              </CardContent>
+                            </Card>
+                            <Card>
+                              <CardContent className="p-3">
+                                <p className="text-xs text-muted-foreground">العقارات المشاهدة</p>
+                                <p className="text-sm font-bold mt-0.5">0</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    {/* Communication Tab - Communication Log */}
+                    <TabsContent value="communication" className="p-6">
+                      <div className="mb-4 flex items-center justify-between">
+                        <h3 className={`${TYPOGRAPHY.sectionTitle} text-end`}>سجل التواصل</h3>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => {
+                            if (selectedLead.phone) window.open(`tel:${selectedLead.phone}`, '_self');
+                          }} disabled={!selectedLead.phone}>
+                            <Phone size={14} className="me-1" />
+                            اتصال
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => {
+                            if (selectedLead.email) window.open(`mailto:${selectedLead.email}`, '_self');
+                          }} disabled={!selectedLead.email}>
+                            <Mail size={14} className="me-1" />
+                            بريد
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Communication entries from activities */}
+                      {(() => {
+                        const commActivities = activities?.filter(
+                          a => a.activityType === "call" || a.activityType === "email" || a.activityType === "meeting"
+                        ) ?? [];
+
+                        if (commActivities.length === 0) {
+                          return (
+                            <div className="py-8 text-center text-muted-foreground">
+                              <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-40" />
+                              <p className="text-sm font-medium mb-1">لا توجد سجلات تواصل</p>
+                              <p className="text-xs text-muted-foreground">
+                                قم بتسجيل المكالمات والرسائل والاجتماعات مع العميل
+                              </p>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="space-y-3">
+                            {commActivities.map((activity) => (
+                              <Card key={activity.id}>
+                                <CardContent className="flex items-start gap-3 p-4">
+                                  <div className={cn(
+                                    "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full mt-1",
+                                    activity.activityType === "call" ? "bg-blue-100 text-blue-600" :
+                                    activity.activityType === "email" ? "bg-purple-100 text-purple-600" :
+                                    "bg-amber-100 text-amber-600"
+                                  )}>
+                                    {getActivityIcon(activity.activityType)}
+                                  </div>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h4 className="text-sm font-medium">{activity.title}</h4>
+                                      <Badge variant="outline" className="text-xs">
+                                        {activity.activityType === "call" ? "مكالمة" :
+                                         activity.activityType === "email" ? "بريد إلكتروني" : "اجتماع"}
+                                      </Badge>
+                                      {activity.completed && (
+                                        <Badge variant="success" className="text-xs">مكتمل</Badge>
+                                      )}
+                                    </div>
+                                    {activity.description && (
+                                      <p className="text-sm text-muted-foreground">{activity.description}</p>
+                                    )}
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {formatAdminDate(activity.createdAt)}
+                                    </p>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        );
+                      })()}
+
+                      {/* Contact Summary */}
+                      <Separator className="my-6" />
+                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">معلومات الاتصال</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 p-3 border border-border/50 rounded-xl">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                            <Phone size={14} />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">الهاتف</p>
+                            <p className="text-xs text-muted-foreground">{selectedLead.phone || "غير متوفر"}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 p-3 border border-border/50 rounded-xl">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+                            <Mail size={14} />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">البريد الإلكتروني</p>
+                            <p className="text-xs text-muted-foreground">{selectedLead.email || "غير متوفر"}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    {/* Notes Tab */}
+                    <TabsContent value="notes" className="p-6">
+                      <h3 className={`${TYPOGRAPHY.sectionTitle} text-end mb-4`}>الملاحظات</h3>
+                      {selectedLead.notes ? (
+                        <Card>
+                          <CardContent className="p-4">
+                            <div className="flex items-start gap-3">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                                <FileText size={16} className="text-muted-foreground" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm leading-relaxed">{selectedLead.notes}</p>
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  آخر تحديث: {formatAdminDate(selectedLead.updatedAt)}
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        <div className="py-8 text-center text-muted-foreground">
+                          <FileText className="h-12 w-12 mx-auto mb-3 opacity-40" />
+                          <p className="text-sm font-medium mb-1">لا توجد ملاحظات</p>
+                          <p className="text-xs text-muted-foreground">
+                            أضف ملاحظات حول هذا العميل لمتابعة أفضل
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Preferences */}
+                      {selectedLead.preferences && (
+                        <>
+                          <Separator className="my-4" />
+                          <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">التفضيلات</h4>
+                          <Card>
+                            <CardContent className="p-4">
+                              <p className="text-sm text-muted-foreground">{selectedLead.preferences}</p>
+                            </CardContent>
+                          </Card>
+                        </>
+                      )}
                     </TabsContent>
                   </Tabs>
                 </Card>

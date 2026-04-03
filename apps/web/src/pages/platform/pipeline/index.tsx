@@ -22,9 +22,18 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetFooter,
+} from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import EmptyState from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Phone, Mail, Calendar, Clock, Building2, User, FileText,
+  TrendingUp, ArrowRightCircle, DollarSign, CheckCircle2,
+  XCircle, MessageCircle, Briefcase,
+} from "lucide-react";
 import { PipelineSkeleton } from "@/components/skeletons/page-skeletons";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
@@ -63,6 +72,11 @@ export default function Pipeline() {
   const { dir, language } = useLanguage();
   const showSkeleton = useMinLoadTime();
   const locale = language === "ar" ? "ar-SA" : "en-US";
+
+  // Deal detail drawer state
+  const [dealDetailOpen, setDealDetailOpen] = useState(false);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [dealDetailTab, setDealDetailTab] = useState("info");
 
   const { data: deals, isLoading, isError, refetch } = useQuery<Deal[]>({ queryKey: ["/api/deals"] });
   const { data: leads } = useQuery<Lead[]>({ queryKey: ["/api/leads"] });
@@ -186,6 +200,34 @@ export default function Pipeline() {
 
   const getDealsByStage = (stage: string) => deals?.filter((deal) => deal.stage === stage) || [];
 
+  const openDealDetail = (deal: Deal) => {
+    setSelectedDeal(deal);
+    setDealDetailTab("info");
+    setDealDetailOpen(true);
+  };
+
+  const getCustomerInfoForDeal = (deal: Deal) => {
+    if (deal.customer) return deal.customer;
+    if (deal.leadId) {
+      const lead = leads?.find((l) => l.id === deal.leadId);
+      if (lead) return { firstName: lead.firstName, lastName: lead.lastName, email: lead.email ?? undefined, phone: lead.phone ?? undefined };
+    }
+    return null;
+  };
+
+  const getDealStageInfo = (stageId: string) => STAGES.find((s) => s.id === stageId);
+
+  const getRevenueEstimate = (deal: Deal) => {
+    const value = toNumericAmount(deal.agreedPrice ?? deal.dealValue);
+    if (value === null) return null;
+    const commission = toNumericAmount(deal.commission);
+    return {
+      dealValue: value,
+      commission: commission ?? value * 0.025,
+      net: value - (commission ?? value * 0.025),
+    };
+  };
+
   const maskPhoneNumber = (value: string | null | undefined) => {
     if (!value) return "غير متوفر";
     const digits = value.replace(/\D/g, "");
@@ -299,9 +341,10 @@ export default function Pipeline() {
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
                                     className={cn(
-                                      "text-end transition-shadow",
+                                      "text-end transition-shadow cursor-pointer hover:ring-1 hover:ring-primary/30",
                                       snapshot.isDragging && "shadow-lg"
                                     )}
+                                    onClick={() => openDealDetail(deal)}
                                   >
                                     <CardContent className="p-4 space-y-2 text-end">
                                       <div className="flex items-center justify-between">
@@ -414,6 +457,388 @@ export default function Pipeline() {
               })
             )}
           </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* ── Deal Detail Drawer ──────────────────────────────────────── */}
+      <Sheet open={dealDetailOpen} onOpenChange={setDealDetailOpen}>
+        <SheetContent side="right" className="w-full max-w-lg flex flex-col p-0">
+          {selectedDeal && (
+            <>
+              {/* Header */}
+              <div className="p-6 border-b bg-muted/30">
+                <SheetHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <SheetTitle className="text-xl">
+                        {getDealCustomerName(selectedDeal)}
+                      </SheetTitle>
+                      <SheetDescription>
+                        صفقة {STAGE_LABELS[selectedDeal.stage] ?? selectedDeal.stage}
+                      </SheetDescription>
+                    </div>
+                    <Badge variant={getDealStageInfo(selectedDeal.stage)?.badgeVariant ?? "secondary"} className="text-sm px-3 py-1">
+                      {STAGE_LABELS[selectedDeal.stage] ?? selectedDeal.stage}
+                    </Badge>
+                  </div>
+                </SheetHeader>
+
+                {/* Value Summary */}
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <Card>
+                    <CardContent className="p-3 text-center">
+                      <p className="text-xs text-muted-foreground">قيمة الصفقة</p>
+                      <p className="text-lg font-bold text-primary">
+                        {formatCurrency(selectedDeal.agreedPrice ?? selectedDeal.dealValue)}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-3 text-center">
+                      <p className="text-xs text-muted-foreground">الإغلاق المتوقع</p>
+                      <p className="text-sm font-bold">
+                        {selectedDeal.expectedCloseDate
+                          ? formatAdminDate(selectedDeal.expectedCloseDate)
+                          : "غير محدد"}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Quick Stage Change Buttons */}
+                <div className="mt-4">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">تغيير المرحلة</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {STAGES.map((stage) => (
+                      <Button
+                        key={stage.id}
+                        variant={selectedDeal.stage === stage.id ? "default" : "outline"}
+                        size="sm"
+                        className="text-xs"
+                        disabled={selectedDeal.stage === stage.id}
+                        onClick={() => {
+                          if (!selectedDeal.id.startsWith('request-')) {
+                            updateDealMutation.mutate({ id: selectedDeal.id, stage: stage.id });
+                          }
+                          setSelectedDeal({ ...selectedDeal, stage: stage.id });
+                        }}
+                      >
+                        {stage.title}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabbed Content */}
+              <Tabs value={dealDetailTab} onValueChange={setDealDetailTab} className="flex-1 flex flex-col overflow-hidden">
+                <div className="px-6 pt-4 border-b">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="info" className="text-xs">المعلومات</TabsTrigger>
+                    <TabsTrigger value="timeline" className="text-xs">المراحل</TabsTrigger>
+                    <TabsTrigger value="revenue" className="text-xs">الإيرادات</TabsTrigger>
+                    <TabsTrigger value="notes" className="text-xs">الملاحظات</TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <ScrollArea className="flex-1">
+                  {/* Info Tab */}
+                  <TabsContent value="info" className="p-6 mt-0">
+                    <div className="space-y-6">
+                      {/* Customer Info Card */}
+                      <div>
+                        <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">بيانات العميل</h4>
+                        {(() => {
+                          const customer = getCustomerInfoForDeal(selectedDeal);
+                          return customer ? (
+                            <Card>
+                              <CardContent className="p-4 space-y-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                                    <User size={18} className="text-primary" />
+                                  </div>
+                                  <div>
+                                    <p className="font-medium">{customer.firstName} {customer.lastName}</p>
+                                    <p className="text-xs text-muted-foreground">{customer.email || "لا يوجد بريد"}</p>
+                                  </div>
+                                </div>
+                                {customer.phone && (
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <Phone size={14} />
+                                    <span>{customer.phone}</span>
+                                  </div>
+                                )}
+                              </CardContent>
+                            </Card>
+                          ) : (
+                            <Card>
+                              <CardContent className="p-4 text-center text-muted-foreground text-sm">
+                                لا توجد بيانات عميل مرتبطة
+                              </CardContent>
+                            </Card>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Property Info Card */}
+                      <div>
+                        <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">بيانات العقار</h4>
+                        {selectedDeal.propertyId ? (
+                          <Card>
+                            <CardContent className="p-4">
+                              <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                                  <Building2 size={18} className="text-primary" />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-sm">عقار مرتبط</p>
+                                  <p className="text-xs text-muted-foreground">رقم العقار: {selectedDeal.propertyId}</p>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ) : (
+                          <Card>
+                            <CardContent className="p-4 text-center text-muted-foreground text-sm">
+                              لا يوجد عقار مرتبط بهذه الصفقة
+                            </CardContent>
+                          </Card>
+                        )}
+                      </div>
+
+                      {/* Deal Details */}
+                      <div>
+                        <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">تفاصيل الصفقة</h4>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center py-2 border-b border-border/50">
+                            <span className="text-muted-foreground text-sm">الحالة</span>
+                            <span className="font-medium text-sm">{selectedDeal.status}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-border/50">
+                            <span className="text-muted-foreground text-sm">المصدر</span>
+                            <span className="font-medium text-sm">{selectedDeal.source || "غير محدد"}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-border/50">
+                            <span className="text-muted-foreground text-sm">تاريخ الإنشاء</span>
+                            <span className="font-medium text-sm">{formatAdminDate(selectedDeal.createdAt)}</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-border/50">
+                            <span className="text-muted-foreground text-sm">آخر تحديث</span>
+                            <span className="font-medium text-sm">{formatAdminDate(selectedDeal.updatedAt)}</span>
+                          </div>
+                          {selectedDeal.wonAt && (
+                            <div className="flex justify-between items-center py-2 border-b border-border/50">
+                              <span className="text-muted-foreground text-sm">تاريخ الفوز</span>
+                              <span className="font-medium text-sm text-emerald-600">{formatAdminDate(selectedDeal.wonAt)}</span>
+                            </div>
+                          )}
+                          {selectedDeal.lostAt && (
+                            <div className="flex justify-between items-center py-2 border-b border-border/50">
+                              <span className="text-muted-foreground text-sm">تاريخ الخسارة</span>
+                              <span className="font-medium text-sm text-red-600">{formatAdminDate(selectedDeal.lostAt)}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Timeline Tab */}
+                  <TabsContent value="timeline" className="p-6 mt-0">
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">مسار المراحل</h4>
+
+                      {/* Stage Progress Visualization */}
+                      <div className="relative">
+                        <div className="absolute start-4 top-0 bottom-0 w-px bg-border" />
+                        {STAGES.map((stage, idx) => {
+                          const isCurrent = selectedDeal.stage === stage.id;
+                          const stageIndex = STAGES.findIndex(s => s.id === selectedDeal.stage);
+                          const isPast = idx < stageIndex;
+
+                          return (
+                            <div key={stage.id} className="relative flex gap-3 pb-6 ms-1">
+                              <div className={cn(
+                                "flex h-8 w-8 items-center justify-center rounded-full z-10 transition-colors",
+                                isCurrent ? "bg-primary text-white" :
+                                isPast ? "bg-emerald-100 text-emerald-600" :
+                                "bg-muted text-muted-foreground"
+                              )}>
+                                {isPast ? <CheckCircle2 size={14} /> :
+                                 isCurrent ? <ArrowRightCircle size={14} /> :
+                                 <Clock size={14} />}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <p className={cn(
+                                    "text-sm",
+                                    isCurrent ? "font-bold text-primary" :
+                                    isPast ? "font-medium text-emerald-600" :
+                                    "text-muted-foreground"
+                                  )}>
+                                    {stage.title}
+                                  </p>
+                                  {isCurrent && (
+                                    <Badge variant="default" className="text-xs">حالي</Badge>
+                                  )}
+                                  {isPast && (
+                                    <Badge variant="secondary" className="text-xs">مكتمل</Badge>
+                                  )}
+                                </div>
+                                {isCurrent && (
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    في هذه المرحلة منذ {formatAdminDate(selectedDeal.updatedAt)}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <Separator />
+
+                      {/* Activity Log Placeholder */}
+                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">النشاط</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 p-3 border border-border/50 rounded-xl">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                            <Briefcase size={14} />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm">تم إنشاء الصفقة</p>
+                          </div>
+                          <span className="text-xs text-muted-foreground">{formatAdminDate(selectedDeal.createdAt)}</span>
+                        </div>
+                        {selectedDeal.stage !== "NEW" && (
+                          <div className="flex items-center gap-3 p-3 border border-border/50 rounded-xl">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                              <ArrowRightCircle size={14} />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm">تم تحديث المرحلة إلى {STAGE_LABELS[selectedDeal.stage] ?? selectedDeal.stage}</p>
+                            </div>
+                            <span className="text-xs text-muted-foreground">{formatAdminDate(selectedDeal.updatedAt)}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Revenue Tab */}
+                  <TabsContent value="revenue" className="p-6 mt-0">
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">تقدير الإيرادات</h4>
+
+                      {(() => {
+                        const estimate = getRevenueEstimate(selectedDeal);
+                        if (!estimate) {
+                          return (
+                            <div className="py-12 text-center text-muted-foreground">
+                              <DollarSign className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                              <p className="text-sm">لم يتم تحديد قيمة الصفقة</p>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="space-y-4">
+                            <Card className="border-primary/20">
+                              <CardContent className="p-4 space-y-4">
+                                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                  <span className="text-muted-foreground text-sm">قيمة الصفقة</span>
+                                  <span className="font-bold text-lg text-primary">{formatCurrency(estimate.dealValue)}</span>
+                                </div>
+                                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                  <span className="text-muted-foreground text-sm">العمولة المتوقعة (2.5%)</span>
+                                  <span className="font-bold text-emerald-600">{formatCurrency(estimate.commission)}</span>
+                                </div>
+                                <div className="flex justify-between items-center py-2">
+                                  <span className="text-muted-foreground text-sm">صافي القيمة</span>
+                                  <span className="font-bold">{formatCurrency(estimate.net)}</span>
+                                </div>
+                              </CardContent>
+                            </Card>
+
+                            {/* Forecast */}
+                            <Card>
+                              <CardHeader className="pb-2">
+                                <CardTitle className="text-sm flex items-center gap-2">
+                                  <TrendingUp size={16} />
+                                  التوقعات
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent className="space-y-3">
+                                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                  <span className="text-muted-foreground text-sm">احتمال الإغلاق</span>
+                                  <span className="font-medium text-sm">
+                                    {selectedDeal.stage === "WON" ? "100%" :
+                                     selectedDeal.stage === "LOST" ? "0%" :
+                                     selectedDeal.stage === "UNDER_OFFER" ? "70%" :
+                                     selectedDeal.stage === "NEGOTIATION" ? "40%" : "15%"}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                  <span className="text-muted-foreground text-sm">الإيراد المتوقع</span>
+                                  <span className="font-medium text-sm">
+                                    {formatCurrency(
+                                      estimate.commission * (
+                                        selectedDeal.stage === "WON" ? 1 :
+                                        selectedDeal.stage === "LOST" ? 0 :
+                                        selectedDeal.stage === "UNDER_OFFER" ? 0.7 :
+                                        selectedDeal.stage === "NEGOTIATION" ? 0.4 : 0.15
+                                      )
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center py-2">
+                                  <span className="text-muted-foreground text-sm">الإغلاق المتوقع</span>
+                                  <span className="font-medium text-sm">
+                                    {selectedDeal.expectedCloseDate
+                                      ? formatAdminDate(selectedDeal.expectedCloseDate)
+                                      : "غير محدد"}
+                                  </span>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </TabsContent>
+
+                  {/* Notes Tab */}
+                  <TabsContent value="notes" className="p-6 mt-0">
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">الملاحظات</h4>
+
+                      {selectedDeal.notes ? (
+                        <Card>
+                          <CardContent className="p-4">
+                            <div className="flex items-start gap-3">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                                <FileText size={14} className="text-muted-foreground" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm leading-relaxed">{selectedDeal.notes}</p>
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  آخر تحديث: {formatAdminDate(selectedDeal.updatedAt)}
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        <div className="py-12 text-center text-muted-foreground">
+                          <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                          <p className="text-sm">لا توجد ملاحظات مسجلة لهذه الصفقة</p>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                </ScrollArea>
+              </Tabs>
+            </>
+          )}
         </SheetContent>
       </Sheet>
     </div>

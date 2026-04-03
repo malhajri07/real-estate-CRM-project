@@ -2,7 +2,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   Trash2, Edit, Eye, MessageCircle, Upload, Phone,
-  SlidersHorizontal, AlertTriangle,
+  SlidersHorizontal, AlertTriangle, Mail, Calendar,
+  Clock, Star, TrendingUp, Activity, FileText,
+  CheckCircle2, XCircle, ArrowRightCircle, User,
+  Gauge, Briefcase,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,8 +37,12 @@ import { apiDelete, apiGet, apiPost } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
-import type { Lead } from "@shared/types";
+import type { Lead, Activity as ActivityType } from "@shared/types";
 import type { UploadResult } from "@uppy/core";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { useLocation } from "wouter";
 import { getLeadStatusVariant } from "@/lib/status-variants";
 import { formatAdminDate } from "@/lib/formatters";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
@@ -86,6 +93,13 @@ export default function Contacts() {
   const queryClient = useQueryClient();
   const showSkeleton = useMinLoadTime();
 
+  const [, setLocation] = useLocation();
+
+  // Lead Detail Drawer state
+  const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
+  const [detailLead, setDetailLead] = useState<Lead | null>(null);
+  const [detailTab, setDetailTab] = useState("info");
+
   // Quick View state
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -109,6 +123,43 @@ export default function Contacts() {
   const { data: leads, isLoading, isError, refetch } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
   });
+
+  // Activities for detail drawer
+  const { data: detailActivities } = useQuery<ActivityType[]>({
+    queryKey: ["/api/activities/lead", detailLead?.id],
+    enabled: !!detailLead?.id && detailDrawerOpen,
+  });
+
+  const openLeadDetail = (lead: Lead) => {
+    setDetailLead(lead);
+    setDetailTab("info");
+    setDetailDrawerOpen(true);
+  };
+
+  const getLeadScore = (lead: Lead): { score: number; label: string; color: string } => {
+    let score = 30; // base score
+    if (lead.phone) score += 10;
+    if (lead.email) score += 10;
+    if (lead.budgetRange) score += 15;
+    if (lead.interestType) score += 10;
+    if (lead.city) score += 5;
+    if (lead.status === "qualified") score += 20;
+    if (lead.status === "contacted") score += 10;
+    score = Math.min(100, score);
+    if (score >= 80) return { score, label: "ساخن", color: "text-emerald-600" };
+    if (score >= 50) return { score, label: "دافئ", color: "text-amber-600" };
+    return { score, label: "بارد", color: "text-blue-600" };
+  };
+
+  const getActivityIcon = (type?: string | null) => {
+    switch (type) {
+      case "call": return <Phone size={14} />;
+      case "email": return <Mail size={14} />;
+      case "meeting": return <Calendar size={14} />;
+      case "showing": return <Calendar size={14} />;
+      default: return <MessageCircle size={14} />;
+    }
+  };
 
   // Quick View search query
   const { data: searchResults } = useQuery<Lead[]>({
@@ -441,19 +492,12 @@ export default function Contacts() {
                         <TableCell>{lead.phone || "-"}</TableCell>
                         <TableCell>{lead.email || "-"}</TableCell>
                         <TableCell>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <span className="font-bold cursor-pointer hover:underline">{lead.firstName} {lead.lastName}</span>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-64">
-                              <div className="space-y-2 text-sm">
-                                <p className="font-bold">{lead.firstName} {lead.lastName}</p>
-                                <p className="text-muted-foreground">{lead.phone || "لا يوجد هاتف"}</p>
-                                <p className="text-muted-foreground">{lead.email || "لا يوجد بريد"}</p>
-                                <p className="text-muted-foreground">{lead.city || "غير محدد"}</p>
-                              </div>
-                            </PopoverContent>
-                          </Popover>
+                          <span
+                            className="font-bold cursor-pointer hover:underline text-primary"
+                            onClick={() => openLeadDetail(lead)}
+                          >
+                            {lead.firstName} {lead.lastName}
+                          </span>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -651,25 +695,16 @@ export default function Contacts() {
                           <TableCell>{lead.age || "غير محدد"}</TableCell>
                           <TableCell>{lead.city || "غير محدد"}</TableCell>
                           <TableCell>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <div className="cursor-pointer hover:underline">
-                                  <div className="font-bold">{lead.firstName} {lead.lastName}</div>
-                                  <div className="mt-1 flex items-center gap-2 text-muted-foreground">
-                                    <Phone size={12} />
-                                    <span>{lead.phone}</span>
-                                  </div>
-                                </div>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-64">
-                                <div className="space-y-2 text-sm">
-                                  <p className="font-bold">{lead.firstName} {lead.lastName}</p>
-                                  <p className="text-muted-foreground">{lead.phone || "لا يوجد هاتف"}</p>
-                                  <p className="text-muted-foreground">{lead.email || "لا يوجد بريد"}</p>
-                                  <p className="text-muted-foreground">{lead.city || "غير محدد"}</p>
-                                </div>
-                              </PopoverContent>
-                            </Popover>
+                            <div
+                              className="cursor-pointer hover:underline"
+                              onClick={() => openLeadDetail(lead)}
+                            >
+                              <div className="font-bold text-primary">{lead.firstName} {lead.lastName}</div>
+                              <div className="mt-1 flex items-center gap-2 text-muted-foreground">
+                                <Phone size={12} />
+                                <span>{lead.phone}</span>
+                              </div>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -796,6 +831,324 @@ export default function Contacts() {
           leadName={`${selectedLead.firstName} ${selectedLead.lastName}`}
         />
       )}
+
+      {/* ── Lead Detail Drawer ──────────────────────────────────────── */}
+      <Sheet open={detailDrawerOpen} onOpenChange={setDetailDrawerOpen}>
+        <SheetContent side="right" className="w-full max-w-lg flex flex-col p-0">
+          {detailLead && (
+            <>
+              {/* Header */}
+              <div className="p-6 border-b bg-muted/30">
+                <SheetHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <SheetTitle className="text-xl">
+                        {detailLead.firstName} {detailLead.lastName}
+                      </SheetTitle>
+                      <SheetDescription className="space-y-1">
+                        <span className="block">{detailLead.email || "لا يوجد بريد"}</span>
+                        <span className="block">{detailLead.phone || "لا يوجد هاتف"}</span>
+                      </SheetDescription>
+                    </div>
+                    <Badge variant={getLeadStatusVariant(detailLead.status)} className="text-sm px-3 py-1">
+                      {getStatusLabel(detailLead.status)}
+                    </Badge>
+                  </div>
+                </SheetHeader>
+
+                {/* Lead Score */}
+                {(() => {
+                  const scoreInfo = getLeadScore(detailLead);
+                  return (
+                    <div className="mt-4 flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <Gauge size={16} className={scoreInfo.color} />
+                        <span className={cn("text-sm font-bold", scoreInfo.color)}>
+                          تقييم العميل: {scoreInfo.score}/100 ({scoreInfo.label})
+                        </span>
+                      </div>
+                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full rounded-full transition-all",
+                            scoreInfo.score >= 80 ? "bg-emerald-500" :
+                            scoreInfo.score >= 50 ? "bg-amber-500" : "bg-blue-500"
+                          )}
+                          style={{ width: `${scoreInfo.score}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Quick Actions */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={() => {
+                      if (detailLead.phone) window.open(`tel:${detailLead.phone}`, '_self');
+                    }}
+                    disabled={!detailLead.phone}
+                  >
+                    <Phone size={14} className="me-1" />
+                    اتصال
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      if (detailLead.phone) {
+                        setSelectedLead(detailLead);
+                        setWhatsappModalOpen(true);
+                        setDetailDrawerOpen(false);
+                      }
+                    }}
+                    disabled={!detailLead.phone}
+                  >
+                    <MessageCircle size={14} className="me-1" />
+                    واتساب
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      if (detailLead.email) window.open(`mailto:${detailLead.email}`, '_self');
+                    }}
+                    disabled={!detailLead.email}
+                  >
+                    <Mail size={14} className="me-1" />
+                    بريد
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setDetailDrawerOpen(false);
+                      setLocation("/home/platform/calendar");
+                    }}
+                  >
+                    <Calendar size={14} className="me-1" />
+                    جدولة
+                  </Button>
+                </div>
+              </div>
+
+              {/* Tabbed Content */}
+              <Tabs value={detailTab} onValueChange={setDetailTab} className="flex-1 flex flex-col overflow-hidden">
+                <div className="px-6 pt-4 border-b">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="info" className="text-xs">المعلومات</TabsTrigger>
+                    <TabsTrigger value="activities" className="text-xs">الأنشطة</TabsTrigger>
+                    <TabsTrigger value="notes" className="text-xs">الملاحظات</TabsTrigger>
+                    <TabsTrigger value="deals" className="text-xs">الصفقات</TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <ScrollArea className="flex-1">
+                  {/* Info Tab */}
+                  <TabsContent value="info" className="p-6 mt-0">
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">بيانات العميل</h4>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-muted-foreground text-sm">الاسم الكامل</span>
+                          <span className="font-medium text-sm">{detailLead.firstName} {detailLead.lastName}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-muted-foreground text-sm">البريد الإلكتروني</span>
+                          <span className="font-medium text-sm">{detailLead.email || "غير محدد"}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-muted-foreground text-sm">الهاتف</span>
+                          <span className="font-medium text-sm">{detailLead.phone || "غير محدد"}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-muted-foreground text-sm">المدينة</span>
+                          <span className="font-medium text-sm">{detailLead.city || "غير محدد"}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-muted-foreground text-sm">العمر</span>
+                          <span className="font-medium text-sm">{detailLead.age || "غير محدد"}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-muted-foreground text-sm">الحالة الاجتماعية</span>
+                          <span className="font-medium text-sm">{getMaritalStatusLabel(detailLead.maritalStatus || "")}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-muted-foreground text-sm">عدد المُعالين</span>
+                          <span className="font-medium text-sm">{detailLead.numberOfDependents ?? 0}</span>
+                        </div>
+                      </div>
+
+                      <Separator className="my-4" />
+
+                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">اهتمامات العميل</h4>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-muted-foreground text-sm">مصدر العميل</span>
+                          <span className="font-medium text-sm">{detailLead.leadSource || "غير محدد"}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-muted-foreground text-sm">نوع الاهتمام</span>
+                          <span className="font-medium text-sm">{getInterestTypeLabel(detailLead.interestType || "")}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-muted-foreground text-sm">نطاق الميزانية</span>
+                          <span className="font-medium text-sm">{formatBudgetRange(detailLead.budgetRange)}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-muted-foreground text-sm">تاريخ الإنشاء</span>
+                          <span className="font-medium text-sm">{formatAdminDate(detailLead.createdAt)}</span>
+                        </div>
+                      </div>
+
+                      {/* Status Change Buttons */}
+                      <Separator className="my-4" />
+                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">تغيير الحالة</h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        {["new", "contacted", "qualified", "proposal", "negotiation", "closed"].map((status) => (
+                          <Button
+                            key={status}
+                            variant={detailLead.status === status ? "default" : "outline"}
+                            size="sm"
+                            className="text-xs"
+                            disabled={detailLead.status === status}
+                          >
+                            {getStatusLabel(status)}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Activities Tab */}
+                  <TabsContent value="activities" className="p-6 mt-0">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">سجل الأنشطة</h4>
+                        <Button size="sm" variant="outline" onClick={() => {
+                          setDetailDrawerOpen(false);
+                          setLocation("/home/platform/activities");
+                        }}>
+                          <Activity size={14} className="me-1" />
+                          إضافة نشاط
+                        </Button>
+                      </div>
+
+                      {!detailActivities || detailActivities.length === 0 ? (
+                        <div className="py-12 text-center text-muted-foreground">
+                          <Clock className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                          <p className="text-sm">لا توجد أنشطة مسجلة لهذا العميل</p>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <div className="absolute start-4 top-0 bottom-0 w-px bg-border" />
+                          {detailActivities.map((activity) => (
+                            <div key={activity.id} className="relative flex gap-3 pb-4 ms-1">
+                              <div className={cn(
+                                "flex h-8 w-8 items-center justify-center rounded-full z-10",
+                                activity.completed
+                                  ? "bg-emerald-100 text-emerald-600"
+                                  : "bg-muted text-muted-foreground"
+                              )}>
+                                {getActivityIcon(activity.activityType)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-medium">{activity.title}</p>
+                                  {activity.completed && (
+                                    <CheckCircle2 size={12} className="text-emerald-600" />
+                                  )}
+                                </div>
+                                {activity.description && (
+                                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{activity.description}</p>
+                                )}
+                                <div className="flex items-center gap-2 mt-1">
+                                  <Badge variant="outline" className="text-xs">{activity.activityType}</Badge>
+                                  <span className="text-xs text-muted-foreground">
+                                    {formatAdminDate(activity.createdAt)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  {/* Notes Tab */}
+                  <TabsContent value="notes" className="p-6 mt-0">
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">الملاحظات</h4>
+
+                      {detailLead.notes ? (
+                        <Card>
+                          <CardContent className="p-4">
+                            <div className="flex items-start gap-3">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                                <FileText size={14} className="text-muted-foreground" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm leading-relaxed">{detailLead.notes}</p>
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  آخر تحديث: {formatAdminDate(detailLead.updatedAt)}
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        <div className="py-12 text-center text-muted-foreground">
+                          <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                          <p className="text-sm">لا توجد ملاحظات مسجلة</p>
+                        </div>
+                      )}
+
+                      {/* Preferences */}
+                      {detailLead.preferences && (
+                        <>
+                          <Separator />
+                          <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">التفضيلات</h4>
+                          <Card>
+                            <CardContent className="p-4">
+                              <p className="text-sm text-muted-foreground">{detailLead.preferences}</p>
+                            </CardContent>
+                          </Card>
+                        </>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  {/* Deals Tab */}
+                  <TabsContent value="deals" className="p-6 mt-0">
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">الصفقات المرتبطة</h4>
+                      <div className="py-12 text-center text-muted-foreground">
+                        <Briefcase className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                        <p className="text-sm">لا توجد صفقات مرتبطة بهذا العميل</p>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="mt-4"
+                          onClick={() => {
+                            setDetailDrawerOpen(false);
+                            setLocation("/home/platform/pipeline");
+                          }}
+                        >
+                          <Briefcase size={14} className="me-1" />
+                          عرض لوحة الصفقات
+                        </Button>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </ScrollArea>
+              </Tabs>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

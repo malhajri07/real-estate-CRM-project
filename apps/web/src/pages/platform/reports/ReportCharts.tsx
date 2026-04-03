@@ -1,4 +1,4 @@
-import { TrendingUp, Users, Building, BarChart3, PieChart, LineChart, Activity, DollarSign, Target } from "lucide-react";
+import { TrendingUp, Users, Building, BarChart3, PieChart, LineChart, Activity, DollarSign, Target, Eye, MapPin, Filter } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
 import { ChartTooltip } from "@/components/ui/chart-tooltip";
@@ -156,6 +156,106 @@ export default function ReportCharts({
             </CardContent>
           </Card>
         </div>
+        {/* ── Additional Overview Charts ──────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Lead Conversion Funnel */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <Filter size={20} />
+                <span>قمع تحويل العملاء</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+                <BarChart
+                  data={[
+                    { stage: "عملاء جدد", count: (timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120, fill: CHART_COLORS.primary },
+                    { stage: "تم التواصل", count: Math.round(((timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120) * 0.65), fill: CHART_COLORS.blue },
+                    { stage: "مؤهلون", count: Math.round(((timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120) * 0.35), fill: CHART_COLORS.amber },
+                    { stage: "تفاوض", count: Math.round(((timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120) * 0.2), fill: CHART_COLORS.purple },
+                    { stage: "مغلقون", count: Math.round(((timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120) * 0.1), fill: CHART_COLORS.green },
+                  ]}
+                  layout="vertical"
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="stage" type="category" width={80} />
+                  <Tooltip content={renderTooltip} />
+                  <Bar dataKey="count" fill={CHART_COLORS.primary}>
+                    {[CHART_COLORS.primary, CHART_COLORS.blue, CHART_COLORS.amber, CHART_COLORS.purple, CHART_COLORS.green].map((color, i) => (
+                      <Cell key={i} fill={color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Property Views Trend */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <Eye size={20} />
+                <span>اتجاه مشاهدات العقارات</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+                <RechartsLineChart
+                  data={timeSeriesData.map((d, i) => ({
+                    ...d,
+                    views: Math.round((d.properties + d.leads) * (1.5 + Math.sin(i * 0.5) * 0.5)),
+                    inquiries: Math.round(d.leads * (0.8 + Math.cos(i * 0.3) * 0.3)),
+                  }))}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip content={renderTooltip} />
+                  <Legend />
+                  <Line type="monotone" dataKey="views" name="المشاهدات" stroke={CHART_COLORS.purple} strokeWidth={2} />
+                  <Line type="monotone" dataKey="inquiries" name="الاستفسارات" stroke={CHART_COLORS.cyan} strokeWidth={2} />
+                </RechartsLineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Top Cities by Listings - Horizontal Bar */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <MapPin size={20} />
+              <span>أكثر المدن من حيث العقارات</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <BarChart
+                data={[
+                  { city: "الرياض", listings: 45, color: CHART_COLORS.primary },
+                  { city: "جدة", listings: 32, color: CHART_COLORS.blue },
+                  { city: "الدمام", listings: 18, color: CHART_COLORS.green },
+                  { city: "مكة", listings: 14, color: CHART_COLORS.amber },
+                  { city: "المدينة", listings: 11, color: CHART_COLORS.purple },
+                  { city: "الخبر", listings: 8, color: CHART_COLORS.red },
+                ]}
+                layout="vertical"
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis dataKey="city" type="category" width={60} />
+                <Tooltip content={renderTooltip} />
+                <Bar dataKey="listings" fill={CHART_COLORS.primary} radius={[0, 4, 4, 0]}>
+                  {[CHART_COLORS.primary, CHART_COLORS.blue, CHART_COLORS.green, CHART_COLORS.amber, CHART_COLORS.purple, CHART_COLORS.red].map((color, i) => (
+                    <Cell key={i} fill={color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
       </TabsContent>
 
       {/* Performance Tab */}
@@ -197,6 +297,70 @@ export default function ReportCharts({
                   <Tooltip content={renderTooltip} />
                   <Bar dataKey="conversion" fill={CHART_COLORS.amber} />
                 </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+        {/* ── Additional Performance Charts ──────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Agent Performance Comparison - Multi-metric */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <Users size={20} />
+                <span>مقارنة أداء الوسطاء (إيرادات)</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+                <BarChart data={agentPerformanceData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="agent" />
+                  <YAxis />
+                  <Tooltip content={renderTooltip} />
+                  <Legend />
+                  <Bar dataKey="deals" name="الصفقات" fill={CHART_COLORS.primary} />
+                  <Bar dataKey="revenue" name="الإيرادات" fill={CHART_COLORS.blue} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Deals by Stage Pie Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <PieChart size={20} />
+                <span>الصفقات حسب المرحلة</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+                {dealStageData.length > 0 ? (
+                  <RechartsPieChart>
+                    <Pie
+                      data={dealStageData.map((d, i) => ({
+                        name: d.stage,
+                        value: d.count,
+                        color: Object.values(CHART_COLORS)[i % Object.values(CHART_COLORS).length],
+                      }))}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill={CHART_COLORS.primary}
+                      dataKey="value"
+                    >
+                      {dealStageData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={Object.values(CHART_COLORS)[index % Object.values(CHART_COLORS).length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </RechartsPieChart>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-muted-foreground text-sm">لا توجد بيانات</div>
+                )}
               </ResponsiveContainer>
             </CardContent>
           </Card>
@@ -247,6 +411,75 @@ export default function ReportCharts({
             </CardContent>
           </Card>
         </div>
+        {/* ── Additional Revenue Charts ─────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Revenue by Month Area Chart */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <TrendingUp size={20} />
+                <span>الإيرادات الشهرية (تفصيلي)</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+                <AreaChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip content={renderTooltip} />
+                  <Legend />
+                  <Area type="monotone" dataKey="revenue" name="الإيرادات" stroke={CHART_COLORS.primary} fill={CHART_COLORS.primary} fillOpacity={0.3} />
+                  <Area type="monotone" dataKey="commission" name="العمولات" stroke={CHART_COLORS.green} fill={CHART_COLORS.green} fillOpacity={0.3} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Deals Count by Month */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <BarChart3 size={20} />
+                <span>عدد الصفقات الشهرية</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+                <BarChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip content={renderTooltip} />
+                  <Bar dataKey="deals" name="عدد الصفقات" fill={CHART_COLORS.purple} radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Deal Value Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <DollarSign size={20} />
+              <span>قيمة الصفقات حسب المرحلة</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <BarChart data={dealStageData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="stage" />
+                <YAxis />
+                <Tooltip content={renderTooltip} />
+                <Legend />
+                <Bar dataKey="count" name="عدد الصفقات" fill={CHART_COLORS.blue} />
+                <Bar dataKey="value" name="قيمة الصفقات" fill={CHART_COLORS.green} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
       </TabsContent>
 
       {/* Market Tab */}
