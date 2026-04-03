@@ -416,9 +416,12 @@ function Router() {
 
   // Helper function to render public routes (used in multiple places)
   // Routes ordered from most specific to least specific for optimal matching
+  const SuspendedPublicListingPage = withSuspense(PublicListingPage);
+
   const renderPublicRoutes = () => (
     <>
       {/* Specific routes first */}
+      <Route path="/listing/:id" component={SuspendedPublicListingPage} />
       <Route path="/blog/:slug" component={SuspendedBlogPage} />
       <Route path="/signup/kyc-submitted" component={KYCSubmitted} />
       <Route path="/signup/success" component={SignupSuccess} />
