@@ -243,7 +243,7 @@ export default function MapPage() {
   };
 
   const handleNavigate = (propertyId: string) => {
-    navigate(`/properties/${propertyId}`);
+    navigate(`/listing/${propertyId}`);
   };
 
   const handleFilterToggle = () => {
