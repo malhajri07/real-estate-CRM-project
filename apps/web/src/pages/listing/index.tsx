@@ -35,6 +35,18 @@ import {
 } from "lucide-react";
 import { PROPERTY_TYPE_LABELS, LISTING_STATUS_LABELS, LISTING_TYPE_LABELS } from "@/constants/labels";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useMutation } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
 export default function PublicListingPage() {
@@ -43,7 +55,42 @@ export default function PublicListingPage() {
   const [, navigate] = useLocation();
   const [copied, setCopied] = useState(false);
   const [favorited, setFavorited] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const isAr = language === "ar";
+
+  // Agent working hours
+  const WORKING_HOURS = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"];
+
+  const bookingSchema = z.object({
+    customerName: z.string().min(2, isAr ? "الاسم مطلوب (حرفين على الأقل)" : "Name required"),
+    customerPhone: z.string().regex(/^(\+?966|0)?5[0-9]{8}$/, isAr ? "رقم هاتف سعودي غير صالح" : "Invalid Saudi phone"),
+    scheduledAt: z.string().min(1, isAr ? "يرجى اختيار الموعد" : "Please select date & time"),
+    notes: z.string().optional(),
+  });
+
+  const bookingForm = useForm<z.infer<typeof bookingSchema>>({
+    resolver: zodResolver(bookingSchema),
+    defaultValues: { customerName: "", customerPhone: "", scheduledAt: "", notes: "" },
+  });
+
+  const bookingMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof bookingSchema>) =>
+      apiPost("/api/appointments/public-booking", {
+        ...data,
+        propertyId: id,
+        agentId: property?.agentId || property?.agent?.id || property?.users?.id || "",
+      }),
+    onSuccess: () => {
+      setBookingSuccess(true);
+      bookingForm.reset();
+      setSelectedDate(undefined);
+    },
+    onError: () => {
+      toast.error(isAr ? "فشل إرسال طلب الحجز" : "Failed to submit booking");
+    },
+  });
 
   const { data: property, isLoading, error } = useQuery<any>({
     queryKey: ["/api/listings", id],
@@ -330,7 +377,7 @@ export default function PublicListingPage() {
                 <Separator />
 
                 {/* Schedule Viewing */}
-                <Button className="w-full gap-2" size="lg" onClick={() => navigate("/rbac-login")}>
+                <Button className="w-full gap-2" size="lg" onClick={() => { setBookingOpen(true); setBookingSuccess(false); }}>
                   <Calendar className="h-4 w-4" />
                   {isAr ? "حجز موعد معاينة" : "Schedule a Viewing"}
                 </Button>
@@ -381,6 +428,145 @@ export default function PublicListingPage() {
           </div>
         )}
       </main>
+
+      {/* Booking Sheet */}
+      <Sheet open={bookingOpen} onOpenChange={setBookingOpen}>
+        <SheetContent side="bottom">
+          <SheetHeader>
+            <SheetTitle>{isAr ? "حجز موعد معاينة" : "Schedule a Viewing"}</SheetTitle>
+            <SheetDescription>
+              {isAr ? "اختر الموعد المناسب وأدخل بياناتك ليتواصل معك الوسيط" : "Choose a time and enter your details so the agent can confirm"}
+            </SheetDescription>
+          </SheetHeader>
+
+          {bookingSuccess ? (
+            <div className="py-12 text-center space-y-4 max-w-md mx-auto">
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <Check className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-black text-foreground">{isAr ? "تم إرسال طلب الحجز" : "Booking Request Sent"}</h3>
+              <p className="text-muted-foreground">
+                {isAr ? "سيتواصل معك الوسيط لتأكيد الموعد عبر الهاتف أو الواتساب" : "The agent will contact you to confirm the appointment"}
+              </p>
+              <Button onClick={() => setBookingOpen(false)}>{isAr ? "إغلاق" : "Close"}</Button>
+            </div>
+          ) : (
+            <Form {...bookingForm}>
+              <form onSubmit={bookingForm.handleSubmit((data) => bookingMutation.mutate(data))} className="space-y-5 py-4 max-w-lg mx-auto">
+
+                {/* Date Picker */}
+                <FormField control={bookingForm.control} name="scheduledAt" render={() => (
+                  <FormItem>
+                    <FormLabel>{isAr ? "اختر التاريخ" : "Select Date"} *</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className={cn("w-full justify-start text-start h-10 font-normal", !selectedDate && "text-muted-foreground")}>
+                          <Calendar className="h-4 w-4 me-2" />
+                          {selectedDate ? format(selectedDate, "PPP", { locale: isAr ? ar : undefined }) : (isAr ? "اختر تاريخ المعاينة" : "Pick a date")}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarComponent
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={(d) => {
+                            setSelectedDate(d);
+                            // Reset time when date changes
+                            bookingForm.setValue("scheduledAt", "");
+                          }}
+                          disabled={(date) => date < new Date() || date.getDay() === 5}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                {/* Time Slots */}
+                {selectedDate && (
+                  <FormField control={bookingForm.control} name="scheduledAt" render={() => (
+                    <FormItem>
+                      <FormLabel>{isAr ? "اختر الوقت" : "Select Time"} *</FormLabel>
+                      <div className="grid grid-cols-4 gap-2">
+                        {WORKING_HOURS.map((time) => {
+                          const [hours, minutes] = time.split(":");
+                          const dateTime = new Date(selectedDate);
+                          dateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                          const isoStr = dateTime.toISOString();
+                          const isSelected = bookingForm.watch("scheduledAt") === isoStr;
+                          const isPast = dateTime < new Date();
+
+                          return (
+                            <Button
+                              key={time}
+                              type="button"
+                              variant={isSelected ? "default" : "outline"}
+                              size="sm"
+                              disabled={isPast}
+                              className="tabular-nums"
+                              onClick={() => bookingForm.setValue("scheduledAt", isoStr, { shouldValidate: true })}
+                            >
+                              {time}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{isAr ? "أوقات العمل: 9 صباحاً - 5 مساءً (الجمعة عطلة)" : "Working hours: 9AM-5PM (Friday off)"}</p>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                )}
+
+                <Separator />
+
+                {/* Customer Info */}
+                <FormField control={bookingForm.control} name="customerName" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{isAr ? "الاسم الكامل" : "Full Name"} *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder={isAr ? "مثال: محمد أحمد" : "e.g. Mohammed Ahmed"} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={bookingForm.control} name="customerPhone" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{isAr ? "رقم الهاتف" : "Phone Number"} *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="05XXXXXXXX" dir="ltr" className="text-start" />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">{isAr ? "سيتواصل معك الوسيط لتأكيد الموعد" : "The agent will contact you to confirm"}</p>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={bookingForm.control} name="notes" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{isAr ? "ملاحظات (اختياري)" : "Notes (optional)"}</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder={isAr ? "أي ملاحظات تود إبلاغ الوسيط بها..." : "Any notes for the agent..."} rows={2} />
+                    </FormControl>
+                  </FormItem>
+                )} />
+
+                <SheetFooter>
+                  <Button type="button" variant="outline" onClick={() => setBookingOpen(false)}>
+                    {isAr ? "إلغاء" : "Cancel"}
+                  </Button>
+                  <Button type="submit" disabled={bookingMutation.isPending} className="gap-2">
+                    {bookingMutation.isPending
+                      ? (isAr ? "جاري الإرسال..." : "Submitting...")
+                      : (isAr ? "تأكيد الحجز" : "Confirm Booking")}
+                    <Calendar className="h-4 w-4" />
+                  </Button>
+                </SheetFooter>
+              </form>
+            </Form>
+          )}
+        </SheetContent>
+      </Sheet>
 
       {/* Footer */}
       <LandingFooter content={{ footerDescription: "", footerCopyright: `© ${new Date().getFullYear()} عقاركم. جميع الحقوق محفوظة.` } as any} footerGroups={[]} />

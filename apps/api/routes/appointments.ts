@@ -137,4 +137,75 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
     }
 });
 
+// POST /api/appointments/public-booking — Public booking request (no auth required)
+const PublicBookingSchema = z.object({
+    propertyId: z.string().min(1),
+    agentId: z.string().min(1),
+    scheduledAt: z.string().min(1),
+    customerName: z.string().min(2, "الاسم مطلوب"),
+    customerPhone: z.string().regex(/^(\+?966|0)?5[0-9]{8}$/, "رقم هاتف سعودي غير صالح"),
+    notes: z.string().optional(),
+});
+
+router.post('/public-booking', async (req: Request, res: Response) => {
+    try {
+        const data = PublicBookingSchema.parse(req.body);
+
+        // Find the agent and their org
+        const agent = await prisma.users.findUnique({ where: { id: data.agentId }, select: { id: true, organizationId: true } });
+        if (!agent) return res.status(404).json({ message: "Agent not found" });
+
+        const orgId = agent.organizationId;
+        if (!orgId) return res.status(400).json({ message: "Agent has no organization" });
+
+        // Create or find customer by phone
+        let customer = await prisma.customers.findFirst({ where: { phone: data.customerPhone, organizationId: orgId } });
+        if (!customer) {
+            const nameParts = data.customerName.trim().split(/\s+/);
+            customer = await prisma.customers.create({
+                data: {
+                    firstName: nameParts[0] || data.customerName,
+                    lastName: nameParts.slice(1).join(" ") || "",
+                    phone: data.customerPhone,
+                    organizationId: orgId,
+                    source: "public_booking",
+                },
+            });
+        }
+
+        // Create the appointment
+        const appointment = await prisma.appointments.create({
+            data: {
+                customerId: customer.id,
+                organizationId: orgId,
+                agentId: agent.id,
+                propertyId: data.propertyId,
+                scheduledAt: new Date(data.scheduledAt).toISOString(),
+                notes: data.notes || `طلب معاينة من ${data.customerName} - ${data.customerPhone}`,
+                status: 'SCHEDULED',
+            },
+        });
+
+        // Also create a lead for this customer
+        await prisma.leads.create({
+            data: {
+                agentId: agent.id,
+                organizationId: orgId,
+                customerId: customer.id,
+                status: 'NEW',
+                source: 'public_booking',
+                notes: `طلب حجز معاينة للعقار عبر الموقع - ${data.customerPhone}`,
+            },
+        }).catch(() => {}); // Don't fail if lead creation fails
+
+        res.status(201).json({ success: true, appointmentId: appointment.id, message: "تم إرسال طلب الحجز بنجاح" });
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ message: 'بيانات غير صالحة', errors: error.errors });
+        }
+        console.error('Error creating public booking:', error);
+        res.status(500).json({ message: 'فشل إرسال طلب الحجز' });
+    }
+});
+
 export default router;
