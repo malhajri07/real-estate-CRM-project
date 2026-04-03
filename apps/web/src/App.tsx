@@ -83,6 +83,7 @@ const ComparePage = lazy(() => import("@/pages/platform/compare"));
 const PostListingPage = lazy(() => import("@/pages/platform/properties/post-listing"));
 const ModerationQueuePage = lazy(() => import("@/pages/admin/moderation"));
 const AgenciesPage = lazy(() => import("@/pages/platform/agencies"));
+const TeamPage = lazy(() => import("@/pages/platform/team"));
 const AgencyPage = lazy(() => import("@/pages/platform/agencies/detail"));
 const AgentPage = lazy(() => import("@/pages/platform/agents/detail"));
 const PublicListingPage = lazy(() => import("@/pages/listing"));
@@ -325,6 +326,7 @@ function Router() {
       { path: '/home/platform/notifications', component: Notifications, aliases: ['/notifications'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/settings', component: Settings, aliases: ['/settings'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/agencies', component: AgenciesPage, aliases: ['/agencies'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/team', component: withSuspense(TeamPage), aliases: ['/team'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/marketing-requests', component: LazyMarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },

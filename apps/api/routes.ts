@@ -143,6 +143,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ─────────────────────────────────────────────────────────────────────────────
   // 4. AUTHENTICATED ROUTES  (auth enforced inside each handler)
   // ─────────────────────────────────────────────────────────────────────────────
+  // Organization team routes (corp owner sees their agents)
+  const orgTeamRoutes = (await import("./routes/org-team")).default;
+  app.use("/api/org", orgTeamRoutes);
+
   app.use("/api/pool",           buyerPoolRoutes);
   app.use("/api/favorites",      favoritesRoutes);
   app.use("/api/messages",       messagesRoutes);

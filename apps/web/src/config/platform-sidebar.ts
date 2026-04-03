@@ -255,6 +255,15 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         matchPrefixes: ["/home/platform/agency/", "/agency/"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
+      {
+        id: "team",
+        labelKey: "nav.team",
+        label: "فريق العمل",
+        path: "/home/platform/team",
+        icon: Users,
+        matchPaths: ["/team", "/home/platform/team"],
+        allowedRoles: ["CORP_OWNER", "WEBSITE_ADMIN"] as any,
+      },
     ],
   },
 
