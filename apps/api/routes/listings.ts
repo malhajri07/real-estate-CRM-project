@@ -74,10 +74,11 @@ router.get("/", async (req, res) => {
     } = req.query as Record<string, string | undefined>;
 
     // Parse pagination parameters with hard cap
-    const MAX_PAGE_SIZE = 500;
+    const MAX_PAGE_SIZE = 10000;
     const pageSizeStr = pageSize || "20";
-    const pageNum = Math.max(1, parseInt(page || "1", 10) || 1);
-    const sizeNum = Math.min(MAX_PAGE_SIZE, Math.max(1, parseInt(pageSizeStr, 10) || 20));
+    const isAll = pageSizeStr.toLowerCase() === "all";
+    const pageNum = isAll ? 1 : Math.max(1, parseInt(page || "1", 10) || 1);
+    const sizeNum = isAll ? MAX_PAGE_SIZE : Math.min(MAX_PAGE_SIZE, Math.max(1, parseInt(pageSizeStr, 10) || 20));
 
     // Parse filter parameters
     const filterOptions: any = {
