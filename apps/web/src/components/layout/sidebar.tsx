@@ -131,7 +131,7 @@ export default function PlatformSidebar({ onLogout }: SidebarProps) {
     );
   };
 
-  const renderNavItem = (item: PlatformSidebarChildConfig) => {
+  const renderNavItem = (item: PlatformSidebarChildConfig, isSubpage = false) => {
     const ItemIcon = item.icon;
     const itemLabel = item.label ?? (item.labelKey ? t(item.labelKey) : item.id);
     const isActive = routeMatches(item, location);
@@ -142,13 +142,14 @@ export default function PlatformSidebar({ onLogout }: SidebarProps) {
           asChild
           isActive={isActive}
           tooltip={itemLabel}
+          className={isSubpage ? "text-xs py-1.5" : "text-sm font-bold py-2"}
         >
           <Link
             href={item.path}
             onMouseEnter={() => prefetchOnHover(item.path)}
             aria-current={isActive ? "page" : undefined}
           >
-            <ItemIcon size={16} />
+            <ItemIcon size={isSubpage ? 14 : 16} />
             <span>{itemLabel}</span>
           </Link>
         </SidebarMenuButton>
@@ -221,19 +222,19 @@ export default function PlatformSidebar({ onLogout }: SidebarProps) {
                           return (
                             <div key={subgroup.id}>
                               {subgroupLabel && (
-                                <div className="px-2 py-1.5 text-xs font-bold uppercase tracking-wider text-sidebar-foreground/50">
+                                <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-widest text-sidebar-foreground/40">
                                   {subgroupLabel}
                                 </div>
                               )}
                               <SidebarMenu>
-                                {getVisibleChildren(subgroup.children).map(renderNavItem)}
+                                {getVisibleChildren(subgroup.children).map((item) => renderNavItem(item, true))}
                               </SidebarMenu>
                             </div>
                           );
                         })
                       : (
                         <SidebarMenu>
-                          {getVisibleChildren(group.children).map(renderNavItem)}
+                          {getVisibleChildren(group.children).map((item) => renderNavItem(item, false))}
                         </SidebarMenu>
                       )}
                   </SidebarGroupContent>
