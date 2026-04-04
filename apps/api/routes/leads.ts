@@ -42,15 +42,32 @@ const requireAnyPerm = (perms: string[]) => (req: any, res: any, next: any) => {
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
-    const leads = await storage.getAllLeads();
+    const orgFilter = (req as any).orgFilter || {};
     const scope = getVisibilityScope(user.roles);
-    let filtered = leads;
-    if (scope === 'corporate') {
-      filtered = leads.filter((l: any) => l.agent?.organizationId && l.agent.organizationId === user.organizationId);
+
+    // Use org filter from middleware for proper DB-level isolation
+    let where: any = {};
+    if (scope === 'global') {
+      where = {}; // Admin sees all
+    } else if (scope === 'corporate' && user.organizationId) {
+      where = { organizationId: user.organizationId };
     } else if (scope === 'self') {
-      filtered = leads.filter((l: any) => l.agentId === user.id);
+      where = { agentId: user.id };
+    } else if (orgFilter.organizationId) {
+      where = orgFilter;
+    } else if (orgFilter.userId) {
+      where = { agentId: orgFilter.userId };
     }
-    res.json(filtered.map(flattenLeadWithCustomer));
+
+    const { prisma } = await import('../prismaClient');
+    const leads = await prisma.leads.findMany({
+      where,
+      include: { users: true, customer: true, buyer_requests: true, seller_submissions: true },
+      orderBy: { createdAt: 'desc' },
+      take: 500,
+    });
+
+    res.json(leads.map(flattenLeadWithCustomer));
   } catch (error) {
     console.error("Error fetching leads:", error);
     res.status(500).json(getErrorResponse('SERVER_ERROR', (req as any).locale));
