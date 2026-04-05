@@ -219,7 +219,7 @@ export default function NotificationsManagement() {
                                 <h4 className="text-lg font-bold text-foreground mb-2">{channel.name}</h4>
                                 <Badge className={cn(
                                     "text-xs font-bold uppercase px-3 py-1 rounded-lg border-0",
-                                    channel.status === "Connected" ? "bg-primary/10 text-primary" : "bg-rose-50 text-rose-700"
+                                    channel.status === "Connected" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
                                 )}>
                                     {channel.status === "Connected" ? "متصل" : "خطأ اتصال"}
                                 </Badge>

@@ -25,7 +25,7 @@ export function defaultCardDraft(section: LandingSection) {
   switch (section.slug) {
     case "hero":
       return {
-        value: "1.2M ﷼",
+        value: "1.2M",
         label: "مؤشر",
         color: "blue",
       };

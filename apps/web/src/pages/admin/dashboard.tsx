@@ -68,10 +68,9 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   Legend,
-  ResponsiveContainer,
 } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { CHART_COLORS, CHART_HEIGHT } from "@/config/design-tokens";
 import { GRID_METRICS, GRID_TWO_COL, GRID_THREE_COL } from "@/config/platform-theme";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
@@ -146,9 +145,9 @@ const SYSTEM_HEALTH_INDICATORS = [
 ];
 
 const healthStatusConfig = {
-  healthy: { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', label: 'سليم', icon: CheckCircle2 },
-  degraded: { color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', label: 'بطيء', icon: Clock },
-  down: { color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200', label: 'متوقف', icon: XCircle },
+  healthy: { color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20', label: 'سليم', icon: CheckCircle2 },
+  degraded: { color: 'text-[hsl(var(--warning))]', bg: 'bg-[hsl(var(--warning)/0.1)]', border: 'border-[hsl(var(--warning)/0.2)]', label: 'بطيء', icon: Clock },
+  down: { color: 'text-destructive', bg: 'bg-destructive/10', border: 'border-destructive/20', label: 'متوقف', icon: XCircle },
 };
 
 type DashboardProps = {
@@ -319,24 +318,24 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
             </CardHeader>
             <CardContent className="px-6 pb-6">
               <div className="h-[320px] mt-4">
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                   <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
                     <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
-                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.02)' }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
                     <Legend iconType="circle" wrapperStyle={{ paddingTop: '25px', fontSize: '12px', fontWeight: 600, color: '#64748b' }} />
                     <Bar dataKey="leads" fill="url(#colorLeads)" name="العملاء المحتملون" radius={[8, 8, 0, 0]} maxBarSize={40} />
                     <Bar dataKey="listings" fill="url(#colorListings)" name="الإعلانات" radius={[8, 8, 0, 0]} maxBarSize={40} />
                     <Bar dataKey="deals" fill="url(#colorDeals)" name="الصفقات" radius={[8, 8, 0, 0]} maxBarSize={40} />
                     <defs>
                       <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={CHART_COLORS.blue} stopOpacity={1} />
-                        <stop offset="95%" stopColor={CHART_COLORS.blue} stopOpacity={0.6} />
+                        <stop offset="5%" stopColor={CHART_COLORS.secondary} stopOpacity={1} />
+                        <stop offset="95%" stopColor={CHART_COLORS.secondary} stopOpacity={0.6} />
                       </linearGradient>
                       <linearGradient id="colorListings" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={CHART_COLORS.green} stopOpacity={1} />
-                        <stop offset="95%" stopColor={CHART_COLORS.green} stopOpacity={0.6} />
+                        <stop offset="5%" stopColor={CHART_COLORS.tertiary} stopOpacity={1} />
+                        <stop offset="95%" stopColor={CHART_COLORS.tertiary} stopOpacity={0.6} />
                       </linearGradient>
                       <linearGradient id="colorDeals" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor={CHART_COLORS.purple} stopOpacity={1} />
@@ -344,7 +343,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                       </linearGradient>
                     </defs>
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </CardContent>
           </Card>
@@ -356,18 +355,18 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
             </CardHeader>
             <CardContent className="px-6 pb-6">
               <div className="h-[320px] mt-4">
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                   <LineChart data={revenueChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
                     <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
-                    <Tooltip content={<CustomTooltip />} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
                     <Legend iconType="circle" wrapperStyle={{ paddingTop: '25px', fontSize: '12px', fontWeight: 600, color: '#64748b' }} />
-                    <Line type="monotone" dataKey="gmv" stroke={CHART_COLORS.green} strokeWidth={4} name="قيمة المبيعات" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
-                    <Line type="monotone" dataKey="invoices" stroke={CHART_COLORS.blue} strokeWidth={4} name="الفواتير" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                    <Line type="monotone" dataKey="gmv" stroke={CHART_COLORS.tertiary} strokeWidth={4} name="قيمة المبيعات" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                    <Line type="monotone" dataKey="invoices" stroke={CHART_COLORS.secondary} strokeWidth={4} name="الفواتير" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
                     <Line type="monotone" dataKey="cash" stroke={CHART_COLORS.amber} strokeWidth={4} name="التحصيلات" dot={{ r: 4, strokeWidth: 3, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
                   </LineChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </CardContent>
           </Card>
@@ -395,21 +394,21 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
             </CardHeader>
             <CardContent className="px-6 pb-6">
               <div className="h-[280px] mt-4">
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                   <AreaChart data={revenueTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={CHART_COLORS.green} stopOpacity={0.15} />
-                        <stop offset="95%" stopColor={CHART_COLORS.green} stopOpacity={0} />
+                        <stop offset="5%" stopColor={CHART_COLORS.tertiary} stopOpacity={0.15} />
+                        <stop offset="95%" stopColor={CHART_COLORS.tertiary} stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
                     <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Area type="monotone" dataKey="revenue" stroke={CHART_COLORS.green} strokeWidth={3} fillOpacity={1} fill="url(#revenueGradient)" name="الإيرادات" dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Area type="monotone" dataKey="revenue" stroke={CHART_COLORS.tertiary} strokeWidth={3} fillOpacity={1} fill="url(#revenueGradient)" name="الإيرادات" dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6, strokeWidth: 0 }} />
                   </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </CardContent>
           </Card>
@@ -429,17 +428,17 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
             </CardHeader>
             <CardContent className="px-6 pb-6">
               <div className="h-[280px] mt-4">
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                   <BarChart data={userGrowthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
                     <XAxis dataKey="period" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
-                    <Tooltip content={<CustomTooltip />} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
                     <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px', fontSize: '12px', fontWeight: 600, color: '#64748b' }} />
-                    <Bar dataKey="users" fill={CHART_COLORS.blue} name="إجمالي المستخدمين" radius={[8, 8, 0, 0]} maxBarSize={35} opacity={0.8} />
+                    <Bar dataKey="users" fill={CHART_COLORS.secondary} name="إجمالي المستخدمين" radius={[8, 8, 0, 0]} maxBarSize={35} opacity={0.8} />
                     <Bar dataKey="newSignups" fill={CHART_COLORS.purple} name="تسجيلات جديدة" radius={[8, 8, 0, 0]} maxBarSize={35} opacity={0.8} />
                   </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
               </div>
             </CardContent>
           </Card>
@@ -457,7 +456,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
               </CardTitle>
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-1">حالة خدمات النظام في الوقت الحقيقي</p>
             </div>
-            <Badge className="bg-emerald-50 text-emerald-700 border-0 text-xs font-bold px-3 py-1 rounded-lg">
+            <Badge className="bg-primary/10 text-primary border-0 text-xs font-bold px-3 py-1 rounded-lg">
               جميع الأنظمة تعمل
             </Badge>
           </div>
@@ -491,7 +490,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                   </div>
                   <div className="mt-2 w-full bg-white/50 rounded-full h-1.5">
                     <div
-                      className={cn("h-full rounded-full", indicator.status === 'healthy' ? 'bg-emerald-500' : indicator.status === 'degraded' ? 'bg-amber-500' : 'bg-rose-500')}
+                      className={cn("h-full rounded-full", indicator.status === 'healthy' ? 'bg-primary/100' : indicator.status === 'degraded' ? 'bg-[hsl(var(--warning)/0.1)]0' : 'bg-destructive/100')}
                       style={{ width: `${Math.max(10, 100 - (indicator.responseTimeMs ?? 0) / 2)}%` }}
                     />
                   </div>
@@ -506,8 +505,8 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
       <div className={GRID_THREE_COL}>
         <Card className="rounded-2xl border border-border bg-card shadow-sm p-5 hover:shadow-md hover:border-primary/20 transition-all cursor-pointer group">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-amber-50 flex items-center justify-center group-hover:bg-amber-100 transition-colors">
-              <FileCheck className="h-6 w-6 text-amber-600" />
+            <div className="h-12 w-12 rounded-xl bg-[hsl(var(--warning)/0.1)] flex items-center justify-center group-hover:bg-[hsl(var(--warning)/0.15)] transition-colors">
+              <FileCheck className="h-6 w-6 text-[hsl(var(--warning))]" />
             </div>
             <div className="flex-1">
               <h4 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">مراجعة الإعلانات</h4>
@@ -518,8 +517,8 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
         </Card>
         <Card className="rounded-2xl border border-border bg-card shadow-sm p-5 hover:shadow-md hover:border-primary/20 transition-all cursor-pointer group">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-sky-50 flex items-center justify-center group-hover:bg-sky-100 transition-colors">
-              <Eye className="h-6 w-6 text-sky-600" />
+            <div className="h-12 w-12 rounded-xl bg-accent flex items-center justify-center group-hover:bg-accent transition-colors">
+              <Eye className="h-6 w-6 text-accent-foreground" />
             </div>
             <div className="flex-1">
               <h4 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">مراجعة المستخدمين</h4>
@@ -530,8 +529,8 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
         </Card>
         <Card className="rounded-2xl border border-border bg-card shadow-sm p-5 hover:shadow-md hover:border-primary/20 transition-all cursor-pointer group">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-rose-50 flex items-center justify-center group-hover:bg-rose-100 transition-colors">
-              <MessageSquare className="h-6 w-6 text-rose-600" />
+            <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center group-hover:bg-destructive/15 transition-colors">
+              <MessageSquare className="h-6 w-6 text-destructive" />
             </div>
             <div className="flex-1">
               <h4 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">فحص الإشراف</h4>
@@ -580,7 +579,7 @@ function OverviewDashboard({ data, isLoading, error }: DashboardProps) {
                         <span className="text-xs font-extrabold text-muted-foreground/70 uppercase tracking-tighter">الصفقات</span>
                         <span className="text-xs font-bold text-foreground">{agent.dealsWon}</span>
                       </div>
-                      <div className="flex flex-col text-end">
+                      <div className="flex flex-col">
                         <span className="text-xs font-extrabold text-muted-foreground/70 uppercase tracking-tighter">القيمة الإجمالية</span>
                         <span className="text-xs font-bold text-muted-foreground">{formatCurrency(agent.gmv, currency)}</span>
                       </div>
@@ -645,7 +644,7 @@ const formatCurrency = (value?: number, currency = "SAR") => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value ?? 0);
-  return `${formatted} ريال`;
+  return `${formatted}`;
 };
 
 const ticketStatusLabel = (status: string) => {
@@ -666,7 +665,7 @@ const ticketStatusLabel = (status: string) => {
 const ticketStatusColor = (status: string) => {
   switch (status) {
     case "OPEN":
-      return "bg-amber-50 text-amber-700 border-amber-200";
+      return "bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))] border-[hsl(var(--warning)/0.2)]";
     case "IN_PROGRESS":
       return "bg-primary/5 text-primary border-primary/20";
     case "RESOLVED":
@@ -698,11 +697,11 @@ const ticketPriorityColor = (priority: string) => {
     case "LOW":
       return "bg-primary/10 text-primary";
     case "MEDIUM":
-      return "bg-sky-50 text-sky-700";
+      return "bg-accent text-accent-foreground";
     case "HIGH":
-      return "bg-amber-50 text-amber-700";
+      return "bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))]";
     case "URGENT":
-      return "bg-rose-50 text-rose-700";
+      return "bg-destructive/10 text-destructive";
     default:
       return "bg-muted/50 text-muted-foreground";
   }
@@ -743,8 +742,8 @@ function ContentPlaceholder({ meta }: { meta: SidebarContentMeta }) {
                   </h3>
                   <ul className="space-y-4 ps-1">
                     {section.items.map((item) => (
-                      <li key={item} className="text-sm text-muted-foreground font-semibold flex items-center gap-3 group">
-                        <div className="w-1.5 h-1.5 rounded-full bg-muted group-hover:bg-blue-400 transition-colors" />
+                      <li key={item} className="text-sm text-muted-foreground font-bold flex items-center gap-3 group">
+                        <div className="w-1.5 h-1.5 rounded-full bg-muted group-hover:bg-primary/60 transition-colors" />
                         {item}
                       </li>
                     ))}

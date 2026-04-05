@@ -1,11 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Trash2, Edit, Eye, MessageCircle, Upload, Phone,
   SlidersHorizontal, AlertTriangle, Mail, Calendar,
   Clock, Star, TrendingUp, Activity, FileText,
   CheckCircle2, XCircle, ArrowRightCircle, User,
-  Gauge, Briefcase,
+  Gauge, Briefcase, Plus, Save, Send, ArrowRight, Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,7 +36,10 @@ import SendWhatsAppModal from "@/components/modals/send-whatsapp-modal";
 import { CSVUploader } from "@/components/admin/data-display/CSVUploader";
 import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { apiDelete, apiGet, apiPost } from "@/lib/apiClient";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
@@ -46,7 +52,7 @@ import { useLocation } from "wouter";
 import { getLeadStatusVariant } from "@/lib/status-variants";
 import { formatAdminDate } from "@/lib/formatters";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
-import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { LeadsSkeleton } from "@/components/skeletons/page-skeletons";
 import {
   LEAD_STATUS_LABELS,
   INTEREST_TYPE_LABELS,
@@ -119,6 +125,32 @@ export default function Contacts() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
+  // Create/Edit lead state
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [noteText, setNoteText] = useState("");
+
+  const leadSchema = z.object({
+    firstName: z.string().min(1, "الاسم الأول مطلوب"),
+    lastName: z.string().min(1, "اسم العائلة مطلوب"),
+    phone: z.string().optional(),
+    email: z.string().email("بريد غير صالح").optional().or(z.literal("")),
+    city: z.string().optional(),
+    source: z.string().optional(),
+    notes: z.string().optional(),
+    status: z.string().optional(),
+  });
+
+  const createForm = useForm<z.infer<typeof leadSchema>>({
+    resolver: zodResolver(leadSchema),
+    defaultValues: { firstName: "", lastName: "", phone: "", email: "", city: "", source: "", notes: "", status: "NEW" },
+  });
+
+  const editForm = useForm<z.infer<typeof leadSchema>>({
+    resolver: zodResolver(leadSchema),
+    defaultValues: { firstName: "", lastName: "", phone: "", email: "", city: "", source: "", notes: "", status: "" },
+  });
+
   // Shared data query
   const { data: leads, isLoading, isError, refetch } = useQuery<Lead[]>({
     queryKey: ["/api/leads"],
@@ -129,6 +161,13 @@ export default function Contacts() {
     queryKey: ["/api/activities/lead", detailLead?.id],
     enabled: !!detailLead?.id && detailDrawerOpen,
   });
+
+  // Deals for detail drawer
+  const { data: allDeals } = useQuery<any[]>({
+    queryKey: ["/api/deals"],
+    enabled: detailDrawerOpen && detailTab === "deals",
+  });
+  const leadDeals = (allDeals || []).filter((d: any) => d.leadId === detailLead?.id || d.customerId === detailLead?.customerId);
 
   const openLeadDetail = (lead: Lead) => {
     setDetailLead(lead);
@@ -146,9 +185,9 @@ export default function Contacts() {
     if (lead.status === "qualified") score += 20;
     if (lead.status === "contacted") score += 10;
     score = Math.min(100, score);
-    if (score >= 80) return { score, label: "ساخن", color: "text-emerald-600" };
-    if (score >= 50) return { score, label: "دافئ", color: "text-amber-600" };
-    return { score, label: "بارد", color: "text-blue-600" };
+    if (score >= 80) return { score, label: "ساخن", color: "text-primary" };
+    if (score >= 50) return { score, label: "دافئ", color: "text-[hsl(var(--warning))]" };
+    return { score, label: "بارد", color: "text-accent-foreground" };
   };
 
   const getActivityIcon = (type?: string | null) => {
@@ -189,6 +228,90 @@ export default function Contacts() {
       });
     },
   });
+
+  // Create lead
+  const createLeadMutation = useMutation({
+    mutationFn: (data: z.infer<typeof leadSchema>) => apiPost("/api/leads", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      setCreateOpen(false);
+      createForm.reset();
+      toast({ title: "تم إنشاء العميل المحتمل بنجاح" });
+    },
+    onError: () => toast({ title: "خطأ", description: "فشل في إنشاء العميل", variant: "destructive" }),
+  });
+
+  // Update lead
+  const updateLeadMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => apiPut(`/api/leads/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      setEditOpen(false);
+      setDetailDrawerOpen(false);
+      toast({ title: "تم تحديث بيانات العميل" });
+    },
+    onError: () => toast({ title: "خطأ", description: "فشل في تحديث البيانات", variant: "destructive" }),
+  });
+
+  // Update lead status
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) => apiPut(`/api/leads/${id}`, { status }),
+    onSuccess: (_, { status }) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      if (detailLead) setDetailLead({ ...detailLead, status } as Lead);
+      toast({ title: "تم تحديث الحالة", description: getStatusLabel(status) });
+    },
+  });
+
+  // Add note to lead
+  const addNoteMutation = useMutation({
+    mutationFn: ({ id, notes }: { id: string; notes: string }) => apiPut(`/api/leads/${id}`, { notes }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
+      setNoteText("");
+      toast({ title: "تم إضافة الملاحظة" });
+    },
+  });
+
+  // Convert lead to deal
+  const convertToDealMutation = useMutation({
+    mutationFn: (lead: Lead) => apiPost("/api/deals", {
+      firstName: lead.firstName,
+      lastName: lead.lastName,
+      phone: lead.phone || undefined,
+      email: lead.email || undefined,
+      source: lead.leadSource || "lead_conversion",
+      notes: `تم التحويل من العميل المحتمل: ${lead.firstName} ${lead.lastName}`,
+      stage: "NEW",
+      leadId: lead.id,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/deals"] });
+      setDetailDrawerOpen(false);
+      toast({ title: "تم التحويل", description: "تم إنشاء صفقة جديدة في المسار" });
+      setLocation("/home/platform/pipeline");
+    },
+    onError: () => toast({ title: "خطأ", description: "فشل في تحويل العميل إلى صفقة", variant: "destructive" }),
+  });
+
+  const createDealFromLead = (lead: Lead) => {
+    convertToDealMutation.mutate(lead);
+  };
+
+  // Open edit form with lead data
+  const openEditForm = (lead: Lead) => {
+    editForm.reset({
+      firstName: lead.firstName || "",
+      lastName: lead.lastName || "",
+      phone: lead.phone || "",
+      email: lead.email || "",
+      city: lead.city || "",
+      source: lead.leadSource || "",
+      notes: lead.notes || "",
+      status: lead.status || "",
+    });
+    setEditOpen(true);
+  };
 
   // CSV processing
   const csvProcessMutation = useMutation({
@@ -355,7 +478,7 @@ export default function Contacts() {
   // Error state
   if (isError) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader title={t("contacts.title") || "جهات الاتصال"} />
         <QueryErrorFallback
           message={t("contacts.load_error") || t("leads.load_error") || "Failed to load contacts."}
@@ -368,20 +491,24 @@ export default function Contacts() {
   // Loading state
   if (isLoading || showSkeleton) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader title={t("contacts.title") || "جهات الاتصال"} />
-        <TableSkeleton rows={6} cols={9} />
+        <LeadsSkeleton />
       </div>
     );
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <PageHeader
         title={t("contacts.title") || "جهات الاتصال"}
         subtitle={t("contacts.subtitle") || "إدارة العملاء المحتملين"}
       >
         <div className="flex items-center gap-2">
+          <Button size="sm" onClick={() => { createForm.reset(); setCreateOpen(true); }}>
+            <Plus className="me-1.5" size={16} />
+            إضافة عميل
+          </Button>
           <CSVUploader
             onGetUploadParameters={handleGetUploadParameters}
             onComplete={handleCSVUploadComplete}
@@ -408,224 +535,112 @@ export default function Contacts() {
         </Alert>
       )}
 
-      <Tabs defaultValue="quick" className="w-full">
-        <TabsList>
-          <TabsTrigger value="quick">{"عرض سريع"}</TabsTrigger>
-          <TabsTrigger value="advanced">{"عرض متقدم"}</TabsTrigger>
-        </TabsList>
+      {/* ───── Search + Filter bar ───── */}
+      <Card className="p-3">
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t("contacts.search_placeholder") || "بحث بالاسم، الهاتف، البريد، المدينة..."}
+              value={advancedSearchQuery}
+              onChange={(e) => { setAdvancedSearchQuery(e.target.value); setCurrentPage(1); }}
+              className="ps-9 border-0 bg-transparent shadow-none focus-visible:ring-0"
+            />
+          </div>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setShowFilters(!showFilters)}>
+            <SlidersHorizontal size={16} />
+            {t("contacts.filters") || "الفلاتر"}
+            {(statusFilter !== "all" || cityFilter !== "all" || interestTypeFilter !== "all") && (
+              <Badge variant="default" className="text-[10px] px-1.5 h-5">
+                {[statusFilter !== "all", cityFilter !== "all", ageRangeFilter !== "all", maritalStatusFilter !== "all", interestTypeFilter !== "all", dependentsFilter !== "all"].filter(Boolean).length}
+              </Badge>
+            )}
+          </Button>
+        </div>
+      </Card>
 
-        {/* ───── Quick View Tab ───── */}
-        <TabsContent value="quick">
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {t("leads.all_leads") || "جميع العملاء المحتملين"} ({quickDisplayLeads?.length || 0})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {!quickDisplayLeads || quickDisplayLeads.length === 0 ? (
-                <EmptyState
-                  title={quickSearchQuery
-                    ? (t("leads.no_results") || "لا توجد نتائج")
-                    : (t("leads.no_leads") || "لا توجد عملاء محتملين")}
-                />
-              ) : (
-                <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader className="bg-muted/50">
-                    <TableRow>
-                      <TableHead className="text-start w-[120px]">{"الإجراءات"}</TableHead>
-                      <TableHead className="text-start">{"تاريخ الإنشاء"}</TableHead>
-                      <TableHead className="text-start">{"الميزانية"}</TableHead>
-                      <TableHead className="text-start">{"الاهتمام"}</TableHead>
-                      <TableHead className="text-start">{"المصدر"}</TableHead>
-                      <TableHead className="text-start">{"الحالة"}</TableHead>
-                      <TableHead className="text-start">{"الهاتف"}</TableHead>
-                      <TableHead className="text-start">{"البريد الإلكتروني"}</TableHead>
-                      <TableHead className="text-start">{"الاسم"}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {quickDisplayLeads.map((lead) => (
-                      <TableRow key={lead.id}>
-                        <TableCell>
-                          <div className="flex items-center gap-1">
-                            {lead.phone && (
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" onClick={() => handleSendWhatsApp(lead)}>
-                                    <MessageCircle size={16} />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>واتساب</TooltipContent>
-                              </Tooltip>
-                            )}
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon"><Eye size={16} /></Button>
-                              </TooltipTrigger>
-                              <TooltipContent>عرض</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon"><Edit size={16} /></Button>
-                              </TooltipTrigger>
-                              <TooltipContent>تعديل</TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="icon" onClick={() => handleQuickDelete(lead)} disabled={deleteLeadMutation.isPending}>
-                                  <Trash2 size={16} />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>حذف</TooltipContent>
-                            </Tooltip>
-                          </div>
-                        </TableCell>
-                        <TableCell>{formatAdminDate(lead.createdAt)}</TableCell>
-                        <TableCell>{lead.budgetRange || "-"}</TableCell>
-                        <TableCell>{lead.interestType ? getInterestTypeLabel(lead.interestType) : "-"}</TableCell>
-                        <TableCell>{lead.leadSource || "-"}</TableCell>
-                        <TableCell>
-                          <Badge variant={getLeadStatusVariant(lead.status)}>{getStatusLabel(lead.status)}</Badge>
-                        </TableCell>
-                        <TableCell>{lead.phone || "-"}</TableCell>
-                        <TableCell>{lead.email || "-"}</TableCell>
-                        <TableCell>
-                          <span
-                            className="font-bold cursor-pointer hover:underline text-primary"
-                            onClick={() => openLeadDetail(lead)}
-                          >
-                            {lead.firstName} {lead.lastName}
-                          </span>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ───── Advanced View Tab ───── */}
-        <TabsContent value="advanced">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between mb-4">
-                <CardTitle>
-                  {t("contacts.all_customers") || "جميع العملاء المحتملين"} ({totalItems})
-                  {totalPages > 1 && ` - ${t("contacts.page") || "صفحة"} ${currentPage} ${t("contacts.of") || "من"} ${totalPages}`}
-                </CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowFilters(!showFilters)}
-                  >
-                    <SlidersHorizontal size={16} className="me-2" />
-                    {t("contacts.filters") || "الفلاتر"}
-                  </Button>
-                </div>
+      {/* Inline filters */}
+      {showFilters && (
+        <Card>
+          <CardContent className="pt-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold">{t("contacts.search_filters") || "فلاتر البحث"}</h3>
+              <Button variant="ghost" size="sm" onClick={resetFilters}>{t("contacts.reset") || "إعادة تعيين"}</Button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">{t("contacts.filter_status") || "الحالة"}</Label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">الكل</SelectItem>
+                    {uniqueStatuses.map((s) => <SelectItem key={s} value={s}>{getStatusLabel(s)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
+              <div className="space-y-1">
+                <Label className="text-xs">{t("contacts.filter_city") || "المدينة"}</Label>
+                <Select value={cityFilter} onValueChange={setCityFilter}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">الكل</SelectItem>
+                    {uniqueCities.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">{t("contacts.filter_interest") || "الاهتمام"}</Label>
+                <Select value={interestTypeFilter} onValueChange={setInterestTypeFilter}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">الكل</SelectItem>
+                    {uniqueInterestTypes.map((type) => <SelectItem key={type} value={type}>{getInterestTypeLabel(type)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">{t("contacts.filter_age") || "العمر"}</Label>
+                <Select value={ageRangeFilter} onValueChange={setAgeRangeFilter}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">الكل</SelectItem>
+                    <SelectItem value="20-30">20-30</SelectItem>
+                    <SelectItem value="31-40">31-40</SelectItem>
+                    <SelectItem value="41-50">41-50</SelectItem>
+                    <SelectItem value="51+">51+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">{t("contacts.filter_marital") || "الحالة الاجتماعية"}</Label>
+                <Select value={maritalStatusFilter} onValueChange={setMaritalStatusFilter}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">الكل</SelectItem>
+                    {uniqueMaritalStatuses.map((s) => <SelectItem key={s} value={s}>{getMaritalStatusLabel(s)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">{t("contacts.filter_dependents") || "المُعالين"}</Label>
+                <Select value={dependentsFilter} onValueChange={setDependentsFilter}>
+                  <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">الكل</SelectItem>
+                    <SelectItem value="0">لا يوجد</SelectItem>
+                    <SelectItem value="1-2">1-2</SelectItem>
+                    <SelectItem value="3+">3+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-              {showFilters && (
-                <Card>
-                  <CardContent className="pt-6 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xl font-bold text-foreground">{t("contacts.search_filters") || "فلاتر البحث"}</h3>
-                      <Button variant="default" size="sm" onClick={resetFilters}>
-                        {t("contacts.reset") || "إعادة تعيين"}
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                      <div className="space-y-2">
-                        <Label>{t("contacts.filter_status") || "الحالة"}</Label>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                          <SelectTrigger><SelectValue placeholder={t("contacts.select_status") || "اختر الحالة"} /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">{t("contacts.all_statuses") || "جميع الحالات"}</SelectItem>
-                            {uniqueStatuses.map((s) => (
-                              <SelectItem key={s} value={s}>{getStatusLabel(s)}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>{t("contacts.filter_city") || "المدينة"}</Label>
-                        <Select value={cityFilter} onValueChange={setCityFilter}>
-                          <SelectTrigger><SelectValue placeholder={t("contacts.select_city") || "اختر المدينة"} /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">{t("contacts.all_cities") || "جميع المدن"}</SelectItem>
-                            {uniqueCities.map((c) => (
-                              <SelectItem key={c} value={c}>{c}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>{t("contacts.filter_age") || "العمر"}</Label>
-                        <Select value={ageRangeFilter} onValueChange={setAgeRangeFilter}>
-                          <SelectTrigger><SelectValue placeholder={t("contacts.select_age") || "اختر الفئة العمرية"} /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">{t("contacts.all_ages") || "جميع الأعمار"}</SelectItem>
-                            <SelectItem value="20-30">20-30 {t("contacts.years") || "سنة"}</SelectItem>
-                            <SelectItem value="31-40">31-40 {t("contacts.years") || "سنة"}</SelectItem>
-                            <SelectItem value="41-50">41-50 {t("contacts.years") || "سنة"}</SelectItem>
-                            <SelectItem value="51+">51+ {t("contacts.years") || "سنة"}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>{t("contacts.filter_marital") || "الحالة الاجتماعية"}</Label>
-                        <Select value={maritalStatusFilter} onValueChange={setMaritalStatusFilter}>
-                          <SelectTrigger><SelectValue placeholder={t("contacts.select_marital") || "اختر الحالة"} /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">{t("contacts.all_statuses") || "جميع الحالات"}</SelectItem>
-                            {uniqueMaritalStatuses.map((s) => (
-                              <SelectItem key={s} value={s}>{getMaritalStatusLabel(s)}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>{t("contacts.filter_interest") || "نوع الاهتمام"}</Label>
-                        <Select value={interestTypeFilter} onValueChange={setInterestTypeFilter}>
-                          <SelectTrigger><SelectValue placeholder={t("contacts.select_interest") || "اختر النوع"} /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">{t("contacts.all_types") || "جميع الأنواع"}</SelectItem>
-                            {uniqueInterestTypes.map((type) => (
-                              <SelectItem key={type} value={type}>{getInterestTypeLabel(type)}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>{t("contacts.filter_dependents") || "عدد المُعالين"}</Label>
-                        <Select value={dependentsFilter} onValueChange={setDependentsFilter}>
-                          <SelectTrigger><SelectValue placeholder={t("contacts.select_dependents") || "اختر العدد"} /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">{t("contacts.all_counts") || "جميع الأعداد"}</SelectItem>
-                            <SelectItem value="0">{t("contacts.none") || "لا يوجد"}</SelectItem>
-                            <SelectItem value="1-2">1-2</SelectItem>
-                            <SelectItem value="3+">{t("contacts.three_plus") || "3 أو أكثر"}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </CardHeader>
-
-            <CardContent className="p-0">
+      {/* ───── Single Unified Table ───── */}
+      <Card>
+        <CardContent className="pt-6">
               {totalItems === 0 ? (
                 <EmptyState
                   title={
@@ -645,16 +660,16 @@ export default function Contacts() {
                   <Table className="min-w-[900px]">
                     <TableHeader className="bg-muted/50">
                       <TableRow>
-                        <TableHead className="text-start w-[100px]">{"الإجراءات"}</TableHead>
-                        <TableHead className="text-start">{"تاريخ الانضمام"}</TableHead>
-                        <TableHead className="text-start">{"الحالة"}</TableHead>
-                        <TableHead className="text-start">{"نطاق الميزانية"}</TableHead>
-                        <TableHead className="text-start">{"نوع الاهتمام"}</TableHead>
-                        <TableHead className="text-start">{"المُعالين"}</TableHead>
-                        <TableHead className="text-start">{"الحالة الاجتماعية"}</TableHead>
-                        <TableHead className="text-start">{"العمر"}</TableHead>
-                        <TableHead className="text-start">{"المدينة"}</TableHead>
-                        <TableHead className="text-start">{"العميل"}</TableHead>
+                        <TableHead className="w-[100px]">{"الإجراءات"}</TableHead>
+                        <TableHead>{"تاريخ الانضمام"}</TableHead>
+                        <TableHead>{"الحالة"}</TableHead>
+                        <TableHead>{"نطاق الميزانية"}</TableHead>
+                        <TableHead>{"نوع الاهتمام"}</TableHead>
+                        <TableHead>{"المُعالين"}</TableHead>
+                        <TableHead>{"الحالة الاجتماعية"}</TableHead>
+                        <TableHead>{"العمر"}</TableHead>
+                        <TableHead>{"المدينة"}</TableHead>
+                        <TableHead>{"العميل"}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -762,18 +777,16 @@ export default function Contacts() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
 
-      {/* Delete Confirmation Sheet (shared by both tabs) */}
+      {/* Delete Confirmation Sheet */}
       <Sheet open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <SheetContent side="bottom">
           <SheetHeader>
-            <SheetTitle className="flex items-center gap-2 text-end">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
+            <SheetTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
               {t("contacts.confirm_delete_title") || "تأكيد الحذف"}
             </SheetTitle>
-            <SheetDescription className="text-end pt-2" asChild>
+            <SheetDescription className="pt-2" asChild>
               <div className="space-y-3">
                 <p className="text-muted-foreground">
                   {t("contacts.confirm_delete_message") || "هل أنت متأكد من حذف العميل التالي؟"}
@@ -871,8 +884,8 @@ export default function Contacts() {
                         <div
                           className={cn(
                             "h-full rounded-full transition-all",
-                            scoreInfo.score >= 80 ? "bg-emerald-500" :
-                            scoreInfo.score >= 50 ? "bg-amber-500" : "bg-blue-500"
+                            scoreInfo.score >= 80 ? "bg-primary/100" :
+                            scoreInfo.score >= 50 ? "bg-[hsl(var(--warning)/0.1)]0" : "bg-accent0"
                           )}
                           style={{ width: `${scoreInfo.score}%` }}
                         />
@@ -930,6 +943,18 @@ export default function Contacts() {
                   >
                     <Calendar size={14} className="me-1" />
                     جدولة
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      // Convert lead to deal
+                      createDealFromLead(detailLead);
+                    }}
+                    disabled={convertToDealMutation.isPending}
+                  >
+                    <Briefcase size={14} className="me-1" />
+                    {convertToDealMutation.isPending ? "..." : "تحويل لصفقة"}
                   </Button>
                 </div>
               </div>
@@ -1007,13 +1032,14 @@ export default function Contacts() {
                       <Separator className="my-4" />
                       <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">تغيير الحالة</h4>
                       <div className="grid grid-cols-2 gap-2">
-                        {["new", "contacted", "qualified", "proposal", "negotiation", "closed"].map((status) => (
+                        {["NEW", "CONTACTED", "QUALIFIED", "PROPOSAL", "NEGOTIATION", "CLOSED"].map((status) => (
                           <Button
                             key={status}
                             variant={detailLead.status === status ? "default" : "outline"}
                             size="sm"
                             className="text-xs"
-                            disabled={detailLead.status === status}
+                            disabled={detailLead.status === status || updateStatusMutation.isPending}
+                            onClick={() => updateStatusMutation.mutate({ id: detailLead.id, status })}
                           >
                             {getStatusLabel(status)}
                           </Button>
@@ -1049,7 +1075,7 @@ export default function Contacts() {
                               <div className={cn(
                                 "flex h-8 w-8 items-center justify-center rounded-full z-10",
                                 activity.completed
-                                  ? "bg-emerald-100 text-emerald-600"
+                                  ? "bg-primary/15 text-primary"
                                   : "bg-muted text-muted-foreground"
                               )}>
                                 {getActivityIcon(activity.activityType)}
@@ -1058,7 +1084,7 @@ export default function Contacts() {
                                 <div className="flex items-center gap-2">
                                   <p className="text-sm font-medium">{activity.title}</p>
                                   {activity.completed && (
-                                    <CheckCircle2 size={12} className="text-emerald-600" />
+                                    <CheckCircle2 size={12} className="text-primary" />
                                   )}
                                 </div>
                                 {activity.description && (
@@ -1083,15 +1109,41 @@ export default function Contacts() {
                     <div className="space-y-4">
                       <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">الملاحظات</h4>
 
+                      {/* Add note form */}
+                      <div className="flex gap-2">
+                        <Textarea
+                          value={noteText}
+                          onChange={(e) => setNoteText(e.target.value)}
+                          placeholder="أضف ملاحظة جديدة..."
+                          rows={2}
+                          className="flex-1"
+                        />
+                        <Button
+                          size="sm"
+                          className="self-end"
+                          disabled={!noteText.trim() || addNoteMutation.isPending}
+                          onClick={() => {
+                            const existing = detailLead.notes ? detailLead.notes + "\n\n" : "";
+                            const timestamp = new Date().toLocaleDateString("ar-SA");
+                            addNoteMutation.mutate({
+                              id: detailLead.id,
+                              notes: existing + `[${timestamp}] ${noteText.trim()}`,
+                            });
+                          }}
+                        >
+                          <Send size={14} />
+                        </Button>
+                      </div>
+
                       {detailLead.notes ? (
                         <Card>
                           <CardContent className="p-4">
                             <div className="flex items-start gap-3">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted shrink-0">
                                 <FileText size={14} className="text-muted-foreground" />
                               </div>
                               <div className="flex-1">
-                                <p className="text-sm leading-relaxed">{detailLead.notes}</p>
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{detailLead.notes}</p>
                                 <p className="text-xs text-muted-foreground mt-2">
                                   آخر تحديث: {formatAdminDate(detailLead.updatedAt)}
                                 </p>
@@ -1100,13 +1152,12 @@ export default function Contacts() {
                           </CardContent>
                         </Card>
                       ) : (
-                        <div className="py-12 text-center text-muted-foreground">
-                          <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                          <p className="text-sm">لا توجد ملاحظات مسجلة</p>
+                        <div className="py-8 text-center text-muted-foreground">
+                          <FileText className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                          <p className="text-xs">لا توجد ملاحظات — أضف أول ملاحظة أعلاه</p>
                         </div>
                       )}
 
-                      {/* Preferences */}
                       {detailLead.preferences && (
                         <>
                           <Separator />
@@ -1124,29 +1175,136 @@ export default function Contacts() {
                   {/* Deals Tab */}
                   <TabsContent value="deals" className="p-6 mt-0">
                     <div className="space-y-4">
-                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">الصفقات المرتبطة</h4>
-                      <div className="py-12 text-center text-muted-foreground">
-                        <Briefcase className="h-10 w-10 mx-auto mb-3 opacity-40" />
-                        <p className="text-sm">لا توجد صفقات مرتبطة بهذا العميل</p>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="mt-4"
-                          onClick={() => {
-                            setDetailDrawerOpen(false);
-                            setLocation("/home/platform/pipeline");
-                          }}
-                        >
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">الصفقات المرتبطة ({leadDeals.length})</h4>
+                        <Button size="sm" variant="outline" onClick={() => { setDetailDrawerOpen(false); setLocation("/home/platform/pipeline"); }}>
                           <Briefcase size={14} className="me-1" />
-                          عرض لوحة الصفقات
+                          لوحة الصفقات
                         </Button>
                       </div>
+                      {leadDeals.length === 0 ? (
+                        <div className="py-8 text-center text-muted-foreground">
+                          <Briefcase className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                          <p className="text-xs">لا توجد صفقات مرتبطة بهذا العميل</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {leadDeals.map((deal: any) => (
+                            <Card key={deal.id} className="cursor-pointer hover:shadow-sm" onClick={() => { setDetailDrawerOpen(false); setLocation("/home/platform/pipeline"); }}>
+                              <CardContent className="p-3 flex items-center justify-between">
+                                <div>
+                                  <p className="text-sm font-bold">{deal.source || "صفقة"}</p>
+                                  <p className="text-xs text-muted-foreground">{formatAdminDate(deal.createdAt)}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {deal.agreedPrice && <span className="text-sm font-bold text-primary">{Number(deal.agreedPrice).toLocaleString("en-US")}</span>}
+                                  <Badge variant="outline" className="text-xs">{deal.stage}</Badge>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </TabsContent>
                 </ScrollArea>
               </Tabs>
             </>
           )}
+        </SheetContent>
+      </Sheet>
+
+      {/* ── Create Lead Sheet ── */}
+      <Sheet open={createOpen} onOpenChange={setCreateOpen}>
+        <SheetContent side="bottom">
+          <SheetHeader>
+            <SheetTitle>إضافة عميل محتمل جديد</SheetTitle>
+            <SheetDescription>أدخل بيانات العميل المحتمل</SheetDescription>
+          </SheetHeader>
+          <Form {...createForm}>
+            <form onSubmit={createForm.handleSubmit((data) => createLeadMutation.mutate(data))} className="space-y-4 py-4 max-w-lg mx-auto">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={createForm.control} name="firstName" render={({ field }) => (
+                  <FormItem><FormLabel>الاسم الأول *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={createForm.control} name="lastName" render={({ field }) => (
+                  <FormItem><FormLabel>اسم العائلة *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={createForm.control} name="phone" render={({ field }) => (
+                  <FormItem><FormLabel>رقم الهاتف</FormLabel><FormControl><Input {...field} type="tel" dir="ltr" className="text-start" placeholder="05XXXXXXXX" /></FormControl></FormItem>
+                )} />
+                <FormField control={createForm.control} name="email" render={({ field }) => (
+                  <FormItem><FormLabel>البريد الإلكتروني</FormLabel><FormControl><Input {...field} type="email" dir="ltr" className="text-start" /></FormControl><FormMessage /></FormItem>
+                )} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={createForm.control} name="city" render={({ field }) => (
+                  <FormItem><FormLabel>المدينة</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                )} />
+                <FormField control={createForm.control} name="source" render={({ field }) => (
+                  <FormItem><FormLabel>مصدر العميل</FormLabel><FormControl><Input {...field} placeholder="واتساب، موقع، إحالة..." /></FormControl></FormItem>
+                )} />
+              </div>
+              <FormField control={createForm.control} name="notes" render={({ field }) => (
+                <FormItem><FormLabel>ملاحظات</FormLabel><FormControl><Textarea {...field} rows={2} placeholder="ملاحظات أولية..." /></FormControl></FormItem>
+              )} />
+              <SheetFooter>
+                <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>إلغاء</Button>
+                <Button type="submit" disabled={createLeadMutation.isPending}>
+                  {createLeadMutation.isPending ? "..." : "إنشاء العميل"}
+                </Button>
+              </SheetFooter>
+            </form>
+          </Form>
+        </SheetContent>
+      </Sheet>
+
+      {/* ── Edit Lead Sheet ── */}
+      <Sheet open={editOpen} onOpenChange={setEditOpen}>
+        <SheetContent side="bottom">
+          <SheetHeader>
+            <SheetTitle>تعديل بيانات العميل</SheetTitle>
+          </SheetHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit((data) => detailLead && updateLeadMutation.mutate({ id: detailLead.id, data }))} className="space-y-4 py-4 max-w-lg mx-auto">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editForm.control} name="firstName" render={({ field }) => (
+                  <FormItem><FormLabel>الاسم الأول *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={editForm.control} name="lastName" render={({ field }) => (
+                  <FormItem><FormLabel>اسم العائلة *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editForm.control} name="phone" render={({ field }) => (
+                  <FormItem><FormLabel>رقم الهاتف</FormLabel><FormControl><Input {...field} type="tel" dir="ltr" className="text-start" /></FormControl></FormItem>
+                )} />
+                <FormField control={editForm.control} name="email" render={({ field }) => (
+                  <FormItem><FormLabel>البريد الإلكتروني</FormLabel><FormControl><Input {...field} type="email" dir="ltr" className="text-start" /></FormControl><FormMessage /></FormItem>
+                )} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={editForm.control} name="city" render={({ field }) => (
+                  <FormItem><FormLabel>المدينة</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                )} />
+                <FormField control={editForm.control} name="source" render={({ field }) => (
+                  <FormItem><FormLabel>مصدر العميل</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                )} />
+              </div>
+              <FormField control={editForm.control} name="notes" render={({ field }) => (
+                <FormItem><FormLabel>ملاحظات</FormLabel><FormControl><Textarea {...field} rows={2} /></FormControl></FormItem>
+              )} />
+              <SheetFooter>
+                <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>إلغاء</Button>
+                <Button type="submit" disabled={updateLeadMutation.isPending} className="gap-1.5">
+                  <Save size={14} />
+                  {updateLeadMutation.isPending ? "..." : "حفظ التعديلات"}
+                </Button>
+              </SheetFooter>
+            </form>
+          </Form>
         </SheetContent>
       </Sheet>
     </div>

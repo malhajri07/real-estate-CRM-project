@@ -68,9 +68,6 @@ router.get('/invoices', async (req: any, res) => {
                 }
             },
             orderBy: { issueDate: 'desc' },
-            include: {
-                items: true
-            }
         });
         res.json(invoices);
     } catch (error) {
@@ -83,7 +80,7 @@ router.get('/invoices/:id', async (req: any, res) => {
     try {
         const invoice = await prisma.billing_invoices.findUnique({
             where: { id: req.params.id },
-            include: { items: true, payments: true, account: true }
+            include: { account: true }
         });
         if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
 
@@ -91,8 +88,8 @@ router.get('/invoices/:id', async (req: any, res) => {
         if (!req.billingFullAccess) {
             const userId = req.user.id;
             const orgId = req.user.organizationId;
-            const account = invoice.account;
-            if (account.userId !== userId && (!orgId || account.organizationId !== orgId)) {
+            const acct = invoice.account;
+            if (acct.userId !== userId && (!orgId || acct.organizationId !== orgId)) {
                 return res.status(403).json({ message: 'Forbidden' });
             }
         }

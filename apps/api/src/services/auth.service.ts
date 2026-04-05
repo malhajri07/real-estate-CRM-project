@@ -108,9 +108,10 @@ export class AuthService {
         const normalizedRoles = serializeRoles(normalizeRoleKeys(data.roles));
         const username = (data.username ?? data.email).trim().toLowerCase();
 
+        const userId = randomUUID();
         const user = await prisma.users.create({
             data: {
-                id: randomUUID(),
+                id: userId,
                 username,
                 email: data.email,
                 passwordHash,
@@ -122,6 +123,30 @@ export class AuthService {
                 updatedAt: new Date()
             }
         });
+
+        // Create agent profile with FAL license data if provided
+        if (data.falLicenseNumber) {
+            try {
+                await prisma.agent_profiles.create({
+                    data: {
+                        userId,
+                        licenseNo: data.falLicenseNumber,
+                        licenseValidTo: data.falIssuedAt ? new Date(data.falIssuedAt) : new Date(),
+                        territories: "",
+                        specialties: data.falLicenseType || "BROKERAGE_MARKETING",
+                        isIndividualAgent: normalizedRoles.includes("INDIV_AGENT"),
+                        falLicenseNumber: data.falLicenseNumber,
+                        falLicenseType: data.falLicenseType || undefined,
+                        falIssuedAt: data.falIssuedAt ? new Date(data.falIssuedAt) : undefined,
+                        nationalIdNumber: data.saudiId || undefined,
+                        sreiCertified: data.sreiCertified || false,
+                        status: "PENDING_VERIFICATION",
+                    },
+                });
+            } catch (e) {
+                console.warn("Agent profile creation note:", (e as Error).message);
+            }
+        }
 
         const token = AuthService.generateToken({
             id: user.id,

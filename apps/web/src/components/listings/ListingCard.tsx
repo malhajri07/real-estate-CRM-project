@@ -85,7 +85,7 @@ export default function ListingCard({ item }: { item: Listing }) {
         <div className="text-sm text-muted-foreground">{item.city}{item.address ? `، ${item.address}` : ''}</div>
         <div className="font-semibold text-foreground mt-1 line-clamp-2">{item.title}</div>
         <div className="flex items-center justify-between mt-2">
-          <div className="text-primary font-bold">{item.price ? `${item.price} ﷼` : ''}</div>
+          <div className="text-primary font-bold">{item.price ? `${item.price}` : ''}</div>
           {item.propertyType && <span className="text-xs px-2 py-1 bg-muted/50 rounded">{item.propertyType}</span>}
         </div>
         <div className="flex gap-2 mt-3">

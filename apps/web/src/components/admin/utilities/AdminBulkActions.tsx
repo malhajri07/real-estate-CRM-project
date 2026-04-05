@@ -75,7 +75,7 @@ export function AdminBulkActions({
                         onClick={action.onClick}
                         disabled={action.disabled}
                         className={cn(
-                            action.variant === 'destructive' && 'text-red-600 hover:text-red-700'
+                            action.variant === 'destructive' && 'text-destructive hover:text-destructive'
                         )}
                     >
                         {action.icon && <span className="ms-2">{action.icon}</span>}

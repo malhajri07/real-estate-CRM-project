@@ -337,7 +337,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
   const innerClasses = embedded ? "space-y-6" : "space-y-6 p-0";
 
   return (
-    <div className={outerClasses} dir={dir}>
+    <div className={outerClasses}>
       <div className={innerClasses}>
         <div className="flex flex-col gap-6">
           <PageSectionHeader
@@ -379,7 +379,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                 >
                     <Card className="sticky top-8">
                     <div className="mb-6 px-2 pt-4">
-                      <h3 className="text-lg font-semibold tracking-tight flex items-center gap-2">
+                      <h3 className="text-lg font-bold tracking-tight flex items-center gap-2">
                         <Menu className="h-4 w-4" />
                         أقسام الصفحة
                       </h3>
@@ -400,7 +400,7 @@ const CMSLandingPage: React.FC<CMSLandingPageProps> = ({ embedded = false }) => 
                                 selectedSectionId === section.id
                                   ? "bg-foreground text-background shadow-xl shadow-foreground/20"
                                   : "bg-card/50 border border-border text-foreground hover:bg-card hover:shadow-md",
-                                snapshot.isDragging && "shadow-2xl ring-2 ring-blue-500/20"
+                                snapshot.isDragging && "shadow-2xl ring-2 ring-primary/20"
                               )}
                             >
                               <div className="flex items-center justify-between relative z-10">

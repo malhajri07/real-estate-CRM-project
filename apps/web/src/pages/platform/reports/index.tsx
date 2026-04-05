@@ -27,6 +27,7 @@ import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { formatAdminDate } from "@/lib/formatters";
 
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { SarPrice } from "@/components/ui/sar-symbol";
 import ReportFilters from "./ReportFilters";
 import ReportCharts from "./ReportCharts";
 import ReportTable from "./ReportTable";
@@ -141,7 +142,7 @@ export default function Reports() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount) + " ﷼";
+    return new Intl.NumberFormat("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount) + "";
   };
 
   const formatNumber = (num: number) => {
@@ -306,7 +307,7 @@ export default function Reports() {
   const retryAll = () => { refetchLeads(); refetchProperties(); refetchDeals(); };
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <PageHeader title={t("التقارير والتحليلات")} subtitle={t("عرض تقارير الأداء والإحصائيات")}>
         <Button onClick={exportReport}>
           <Download className="me-2" size={16} />

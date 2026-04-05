@@ -243,7 +243,7 @@ export default function UnverifiedListingsManagement() {
                           {listing.district && <span className="text-xs text-muted-foreground">{listing.district}</span>}
                         </div>
                       </TableCell>
-                      <TableCell className="font-semibold">{formatPrice(listing.price, listing.currency)}</TableCell>
+                      <TableCell className="font-bold">{formatPrice(listing.price, listing.currency)}</TableCell>
                       <TableCell>
                         <div className="flex flex-col gap-1">
                           {listing.contactName && <span className="text-sm">{listing.contactName}</span>}
@@ -318,7 +318,7 @@ export default function UnverifiedListingsManagement() {
               {/* Images */}
               {selectedListing.imageGallery && selectedListing.imageGallery.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-4 text-foreground border-b pb-2">الصور</h3>
+                  <h3 className="text-lg font-bold mb-4 text-foreground border-b pb-2">الصور</h3>
                   <div className="rounded-2xl overflow-hidden border border-border shadow-sm">
                     <PhotoCarousel
                       photos={selectedListing.imageGallery ?? []}
@@ -334,7 +334,7 @@ export default function UnverifiedListingsManagement() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 bg-muted/30 p-6 rounded-2xl border border-border">
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground block mb-1">نوع العقار</Label>
-                  <p className="text-base font-semibold text-foreground">{selectedListing.propertyType}</p>
+                  <p className="text-base font-bold text-foreground">{selectedListing.propertyType}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground block mb-1">نوع العرض</Label>
@@ -354,7 +354,7 @@ export default function UnverifiedListingsManagement() {
 
               {/* Location */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground flex items-center gap-2">
+                <h3 className="text-lg font-bold mb-4 text-foreground flex items-center gap-2">
                   <MapPin className="h-5 w-5 text-primary" />
                   الموقع
                 </h3>
@@ -388,7 +388,7 @@ export default function UnverifiedListingsManagement() {
 
               {/* Specifications */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">المواصفات</h3>
+                <h3 className="text-lg font-bold mb-4 text-foreground">المواصفات</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {selectedListing.bedrooms !== null && selectedListing.bedrooms !== undefined && (
                     <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl border border-border">
@@ -428,15 +428,15 @@ export default function UnverifiedListingsManagement() {
 
               {/* Amenities */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">المرافق</h3>
+                <h3 className="text-lg font-bold mb-4 text-foreground">المرافق</h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedListing.hasParking && <Badge variant="secondary" className="px-3 py-1 text-sm bg-primary/5 text-primary hover:bg-primary/10">موقف سيارة</Badge>}
                   {selectedListing.hasElevator && <Badge variant="secondary" className="px-3 py-1 text-sm bg-primary/5 text-primary hover:bg-primary/10">مصعد</Badge>}
                   {selectedListing.hasMaidsRoom && <Badge variant="secondary" className="px-3 py-1 text-sm bg-primary/5 text-primary hover:bg-primary/10">غرفة خادمة</Badge>}
                   {selectedListing.hasDriverRoom && <Badge variant="secondary" className="px-3 py-1 text-sm bg-primary/5 text-primary hover:bg-primary/10">غرفة سائق</Badge>}
-                  {selectedListing.furnished && <Badge variant="secondary" className="px-3 py-1 text-sm bg-purple-50 text-purple-700 hover:bg-purple-100">مفروش</Badge>}
+                  {selectedListing.furnished && <Badge variant="secondary" className="px-3 py-1 text-sm bg-secondary text-secondary-foreground hover:bg-secondary">مفروش</Badge>}
                   {selectedListing.balcony && <Badge variant="secondary" className="px-3 py-1 text-sm bg-primary/10 text-primary hover:bg-primary/10">شرفة</Badge>}
-                  {selectedListing.swimmingPool && <Badge variant="secondary" className="px-3 py-1 text-sm bg-cyan-50 text-cyan-700 hover:bg-cyan-100">مسبح</Badge>}
+                  {selectedListing.swimmingPool && <Badge variant="secondary" className="px-3 py-1 text-sm bg-accent text-accent-foreground hover:bg-accent">مسبح</Badge>}
                   {selectedListing.centralAc && <Badge variant="secondary" className="px-3 py-1 text-sm bg-warning/10 text-warning hover:bg-warning/20">تكييف مركزي</Badge>}
                 </div>
               </div>
@@ -444,7 +444,7 @@ export default function UnverifiedListingsManagement() {
               {/* Description */}
               {selectedListing.description && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-4 text-foreground">الوصف</h3>
+                  <h3 className="text-lg font-bold mb-4 text-foreground">الوصف</h3>
                   <div className="bg-muted/30 p-6 rounded-2xl border border-border text-base leading-relaxed text-foreground/80 whitespace-pre-wrap">
                     {selectedListing.description}
                   </div>
@@ -453,12 +453,12 @@ export default function UnverifiedListingsManagement() {
 
               {/* Contact Info */}
               <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">معلومات التواصل</h3>
+                <h3 className="text-lg font-bold mb-4 text-foreground">معلومات التواصل</h3>
                 <div className="grid grid-cols-2 gap-6 bg-foreground text-white p-6 rounded-2xl shadow-lg">
                   {selectedListing.contactName && (
                     <div>
                       <Label className="text-sm font-medium text-muted-foreground/70 mb-1 block">الاسم</Label>
-                      <p className="text-lg font-semibold">{selectedListing.contactName}</p>
+                      <p className="text-lg font-bold">{selectedListing.contactName}</p>
                     </div>
                   )}
                   <div>
@@ -466,7 +466,7 @@ export default function UnverifiedListingsManagement() {
                       <Phone className="h-4 w-4" />
                       رقم الجوال
                     </Label>
-                    <p className="text-lg font-semibold font-mono dir-ltr text-right">{selectedListing.mobileNumber}</p>
+                    <p className="text-lg font-bold font-mono dir-ltr text-right">{selectedListing.mobileNumber}</p>
                   </div>
                 </div>
               </div>
@@ -482,12 +482,12 @@ export default function UnverifiedListingsManagement() {
                   >
                     {rejectMutation.isPending ? (
                       <>
-                        <Spinner size="sm" className="mr-2" />
+                        <Spinner size="sm" className="me-2" />
                         جاري الرفض...
                       </>
                     ) : (
                       <>
-                        <XCircle className="mr-2 h-4 w-4" />
+                        <XCircle className="me-2 h-4 w-4" />
                         رفض
                       </>
                     )}
@@ -499,12 +499,12 @@ export default function UnverifiedListingsManagement() {
                   >
                     {acceptMutation.isPending ? (
                       <>
-                        <Spinner size="sm" className="mr-2" />
+                        <Spinner size="sm" className="me-2" />
                         جاري القبول...
                       </>
                     ) : (
                       <>
-                        <CheckCircle2 className="mr-2 h-4 w-4" />
+                        <CheckCircle2 className="me-2 h-4 w-4" />
                         قبول وإضافة للمجموعة
                       </>
                     )}

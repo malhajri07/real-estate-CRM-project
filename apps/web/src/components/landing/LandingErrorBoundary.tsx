@@ -38,7 +38,7 @@ export class LandingErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-white flex items-center justify-center p-8" dir="rtl">
+        <div className="min-h-screen bg-white flex items-center justify-center p-8">
           <div className="text-center max-w-2xl">
             <h1 className="text-3xl font-black text-foreground mb-4">حدث خطأ في تحميل الصفحة</h1>
             <p className="text-lg text-muted-foreground mb-6">

@@ -1,3 +1,4 @@
+import { SarPrice } from "@/components/ui/sar-symbol";
 import { Trash2, Edit, Eye, Bed, Bath, Square, Share2, Sofa } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,15 +28,15 @@ export default function PropertiesTable({
     <Table className="min-w-[900px]">
       <TableHeader className="bg-muted/50">
         <TableRow>
-          <TableHead className="text-start w-[120px]">{"الإجراءات"}</TableHead>
-          <TableHead className="text-start">{"الغرف"}</TableHead>
-          <TableHead className="text-start">{"المساحة"}</TableHead>
-          <TableHead className="text-start">{"السعر"}</TableHead>
-          <TableHead className="text-start">{"الحالة"}</TableHead>
-          <TableHead className="text-start">{"النوع"}</TableHead>
-          <TableHead className="text-start">{"الموقع"}</TableHead>
-          <TableHead className="text-start">{"العقار"}</TableHead>
-          <TableHead className="text-start">{"الصورة"}</TableHead>
+          <TableHead className="w-[120px]">{"الإجراءات"}</TableHead>
+          <TableHead>{"الغرف"}</TableHead>
+          <TableHead>{"المساحة"}</TableHead>
+          <TableHead>{"السعر"}</TableHead>
+          <TableHead>{"الحالة"}</TableHead>
+          <TableHead>{"النوع"}</TableHead>
+          <TableHead>{"الموقع"}</TableHead>
+          <TableHead>{"العقار"}</TableHead>
+          <TableHead>{"الصورة"}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -98,7 +99,7 @@ export default function PropertiesTable({
               {property.areaSqm != null ? `${typeof property.areaSqm === "number" ? property.areaSqm.toLocaleString("en-US") : property.areaSqm} متر²` : "-"}
             </TableCell>
             <TableCell>
-              <div className="font-bold text-primary">{formatCurrency(property.price)}</div>
+              <SarPrice value={property.price} className="font-bold text-primary" />
             </TableCell>
             <TableCell>
               <Badge variant={getPropertyStatusVariant(property.status)}>{property.status}</Badge>
@@ -115,8 +116,8 @@ export default function PropertiesTable({
               </div>
             </TableCell>
             <TableCell>
-              {property.photoUrls && property.photoUrls.length > 0 ? (
-                <img src={property.photoUrls[0]} alt={property.title} className="w-16 h-12 object-cover rounded" />
+              {(() => { const p = property as any; const imgs = Array.isArray(p.photoUrls) && p.photoUrls.length ? p.photoUrls : p.photos ? (typeof p.photos === "string" ? (() => { try { return JSON.parse(p.photos); } catch { return []; } })() : []) : []; return imgs.length > 0 ? (
+                <img src={imgs[0]} alt={property.title} className="w-16 h-12 object-cover rounded" />
               ) : (
                 <div className="w-16 h-12 bg-muted rounded flex items-center justify-center">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground">
@@ -125,7 +126,7 @@ export default function PropertiesTable({
                     <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
                   </svg>
                 </div>
-              )}
+              ); })()}
             </TableCell>
           </TableRow>
         ))}

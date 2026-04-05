@@ -289,7 +289,7 @@ export default function Landing() {
   // Always render content, even during loading
   return (
     <LandingErrorBoundary>
-      <div className="relative min-h-screen bg-white font-sans text-slate-900 antialiased" dir={dir}>
+      <div className="relative min-h-screen bg-white font-sans text-slate-900 antialiased">
         {/* Global Loader */}
         {isLoading && (
           <div className="fixed inset-x-0 top-0 z-50">

@@ -1,11 +1,11 @@
 import type { Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
 
-const fontSans = ["Noto Kufi Arabic", "IBM Plex Sans Arabic", "Inter", "system-ui", "sans-serif"];
+const fontSans = ["IBM Plex Sans Arabic", "Inter", "system-ui", "sans-serif"];
 const fontSerif = ["IBM Plex Serif", "serif"];
 const fontMono = ["JetBrains Mono", "monospace"];
-const fontDisplay = ["Noto Kufi Arabic", "IBM Plex Sans Arabic", "Plus Jakarta Sans", "sans-serif"];
-const fontArabic = ["Noto Kufi Arabic", "IBM Plex Sans Arabic", "Inter", "sans-serif"];
+const fontDisplay = ["IBM Plex Sans Arabic", "Inter", "sans-serif"];
+const fontArabic = ["IBM Plex Sans Arabic", "Inter", "sans-serif"];
 const fontPassword = ["JetBrains Mono", "monospace"];
 
 const config: Config = {
@@ -60,21 +60,28 @@ const config: Config = {
           foreground: "hsl(var(--accent-foreground))",
         },
         destructive: {
-          DEFAULT: "hsl(0 72% 51%)",
-          foreground: "hsl(0 0% 98%)",
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         sidebar: {
-          DEFAULT: "hsl(0 0% 100%)",
-          foreground: "hsl(var(--foreground))",
+          DEFAULT: "hsl(var(--sidebar))",
+          foreground: "hsl(var(--sidebar-foreground))",
           muted: "hsl(var(--muted))",
-          accent: "hsl(var(--primary))",
-          "accent-foreground": "hsl(var(--primary-foreground))",
-          border: "hsl(var(--border))",
+          accent: "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          border: "hsl(var(--sidebar-border))",
+          primary: "hsl(var(--sidebar-primary))",
+          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
+          ring: "hsl(var(--sidebar-ring))",
         },
-        success: "hsl(160 84% 39%)",
+        success: "hsl(160 84% 35%)",
         warning: "hsl(35 92% 62%)",
         error: "hsl(0 72% 51%)",
         info: "hsl(208 92% 54%)",
@@ -188,7 +195,7 @@ const config: Config = {
           "@apply flex items-center justify-center rounded-xl bg-primary/10 text-primary p-2": {},
         },
         ".status-badge-active": {
-          "@apply bg-emerald-50 text-emerald-800 border-emerald-200": {},
+          "@apply bg-primary/10 text-primary border-primary/20": {},
         },
         ".status-badge-inactive": {
           "@apply bg-slate-100 text-slate-700 border-border": {},

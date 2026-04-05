@@ -12,7 +12,7 @@ interface LandingFooterProps {
 
 export const LandingFooter = ({ content, footerGroups }: LandingFooterProps) => {
     return (
-        <footer className="glass-dark text-slate-300 py-20 relative overflow-hidden" dir="rtl">
+        <footer className="glass-dark text-slate-300 py-20 relative overflow-hidden">
             <Separator className="absolute top-0 inset-x-0 bg-white/10" />
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>

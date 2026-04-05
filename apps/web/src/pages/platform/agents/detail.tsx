@@ -37,7 +37,7 @@ export default function AgentPage() {
   
   if (isLoading || showSkeleton) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader
           title={t("تفاصيل الوسيط")}
           subtitle={t("عرض تفاصيل الوسيط وإعلاناته")}
@@ -49,7 +49,7 @@ export default function AgentPage() {
   
   if (error || !data) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <QueryErrorFallback message="تعذر تحميل الوسيط" onRetry={() => refetch()} />
       </div>
     );
@@ -57,12 +57,12 @@ export default function AgentPage() {
 
   const a = data.agent;
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <Breadcrumb className="mb-4">
         <BreadcrumbList>
           <BreadcrumbItem><BreadcrumbLink href="/home/platform">الرئيسية</BreadcrumbLink></BreadcrumbItem>
           <BreadcrumbSeparator />
-          <BreadcrumbItem><BreadcrumbLink href="/home/platform/agencies">الوكالات</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbItem><BreadcrumbLink href="/home/platform/team">فريق العمل</BreadcrumbLink></BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem><BreadcrumbPage>{`${a?.firstName ?? ''} ${a?.lastName ?? ''}`.trim() || "تفاصيل الوسيط"}</BreadcrumbPage></BreadcrumbItem>
         </BreadcrumbList>
@@ -96,7 +96,7 @@ export default function AgentPage() {
                     <CardContent className="p-6">
                       <div className="text-sm font-bold">{p.title}</div>
                       <div className="text-xs text-muted-foreground">{p.address}، {p.city}</div>
-                      <div className="text-lg text-primary font-bold">{p.price} ﷼</div>
+                      <div className="text-lg text-primary font-bold">{p.price}</div>
                     </CardContent>
                   </Card>
                 ))}

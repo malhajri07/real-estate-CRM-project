@@ -99,23 +99,23 @@ const NOTIF_TYPE_CONFIGS: Record<NotificationType, NotifTypeConfig> = {
   lead: {
     icon: User,
     label: "عميل محتمل",
-    dotColor: "bg-blue-500",
-    iconColor: "text-blue-600",
-    bgColor: "bg-blue-50 dark:bg-blue-950/30",
+    dotColor: "bg-accent0",
+    iconColor: "text-accent-foreground",
+    bgColor: "bg-accent dark:bg-accent-foreground/30",
   },
   deal: {
     icon: Building2,
     label: "صفقة",
-    dotColor: "bg-emerald-500",
-    iconColor: "text-emerald-600",
-    bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
+    dotColor: "bg-primary/100",
+    iconColor: "text-primary",
+    bgColor: "bg-primary/10 dark:bg-primary/90/30",
   },
   appointment: {
     icon: Calendar,
     label: "موعد",
-    dotColor: "bg-purple-500",
-    iconColor: "text-purple-600",
-    bgColor: "bg-purple-50 dark:bg-purple-950/30",
+    dotColor: "bg-secondary0",
+    iconColor: "text-secondary-foreground",
+    bgColor: "bg-secondary dark:bg-secondary-foreground/30",
   },
   system: {
     icon: Settings,
@@ -127,16 +127,16 @@ const NOTIF_TYPE_CONFIGS: Record<NotificationType, NotifTypeConfig> = {
   message: {
     icon: MessageSquare,
     label: "رسالة",
-    dotColor: "bg-teal-500",
-    iconColor: "text-teal-600",
-    bgColor: "bg-teal-50 dark:bg-teal-950/30",
+    dotColor: "bg-primary/100",
+    iconColor: "text-primary",
+    bgColor: "bg-primary/10 dark:bg-primary/90/30",
   },
   alert: {
     icon: AlertTriangle,
     label: "تنبيه",
-    dotColor: "bg-red-500",
-    iconColor: "text-red-600",
-    bgColor: "bg-red-50 dark:bg-red-950/30",
+    dotColor: "bg-destructive/100",
+    iconColor: "text-destructive",
+    bgColor: "bg-destructive/10 dark:bg-destructive/90/30",
   },
 };
 
@@ -328,10 +328,10 @@ function NotificationRow({
               e.stopPropagation();
               onDelete(notification.id);
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+            className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-destructive/10 dark:hover:bg-destructive/90/30 transition-colors"
             title="حذف"
           >
-            <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-red-600" />
+            <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
           </button>
         )}
       </div>
@@ -495,7 +495,7 @@ export function NotificationCenter({
             <Bell className="h-5 w-5 text-primary" />
             الإشعارات
             {unreadCount > 0 && (
-              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+              <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive/100 px-1.5 text-[10px] font-bold text-white">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}

@@ -101,7 +101,7 @@ function OverviewTab() {
                         className={cn(
                             "border-0 text-xs font-bold px-2.5 py-0.5 rounded-md uppercase",
                             isPaid && "bg-primary/10 text-primary",
-                            isPending && "bg-amber-50 text-amber-700",
+                            isPending && "bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))]",
                             (!isPaid && !isPending) && "bg-muted/50 text-muted-foreground"
                         )}
                     >
@@ -117,7 +117,7 @@ function OverviewTab() {
             <div className={GRID_METRICS}>
                 <MetricCard
                     title="إجمالي الإيرادات"
-                    subtitle="ريال سعودي"
+                    subtitle=""
                     icon={<Wallet className="w-5 h-5 text-muted-foreground" />}
                     metric={{ today: totalRevenue, last7Days: totalRevenue, last30Days: totalRevenue }}
                     currency="SAR"

@@ -7,7 +7,7 @@
  */
 import { describe, test, expect, beforeAll } from 'vitest';
 
-const BASE = 'http://localhost:3000';
+import { BASE_URL as BASE, ADMIN_CREDS } from './config';
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 let adminToken: string;
@@ -16,7 +16,7 @@ beforeAll(async () => {
   const res = await fetch(`${BASE}/api/auth/login`, {
     method: 'POST',
     headers: JSON_HEADERS,
-    body: JSON.stringify({ identifier: 'admin', password: 'admin123' }),
+    body: JSON.stringify(ADMIN_CREDS),
   });
   const body = await res.json();
   adminToken = body.token;
@@ -191,7 +191,7 @@ describe('Rate limiting headers', () => {
     const res = await fetch(`${BASE}/api/auth/login`, {
       method: 'POST',
       headers: JSON_HEADERS,
-      body: JSON.stringify({ identifier: 'admin', password: 'admin123' }),
+      body: JSON.stringify(ADMIN_CREDS),
     });
     expect([200, 429]).toContain(res.status);
   });
@@ -364,7 +364,7 @@ describe('HTTP method validation', () => {
     const res = await fetch(`${BASE}/api/auth/login`, {
       method: 'PATCH',
       headers: JSON_HEADERS,
-      body: JSON.stringify({ identifier: 'admin', password: 'admin123' }),
+      body: JSON.stringify(ADMIN_CREDS),
     });
     expect([404, 405]).toContain(res.status);
   });

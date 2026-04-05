@@ -29,6 +29,7 @@ import {
   Video,
   X,
   ChevronDown,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -88,6 +89,12 @@ interface ForumPost {
     lastName: string;
     avatarUrl?: string | null;
     organization?: { tradeName?: string | null } | null;
+    agent_profiles?: {
+      falLicenseNumber?: string | null;
+      falLicenseType?: string | null;
+      falStatus?: string | null;
+      licenseNo?: string | null;
+    } | null;
   };
   channel?: { id: string; nameAr: string; nameEn?: string | null } | null;
   media?: PostMedia[];
@@ -237,12 +244,49 @@ export default function ForumPage() {
     },
   });
 
+  // Like a post
+  const likeMutation = useMutation({
+    mutationFn: (postId: string) => apiPost(`api/community/post/${postId}/like`, {}),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: feedQueryKey }),
+  });
+
+  // Delete own post
+  const deletePostMutation = useMutation({
+    mutationFn: (postId: string) => apiPost(`api/community/post/${postId}/delete`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feedQueryKey });
+      toast.success(t("forum.post_deleted") || "تم حذف المنشور");
+    },
+    onError: () => toast.error("فشل حذف المنشور"),
+  });
+
+  // Comment on a post
+  const [commentingPostId, setCommentingPostId] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState("");
+
+  const commentMutation = useMutation({
+    mutationFn: ({ postId, content }: { postId: string; content: string }) =>
+      apiPost(`api/community/post/${postId}/comment`, { content }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: feedQueryKey });
+      setCommentText("");
+      setCommentingPostId(null);
+      toast.success("تم إضافة التعليق");
+    },
+  });
+
   const handlePostSubmit = (values: CreatePostFormValues) => {
     createPostMutation.mutate(values);
   };
 
   const handleChannelSubmit = (values: CreateChannelFormValues) => {
     createChannelMutation.mutate(values);
+  };
+
+  const handleShare = (post: ForumPost) => {
+    const text = post.content.substring(0, 100);
+    navigator.clipboard.writeText(`${text}...\n\n${window.location.href}`);
+    toast.success(t("forum.link_copied") || "تم نسخ الرابط");
   };
 
   const addMedia = () => {
@@ -267,7 +311,7 @@ export default function ForumPage() {
     );
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <PageHeader title={t("forum.title") || t("nav.forum") || "المنتدى العقاري"} />
 
@@ -284,7 +328,7 @@ export default function ForumPage() {
 
         {/* -- Bottom Drawer: Create Channel -- */}
         <Sheet open={isChannelOpen} onOpenChange={setIsChannelOpen}>
-          <SheetContent side="bottom" dir={dir}>
+          <SheetContent side="bottom">
             <SheetHeader>
               <SheetTitle>{t("forum.create_channel")}</SheetTitle>
               <SheetDescription>{t("forum.channel_description") || "إنشاء قناة جديدة في المنتدى"}</SheetDescription>
@@ -354,7 +398,7 @@ export default function ForumPage() {
 
         {/* -- Bottom Drawer: Create Post -- */}
         <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <SheetContent side="bottom" dir={dir}>
+          <SheetContent side="bottom">
             <SheetHeader>
               <SheetTitle>{t("forum.start_discussion")}</SheetTitle>
               <SheetDescription>{t("forum.placeholder") || "ابدأ نقاشاً جديداً"}</SheetDescription>
@@ -680,6 +724,12 @@ export default function ForumPage() {
                             <span className="text-sm font-bold">
                               {post.author?.firstName} {post.author?.lastName}
                             </span>
+                            {(post.author?.agent_profiles?.falLicenseNumber || post.author?.agent_profiles?.licenseNo) && (
+                              <Badge variant="outline" className="text-[10px] gap-0.5 border-primary/30 text-primary">
+                                <ShieldCheck className="h-2.5 w-2.5" />
+                                فال
+                              </Badge>
+                            )}
                             {post.channel && (
                               <Badge variant="secondary" className="text-xs">
                                 {dir === "rtl" ? post.channel.nameAr : post.channel.nameEn || post.channel.nameAr}
@@ -770,28 +820,52 @@ export default function ForumPage() {
                       </div>
                     )}
 
-                    <div
-                      className={cn(
-                        "flex items-center gap-6 border-t pt-4 text-muted-foreground",
-                        dir === "rtl" ? "flex-row-reverse" : ""
-                      )}
-                    >
-                      <Button variant="ghost" size="sm" className="gap-2 hover:text-destructive">
-                        <Heart className="h-4 w-4" />
+                    {/* Actions */}
+                    <div className="flex items-center gap-4 border-t pt-4 text-muted-foreground">
+                      <Button variant="ghost" size="sm" className="gap-1.5 hover:text-destructive" onClick={() => likeMutation.mutate(post.id)}>
+                        <Heart className={cn("h-4 w-4", post.likes > 0 && "fill-destructive text-destructive")} />
                         <span>{post.likes}</span>
                       </Button>
-                      <Button variant="ghost" size="sm" className="gap-2 hover:text-primary">
+                      <Button variant="ghost" size="sm" className="gap-1.5 hover:text-primary" onClick={() => setCommentingPostId(commentingPostId === post.id ? null : post.id)}>
                         <MessageCircle className="h-4 w-4" />
                         <span>{post._count?.comments || 0}</span>
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={cn("gap-2 hover:text-foreground", dir === "rtl" ? "me-auto" : "ms-auto")}
-                      >
+                      <Button variant="ghost" size="sm" className="gap-1.5 hover:text-foreground ms-auto" onClick={() => handleShare(post)}>
                         <Share2 className="h-4 w-4" />
                       </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem className="text-destructive" onClick={() => deletePostMutation.mutate(post.id)}>حذف المنشور</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
+
+                    {/* Inline comment box */}
+                    {commentingPostId === post.id && (
+                      <div className="flex gap-2 mt-3 pt-3 border-t">
+                        <Input
+                          value={commentText}
+                          onChange={(e) => setCommentText(e.target.value)}
+                          placeholder="اكتب تعليقاً..."
+                          className="flex-1"
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && commentText.trim()) {
+                              commentMutation.mutate({ postId: post.id, content: commentText.trim() });
+                            }
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          disabled={!commentText.trim() || commentMutation.isPending}
+                          onClick={() => commentText.trim() && commentMutation.mutate({ postId: post.id, content: commentText.trim() })}
+                        >
+                          {commentMutation.isPending ? "..." : "إرسال"}
+                        </Button>
+                      </div>
+                    )}
                   </Card>
                 </motion.div>
               ))}
@@ -799,14 +873,55 @@ export default function ForumPage() {
           )}
         </div>
 
-        {/* Right Sidebar */}
-        <div className="hidden lg:block lg:col-span-1">
-          <Card className="border-s-4 border-primary/20">
-            <CardContent className="p-6">
-              <h3 className={`${TYPOGRAPHY.sectionTitle} mb-2`}>{t("forum.trending_topics")}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t("forum.no_posts_description")}
-              </p>
+        {/* Right Sidebar — Stats & Channels */}
+        <div className="hidden lg:block lg:col-span-1 space-y-4">
+          {/* Forum stats */}
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <h3 className="text-sm font-bold">{t("forum.stats") || "إحصائيات المنتدى"}</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">المنشورات</span>
+                  <span className="font-bold">{posts.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">القنوات</span>
+                  <span className="font-bold">{channels.length}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Top channels */}
+          {channels.length > 0 && (
+            <Card>
+              <CardContent className="p-4 space-y-2">
+                <h3 className="text-sm font-bold">{t("forum.popular_channels") || "القنوات النشطة"}</h3>
+                {channels.slice(0, 5).map((ch) => (
+                  <Button
+                    key={ch.id}
+                    variant={selectedChannelId === ch.id ? "default" : "ghost"}
+                    size="sm"
+                    className="w-full justify-between h-8"
+                    onClick={() => setSelectedChannelId(ch.id)}
+                  >
+                    <span className="truncate">{ch.nameAr}</span>
+                    <Badge variant="secondary" className="text-[10px] px-1.5">{ch._count.posts}</Badge>
+                  </Button>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Quick tips */}
+          <Card className="border-primary/20">
+            <CardContent className="p-4">
+              <h3 className="text-sm font-bold mb-2">نصائح</h3>
+              <ul className="text-xs text-muted-foreground space-y-1.5">
+                <li>• شارك تحديثات السوق مع الزملاء</li>
+                <li>• اطرح أسئلتك حول الأنظمة العقارية</li>
+                <li>• استخدم الوسوم لتصنيف منشوراتك</li>
+              </ul>
             </CardContent>
           </Card>
         </div>

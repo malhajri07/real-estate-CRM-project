@@ -240,13 +240,13 @@ function APITab() {
 
                 <div className="overflow-hidden rounded-2xl border border-border bg-white/40">
                     <Table className="text-end">
-                        <TableHeader className="bg-muted/30">
+                        <TableHeader className="bg-muted/50">
                             <TableRow className="border-border">
-                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">اسم المفتاح</TableHead>
-                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المفتاح</TableHead>
-                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">تاريخ الإنشاء</TableHead>
-                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">آخر استخدام</TableHead>
-                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الحالة</TableHead>
+                                <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">اسم المفتاح</TableHead>
+                                <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المفتاح</TableHead>
+                                <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">تاريخ الإنشاء</TableHead>
+                                <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">آخر استخدام</TableHead>
+                                <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الحالة</TableHead>
                                 <TableHead className="w-[50px]"></TableHead>
                             </TableRow>
                         </TableHeader>

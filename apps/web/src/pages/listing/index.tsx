@@ -28,12 +28,15 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { apiGet, apiPost } from "@/lib/apiClient";
 import { formatPrice } from "@/lib/formatters";
 import { toast } from "sonner";
+import { SarPrice } from "@/components/ui/sar-symbol";
 import {
   Bed, Bath, Maximize, MapPin, Building2, Phone, MessageCircle,
   Mail, Share2, Flag, ArrowRight, Heart, Calendar, Star, Copy,
-  Check, ChevronLeft, Sofa, Home, Tag, Layers, Shield,
+  Check, ChevronLeft, Sofa, Home, Tag, Layers, Shield, ShieldCheck,
+  Compass, FileText, Zap, Droplets,
 } from "lucide-react";
 import { PROPERTY_TYPE_LABELS, LISTING_STATUS_LABELS, LISTING_TYPE_LABELS } from "@/constants/labels";
+import { FACADE_LABELS, LEGAL_LABELS } from "@shared/constants/saudi-data";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -121,7 +124,7 @@ export default function PublicListingPage() {
 
   if (isLoading) {
     return (
-      <div dir={dir}>
+      <div>
         <PublicHeader />
         <div className="max-w-6xl mx-auto p-6 space-y-6">
           <Skeleton className="h-8 w-64 rounded-lg" />
@@ -137,7 +140,7 @@ export default function PublicListingPage() {
 
   if (error || !property) {
     return (
-      <div dir={dir}>
+      <div>
         <PublicHeader />
         <div className="max-w-6xl mx-auto p-6 text-center py-20">
           <Building2 className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
@@ -165,7 +168,7 @@ export default function PublicListingPage() {
   ].filter(Boolean) as { icon: any; label: string; value: any }[];
 
   return (
-    <div className="min-h-screen bg-background" dir={dir}>
+    <div className="min-h-screen bg-background">
       <PublicHeader />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -209,6 +212,12 @@ export default function PublicListingPage() {
             <Badge variant="secondary">{PROPERTY_TYPE_LABELS[p.type] || PROPERTY_TYPE_LABELS[p.propertyType] || p.type}</Badge>
             {p.listingType && <Badge variant="outline">{LISTING_TYPE_LABELS[p.listingType] || p.listingType}</Badge>}
             <Badge>{LISTING_STATUS_LABELS[p.status] || p.status}</Badge>
+            {(p.falLicenseNumber || p.listing?.falLicenseNumber || p.regaAdLicenseNumber || p.listing?.regaAdLicenseNumber) && (
+              <Badge variant="outline" className="gap-1 border-primary/30 text-primary bg-primary/10">
+                <ShieldCheck className="h-3 w-3" />
+                {isAr ? "مرخص REGA" : "REGA Licensed"}
+              </Badge>
+            )}
           </div>
           <h1 className="text-3xl font-black text-foreground mb-2">{p.title || (isAr ? "عقار بدون عنوان" : "Untitled Property")}</h1>
           <div className="flex items-center gap-2 text-muted-foreground">
@@ -216,7 +225,7 @@ export default function PublicListingPage() {
             <span>{[p.district, p.city, p.state].filter(Boolean).join("، ") || p.address || "—"}</span>
           </div>
           <div className="mt-4">
-            <span className="text-3xl font-black text-primary">{price}</span>
+            <SarPrice value={p.price} className="text-3xl font-bold text-primary" />
             {p.listingType === "rent" && <span className="text-muted-foreground ms-1">/ {isAr ? "شهرياً" : "month"}</span>}
           </div>
         </div>
@@ -291,6 +300,11 @@ export default function PublicListingPage() {
                     p.bedrooms != null && { label: isAr ? "غرف النوم" : "Bedrooms", value: p.bedrooms, icon: Bed },
                     p.bathrooms != null && { label: isAr ? "دورات المياه" : "Bathrooms", value: Number(p.bathrooms), icon: Bath },
                     p.areaSqm != null && { label: isAr ? "المساحة (م²)" : "Area (sqm)", value: Number(p.areaSqm).toLocaleString("en-US"), icon: Maximize },
+                    p.areaSqm && p.price && { label: isAr ? "سعر المتر²" : "Price/sqm", value: `${Math.round(Number(p.price) / Number(p.areaSqm)).toLocaleString("en-US")}`, icon: Maximize },
+                    p.facadeDirection && { label: isAr ? "واجهة العقار" : "Facade", value: FACADE_LABELS[p.facadeDirection] || p.facadeDirection, icon: Compass },
+                    p.buildingAge != null && { label: isAr ? "عمر المبنى" : "Building Age", value: `${p.buildingAge} ${isAr ? "سنة" : "years"}`, icon: Calendar },
+                    p.legalStatus && { label: isAr ? "الحالة القانونية" : "Legal Status", value: LEGAL_LABELS[p.legalStatus] || p.legalStatus, icon: FileText },
+                    p.deedNumber && { label: isAr ? "رقم الصك" : "Deed #", value: p.deedNumber, icon: FileText },
                   ].filter(Boolean).map((detail: any, i) => (
                     <div key={i} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
                       <detail.icon className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -301,6 +315,71 @@ export default function PublicListingPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Available Services */}
+            {p.availableServices && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" /> {isAr ? "الخدمات المتوفرة" : "Available Services"}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {String(p.availableServices).split(",").map((svc: string, idx: number) => {
+                      const trimmed = svc.trim();
+                      if (!trimmed) return null;
+                      const labels: Record<string, string> = { electricity: isAr ? "كهرباء" : "Electricity", water: isAr ? "مياه" : "Water", sewage: isAr ? "صرف صحي" : "Sewage", gas: isAr ? "غاز" : "Gas", fiber: isAr ? "ألياف بصرية" : "Fiber" };
+                      return (
+                        <Badge key={idx} variant="secondary" className="rounded-full px-4 py-1.5 text-sm gap-1.5">
+                          {trimmed === "electricity" ? <Zap className="h-3.5 w-3.5" /> : (trimmed === "water" || trimmed === "sewage") ? <Droplets className="h-3.5 w-3.5" /> : null}
+                          {labels[trimmed] || trimmed}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* REGA Licensing Info */}
+            {(p.falLicenseNumber || p.listing?.falLicenseNumber || p.regaAdLicenseNumber || p.listing?.regaAdLicenseNumber) && (
+              <Card className="border-primary/20">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <ShieldCheck className="h-5 w-5 text-primary" />
+                    {isAr ? "بيانات الترخيص — الهيئة العامة للعقار" : "REGA Licensing"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {(p.falLicenseNumber || p.listing?.falLicenseNumber) && (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                          <Shield className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">{isAr ? "رقم رخصة فال" : "FAL License"}</p>
+                          <p className="font-black tabular-nums">{p.falLicenseNumber || p.listing?.falLicenseNumber}</p>
+                        </div>
+                      </div>
+                    )}
+                    {(p.regaAdLicenseNumber || p.listing?.regaAdLicenseNumber) && (
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                          <FileText className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">{isAr ? "رقم ترخيص الإعلان" : "Ad License"}</p>
+                          <p className="font-black tabular-nums">{p.regaAdLicenseNumber || p.listing?.regaAdLicenseNumber}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-3 text-center">
+                    {isAr ? "مرخص من الهيئة العامة للعقار — rega.gov.sa" : "Licensed by the Real Estate General Authority — rega.gov.sa"}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Location */}
             {(p.latitude || p.longitude) && (
@@ -329,7 +408,7 @@ export default function PublicListingPage() {
             <Card className="lg:sticky lg:top-20">
               <CardContent className="p-6 space-y-4">
                 <div className="text-center">
-                  <p className="text-3xl font-black text-primary">{price}</p>
+                  <SarPrice value={p.price} className="text-3xl font-bold text-primary" />
                   {p.listingType === "rent" && <p className="text-sm text-muted-foreground">{isAr ? "شهرياً" : "per month"}</p>}
                 </div>
 
@@ -345,10 +424,12 @@ export default function PublicListingPage() {
                     <div>
                       <p className="font-bold text-foreground">{agentName || (isAr ? "وسي�� عقاري" : "Real Estate Agent")}</p>
                       {org?.tradeName && <p className="text-xs text-muted-foreground">{org.tradeName}</p>}
-                      {agent?.agent_profiles?.licenseNo && (
+                      {(agent?.agent_profiles?.licenseNo || agent?.agent_profiles?.falLicenseNumber) && (
                         <div className="flex items-center gap-1 mt-0.5">
-                          <Shield className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-[10px] text-muted-foreground">{isAr ? "رخصة" : "License"}: {agent.agent_profiles.licenseNo}</span>
+                          <ShieldCheck className="h-3 w-3 text-primary" />
+                          <span className="text-[10px] text-primary font-bold">
+                            {isAr ? "فال" : "FAL"}: {agent.agent_profiles.falLicenseNumber || agent.agent_profiles.licenseNo}
+                          </span>
                         </div>
                       )}
                     </div>

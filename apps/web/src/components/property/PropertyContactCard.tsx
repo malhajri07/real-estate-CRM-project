@@ -133,7 +133,7 @@ export function PropertyContactCard({
         <div className="flex items-center gap-4">
           {agent.rating != null && (
             <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+              <Star className="h-4 w-4 text-[hsl(var(--warning))] fill-[hsl(var(--warning))]" />
               <span className="text-sm font-bold">{agent.rating.toFixed(1)}</span>
             </div>
           )}
@@ -234,7 +234,7 @@ export function PropertyContactCard({
             </Button>
           )}
           {agent.phone && (
-            <Button variant="outline" size="sm" className="gap-1.5 text-green-600 hover:text-green-700" onClick={handleWhatsApp}>
+            <Button variant="outline" size="sm" className="gap-1.5 text-primary hover:text-primary" onClick={handleWhatsApp}>
               <MessageCircle className="h-3.5 w-3.5" />
               واتساب
             </Button>

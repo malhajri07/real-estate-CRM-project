@@ -22,6 +22,7 @@
  */
 
 import React, { useState, useMemo, useCallback } from "react";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import {
   Download,
   FileText,
@@ -33,7 +34,7 @@ import {
   ChevronDown,
   ChevronUp,
   ArrowDownToLine,
-  Table,
+  Table as TableIcon,
   BarChart3,
   Users,
   Building2,
@@ -259,39 +260,28 @@ function PreviewTable({
 
   return (
     <div className="rounded-xl border border-border overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-muted/50">
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  className="px-3 py-2 text-start text-xs font-bold text-muted-foreground whitespace-nowrap"
-                >
-                  {col.header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, rowIdx) => (
-              <tr
-                key={rowIdx}
-                className="border-t border-border hover:bg-muted/30 transition-colors"
-              >
-                {columns.map((col) => (
-                  <td
-                    key={col.key}
-                    className="px-3 py-2 text-sm text-foreground whitespace-nowrap"
-                  >
-                    {String(row[col.key] ?? "--")}
-                  </td>
-                ))}
-              </tr>
+      <Table>
+        <TableHeader className="bg-muted/50">
+          <TableRow>
+            {columns.map((col) => (
+              <TableHead key={col.key} className="text-xs font-bold whitespace-nowrap">
+                {col.header}
+              </TableHead>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((row, rowIdx) => (
+            <TableRow key={rowIdx}>
+              {columns.map((col) => (
+                <TableCell key={col.key} className="whitespace-nowrap">
+                  {String(row[col.key] ?? "--")}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
       {rows.length > 0 && (
         <div className="bg-muted/30 px-3 py-1.5 text-[10px] text-muted-foreground text-center border-t border-border">
           معاينة أول {rows.length} سجل — سيتم تصدير جميع البيانات المطابقة

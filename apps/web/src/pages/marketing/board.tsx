@@ -36,8 +36,8 @@ interface RequestWithExtras extends MarketingRequest {
 
 const TIER_BADGE: Record<MarketingRequestTier, { label: string; className: string }> = {
   STANDARD: { label: "أساسي", className: "bg-slate-200 text-foreground/80" },
-  SERIOUS: { label: "جاد", className: "bg-amber-200 text-amber-900" },
-  ENTERPRISE: { label: "مؤسسي", className: "bg-indigo-200 text-indigo-900" },
+  SERIOUS: { label: "جاد", className: "bg-[hsl(var(--warning)/0.2)] text-[hsl(var(--warning))]" },
+  ENTERPRISE: { label: "مؤسسي", className: "bg-accent text-accent-foreground" },
 };
 
 const STATUS_LABEL: Record<MarketingRequestStatus, string> = {
@@ -155,7 +155,7 @@ export default function MarketingRequestsBoardPage() {
   };
 
   return (
-    <main className="w-full space-y-6" dir="rtl">
+    <main className="w-full space-y-6">
       <section className="space-y-6">
         <header className="bg-card border-0 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
@@ -163,7 +163,7 @@ export default function MarketingRequestsBoardPage() {
             <Megaphone className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold text-foreground">سوق طلبات التسويق</h1>
+            <h1 className="text-xl font-bold text-foreground">سوق طلبات التسويق</h1>
             <p className="text-muted-foreground text-sm">اطلع على طلبات الملاك وقدّم عرضك التسويقي لإغلاق المزيد من الصفقات.</p>
           </div>
         </div>
@@ -223,14 +223,14 @@ export default function MarketingRequestsBoardPage() {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="text-lg font-semibold text-foreground">{request.title}</h2>
+                      <h2 className="text-lg font-bold text-foreground">{request.title}</h2>
                       <p className="text-muted-foreground text-sm mt-1 line-clamp-2">{request.summary}</p>
                       <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-muted-foreground">
                         <span className="px-2 py-1 bg-muted/50 rounded-full">{request.city}{request.district ? ` • ${request.district}` : ""}</span>
                         {request.propertyType && (
                           <span className="px-2 py-1 bg-muted/50 rounded-full">{request.propertyType}</span>
                         )}
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${tierBadge.className}`}>
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${tierBadge.className}`}>
                           {tierBadge.label}
                         </span>
                         <span className="px-2 py-1 bg-muted/50 rounded-full">{STATUS_LABEL[request.status]}</span>
@@ -251,10 +251,10 @@ export default function MarketingRequestsBoardPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-foreground/80">
                 <Sparkles className="w-4 h-4 text-muted-foreground" />
-                <h3 className="text-base font-semibold">تفاصيل الطلب</h3>
+                <h3 className="text-base font-bold">تفاصيل الطلب</h3>
               </div>
               <div className="space-y-3 text-sm">
-                <div className="font-semibold text-foreground">{selectedRequest.title}</div>
+                <div className="font-bold text-foreground">{selectedRequest.title}</div>
                 <div className="text-muted-foreground leading-relaxed whitespace-pre-line">{selectedRequest.summary}</div>
                 {selectedRequest.requirements && (
                   <div className="bg-muted/30 border border-border rounded-2xl p-3 text-muted-foreground text-sm">
@@ -297,7 +297,7 @@ export default function MarketingRequestsBoardPage() {
               </div>
 
               <form onSubmit={handleSubmitProposal} className="border-t border-border pt-4 space-y-3">
-                <h4 className="text-sm font-semibold text-foreground">قدّم عرضك التسويقي</h4>
+                <h4 className="text-sm font-bold text-foreground">قدّم عرضك التسويقي</h4>
                 <Textarea
                   value={proposalMessage}
                   onChange={(event) => setProposalMessage(event.target.value)}
@@ -334,7 +334,7 @@ export default function MarketingRequestsBoardPage() {
                   <div
                     className={`text-sm rounded-xl px-3 py-2 border ${
                       mutation.isError
-                        ? "text-red-600 bg-red-50 border-red-100"
+                        ? "text-destructive bg-destructive/10 border-destructive/15"
                         : "text-primary bg-primary/10 border-primary/20"
                     }`}
                   >
@@ -344,7 +344,7 @@ export default function MarketingRequestsBoardPage() {
                 <Button
                   type="submit"
                   disabled={mutation.isPending}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow shadow-primary/20 transition hover:bg-primary/90 disabled:opacity-60"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-bold shadow shadow-primary/20 transition hover:bg-primary/90 disabled:opacity-60"
                 >
                   {mutation.isPending ? "جاري الإرسال..." : "إرسال العرض"}
                 </Button>

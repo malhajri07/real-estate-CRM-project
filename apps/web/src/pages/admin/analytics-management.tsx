@@ -43,6 +43,7 @@ import {
     Pie,
     Cell,
 } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 import { PAGE_WRAPPER, GRID_METRICS, GRID_TWO_COL } from "@/config/platform-theme";
 import { CHART_COLORS } from "@/config/design-tokens";
@@ -54,7 +55,7 @@ import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
 function CustomTooltip({ active, payload, label }: any) {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-card/90 backdrop-blur-md border border-border shadow-2xl rounded-2xl p-4 text-end">
+            <div className="bg-card/90 backdrop-blur-md border border-border shadow-2xl rounded-2xl p-4">
                 <p className="font-bold text-foreground mb-2">{label}</p>
                 {payload.map((entry: any, index: number) => (
                     <div key={index} className="flex items-center gap-2 mb-1 last:mb-0 justify-end">
@@ -79,26 +80,26 @@ const ENGAGEMENT_DEFAULTS = {
 };
 
 const GEO_DISTRIBUTION_DATA = [
-    { city: 'الرياض', properties: 1250, color: CHART_COLORS.blue },
-    { city: 'جدة', properties: 890, color: CHART_COLORS.green },
+    { city: 'الرياض', properties: 1250, color: CHART_COLORS.secondary },
+    { city: 'جدة', properties: 890, color: CHART_COLORS.tertiary },
     { city: 'الدمام', properties: 520, color: CHART_COLORS.purple },
     { city: 'مكة المكرمة', properties: 340, color: CHART_COLORS.amber },
-    { city: 'المدينة المنورة', properties: 280, color: CHART_COLORS.cyan },
-    { city: 'أخرى', properties: 420, color: CHART_COLORS.pink },
+    { city: 'المدينة المنورة', properties: 280, color: CHART_COLORS.quaternary },
+    { city: 'أخرى', properties: 420, color: CHART_COLORS.quinary },
 ];
 
 const REVENUE_BY_TYPE_DATA = [
-    { type: 'شقق', amount: 2450000, percentage: 35, color: CHART_COLORS.blue },
-    { type: 'فلل', amount: 1890000, percentage: 27, color: CHART_COLORS.green },
+    { type: 'شقق', amount: 2450000, percentage: 35, color: CHART_COLORS.secondary },
+    { type: 'فلل', amount: 1890000, percentage: 27, color: CHART_COLORS.tertiary },
     { type: 'أراضي', amount: 1400000, percentage: 20, color: CHART_COLORS.purple },
     { type: 'تجاري', amount: 840000, percentage: 12, color: CHART_COLORS.amber },
     { type: 'أخرى', amount: 420000, percentage: 6, color: CHART_COLORS.red },
 ];
 
 const FUNNEL_DATA = [
-    { name: 'زيارات الموقع', value: 10000, fill: CHART_COLORS.blue },
-    { name: 'تسجيل حساب', value: 4200, fill: CHART_COLORS.cyan },
-    { name: 'استعلام', value: 2100, fill: CHART_COLORS.green },
+    { name: 'زيارات الموقع', value: 10000, fill: CHART_COLORS.secondary },
+    { name: 'تسجيل حساب', value: 4200, fill: CHART_COLORS.quaternary },
+    { name: 'استعلام', value: 2100, fill: CHART_COLORS.tertiary },
     { name: 'معاينة عقار', value: 850, fill: CHART_COLORS.amber },
     { name: 'إتمام الصفقة', value: 320, fill: CHART_COLORS.purple },
 ];
@@ -108,7 +109,7 @@ function formatNumber(n: number): string {
 }
 
 function formatCurrency(n: number): string {
-    return `${n.toLocaleString('en-US')} ريال`;
+    return `${n.toLocaleString('en-US')}`;
 }
 
 function formatDuration(seconds: number): string {
@@ -232,7 +233,7 @@ export default function AnalyticsManagement() {
                                 </div>
                                 <Badge className={cn(
                                     "text-xs font-bold border-0 px-2 py-0.5 rounded-lg",
-                                    metric.change.startsWith("+") ? "bg-primary/10 text-primary" : "bg-rose-50 text-rose-700"
+                                    metric.change.startsWith("+") ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
                                 )}>
                                     {metric.change}
                                 </Badge>
@@ -268,26 +269,26 @@ export default function AnalyticsManagement() {
                         {isLoading ? (
                             <Skeleton className="h-full w-full" />
                         ) : (
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                                 <AreaChart data={visitorData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={CHART_COLORS.blue} stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor={CHART_COLORS.blue} stopOpacity={0} />
+                                        <stop offset="5%" stopColor={CHART_COLORS.secondary} stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor={CHART_COLORS.secondary} stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={CHART_COLORS.green} stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor={CHART_COLORS.green} stopOpacity={0} />
+                                        <stop offset="5%" stopColor={CHART_COLORS.tertiary} stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor={CHART_COLORS.tertiary} stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(0,0,0,0.03)" />
                                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
                                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Area type="monotone" dataKey="visits" name="الزيارات" stroke={CHART_COLORS.blue} strokeWidth={4} fillOpacity={1} fill="url(#colorVisits)" />
-                                <Area type="monotone" dataKey="users" name="المستخدمين" stroke={CHART_COLORS.green} strokeWidth={4} fillOpacity={1} fill="url(#colorUsers)" />
+                                <ChartTooltip content={<ChartTooltipContent />} />
+                                <Area type="monotone" dataKey="visits" name="الزيارات" stroke={CHART_COLORS.secondary} strokeWidth={4} fillOpacity={1} fill="url(#colorVisits)" />
+                                <Area type="monotone" dataKey="users" name="المستخدمين" stroke={CHART_COLORS.tertiary} strokeWidth={4} fillOpacity={1} fill="url(#colorUsers)" />
                                 </AreaChart>
-                            </ResponsiveContainer>
+                            </ChartContainer>
                         )}
                     </div>
                 </Card>
@@ -301,7 +302,7 @@ export default function AnalyticsManagement() {
                         {isLoading ? (
                             <Skeleton className="h-full w-full" />
                         ) : (
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                                 <PieChart>
                                     <Pie
                                         data={deviceData}
@@ -316,9 +317,9 @@ export default function AnalyticsManagement() {
                                             <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                                         ))}
                                     </Pie>
-                                    <Tooltip />
+                                    <ChartTooltip content={<ChartTooltipContent />} />
                                 </PieChart>
-                            </ResponsiveContainer>
+                            </ChartContainer>
                         )}
                         {deviceData.length > 0 && (
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
@@ -354,11 +355,11 @@ export default function AnalyticsManagement() {
                 </div>
                 <div className="overflow-hidden rounded-2xl border border-border">
                     <Table className="text-end">
-                        <TableHeader className="bg-muted/30">
+                        <TableHeader className="bg-muted/50">
                             <TableRow className="border-border">
-                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المسار (Path)</TableHead>
-                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الإجمالي</TableHead>
-                                <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">التغيير</TableHead>
+                                <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المسار (Path)</TableHead>
+                                <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الإجمالي</TableHead>
+                                <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">التغيير</TableHead>
                                 <TableHead className="w-[100px]"></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -385,7 +386,7 @@ export default function AnalyticsManagement() {
                                     <TableCell className="py-4">
                                         <Badge className={cn(
                                             "text-xs font-bold border-0 px-2 py-0.5 rounded-lg",
-                                            page.status === "up" ? "bg-primary/10 text-primary" : "bg-rose-50 text-rose-700"
+                                            page.status === "up" ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
                                         )}>
                                             {page.change}
                                         </Badge>
@@ -436,7 +437,7 @@ export default function AnalyticsManagement() {
                     <div className="flex flex-col p-5 rounded-xl bg-muted/30 border border-border">
                         <div className="flex items-center justify-between mb-3">
                             <Clock className="h-5 w-5 text-primary" />
-                            <Badge className="bg-amber-50 text-amber-700 border-0 text-xs font-bold px-2 py-0.5 rounded-lg">AVG</Badge>
+                            <Badge className="bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))] border-0 text-xs font-bold px-2 py-0.5 rounded-lg">AVG</Badge>
                         </div>
                         <p className="text-2xl font-bold text-foreground tracking-tight">{formatDuration(ENGAGEMENT_DEFAULTS.avgSessionSeconds)}</p>
                         <p className="text-xs text-muted-foreground mt-1">متوسط مدة الجلسة</p>
@@ -444,7 +445,7 @@ export default function AnalyticsManagement() {
                     <div className="flex flex-col p-5 rounded-xl bg-muted/30 border border-border">
                         <div className="flex items-center justify-between mb-3">
                             <Percent className="h-5 w-5 text-primary" />
-                            <Badge className="bg-rose-50 text-rose-700 border-0 text-xs font-bold px-2 py-0.5 rounded-lg">BOUNCE</Badge>
+                            <Badge className="bg-destructive/10 text-destructive border-0 text-xs font-bold px-2 py-0.5 rounded-lg">BOUNCE</Badge>
                         </div>
                         <p className="text-2xl font-bold text-foreground tracking-tight">{ENGAGEMENT_DEFAULTS.bounceRate}٪</p>
                         <p className="text-xs text-muted-foreground mt-1">معدل الارتداد</p>
@@ -464,7 +465,7 @@ export default function AnalyticsManagement() {
                         <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest ps-8">توزيع العقارات حسب المدينة</p>
                     </div>
                     <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                             <BarChart data={GEO_DISTRIBUTION_DATA} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
                                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="rgba(0,0,0,0.03)" />
                                 <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} />
@@ -479,7 +480,7 @@ export default function AnalyticsManagement() {
                                     ))}
                                 </Bar>
                             </BarChart>
-                        </ResponsiveContainer>
+                        </ChartContainer>
                     </div>
                 </Card>
 
@@ -493,7 +494,7 @@ export default function AnalyticsManagement() {
                         <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest ps-8">توزيع الإيرادات على فئات العقارات</p>
                     </div>
                     <div className="h-[200px] w-full mb-4">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                             <PieChart>
                                 <Pie
                                     data={REVENUE_BY_TYPE_DATA}
@@ -513,7 +514,7 @@ export default function AnalyticsManagement() {
                                     contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)', fontSize: '12px', fontWeight: 700 }}
                                 />
                             </PieChart>
-                        </ResponsiveContainer>
+                        </ChartContainer>
                     </div>
                     <div className="space-y-3">
                         {REVENUE_BY_TYPE_DATA.map((item, i) => (
@@ -572,8 +573,8 @@ export default function AnalyticsManagement() {
                                     <p className="text-sm font-bold mt-1" style={{ color: step.fill }}>{step.name}</p>
                                     {dropoff && (
                                         <div className="flex items-center gap-1 mt-3 pt-3 border-t border-border/50">
-                                            <ArrowDown className="h-3 w-3 text-rose-500" />
-                                            <span className="text-xs font-bold text-rose-500">-{dropoff}٪ تراجع</span>
+                                            <ArrowDown className="h-3 w-3 text-destructive" />
+                                            <span className="text-xs font-bold text-destructive">-{dropoff}٪ تراجع</span>
                                         </div>
                                     )}
                                 </div>

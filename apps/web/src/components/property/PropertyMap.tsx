@@ -101,7 +101,7 @@ function MapPlaceholder({
 
   return (
     <div
-      className="relative w-full h-48 md:h-64 bg-gradient-to-br from-emerald-50 to-sky-50 dark:from-emerald-950/30 dark:to-sky-950/30 rounded-xl border border-border overflow-hidden cursor-pointer group"
+      className="relative w-full h-48 md:h-64 bg-gradient-to-br from-primary/10 to-accent dark:from-primary/30 dark:to-primary/30 rounded-xl border border-border overflow-hidden cursor-pointer group"
       onClick={onOpenMaps}
       role="button"
       tabIndex={0}
@@ -137,10 +137,10 @@ function MapPlaceholder({
 
           {/* Pin icon */}
           <div className="relative flex flex-col items-center animate-bounce">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 shadow-lg">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/100 shadow-lg">
               <MapPin className="h-5 w-5 text-white" />
             </div>
-            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-red-500 -mt-0.5" />
+            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-destructive -mt-0.5" />
           </div>
         </div>
       </div>
@@ -261,8 +261,8 @@ export function PropertyMap({
             >
               {copied ? (
                 <>
-                  <Check className="h-4 w-4 text-emerald-500" />
-                  <span className="text-emerald-600">تم النسخ</span>
+                  <Check className="h-4 w-4 text-primary" />
+                  <span className="text-primary">تم النسخ</span>
                 </>
               ) : (
                 <>

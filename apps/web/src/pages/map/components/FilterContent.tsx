@@ -142,7 +142,7 @@ export function FilterContent({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label>أدنى سعر (ريال)</Label>
+          <Label>أدنى سعر</Label>
           <Input
             inputMode="numeric"
             value={filters.minPrice}
@@ -152,7 +152,7 @@ export function FilterContent({
           />
         </div>
         <div className="space-y-2">
-          <Label>أعلى سعر (ريال)</Label>
+          <Label>أعلى سعر</Label>
           <Input
             inputMode="numeric"
             value={filters.maxPrice}

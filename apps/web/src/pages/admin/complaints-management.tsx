@@ -65,7 +65,7 @@ const getStatusBadge = (status: ComplaintStatus) => {
 const getPriorityColor = (priority: ComplaintPriority) => {
     switch (priority) {
         case "URGENT": return "text-destructive font-bold";
-        case "HIGH": return "text-amber-700 font-medium";
+        case "HIGH": return "text-[hsl(var(--warning))] font-medium";
         case "MEDIUM": return "text-primary";
         case "LOW": return "text-muted-foreground";
     }
@@ -150,14 +150,14 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
 
             <div className="overflow-hidden rounded-2xl border border-border bg-white/40">
                 <Table>
-                    <TableHeader className="bg-muted/30">
+                    <TableHeader className="bg-muted/50">
                         <TableRow className="border-border">
-                            <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">التذكرة</TableHead>
-                            <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الموضوع</TableHead>
-                            <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">العميل</TableHead>
-                            <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الأولوية</TableHead>
-                            <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الحالة</TableHead>
-                            <TableHead className="text-start text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">التاريخ</TableHead>
+                            <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">التذكرة</TableHead>
+                            <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الموضوع</TableHead>
+                            <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">العميل</TableHead>
+                            <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الأولوية</TableHead>
+                            <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الحالة</TableHead>
+                            <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">التاريخ</TableHead>
                             <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                     </TableHeader>
@@ -198,7 +198,7 @@ function ComplaintsListTab({ filterStatus }: { filterStatus?: ComplaintStatus | 
                                         </span>
                                     </TableCell>
                                     <TableCell>{getStatusBadge(ticket.status)}</TableCell>
-                                    <TableCell className="text-start py-4">
+                                    <TableCell className="py-4">
                                         <span className="text-xs font-bold text-muted-foreground/70 uppercase">
                                             {format(new Date(ticket.createdAt), "dd MMM yyyy", { locale: arSA })}
                                         </span>

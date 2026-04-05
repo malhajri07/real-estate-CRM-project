@@ -399,7 +399,7 @@ export function AdvancedSearch({
         ? {
             key: "price",
             label: "السعر",
-            displayValue: `${priceMin.toLocaleString()} - ${priceMax.toLocaleString()} ر.س`,
+            displayValue: `${priceMin.toLocaleString()} - ${priceMax.toLocaleString()}`,
           }
         : null,
       selectedPropertyTypes.length > 0

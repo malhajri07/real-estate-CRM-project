@@ -112,7 +112,7 @@ export default function SavedSearchesPage() {
 
   if (isError) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader title="عمليات البحث المحفوظة" />
         <QueryErrorFallback message="فشل تحميل البحث المحفوظ" onRetry={() => refetch()} />
       </div>
@@ -120,7 +120,7 @@ export default function SavedSearchesPage() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <section className="space-y-6">
         <PageHeader title="عمليات البحث المحفوظة" />
 
@@ -209,7 +209,7 @@ export default function SavedSearchesPage() {
                 <CardContent className="p-6">
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="font-semibold">{s.alertName}</div>
+                      <div className="font-bold">{s.alertName}</div>
                       <div className="text-xs text-muted-foreground mt-1">
                         المدن: {(s.cities||[]).join(', ') || 'الكل'}
                       </div>

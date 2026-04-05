@@ -61,6 +61,7 @@ import {
 } from "lucide-react";
 import AddPropertyDrawer from "@/components/modals/add-property-drawer";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { SarSymbol } from "@/components/ui/sar-symbol";
 import { useLanguage } from "@/contexts/LanguageContext";
 import EmptyState from "@/components/ui/empty-state";
 import PageHeader from "@/components/ui/page-header";
@@ -128,18 +129,16 @@ export default function Dashboard() {
     [t]
   );
 
-  const currencyFormatter = useMemo(
+  const numberFormatter = useMemo(
     () =>
       new Intl.NumberFormat(numericLocale, {
-        style: "currency",
-        currency: "SAR",
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
       }),
     [numericLocale]
   );
 
-  const formatCurrency = (value: number) => currencyFormatter.format(value);
+  const formatCurrency = (value: number) => `${numberFormatter.format(value)}`;
 
   const metricCards = useMemo(
     () => [
@@ -175,7 +174,7 @@ export default function Dashboard() {
         label: t("dashboard.monthly_revenue"),
         value: formatCurrency(metrics?.monthlyRevenue ?? 0),
         icon: Banknote,
-        // accent removed
+        currency: true,
         delta: { value: 24, tone: "up" as const },
       },
     ],
@@ -237,7 +236,7 @@ export default function Dashboard() {
 
   if (metricsError) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader
           title={`${t("dashboard.welcome") || "مرحباً"} ${userName}`}
           subtitle={t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
@@ -252,7 +251,7 @@ export default function Dashboard() {
 
   if (metricsLoading || minLoadTime) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader
           title={`${t("dashboard.welcome") || "مرحباً"} ${userName}`}
           subtitle={t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
@@ -270,7 +269,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <PageHeader
           title={`${t("dashboard.welcome") || "مرحباً"} ${userName}`}
           subtitle={t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}

@@ -38,16 +38,14 @@ const ROUTE_CONFIG: Record<string, HeaderConfig> = {
   '/notifications': { titleKey: 'nav.notifications', searchPlaceholderKey: 'nav.search', showSearch: true },
   '/home/platform/settings': { titleKey: 'nav.workspace_settings', searchPlaceholderKey: 'nav.search', showSearch: true },
   '/settings': { titleKey: 'nav.workspace_settings', searchPlaceholderKey: 'nav.search', showSearch: true },
-  '/home/platform/agencies': { titleKey: 'nav.agencies', searchPlaceholderKey: 'nav.search', showSearch: true },
-  '/agencies': { titleKey: 'nav.agencies', searchPlaceholderKey: 'nav.search', showSearch: true },
   '/home/platform/pool': { titleKey: 'nav.pool', searchPlaceholderKey: 'pool.search_placeholder', showSearch: true },
   '/pool': { titleKey: 'nav.pool', searchPlaceholderKey: 'pool.search_placeholder', showSearch: true },
   '/home/platform/forum': { titleKey: 'nav.forum', searchPlaceholderKey: 'nav.search', showSearch: true },
   '/forum': { titleKey: 'nav.forum', searchPlaceholderKey: 'nav.search', showSearch: true },
   '/home/platform/customer-requests': { titleKey: 'nav.customer_requests', searchPlaceholderKey: 'header.search_customer_requests', showSearch: true },
   '/customer-requests': { titleKey: 'nav.customer_requests', searchPlaceholderKey: 'header.search_customer_requests', showSearch: true },
-  '/home/platform/admin-requests': { titleKey: 'nav.admin_requests', searchPlaceholderKey: 'nav.search', showSearch: true },
-  '/admin/requests': { titleKey: 'nav.admin_requests', searchPlaceholderKey: 'nav.search', showSearch: true },
+  '/home/platform/broker-requests': { titleKey: 'nav.broker_requests', searchPlaceholderKey: 'nav.search', showSearch: true },
+  '/broker-requests': { titleKey: 'nav.broker_requests', searchPlaceholderKey: 'nav.search', showSearch: true },
   '/home/platform/favorites': { titleKey: 'nav.favorites', searchPlaceholderKey: 'nav.search', showSearch: true },
   '/favorites': { titleKey: 'nav.favorites', searchPlaceholderKey: 'nav.search', showSearch: true },
   '/home/platform/compare': { titleKey: 'nav.compare', searchPlaceholderKey: 'nav.search', showSearch: true },
@@ -74,7 +72,6 @@ const ROUTE_CONFIG: Record<string, HeaderConfig> = {
  * Path prefix → config for dynamic routes (e.g. /agency/:id, /properties/:id)
  */
 const PREFIX_ROUTE_CONFIG: Array<{ prefix: string; config: HeaderConfig }> = [
-  { prefix: '/home/platform/agency/', config: { titleKey: 'nav.agency_profile', searchPlaceholderKey: 'nav.search', showSearch: true } },
   { prefix: '/home/platform/agent/', config: { titleKey: 'nav.agent_profile', searchPlaceholderKey: 'nav.search', showSearch: true } },
   { prefix: '/home/platform/properties/', config: { titleKey: 'nav.property_detail', searchPlaceholderKey: 'properties.search_placeholder', showSearch: true } },
   { prefix: '/home/platform/listing/', config: { titleKey: 'nav.listing_public', searchPlaceholderKey: 'nav.search', showSearch: true } },

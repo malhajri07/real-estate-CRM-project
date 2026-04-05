@@ -35,7 +35,7 @@ import { ADMIN_BUTTON_PRIMARY } from "@/config/design-tokens";
 
 const PLANS = ["الخطة الأساسية", "الخطة المتقدمة", "الخطة الاحترافية"];
 const PLAN_ICONS = [Shield, Zap, Crown];
-const PLAN_COLORS = ["text-muted-foreground/70", "text-primary", "text-amber-500"];
+const PLAN_COLORS = ["text-muted-foreground/70", "text-primary", "text-[hsl(var(--warning))]"];
 
 const FEATURE_CATEGORIES = [
     {
@@ -96,7 +96,7 @@ function ComparisonMatrix() {
                             {category.features.map((feature) => (
                                 <TableRow key={feature.id} className="border-b border-border hover:bg-muted/30 transition-colors group">
                                     <TableCell className="p-6 px-8 flex items-center gap-3">
-                                        <div className="w-2 h-2 rounded-full bg-muted group-hover:bg-blue-400 transition-colors" />
+                                        <div className="w-2 h-2 rounded-full bg-muted group-hover:bg-primary/60 transition-colors" />
                                         <span className="text-sm font-bold text-foreground/80">{feature.name}</span>
                                     </TableCell>
                                     <TableCell className="p-6 text-center border-r border-border">

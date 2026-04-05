@@ -55,7 +55,7 @@ export class PropertiesMapErrorBoundary extends Component<ErrorBoundaryProps, Er
       return (
         <div className="flex h-[400px] items-center justify-center rounded-lg border border-destructive/20 bg-destructive/5">
           <div className="text-center">
-            <h3 className="text-lg font-semibold text-destructive">خطأ في تحميل الخريطة</h3>
+            <h3 className="text-lg font-bold text-destructive">خطأ في تحميل الخريطة</h3>
             <p className="text-sm text-destructive mt-2">
               حدث خطأ أثناء تحميل خريطة العقارات. يرجى إعادة تحميل الصفحة.
             </p>

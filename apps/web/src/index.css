@@ -21,41 +21,73 @@
   }
 
   :root {
-    /* Emerald Green Theme - HSL */
-    --primary: 164 72% 40%;
-    --primary-foreground: 0 0% 100%;
+    /* Aqarkom Theme — Unified green (hue 160) palette from tweakcn */
+    --primary: 160 84% 35%;
+    --primary-foreground: 160 100% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 160 25% 94%;
+    --secondary-foreground: 160 50% 25%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 160 40% 92%;
+    --accent-foreground: 160 60% 25%;
 
-    --background: 240 4% 96.5%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 160 30% 99%;
+    --foreground: 160 50% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 160 50% 10%;
 
-    --muted: 0 0% 100%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 50% 10%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 80%;
-    --ring: 164 72% 40%;
+    --muted: 160 15% 94%;
+    --muted-foreground: 160 15% 45%;
 
-    --radius: 0.75rem;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 160 20% 88%;
+    --input: 160 20% 88%;
+    --ring: 160 84% 35%;
+
+    --radius: 0.6rem;
+
+    /* Charts */
+    --chart-1: 160 84% 35%;
+    --chart-2: 165 70% 45%;
+    --chart-3: 155 60% 50%;
+    --chart-4: 170 50% 60%;
+    --chart-5: 160 40% 75%;
+
+    /* Sidebar */
+    --sidebar: 160 20% 98%;
+    --sidebar-foreground: 160 50% 15%;
+    --sidebar-primary: 160 84% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 160 30% 92%;
+    --sidebar-accent-foreground: 160 60% 25%;
+    --sidebar-border: 160 20% 90%;
+    --sidebar-ring: 160 84% 35%;
+
+    /* Semantic status colors — derived from theme palette */
+    --success: 160 84% 35%;
+    --success-foreground: 160 100% 98%;
+    --warning: 35 92% 50%;
+    --warning-foreground: 35 97% 14%;
+    --info: 160 40% 45%;
+    --info-foreground: 160 100% 98%;
   }
 
   html,
   body {
-    font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", Inter, system-ui, sans-serif;
+    font-family: "IBM Plex Sans Arabic", Inter, system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
   }
+
 }
 
 @layer utilities {
@@ -66,11 +98,11 @@
 
   .aurora-bg {
     background-image:
-      radial-gradient(at 100% 0%, hsla(210, 100%, 56%, 0.3) 0px, transparent 50%),
-      radial-gradient(at 0% 0%, hsla(280, 100%, 70%, 0.3) 0px, transparent 50%),
-      radial-gradient(at 80% 50%, hsla(340, 100%, 76%, 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, hsla(22, 100%, 77%, 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 0%, hsla(240, 100%, 70%, 0.3) 0px, transparent 50%);
+      radial-gradient(at 100% 0%, hsla(160, 84%, 35%, 0.2) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, hsla(165, 70%, 45%, 0.2) 0px, transparent 50%),
+      radial-gradient(at 80% 50%, hsla(155, 60%, 50%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(170, 50%, 60%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 0%, hsla(160, 40%, 75%, 0.15) 0px, transparent 50%);
     background-size: 200% 200%;
     @apply animate-aurora;
   }
@@ -81,11 +113,12 @@
   }
 
   .premium-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, #10b981 100%);
+    background: linear-gradient(135deg, hsl(160, 84%, 35%) 0%, hsl(165, 70%, 45%) 100%);
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-emerald-600 to-teal-600;
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(to bottom right, hsl(160, 84%, 35%), hsl(165, 70%, 45%));
   }
 
   .animate-in-start {
@@ -114,10 +147,10 @@
   --dir-factor: -20px;
 }
 
-/* Noto Kufi Arabic - applied after Tailwind so it overrides preflight and utilities */
+/* IBM Plex Sans Arabic — default font, applied with high specificity to override Tailwind preflight */
 #root,
 #root * {
-  font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", Inter, system-ui, sans-serif !important;
+  font-family: "IBM Plex Sans Arabic", Inter, system-ui, sans-serif !important;
 }
 
 /* Preserve mono font for code/numeric inputs - higher specificity to override #root * */
@@ -125,4 +158,50 @@
 #root input[type="password"],
 #root input[inputmode="numeric"] {
   font-family: "JetBrains Mono", monospace !important;
+}
+
+/* Print styles — show all content in one page, hide navigation */
+@media print {
+  #root {
+    position: static !important;
+    overflow: visible !important;
+  }
+
+  /* Hide sidebar, header nav, and interactive chrome */
+  [data-sidebar],
+  nav,
+  header,
+  [role="navigation"],
+  .print\\:hidden {
+    display: none !important;
+  }
+
+  /* Reset page layout for printing */
+  body, html {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt !important;
+  }
+
+  /* Show print-only blocks */
+  .print\\:block {
+    display: block !important;
+  }
+
+  /* Prevent page breaks inside cards */
+  .rounded-2xl, .rounded-xl, [class*="Card"] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Ensure images don't overflow */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Remove shadows and borders for cleaner print */
+  * {
+    box-shadow: none !important;
+  }
 }

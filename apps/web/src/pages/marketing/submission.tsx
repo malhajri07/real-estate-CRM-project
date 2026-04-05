@@ -170,7 +170,7 @@ export default function MarketingRequestSubmissionPage() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="bg-card shadow-xl rounded-3xl border border-border p-6 md:p-10 space-y-8">
             {Object.keys(form.formState.errors).length > 0 && form.formState.isSubmitted && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 text-red-700 p-4" role="alert">
+              <div className="rounded-2xl border border-destructive/20 bg-destructive/10 text-destructive p-4" role="alert">
                 <strong className="block mb-2">يرجى مراجعة البيانات التالية:</strong>
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   {Object.values(form.formState.errors).map((error, idx) => (
@@ -540,7 +540,7 @@ export default function MarketingRequestSubmissionPage() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitting ? "جاري إرسال الطلب..." : "إرسال الطلب للمراجعة"}
               </Button>

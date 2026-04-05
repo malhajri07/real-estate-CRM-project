@@ -836,7 +836,7 @@ router.post("/team/invite", authenticateToken, requireOwnerOrAdmin, async (req: 
     }
 
     const validRole = role === "CORP_OWNER" ? "CORP_OWNER" : "CORP_AGENT";
-    const passwordHash = await hashPassword("agent123");
+    const passwordHash = await hashPassword(process.env.DEFAULT_AGENT_PASSWORD || "ChangeMe!2025");
 
     // Create user + agent_profile in a transaction
     const newUser = await prisma.$transaction(async (tx) => {
@@ -909,7 +909,7 @@ router.post("/team/invite-bulk", authenticateToken, requireOwnerOrAdmin, async (
     }
 
     const results: { email: string; success: boolean; error?: string }[] = [];
-    const passwordHash = await hashPassword("agent123");
+    const passwordHash = await hashPassword(process.env.DEFAULT_AGENT_PASSWORD || "ChangeMe!2025");
 
     for (const agent of agents) {
       try {

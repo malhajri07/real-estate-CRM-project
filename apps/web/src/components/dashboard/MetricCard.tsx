@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { LucideIcon, TrendingUp, TrendingDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { SarSymbol } from "@/components/ui/sar-symbol";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
@@ -18,6 +19,8 @@ interface MetricCardProps {
   value: string | number;
   icon: LucideIcon;
   accent?: string;
+  /** Show SAR currency icon next to the value */
+  currency?: boolean;
   delta?: {
     value: number;
     tone: "up" | "down";
@@ -26,15 +29,16 @@ interface MetricCardProps {
   index?: number;
 }
 
-export function MetricCard({ 
-  id, 
-  label, 
-  value, 
-  icon: Icon, 
-  accent, 
-  delta, 
+export function MetricCard({
+  id,
+  label,
+  value,
+  icon: Icon,
+  accent,
+  currency,
+  delta,
   href,
-  index = 0 
+  index = 0
 }: MetricCardProps) {
   const [displayValue, setDisplayValue] = useState(0);
   const isNumeric = typeof value === "number";
@@ -97,8 +101,9 @@ export function MetricCard({
 
         {/* Value */}
         <div className="mb-1">
-          <p className="text-3xl font-bold text-foreground leading-tight">
+          <p className="text-3xl font-bold text-foreground leading-tight inline-flex items-center gap-1.5">
             {isNumeric ? displayValue.toLocaleString("en-US") : value}
+            {currency && <SarSymbol size="0.6em" className="text-muted-foreground" />}
           </p>
         </div>
 

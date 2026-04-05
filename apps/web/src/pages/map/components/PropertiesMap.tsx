@@ -234,7 +234,7 @@ export function PropertiesMap({
         </div>
       ) : scriptLoadError ? (
         <div className="flex h-full w-full min-h-[520px] flex-col items-center justify-center gap-4 px-6 text-center text-sm text-destructive">
-          <p className="font-semibold">تعذر تحميل خريطة جوجل</p>
+          <p className="font-bold">تعذر تحميل خريطة جوجل</p>
           <p className="text-xs text-muted-foreground">حاول تحديث الصفحة أو التحقق من مفتاح Google Maps.</p>
           {scriptLoadError.message && (
             <p className="text-xs text-muted-foreground mt-2">الخطأ: {scriptLoadError.message}</p>

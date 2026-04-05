@@ -94,7 +94,7 @@ export default function Clients() {
 
   if (isError) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader
           title={t("nav.clients") || "العملاء"}
           subtitle={t("clients.subtitle") || "إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم"}
@@ -109,7 +109,7 @@ export default function Clients() {
 
   if (isLoading || showSkeleton) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader
           title={t("nav.clients") || "العملاء"}
           subtitle={t("clients.subtitle") || "إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم"}
@@ -120,7 +120,7 @@ export default function Clients() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
         <PageHeader
           title={t("nav.clients") || "العملاء"}
           subtitle={t("clients.subtitle") || "إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم"}
@@ -193,7 +193,7 @@ export default function Clients() {
                           onClick={() => setSelectedLeadId(lead.id)}
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-medium text-end">
+                            <h4 className="text-sm font-bold">
                               {lead.firstName} {lead.lastName}
                             </h4>
                             <Badge variant={getLeadStatusVariant(lead.status)}>
@@ -201,17 +201,17 @@ export default function Clients() {
                             </Badge>
                           </div>
 
-                          <p className="mb-1 text-sm text-muted-foreground text-end">{lead.email}</p>
+                          <p className="mb-1 text-sm text-muted-foreground">{lead.email}</p>
                           {lead.phone && (
-                            <p className="text-sm text-muted-foreground text-end">{lead.phone}</p>
+                            <p className="text-sm text-muted-foreground">{lead.phone}</p>
                           )}
 
                           <div className="flex items-center justify-between mt-2">
-                            <span className="text-xs text-muted-foreground text-end">
+                            <span className="text-xs text-muted-foreground">
                               {lead.interestType && `${t(`interest.${lead.interestType}`) || lead.interestType} • `}
                               {lead.budgetRange}
                             </span>
-                            <span className="text-xs text-muted-foreground text-end">
+                            <span className="text-xs text-muted-foreground">
                               {formatAdminDate(lead.createdAt)}
                             </span>
                           </div>
@@ -232,7 +232,7 @@ export default function Clients() {
                   <div className="space-y-2 text-center text-muted-foreground">
                     <MessageCircle size={48} className="mx-auto opacity-40" />
                     <h3 className={`${TYPOGRAPHY.sectionTitle} text-end`}>اختر عميلاً</h3>
-                    <p className="text-sm text-end">اختر عميلاً من القائمة لعرض تفاصيله وتاريخ نشاطه.</p>
+                    <p className="text-sm">اختر عميلاً من القائمة لعرض تفاصيله وتاريخ نشاطه.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -242,12 +242,12 @@ export default function Clients() {
                   <CardContent className="space-y-6 p-6">
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div className="space-y-1">
-                        <h2 className="text-2xl font-bold text-end">
+                        <h2 className="text-2xl font-bold">
                           {selectedLead.firstName} {selectedLead.lastName}
                         </h2>
-                        <p className="text-sm text-muted-foreground text-end">{selectedLead.email}</p>
+                        <p className="text-sm text-muted-foreground">{selectedLead.email}</p>
                         {selectedLead.phone && (
-                          <p className="text-sm text-muted-foreground text-end">{selectedLead.phone}</p>
+                          <p className="text-sm text-muted-foreground">{selectedLead.phone}</p>
                         )}
                       </div>
                       <Badge variant={getLeadStatusVariant(selectedLead.status)}>
@@ -258,24 +258,24 @@ export default function Clients() {
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                       <Card>
                         <CardContent className="p-4">
-                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider text-end">مصدر العميل</span>
-                          <p className="mt-1 text-sm font-medium text-end">
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">مصدر العميل</span>
+                          <p className="mt-1 text-sm font-medium">
                             {selectedLead.leadSource || "غير محدد"}
                           </p>
                         </CardContent>
                       </Card>
                       <Card>
-                        <CardContent className="p-4 text-end">
-                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider text-end">نوع الاهتمام</span>
-                          <p className="mt-1 text-sm font-medium text-end">
+                        <CardContent className="p-4">
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">نوع الاهتمام</span>
+                          <p className="mt-1 text-sm font-medium">
                             {selectedLead.interestType || "غير محدد"}
                           </p>
                         </CardContent>
                       </Card>
                       <Card>
-                        <CardContent className="p-4 text-end">
-                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider text-end">نطاق الميزانية</span>
-                          <p className="mt-1 text-sm font-medium text-end">
+                        <CardContent className="p-4">
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">نطاق الميزانية</span>
+                          <p className="mt-1 text-sm font-medium">
                             {selectedLead.budgetRange || "غير محدد"}
                           </p>
                         </CardContent>
@@ -285,8 +285,8 @@ export default function Clients() {
                     {selectedLead.notes && (
                       <Card>
                         <CardContent className="p-4">
-                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider text-end">ملاحظات</span>
-                          <p className="mt-2 text-sm text-end">{selectedLead.notes}</p>
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">ملاحظات</span>
+                          <p className="mt-2 text-sm">{selectedLead.notes}</p>
                         </CardContent>
                       </Card>
                     )}
@@ -367,7 +367,7 @@ export default function Clients() {
                             <span className="text-muted-foreground">درجة التأهيل</span>
                             <span className={cn(
                               "font-bold",
-                              score >= 80 ? "text-emerald-600" : score >= 50 ? "text-amber-600" : "text-blue-600"
+                              score >= 80 ? "text-primary" : score >= 50 ? "text-[hsl(var(--warning))]" : "text-accent-foreground"
                             )}>
                               {score}/100 ({score >= 80 ? "ساخن" : score >= 50 ? "دافئ" : "بارد"})
                             </span>
@@ -450,7 +450,7 @@ export default function Clients() {
                                 </div>
                                 <div className="flex-1">
                                   <div className="mb-1 flex items-center gap-2 rtl:space-x-reverse">
-                                    <h4 className="text-sm font-medium text-end">{activity.title}</h4>
+                                    <h4 className="text-sm font-bold">{activity.title}</h4>
                                     <Badge variant="outline">
                                       {activity.activityType}
                                     </Badge>
@@ -461,7 +461,7 @@ export default function Clients() {
                                     )}
                                   </div>
                                   {activity.description && (
-                                    <p className="mb-2 text-sm text-muted-foreground text-end">{activity.description}</p>
+                                    <p className="mb-2 text-sm text-muted-foreground">{activity.description}</p>
                                   )}
                                   <div className="flex items-center gap-4 text-xs text-muted-foreground text-end rtl:space-x-reverse">
                                     {activity.scheduledDate && (
@@ -489,7 +489,7 @@ export default function Clients() {
 
                         {/* Creation event */}
                         <div className="relative flex gap-3 pb-6 ms-1">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 z-10">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-primary z-10">
                             <UserPlus size={16} />
                           </div>
                           <div className="flex-1 pt-1">
@@ -507,7 +507,7 @@ export default function Clients() {
                               <div className={cn(
                                 "flex h-10 w-10 items-center justify-center rounded-full z-10",
                                 activity.completed
-                                  ? "bg-emerald-100 text-emerald-600"
+                                  ? "bg-primary/15 text-primary"
                                   : "bg-muted text-muted-foreground"
                               )}>
                                 {getActivityIcon(activity.activityType)}
@@ -519,7 +519,7 @@ export default function Clients() {
                                     {activity.activityType}
                                   </Badge>
                                   {activity.completed && (
-                                    <CheckCircle2 size={14} className="text-emerald-600" />
+                                    <CheckCircle2 size={14} className="text-primary" />
                                   )}
                                 </div>
                                 {activity.description && (
@@ -545,7 +545,7 @@ export default function Clients() {
                         {/* Status update event */}
                         {selectedLead.updatedAt !== selectedLead.createdAt && (
                           <div className="relative flex gap-3 pb-6 ms-1">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 z-10">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-accent-foreground z-10">
                               <TrendingUp size={16} />
                             </div>
                             <div className="flex-1 pt-1">
@@ -656,15 +656,15 @@ export default function Clients() {
                                 <CardContent className="flex items-start gap-3 p-4">
                                   <div className={cn(
                                     "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full mt-1",
-                                    activity.activityType === "call" ? "bg-blue-100 text-blue-600" :
-                                    activity.activityType === "email" ? "bg-purple-100 text-purple-600" :
-                                    "bg-amber-100 text-amber-600"
+                                    activity.activityType === "call" ? "bg-accent text-accent-foreground" :
+                                    activity.activityType === "email" ? "bg-secondary text-secondary-foreground" :
+                                    "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]"
                                   )}>
                                     {getActivityIcon(activity.activityType)}
                                   </div>
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
-                                      <h4 className="text-sm font-medium">{activity.title}</h4>
+                                      <h4 className="text-sm font-bold">{activity.title}</h4>
                                       <Badge variant="outline" className="text-xs">
                                         {activity.activityType === "call" ? "مكالمة" :
                                          activity.activityType === "email" ? "بريد إلكتروني" : "اجتماع"}
@@ -692,7 +692,7 @@ export default function Clients() {
                       <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider mb-3">معلومات الاتصال</h4>
                       <div className="space-y-3">
                         <div className="flex items-center gap-3 p-3 border border-border/50 rounded-xl">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground">
                             <Phone size={14} />
                           </div>
                           <div className="flex-1">
@@ -701,7 +701,7 @@ export default function Clients() {
                           </div>
                         </div>
                         <div className="flex items-center gap-3 p-3 border border-border/50 rounded-xl">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
                             <Mail size={14} />
                           </div>
                           <div className="flex-1">

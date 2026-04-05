@@ -1,3 +1,4 @@
+import { SarPrice } from "@/components/ui/sar-symbol";
 import { Users, Building, Target, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -65,7 +66,7 @@ export default function ReportTable({
                     <TableRow key={index}>
                       <TableCell className="font-medium">{agent.agent}</TableCell>
                       <TableCell>{formatNumber(agent.deals)}</TableCell>
-                      <TableCell>{formatCurrency(agent.revenue)}</TableCell>
+                      <TableCell><SarPrice value={agent.revenue} /></TableCell>
                       <TableCell>{formatPercentage(agent.conversion)}</TableCell>
                       <TableCell>
                         <Badge variant={agent.conversion > 20 ? "default" : "secondary"}>
@@ -96,23 +97,23 @@ export default function ReportTable({
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">إجمالي الصفقات</span>
-                  <span className="font-semibold">{formatNumber(filteredDeals.length)}</span>
+                  <span className="font-bold">{formatNumber(filteredDeals.length)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">الصفقات النشطة</span>
-                  <span className="font-semibold">
+                  <span className="font-bold">
                     {formatNumber(filteredDeals.filter(d => !["closed", "lost"].includes(d.stage)).length)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">الصفقات المكتملة</span>
-                  <span className="font-semibold text-primary">
+                  <span className="font-bold text-primary">
                     {formatNumber(filteredDeals.filter(d => d.stage === "closed").length)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">قيمة خط الأنابيب</span>
-                  <span className="font-semibold">{formatCurrency(totalPipelineValue)}</span>
+                  <SarPrice value={totalPipelineValue} className="font-bold" />
                 </div>
               </div>
             </CardContent>
@@ -129,23 +130,23 @@ export default function ReportTable({
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">إجمالي العقارات</span>
-                  <span className="font-semibold">{formatNumber(filteredProperties.length)}</span>
+                  <span className="font-bold">{formatNumber(filteredProperties.length)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">القوائم النشطة</span>
-                  <span className="font-semibold">
+                  <span className="font-bold">
                     {formatNumber(filteredProperties.filter(p => p.status === "active").length)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">العقارات المباعة</span>
-                  <span className="font-semibold text-primary">
+                  <span className="font-bold text-primary">
                     {formatNumber(filteredProperties.filter(p => p.status === "sold").length)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">متوسط السعر</span>
-                  <span className="font-semibold">{formatCurrency(averagePropertyPrice)}</span>
+                  <SarPrice value={averagePropertyPrice} className="font-bold" />
                 </div>
               </div>
             </CardContent>
@@ -162,19 +163,19 @@ export default function ReportTable({
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">تحويل العملاء المحتملين</span>
-                  <span className="font-semibold">{formatPercentage(conversionRate)}</span>
+                  <span className="font-bold">{formatPercentage(conversionRate)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">متوسط حجم الصفقة</span>
-                  <span className="font-semibold">{formatCurrency(averageDealValue)}</span>
+                  <span className="font-bold">{formatCurrency(averageDealValue)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">معدل العمولة</span>
-                  <span className="font-semibold">{formatPercentage(commissionRatePercentage)}</span>
+                  <span className="font-bold">{formatPercentage(commissionRatePercentage)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">الإيرادات الشهرية</span>
-                  <span className="font-semibold text-primary">{formatCurrency(totalCommission)}</span>
+                  <span className="font-bold text-primary">{formatCurrency(totalCommission)}</span>
                 </div>
               </div>
             </CardContent>

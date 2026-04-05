@@ -32,13 +32,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Phone, Mail, Calendar, Clock, Building2, User, FileText,
   TrendingUp, ArrowRightCircle, DollarSign, CheckCircle2,
-  XCircle, MessageCircle, Briefcase,
+  XCircle, MessageCircle, Briefcase, Activity, Calendar as CalendarLucide,
 } from "lucide-react";
+import { useLocation } from "wouter";
 import { PipelineSkeleton } from "@/components/skeletons/page-skeletons";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
-import { apiGet, apiPut } from "@/lib/apiClient";
+import { apiGet, apiPut, apiPost } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { SarSymbol, SarPrice } from "@/components/ui/sar-symbol";
 import type { Deal, Lead } from "@shared/types";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -67,6 +75,7 @@ const STAGE_LABELS: Record<string, string> = {
 
 export default function Pipeline() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const [showRequestDrawer, setShowRequestDrawer] = useState(false);
   const { dir, language } = useLanguage();
@@ -77,6 +86,22 @@ export default function Pipeline() {
   const [dealDetailOpen, setDealDetailOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [dealDetailTab, setDealDetailTab] = useState("info");
+
+  const [createDealOpen, setCreateDealOpen] = useState(false);
+
+  const dealSchema = z.object({
+    customerName: z.string().min(1, "اسم العميل مطلوب"),
+    phone: z.string().optional(),
+    agreedPrice: z.string().optional(),
+    expectedCloseDate: z.string().optional(),
+    source: z.string().optional(),
+    notes: z.string().optional(),
+  });
+
+  const createDealForm = useForm<z.infer<typeof dealSchema>>({
+    resolver: zodResolver(dealSchema),
+    defaultValues: { customerName: "", phone: "", agreedPrice: "", expectedCloseDate: "", source: "", notes: "" },
+  });
 
   const { data: deals, isLoading, isError, refetch } = useQuery<Deal[]>({ queryKey: ["/api/deals"] });
   const { data: leads } = useQuery<Lead[]>({ queryKey: ["/api/leads"] });
@@ -129,6 +154,31 @@ export default function Pipeline() {
     onError: () => {
       toast({ title: "خطأ", description: "فشل في تحديث مرحلة الصفقة", variant: "destructive" });
     },
+  });
+
+  const createDealMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof dealSchema>) => {
+      // Create customer first, then deal
+      const nameParts = data.customerName.trim().split(/\s+/);
+      return apiPost("/api/deals", {
+        firstName: nameParts[0] || data.customerName,
+        lastName: nameParts.slice(1).join(" ") || "",
+        phone: data.phone || undefined,
+        agreedPrice: data.agreedPrice ? Number(data.agreedPrice) : undefined,
+        expectedCloseDate: data.expectedCloseDate || undefined,
+        source: data.source || "direct",
+        notes: data.notes || undefined,
+        stage: "NEW",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/deals"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
+      setCreateDealOpen(false);
+      createDealForm.reset();
+      toast({ title: "تم إنشاء الصفقة بنجاح" });
+    },
+    onError: () => toast({ title: "خطأ", description: "فشل في إنشاء الصفقة", variant: "destructive" }),
   });
 
   const onDragEnd = (result: any) => {
@@ -189,7 +239,7 @@ export default function Pipeline() {
     return new Intl.NumberFormat("en-US", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(numeric) + " ﷼";
+    }).format(numeric) + "";
   };
 
   const formatBudget = (value: string | number | null | undefined) => {
@@ -287,7 +337,7 @@ export default function Pipeline() {
 
   if (isLoading || showSkeleton) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader title="لوحة مسار الصفقات" subtitle="تابع تقدم الفرص البيعية عبر مراحل المسار المختلفة واسحب البطاقات لتحديث حالة الصفقة فوراً." />
         <PipelineSkeleton />
       </div>
@@ -295,12 +345,45 @@ export default function Pipeline() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <PageHeader title="لوحة مسار الصفقات" subtitle="تابع تقدم الفرص البيعية عبر مراحل المسار المختلفة واسحب البطاقات لتحديث حالة الصفقة فوراً.">
-        <Button onClick={() => setShowRequestDrawer(true)}>
-          إضافة صفقة جديدة
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowRequestDrawer(true)}>
+            طلبات العملاء
+          </Button>
+          <Button size="sm" onClick={() => { createDealForm.reset(); setCreateDealOpen(true); }}>
+            إنشاء صفقة
+          </Button>
+        </div>
       </PageHeader>
+
+      {/* Pipeline Summary Stats */}
+      {deals && deals.length > 0 && (() => {
+        const totalValue = deals.reduce((s, d) => s + (toNumericAmount(d.agreedPrice ?? d.dealValue) ?? 0), 0);
+        const activeDeals = deals.filter(d => !["WON", "LOST"].includes(d.stage));
+        const wonDeals = deals.filter(d => d.stage === "WON");
+        const winRate = deals.length > 0 ? Math.round((wonDeals.length / deals.length) * 100) : 0;
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Card><CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center"><Briefcase className="h-5 w-5 text-primary" /></div>
+              <div><p className="text-2xl font-black">{deals.length}</p><p className="text-xs text-muted-foreground">إجمالي الصفقات</p></div>
+            </CardContent></Card>
+            <Card><CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center"><TrendingUp className="h-5 w-5 text-primary" /></div>
+              <div><p className="text-2xl font-black">{activeDeals.length}</p><p className="text-xs text-muted-foreground">صفقات نشطة</p></div>
+            </CardContent></Card>
+            <Card><CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center"><CheckCircle2 className="h-5 w-5 text-primary" /></div>
+              <div><p className="text-2xl font-black">{winRate}%</p><p className="text-xs text-muted-foreground">نسبة الفوز</p></div>
+            </CardContent></Card>
+            <Card><CardContent className="p-4 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center"><DollarSign className="h-5 w-5 text-primary" /></div>
+              <div><SarPrice value={totalValue} className="text-2xl font-black" /><p className="text-xs text-muted-foreground">قيمة المسار</p></div>
+            </CardContent></Card>
+          </div>
+        );
+      })()}
 
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
@@ -320,7 +403,7 @@ export default function Pipeline() {
                       {stageDeals.length} صفقة
                     </Badge>
                   </div>
-                  <div className="mt-2 text-xs text-muted-foreground">{formatCurrency(stageValue)}</div>
+                  <div className="mt-2 text-xs text-muted-foreground"><SarPrice value={stageValue} /></div>
                 </CardHeader>
 
                 <CardContent className="flex-1 p-0">
@@ -346,12 +429,12 @@ export default function Pipeline() {
                                     )}
                                     onClick={() => openDealDetail(deal)}
                                   >
-                                    <CardContent className="p-4 space-y-2 text-end">
+                                    <CardContent className="p-4 space-y-2">
                                       <div className="flex items-center justify-between">
                                         <h4 className="text-sm font-bold">{getDealCustomerName(deal)}</h4>
                                         {(deal.agreedPrice || deal.dealValue) && (
                                           <span className="text-sm font-bold text-primary">
-                                            {formatCurrency(deal.agreedPrice ?? deal.dealValue)}
+                                            <SarPrice value={deal.agreedPrice ?? deal.dealValue} />
                                           </span>
                                         )}
                                       </div>
@@ -362,12 +445,9 @@ export default function Pipeline() {
                                         </div>
                                       )}
 
-                                      {deal.notes && (
-                                        <p className="text-sm text-muted-foreground line-clamp-3">{deal.notes}</p>
-                                      )}
-
-                                      <div className="text-xs text-muted-foreground">
-                                        أُنشئت في {formatAdminDate(deal.createdAt)}
+                                      <div className="flex items-center gap-1.5 flex-wrap">
+                                        {deal.source && <Badge variant="outline" className="text-[10px]">{deal.source}</Badge>}
+                                        <span className="text-[10px] text-muted-foreground">{formatAdminDate(deal.createdAt)}</span>
                                       </div>
                                     </CardContent>
                                   </Card>
@@ -489,7 +569,7 @@ export default function Pipeline() {
                     <CardContent className="p-3 text-center">
                       <p className="text-xs text-muted-foreground">قيمة الصفقة</p>
                       <p className="text-lg font-bold text-primary">
-                        {formatCurrency(selectedDeal.agreedPrice ?? selectedDeal.dealValue)}
+                        <SarPrice value={selectedDeal.agreedPrice ?? selectedDeal.dealValue} />
                       </p>
                     </CardContent>
                   </Card>
@@ -528,15 +608,28 @@ export default function Pipeline() {
                     ))}
                   </div>
                 </div>
+
+                {/* Quick Cross-Page Actions */}
+                <div className="mt-4 flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => { setDealDetailOpen(false); setLocation("/home/platform/calendar"); }}>
+                    <CalendarLucide size={14} />
+                    جدولة موعد
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => { setDealDetailOpen(false); setLocation("/home/platform/activities"); }}>
+                    <Activity size={14} />
+                    تسجيل نشاط
+                  </Button>
+                </div>
               </div>
 
               {/* Tabbed Content */}
               <Tabs value={dealDetailTab} onValueChange={setDealDetailTab} className="flex-1 flex flex-col overflow-hidden">
                 <div className="px-6 pt-4 border-b">
-                  <TabsList className="grid w-full grid-cols-4">
+                  <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="info" className="text-xs">المعلومات</TabsTrigger>
                     <TabsTrigger value="timeline" className="text-xs">المراحل</TabsTrigger>
                     <TabsTrigger value="revenue" className="text-xs">الإيرادات</TabsTrigger>
+                    <TabsTrigger value="regulatory" className="text-xs">التنظيمية</TabsTrigger>
                     <TabsTrigger value="notes" className="text-xs">الملاحظات</TabsTrigger>
                   </TabsList>
                 </div>
@@ -629,13 +722,13 @@ export default function Pipeline() {
                           {selectedDeal.wonAt && (
                             <div className="flex justify-between items-center py-2 border-b border-border/50">
                               <span className="text-muted-foreground text-sm">تاريخ الفوز</span>
-                              <span className="font-medium text-sm text-emerald-600">{formatAdminDate(selectedDeal.wonAt)}</span>
+                              <span className="font-medium text-sm text-primary">{formatAdminDate(selectedDeal.wonAt)}</span>
                             </div>
                           )}
                           {selectedDeal.lostAt && (
                             <div className="flex justify-between items-center py-2 border-b border-border/50">
                               <span className="text-muted-foreground text-sm">تاريخ الخسارة</span>
-                              <span className="font-medium text-sm text-red-600">{formatAdminDate(selectedDeal.lostAt)}</span>
+                              <span className="font-medium text-sm text-destructive">{formatAdminDate(selectedDeal.lostAt)}</span>
                             </div>
                           )}
                         </div>
@@ -661,7 +754,7 @@ export default function Pipeline() {
                               <div className={cn(
                                 "flex h-8 w-8 items-center justify-center rounded-full z-10 transition-colors",
                                 isCurrent ? "bg-primary text-white" :
-                                isPast ? "bg-emerald-100 text-emerald-600" :
+                                isPast ? "bg-primary/15 text-primary" :
                                 "bg-muted text-muted-foreground"
                               )}>
                                 {isPast ? <CheckCircle2 size={14} /> :
@@ -673,7 +766,7 @@ export default function Pipeline() {
                                   <p className={cn(
                                     "text-sm",
                                     isCurrent ? "font-bold text-primary" :
-                                    isPast ? "font-medium text-emerald-600" :
+                                    isPast ? "font-medium text-primary" :
                                     "text-muted-foreground"
                                   )}>
                                     {stage.title}
@@ -702,7 +795,7 @@ export default function Pipeline() {
                       <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">النشاط</h4>
                       <div className="space-y-3">
                         <div className="flex items-center gap-3 p-3 border border-border/50 rounded-xl">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary">
                             <Briefcase size={14} />
                           </div>
                           <div className="flex-1">
@@ -712,7 +805,7 @@ export default function Pipeline() {
                         </div>
                         {selectedDeal.stage !== "NEW" && (
                           <div className="flex items-center gap-3 p-3 border border-border/50 rounded-xl">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-accent-foreground">
                               <ArrowRightCircle size={14} />
                             </div>
                             <div className="flex-1">
@@ -746,15 +839,25 @@ export default function Pipeline() {
                               <CardContent className="p-4 space-y-4">
                                 <div className="flex justify-between items-center py-2 border-b border-border/50">
                                   <span className="text-muted-foreground text-sm">قيمة الصفقة</span>
-                                  <span className="font-bold text-lg text-primary">{formatCurrency(estimate.dealValue)}</span>
+                                  <SarPrice value={estimate.dealValue} className="font-bold text-lg text-primary" />
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-border/50">
                                   <span className="text-muted-foreground text-sm">العمولة المتوقعة (2.5%)</span>
-                                  <span className="font-bold text-emerald-600">{formatCurrency(estimate.commission)}</span>
+                                  <SarPrice value={estimate.commission} className="font-bold text-primary" />
+                                </div>
+                                {estimate.commission > 0 && (
+                                  <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                    <span className="text-muted-foreground text-sm">ضريبة القيمة المضافة (15%)</span>
+                                    <SarPrice value={estimate.commission * 0.15} className="font-medium text-sm" />
+                                  </div>
+                                )}
+                                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                  <span className="text-muted-foreground text-sm">ض.ت.ع — RETT (5%)</span>
+                                  <SarPrice value={estimate.dealValue * 0.05} className="font-bold text-[hsl(var(--warning))]" />
                                 </div>
                                 <div className="flex justify-between items-center py-2">
                                   <span className="text-muted-foreground text-sm">صافي القيمة</span>
-                                  <span className="font-bold">{formatCurrency(estimate.net)}</span>
+                                  <SarPrice value={estimate.net} className="font-bold" />
                                 </div>
                               </CardContent>
                             </Card>
@@ -780,14 +883,14 @@ export default function Pipeline() {
                                 <div className="flex justify-between items-center py-2 border-b border-border/50">
                                   <span className="text-muted-foreground text-sm">الإيراد المتوقع</span>
                                   <span className="font-medium text-sm">
-                                    {formatCurrency(
+                                    <SarPrice value={
                                       estimate.commission * (
                                         selectedDeal.stage === "WON" ? 1 :
                                         selectedDeal.stage === "LOST" ? 0 :
                                         selectedDeal.stage === "UNDER_OFFER" ? 0.7 :
                                         selectedDeal.stage === "NEGOTIATION" ? 0.4 : 0.15
                                       )
-                                    )}
+                                    } />
                                   </span>
                                 </div>
                                 <div className="flex justify-between items-center py-2">
@@ -803,6 +906,123 @@ export default function Pipeline() {
                           </div>
                         );
                       })()}
+                    </div>
+                  </TabsContent>
+
+                  {/* Regulatory Tab — Saudi Compliance */}
+                  <TabsContent value="regulatory" className="p-6 mt-0">
+                    <div className="space-y-4">
+                      <h4 className="font-bold text-sm text-muted-foreground uppercase tracking-wider">المتطلبات التنظيمية</h4>
+
+                      {/* Commission Cap */}
+                      <Card>
+                        <CardContent className="p-4 space-y-3">
+                          <div className="flex items-center gap-2 text-sm font-bold">
+                            <DollarSign size={16} className="text-primary" />
+                            العمولة (نظام الوساطة العقارية)
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-border/50">
+                            <span className="text-muted-foreground text-sm">الحد النظامي</span>
+                            <span className="font-bold text-sm">2.5%</span>
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-border/50">
+                            <span className="text-muted-foreground text-sm">نسبة العمولة</span>
+                            <span className="font-bold text-sm">
+                              {(selectedDeal as any).commissionPercentage ? `${(selectedDeal as any).commissionPercentage}%` : "2.5% (افتراضي)"}
+                            </span>
+                          </div>
+                          {(selectedDeal as any).brokerageContractRef && (
+                            <div className="flex justify-between items-center py-2 border-b border-border/50">
+                              <span className="text-muted-foreground text-sm">عقد الوساطة</span>
+                              <span className="font-medium text-sm">{(selectedDeal as any).brokerageContractRef}</span>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      {/* RETT */}
+                      <Card>
+                        <CardContent className="p-4 space-y-3">
+                          <div className="flex items-center gap-2 text-sm font-bold">
+                            <FileText size={16} className="text-[hsl(var(--warning))]" />
+                            ضريبة التصرفات العقارية — RETT (ZATCA)
+                          </div>
+                          <div className="flex justify-between items-center py-2 border-b border-border/50">
+                            <span className="text-muted-foreground text-sm">نسبة الضريبة</span>
+                            <span className="font-bold text-sm">5%</span>
+                          </div>
+                          {(() => {
+                            const price = Number(selectedDeal.agreedPrice ?? selectedDeal.dealValue ?? 0);
+                            const isFirstHome = (selectedDeal as any).firstHomeExemption === true;
+                            const rettAmount = price * 0.05;
+                            const exemption = isFirstHome ? Math.min(price, 1000000) * 0.05 : 0;
+                            const netRett = Math.max(0, rettAmount - exemption);
+                            return (
+                              <>
+                                <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                  <span className="text-muted-foreground text-sm">مبلغ الضريبة</span>
+                                  <SarPrice value={rettAmount} className="font-bold text-[hsl(var(--warning))]" />
+                                </div>
+                                {isFirstHome && (
+                                  <>
+                                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                      <span className="text-muted-foreground text-sm">إعفاء المسكن الأول (سكني)</span>
+                                      <span className="font-bold text-primary">-<SarPrice value={exemption} /></span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                      <span className="text-muted-foreground text-sm">صافي الضريبة</span>
+                                      <SarPrice value={netRett} className="font-bold" />
+                                    </div>
+                                  </>
+                                )}
+                                {(selectedDeal as any).rettReference && (
+                                  <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                    <span className="text-muted-foreground text-sm">رقم مرجع ZATCA</span>
+                                    <span className="font-medium text-sm">{(selectedDeal as any).rettReference}</span>
+                                  </div>
+                                )}
+                                <div className="flex justify-between items-center py-2">
+                                  <span className="text-muted-foreground text-sm">حالة السداد</span>
+                                  <Badge variant={(selectedDeal as any).rettPaidDate ? "default" : "outline"}>
+                                    {(selectedDeal as any).rettPaidDate ? "مسدد" : "غير مسدد"}
+                                  </Badge>
+                                </div>
+                              </>
+                            );
+                          })()}
+                        </CardContent>
+                      </Card>
+
+                      {/* Ejar */}
+                      <Card>
+                        <CardContent className="p-4 space-y-3">
+                          <div className="flex items-center gap-2 text-sm font-bold">
+                            <Calendar size={16} className="text-accent-foreground" />
+                            عقد إيجار (منصة إيجار)
+                          </div>
+                          {(selectedDeal as any).ejarContractNumber ? (
+                            <>
+                              <div className="flex justify-between items-center py-2 border-b border-border/50">
+                                <span className="text-muted-foreground text-sm">رقم عقد إيجار</span>
+                                <span className="font-bold text-sm">{(selectedDeal as any).ejarContractNumber}</span>
+                              </div>
+                              {(selectedDeal as any).ejarRegistrationDate && (
+                                <div className="flex justify-between items-center py-2">
+                                  <span className="text-muted-foreground text-sm">تاريخ التسجيل</span>
+                                  <span className="font-medium text-sm">{formatAdminDate((selectedDeal as any).ejarRegistrationDate)}</span>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <p className="text-sm text-muted-foreground py-3 text-center">
+                              لم يتم ربط عقد إيجار بهذه الصفقة بعد
+                            </p>
+                          )}
+                          <div className="rounded-lg bg-accent p-3 text-xs text-accent-foreground">
+                            عقود الإيجار التي تزيد مدتها عن 3 أشهر يجب تسجيلها في منصة إيجار (ejar.sa) وتعتبر سندات تنفيذية.
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
                   </TabsContent>
 
@@ -839,6 +1059,67 @@ export default function Pipeline() {
               </Tabs>
             </>
           )}
+        </SheetContent>
+      </Sheet>
+
+      {/* ── Create Deal Sheet ──────────────────────────────────────── */}
+      <Sheet open={createDealOpen} onOpenChange={setCreateDealOpen}>
+        <SheetContent side="bottom">
+          <SheetHeader>
+            <SheetTitle>إنشاء صفقة جديدة</SheetTitle>
+            <SheetDescription>أدخل بيانات الصفقة الجديدة</SheetDescription>
+          </SheetHeader>
+          <Form {...createDealForm}>
+            <form onSubmit={createDealForm.handleSubmit((data) => createDealMutation.mutate(data))} className="space-y-4 py-4 max-w-lg mx-auto">
+              <FormField control={createDealForm.control} name="customerName" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>اسم العميل *</FormLabel>
+                  <FormControl><Input {...field} placeholder="مثال: محمد أحمد" /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={createDealForm.control} name="phone" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>رقم الهاتف</FormLabel>
+                    <FormControl><Input {...field} type="tel" dir="ltr" className="text-start" placeholder="05XXXXXXXX" /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={createDealForm.control} name="agreedPrice" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>قيمة الصفقة</FormLabel>
+                    <FormControl><Input {...field} type="number" placeholder="0" /></FormControl>
+                  </FormItem>
+                )} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={createDealForm.control} name="expectedCloseDate" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>تاريخ الإغلاق المتوقع</FormLabel>
+                    <FormControl><Input {...field} type="date" /></FormControl>
+                  </FormItem>
+                )} />
+                <FormField control={createDealForm.control} name="source" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>المصدر</FormLabel>
+                    <FormControl><Input {...field} placeholder="إحالة، موقع، واتساب..." /></FormControl>
+                  </FormItem>
+                )} />
+              </div>
+              <FormField control={createDealForm.control} name="notes" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>ملاحظات</FormLabel>
+                  <FormControl><Textarea {...field} rows={2} placeholder="تفاصيل إضافية..." /></FormControl>
+                </FormItem>
+              )} />
+              <SheetFooter>
+                <Button type="button" variant="outline" onClick={() => setCreateDealOpen(false)}>إلغاء</Button>
+                <Button type="submit" disabled={createDealMutation.isPending}>
+                  {createDealMutation.isPending ? "..." : "إنشاء الصفقة"}
+                </Button>
+              </SheetFooter>
+            </form>
+          </Form>
         </SheetContent>
       </Sheet>
     </div>

@@ -42,7 +42,7 @@ export function PageShell({
   const { dir } = useLanguage();
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <PageHeader title={title} subtitle={subtitle}>
         {actions}
       </PageHeader>

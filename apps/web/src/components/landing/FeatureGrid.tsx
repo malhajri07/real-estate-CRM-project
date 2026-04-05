@@ -31,10 +31,10 @@ export const FeatureGrid = ({ content, iconMap }: FeatureGridProps) => {
     // Always show features section, even if empty (will show default content)
 
     return (
-        <section id="features" className="py-32 relative overflow-hidden bg-white" dir="rtl">
+        <section id="features" className="py-32 relative overflow-hidden bg-white">
             {/* Background Decor */}
             <div className="absolute top-1/2 start-0 w-96 h-96 bg-primary/10 blur-[120px] rounded-full -translate-y-1/2" />
-            <div className="absolute bottom-0 end-0 w-80 h-80 bg-blue-400/5 blur-[100px] rounded-full" />
+            <div className="absolute bottom-0 end-0 w-80 h-80 bg-primary/60/5 blur-[100px] rounded-full" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 {/* Section Header */}
@@ -94,7 +94,7 @@ export const FeatureGrid = ({ content, iconMap }: FeatureGridProps) => {
                             >
                                 <Card className="relative rounded-3xl border-2 border-border hover:border-primary/20 shadow-lg hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 hover:-translate-y-2 bg-white">
                                     {/* Gradient Background on Hover */}
-                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-50/0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                                     {/* Accent Border */}
                                     <div className="absolute inset-0 rounded-3xl border-2 border-primary/20 group-hover:border-primary/20 transition-all duration-500" />

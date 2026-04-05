@@ -11,8 +11,8 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Plus, SlidersHorizontal, LayoutGrid, List } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Plus, SlidersHorizontal, LayoutGrid, List, Search, X } from "lucide-react";
 import { useLocation } from "wouter";
 import {
   Sheet, SheetContent, SheetHeader, SheetFooter,
@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/sheet";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Pagination, PaginationContent, PaginationItem,
@@ -31,7 +33,7 @@ import { apiDelete } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Property } from "@shared/types";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
-import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { PropertiesGridSkeleton } from "@/components/skeletons/page-skeletons";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import PageHeader from "@/components/ui/page-header";
@@ -55,10 +57,19 @@ export default function Properties() {
 
   const [statusFilter, setStatusFilter] = useState("all");
   const [propertyTypeFilter, setPropertyTypeFilter] = useState("all");
+  const [listingTypeFilter, setListingTypeFilter] = useState("all");
   const [cityFilter, setCityFilter] = useState("all");
+  const [districtFilter, setDistrictFilter] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [minBedrooms, setMinBedrooms] = useState("any");
+  const [minBathrooms, setMinBathrooms] = useState("any");
+  const [minArea, setMinArea] = useState("");
+  const [maxArea, setMaxArea] = useState("");
+  const [facadeFilter, setFacadeFilter] = useState("all");
+  const [legalStatusFilter, setLegalStatusFilter] = useState("all");
+  const [maxBuildingAge, setMaxBuildingAge] = useState("");
+  const [hasServicesFilter, setHasServicesFilter] = useState<string[]>([]);
   const [imageAvailabilityFilter, setImageAvailabilityFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
 
@@ -109,16 +120,42 @@ export default function Properties() {
     return Number.isFinite(parsed) ? parsed : null;
   };
 
-  const filteredProperties = (searchQuery.trim() ? searchResults : properties)?.filter(property => {
+  const filteredProperties = (searchQuery.trim() ? searchResults : properties)?.filter((property: any) => {
     if (statusFilter !== "all" && property.status !== statusFilter) return false;
-    if (propertyTypeFilter !== "all" && property.propertyType !== propertyTypeFilter) return false;
+    if (propertyTypeFilter !== "all" && property.propertyType !== propertyTypeFilter && property.type !== propertyTypeFilter) return false;
+    if (listingTypeFilter !== "all" && property.listingType !== listingTypeFilter) return false;
     if (cityFilter !== "all" && property.city !== cityFilter) return false;
+    if (districtFilter !== "all" && property.district !== districtFilter) return false;
+    // Price
     const price = toNumber(property.price);
-    const min = toNumber(minPrice);
-    const max = toNumber(maxPrice);
-    if (min !== null && (price === null || price < min)) return false;
-    if (max !== null && (price === null || price > max)) return false;
+    const pMin = toNumber(minPrice);
+    const pMax = toNumber(maxPrice);
+    if (pMin !== null && (price === null || price < pMin)) return false;
+    if (pMax !== null && (price === null || price > pMax)) return false;
+    // Bedrooms / Bathrooms
     if (minBedrooms && minBedrooms !== "any" && (!property.bedrooms || property.bedrooms < parseInt(minBedrooms))) return false;
+    if (minBathrooms && minBathrooms !== "any" && (!property.bathrooms || Number(property.bathrooms) < parseInt(minBathrooms))) return false;
+    // Area
+    const area = toNumber(property.areaSqm);
+    const aMin = toNumber(minArea);
+    const aMax = toNumber(maxArea);
+    if (aMin !== null && (area === null || area < aMin)) return false;
+    if (aMax !== null && (area === null || area > aMax)) return false;
+    // Facade
+    if (facadeFilter !== "all" && property.facadeDirection !== facadeFilter) return false;
+    // Legal status
+    if (legalStatusFilter !== "all" && property.legalStatus !== legalStatusFilter) return false;
+    // Building age
+    const ageLimit = toNumber(maxBuildingAge);
+    if (ageLimit !== null && (property.buildingAge == null || property.buildingAge > ageLimit)) return false;
+    // Services
+    if (hasServicesFilter.length > 0 && property.availableServices) {
+      const svcs = String(property.availableServices).toLowerCase();
+      if (!hasServicesFilter.every((s) => svcs.includes(s))) return false;
+    } else if (hasServicesFilter.length > 0) {
+      return false;
+    }
+    // Images
     if (imageAvailabilityFilter === "with-images" && (!property.photoUrls || property.photoUrls.length === 0)) return false;
     if (imageAvailabilityFilter === "without-images" && property.photoUrls && property.photoUrls.length > 0) return false;
     return true;
@@ -163,10 +200,19 @@ export default function Properties() {
   const resetFilters = () => {
     setStatusFilter("all");
     setPropertyTypeFilter("all");
+    setListingTypeFilter("all");
     setCityFilter("all");
+    setDistrictFilter("all");
     setMinPrice("");
     setMaxPrice("");
     setMinBedrooms("any");
+    setMinBathrooms("any");
+    setMinArea("");
+    setMaxArea("");
+    setFacadeFilter("all");
+    setLegalStatusFilter("all");
+    setMaxBuildingAge("");
+    setHasServicesFilter([]);
     setImageAvailabilityFilter("all");
     setSortBy("newest");
     setCurrentPage(1);
@@ -174,15 +220,30 @@ export default function Properties() {
 
   const uniqueCities = Array.from(new Set(properties?.map(p => p.city) || [])).filter(
     (city): city is string => typeof city === "string" && city.trim() !== "",
-  );
-  const uniquePropertyTypes = Array.from(new Set(properties?.map(p => p.propertyType) || [])).filter(
+  ).sort();
+  const uniqueDistricts = useMemo(() => {
+    const districts = properties
+      ?.filter((p: any) => cityFilter === "all" || p.city === cityFilter)
+      .map((p: any) => p.district)
+      .filter((d): d is string => typeof d === "string" && d.trim() !== "");
+    return Array.from(new Set(districts || [])).sort();
+  }, [properties, cityFilter]);
+  const uniquePropertyTypes = Array.from(new Set(properties?.map((p: any) => p.propertyType || p.type) || [])).filter(
     (type): type is string => typeof type === "string" && type.trim() !== "",
   );
+
+  const activeFilterCount = [
+    statusFilter !== "all", propertyTypeFilter !== "all", listingTypeFilter !== "all",
+    cityFilter !== "all", districtFilter !== "all", minPrice !== "", maxPrice !== "",
+    minBedrooms !== "any", minBathrooms !== "any", minArea !== "", maxArea !== "",
+    facadeFilter !== "all", legalStatusFilter !== "all", maxBuildingAge !== "",
+    hasServicesFilter.length > 0, imageAvailabilityFilter !== "all",
+  ].filter(Boolean).length;
 
   const formatCurrency = (amount: string | number | null | undefined) => {
     const numeric = toNumber(amount);
     if (numeric === null) return "—";
-    return new Intl.NumberFormat("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(numeric) + " ﷼";
+    return new Intl.NumberFormat("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(numeric) + "";
   };
 
   const handleDelete = (id: string) => {
@@ -218,7 +279,7 @@ export default function Properties() {
 
   if (isError) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <QueryErrorFallback message={t("properties.load_error") || "Failed to load properties."} onRetry={() => refetch()} />
       </div>
     );
@@ -226,73 +287,120 @@ export default function Properties() {
 
   if (isLoading || showSkeleton) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader title={t("nav.properties") || "العقارات"} />
-        <TableSkeleton rows={6} cols={5} />
+        <PropertiesGridSkeleton />
       </div>
     );
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <PageHeader title={t("nav.properties") || "العقارات"} />
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between mb-4">
-            <CardTitle>
-              جميع العقارات ({allProperties?.length || 0})
-              {totalPages > 1 && ` - صفحة ${currentPage} من ${totalPages}`}
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <ToggleGroup
-                type="single"
-                value={viewMode}
-                onValueChange={(value) => { if (value) setViewMode(value as "cards" | "table"); }}
-                variant="outline"
-                size="sm"
-              >
-                <ToggleGroupItem value="cards" aria-label="عرض البطاقات">
-                  <LayoutGrid size={16} />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="table" aria-label="عرض الجدول">
-                  <List size={16} />
-                </ToggleGroupItem>
-              </ToggleGroup>
-
-              <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
-                <SlidersHorizontal size={16} className="me-2" />
-                الفلاتر
+      {/* Search + Toolbar */}
+      <Card className="p-3">
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="ابحث بالعنوان، المدينة، أو الحي..."
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              className="ps-9 border-0 bg-transparent shadow-none focus-visible:ring-0"
+            />
+            {searchQuery && (
+              <Button variant="ghost" size="icon" className="absolute end-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setSearchQuery("")}>
+                <X className="h-4 w-4" />
               </Button>
-              <Button onClick={() => setAddPropertyDrawerOpen(true)}>
-                <Plus className="me-2" size={16} />
-                إضافة عقار
-              </Button>
-            </div>
+            )}
           </div>
 
-          {showFilters && (
-            <PropertiesFilters
-              statusFilter={statusFilter}
-              onStatusFilterChange={(v) => { setStatusFilter(v); handleFilterChange(); }}
-              propertyTypeFilter={propertyTypeFilter}
-              onPropertyTypeFilterChange={(v) => { setPropertyTypeFilter(v); handleFilterChange(); }}
-              cityFilter={cityFilter}
-              onCityFilterChange={(v) => { setCityFilter(v); handleFilterChange(); }}
-              imageAvailabilityFilter={imageAvailabilityFilter}
-              onImageAvailabilityFilterChange={(v) => { setImageAvailabilityFilter(v); handleFilterChange(); }}
-              sortBy={sortBy}
-              onSortByChange={(v) => { setSortBy(v); handleFilterChange(); }}
-              minPrice={minPrice}
-              onMinPriceChange={(v) => { setMinPrice(v); handleFilterChange(); }}
-              maxPrice={maxPrice}
-              onMaxPriceChange={(v) => { setMaxPrice(v); handleFilterChange(); }}
-              minBedrooms={minBedrooms}
-              onMinBedroomsChange={(v) => { setMinBedrooms(v); handleFilterChange(); }}
-              uniqueCities={uniqueCities}
-              uniquePropertyTypes={uniquePropertyTypes}
-              onResetFilters={resetFilters}
-            />
-          )}
+          <ToggleGroup type="single" value={viewMode} onValueChange={(v) => { if (v) setViewMode(v as "cards" | "table"); }} variant="outline" size="sm">
+            <ToggleGroupItem value="cards" aria-label="بطاقات"><LayoutGrid size={16} /></ToggleGroupItem>
+            <ToggleGroupItem value="table" aria-label="جدول"><List size={16} /></ToggleGroupItem>
+          </ToggleGroup>
+
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setShowFilters(true)}>
+            <SlidersHorizontal size={16} />
+            الفلاتر
+            {activeFilterCount > 0 && <Badge variant="default" className="text-[10px] px-1.5 h-5">{activeFilterCount}</Badge>}
+          </Button>
+
+          <Button onClick={() => setAddPropertyDrawerOpen(true)} size="sm">
+            <Plus className="me-1.5" size={16} />
+            إضافة عقار
+          </Button>
+        </div>
+      </Card>
+
+      {/* Active filter chips */}
+      {activeFilterCount > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          {statusFilter !== "all" && <Badge variant="secondary" className="gap-1">{statusFilter} <X className="h-3 w-3 cursor-pointer" onClick={() => { setStatusFilter("all"); handleFilterChange(); }} /></Badge>}
+          {cityFilter !== "all" && <Badge variant="secondary" className="gap-1">{cityFilter} <X className="h-3 w-3 cursor-pointer" onClick={() => { setCityFilter("all"); handleFilterChange(); }} /></Badge>}
+          {districtFilter !== "all" && <Badge variant="secondary" className="gap-1">{districtFilter} <X className="h-3 w-3 cursor-pointer" onClick={() => { setDistrictFilter("all"); handleFilterChange(); }} /></Badge>}
+          {propertyTypeFilter !== "all" && <Badge variant="secondary" className="gap-1">{propertyTypeFilter} <X className="h-3 w-3 cursor-pointer" onClick={() => { setPropertyTypeFilter("all"); handleFilterChange(); }} /></Badge>}
+          {legalStatusFilter !== "all" && <Badge variant="secondary" className="gap-1">{legalStatusFilter === "FREE" ? "صك حر" : legalStatusFilter === "MORTGAGED" ? "مرهون" : legalStatusFilter} <X className="h-3 w-3 cursor-pointer" onClick={() => { setLegalStatusFilter("all"); handleFilterChange(); }} /></Badge>}
+          {minPrice && <Badge variant="secondary" className="gap-1">من {Number(minPrice).toLocaleString()} <X className="h-3 w-3 cursor-pointer" onClick={() => { setMinPrice(""); handleFilterChange(); }} /></Badge>}
+          {maxPrice && <Badge variant="secondary" className="gap-1">إلى {Number(maxPrice).toLocaleString()} <X className="h-3 w-3 cursor-pointer" onClick={() => { setMaxPrice(""); handleFilterChange(); }} /></Badge>}
+          <Button variant="ghost" size="sm" className="h-6 text-xs text-destructive gap-1" onClick={resetFilters}><X className="h-3 w-3" /> مسح الكل</Button>
+          <span className="ms-auto text-xs text-muted-foreground">{allProperties.length} عقار</span>
+        </div>
+      )}
+
+      {/* Filter Sheet */}
+      <PropertiesFilters
+        open={showFilters}
+        onOpenChange={setShowFilters}
+        statusFilter={statusFilter}
+        onStatusFilterChange={(v) => { setStatusFilter(v); handleFilterChange(); }}
+        propertyTypeFilter={propertyTypeFilter}
+        onPropertyTypeFilterChange={(v) => { setPropertyTypeFilter(v); handleFilterChange(); }}
+        listingTypeFilter={listingTypeFilter}
+        onListingTypeFilterChange={(v) => { setListingTypeFilter(v); handleFilterChange(); }}
+        cityFilter={cityFilter}
+        onCityFilterChange={(v) => { setCityFilter(v); setDistrictFilter("all"); handleFilterChange(); }}
+        districtFilter={districtFilter}
+        onDistrictFilterChange={(v) => { setDistrictFilter(v); handleFilterChange(); }}
+        imageAvailabilityFilter={imageAvailabilityFilter}
+        onImageAvailabilityFilterChange={(v) => { setImageAvailabilityFilter(v); handleFilterChange(); }}
+        sortBy={sortBy}
+        onSortByChange={(v) => { setSortBy(v); handleFilterChange(); }}
+        minPrice={minPrice}
+        onMinPriceChange={(v) => { setMinPrice(v); handleFilterChange(); }}
+        maxPrice={maxPrice}
+        onMaxPriceChange={(v) => { setMaxPrice(v); handleFilterChange(); }}
+        minBedrooms={minBedrooms}
+        onMinBedroomsChange={(v) => { setMinBedrooms(v); handleFilterChange(); }}
+        minBathrooms={minBathrooms}
+        onMinBathroomsChange={(v) => { setMinBathrooms(v); handleFilterChange(); }}
+        minArea={minArea}
+        onMinAreaChange={(v) => { setMinArea(v); handleFilterChange(); }}
+        maxArea={maxArea}
+        onMaxAreaChange={(v) => { setMaxArea(v); handleFilterChange(); }}
+        facadeFilter={facadeFilter}
+        onFacadeFilterChange={(v) => { setFacadeFilter(v); handleFilterChange(); }}
+        legalStatusFilter={legalStatusFilter}
+        onLegalStatusFilterChange={(v) => { setLegalStatusFilter(v); handleFilterChange(); }}
+        maxBuildingAge={maxBuildingAge}
+        onMaxBuildingAgeChange={(v) => { setMaxBuildingAge(v); handleFilterChange(); }}
+        hasServicesFilter={hasServicesFilter}
+        onHasServicesFilterChange={(v) => { setHasServicesFilter(v); handleFilterChange(); }}
+        uniqueCities={uniqueCities}
+        uniqueDistricts={uniqueDistricts}
+        uniquePropertyTypes={uniquePropertyTypes}
+        activeFilterCount={activeFilterCount}
+        onResetFilters={resetFilters}
+      />
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>
+              جميع العقارات ({allProperties?.length || 0})
+              {totalPages > 1 && ` — صفحة ${currentPage} من ${totalPages}`}
+            </CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
           {!displayProperties || displayProperties.length === 0 ? (

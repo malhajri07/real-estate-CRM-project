@@ -601,7 +601,7 @@ export default function UnverifiedListingPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-background font-sans text-foreground overflow-x-hidden" dir={dir}>
+      <div className="min-h-screen bg-background font-sans text-foreground overflow-x-hidden">
         <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
         <PublicHeader />
 
@@ -633,7 +633,7 @@ export default function UnverifiedListingPage() {
 
               {propertyId && (
                 <div className="mb-10 inline-block bg-primary/5 border border-primary/10 rounded-2xl px-8 py-4">
-                  <p className="text-sm font-semibold text-foreground mb-1">رقم الإعلان الخاص بك</p>
+                  <p className="text-sm font-bold text-foreground mb-1">رقم الإعلان الخاص بك</p>
                   <p className="text-3xl font-bold text-primary font-mono tracking-widest">{propertyId}</p>
                 </div>
               )}
@@ -670,7 +670,7 @@ export default function UnverifiedListingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background font-sans text-foreground overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-background font-sans text-foreground overflow-x-hidden">
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
@@ -719,7 +719,7 @@ export default function UnverifiedListingPage() {
                       >
                         <div
                           className={cn(
-                            "flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold transition-all border-2",
+                            "flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold transition-all border-2",
                             isCompleted
                               ? "bg-primary text-primary-foreground border-primary"
                               : isCurrent
@@ -736,7 +736,7 @@ export default function UnverifiedListingPage() {
                         <div className="hidden md:block">
                           <div
                             className={cn(
-                              "text-sm font-semibold",
+                              "text-sm font-bold",
                               isCurrent || isCompleted ? "text-primary" : "text-muted-foreground"
                             )}
                           >
@@ -1029,7 +1029,7 @@ export default function UnverifiedListingPage() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-sm font-medium">
-                                السعر (﷼) <span className="text-destructive">*</span>
+                                السعر <span className="text-destructive">*</span>
                               </FormLabel>
                               <FormControl>
                                 <Input
@@ -1689,7 +1689,7 @@ export default function UnverifiedListingPage() {
                       <div className="rounded-2xl border-2 border-dashed border-border bg-muted/30 p-6">
                         <div className="flex items-center justify-between mb-4">
                           <div>
-                            <h4 className="font-semibold text-foreground">صور العقار</h4>
+                            <h4 className="font-bold text-foreground">صور العقار</h4>
                             <p className="text-sm text-muted-foreground">
                               يمكن رفع حتى {MAX_IMAGE_COUNT} صورة، إجمالي الحجم أقل من {MAX_IMAGE_TOTAL_SIZE_BYTES / (1024 * 1024)} ميجابايت
                             </p>

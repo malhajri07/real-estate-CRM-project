@@ -98,23 +98,23 @@ interface ActivityConfig {
 const ACTIVITY_CONFIGS: Record<string, ActivityConfig> = {
   call: {
     icon: Phone,
-    color: "text-blue-600",
-    bgColor: "bg-blue-100",
-    borderColor: "border-blue-300",
+    color: "text-accent-foreground",
+    bgColor: "bg-accent",
+    borderColor: "border-primary/30",
     label: "مكالمة",
   },
   email: {
     icon: Mail,
-    color: "text-emerald-600",
-    bgColor: "bg-emerald-100",
-    borderColor: "border-emerald-300",
+    color: "text-primary",
+    bgColor: "bg-primary/15",
+    borderColor: "border-primary/30",
     label: "بريد إلكتروني",
   },
   meeting: {
     icon: Users,
-    color: "text-purple-600",
-    bgColor: "bg-purple-100",
-    borderColor: "border-purple-300",
+    color: "text-secondary-foreground",
+    bgColor: "bg-secondary",
+    borderColor: "border-secondary-foreground/30",
     label: "اجتماع",
   },
   note: {

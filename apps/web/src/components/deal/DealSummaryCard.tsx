@@ -88,7 +88,7 @@ export interface DealSummaryCardProps {
 
 function formatSAR(value?: number): string {
   if (value === undefined || value === null) return "غير محدد";
-  return `${value.toLocaleString("ar-SA")} ر.س`;
+  return `${value.toLocaleString("ar-SA")}`;
 }
 
 function formatDate(iso?: string): string {
@@ -178,16 +178,16 @@ function ProbabilityMeter({ probability }: { probability: number }) {
   const clamped = Math.min(100, Math.max(0, probability));
   const color =
     clamped >= 70
-      ? "bg-emerald-500"
+      ? "bg-primary/100"
       : clamped >= 40
-        ? "bg-amber-500"
-        : "bg-red-500";
+        ? "bg-[hsl(var(--warning)/0.1)]0"
+        : "bg-destructive/100";
   const textColor =
     clamped >= 70
-      ? "text-emerald-600"
+      ? "text-primary"
       : clamped >= 40
-        ? "text-amber-600"
-        : "text-red-600";
+        ? "text-[hsl(var(--warning))]"
+        : "text-destructive";
 
   return (
     <div className="space-y-1.5">
@@ -411,7 +411,7 @@ export function DealSummaryCard({
             icon={Clock}
             label="الوقت المتبقي"
             value={closeDateInfo.label}
-            valueClassName={closeDateInfo.isOverdue ? "text-red-600" : undefined}
+            valueClassName={closeDateInfo.isOverdue ? "text-destructive" : undefined}
           />
           {deal.commission !== undefined && (
             <InfoRow

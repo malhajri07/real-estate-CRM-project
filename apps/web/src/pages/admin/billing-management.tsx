@@ -90,13 +90,13 @@ function InvoiceTable({ invoices, isLoading }: { invoices: Invoice[]; isLoading:
                 </div>
             </div>
             <Table className="text-end">
-                <TableHeader className="bg-muted/30">
+                <TableHeader className="bg-muted/50">
                     <TableRow className="border-border">
-                        <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">رقم الفاتورة</TableHead>
-                        <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">العميل</TableHead>
-                        <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المبلغ</TableHead>
-                        <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">التاريخ</TableHead>
-                        <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الحالة</TableHead>
+                        <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">رقم الفاتورة</TableHead>
+                        <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">العميل</TableHead>
+                        <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المبلغ</TableHead>
+                        <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">التاريخ</TableHead>
+                        <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الحالة</TableHead>
                         <TableHead className="w-[120px]"></TableHead>
                     </TableRow>
                 </TableHeader>

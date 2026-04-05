@@ -293,21 +293,31 @@ router.post("/", authenticateToken, async (req, res) => {
 });
 
 // Update a listing
-router.put("/:id", async (req, res) => {
+router.put("/:id", authenticateToken, async (req, res) => {
   try {
-    const updated = await storage.updateProperty(req.params.id, req.body);
+    const body = req.body;
+    if (!body || Object.keys(body).length === 0) {
+      return res.status(400).json({ message: "Request body is required" });
+    }
+    const updated = await storage.updateProperty(req.params.id, body);
     if (!updated) return res.status(404).json({ message: "Listing not found" });
     res.json(updated);
   } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ message: "Invalid data", errors: err.errors });
+    }
     console.error("Error updating listing:", err);
     res.status(500).json({ message: "Failed to update listing" });
   }
 });
 
 // Update status/moderation
-router.patch("/:id/status", async (req, res) => {
+router.patch("/:id/status", authenticateToken, async (req, res) => {
   try {
     const { status, moderationStatus } = req.body || {};
+    if (!status && !moderationStatus) {
+      return res.status(400).json({ message: "status or moderationStatus is required" });
+    }
     const updated = await storage.updateProperty(req.params.id, { status, moderationStatus } as any);
     if (!updated) return res.status(404).json({ message: "Listing not found" });
     res.json(updated);
@@ -318,7 +328,7 @@ router.patch("/:id/status", async (req, res) => {
 });
 
 // Delete listing
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     await storage.deleteProperty(req.params.id);
     res.status(204).send();

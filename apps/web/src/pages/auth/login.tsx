@@ -71,7 +71,7 @@ export default function RBACLoginPage() {
   // Loading Screen
   if ((user && !isAuthenticating) || isRedirecting) {
     return (
-      <div className="min-h-screen bg-muted/30 flex items-center justify-center" dir={dir}>
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center">
         <div className="text-center space-y-4">
           <Spinner size="xl" className="text-primary mx-auto" />
           <p className="text-sm font-medium text-muted-foreground animate-pulse">
@@ -104,12 +104,12 @@ export default function RBACLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-4 relative" dir={dir}>
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-4 relative">
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary/10 to-transparent opacity-60" />
         <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute top-[20%] -left-[10%] w-[400px] h-[400px] rounded-full bg-blue-100/30 blur-3xl" />
+        <div className="absolute top-[20%] -left-[10%] w-[400px] h-[400px] rounded-full bg-accent/30 blur-3xl" />
       </div>
 
       {/* Top Bar */}

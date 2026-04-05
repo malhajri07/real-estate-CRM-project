@@ -79,7 +79,7 @@ export default function ComparePage() {
 
   if (isLoading || showSkeleton) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader title={t("مقارنة العقارات")} subtitle={t("قارن بين العقارات المختلفة")} />
         <CompareSkeleton />
       </div>
@@ -88,14 +88,14 @@ export default function ComparePage() {
 
   if (error) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <QueryErrorFallback message={error} onRetry={load} />
       </div>
     );
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <PageHeader title={t("مقارنة العقارات")} subtitle={t("قارن بين العقارات المختلفة")} />
       <section className="space-y-6">
         {items.length === 0 ? (
@@ -110,7 +110,7 @@ export default function ComparePage() {
                 <CardContent className="p-6 space-y-2">
                   <div className="text-sm font-bold">{p.title}</div>
                   <div className="text-xs text-muted-foreground">{p.address}، {p.city}</div>
-                  <div className="text-lg font-bold text-primary">{p.price} ﷼</div>
+                  <div className="text-lg font-bold text-primary">{p.price}</div>
                   <div className="text-xs text-muted-foreground">النوع: {p.propertyType || '-'}</div>
                   <div className="text-xs text-muted-foreground">الغرف: {p.bedrooms ?? '-'}</div>
                   <div className="text-xs text-muted-foreground">الحمامات: {typeof p.bathrooms === 'string' ? p.bathrooms : (p.bathrooms ?? '-')}</div>

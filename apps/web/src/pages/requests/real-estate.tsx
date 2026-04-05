@@ -336,7 +336,7 @@ export default function RealEstateRequestsPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden" dir={dir}>
+      <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden">
         <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
         <PublicHeader />
 
@@ -368,7 +368,7 @@ export default function RealEstateRequestsPage() {
 
               {seekerId && (
                 <div className="mb-10 inline-block bg-primary/10 border border-primary/20 rounded-2xl px-8 py-4">
-                  <p className="text-sm font-semibold text-primary mb-1">رقم الطلب الخاص بك</p>
+                  <p className="text-sm font-bold text-primary mb-1">رقم الطلب الخاص بك</p>
                   <p className="text-3xl font-bold text-primary font-mono tracking-widest">{seekerId}</p>
                 </div>
               )}
@@ -398,7 +398,7 @@ export default function RealEstateRequestsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden">
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
@@ -447,7 +447,7 @@ export default function RealEstateRequestsPage() {
                       name="firstName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">الاسم الأول <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">الاسم الأول <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
                           </FormControl>
@@ -461,7 +461,7 @@ export default function RealEstateRequestsPage() {
                       name="lastName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">اسم العائلة <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">اسم العائلة <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
                           </FormControl>
@@ -475,7 +475,7 @@ export default function RealEstateRequestsPage() {
                       name="mobileNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input
                               type="tel"
@@ -498,9 +498,9 @@ export default function RealEstateRequestsPage() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">البريد الإلكتروني <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">البريد الإلكتروني <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
-                            <Input type="email" className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end" dir="ltr" {...field} />
+                            <Input type="email" className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" dir="ltr" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -512,7 +512,7 @@ export default function RealEstateRequestsPage() {
                       name="nationality"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">الجنسية <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">الجنسية <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
                           </FormControl>
@@ -526,7 +526,7 @@ export default function RealEstateRequestsPage() {
                       name="age"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">العمر <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">العمر <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
                           </FormControl>
@@ -540,7 +540,7 @@ export default function RealEstateRequestsPage() {
                       name="monthlyIncome"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">الدخل الشهري (&#xFDFC;) <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">الدخل الشهري (&#xFDFC;) <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
                           </FormControl>
@@ -554,7 +554,7 @@ export default function RealEstateRequestsPage() {
                       name="gender"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">الجنس <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">الجنس <span className="text-destructive">*</span></FormLabel>
                           <Select value={field.value} onValueChange={field.onChange}>
                             <FormControl>
                               <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="اختر" /></SelectTrigger>
@@ -584,7 +584,7 @@ export default function RealEstateRequestsPage() {
                       name="typeOfProperty"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">نوع العقار <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">نوع العقار <span className="text-destructive">*</span></FormLabel>
                           <Select value={field.value} onValueChange={field.onChange}>
                             <FormControl>
                               <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="اختر نوع العقار" /></SelectTrigger>
@@ -605,7 +605,7 @@ export default function RealEstateRequestsPage() {
                       name="typeOfContract"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">نوع العقد <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">نوع العقد <span className="text-destructive">*</span></FormLabel>
                           <Select value={field.value} onValueChange={field.onChange}>
                             <FormControl>
                               <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"><SelectValue placeholder="شراء أم إيجار؟" /></SelectTrigger>
@@ -628,7 +628,7 @@ export default function RealEstateRequestsPage() {
                       name="numberOfRooms"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">عدد الغرف <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">عدد الغرف <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
                           </FormControl>
@@ -642,7 +642,7 @@ export default function RealEstateRequestsPage() {
                       name="numberOfBathrooms"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">عدد الحمامات <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">عدد الحمامات <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
                           </FormControl>
@@ -656,7 +656,7 @@ export default function RealEstateRequestsPage() {
                       name="numberOfLivingRooms"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">عدد صالات المعيشة <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">عدد صالات المعيشة <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
                           </FormControl>
@@ -693,7 +693,7 @@ export default function RealEstateRequestsPage() {
                       name="budgetSize"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm font-medium text-foreground/80">الميزانية المتاحة (&#xFDFC;) <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel className="text-sm font-medium text-foreground/80">الميزانية المتاحة (&#xFDFC;) <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input type="number" min={0} className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30" {...field} />
                           </FormControl>
@@ -751,7 +751,7 @@ export default function RealEstateRequestsPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-foreground/80">المدينة <span className="text-red-500">*</span></Label>
+                      <Label className="text-sm font-medium text-foreground/80">المدينة <span className="text-destructive">*</span></Label>
                       <Popover open={cityOpen} onOpenChange={setCityOpen}>
                         <PopoverTrigger asChild>
                           <Button variant="outline" role="combobox" aria-expanded={cityOpen} disabled={!watchRegionId} className={cn("w-full justify-between h-12 rounded-xl", !form.getValues("city") && "text-muted-foreground")}>

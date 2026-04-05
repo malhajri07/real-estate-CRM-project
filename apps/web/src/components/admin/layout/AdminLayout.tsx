@@ -61,7 +61,7 @@ export function AdminLayout({
     return (
         <SidebarProvider>
             <AdminSidebar
-                dir={dir}
+                dir={document.documentElement.dir as 'rtl' | 'ltr' || 'rtl'}
                 items={sidebarItems}
                 activeItem={activeItem}
                 expandedItems={expandedItems}
@@ -79,7 +79,7 @@ export function AdminLayout({
                     loading={isLoading}
                     userName={user?.name || user?.email}
                 />
-                <div className="flex-1 p-6 md:p-10" dir={dir}>
+                <div className="flex-1 p-6 md:p-10">
                     <div className="mx-auto w-full max-w-7xl">
                         {actions && (
                             <div className="mb-8 flex flex-wrap justify-end gap-3">

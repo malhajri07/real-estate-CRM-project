@@ -123,7 +123,7 @@ export function PropertyMap({ properties, activeProperty, className = "" }: Prop
       const title = property.title ? escapeHtml(property.title) : "بدون عنوان";
       const city = property.city ? escapeHtml(property.city) : "غير محدد";
       const formattedPrice = property.price
-        ? escapeHtml(`${Number(property.price).toLocaleString("en-US")} ﷼`)
+        ? escapeHtml(`${Number(property.price).toLocaleString("en-US")}`)
         : "بدون سعر";
 
       marker.bindPopup(

@@ -122,6 +122,14 @@ export class CommunityService {
               lastName: true,
               avatarUrl: true,
               organization: { select: { tradeName: true } },
+              agent_profiles: {
+                select: {
+                  falLicenseNumber: true,
+                  falLicenseType: true,
+                  falStatus: true,
+                  licenseNo: true,
+                },
+              },
             },
           },
           channel: {

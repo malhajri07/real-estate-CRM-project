@@ -165,7 +165,7 @@ export default function Notifications() {
 
   if (isError) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <QueryErrorFallback message={t("notifications.load_error") || "Failed to load notifications."} onRetry={() => refetch()} />
       </div>
     );
@@ -173,7 +173,7 @@ export default function Notifications() {
 
   if (isLoading || showSkeleton) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader title={t("nav.notifications") || "الإشعارات"} subtitle="إدارة الإشعارات والحملات والتواصل مع العملاء" />
         <NotificationsSkeleton />
       </div>
@@ -181,7 +181,7 @@ export default function Notifications() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <PageHeader title={t("nav.notifications") || "الإشعارات"} subtitle="إدارة الإشعارات والحملات والتواصل مع العملاء" />
         <section className="space-y-6">
           <Tabs defaultValue="customers" className="space-y-6">
@@ -233,7 +233,7 @@ export default function Notifications() {
                             />
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-2">
-                                <h4 className="font-semibold">
+                                <h4 className="font-bold">
                                   {lead.firstName} {lead.lastName}
                                 </h4>
                                 <Badge variant={getNotificationStatusVariant(lead.status)}>

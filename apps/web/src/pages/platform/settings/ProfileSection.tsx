@@ -8,7 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Users, Save, Upload, ChevronDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Users, Save, Upload, ChevronDown, ShieldCheck, Calendar, FileText, AlertTriangle, CheckCircle } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { apiGet } from "@/lib/apiClient";
+import { formatAdminDate } from "@/lib/formatters";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 
 const profileSchema = z.object({
@@ -45,6 +50,22 @@ export default function ProfileSection({
   isOpen,
   onOpenChange,
 }: ProfileSectionProps) {
+  // Fetch full user profile with agent_profiles (FAL data)
+  const { data: fullProfile } = useQuery<any>({
+    queryKey: ["/api/auth/user"],
+    queryFn: () => apiGet("/api/auth/user"),
+  });
+  const agentProfile = fullProfile?.agent_profiles;
+
+  const FAL_TYPE_LABELS: Record<string, string> = {
+    BROKERAGE_MARKETING: "وساطة وتسويق",
+    PROPERTY_MANAGEMENT: "إدارة أملاك",
+    FACILITY_MANAGEMENT: "إدارة مرافق",
+    AUCTION: "مزادات عقارية",
+    CONSULTING: "استشارات وتحليلات",
+    ADVERTISING: "إعلانات عقارية",
+  };
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -215,6 +236,64 @@ export default function ProfileSection({
                 </div>
               </form>
             </Form>
+            {/* ── FAL License Compliance Card ── */}
+            <Separator />
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={18} className="text-primary" />
+                <h3 className="font-bold text-sm">رخصة فال العقارية (REGA)</h3>
+              </div>
+
+              <Card className="border-primary/20">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold">حالة الترخيص</span>
+                    {agentProfile?.falLicenseNumber ? (
+                      <Badge variant="outline" className="gap-1 border-primary/30 text-primary">
+                        <CheckCircle size={12} />
+                        {agentProfile.falStatus === "VERIFIED" ? "موثّق" : agentProfile.falStatus === "EXPIRED" ? "منتهي" : "مسجّل"}
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="gap-1 border-[hsl(var(--warning)/0.3)] text-[hsl(var(--warning))]">
+                        <AlertTriangle size={12} />
+                        غير مسجّل
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">رقم رخصة فال</p>
+                      <p className="font-bold tabular-nums">{agentProfile?.falLicenseNumber || agentProfile?.licenseNo || "—"}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">نوع الرخصة</p>
+                      <p className="font-bold">{agentProfile?.falLicenseType ? FAL_TYPE_LABELS[agentProfile.falLicenseType] || agentProfile.falLicenseType : "—"}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1"><Calendar size={12} /> تاريخ الإصدار</p>
+                      <p className="font-bold">{agentProfile?.falIssuedAt ? formatAdminDate(agentProfile.falIssuedAt) : agentProfile?.licenseValidTo ? formatAdminDate(agentProfile.licenseValidTo) : "—"}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1"><Calendar size={12} /> تاريخ الانتهاء</p>
+                      <p className="font-bold">{agentProfile?.falExpiresAt ? formatAdminDate(agentProfile.falExpiresAt) : agentProfile?.licenseValidTo ? formatAdminDate(agentProfile.licenseValidTo) : "—"}</p>
+                    </div>
+                  </div>
+
+                  {!agentProfile?.falLicenseNumber && (
+                    <div className="rounded-lg bg-[hsl(var(--warning)/0.1)] p-3 text-xs text-[hsl(var(--warning))]">
+                      <p className="font-bold mb-1">تنبيه: يجب إدخال بيانات رخصة فال</p>
+                      <p>حسب نظام الهيئة العامة للعقار، يجب على كل وسيط عقاري تسجيل رخصة فال السارية.</p>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
+                    <FileText size={14} />
+                    <span>يمكنك الحصول على رخصة فال من <strong className="text-primary">rega.gov.sa</strong></span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </CardContent>
         </CollapsibleContent>
       </Card>

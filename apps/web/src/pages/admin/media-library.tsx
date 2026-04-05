@@ -174,7 +174,7 @@ export default function MediaLibrary() {
               size="sm"
               onClick={() => setViewMode("grid")}
             >
-              <Grid className="ml-2 h-4 w-4" />
+              <Grid className="ms-2 h-4 w-4" />
               شبكة
             </Button>
             <Button
@@ -182,13 +182,13 @@ export default function MediaLibrary() {
               size="sm"
               onClick={() => setViewMode("list")}
             >
-              <List className="ml-2 h-4 w-4" />
+              <List className="ms-2 h-4 w-4" />
               قائمة
             </Button>
             <label>
               <Button asChild>
                 <span>
-                  <Upload className="ml-2 h-4 w-4" />
+                  <Upload className="ms-2 h-4 w-4" />
                   رفع ملفات
                 </span>
               </Button>
@@ -316,7 +316,7 @@ export default function MediaLibrary() {
                       <div className="text-sm text-muted-foreground">
                         {formatFileSize(item.size)} • {item.mimeType}
                         {item.usageCount > 0 && (
-                          <span className="text-primary mr-2">
+                          <span className="text-primary me-2">
                             • مستخدم {item.usageCount} مرة
                           </span>
                         )}

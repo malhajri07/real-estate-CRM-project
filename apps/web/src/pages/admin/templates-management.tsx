@@ -179,7 +179,7 @@ export default function TemplatesManagement() {
         subtitle="قوالب البريد الإلكتروني والمقالات وصفحات الهبوط"
         actions={
           <Button onClick={handleCreate}>
-            <Plus className="ml-2 h-4 w-4" />
+            <Plus className="ms-2 h-4 w-4" />
             إنشاء قالب جديد
           </Button>
         }

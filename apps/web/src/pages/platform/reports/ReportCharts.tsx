@@ -1,7 +1,7 @@
 import { TrendingUp, Users, Building, BarChart3, PieChart, LineChart, Activity, DollarSign, Target, Eye, MapPin, Filter } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
-import { ChartTooltip } from "@/components/ui/chart-tooltip";
+import { ChartContainer, ChartTooltip as ShadcnTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { CHART_HEIGHT, CHART_COLORS } from "@/config/design-tokens";
 import {
   LineChart as RechartsLineChart,
@@ -45,13 +45,6 @@ export default function ReportCharts({
   formatCurrency,
   formatNumber,
 }: ReportChartsProps) {
-  const renderTooltip = (props: any) => (
-    <ChartTooltip
-      {...props}
-      formatter={(value: number) => formatCurrency(value)}
-    />
-  );
-
   return (
     <>
       {/* Overview Tab */}
@@ -65,18 +58,18 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <RechartsLineChart data={timeSeriesData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Legend />
                   <Line type="monotone" dataKey="leads" stroke={CHART_COLORS.primary} strokeWidth={2} />
-                  <Line type="monotone" dataKey="properties" stroke={CHART_COLORS.blue} strokeWidth={2} />
-                  <Line type="monotone" dataKey="deals" stroke={CHART_COLORS.green} strokeWidth={2} />
+                  <Line type="monotone" dataKey="properties" stroke={CHART_COLORS.secondary} strokeWidth={2} />
+                  <Line type="monotone" dataKey="deals" stroke={CHART_COLORS.tertiary} strokeWidth={2} />
                 </RechartsLineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -88,7 +81,7 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 {leadSourceChartData.length > 0 ? (
                   <RechartsPieChart>
                     <Pie
@@ -105,12 +98,12 @@ export default function ReportCharts({
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <ShadcnTooltip content={<ChartTooltipContent />} />
                   </RechartsPieChart>
                 ) : (
                   <div className="flex h-full items-center justify-center text-muted-foreground text-sm">لا توجد بيانات</div>
                 )}
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
@@ -124,15 +117,15 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <BarChart data={propertyTypeChartData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="value" fill={CHART_COLORS.primary} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -144,15 +137,15 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <BarChart data={dealStageData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="stage" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
-                  <Bar dataKey="count" fill={CHART_COLORS.blue} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="count" fill={CHART_COLORS.secondary} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
@@ -167,28 +160,28 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <BarChart
                   data={[
                     { stage: "عملاء جدد", count: (timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120, fill: CHART_COLORS.primary },
-                    { stage: "تم التواصل", count: Math.round(((timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120) * 0.65), fill: CHART_COLORS.blue },
+                    { stage: "تم التواصل", count: Math.round(((timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120) * 0.65), fill: CHART_COLORS.secondary },
                     { stage: "مؤهلون", count: Math.round(((timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120) * 0.35), fill: CHART_COLORS.amber },
                     { stage: "تفاوض", count: Math.round(((timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120) * 0.2), fill: CHART_COLORS.purple },
-                    { stage: "مغلقون", count: Math.round(((timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120) * 0.1), fill: CHART_COLORS.green },
+                    { stage: "مغلقون", count: Math.round(((timeSeriesData.reduce((s, d) => s + d.leads, 0)) || 120) * 0.1), fill: CHART_COLORS.tertiary },
                   ]}
                   layout="vertical"
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" />
                   <YAxis dataKey="stage" type="category" width={80} />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="count" fill={CHART_COLORS.primary}>
-                    {[CHART_COLORS.primary, CHART_COLORS.blue, CHART_COLORS.amber, CHART_COLORS.purple, CHART_COLORS.green].map((color, i) => (
+                    {[CHART_COLORS.primary, CHART_COLORS.secondary, CHART_COLORS.amber, CHART_COLORS.purple, CHART_COLORS.tertiary].map((color, i) => (
                       <Cell key={i} fill={color} />
                     ))}
                   </Bar>
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -201,7 +194,7 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <RechartsLineChart
                   data={timeSeriesData.map((d, i) => ({
                     ...d,
@@ -212,12 +205,12 @@ export default function ReportCharts({
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Legend />
                   <Line type="monotone" dataKey="views" name="المشاهدات" stroke={CHART_COLORS.purple} strokeWidth={2} />
-                  <Line type="monotone" dataKey="inquiries" name="الاستفسارات" stroke={CHART_COLORS.cyan} strokeWidth={2} />
+                  <Line type="monotone" dataKey="inquiries" name="الاستفسارات" stroke={CHART_COLORS.quaternary} strokeWidth={2} />
                 </RechartsLineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
@@ -231,12 +224,12 @@ export default function ReportCharts({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+            <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
               <BarChart
                 data={[
                   { city: "الرياض", listings: 45, color: CHART_COLORS.primary },
-                  { city: "جدة", listings: 32, color: CHART_COLORS.blue },
-                  { city: "الدمام", listings: 18, color: CHART_COLORS.green },
+                  { city: "جدة", listings: 32, color: CHART_COLORS.secondary },
+                  { city: "الدمام", listings: 18, color: CHART_COLORS.tertiary },
                   { city: "مكة", listings: 14, color: CHART_COLORS.amber },
                   { city: "المدينة", listings: 11, color: CHART_COLORS.purple },
                   { city: "الخبر", listings: 8, color: CHART_COLORS.red },
@@ -246,14 +239,14 @@ export default function ReportCharts({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
                 <YAxis dataKey="city" type="category" width={60} />
-                <Tooltip content={renderTooltip} />
+                <ShadcnTooltip content={<ChartTooltipContent />} />
                 <Bar dataKey="listings" fill={CHART_COLORS.primary} radius={[0, 4, 4, 0]}>
-                  {[CHART_COLORS.primary, CHART_COLORS.blue, CHART_COLORS.green, CHART_COLORS.amber, CHART_COLORS.purple, CHART_COLORS.red].map((color, i) => (
+                  {[CHART_COLORS.primary, CHART_COLORS.secondary, CHART_COLORS.tertiary, CHART_COLORS.amber, CHART_COLORS.purple, CHART_COLORS.red].map((color, i) => (
                     <Cell key={i} fill={color} />
                   ))}
                 </Bar>
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       </TabsContent>
@@ -269,15 +262,15 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <BarChart data={agentPerformanceData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="agent" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="deals" fill={CHART_COLORS.primary} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -289,15 +282,15 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <BarChart data={agentPerformanceData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="agent" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="conversion" fill={CHART_COLORS.amber} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
@@ -312,17 +305,17 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <BarChart data={agentPerformanceData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="agent" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Legend />
                   <Bar dataKey="deals" name="الصفقات" fill={CHART_COLORS.primary} />
-                  <Bar dataKey="revenue" name="الإيرادات" fill={CHART_COLORS.blue} />
+                  <Bar dataKey="revenue" name="الإيرادات" fill={CHART_COLORS.secondary} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -335,7 +328,7 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 {dealStageData.length > 0 ? (
                   <RechartsPieChart>
                     <Pie
@@ -356,12 +349,12 @@ export default function ReportCharts({
                         <Cell key={`cell-${index}`} fill={Object.values(CHART_COLORS)[index % Object.values(CHART_COLORS).length]} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <ShadcnTooltip content={<ChartTooltipContent />} />
                   </RechartsPieChart>
                 ) : (
                   <div className="flex h-full items-center justify-center text-muted-foreground text-sm">لا توجد بيانات</div>
                 )}
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
@@ -378,16 +371,16 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <AreaChart data={revenueData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Area type="monotone" dataKey="revenue" stackId="1" stroke={CHART_COLORS.primary} fill={CHART_COLORS.primary} />
-                  <Area type="monotone" dataKey="commission" stackId="1" stroke={CHART_COLORS.blue} fill={CHART_COLORS.blue} />
+                  <Area type="monotone" dataKey="commission" stackId="1" stroke={CHART_COLORS.secondary} fill={CHART_COLORS.secondary} />
                 </AreaChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -399,15 +392,15 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <BarChart data={agentPerformanceData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="agent" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="revenue" fill={CHART_COLORS.red} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
@@ -422,17 +415,17 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <AreaChart data={revenueData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Legend />
                   <Area type="monotone" dataKey="revenue" name="الإيرادات" stroke={CHART_COLORS.primary} fill={CHART_COLORS.primary} fillOpacity={0.3} />
-                  <Area type="monotone" dataKey="commission" name="العمولات" stroke={CHART_COLORS.green} fill={CHART_COLORS.green} fillOpacity={0.3} />
+                  <Area type="monotone" dataKey="commission" name="العمولات" stroke={CHART_COLORS.tertiary} fill={CHART_COLORS.tertiary} fillOpacity={0.3} />
                 </AreaChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -445,15 +438,15 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <BarChart data={revenueData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="deals" name="عدد الصفقات" fill={CHART_COLORS.purple} radius={[4, 4, 0, 0]} />
                 </BarChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>
@@ -467,17 +460,17 @@ export default function ReportCharts({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+            <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
               <BarChart data={dealStageData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="stage" />
                 <YAxis />
-                <Tooltip content={renderTooltip} />
+                <ShadcnTooltip content={<ChartTooltipContent />} />
                 <Legend />
-                <Bar dataKey="count" name="عدد الصفقات" fill={CHART_COLORS.blue} />
-                <Bar dataKey="value" name="قيمة الصفقات" fill={CHART_COLORS.green} />
+                <Bar dataKey="count" name="عدد الصفقات" fill={CHART_COLORS.secondary} />
+                <Bar dataKey="value" name="قيمة الصفقات" fill={CHART_COLORS.tertiary} />
               </BarChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </CardContent>
         </Card>
       </TabsContent>
@@ -493,19 +486,19 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <RechartsLineChart data={marketTrendsData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="quarter" />
                   <YAxis />
-                  <Tooltip content={renderTooltip} />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                   <Legend />
                   <Line type="monotone" dataKey="residential" stroke={CHART_COLORS.primary} strokeWidth={2} />
-                  <Line type="monotone" dataKey="commercial" stroke={CHART_COLORS.blue} strokeWidth={2} />
+                  <Line type="monotone" dataKey="commercial" stroke={CHART_COLORS.secondary} strokeWidth={2} />
                   <Line type="monotone" dataKey="industrial" stroke={CHART_COLORS.amber} strokeWidth={2} />
                   <Line type="monotone" dataKey="land" stroke={CHART_COLORS.red} strokeWidth={2} />
                 </RechartsLineChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
 
@@ -517,7 +510,7 @@ export default function ReportCharts({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+              <ChartContainer config={{} as ChartConfig} className="h-[300px] w-full">
                 <RechartsPieChart>
                   <Pie
                     data={propertyTypeChartData}
@@ -533,9 +526,9 @@ export default function ReportCharts({
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <ShadcnTooltip content={<ChartTooltipContent />} />
                 </RechartsPieChart>
-              </ResponsiveContainer>
+              </ChartContainer>
             </CardContent>
           </Card>
         </div>

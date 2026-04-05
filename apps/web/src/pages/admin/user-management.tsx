@@ -557,7 +557,7 @@ export default function UserManagement() {
             {/* Section: Personal Info */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 mb-2">
-                <div className="h-8 w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
+                <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary rounded-full" />
                 <h3 className="text-lg font-bold text-foreground">بيانات الهوية</h3>
               </div>
 
@@ -610,7 +610,7 @@ export default function UserManagement() {
                       type="email"
                       value={formState.email}
                       onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                      className="pe-10 bg-card/50 border-border focus:bg-card focus:border-primary/20 focus:ring-4 focus:ring-primary/30 transition-all h-11 rounded-xl shadow-sm text-end"
+                      className="pe-10 bg-card/50 border-border focus:bg-card focus:border-primary/20 focus:ring-4 focus:ring-primary/30 transition-all h-11 rounded-xl shadow-sm"
                       placeholder="example@domain.com"
                       dir="ltr"
                     />

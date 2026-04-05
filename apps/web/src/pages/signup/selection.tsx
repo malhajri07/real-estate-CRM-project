@@ -48,7 +48,7 @@ export default function SignupSelection() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       
@@ -102,7 +102,7 @@ export default function SignupSelection() {
                       </div>
                     </div>
 
-                    <div className="space-y-2 text-start">
+                    <div className="space-y-2">
                       <h3 className="text-2xl font-bold text-foreground group-hover:text-foreground/80 transition-colors">وسيط مستقل</h3>
                       <p className="text-muted-foreground leading-relaxed">
                         مصمم للأفراد والوسطاء المستقلين. ابدأ رحلتك في السوق العقاري مع أدوات احترافية لإدارة عملائك وعروضك.
@@ -123,19 +123,19 @@ export default function SignupSelection() {
                   onClick={handleCorporateSignup}
                   className="glass rounded-2xl p-8 md:p-10 h-full cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-white/40"
                 >
-                  <div className="absolute top-0 start-0 w-1 h-full bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute top-0 start-0 w-1 h-full bg-accent0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   <div className="flex flex-col h-full gap-6">
                     <div className="flex items-start justify-between">
-                      <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-300">
+                      <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center text-accent-foreground group-hover:scale-110 group-hover:bg-accent transition-all duration-300">
                         <Building2 className="w-8 h-8" strokeWidth={1.5} />
                       </div>
-                      <div className="w-10 h-10 rounded-full bg-muted/30 flex items-center justify-center text-muted-foreground/70 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                      <div className="w-10 h-10 rounded-full bg-muted/30 flex items-center justify-center text-muted-foreground/70 group-hover:bg-primary group-hover:text-white transition-all duration-300">
                         <ArrowRight className={cn("w-5 h-5", dir === 'rtl' ? "rotate-180" : "")} />
                       </div>
                     </div>
 
-                    <div className="space-y-2 text-start">
+                    <div className="space-y-2">
                       <h3 className="text-2xl font-bold text-foreground group-hover:text-foreground/80 transition-colors">منشأة عقارية</h3>
                       <p className="text-muted-foreground leading-relaxed">
                         حل متكامل للشركات والمكاتب العقارية. إدارة صلاحيات الفريق، متابعة الأداء، وتقارير تفصيلية متقدمة.
@@ -143,8 +143,8 @@ export default function SignupSelection() {
                     </div>
 
                     <div className="mt-auto pt-4 flex flex-wrap gap-2">
-                      <span className="px-3 py-1 rounded-lg bg-blue-50/50 text-blue-700 text-xs font-medium border border-blue-100/50">إدارة فريق</span>
-                      <span className="px-3 py-1 rounded-lg bg-blue-50/50 text-blue-700 text-xs font-medium border border-blue-100/50">تقارير أداء</span>
+                      <span className="px-3 py-1 rounded-lg bg-accent/50 text-accent-foreground text-xs font-medium border border-primary/15/50">إدارة فريق</span>
+                      <span className="px-3 py-1 rounded-lg bg-accent/50 text-accent-foreground text-xs font-medium border border-primary/15/50">تقارير أداء</span>
                     </div>
                   </div>
                 </div>

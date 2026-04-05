@@ -24,7 +24,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
     if (!content) {
         console.error('[HeroSection] No content provided');
         return (
-            <section id="home" className="relative min-h-screen flex items-center justify-center pt-24 pb-20" dir={dir}>
+            <section id="home" className="relative min-h-screen flex items-center justify-center pt-24 pb-20">
                 <div className="text-center">
                     <h1 className="text-4xl font-black text-foreground mb-4">منصة إدارة العقارات الذكية</h1>
                     <p className="text-xl text-muted-foreground mb-8">أداة متكاملة لإدارة عملياتك العقارية بكفاءة واحترافية</p>
@@ -38,7 +38,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
     }
 
     return (
-        <section id="home" className="relative min-h-screen flex items-center pt-24 pb-20 overflow-hidden" dir={dir} style={{ minHeight: '100vh' }}>
+        <section id="home" className="relative min-h-screen flex items-center pt-24 pb-20 overflow-hidden" style={{ minHeight: '100vh' }}>
             {/* Modern Background with Gradient Mesh */}
             <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-primary/10" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.1),transparent_50%)]" />
@@ -70,7 +70,7 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                     ease: "easeInOut",
                     delay: 1
                 }}
-                className="absolute bottom-20 start-20 w-80 h-80 bg-blue-400/20 blur-[100px] rounded-full"
+                className="absolute bottom-20 start-20 w-80 h-80 bg-primary/60/20 blur-[100px] rounded-full"
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
@@ -190,15 +190,15 @@ export const HeroSection = ({ content, onLogin, onSignUp }: HeroSectionProps) =>
                         className="relative lg:h-[650px] flex items-center justify-center"
                     >
                         {/* Glow Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-blue-400/20 blur-3xl rounded-full scale-75 animate-pulse" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-primary/60/20 blur-3xl rounded-full scale-75 animate-pulse" />
 
                         {/* Main Dashboard Card - Modern Glass Design */}
                         <div className="relative w-full max-w-lg glass rounded-3xl p-6 border border-white/60 shadow-2xl backdrop-blur-xl bg-white/80">
                             {/* Browser Chrome */}
                             <div className="flex items-center gap-2 mb-6 px-3">
-                                <div className="w-3 h-3 rounded-full bg-red-400" />
-                                <div className="w-3 h-3 rounded-full bg-yellow-400" />
-                                <div className="w-3 h-3 rounded-full bg-green-400" />
+                                <div className="w-3 h-3 rounded-full bg-destructive/60" />
+                                <div className="w-3 h-3 rounded-full bg-[hsl(var(--warning))]" />
+                                <div className="w-3 h-3 rounded-full bg-primary/60" />
                                 <div className="flex-1 ms-4 h-7 bg-muted/50 rounded-lg" />
                             </div>
 

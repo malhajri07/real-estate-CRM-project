@@ -146,7 +146,7 @@ export default function Settings() {
 
   if (pageLoading || showSkeleton) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader title={t("الإعدادات")} subtitle={t("إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد")} />
         <SettingsSkeleton />
       </div>
@@ -154,7 +154,7 @@ export default function Settings() {
   }
 
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <section className="space-y-6">
         <PageHeader title={t("الإعدادات")} subtitle={t("إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد")}>
           <Button size="sm" onClick={handleAccountSave}>

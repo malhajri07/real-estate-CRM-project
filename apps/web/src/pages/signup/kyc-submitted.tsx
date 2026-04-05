@@ -28,7 +28,7 @@ export default function KYCSubmitted() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden">
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
@@ -63,9 +63,9 @@ export default function KYCSubmitted() {
                 شكراً لإرسال بيانات شركتكم. بدأ فريقنا الآن بمراجعة الطلب وسنتواصل معكم فور اكتمال الخطوات المطلوبة لضمان جودة الخدمة.
               </p>
 
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 text-start">
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 <div className="rounded-2xl border border-primary/20 bg-primary/10 p-6">
-                  <h3 className="text-lg font-semibold text-primary mb-4 flex items-center gap-2">
+                  <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-primary/10" />
                     مراحل التحقق
                   </h3>
@@ -89,16 +89,16 @@ export default function KYCSubmitted() {
                   <div className="flex-1 rounded-2xl border border-border bg-card/50 p-6 hover:border-primary/20 transition-colors">
                     <div className="mb-2 flex items-center gap-3 text-primary">
                       <Mail className="h-5 w-5" />
-                      <span className="font-semibold">للاستفسارات العاجلة</span>
+                      <span className="font-bold">للاستفسارات العاجلة</span>
                     </div>
                     <p className="text-muted-foreground text-sm">info@aqaraty.sa</p>
                   </div>
                   <div className="flex-1 rounded-2xl border border-border bg-card/50 p-6 hover:border-primary/20 transition-colors">
                     <div className="mb-2 flex items-center gap-3 text-primary">
                       <Phone className="h-5 w-5" />
-                      <span className="font-semibold">الدعم المباشر</span>
+                      <span className="font-bold">الدعم المباشر</span>
                     </div>
-                    <p className="text-muted-foreground text-sm text-start" dir="ltr">+966 50 123 4567</p>
+                    <p className="text-muted-foreground text-sm" dir="ltr">+966 50 123 4567</p>
                   </div>
                 </div>
               </div>

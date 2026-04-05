@@ -286,13 +286,13 @@ export default function OrganizationManagement() {
 
             <div className="overflow-hidden rounded-2xl border border-border bg-white/40">
               <Table>
-                <TableHeader className="bg-muted/30">
+                <TableHeader className="bg-muted/50">
                   <TableRow className="border-border">
-                    <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المنظمة</TableHead>
-                    <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">النوع</TableHead>
-                    <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المستخدمين</TableHead>
-                    <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الاشتراك</TableHead>
-                    <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الحالة</TableHead>
+                    <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المنظمة</TableHead>
+                    <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">النوع</TableHead>
+                    <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المستخدمين</TableHead>
+                    <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الاشتراك</TableHead>
+                    <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الحالة</TableHead>
                     <TableHead className="text-center text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">تحكم</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -392,14 +392,14 @@ export default function OrganizationManagement() {
 
       {/* Create Organization Sheet */}
       <Sheet open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <SheetContent side="bottom" dir="rtl">
+        <SheetContent side="bottom">
           <SheetHeader className="text-end">
             <SheetTitle>إضافة منظمة جديدة</SheetTitle>
             <SheetDescription>
               إضافة منظمة جديدة إلى النظام
             </SheetDescription>
           </SheetHeader>
-          <div className="space-y-4 text-end">
+          <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="org-name">اسم المنظمة <span className="text-destructive">*</span></Label>
@@ -491,13 +491,13 @@ export default function OrganizationManagement() {
           if (!open) setEditForm(null);
         }}
       >
-        <SheetContent side="bottom" dir="rtl">
+        <SheetContent side="bottom">
           <SheetHeader className="text-end">
             <SheetTitle>تعديل المنظمة</SheetTitle>
             <SheetDescription>تعديل بيانات المنظمة</SheetDescription>
           </SheetHeader>
           {editForm && (
-            <div className="space-y-4 text-end">
+            <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit-org-name">اسم المنظمة <span className="text-destructive">*</span></Label>
@@ -581,7 +581,7 @@ export default function OrganizationManagement() {
 
       {/* Delete Organization Sheet */}
       <Sheet open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <SheetContent side="bottom" dir="rtl">
+        <SheetContent side="bottom">
           <SheetHeader className="text-end">
             <SheetTitle>تأكيد الحذف</SheetTitle>
             <SheetDescription>

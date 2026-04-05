@@ -15,7 +15,7 @@ export const SolutionsSection = ({ content, iconMap }: SolutionsSectionProps) =>
     // Always show solutions section, even if empty (will show default content)
 
     return (
-        <section id="solutions" className="py-32 bg-gradient-to-br from-slate-50 via-white to-primary/10 relative overflow-hidden" dir="rtl">
+        <section id="solutions" className="py-32 bg-gradient-to-br from-slate-50 via-white to-primary/10 relative overflow-hidden">
             {/* Background Decor */}
             <div className="absolute end-0 top-0 w-1/2 h-full bg-white/50 skew-x-12 opacity-30 pointer-events-none" />
             <div className="absolute start-0 bottom-0 w-96 h-96 bg-primary/10 blur-[120px] rounded-full" />
@@ -28,7 +28,7 @@ export const SolutionsSection = ({ content, iconMap }: SolutionsSectionProps) =>
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50/80 backdrop-blur-sm border border-blue-100/50 text-blue-700 text-sm font-bold shadow-sm"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/80 backdrop-blur-sm border border-primary/15/50 text-accent-foreground text-sm font-bold shadow-sm"
                         >
                             <Target className="w-4 h-4" />
                             <span>{content.solutionsBadge}</span>
@@ -75,7 +75,7 @@ export const SolutionsSection = ({ content, iconMap }: SolutionsSectionProps) =>
                             >
                                 <Card className="relative rounded-3xl border-2 border-border shadow-xl shadow-slate-200/50 hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl bg-white">
                                     {/* Gradient Overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-50/0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                                     <CardContent className="relative z-10 p-8">
                                         {/* Icon */}

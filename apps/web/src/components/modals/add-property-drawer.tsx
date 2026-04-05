@@ -264,7 +264,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>السعر (ريال) *</FormLabel>
+                        <FormLabel>السعر *</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -422,7 +422,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                 {field.value
                                   ? (regions as any[])?.find((region: any) => region.nameAr === field.value)?.nameAr
                                   : "اختر المنطقة"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                <ChevronsUpDown className="me-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
@@ -435,7 +435,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                   {regionsLoading ? (
                                     <CommandItem disabled>
                                       <div className="flex items-center justify-center p-2">
-                                        <Spinner size="sm" className="mr-2" />
+                                        <Spinner size="sm" className="me-2" />
                                         <span>جار التحميل...</span>
                                       </div>
                                     </CommandItem>
@@ -458,7 +458,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                       >
                                         <Check
                                           className={cn(
-                                            "mr-2 h-4 w-4",
+                                            "me-2 h-4 w-4",
                                             field.value === region.nameAr ? "opacity-100" : "opacity-0"
                                           )}
                                         />
@@ -499,7 +499,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                 {field.value
                                   ? (cities as any[])?.find((city: any) => city.nameAr === field.value)?.nameAr
                                   : "اختر المدينة"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                <ChevronsUpDown className="me-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
@@ -512,7 +512,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                   {citiesLoading ? (
                                     <CommandItem disabled>
                                       <div className="flex items-center justify-center p-2">
-                                        <Spinner size="sm" className="mr-2" />
+                                        <Spinner size="sm" className="me-2" />
                                         <span>جار التحميل...</span>
                                       </div>
                                     </CommandItem>
@@ -541,7 +541,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                       >
                                         <Check
                                           className={cn(
-                                            "mr-2 h-4 w-4",
+                                            "me-2 h-4 w-4",
                                             field.value === city.nameAr ? "opacity-100" : "opacity-0"
                                           )}
                                         />
@@ -579,7 +579,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                 {field.value
                                   ? (districts as any[])?.find((district: any) => district.nameAr === field.value)?.nameAr
                                   : "اختر الحي"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                <ChevronsUpDown className="me-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
@@ -592,7 +592,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                   {districtsLoading ? (
                                     <CommandItem disabled>
                                       <div className="flex items-center justify-center p-2">
-                                        <Spinner size="sm" className="mr-2" />
+                                        <Spinner size="sm" className="me-2" />
                                         <span>جار التحميل...</span>
                                       </div>
                                     </CommandItem>
@@ -615,7 +615,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                                       >
                                         <Check
                                           className={cn(
-                                            "mr-2 h-4 w-4",
+                                            "me-2 h-4 w-4",
                                             field.value === district.nameAr ? "opacity-100" : "opacity-0"
                                           )}
                                         />
@@ -784,7 +784,7 @@ export default function AddPropertyDrawer({ open, onOpenChange }: AddPropertyDra
                 >
                   {createPropertyMutation.isPending ? (
                     <>
-                      <Spinner size="sm" className="mr-2" />
+                      <Spinner size="sm" className="me-2" />
                       جار الحفظ...
                     </>
                   ) : (

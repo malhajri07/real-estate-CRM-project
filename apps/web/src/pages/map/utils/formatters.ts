@@ -31,7 +31,7 @@ export const formatCurrency = (value: number | null): string => {
   const formatted = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 0,
   }).format(value);
-  return `${formatted} ريال`;
+  return `${formatted}`;
 };
 
 /**

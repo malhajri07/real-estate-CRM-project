@@ -67,12 +67,12 @@ function SecurityAuditLogs() {
                 </div>
             </div>
             <Table className="text-end">
-                <TableHeader className="bg-muted/30">
+                <TableHeader className="bg-muted/50">
                     <TableRow className="border-border">
-                        <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المستخدم</TableHead>
-                        <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الإجراء</TableHead>
-                        <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الوقت</TableHead>
-                        <TableHead className="text-end text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الخطر</TableHead>
+                        <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">المستخدم</TableHead>
+                        <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الإجراء</TableHead>
+                        <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الوقت</TableHead>
+                        <TableHead className="text-xs font-bold uppercase text-muted-foreground/70 tracking-widest py-4">الخطر</TableHead>
                         <TableHead className="w-[100px]"></TableHead>
                     </TableRow>
                 </TableHeader>
@@ -109,7 +109,7 @@ function SecurityAuditLogs() {
                                     <Badge className={cn(
                                         "text-xs font-bold border-0 px-3 py-1 rounded-lg",
                                         log.risk === "Low" ? "bg-primary/10 text-primary" :
-                                            log.risk === "Medium" ? "bg-amber-50 text-amber-700" :
+                                            log.risk === "Medium" ? "bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))]" :
                                                 `${STATUS_COLORS.error.bg} ${STATUS_COLORS.error.text}`
                                     )}>
                                         {log.risk === "Low" ? "منخفض" : log.risk === "Medium" ? "متوسط" : "مرتفع"}

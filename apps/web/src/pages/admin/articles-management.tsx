@@ -171,7 +171,7 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
           return (
             <Card key={version.id}>
               <CardContent className="p-4">
-                <div className="flex items-start justify-between" dir={dir}>
+                <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant="outline">الإصدار {version.version}</Badge>
@@ -203,7 +203,7 @@ function ArticleVersionHistory({ articleId, onRestore }: { articleId: string; on
                     }}
                     disabled={restoreMutation.isPending}
                   >
-                    <RotateCcw className="h-4 w-4 ml-2 rtl:ml-0 rtl:mr-2" />
+                    <RotateCcw className="h-4 w-4 me-2" />
                     استعادة
                   </Button>
                 </div>
@@ -390,7 +390,7 @@ export default function ArticlesManagement() {
         subtitle="إدارة ونشر المحتوى والمقالات"
         actions={
           <Button onClick={handleCreate}>
-            <Plus className="ml-2 h-4 w-4" />
+            <Plus className="ms-2 h-4 w-4" />
             إنشاء مقال جديد
           </Button>
         }
@@ -508,7 +508,7 @@ export default function ArticlesManagement() {
                         <TableCell>{getStatusBadge(article.status)}</TableCell>
                         <TableCell>
                           {article.categories.map((cat) => (
-                            <Badge key={cat.id} variant="outline" className="ml-1">
+                            <Badge key={cat.id} variant="outline" className="ms-1">
                               {cat.name}
                             </Badge>
                           ))}
@@ -647,7 +647,7 @@ function ArticleDialog({
           </AdminSheetDescription>
         </AdminSheetHeader>
         <div className="py-6">
-          <Tabs defaultValue="edit" className="w-full" dir={dir}>
+          <Tabs defaultValue="edit" className="w-full">
             <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent gap-6">
               <TabsTrigger
                 value="edit"
@@ -835,7 +835,7 @@ function ArticleDialog({
                 </AdminSheetFooter>
               </form>
             </TabsContent>
-            <TabsContent value="preview" dir={dir} className="pt-6">
+            <TabsContent value="preview" className="pt-6">
               <div className="space-y-6 max-w-none prose prose-slate prose-lg dark:prose-invert mx-auto">
                 <div className="space-y-4 not-prose border-b pb-6">
                   {featuredImageUrl && (
@@ -870,7 +870,7 @@ function ArticleDialog({
               </div>
             </TabsContent>
             {article && (
-              <TabsContent value="versions" dir={dir} className="pt-6">
+              <TabsContent value="versions" className="pt-6">
                 {/* Pending implementation */}
                 <div className="text-center py-12 text-muted-foreground/70 bg-muted/30 rounded-xl border border-dashed text-sm">
                   سجل الإصدارات سيكون متاحاً قريباً

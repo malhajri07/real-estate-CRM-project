@@ -56,31 +56,31 @@ export interface LeadScoreCardProps {
 function getScoreConfig(score: number) {
   if (score >= 70) {
     return {
-      color: "text-emerald-600",
-      ringColor: "stroke-emerald-500",
-      bgGradient: "from-emerald-50 to-emerald-100/50 dark:from-emerald-950/20 dark:to-emerald-900/10",
+      color: "text-primary",
+      ringColor: "stroke-primary",
+      bgGradient: "from-primary/10 to-primary/15/50 dark:from-primary/20 dark:to-primary/10",
       label: "ممتاز",
-      barColor: "bg-emerald-500",
-      labelBg: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400",
+      barColor: "bg-primary/100",
+      labelBg: "bg-primary/15 text-primary dark:bg-primary/90/40 dark:text-primary",
     };
   }
   if (score >= 40) {
     return {
-      color: "text-amber-600",
-      ringColor: "stroke-amber-500",
-      bgGradient: "from-amber-50 to-amber-100/50 dark:from-amber-950/20 dark:to-amber-900/10",
+      color: "text-[hsl(var(--warning))]",
+      ringColor: "stroke-[hsl(var(--warning))]",
+      bgGradient: "from-[hsl(var(--warning)/0.1)] to-[hsl(var(--warning)/0.15)]/50 dark:from-[hsl(var(--warning))]/20 dark:to-[hsl(var(--warning))]/10",
       label: "متوسط",
-      barColor: "bg-amber-500",
-      labelBg: "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400",
+      barColor: "bg-[hsl(var(--warning)/0.1)]0",
+      labelBg: "bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))] dark:bg-[hsl(var(--warning))]/40 dark:text-[hsl(var(--warning))]",
     };
   }
   return {
-    color: "text-red-600",
-    ringColor: "stroke-red-500",
-    bgGradient: "from-red-50 to-red-100/50 dark:from-red-950/20 dark:to-red-900/10",
+    color: "text-destructive",
+    ringColor: "stroke-destructive",
+    bgGradient: "from-destructive/10 to-destructive/15/50 dark:from-destructive/20 dark:to-destructive/10",
     label: "ضعيف",
-    barColor: "bg-red-500",
-    labelBg: "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400",
+    barColor: "bg-destructive/100",
+    labelBg: "bg-destructive/15 text-destructive dark:bg-destructive/90/40 dark:text-destructive",
   };
 }
 
@@ -205,14 +205,14 @@ function TrendIndicator({
   const configs = {
     up: {
       icon: TrendingUp,
-      color: "text-emerald-600",
-      bg: "bg-emerald-50 dark:bg-emerald-950/30",
+      color: "text-primary",
+      bg: "bg-primary/10 dark:bg-primary/90/30",
       label: "ارتفاع",
     },
     down: {
       icon: TrendingDown,
-      color: "text-red-600",
-      bg: "bg-red-50 dark:bg-red-950/30",
+      color: "text-destructive",
+      bg: "bg-destructive/10 dark:bg-destructive/90/30",
       label: "انخفاض",
     },
     stable: {
@@ -288,14 +288,14 @@ export function LeadScoreCard({
               </p>
             )}
             <div className="flex items-center gap-1">
-              <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
-              <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
-              <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
+              <Star className="h-3 w-3 text-[hsl(var(--warning))] fill-[hsl(var(--warning))]" />
+              <Star className="h-3 w-3 text-[hsl(var(--warning))] fill-[hsl(var(--warning))]" />
+              <Star className="h-3 w-3 text-[hsl(var(--warning))] fill-[hsl(var(--warning))]" />
               <Star
                 className={cn(
                   "h-3 w-3",
                   score >= 50
-                    ? "text-amber-400 fill-amber-400"
+                    ? "text-[hsl(var(--warning))] fill-[hsl(var(--warning))]"
                     : "text-muted fill-muted"
                 )}
               />
@@ -303,7 +303,7 @@ export function LeadScoreCard({
                 className={cn(
                   "h-3 w-3",
                   score >= 80
-                    ? "text-amber-400 fill-amber-400"
+                    ? "text-[hsl(var(--warning))] fill-[hsl(var(--warning))]"
                     : "text-muted fill-muted"
                 )}
               />

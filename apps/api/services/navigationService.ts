@@ -14,7 +14,6 @@
  * - apps/web/src/pages/admin/navigation-management.tsx - Navigation management UI
  */
 
-// @ts-nocheck
 import { prisma } from "../prismaClient";
 import { z } from "zod";
 

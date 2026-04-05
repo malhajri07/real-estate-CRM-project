@@ -262,7 +262,7 @@ export default function SystemSettings() {
                                 <Button size="sm" variant="outline" className="h-9 w-full rounded-xl border-border font-bold">تنفيذ الآن</Button>
                             </div>
                             <div className="p-6 bg-muted/30 rounded-3xl border border-border space-y-4 group hover:bg-card hover:shadow-md transition-all">
-                                <div className="h-12 w-12 bg-card rounded-2xl shadow-sm flex items-center justify-center text-muted-foreground/70 group-hover:text-amber-600 transition-colors"><Database className="h-6 w-6" /></div>
+                                <div className="h-12 w-12 bg-card rounded-2xl shadow-sm flex items-center justify-center text-muted-foreground/70 group-hover:text-[hsl(var(--warning))] transition-colors"><Database className="h-6 w-6" /></div>
                                 <div>
                                     <h4 className="text-sm font-bold text-foreground">نسخة احتياطية</h4>
                                     <p className="text-xs font-medium text-muted-foreground mt-1">تصدير كامل لقاعدة البيانات الحالية</p>

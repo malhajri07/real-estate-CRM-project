@@ -53,12 +53,12 @@ export default function RoleBasedDashboard() {
 
   const getRoleColor = (role: UserRole) => {
     const roleColors = {
-      WEBSITE_ADMIN: 'bg-red-100 text-red-800',
-      CORP_OWNER: 'bg-blue-100 text-blue-800',
+      WEBSITE_ADMIN: 'bg-destructive/15 text-destructive',
+      CORP_OWNER: 'bg-accent text-accent-foreground',
       CORP_AGENT: 'bg-primary/10 text-primary',
-      INDIV_AGENT: 'bg-yellow-100 text-yellow-800',
-      SELLER: 'bg-purple-100 text-purple-800',
-      BUYER: 'bg-indigo-100 text-indigo-800',
+      INDIV_AGENT: 'bg-[hsl(var(--warning)/0.15)] text-[hsl(var(--warning))]',
+      SELLER: 'bg-secondary text-secondary-foreground',
+      BUYER: 'bg-accent text-accent-foreground',
       AGENT: 'bg-primary/70 text-primary/70'
     };
     return roleColors[role] || 'bg-muted/50 text-foreground';

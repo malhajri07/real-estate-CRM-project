@@ -53,21 +53,41 @@ export const formatAdminDateTime = (
 ): string => formatAdminDate(value, options);
 
 /** Format number with en-US locale (Western digits 0-9) */
-export const formatNumber = (value?: number | null): string =>
-  (value ?? 0).toLocaleString(NUMERIC_LOCALE);
+export const formatNumber = (value?: number | string | null): string => {
+  if (value == null) return "—";
+  const n = typeof value === "string" ? Number(value) : value;
+  if (!Number.isFinite(n)) return (value ?? 0).toLocaleString(NUMERIC_LOCALE);
+  return new Intl.NumberFormat(NUMERIC_LOCALE, { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
+};
 
-/** Format price/currency with en-US locale */
-export const formatPrice = (
-  value?: number | null,
-  currency: string = "SAR",
-  options?: Intl.NumberFormatOptions
-): string => {
-  if (value == null || Number.isNaN(value)) return "—";
-  return new Intl.NumberFormat(NUMERIC_LOCALE, {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-    ...options,
-  }).format(value);
+/**
+ * Format SAR amount (number only, no symbol).
+ * Use <SarPrice value={} /> component for display with the official SAMA icon.
+ */
+export const formatSAR = formatNumber;
+export const formatPrice = (value?: number | null, _currency?: string): string => formatNumber(value);
+
+/**
+ * Safely parse any value to a number. Returns null if not parseable.
+ * Use this instead of defining local toNumber() in pages.
+ */
+export const toNumber = (value: string | number | null | undefined): number | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value === "bigint") return Number(value);
+  const trimmed = String(value).trim();
+  if (!trimmed) return null;
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+/**
+ * Format currency with abbreviated suffix (e.g. 1.2M, 500K).
+ * For full number display, use formatNumber() instead.
+ */
+export const formatCompact = (value?: number | null): string => {
+  if (value == null || !Number.isFinite(value)) return "—";
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(0)}K`;
+  return String(value);
 };

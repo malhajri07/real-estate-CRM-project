@@ -42,7 +42,7 @@ const STEPS = [
 
 const STEP_FIELDS = {
   1: ["username", "password", "confirmPassword"] as const,
-  2: ["companyName", "companyType", "commercialRegistration", "companyCity", "taxNumber", "establishmentDate", "employeesCount", "companyAddress", "companyWebsite", "companyDescription"] as const,
+  2: ["companyName", "companyType", "commercialRegistration", "falLicenseNumber", "falLicenseType", "companyCity", "taxNumber", "establishmentDate", "employeesCount", "companyAddress", "companyWebsite", "companyDescription"] as const,
   3: ["contactName", "contactPosition", "contactEmail", "contactPhone"] as const,
   4: ["commercialRegDoc", "vatCertificate", "companyProfile"] as const,
   5: ["agreedToTerms"] as const,
@@ -61,6 +61,8 @@ const corporateSchema = z.object({
   companyName: z.string().min(1, "اسم الشركة مطلوب"),
   companyType: z.string().min(1, "نوع الشركة مطلوب"),
   commercialRegistration: z.string().min(1, "رقم السجل التجاري مطلوب"),
+  falLicenseNumber: z.string().regex(/^\d{10}$/, "رقم رخصة فال يجب أن يتكون من 10 أرقام"),
+  falLicenseType: z.string().min(1, "نوع رخصة فال مطلوب"),
   taxNumber: z.string().optional().default(""),
   companyAddress: z.string().optional().default(""),
   companyCity: z.string().min(1, "المدينة الرئيسية مطلوبة"),
@@ -107,6 +109,8 @@ export default function SignupCorporate() {
       companyName: "",
       companyType: "",
       commercialRegistration: "",
+      falLicenseNumber: "",
+      falLicenseType: "",
       taxNumber: "",
       companyAddress: "",
       companyCity: "",
@@ -199,7 +203,11 @@ export default function SignupCorporate() {
           firstName,
           lastName,
           phone: data.contactPhone,
-          roles: JSON.stringify(['CORP_OWNER'])
+          roles: JSON.stringify(['CORP_OWNER']),
+          falLicenseNumber: data.falLicenseNumber,
+          falLicenseType: data.falLicenseType,
+          companyName: data.companyName,
+          commercialRegistration: data.commercialRegistration,
         })
       });
 
@@ -235,14 +243,14 @@ export default function SignupCorporate() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden">
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
       <main className="relative pt-32 pb-20 px-4">
         {/* Background Blobs */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/10 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-accent0/10 blur-[100px] rounded-full pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
@@ -250,12 +258,12 @@ export default function SignupCorporate() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-4 mb-12"
           >
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-sm font-medium">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent border border-primary/15 text-accent-foreground text-sm font-medium">
               <Building2 className="w-4 h-4" />
               <span>تسجيل منشأة عقارية</span>
             </span>
             <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-              ابدأ رحلة النجاح مع <span className="text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-indigo-600">حساب مؤسسي</span>
+              ابدأ رحلة النجاح مع <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary">حساب مؤسسي</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
               خطوات بسيطة لتسجيل منشأتك والبدء في إدارة أعمالك العقارية باحترافية.
@@ -288,11 +296,11 @@ export default function SignupCorporate() {
                       >
                         <div
                           className={cn(
-                            "flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold transition-all border-2",
+                            "flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold transition-all border-2",
                             isCompleted
-                              ? "bg-blue-600 text-white border-blue-600"
+                              ? "bg-primary text-white border-primary"
                               : isCurrent
-                                ? "bg-blue-100 text-blue-600 border-blue-300"
+                                ? "bg-accent text-accent-foreground border-primary/30"
                                 : "bg-muted/50 text-muted-foreground border-slate-300"
                           )}
                         >
@@ -302,11 +310,11 @@ export default function SignupCorporate() {
                             <span>{step.id}</span>
                           )}
                         </div>
-                        <div className="hidden md:block text-start">
+                        <div className="hidden md:block">
                           <div
                             className={cn(
-                              "text-sm font-semibold",
-                              isCurrent || isCompleted ? "text-blue-600" : "text-muted-foreground"
+                              "text-sm font-bold",
+                              isCurrent || isCompleted ? "text-accent-foreground" : "text-muted-foreground"
                             )}
                           >
                             {step.title}
@@ -338,7 +346,7 @@ export default function SignupCorporate() {
                   {currentStep === 1 && (
                     <section className="space-y-8">
                       <div className="flex items-center gap-4 pb-4 border-b border-border">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">1</span>
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-accent text-accent-foreground font-bold text-sm">1</span>
                         <div className="space-y-1">
                           <h2 className="text-xl font-bold text-foreground">بيانات الحساب الأساسية</h2>
                           <p className="text-sm text-muted-foreground">قم بتعيين بيانات الدخول الخاصة بمدير الحساب</p>
@@ -351,12 +359,12 @@ export default function SignupCorporate() {
                           name="username"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">اسم المستخدم <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">اسم المستخدم <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
                                   dir="ltr"
-                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -369,7 +377,7 @@ export default function SignupCorporate() {
                           name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">كلمة المرور <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">كلمة المرور <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -389,7 +397,7 @@ export default function SignupCorporate() {
                           name="confirmPassword"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">تأكيد كلمة المرور <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">تأكيد كلمة المرور <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -411,7 +419,7 @@ export default function SignupCorporate() {
                   {currentStep === 2 && (
                     <section className="space-y-8">
                       <div className="flex items-center gap-4 pb-4 border-b border-border">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">2</span>
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-accent text-accent-foreground font-bold text-sm">2</span>
                         <div className="space-y-1">
                           <h2 className="text-xl font-bold text-foreground">معلومات الشركة</h2>
                           <p className="text-sm text-muted-foreground">بيانات السجل التجاري والنشاط</p>
@@ -424,7 +432,7 @@ export default function SignupCorporate() {
                           name="companyName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">اسم الشركة <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">اسم الشركة <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -441,10 +449,10 @@ export default function SignupCorporate() {
                           name="companyType"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">نوع الشركة <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">نوع الشركة <span className="text-destructive">*</span></FormLabel>
                               <Select value={field.value} onValueChange={field.onChange}>
                                 <FormControl>
-                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
+                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30">
                                     <SelectValue placeholder="اختر نوع الشركة" />
                                   </SelectTrigger>
                                 </FormControl>
@@ -468,11 +476,32 @@ export default function SignupCorporate() {
                           name="commercialRegistration"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">رقم السجل التجاري <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">رقم السجل التجاري <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
                                   placeholder="10 أرقام"
+                                  dir="ltr"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                                  onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="falLicenseNumber"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">رقم رخصة فال <span className="text-destructive">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="10 أرقام"
+                                  maxLength={10}
                                   dir="ltr"
                                   className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
                                   onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
@@ -485,6 +514,39 @@ export default function SignupCorporate() {
 
                         <FormField
                           control={form.control}
+                          name="falLicenseType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">نوع رخصة فال <span className="text-destructive">*</span></FormLabel>
+                              <Select value={field.value} onValueChange={field.onChange}>
+                                <FormControl>
+                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border">
+                                    <SelectValue placeholder="اختر نوع الرخصة" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="BROKERAGE_MARKETING">وساطة وتسويق عقاري</SelectItem>
+                                  <SelectItem value="PROPERTY_MANAGEMENT">إدارة أملاك</SelectItem>
+                                  <SelectItem value="FACILITY_MANAGEMENT">إدارة مرافق</SelectItem>
+                                  <SelectItem value="AUCTION">مزادات عقارية</SelectItem>
+                                  <SelectItem value="CONSULTING">استشارات وتحليلات عقارية</SelectItem>
+                                  <SelectItem value="ADVERTISING">إعلانات عقارية</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="rounded-xl bg-[hsl(var(--warning)/0.05)] border border-[hsl(var(--warning)/0.2)] p-4 text-sm text-[hsl(var(--warning))]">
+                        <p className="font-bold mb-1">متطلبات الهيئة العامة للعقار (REGA)</p>
+                        <p className="text-xs">يجب على كل منشأة عقارية الحصول على رخصة فال سارية المفعول لممارسة نشاط الوساطة العقارية.</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <FormField
+                          control={form.control}
                           name="taxNumber"
                           render={({ field }) => (
                             <FormItem>
@@ -493,7 +555,7 @@ export default function SignupCorporate() {
                                 <Input
                                   {...field}
                                   dir="ltr"
-                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                                   onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
                                 />
                               </FormControl>
@@ -512,7 +574,7 @@ export default function SignupCorporate() {
                                 <Input
                                   {...field}
                                   type="date"
-                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -545,10 +607,10 @@ export default function SignupCorporate() {
                           name="companyCity"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">المدينة الرئيسية <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">المدينة الرئيسية <span className="text-destructive">*</span></FormLabel>
                               <Select value={field.value} onValueChange={field.onChange}>
                                 <FormControl>
-                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
+                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30">
                                     <SelectValue placeholder="اختر المدينة" />
                                   </SelectTrigger>
                                 </FormControl>
@@ -597,7 +659,7 @@ export default function SignupCorporate() {
                                   type="url"
                                   dir="ltr"
                                   placeholder="https://company.sa"
-                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -630,7 +692,7 @@ export default function SignupCorporate() {
                   {currentStep === 3 && (
                     <section className="space-y-8">
                       <div className="flex items-center gap-4 pb-4 border-b border-border">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">3</span>
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-accent text-accent-foreground font-bold text-sm">3</span>
                         <div className="space-y-1">
                           <h2 className="text-xl font-bold text-foreground">مسؤول الاتصال</h2>
                           <p className="text-sm text-muted-foreground">بيانات المفوض بالتواصل</p>
@@ -643,7 +705,7 @@ export default function SignupCorporate() {
                           name="contactName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">الاسم الكامل <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">الاسم الكامل <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -679,13 +741,13 @@ export default function SignupCorporate() {
                           name="contactEmail"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">البريد الإلكتروني <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">البريد الإلكتروني <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
                                   type="email"
                                   dir="ltr"
-                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -698,7 +760,7 @@ export default function SignupCorporate() {
                           name="contactPhone"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -706,7 +768,7 @@ export default function SignupCorporate() {
                                   placeholder="05XXXXXXXX"
                                   maxLength={10}
                                   dir="ltr"
-                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                                   onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
                                 />
                               </FormControl>
@@ -722,7 +784,7 @@ export default function SignupCorporate() {
                   {currentStep === 4 && (
                     <section className="space-y-8">
                       <div className="flex items-center gap-4 pb-4 border-b border-border">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">4</span>
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-accent text-accent-foreground font-bold text-sm">4</span>
                         <div className="space-y-1">
                           <h2 className="text-xl font-bold text-foreground">المستندات المساندة</h2>
                           <p className="text-sm text-muted-foreground">رفع الوثائق الرسمية (اختياري)</p>
@@ -743,9 +805,9 @@ export default function SignupCorporate() {
                                     type="file"
                                     accept="application/pdf"
                                     onChange={(e) => onChange(e.target.files)}
-                                    className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
+                                    className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-accent file:px-4 file:py-0 file:text-accent-foreground file:font-medium hover:file:bg-accent focus:ring-primary/30 cursor-pointer ps-10 transition-all"
                                   />
-                                  <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                                  <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-accent-foreground transition-colors pointer-events-none" />
                                 </div>
                               </FormControl>
                               <FormMessage />
@@ -766,9 +828,9 @@ export default function SignupCorporate() {
                                     type="file"
                                     accept="application/pdf"
                                     onChange={(e) => onChange(e.target.files)}
-                                    className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
+                                    className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-accent file:px-4 file:py-0 file:text-accent-foreground file:font-medium hover:file:bg-accent focus:ring-primary/30 cursor-pointer ps-10 transition-all"
                                   />
-                                  <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                                  <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-accent-foreground transition-colors pointer-events-none" />
                                 </div>
                               </FormControl>
                               <FormMessage />
@@ -789,9 +851,9 @@ export default function SignupCorporate() {
                                     type="file"
                                     accept="application/pdf"
                                     onChange={(e) => onChange(e.target.files)}
-                                    className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-blue-50 file:px-4 file:py-0 file:text-blue-700 file:font-medium hover:file:bg-blue-100 focus:ring-primary/30 cursor-pointer ps-10 transition-all"
+                                    className="h-12 rounded-xl border-border bg-card/50 text-end file:ms-3 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-accent file:px-4 file:py-0 file:text-accent-foreground file:font-medium hover:file:bg-accent focus:ring-primary/30 cursor-pointer ps-10 transition-all"
                                   />
-                                  <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-blue-600 transition-colors pointer-events-none" />
+                                  <Upload className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70 group-hover:text-accent-foreground transition-colors pointer-events-none" />
                                 </div>
                               </FormControl>
                               <FormMessage />
@@ -800,8 +862,8 @@ export default function SignupCorporate() {
                         />
                       </div>
 
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground bg-blue-50/50 p-3 rounded-xl border border-blue-100">
-                        <span className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-100 text-blue-600">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground bg-accent/50 p-3 rounded-xl border border-primary/15">
+                        <span className="flex items-center justify-center w-4 h-4 rounded-full bg-accent text-accent-foreground">
                           <Check className="w-2.5 h-2.5" />
                         </span>
                         جميع الملفات يجب أن تكون بصيغة PDF وبحجم لا يتجاوز 5MB
@@ -813,7 +875,7 @@ export default function SignupCorporate() {
                   {currentStep === 5 && (
                     <section className="space-y-6">
                       <div className="flex items-center gap-4 pb-4 border-b border-border">
-                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">5</span>
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-accent text-accent-foreground font-bold text-sm">5</span>
                         <div className="space-y-1">
                           <h2 className="text-xl font-bold text-foreground">الشروط والأحكام</h2>
                           <p className="text-sm text-muted-foreground">موافقتك على سياسات المنصة</p>
@@ -821,7 +883,7 @@ export default function SignupCorporate() {
                       </div>
 
                       <div className="rounded-2xl border border-border bg-card/50 p-6 shadow-inner">
-                        <div className="space-y-4 text-sm leading-7 text-muted-foreground max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-4 text-sm leading-7 text-muted-foreground max-h-60 overflow-y-auto pe-2 custom-scrollbar">
                           <h3 className="text-base font-bold text-foreground mb-2">شروط استخدام المنصة للمنشآت:</h3>
 
                           <div className="space-y-3">
@@ -839,7 +901,7 @@ export default function SignupCorporate() {
                         name="agreedToTerms"
                         render={({ field }) => (
                           <FormItem>
-                            <label className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group">
+                            <label className="flex items-start gap-4 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-accent/30 transition-all cursor-pointer group">
                               <div className="relative flex items-center mt-1">
                                 <FormControl>
                                   <Checkbox

@@ -15,10 +15,12 @@
  * - apps/web/src/pages/reports.tsx - Reports page
  */
 
-// @ts-nocheck
 import express from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";
+import { prisma } from "../prismaClient";
+import { authenticateToken } from "../src/middleware/auth.middleware";
+import { getVisibilityScope } from "../rbac-policy";
 
 const router = express.Router();
 
@@ -75,107 +77,121 @@ function getDealStage(deal: any): string {
   return typeof raw === "string" ? raw.toLowerCase().trim() : "";
 }
 
-// Dashboard metrics
-router.get("/dashboard/metrics", async (req, res) => {
+// Dashboard metrics — scoped to the authenticated agent
+router.get("/dashboard/metrics", authenticateToken, async (req, res) => {
   try {
-    const leads = await storage.getAllLeads();
-    const properties = await storage.getAllProperties();
-    const deals = await storage.getAllDeals();
+    const user = (req as any).user;
+    const scope = getVisibilityScope(user.roles);
 
-    const activeDeals = deals.filter((deal: any) => !["closed", "lost"].includes(getDealStage(deal)));
-    const closedDeals = deals.filter((deal: any) => getDealStage(deal) === "closed");
+    // Build WHERE clauses based on agent's scope
+    let leadsWhere: any = {};
+    let dealsWhere: any = {};
+    let propertiesWhere: any = {};
 
-    const monthlyRevenue = closedDeals.reduce((sum: number, deal: any) => {
-      const commission = deal.commission ? parseFloat(deal.commission) : 0;
-      return sum + commission;
-    }, 0);
+    if (scope === "global") {
+      // Admin sees all
+    } else if (scope === "corporate" && user.organizationId) {
+      leadsWhere = { organizationId: user.organizationId };
+      dealsWhere = { organizationId: user.organizationId };
+      propertiesWhere = { organizationId: user.organizationId };
+    } else {
+      // self — individual agent
+      leadsWhere = { agentId: user.id };
+      dealsWhere = { agentId: user.id };
+      propertiesWhere = { agentId: user.id };
+    }
 
-    const metrics = {
-      totalLeads: leads.length,
-      activeProperties: properties.filter((p: any) => p.status === "active").length,
+    const [leadsCount, propertiesCount, deals] = await Promise.all([
+      prisma.leads.count({ where: leadsWhere }),
+      prisma.properties.count({ where: { ...propertiesWhere, status: "ACTIVE" } }),
+      prisma.deals.findMany({ where: dealsWhere, select: { stage: true, agreedPrice: true, commissionPercentage: true, commissionAmount: true, wonAt: true, createdAt: true } }),
+    ]);
+
+    const activeDeals = deals.filter((d: any) => !["WON", "LOST"].includes(d.stage));
+    const wonDeals = deals.filter((d: any) => d.stage === "WON");
+
+    // Monthly revenue: sum of commission from won deals this month
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthlyRevenue = wonDeals
+      .filter((d: any) => new Date(d.wonAt || d.createdAt) >= monthStart)
+      .reduce((sum: number, d: any) => {
+        if (d.commissionAmount) return sum + Number(d.commissionAmount);
+        if (d.agreedPrice && d.commissionPercentage) return sum + Number(d.agreedPrice) * Number(d.commissionPercentage) / 100;
+        if (d.agreedPrice) return sum + Number(d.agreedPrice) * 0.025; // default 2.5%
+        return sum;
+      }, 0);
+
+    res.json({
+      totalLeads: leadsCount,
+      activeProperties: propertiesCount,
       dealsInPipeline: activeDeals.length,
-      monthlyRevenue: monthlyRevenue,
+      monthlyRevenue: Math.round(monthlyRevenue),
       pipelineByStage: {
-        lead: deals.filter((d: any) => getDealStage(d) === "lead").length,
-        qualified: deals.filter((d: any) => getDealStage(d) === "qualified").length,
-        showing: deals.filter((d: any) => getDealStage(d) === "showing").length,
-        negotiation: deals.filter((d: any) => getDealStage(d) === "negotiation").length,
-        closed: deals.filter((d: any) => getDealStage(d) === "closed").length,
+        lead: deals.filter((d: any) => d.stage === "NEW").length,
+        qualified: deals.filter((d: any) => d.stage === "NEGOTIATION").length,
+        showing: deals.filter((d: any) => d.stage === "UNDER_OFFER").length,
+        negotiation: deals.filter((d: any) => d.stage === "NEGOTIATION").length,
+        closed: deals.filter((d: any) => d.stage === "WON").length,
       },
-    };
-
-    res.json(metrics);
+    });
   } catch (error) {
+    console.error("Dashboard metrics error:", error);
     res.status(500).json({ message: "Failed to fetch dashboard metrics" });
   }
 });
 
-// Monthly revenue chart data (last 12 months)
-router.get("/dashboard/revenue-chart", async (req, res) => {
+// Monthly revenue chart data (last 12 months) — scoped to agent
+router.get("/dashboard/revenue-chart", authenticateToken, async (req, res) => {
   try {
-    const deals = await storage.getAllDeals();
-    // Filter closed deals - check for 'closed' stage or 'won' stage
-    const closedDeals = deals.filter((deal: any) => {
-      const stage = deal.stage?.toLowerCase();
-      return (stage === 'closed' || stage === 'won') && (deal.closedAt || deal.wonAt || deal.updatedAt);
+    const user = (req as any).user;
+    const scope = getVisibilityScope(user.roles);
+
+    let dealsWhere: any = {};
+    if (scope === "corporate" && user.organizationId) {
+      dealsWhere = { organizationId: user.organizationId };
+    } else if (scope !== "global") {
+      dealsWhere = { agentId: user.id };
+    }
+
+    const deals = await prisma.deals.findMany({
+      where: { ...dealsWhere, stage: "WON" },
+      select: { agreedPrice: true, commissionAmount: true, commissionPercentage: true, wonAt: true, createdAt: true },
     });
 
-    // Get last 12 months
     const now = new Date();
     const monthNamesAr = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
     const monthNamesEn = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    // Use locale from middleware if available, otherwise parse Accept-Language header
-    const locale = (req as any).locale || (req.headers['accept-language'] || '').split(',')[0]?.split('-')[0] || 'ar';
-    const language = locale === 'ar' ? 'ar' : 'en';
-    const monthNames = language === 'ar' ? monthNamesAr : monthNamesEn;
+    const locale = (req as any).locale || "ar";
+    const monthNames = locale === "ar" ? monthNamesAr : monthNamesEn;
 
     const monthlyRevenueMap = new Map<string, number>();
-    
-    // Initialize all 12 months with 0
     for (let i = 11; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthKey = monthNames[date.getMonth()];
-      monthlyRevenueMap.set(monthKey, 0);
+      monthlyRevenueMap.set(monthNames[date.getMonth()], 0);
     }
 
-    // Calculate revenue per month from closed deals
-    closedDeals.forEach((deal: any) => {
-      // Use closedAt, wonAt, or updatedAt as fallback
-      const closedDate = deal.closedAt || deal.wonAt || deal.updatedAt;
-      if (closedDate) {
-        const date = new Date(closedDate);
-        // Only include deals from last 12 months
-        const monthsDiff = (now.getFullYear() - date.getFullYear()) * 12 + (now.getMonth() - date.getMonth());
-        if (monthsDiff >= 0 && monthsDiff < 12) {
-          const monthKey = monthNames[date.getMonth()];
-          const currentRevenue = monthlyRevenueMap.get(monthKey) || 0;
-          // Try to get commission from various possible fields
-          const commission = deal.commission 
-            ? parseFloat(deal.commission) 
-            : (deal.agreedPrice ? parseFloat(deal.agreedPrice) * 0.03 : 0); // Default 3% if no commission field
-          monthlyRevenueMap.set(monthKey, currentRevenue + commission);
-        }
+    deals.forEach((deal: any) => {
+      const closedDate = deal.wonAt || deal.createdAt;
+      if (!closedDate) return;
+      const date = new Date(closedDate);
+      const monthsDiff = (now.getFullYear() - date.getFullYear()) * 12 + (now.getMonth() - date.getMonth());
+      if (monthsDiff >= 0 && monthsDiff < 12) {
+        const monthKey = monthNames[date.getMonth()];
+        const current = monthlyRevenueMap.get(monthKey) || 0;
+        const commission = deal.commissionAmount
+          ? Number(deal.commissionAmount)
+          : deal.agreedPrice
+            ? Number(deal.agreedPrice) * (deal.commissionPercentage ? Number(deal.commissionPercentage) / 100 : 0.025)
+            : 0;
+        monthlyRevenueMap.set(monthKey, current + commission);
       }
     });
 
-    // Convert to array format for chart (last 12 months in order)
-    const chartData = Array.from(monthlyRevenueMap.entries()).map(([name, revenue]) => ({
-      name,
-      revenue: Math.round(revenue)
-    }));
-
-    res.json(chartData);
+    res.json(Array.from(monthlyRevenueMap.entries()).map(([name, revenue]) => ({ name, revenue: Math.round(revenue) })));
   } catch (error) {
-    console.error("Error fetching revenue chart data:", error);
-    const locale = (req as any).locale || (req.headers['accept-language'] || '').split(',')[0]?.split('-')[0] || 'ar';
-    const errorMessage = locale === 'ar' 
-      ? "فشل في جلب بيانات الرسم البياني للإيرادات"
-      : "Failed to fetch revenue chart data";
-    res.status(500).json({ 
-      error: "REVENUE_CHART_FETCH_ERROR",
-      message: errorMessage,
-      locale 
-    });
+    console.error("Revenue chart error:", error);
+    res.status(500).json({ message: "Failed to fetch revenue chart data" });
   }
 });
 

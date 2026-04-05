@@ -61,7 +61,7 @@ export default function Header({
   return (
     <header
       className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b bg-card px-4 transition-[width,height] ease-linear"
-      dir={dir}
+     
     >
       {/* Standard shadcn SidebarTrigger */}
       <SidebarTrigger className="-ms-1" />

@@ -136,7 +136,7 @@ export function MediaSelector({
                 size="sm"
                 onClick={() => setViewMode("grid")}
               >
-                <Grid className="ml-2 h-4 w-4" />
+                <Grid className="ms-2 h-4 w-4" />
                 شبكة
               </Button>
               <Button
@@ -144,7 +144,7 @@ export function MediaSelector({
                 size="sm"
                 onClick={() => setViewMode("list")}
               >
-                <List className="ml-2 h-4 w-4" />
+                <List className="ms-2 h-4 w-4" />
                 قائمة
               </Button>
             </div>

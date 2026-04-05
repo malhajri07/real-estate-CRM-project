@@ -24,6 +24,7 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell, Legend,
   LineChart, Line, Area, AreaChart,
 } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -60,10 +61,10 @@ import PageHeader from "@/components/ui/page-header";
 import EmptyState from "@/components/ui/empty-state";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
-import { ChartTooltip } from "@/components/ui/chart-tooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { SarSymbol } from "@/components/ui/sar-symbol";
 import {
   PAGE_WRAPPER, CARD_STYLES, TABLE_STYLES, FORM_STYLES, DIALOG_DEFAULTS,
   GRID_METRICS, GRID_TWO_COL, GRID_FORM, CARD_HOVER,
@@ -525,7 +526,7 @@ export default function TeamPage() {
   const inviteMutation = useMutation({
     mutationFn: (data: InviteFormState) => apiPost("/api/org/team/invite", data),
     onSuccess: () => {
-      toast({ title: "تم إضافة الوكيل بنجاح", description: "كلمة المرور الافتراضية: agent123" });
+      toast({ title: "تم إضافة الوكيل بنجاح", description: "تم إنشاء كلمة مرور مؤقتة وإرسالها للوكيل" });
       setInviteOpen(false);
       setInviteForm(emptyInviteForm);
       invalidateAll();
@@ -772,7 +773,7 @@ export default function TeamPage() {
   // -- Loading / Error --
   if (teamError) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader title="فريق العمل" />
         <QueryErrorFallback message="فشل تحميل بيانات الفريق" onRetry={() => refetch()} />
       </div>
@@ -781,7 +782,7 @@ export default function TeamPage() {
 
   if (teamLoading || showSkeleton) {
     return (
-      <div className={PAGE_WRAPPER} dir={dir}>
+      <div className={PAGE_WRAPPER}>
         <PageHeader title="فريق العمل" />
         <AdminPageSkeleton />
       </div>
@@ -795,13 +796,13 @@ export default function TeamPage() {
   // Render
   // ────────────────────────────────────────────────────────────────────────
   return (
-    <div className={PAGE_WRAPPER} dir={dir}>
+    <div className={PAGE_WRAPPER}>
       <PageHeader
         title="إدارة فريق العمل"
         subtitle={org ? `${org.tradeName || org.legalName} — رخصة: ${org.licenseNo}` : undefined}
       />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} dir={dir}>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="w-full justify-start flex-wrap">
           <TabsTrigger value="overview" className="gap-1.5">
             <BarChart3 className="h-4 w-4" /> نظرة عامة
@@ -832,19 +833,19 @@ export default function TeamPage() {
           {stats && (
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
               {[
-                { label: "إجمالي الوكلاء", value: stats.totalAgents, icon: Users, color: "text-blue-500" },
-                { label: "النشطون", value: stats.activeAgents, icon: UserCheck, color: "text-emerald-500" },
+                { label: "إجمالي الوكلاء", value: stats.totalAgents, icon: Users, color: "text-accent-foreground" },
+                { label: "النشطون", value: stats.activeAgents, icon: UserCheck, color: "text-primary" },
                 { label: "المعطلون", value: stats.inactiveAgents, icon: UserX, color: "text-gray-400" },
-                { label: "العملاء المحتملون", value: stats.totalLeads, icon: Target, color: "text-indigo-500" },
-                { label: "الصفقات", value: stats.totalDeals, icon: Briefcase, color: "text-amber-500" },
-                { label: "صفقات رابحة", value: stats.wonDeals, icon: TrendingUp, color: "text-emerald-500" },
-                { label: "معدل التحويل", value: `${stats.conversionRate}%`, icon: BarChart3, color: "text-purple-500" },
-                { label: "الإيرادات", value: `${formatRevenue(stats.totalRevenue)} ر.س`, icon: Zap, color: "text-primary" },
+                { label: "العملاء المحتملون", value: stats.totalLeads, icon: Target, color: "text-accent-foreground" },
+                { label: "الصفقات", value: stats.totalDeals, icon: Briefcase, color: "text-[hsl(var(--warning))]" },
+                { label: "صفقات رابحة", value: stats.wonDeals, icon: TrendingUp, color: "text-primary" },
+                { label: "معدل التحويل", value: `${stats.conversionRate}%`, icon: BarChart3, color: "text-secondary-foreground" },
+                { label: "الإيرادات", value: `${formatRevenue(stats.totalRevenue)}`, icon: Zap, color: "text-primary" },
               ].map((s, i) => (
                 <Card key={i} className={cn("transition-all duration-300 hover:shadow-md")}>
                   <CardContent className="p-3 text-center">
                     <s.icon className={cn("h-4 w-4 mx-auto mb-1", s.color)} />
-                    <p className="text-xl font-black text-foreground leading-none">{s.value}</p>
+                    <p className="text-xl font-bold text-foreground leading-none">{s.value}</p>
                     <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider mt-1">{s.label}</p>
                   </CardContent>
                 </Card>
@@ -858,7 +859,7 @@ export default function TeamPage() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <HeartPulse className="h-4 w-4 text-rose-500" />
+                  <HeartPulse className="h-4 w-4 text-destructive" />
                   صحة الفريق
                 </CardTitle>
               </CardHeader>
@@ -867,7 +868,7 @@ export default function TeamPage() {
                 <div>
                   <div className="flex items-center justify-between text-xs mb-1.5">
                     <span className="text-muted-foreground font-bold">نسبة النشطين</span>
-                    <span className="font-black">{members.length > 0 ? Math.round((activeCount / members.length) * 100) : 0}%</span>
+                    <span className="font-bold">{members.length > 0 ? Math.round((activeCount / members.length) * 100) : 0}%</span>
                   </div>
                   <Progress value={members.length > 0 ? (activeCount / members.length) * 100 : 0} className="h-2" />
                   <p className="text-[10px] text-muted-foreground mt-1">{activeCount} نشط من {members.length} عضو</p>
@@ -876,19 +877,19 @@ export default function TeamPage() {
                 {/* Avg stats */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="text-center p-2 rounded-xl bg-muted/50">
-                    <p className="text-lg font-black">
+                    <p className="text-lg font-bold">
                       {activeCount > 0 ? (members.reduce((s, m) => s + m.stats.deals, 0) / activeCount).toFixed(1) : "0"}
                     </p>
                     <p className="text-[9px] text-muted-foreground font-bold">متوسط الصفقات/وكيل</p>
                   </div>
                   <div className="text-center p-2 rounded-xl bg-muted/50">
-                    <p className="text-lg font-black">
+                    <p className="text-lg font-bold">
                       {activeCount > 0 ? (members.reduce((s, m) => s + m.stats.leads, 0) / activeCount).toFixed(1) : "0"}
                     </p>
                     <p className="text-[9px] text-muted-foreground font-bold">متوسط العملاء/وكيل</p>
                   </div>
                   <div className="text-center p-2 rounded-xl bg-muted/50">
-                    <p className="text-lg font-black">
+                    <p className="text-lg font-bold">
                       {activeCount > 0 ? (members.reduce((s, m) => s + m.stats.wonDeals, 0) / activeCount).toFixed(1) : "0"}
                     </p>
                     <p className="text-[9px] text-muted-foreground font-bold">متوسط الرابحة/وكيل</p>
@@ -899,7 +900,7 @@ export default function TeamPage() {
                 {recentHires.length > 0 && (
                   <div>
                     <h5 className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-1.5">
-                      <Sparkles className="h-3 w-3 text-amber-500" /> التحقوا مؤخرا ({recentHires.length})
+                      <Sparkles className="h-3 w-3 text-[hsl(var(--warning))]" /> التحقوا مؤخرا ({recentHires.length})
                     </h5>
                     <div className="flex flex-wrap gap-1.5">
                       {recentHires.slice(0, 5).map((m) => (
@@ -913,8 +914,8 @@ export default function TeamPage() {
 
                 {/* At-risk alerts */}
                 {atRiskAgents.length > 0 && (
-                  <div className="rounded-xl border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 p-3">
-                    <h5 className="text-xs font-bold text-amber-700 dark:text-amber-400 mb-2 flex items-center gap-1.5">
+                  <div className="rounded-xl border border-[hsl(var(--warning)/0.2)] bg-[hsl(var(--warning)/0.1)]/50 dark:bg-[hsl(var(--warning))]/20 p-3">
+                    <h5 className="text-xs font-bold text-[hsl(var(--warning))] dark:text-[hsl(var(--warning))] mb-2 flex items-center gap-1.5">
                       <AlertTriangle className="h-3 w-3" /> تنبيهات الأداء ({atRiskAgents.length})
                     </h5>
                     <div className="space-y-1.5">
@@ -925,7 +926,7 @@ export default function TeamPage() {
                         return (
                           <div key={m.id} className="flex items-center justify-between text-[10px]">
                             <span className="font-bold">{m.firstName} {m.lastName}</span>
-                            <span className="text-amber-600 dark:text-amber-400">
+                            <span className="text-[hsl(var(--warning))] dark:text-[hsl(var(--warning))]">
                               {m.stats.deals === 0 && "بدون صفقات"}
                               {m.stats.deals === 0 && notLoggedIn && " | "}
                               {notLoggedIn && "لم يسجل دخول 7+ أيام"}
@@ -944,7 +945,7 @@ export default function TeamPage() {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base font-bold flex items-center gap-2">
-                    <Trophy className="h-4 w-4 text-amber-500" />
+                    <Trophy className="h-4 w-4 text-[hsl(var(--warning))]" />
                     لوحة المتصدرين
                   </CardTitle>
                   <Select value={leaderboardPeriod} onValueChange={setLeaderboardPeriod}>
@@ -975,7 +976,7 @@ export default function TeamPage() {
                           </Avatar>
                           <p className="text-[10px] font-bold truncate max-w-[70px]">{leaderboardData.leaderboard[1].name}</p>
                           <p className="text-[9px] text-muted-foreground">{leaderboardData.leaderboard[1].wonDeals} صفقة</p>
-                          <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-t-lg mt-1 flex items-center justify-center text-lg font-black text-gray-500" style={{ height: 50 }}>
+                          <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-t-lg mt-1 flex items-center justify-center text-lg font-bold text-gray-500" style={{ height: 50 }}>
                             2
                           </div>
                         </div>
@@ -983,15 +984,15 @@ export default function TeamPage() {
                       {/* 1st place */}
                       {leaderboardData.leaderboard[0] && (
                         <div className="flex flex-col items-center">
-                          <Crown className="h-5 w-5 text-amber-500 mb-0.5" />
-                          <Avatar className="h-12 w-12 ring-2 ring-amber-400 mb-1">
-                            <AvatarFallback className="bg-amber-50 text-amber-700 text-sm font-bold">
+                          <Crown className="h-5 w-5 text-[hsl(var(--warning))] mb-0.5" />
+                          <Avatar className="h-12 w-12 ring-2 ring-[hsl(var(--warning))] mb-1">
+                            <AvatarFallback className="bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))] text-sm font-bold">
                               {getInitials(leaderboardData.leaderboard[0].name.split(" ")[0], leaderboardData.leaderboard[0].name.split(" ")[1])}
                             </AvatarFallback>
                           </Avatar>
                           <p className="text-xs font-bold truncate max-w-[80px]">{leaderboardData.leaderboard[0].name}</p>
-                          <p className="text-[10px] text-amber-600 font-bold">{leaderboardData.leaderboard[0].wonDeals} صفقة</p>
-                          <div className="w-16 bg-amber-100 dark:bg-amber-900/30 border border-amber-300 rounded-t-lg mt-1 flex items-center justify-center text-xl font-black text-amber-600" style={{ height: 70 }}>
+                          <p className="text-[10px] text-[hsl(var(--warning))] font-bold">{leaderboardData.leaderboard[0].wonDeals} صفقة</p>
+                          <div className="w-16 bg-[hsl(var(--warning)/0.15)] dark:bg-[hsl(var(--warning))]/30 border border-[hsl(var(--warning)/0.3)] rounded-t-lg mt-1 flex items-center justify-center text-xl font-bold text-[hsl(var(--warning))]" style={{ height: 70 }}>
                             1
                           </div>
                         </div>
@@ -999,14 +1000,14 @@ export default function TeamPage() {
                       {/* 3rd place */}
                       {leaderboardData.leaderboard[2] && (
                         <div className="flex flex-col items-center">
-                          <Avatar className="h-9 w-9 ring-2 ring-orange-300 mb-1">
-                            <AvatarFallback className="bg-orange-50 text-orange-600 text-xs font-bold">
+                          <Avatar className="h-9 w-9 ring-2 ring-[hsl(var(--warning)/0.3)] mb-1">
+                            <AvatarFallback className="bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))] text-xs font-bold">
                               {getInitials(leaderboardData.leaderboard[2].name.split(" ")[0], leaderboardData.leaderboard[2].name.split(" ")[1])}
                             </AvatarFallback>
                           </Avatar>
                           <p className="text-[10px] font-bold truncate max-w-[70px]">{leaderboardData.leaderboard[2].name}</p>
                           <p className="text-[9px] text-muted-foreground">{leaderboardData.leaderboard[2].wonDeals} صفقة</p>
-                          <div className="w-16 bg-orange-100 dark:bg-orange-900/20 rounded-t-lg mt-1 flex items-center justify-center text-lg font-black text-orange-500" style={{ height: 35 }}>
+                          <div className="w-16 bg-[hsl(var(--warning)/0.15)] dark:bg-[hsl(var(--warning))]/20 rounded-t-lg mt-1 flex items-center justify-center text-lg font-bold text-[hsl(var(--warning))]" style={{ height: 35 }}>
                             3
                           </div>
                         </div>
@@ -1026,7 +1027,7 @@ export default function TeamPage() {
                             </Avatar>
                             <span className="text-xs font-bold flex-1 truncate">{agent.name}</span>
                             <span className="text-[10px] text-muted-foreground">{agent.wonDeals} صفقة</span>
-                            <span className="text-[10px] font-mono text-primary font-bold">{formatRevenue(agent.revenue)} ر.س</span>
+                            <span className="text-[10px] font-mono text-primary font-bold">{formatRevenue(agent.revenue)}</span>
                           </div>
                         ))}
                       </div>
@@ -1046,14 +1047,14 @@ export default function TeamPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
-                  <Star className="h-4 w-4 text-amber-500" />
+                  <Star className="h-4 w-4 text-[hsl(var(--warning))]" />
                   أفضل 5 وكلاء بالصفقات
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {perfData?.agentMetrics && perfData.agentMetrics.length > 0 ? (
                   <div className="h-[300px]" style={{ direction: "ltr" }}>
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                       <BarChart
                         data={perfData.agentMetrics
                           .sort((a, b) => b.wonDeals - a.wonDeals)
@@ -1064,11 +1065,11 @@ export default function TeamPage() {
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                         <XAxis type="number" />
                         <YAxis dataKey="name" type="category" width={100} fontSize={12} />
-                        <ReTooltip content={<ChartTooltip />} />
-                        <Bar dataKey="wonDeals" name="صفقات رابحة" fill={CHART_COLORS.green} radius={[0, 6, 6, 0]} />
-                        <Bar dataKey="deals" name="إجمالي الصفقات" fill={CHART_COLORS.blue} radius={[0, 6, 6, 0]} />
+                        <ReTooltip content={<ChartTooltip content={<ChartTooltipContent />} />} />
+                        <Bar dataKey="wonDeals" name="صفقات رابحة" fill={CHART_COLORS.tertiary} radius={[0, 6, 6, 0]} />
+                        <Bar dataKey="deals" name="إجمالي الصفقات" fill={CHART_COLORS.secondary} radius={[0, 6, 6, 0]} />
                       </BarChart>
-                    </ResponsiveContainer>
+                    </ChartContainer>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
@@ -1106,7 +1107,7 @@ export default function TeamPage() {
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold truncate">{m.firstName} {m.lastName}</p>
                           <p className="text-[10px] text-muted-foreground">
-                            {m.stats.leads} عملاء . {m.stats.deals} صفقات . {m.stats.wonDeals} رابحة . {formatRevenue(m.stats.revenue)} ر.س
+                            {m.stats.leads} عملاء . {m.stats.deals} صفقات . {m.stats.wonDeals} رابحة . {formatRevenue(m.stats.revenue)}
                           </p>
                         </div>
                         <Badge variant={m.isActive ? "default" : "secondary"} className="text-[10px] shrink-0">
@@ -1310,7 +1311,7 @@ export default function TeamPage() {
                                       <TooltipTrigger asChild>
                                         <div className={cn(
                                           "w-2 h-2 rounded-full",
-                                          isOff ? "bg-gray-300 dark:bg-gray-600" : "bg-emerald-500"
+                                          isOff ? "bg-gray-300 dark:bg-gray-600" : "bg-primary/100"
                                         )} />
                                       </TooltipTrigger>
                                       <TooltipContent side="top" className="text-[10px]">
@@ -1413,16 +1414,16 @@ export default function TeamPage() {
                                       </h5>
                                       <div className="grid grid-cols-2 gap-2">
                                         <div className="text-center p-2 rounded-lg bg-card border border-border">
-                                          <p className="text-lg font-black text-primary">{member.stats.wonDeals}</p>
+                                          <p className="text-lg font-bold text-primary">{member.stats.wonDeals}</p>
                                           <p className="text-[9px] text-muted-foreground font-bold">رابحة</p>
                                         </div>
                                         <div className="text-center p-2 rounded-lg bg-card border border-border">
-                                          <p className="text-lg font-black">{member.stats.deals > 0 ? Math.round((member.stats.wonDeals / member.stats.deals) * 100) : 0}%</p>
+                                          <p className="text-lg font-bold">{member.stats.deals > 0 ? Math.round((member.stats.wonDeals / member.stats.deals) * 100) : 0}%</p>
                                           <p className="text-[9px] text-muted-foreground font-bold">معدل التحويل</p>
                                         </div>
                                       </div>
                                       <div className="text-center p-2 rounded-lg bg-card border border-border">
-                                        <p className="text-lg font-black font-mono">{formatRevenue(member.stats.revenue)} <span className="text-xs font-normal">ر.س</span></p>
+                                        <p className="text-lg font-bold font-mono">{formatRevenue(member.stats.revenue)} <span className="text-xs font-normal"></span></p>
                                         <p className="text-[9px] text-muted-foreground font-bold">إجمالي الإيرادات</p>
                                       </div>
                                     </div>
@@ -1494,7 +1495,7 @@ export default function TeamPage() {
                                           <Button
                                             variant="outline"
                                             size="sm"
-                                            className="flex-1 text-xs gap-1 text-green-600 hover:text-green-700"
+                                            className="flex-1 text-xs gap-1 text-primary hover:text-primary"
                                             onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/${member.phone?.replace(/[^0-9]/g, "")}`, "_blank"); }}
                                           >
                                             <MessageSquare className="h-3 w-3" /> واتساب
@@ -1567,27 +1568,27 @@ export default function TeamPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="h-[280px]" style={{ direction: "ltr" }}>
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                         <AreaChart data={perfData.monthlyTrend} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                           <defs>
                             <linearGradient id="colorDeals" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor={CHART_COLORS.blue} stopOpacity={0.15} />
-                              <stop offset="95%" stopColor={CHART_COLORS.blue} stopOpacity={0} />
+                              <stop offset="5%" stopColor={CHART_COLORS.secondary} stopOpacity={0.15} />
+                              <stop offset="95%" stopColor={CHART_COLORS.secondary} stopOpacity={0} />
                             </linearGradient>
                             <linearGradient id="colorWon" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor={CHART_COLORS.green} stopOpacity={0.15} />
-                              <stop offset="95%" stopColor={CHART_COLORS.green} stopOpacity={0} />
+                              <stop offset="5%" stopColor={CHART_COLORS.tertiary} stopOpacity={0.15} />
+                              <stop offset="95%" stopColor={CHART_COLORS.tertiary} stopOpacity={0} />
                             </linearGradient>
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
                           <XAxis dataKey="month" fontSize={11} tickLine={false} />
                           <YAxis fontSize={11} tickLine={false} />
-                          <ReTooltip content={<ChartTooltip />} />
-                          <Area type="monotone" dataKey="deals" name="الصفقات" stroke={CHART_COLORS.blue} fill="url(#colorDeals)" strokeWidth={2} />
-                          <Area type="monotone" dataKey="wonDeals" name="رابحة" stroke={CHART_COLORS.green} fill="url(#colorWon)" strokeWidth={2} />
+                          <ReTooltip content={<ChartTooltip content={<ChartTooltipContent />} />} />
+                          <Area type="monotone" dataKey="deals" name="الصفقات" stroke={CHART_COLORS.secondary} fill="url(#colorDeals)" strokeWidth={2} />
+                          <Area type="monotone" dataKey="wonDeals" name="رابحة" stroke={CHART_COLORS.tertiary} fill="url(#colorWon)" strokeWidth={2} />
                           <Legend />
                         </AreaChart>
-                      </ResponsiveContainer>
+                      </ChartContainer>
                     </div>
                   </CardContent>
                 </Card>
@@ -1598,13 +1599,13 @@ export default function TeamPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-base font-bold flex items-center gap-2">
-                      <Zap className="h-4 w-4 text-amber-500" />
+                      <Zap className="h-4 w-4 text-[hsl(var(--warning))]" />
                       الإيرادات حسب الوكيل
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="h-[320px]" style={{ direction: "ltr" }}>
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                         <BarChart
                           data={perfData.agentMetrics.filter((a) => a.revenue > 0).sort((a, b) => b.revenue - a.revenue).slice(0, 10)}
                           margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
@@ -1612,10 +1613,10 @@ export default function TeamPage() {
                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
                           <XAxis dataKey="name" fontSize={11} tickLine={false} />
                           <YAxis fontSize={11} tickLine={false} tickFormatter={(v) => formatRevenue(v)} />
-                          <ReTooltip content={<ChartTooltip formatter={(v: number) => `${v.toLocaleString()} ر.س`} />} />
+                          <ReTooltip content={<ChartTooltip content={<ChartTooltipContent />} formatter={(v: number) => `${v.toLocaleString()}`} />} />
                           <Bar dataKey="revenue" name="الإيرادات" fill={CHART_COLORS.amber} radius={[6, 6, 0, 0]} />
                         </BarChart>
-                      </ResponsiveContainer>
+                      </ChartContainer>
                     </div>
                   </CardContent>
                 </Card>
@@ -1626,7 +1627,7 @@ export default function TeamPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="h-[320px]" style={{ direction: "ltr" }}>
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                         <BarChart
                           data={perfData.agentMetrics.sort((a, b) => b.leads - a.leads).slice(0, 10)}
                           margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
@@ -1634,10 +1635,10 @@ export default function TeamPage() {
                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
                           <XAxis dataKey="name" fontSize={11} tickLine={false} />
                           <YAxis fontSize={11} tickLine={false} />
-                          <ReTooltip content={<ChartTooltip />} />
-                          <Bar dataKey="leads" name="عملاء" fill={CHART_COLORS.blue} radius={[6, 6, 0, 0]} />
+                          <ReTooltip content={<ChartTooltip content={<ChartTooltipContent />} />} />
+                          <Bar dataKey="leads" name="عملاء" fill={CHART_COLORS.secondary} radius={[6, 6, 0, 0]} />
                         </BarChart>
-                      </ResponsiveContainer>
+                      </ChartContainer>
                     </div>
                   </CardContent>
                 </Card>
@@ -1652,7 +1653,7 @@ export default function TeamPage() {
                   <CardContent>
                     {perfData.dealStages.some((s) => s.count > 0) ? (
                       <div className="h-[320px]" style={{ direction: "ltr" }}>
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ChartContainer config={{} as ChartConfig} className="h-full w-full">
                           <PieChart>
                             <Pie
                               data={perfData.dealStages.filter((s) => s.count > 0)}
@@ -1681,7 +1682,7 @@ export default function TeamPage() {
                               formatter={(value: string) => STAGE_LABELS[value] || value}
                             />
                           </PieChart>
-                        </ResponsiveContainer>
+                        </ChartContainer>
                       </div>
                     ) : (
                       <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
@@ -1700,12 +1701,12 @@ export default function TeamPage() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="text-end text-xs">#</TableHead>
-                          <TableHead className="text-end text-xs">معدل التحويل</TableHead>
+                          <TableHead className="text-xs">#</TableHead>
+                          <TableHead className="text-xs">معدل التحويل</TableHead>
                           <TableHead className="text-center text-xs">الإيرادات</TableHead>
                           <TableHead className="text-center text-xs">رابحة</TableHead>
                           <TableHead className="text-center text-xs">صفقات</TableHead>
-                          <TableHead className="text-end text-xs">الوكيل</TableHead>
+                          <TableHead className="text-xs">الوكيل</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1719,7 +1720,7 @@ export default function TeamPage() {
                               <TableCell>
                                 <div className="flex items-center gap-2">
                                   <Progress value={agent.conversionRate} className="h-1.5 flex-1" />
-                                  <span className="text-xs font-bold w-10 text-end">{agent.conversionRate}%</span>
+                                  <span className="text-xs font-bold w-10">{agent.conversionRate}%</span>
                                 </div>
                               </TableCell>
                               <TableCell className="text-center text-[10px] font-mono font-bold text-primary">
@@ -1800,7 +1801,7 @@ export default function TeamPage() {
                                           "rounded-lg p-2 text-[10px] font-bold cursor-pointer transition-colors",
                                           isOff
                                             ? "bg-gray-100 dark:bg-gray-800 text-gray-400"
-                                            : "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-950/50"
+                                            : "bg-primary/10 dark:bg-primary/90/30 text-primary dark:text-primary hover:bg-primary/15 dark:hover:bg-primary/90/50"
                                         )}
                                         onClick={() => openWorkingHours(member.id)}
                                       >
@@ -1830,7 +1831,7 @@ export default function TeamPage() {
               {/* Legend */}
               <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border">
                 <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                  <div className="w-3 h-3 rounded bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200" />
+                  <div className="w-3 h-3 rounded bg-primary/10 dark:bg-primary/90/30 border border-primary/20" />
                   متاح
                 </div>
                 <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
@@ -1886,10 +1887,10 @@ export default function TeamPage() {
                     <div key={log.id} className="flex items-start gap-3 p-4 hover:bg-muted/30 transition-colors">
                       <div className={cn(
                         "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
-                        log.entity === "leads" ? "bg-blue-50 text-blue-500 dark:bg-blue-950/30" :
-                        log.entity === "deals" ? "bg-amber-50 text-amber-500 dark:bg-amber-950/30" :
-                        log.entity === "appointments" ? "bg-green-50 text-green-500 dark:bg-green-950/30" :
-                        "bg-purple-50 text-purple-500 dark:bg-purple-950/30"
+                        log.entity === "leads" ? "bg-accent text-accent-foreground dark:bg-accent-foreground/30" :
+                        log.entity === "deals" ? "bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))] dark:bg-[hsl(var(--warning))]/30" :
+                        log.entity === "appointments" ? "bg-primary/10 text-primary dark:bg-primary/90/30" :
+                        "bg-secondary text-secondary-foreground dark:bg-secondary-foreground/30"
                       )}>
                         {log.entity === "leads" ? <Target className="h-3.5 w-3.5" /> :
                          log.entity === "deals" ? <Briefcase className="h-3.5 w-3.5" /> :
@@ -2027,14 +2028,14 @@ export default function TeamPage() {
       {/* ================================================================== */}
       <Sheet open={inviteOpen} onOpenChange={setInviteOpen}>
         <SheetContent side="left" className="w-full sm:max-w-xl overflow-y-auto">
-          <SheetHeader className="text-start mb-6">
+          <SheetHeader className="mb-6">
             <SheetTitle>
               {bulkInviteMode ? "دعوة جماعية" : "إضافة وكيل جديد"}
             </SheetTitle>
             <SheetDescription>
               {bulkInviteMode
                 ? "أدخل بريد إلكتروني واحد في كل سطر (اختياري: email,firstName,lastName)"
-                : "أدخل بيانات الوكيل -- كلمة المرور الافتراضية: agent123"}
+                : "أدخل بيانات الوكيل -- تم إنشاء كلمة مرور مؤقتة وإرسالها للوكيل"}
             </SheetDescription>
           </SheetHeader>
 
@@ -2207,7 +2208,7 @@ export default function TeamPage() {
       {/* ================================================================== */}
       <Sheet open={editOpen} onOpenChange={setEditOpen}>
         <SheetContent side="left" className="w-full sm:max-w-xl overflow-y-auto">
-          <SheetHeader className="text-start mb-6">
+          <SheetHeader className="mb-6">
             <SheetTitle>تعديل بيانات الوكيل</SheetTitle>
             <SheetDescription>
               {editingMember ? `${editingMember.firstName} ${editingMember.lastName}` : ""}
@@ -2400,7 +2401,7 @@ export default function TeamPage() {
           ) : (
             <>
               {/* Agent Header */}
-              <SheetHeader className="text-start mb-4">
+              <SheetHeader className="mb-4">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-16 w-16">
                     <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">
@@ -2439,7 +2440,7 @@ export default function TeamPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-5 px-1.5 text-[10px] text-green-600"
+                      className="h-5 px-1.5 text-[10px] text-primary"
                       onClick={() => window.open(`https://wa.me/${activityData.agent.phone?.replace(/[^0-9]/g, "")}`, "_blank")}
                     >
                       واتساب
@@ -2469,7 +2470,7 @@ export default function TeamPage() {
                 ].map((s, i) => (
                   <div key={i} className="text-center p-2 rounded-xl bg-muted/50">
                     <s.icon className="h-3.5 w-3.5 mx-auto text-muted-foreground mb-0.5" />
-                    <p className="text-lg font-black leading-none">{s.value}</p>
+                    <p className="text-lg font-bold leading-none">{s.value}</p>
                     <p className="text-[8px] text-muted-foreground font-bold mt-0.5">{s.label}</p>
                   </div>
                 ))}
@@ -2481,7 +2482,7 @@ export default function TeamPage() {
                   <div className="flex-1">
                     <div className="flex items-center justify-between text-xs mb-1">
                       <span className="text-muted-foreground font-bold">معدل التحويل</span>
-                      <span className="font-black">
+                      <span className="font-bold">
                         {Math.round((activityData.stats.wonDeals / activityData.stats.deals) * 100)}%
                       </span>
                     </div>
@@ -2538,7 +2539,7 @@ export default function TeamPage() {
                   {/* Recent Leads */}
                   <div className="space-y-3">
                     <h4 className="text-sm font-bold flex items-center gap-2">
-                      <Target className="h-4 w-4 text-blue-500" />
+                      <Target className="h-4 w-4 text-accent-foreground" />
                       آخر العملاء المحتملين (30 يوم)
                     </h4>
                     {activityData.recentLeads.length === 0 ? (
@@ -2548,9 +2549,9 @@ export default function TeamPage() {
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="text-end text-[10px]">المصدر</TableHead>
-                              <TableHead className="text-end text-[10px]">الحالة</TableHead>
-                              <TableHead className="text-end text-[10px]">التاريخ</TableHead>
+                              <TableHead className="text-[10px]">المصدر</TableHead>
+                              <TableHead className="text-[10px]">الحالة</TableHead>
+                              <TableHead className="text-[10px]">التاريخ</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -2576,7 +2577,7 @@ export default function TeamPage() {
                   {/* Recent Deals */}
                   <div className="space-y-3 mt-6">
                     <h4 className="text-sm font-bold flex items-center gap-2">
-                      <Briefcase className="h-4 w-4 text-amber-500" />
+                      <Briefcase className="h-4 w-4 text-[hsl(var(--warning))]" />
                       آخر الصفقات (30 يوم)
                     </h4>
                     {activityData.recentDeals.length === 0 ? (
@@ -2586,10 +2587,10 @@ export default function TeamPage() {
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="text-end text-[10px]">المبلغ</TableHead>
-                              <TableHead className="text-end text-[10px]">العميل</TableHead>
-                              <TableHead className="text-end text-[10px]">المرحلة</TableHead>
-                              <TableHead className="text-end text-[10px]">التاريخ</TableHead>
+                              <TableHead className="text-[10px]">المبلغ</TableHead>
+                              <TableHead className="text-[10px]">العميل</TableHead>
+                              <TableHead className="text-[10px]">المرحلة</TableHead>
+                              <TableHead className="text-[10px]">التاريخ</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -2623,7 +2624,7 @@ export default function TeamPage() {
                   {/* Recent Appointments */}
                   <div className="space-y-3 mt-6">
                     <h4 className="text-sm font-bold flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-green-500" />
+                      <Calendar className="h-4 w-4 text-primary" />
                       آخر المواعيد (30 يوم)
                     </h4>
                     {activityData.recentAppointments.length === 0 ? (
@@ -2633,10 +2634,10 @@ export default function TeamPage() {
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="text-end text-[10px]">الموقع</TableHead>
-                              <TableHead className="text-end text-[10px]">العميل</TableHead>
-                              <TableHead className="text-end text-[10px]">الحالة</TableHead>
-                              <TableHead className="text-end text-[10px]">الموعد</TableHead>
+                              <TableHead className="text-[10px]">الموقع</TableHead>
+                              <TableHead className="text-[10px]">العميل</TableHead>
+                              <TableHead className="text-[10px]">الحالة</TableHead>
+                              <TableHead className="text-[10px]">الموعد</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -2814,7 +2815,7 @@ export default function TeamPage() {
       {/* ================================================================== */}
       <Sheet open={workingHoursOpen} onOpenChange={setWorkingHoursOpen}>
         <SheetContent side="left" className="w-full sm:max-w-md overflow-y-auto">
-          <SheetHeader className="text-start mb-6">
+          <SheetHeader className="mb-6">
             <SheetTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5 text-primary" /> ساعات العمل
             </SheetTitle>
@@ -2894,7 +2895,7 @@ export default function TeamPage() {
       {/* ================================================================== */}
       <Sheet open={transferOpen} onOpenChange={setTransferOpen}>
         <SheetContent side="left" className="w-full sm:max-w-md overflow-y-auto">
-          <SheetHeader className="text-start mb-6">
+          <SheetHeader className="mb-6">
             <SheetTitle className="flex items-center gap-2">
               <ArrowRightLeft className="h-5 w-5 text-primary" /> نقل الأعمال
             </SheetTitle>
@@ -2929,7 +2930,7 @@ export default function TeamPage() {
 
               <div className="flex items-center justify-between p-3 rounded-xl border border-border">
                 <div className="flex items-center gap-2">
-                  <Target className="h-4 w-4 text-blue-500" />
+                  <Target className="h-4 w-4 text-accent-foreground" />
                   <span className="text-sm font-bold">العملاء المحتملون</span>
                 </div>
                 <Switch checked={transferLeads} onCheckedChange={setTransferLeads} />
@@ -2937,7 +2938,7 @@ export default function TeamPage() {
 
               <div className="flex items-center justify-between p-3 rounded-xl border border-border">
                 <div className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4 text-amber-500" />
+                  <Briefcase className="h-4 w-4 text-[hsl(var(--warning))]" />
                   <span className="text-sm font-bold">الصفقات</span>
                 </div>
                 <Switch checked={transferDeals} onCheckedChange={setTransferDeals} />
@@ -2945,7 +2946,7 @@ export default function TeamPage() {
 
               <div className="flex items-center justify-between p-3 rounded-xl border border-border">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-green-500" />
+                  <Calendar className="h-4 w-4 text-primary" />
                   <span className="text-sm font-bold">المواعيد</span>
                 </div>
                 <Switch checked={transferAppointments} onCheckedChange={setTransferAppointments} />

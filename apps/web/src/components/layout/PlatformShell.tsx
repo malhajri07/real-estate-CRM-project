@@ -73,7 +73,7 @@ export default function PlatformShell(props: PlatformShellProps) {
   const { dir } = useLanguage();
 
   return (
-    <SidebarProvider dir={dir}>
+    <SidebarProvider>
       <PlatformShellContent {...props} />
     </SidebarProvider>
   );

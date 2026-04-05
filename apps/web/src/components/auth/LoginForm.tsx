@@ -143,7 +143,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
                         placeholder="••••••••"
                         autoComplete="current-password"
                         disabled={isLoading}
-                        className={cn("h-11 border-border rounded-xl bg-card/80 focus:bg-card focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-start", dir === 'rtl' ? "pl-10" : "pr-10")}
+                        className="h-11 border-border rounded-xl bg-card/80 focus:bg-card focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-start ps-10"
                       />
                       <Button
                         type="button"
@@ -151,7 +151,7 @@ export default function LoginForm({ onLogin, isLoading = false, error }: LoginFo
                         size="icon"
                         className={cn(
                           "absolute top-1/2 -translate-y-1/2 text-muted-foreground/70 hover:text-muted-foreground hover:bg-transparent h-8 w-8",
-                          dir === 'rtl' ? "left-2" : "right-2"
+                          "start-2"
                         )}
                         onClick={() => setShowPassword(!showPassword)}
                         disabled={isLoading}

@@ -41,6 +41,10 @@ import appointmentsRoutes     from "./routes/appointments";
 import inquiriesRoutes        from "./routes/inquiries";
 import auditLogsRoutes        from "./routes/audit-logs";
 
+// ── Agent collaboration ──────────────────────────────────────────────────────
+import brokerRequestsRoutes   from "./routes/broker-requests";
+import nearbyPlacesRoutes     from "./routes/nearby-places";
+
 // ── Org-scoped domain routes (auth + org enforced at mount) ───────────────────
 import leadsRoutes            from "./routes/leads";
 import dealsRoutes            from "./routes/deals";
@@ -157,6 +161,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/appointments",   appointmentsRoutes);
   app.use("/api/inquiries",      inquiriesRoutes);
   app.use("/api/audit-logs",     authenticateToken, auditLogsRoutes);
+  app.use("/api/broker-requests", brokerRequestsRoutes);
+  app.use("/api/nearby-places",  nearbyPlacesRoutes);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // 5. ORG-SCOPED ROUTES  (authenticateToken + requireOrg enforced at mount)

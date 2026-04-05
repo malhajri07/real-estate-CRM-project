@@ -53,7 +53,7 @@ export default function Drawer({
           open ? 'translate-x-0' : closedTransform,
           className
         )}
-        dir={dir}
+       
       >
         {/* Header */}
         {(title || description) && (

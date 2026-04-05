@@ -47,6 +47,7 @@ import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 
 // Core page imports - loaded immediately for critical public routes
 import Landing from "@/pages/landing";
+import NotFound from "@/pages/not-found";
 import SignupSelection from "@/pages/signup/selection";
 import SignupIndividual from "@/pages/signup/individual";
 import SignupCorporate from "@/pages/signup/corporate";
@@ -82,16 +83,14 @@ const FavoritesPage = lazy(() => import("@/pages/platform/favorites"));
 const ComparePage = lazy(() => import("@/pages/platform/compare"));
 const PostListingPage = lazy(() => import("@/pages/platform/properties/post-listing"));
 const ModerationQueuePage = lazy(() => import("@/pages/admin/moderation"));
-const AgenciesPage = lazy(() => import("@/pages/platform/agencies"));
 const TeamPage = lazy(() => import("@/pages/platform/team"));
-const AgencyPage = lazy(() => import("@/pages/platform/agencies/detail"));
 const AgentPage = lazy(() => import("@/pages/platform/agents/detail"));
 const PublicListingPage = lazy(() => import("@/pages/listing"));
 const SavedSearchesPage = lazy(() => import("@/pages/platform/saved-searches"));
 const BlogPage = lazy(() => import("@/pages/blog"));
 const RealEstateRequestsPage = lazy(() => import("@/pages/requests/real-estate"));
 const CustomerRequestsPage = lazy(() => import("@/pages/platform/requests/customer"));
-const AdminRequestsPage = lazy(() => import("@/pages/admin/requests"));
+const BrokerRequestsPage = lazy(() => import("@/pages/platform/broker-requests"));
 const ActivitiesPage = lazy(() => import("@/pages/platform/activities"));
 const CalendarPage = lazy(() => import("@/pages/platform/calendar"));
 const PoolPage = lazy(() => import("@/pages/platform/pool"));
@@ -325,7 +324,6 @@ function Router() {
       { path: '/home/platform/reports', component: Reports, aliases: ['/reports'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/notifications', component: Notifications, aliases: ['/notifications'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/settings', component: Settings, aliases: ['/settings'], allowedRoles: PLATFORM_CORE_ROLES },
-      { path: '/home/platform/agencies', component: AgenciesPage, aliases: ['/agencies'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/team', component: withSuspense(TeamPage), aliases: ['/team'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms'], allowedRoles: PLATFORM_CORE_ROLES },
@@ -342,7 +340,6 @@ function Router() {
     aliases?: string[];
     allowedRoles?: readonly UserRole[];
   }> = [
-      { path: '/home/platform/agency/:id', component: AgencyPage, aliases: ['/agency/:id'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/agent/:id', component: AgentPage, aliases: ['/agent/:id'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/properties/:id', component: PropertyDetail, aliases: ['/properties/:id'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/listing/:id', component: PublicListingPage, aliases: ['/listing/:id'] },
@@ -357,7 +354,7 @@ function Router() {
     requiredPermission?: string;
   }> = [
       { path: '/home/platform/customer-requests', component: CustomerRequestsPage, aliases: ['/customer-requests'], allowedRoles: PLATFORM_CORE_ROLES },
-      { path: '/home/platform/admin-requests', component: AdminRequestsPage, aliases: ['/admin-requests'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/broker-requests', component: BrokerRequestsPage, aliases: ['/broker-requests'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/favorites', component: FavoritesPage, aliases: ['/favorites'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/compare', component: ComparePage, aliases: ['/compare'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/post-listing', component: PostListingPage, aliases: ['/post-listing'], allowedRoles: EXTENDED_PLATFORM_ROLES },
@@ -539,11 +536,8 @@ function Router() {
           <Route path="/home/admin">
             <RouteGuard component={SuspendedRBACDashboard} allowedRoles={ADMIN_ONLY_ROLES} />
           </Route>
-          {/* Default route for non-dashboard port - redirect to home */}
-          <Route component={() => {
-            window.location.href = '/home';
-            return <div className="min-h-screen flex items-center justify-center">جاري التوجيه إلى الصفحة الرئيسية...</div>;
-          }} />
+          {/* 404 catch-all */}
+          <Route component={NotFound} />
         </Switch>
       </Suspense>
     );
@@ -571,8 +565,8 @@ function Router() {
           ))}
           {/* Root path for unauthenticated users on port 3000 - show landing */}
           <Route path="/" component={Landing} />
-          {/* Fallback */}
-          <Route component={Landing} />
+          {/* 404 catch-all */}
+          <Route component={NotFound} />
         </Switch>
       </Suspense>
     );
@@ -700,7 +694,8 @@ function Router() {
 
           {/* Default routes */}
           <Route path="/" component={Landing} />
-          <Route component={Landing} />
+          {/* 404 catch-all */}
+          <Route component={NotFound} />
         </Switch>
       </Suspense>
     );

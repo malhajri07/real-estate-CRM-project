@@ -15,6 +15,7 @@
  */
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
+import { DirectionProvider } from '@radix-ui/react-direction';
 
 interface LanguageContextType {
   t: (key: string) => string;
@@ -703,7 +704,7 @@ const arabicTranslations: Record<string, string> = {
   'pool.table.type': 'النوع',
   'pool.table.city': 'المدينة',
   'pool.table.region': 'المنطقة',
-  'pool.table.budget': 'الميزانية (ر.س)',
+  'pool.table.budget': 'الميزانية',
   'pool.table.bedrooms': 'الغرف',
   'pool.table.bathrooms': 'الحمامات',
   'pool.table.living_rooms': 'صالات المعيشة',
@@ -920,11 +921,11 @@ const arabicTranslations: Record<string, string> = {
   'modal.add_lead.lead_source.social': 'وسائل التواصل الاجتماعي',
   'modal.add_lead.lead_source.walk_in': 'زيارة مباشرة',
   'modal.add_lead.lead_source.cold_call': 'اتصال بارد',
-  'modal.add_lead.budget.under_200k': 'أقل من 200 ألف ﷼',
-  'modal.add_lead.budget.200_400k': '200 - 400 ألف ﷼',
-  'modal.add_lead.budget.400_600k': '400 - 600 ألف ﷼',
-  'modal.add_lead.budget.600_800k': '600 - 800 ألف ﷼',
-  'modal.add_lead.budget.800_plus': 'أكثر من 800 ألف ﷼',
+  'modal.add_lead.budget.under_200k': 'أقل من 200 ألف',
+  'modal.add_lead.budget.200_400k': '200 - 400 ألف',
+  'modal.add_lead.budget.400_600k': '400 - 600 ألف',
+  'modal.add_lead.budget.600_800k': '600 - 800 ألف',
+  'modal.add_lead.budget.800_plus': 'أكثر من 800 ألف',
   'modal.add_lead.save': 'حفظ العميل المحتمل',
   'modal.add_lead.saving': 'جار حفظ العميل المحتمل...',
   'modal.add_property.title': 'إضافة عقار جديد',
@@ -1017,7 +1018,13 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     [t, dir, language]
   );
 
-  return <LanguageContext.Provider value={contextValue}>{children}</LanguageContext.Provider>;
+  return (
+    <LanguageContext.Provider value={contextValue}>
+      <DirectionProvider dir={dir}>
+        {children}
+      </DirectionProvider>
+    </LanguageContext.Provider>
+  );
 }
 
 export function useLanguage() {

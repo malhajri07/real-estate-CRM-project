@@ -349,7 +349,7 @@ export default function MapPage() {
 
   if (showSkeleton || listingsQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-[rgb(245,245,247)]" dir={dir}>
+      <div className="min-h-screen bg-[rgb(245,245,247)]">
         <PublicHeader />
         <MapSkeleton />
       </div>
@@ -357,7 +357,7 @@ export default function MapPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[rgb(245,245,247)] font-sans text-foreground overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-[rgb(245,245,247)] font-sans text-foreground overflow-x-hidden">
       <PublicHeader />
 
       <main className="pt-10 pb-20 px-4 md:px-6 w-full max-w-7xl mx-auto">
@@ -631,7 +631,7 @@ export default function MapPage() {
       <Sheet open={isFavoritesDrawerOpen} onOpenChange={setIsFavoritesDrawerOpen}>
         <SheetContent side="left" className="w-full max-w-sm border-r border-border bg-card shadow-lg p-0">
           <SheetHeader className="border-b border-border px-5 py-4">
-            <SheetTitle className="text-xs font-semibold text-primary">المفضلة</SheetTitle>
+            <SheetTitle className="text-xs font-bold text-primary">المفضلة</SheetTitle>
             <SheetDescription className="text-sm font-bold text-foreground">{favoriteIds.length} عقار محفوظ</SheetDescription>
           </SheetHeader>
 

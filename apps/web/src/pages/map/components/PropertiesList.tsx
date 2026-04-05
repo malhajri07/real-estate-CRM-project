@@ -78,18 +78,18 @@ export function PropertiesList({
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-sm relative z-50">
-      <Table className="min-w-[900px] text-end">
-        <TableHeader className="bg-muted/50 border-b border-border">
+      <Table className="min-w-[900px]">
+        <TableHeader className="bg-muted/50">
           <TableRow className="text-xs font-medium text-foreground/80 uppercase tracking-wider">
-            <TableHead className="px-6 py-3 text-end">الصورة</TableHead>
-            <TableHead className="px-6 py-3 text-end">العقار</TableHead>
-            <TableHead className="px-6 py-3 text-end">الموقع</TableHead>
-            <TableHead className="px-6 py-3 text-end">النوع</TableHead>
-            <TableHead className="px-6 py-3 text-end">الحالة</TableHead>
-            <TableHead className="px-6 py-3 text-end">السعر</TableHead>
-            <TableHead className="px-6 py-3 text-end">المساحة</TableHead>
-            <TableHead className="px-6 py-3 text-end">الغرف</TableHead>
-            <TableHead className="px-6 py-3 text-end">الإجراءات</TableHead>
+            <TableHead className="px-6 py-3">الصورة</TableHead>
+            <TableHead className="px-6 py-3">العقار</TableHead>
+            <TableHead className="px-6 py-3">الموقع</TableHead>
+            <TableHead className="px-6 py-3">النوع</TableHead>
+            <TableHead className="px-6 py-3">الحالة</TableHead>
+            <TableHead className="px-6 py-3">السعر</TableHead>
+            <TableHead className="px-6 py-3">المساحة</TableHead>
+            <TableHead className="px-6 py-3">الغرف</TableHead>
+            <TableHead className="px-6 py-3">الإجراءات</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody className="divide-y divide-border">
@@ -142,7 +142,7 @@ export function PropertiesList({
 
                 {/* Property */}
                 <TableCell className="px-6 py-4 text-end text-sm">
-                  <div className="font-semibold text-foreground">{property.title}</div>
+                  <div className="font-bold text-foreground">{property.title}</div>
                 </TableCell>
 
                 {/* Location */}
@@ -172,7 +172,7 @@ export function PropertiesList({
 
                 {/* Price */}
                 <TableCell className="px-6 py-4 text-end text-sm">
-                  <div className="font-semibold text-[rgb(128_193_165)]">
+                  <div className="font-bold text-[rgb(128_193_165)]">
                     {formatCurrency(property.price)}
                   </div>
                 </TableCell>

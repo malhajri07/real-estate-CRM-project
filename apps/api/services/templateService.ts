@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * templateService.ts - Template Service
  * 
@@ -14,7 +15,6 @@
  * - apps/web/src/pages/admin/templates-management.tsx - Template management UI
  */
 
-// @ts-nocheck
 import { prisma } from "../prismaClient";
 import { z } from "zod";
 

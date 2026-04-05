@@ -32,24 +32,33 @@ model accounts {
 }
 
 model agent_profiles {
-  id                String         @id @default(uuid())
-  userId            String         @unique
-  organizationId    String?
-  licenseNo         String         @unique
-  licenseValidTo    DateTime
-  territories       String
-  isIndividualAgent Boolean        @default(false)
-  status            AgentStatus    @default(PENDING_VERIFICATION)
-  specialties       String
-  experience        Int?
-  bio               String?
-  avatar            String?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  organizations     organizations? @relation(fields: [organizationId], references: [id])
-  users             users          @relation(fields: [userId], references: [id])
+  id                    String                      @id @default(uuid())
+  userId                String                      @unique
+  organizationId        String?
+  licenseNo             String                      @unique
+  licenseValidTo        DateTime
+  territories           String
+  isIndividualAgent     Boolean                     @default(false)
+  status                AgentStatus                 @default(PENDING_VERIFICATION)
+  specialties           String
+  experience            Int?
+  bio                   String?
+  avatar                String?
+  // ── FAL License (REGA) ──
+  falLicenseNumber      String?                     // رقم رخصة فال (10-digit)
+  falLicenseType        FalLicenseType?             // نوع الرخصة
+  falIssuedAt           DateTime?                   // تاريخ الإصدار
+  falExpiresAt          DateTime?                   // تاريخ الانتهاء
+  falStatus             LicenseVerificationStatus   @default(PENDING)
+  nationalIdNumber      String?                     // رقم الهوية الوطنية / الإقامة
+  sreiCertified         Boolean                     @default(false) // اجتياز تدريب المعهد العقاري
+  createdAt             DateTime                    @default(now())
+  updatedAt             DateTime                    @updatedAt
+  organizations         organizations?              @relation(fields: [organizationId], references: [id])
+  users                 users                       @relation(fields: [userId], references: [id])
 
   @@index([licenseNo])
+  @@index([falLicenseNumber])
   @@index([organizationId])
   @@index([status])
   @@index([userId])
@@ -216,6 +225,11 @@ model listings {
   status           ListingStatus   @default(ACTIVE)
   price            Decimal?
   description      String?
+  // ── REGA Advertising Compliance ──
+  regaAdLicenseNumber String?                         // رقم ترخيص الإعلان العقاري
+  falLicenseNumber    String?                         // رقم رخصة فال المستخدمة
+  adStartDate         DateTime?                       // تاريخ بداية الإعلان
+  adEndDate           DateTime?                       // تاريخ انتهاء الإعلان
   createdAt        DateTime        @default(now())
   updatedAt        DateTime       @updatedAt
   users            users           @relation(fields: [agentId], references: [id])
@@ -253,12 +267,26 @@ model organizations {
   timezone             String?
   billingEmail         String?
   billingPhone         String?
-  metadata             Json?
-  primaryContactId     String?
-  createdAt            DateTime                   @default(now())
-  updatedAt            DateTime                   @updatedAt
-  agent_profiles       agent_profiles[]
-  listings             listings[]
+  metadata                   Json?
+  primaryContactId           String?
+  // ── FAL License (REGA) ──
+  falLicenseNumber           String?                     // رقم رخصة فال المنشأة
+  falLicenseType             FalLicenseType?
+  falIssuedAt                DateTime?
+  falExpiresAt               DateTime?
+  falStatus                  LicenseVerificationStatus   @default(PENDING)
+  crNumber                   String?                     // رقم السجل التجاري
+  vatNumber                  String?                     // رقم التسجيل الضريبي
+  // ── National Address (العنوان الوطني) ──
+  nationalAddressBuildingNo  String?                     // رقم المبنى (4-digit)
+  nationalAddressStreet      String?                     // اسم الشارع
+  nationalAddressPostalCode  String?                     // الرمز البريدي (5-digit)
+  nationalAddressAdditionalNo String?                    // الرقم الإضافي (4-digit)
+  nationalAddressShortCode   String?                     // العنوان المختصر
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt
+  agent_profiles             agent_profiles[]
+  listings                   listings[]
   users                users[]
   primaryContact       users?                     @relation("organization_primary_contact", fields: [primaryContactId], references: [id])
   memberships          organization_memberships[]
@@ -271,6 +299,7 @@ model organizations {
   appointments         appointments[]
   deals                deals[]
   support_tickets      support_tickets[]
+  broker_requests      broker_requests[]
 
   @@index([industry])
   @@index([licenseNo])
@@ -329,8 +358,17 @@ model properties {
   longitude      Decimal?
   features       String?
   photos         String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  // ── REGA Compliance Fields ──
+  buildingAge              Int?                      // عمر المبنى (بالسنوات)
+  facadeDirection          String?                   // واجهة العقار (NORTH, SOUTH, etc.)
+  availableServices        String?                   // الخدمات المتوفرة (JSON: electricity, water, sewage)
+  legalStatus              PropertyLegalStatus?      // الحالة القانونية
+  deedNumber               String?                   // رقم الصك
+  nationalAddressBuildingNo  String?
+  nationalAddressPostalCode  String?
+  nationalAddressAdditionalNo String?
+  createdAt      DateTime?  @default(now())
+  updatedAt      DateTime?  @updatedAt
   cityId         Int?
   districtId     BigInt?
   regionId       Int?
@@ -339,7 +377,8 @@ model properties {
   appointments   appointments[]
   deals          deals[]
   agent          users?      @relation("PropertyAgent", fields: [agentId], references: [id], onDelete: SetNull)
-  favorites      favorites[]
+  favorites        favorites[]
+  broker_requests  broker_requests[]
 
   @@index([agentId])
   @@index([organizationId])
@@ -542,13 +581,23 @@ model deals {
   wonAt             DateTime?
   lostAt            DateTime?
   notes             String?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  organization      organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  listing           listings?     @relation(fields: [listingId], references: [id], onDelete: SetNull)
-  property          properties?   @relation(fields: [propertyId], references: [id], onDelete: SetNull)
-  customer          customers     @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  agent             users?        @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  // ── Saudi Regulation: Commission, RETT, Ejar ──
+  commissionPercentage  Decimal?      @db.Decimal(5, 2)   // نسبة العمولة (max 2.5% by law)
+  commissionAmount      Decimal?      @db.Decimal(14, 2)  // مبلغ العمولة
+  rettAmount            Decimal?      @db.Decimal(14, 2)  // ضريبة التصرفات العقارية (5%)
+  rettPaidDate          DateTime?                          // تاريخ سداد الضريبة
+  rettReference         String?                            // رقم مرجع هيئة الزكاة (ZATCA)
+  firstHomeExemption    Boolean       @default(false)      // إعفاء المسكن الأول (سكني)
+  ejarContractNumber    String?                            // رقم عقد إيجار
+  ejarRegistrationDate  DateTime?                          // تاريخ تسجيل عقد إيجار
+  brokerageContractRef  String?                            // مرجع عقد الوساطة
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  organization          organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  listing               listings?     @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  property              properties?   @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  customer              customers     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  agent                 users?        @relation(fields: [agentId], references: [id], onDelete: SetNull)
 
   @@index([organizationId])
   @@index([customerId])
@@ -664,6 +713,8 @@ model users {
   content_reports          content_reports[]
   marketingRequests        marketing_requests[]       @relation("MarketingRequestOwner")
   marketingProposals       marketing_proposals[]      @relation("MarketingProposalAgent")
+  brokerRequestsOwned      broker_requests[]          @relation("BrokerRequestOwner")
+  brokerAcceptances        broker_acceptances[]       @relation("BrokerAcceptanceAgent")
 
   @@index([approvalStatus])
   @@index([email])
@@ -678,6 +729,30 @@ enum AgentStatus {
   PENDING_VERIFICATION
 }
 
+// ── Saudi REGA Regulation Enums ──────────────────────────────────────────────
+
+enum FalLicenseType {
+  BROKERAGE_MARKETING   // وساطة وتسويق
+  PROPERTY_MANAGEMENT   // إدارة أملاك
+  FACILITY_MANAGEMENT   // إدارة مرافق
+  AUCTION               // مزادات عقارية
+  CONSULTING            // استشارات وتحليلات
+  ADVERTISING           // إعلانات عقارية
+}
+
+enum LicenseVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum PropertyLegalStatus {
+  FREE           // صك حر
+  MORTGAGED      // مرهون
+  UNDER_DISPUTE  // تحت النزاع
+  ENDOWMENT      // وقف
+}
 
 enum BuyerRequestStatus {
   OPEN
@@ -1540,5 +1615,71 @@ model marketing_proposals {
   @@unique([requestId, agentId])
   @@index([requestId])
   @@index([agentId])
+  @@index([status])
+}
+
+// ── Broker Collaboration Requests ──────────────────────────────────────────
+// Agents post their listings for co-marketing. Other agents accept and market
+// the property in exchange for an agreed commission split.
+
+enum BrokerRequestStatus {
+  OPEN
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+model broker_requests {
+  id               String              @id @default(uuid())
+  listingAgentId   String                                    // Agent who owns the listing
+  organizationId   String?
+  propertyId       String?                                   // Optional link to property
+  listingId        String?                                   // Optional link to listing
+  title            String                                    // e.g. "فيلا VIP في الرياض — عمولة 2%"
+  description      String?             @db.Text              // Details about the deal
+  propertyType     String?                                   // villa, apartment, land, etc.
+  city             String?
+  district         String?
+  price            Decimal?            @db.Decimal(14, 2)    // Property asking price
+  commissionRate   Decimal             @db.Decimal(5, 2)     // e.g. 2.50 = 2.5%
+  commissionType   String              @default("PERCENTAGE") // PERCENTAGE or FIXED
+  fixedCommission  Decimal?            @db.Decimal(14, 2)    // Flat amount if commissionType=FIXED
+  status                BrokerRequestStatus @default(OPEN)
+  commissionCapValidated Boolean           @default(false) // تم التحقق من سقف العمولة النظامي
+  expiresAt             DateTime?
+  createdAt             DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  listingAgent     users               @relation("BrokerRequestOwner", fields: [listingAgentId], references: [id])
+  organization     organizations?      @relation(fields: [organizationId], references: [id])
+  property         properties?         @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  acceptances      broker_acceptances[]
+
+  @@index([listingAgentId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([city])
+  @@index([createdAt])
+}
+
+model broker_acceptances {
+  id               String              @id @default(uuid())
+  brokerRequestId  String
+  marketingAgentId String                                    // Agent who accepted to market
+  organizationId   String?
+  status           String              @default("PENDING")   // PENDING, APPROVED, REJECTED, COMPLETED
+  notes            String?             @db.Text
+  agreedRate       Decimal?            @db.Decimal(5, 2)     // May differ from original offer after negotiation
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  brokerRequest    broker_requests     @relation(fields: [brokerRequestId], references: [id], onDelete: Cascade)
+  marketingAgent   users               @relation("BrokerAcceptanceAgent", fields: [marketingAgentId], references: [id])
+
+  @@unique([brokerRequestId, marketingAgentId])
+  @@index([brokerRequestId])
+  @@index([marketingAgentId])
   @@index([status])
 }

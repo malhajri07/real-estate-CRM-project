@@ -58,7 +58,7 @@ function Combobox({
           disabled={disabled}
         >
           {selectedLabel || placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="me-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
@@ -78,7 +78,7 @@ function Combobox({
                 >
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "me-2 h-4 w-4",
                       value === option.value ? "opacity-100" : "opacity-0"
                     )}
                   />

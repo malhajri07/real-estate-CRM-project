@@ -21,7 +21,6 @@
  * - apps/web/src/pages/saved-searches.tsx - Saved searches page
  */
 
-// @ts-nocheck
 import express from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";
@@ -99,7 +98,7 @@ router.post("/run-alerts", async (req, res) => {
     const results = alerts.map((a: any) => {
       let items = all.slice();
       if (a.cities && a.cities.length) items = items.filter((p) => a.cities.includes(p.city));
-      if (a.propertyTypes && a.propertyTypes.length) items = items.filter((p) => a.propertyTypes.includes(p.propertyType));
+      if (a.propertyTypes && a.propertyTypes.length) items = items.filter((p: any) => a.propertyTypes.includes(p.propertyType || p.type));
       if (a.minPrice) items = items.filter((p) => Number(p.price || 0) >= Number(a.minPrice));
       if (a.maxPrice) items = items.filter((p) => Number(p.price || 0) <= Number(a.maxPrice));
       return { alertId: a.id, alertName: a.alertName, matches: items.length };

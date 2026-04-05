@@ -6,7 +6,7 @@
  */
 import { describe, test, expect, beforeAll } from 'vitest';
 
-const BASE = 'http://localhost:3000';
+import { BASE_URL as BASE, ADMIN_CREDS } from './config';
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
 let adminToken: string;

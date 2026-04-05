@@ -32,9 +32,9 @@ export default function SignupSuccess() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary via-white to-slate-100 px-4 py-16" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-primary via-white to-slate-100 px-4 py-16">
       <div className="max-w-3xl mx-auto">
-        <div className="space-y-6 rounded-2xl border border-white/80 bg-card/90 p-10 text-end shadow-[0_35px_120px_rgba(16,185,129,0.18)] backdrop-blur-xl" dir="rtl">
+        <div className="space-y-6 rounded-2xl border border-white/80 bg-card/90 p-10 text-end shadow-[0_35px_120px_rgba(16,185,129,0.18)] backdrop-blur-xl">
           <div className="flex items-center justify-end gap-4">
             <div className="rounded-3xl bg-primary/10 p-4 text-primary">
               {/* Success icon mirrors the real-estate request confirmation layout for a unified brand feel. */}
@@ -48,9 +48,9 @@ export default function SignupSuccess() {
             </div>
           </div>
 
-          <div className="rounded-3xl border border-primary/20 bg-primary/10 p-6" dir="rtl">
-            <h2 className="mb-4 text-lg font-semibold text-primary text-end">الخطوات التالية</h2>
-            <ul className="space-y-3 text-primary list-none pe-0" dir="rtl">
+          <div className="rounded-3xl border border-primary/20 bg-primary/10 p-6">
+            <h2 className="mb-4 text-lg font-bold text-primary">الخطوات التالية</h2>
+            <ul className="space-y-3 text-primary list-none pe-0">
               <li className="flex flex-row-reverse items-start gap-3">
                 <span className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-primary/10" />
                 <span className="text-end">سيتم مراجعة طلبك خلال 24 ساعة عمل.</span>
@@ -66,7 +66,7 @@ export default function SignupSuccess() {
             </ul>
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-4 pt-4" dir="rtl">
+          <div className="flex flex-wrap items-center justify-end gap-4 pt-4">
             <Button
               variant="outline"
               className="rounded-2xl border-slate-300 text-muted-foreground hover:bg-muted/50"

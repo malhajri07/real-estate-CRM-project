@@ -26,7 +26,7 @@ export default function PublicLayout({ title, subtitle, children, metaTitle }: {
     }
   }, [metaTitle, title]);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary to-white" dir={dir}>
+    <div className="min-h-screen bg-gradient-to-br from-primary to-white">
       <PublicHeader />
       {(title || subtitle) && (
         <section className="bg-gradient-to-br from-primary/10 to-white py-8 border-b">

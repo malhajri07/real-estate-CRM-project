@@ -157,7 +157,7 @@ export default function RoleManagement() {
       label: "النطاق",
       render: (role) => (
         <div className="flex flex-col gap-1">
-          <Badge className={cn("w-fit text-xs font-bold uppercase px-2 py-0.5 rounded-md border-0", role.isSystem ? "bg-primary/5 text-primary" : "bg-purple-50 text-purple-700")}>
+          <Badge className={cn("w-fit text-xs font-bold uppercase px-2 py-0.5 rounded-md border-0", role.isSystem ? "bg-primary/5 text-primary" : "bg-secondary text-secondary-foreground")}>
             {role.isSystem ? "نظام" : "مخصص"}
           </Badge>
           <span className="text-xs font-bold text-muted-foreground/70">
@@ -413,7 +413,7 @@ export default function RoleManagement() {
 
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <div className="h-6 w-1 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
+                <div className="h-6 w-1 bg-gradient-to-b from-primary to-primary rounded-full" />
                 <h3 className="text-base font-bold text-foreground">صلاحيات الدور</h3>
               </div>
 
@@ -421,7 +421,7 @@ export default function RoleManagement() {
                 {isLoadingRoles ? (
                   <div className="text-sm text-muted-foreground mt-2">جاري تحميل الصلاحيات...</div>
                 ) : (
-                  <div className="mt-2 space-y-6 overflow-y-auto pr-1">
+                  <div className="mt-2 space-y-6 overflow-y-auto pe-1">
                     {Object.entries(permissionCategories).map(([category, categoryPermissions]) => (
                       <div key={category} className="space-y-4">
                         <div className="flex items-center gap-2">

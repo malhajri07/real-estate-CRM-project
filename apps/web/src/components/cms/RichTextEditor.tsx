@@ -108,7 +108,7 @@ export function RichTextEditor({
   ];
 
   return (
-    <div className={cn("rich-text-editor", className)} dir="rtl">
+    <div className={cn("rich-text-editor", className)}>
       <ReactQuill
         ref={quillRef}
         theme="snow"

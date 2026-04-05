@@ -12,10 +12,10 @@ export const StatsBanner = ({ content }: StatsBannerProps) => {
     // Always show stats section, even if empty (will show default content)
 
     return (
-        <section className="py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden" dir="rtl">
+        <section className="py-24 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden">
             {/* Animated Background Pattern */}
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-blue-900/20" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/20" />
             
             {/* Animated Gradient Orbs */}
             <motion.div
@@ -41,7 +41,7 @@ export const StatsBanner = ({ content }: StatsBannerProps) => {
                     ease: "easeInOut",
                     delay: 1
                 }}
-                className="absolute bottom-0 start-0 w-80 h-80 bg-blue-500/10 blur-[100px] rounded-full"
+                className="absolute bottom-0 start-0 w-80 h-80 bg-accent0/10 blur-[100px] rounded-full"
             />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -80,7 +80,7 @@ export const StatsBanner = ({ content }: StatsBannerProps) => {
                                 </CardContent>
 
                                 {/* Hover Glow Effect */}
-                                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 to-blue-500/0 group-hover:from-primary/10 group-hover:to-blue-500/10 transition-all duration-300 pointer-events-none" />
+                                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/0 group-hover:from-primary/10 group-hover:to-primary/10 transition-all duration-300 pointer-events-none" />
                             </Card>
                         </motion.div>
                     ))}

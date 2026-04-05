@@ -17,9 +17,9 @@ export const ContactSection = ({ content, iconMap }: ContactSectionProps) => {
     // Always show contact section, even if empty (will show default content)
 
     return (
-        <section id="contact" className="py-32 bg-gradient-to-br from-slate-50 via-white to-primary/10 relative overflow-hidden" dir="rtl">
+        <section id="contact" className="py-32 bg-gradient-to-br from-slate-50 via-white to-primary/10 relative overflow-hidden">
             {/* Background Decor */}
-            <div className="absolute end-0 top-0 w-96 h-96 bg-blue-400/5 blur-[120px] rounded-full" />
+            <div className="absolute end-0 top-0 w-96 h-96 bg-primary/60/5 blur-[120px] rounded-full" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
@@ -29,7 +29,7 @@ export const ContactSection = ({ content, iconMap }: ContactSectionProps) => {
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50/80 backdrop-blur-sm border border-orange-100/50 text-orange-700 text-sm font-bold shadow-sm"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(var(--warning)/0.1)]/80 backdrop-blur-sm border border-[hsl(var(--warning)/0.15)]/50 text-[hsl(var(--warning))] text-sm font-bold shadow-sm"
                         >
                             <Mail className="w-4 h-4" />
                             <span>{content.contactBadge}</span>
@@ -79,7 +79,7 @@ export const ContactSection = ({ content, iconMap }: ContactSectionProps) => {
                                 <Card className="group text-center border-2 border-border shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:border-primary/20 transition-all duration-500 hover:-translate-y-2 bg-white">
                                     <CardContent className="p-8">
                                         {/* Icon */}
-                                        <div className="w-20 h-20 bg-gradient-to-br from-primary to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-primary group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
+                                        <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mx-auto mb-6 text-primary group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
                                             <Icon className="w-10 h-10" />
                                         </div>
 

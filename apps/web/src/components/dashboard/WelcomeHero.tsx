@@ -165,7 +165,7 @@ export function WelcomeHero({ stats, isLoading, onQuickAction, className }: Welc
             </Avatar>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <GreetingIcon className="h-5 w-5 text-amber-500" />
+                <GreetingIcon className="h-5 w-5 text-[hsl(var(--warning))]" />
                 <h1 className="text-2xl font-black text-foreground">
                   {greeting.text}، {userName}
                 </h1>
@@ -320,7 +320,7 @@ export function WelcomeHeroCompact({ className }: { className?: string }) {
 
   return (
     <div className={cn("flex items-center gap-3 p-3 rounded-xl bg-muted/30", className)}>
-      <GreetingIcon className="h-5 w-5 text-amber-500 shrink-0" />
+      <GreetingIcon className="h-5 w-5 text-[hsl(var(--warning))] shrink-0" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-bold text-foreground truncate">{greeting.text}، {userName}</p>
         <p className="text-xs text-muted-foreground">{greeting.period}</p>

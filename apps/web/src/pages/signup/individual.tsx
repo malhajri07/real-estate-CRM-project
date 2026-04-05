@@ -34,14 +34,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 const STEPS = [
   { id: 1, title: "بيانات الحساب", description: "اسم المستخدم وكلمة المرور" },
   { id: 2, title: "المعلومات الشخصية", description: "الاسم، الجوال، والهوية" },
-  { id: 3, title: "الترخيص المهني", description: "رخصة فال العقارية" },
+  { id: 3, title: "رخصة فال (REGA)", description: "بيانات الترخيص من الهيئة العامة للعقار" },
   { id: 4, title: "الشروط والأحكام", description: "الموافقة على السياسات" },
 ];
 
 const STEP_FIELDS = {
   1: ["username", "password", "confirmPassword"] as const,
   2: ["firstName", "lastName", "mobileNumber", "gender", "city", "saudiId"] as const,
-  3: ["certificationNumber", "certificationStartDate", "certificationFile"] as const,
+  3: ["certificationNumber", "falLicenseType", "certificationStartDate", "certificationFile", "sreiCertified"] as const,
   4: ["agreedToTerms"] as const,
 };
 
@@ -55,15 +55,17 @@ const individualSchema = z.object({
   confirmPassword: z.string().min(1, "تأكيد كلمة المرور مطلوب"),
   firstName: z.string().min(1, "الاسم الأول مطلوب"),
   lastName: z.string().min(1, "اسم العائلة مطلوب"),
-  saudiId: z.string().regex(/^\d{10}$/, "رقم الهوية الوطنية يجب أن يكون 10 أرقام"),
+  saudiId: z.string().regex(/^[12]\d{9}$/, "رقم الهوية يجب أن يبدأ بـ 1 أو 2 ويتكون من 10 أرقام"),
   mobileNumber: z.string().regex(/^05\d{8}$/, "الرجاء إدخال رقم جوال سعودي صحيح (05xxxxxxxx)"),
   gender: z.string().min(1, "النوع مطلوب"),
   city: z.string().min(1, "المنطقة مطلوبة"),
-  certificationNumber: z.string().min(1, "رقم رخصة فال مطلوب"),
-  certificationStartDate: z.string().min(1, "تاريخ بداية الترخيص مطلوب"),
+  certificationNumber: z.string().regex(/^\d{10}$/, "رقم رخصة فال يجب أن يتكون من 10 أرقام"),
+  falLicenseType: z.string().min(1, "نوع رخصة فال مطلوب"),
+  certificationStartDate: z.string().min(1, "تاريخ إصدار الرخصة مطلوب"),
   certificationFile: z
     .instanceof(FileList)
-    .refine((files) => files && files.length > 0, "يجب إرفاق ملف الترخيص"),
+    .refine((files) => files && files.length > 0, "يجب إرفاق ملف الرخصة"),
+  sreiCertified: z.boolean().optional(),
   agreedToTerms: z.literal(true, {
     errorMap: () => ({ message: "يجب الموافقة على الشروط والأحكام للمتابعة" }),
   }),
@@ -97,8 +99,10 @@ export default function SignupIndividual() {
       gender: "",
       city: "",
       certificationNumber: "",
+      falLicenseType: "",
       certificationStartDate: "",
       certificationFile: undefined as unknown as FileList,
+      sreiCertified: false,
       agreedToTerms: undefined as unknown as true,
     },
     mode: "onTouched",
@@ -169,12 +173,17 @@ export default function SignupIndividual() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: data.username,
-          email: `${data.saudiId}@temp.aqaraty.sa`,
+          email: `${data.username}@aqarkom.sa`,
           password: data.password,
           firstName: data.firstName,
           lastName: data.lastName,
           phone: data.mobileNumber,
-          roles: JSON.stringify(['INDIV_AGENT'])
+          roles: JSON.stringify(['INDIV_AGENT']),
+          saudiId: data.saudiId,
+          falLicenseNumber: data.certificationNumber,
+          falLicenseType: data.falLicenseType,
+          falIssuedAt: data.certificationStartDate,
+          sreiCertified: data.sreiCertified || false,
         })
       });
 
@@ -209,7 +218,7 @@ export default function SignupIndividual() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden" dir={dir}>
+    <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden">
       <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
       <PublicHeader />
 
@@ -262,7 +271,7 @@ export default function SignupIndividual() {
                       >
                         <div
                           className={cn(
-                            "flex h-12 w-12 items-center justify-center rounded-full text-sm font-semibold transition-all border-2",
+                            "flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold transition-all border-2",
                             isCompleted
                               ? "bg-primary text-primary-foreground border-primary"
                               : isCurrent
@@ -276,10 +285,10 @@ export default function SignupIndividual() {
                             <span>{step.id}</span>
                           )}
                         </div>
-                        <div className="hidden md:block text-start">
+                        <div className="hidden md:block">
                           <div
                             className={cn(
-                              "text-sm font-semibold",
+                              "text-sm font-bold",
                               isCurrent || isCompleted ? "text-primary" : "text-muted-foreground"
                             )}
                           >
@@ -325,12 +334,12 @@ export default function SignupIndividual() {
                           name="username"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">اسم المستخدم <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">اسم المستخدم <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
                                   dir="ltr"
-                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                                 />
                               </FormControl>
                               <FormMessage />
@@ -343,7 +352,7 @@ export default function SignupIndividual() {
                           name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">كلمة المرور <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">كلمة المرور <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -363,7 +372,7 @@ export default function SignupIndividual() {
                           name="confirmPassword"
                           render={({ field }) => (
                             <FormItem className="md:col-span-2">
-                              <FormLabel className="text-sm font-medium text-foreground/80">تأكيد كلمة المرور <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">تأكيد كلمة المرور <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -397,7 +406,7 @@ export default function SignupIndividual() {
                         name="mobileNumber"
                         render={({ field }) => (
                           <FormItem className="mb-6">
-                            <FormLabel className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel className="text-sm font-medium text-foreground/80">رقم الجوال <span className="text-destructive">*</span></FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
@@ -405,7 +414,7 @@ export default function SignupIndividual() {
                                 placeholder="05XXXXXXXX"
                                 maxLength={10}
                                 dir="ltr"
-                                className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                                 onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
                               />
                             </FormControl>
@@ -420,7 +429,7 @@ export default function SignupIndividual() {
                           name="firstName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">الاسم الأول <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">الاسم الأول <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -437,7 +446,7 @@ export default function SignupIndividual() {
                           name="lastName"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">اسم العائلة <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">اسم العائلة <span className="text-destructive">*</span></FormLabel>
                               <FormControl>
                                 <Input
                                   {...field}
@@ -456,10 +465,10 @@ export default function SignupIndividual() {
                           name="gender"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">النوع <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">النوع <span className="text-destructive">*</span></FormLabel>
                               <Select value={field.value} onValueChange={field.onChange}>
                                 <FormControl>
-                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
+                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30">
                                     <SelectValue placeholder="اختر النوع" />
                                   </SelectTrigger>
                                 </FormControl>
@@ -478,10 +487,10 @@ export default function SignupIndividual() {
                           name="city"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-sm font-medium text-foreground/80">المنطقة <span className="text-red-500">*</span></FormLabel>
+                              <FormLabel className="text-sm font-medium text-foreground/80">المنطقة <span className="text-destructive">*</span></FormLabel>
                               <Select value={field.value} onValueChange={field.onChange}>
                                 <FormControl>
-                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-start">
+                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30">
                                     <SelectValue placeholder="اختر المنطقة" />
                                   </SelectTrigger>
                                 </FormControl>
@@ -502,14 +511,14 @@ export default function SignupIndividual() {
                         name="saudiId"
                         render={({ field }) => (
                           <FormItem className="mt-6">
-                            <FormLabel className="text-sm font-medium text-foreground/80">رقم الهوية الوطنية <span className="text-red-500">*</span></FormLabel>
+                            <FormLabel className="text-sm font-medium text-foreground/80">رقم الهوية الوطنية <span className="text-destructive">*</span></FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
                                 placeholder="10 أرقام"
                                 maxLength={10}
                                 dir="ltr"
-                                className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                                 onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
                               />
                             </FormControl>
@@ -520,45 +529,84 @@ export default function SignupIndividual() {
                     </section>
                   )}
 
-                  {/* Step 3: Certification Information */}
+                  {/* Step 3: FAL License (REGA) */}
                   {currentStep === 3 && (
                     <section className="space-y-8">
                       <div className="flex items-center gap-4 pb-4 border-b border-border">
                         <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">3</span>
                         <div className="space-y-1">
-                          <h2 className="text-xl font-bold text-foreground">معلومات رخصة فال</h2>
-                          <p className="text-sm text-muted-foreground">بيانات الترخيص المهني</p>
+                          <h2 className="text-xl font-bold text-foreground">رخصة فال العقارية</h2>
+                          <p className="text-sm text-muted-foreground">بيانات الترخيص من الهيئة العامة للعقار (REGA)</p>
                         </div>
                       </div>
 
-                      <FormField
-                        control={form.control}
-                        name="certificationNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium text-foreground/80">رقم رخصة فال العقاري <span className="text-red-500">*</span></FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      {/* REGA compliance notice */}
+                      <div className="rounded-xl bg-[hsl(var(--warning)/0.1)] border border-[hsl(var(--warning)/0.2)] p-4 text-sm text-[hsl(var(--warning))]">
+                        <p className="font-bold mb-1">متطلبات نظام الوساطة العقارية</p>
+                        <p>يجب على كل وسيط عقاري الحصول على رخصة فال سارية المفعول من الهيئة العامة للعقار (REGA) لممارسة نشاط الوساطة والتسويق العقاري في المملكة العربية السعودية.</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="certificationNumber"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">رقم رخصة فال <span className="text-destructive">*</span></FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="10 أرقام"
+                                  maxLength={10}
+                                  dir="ltr"
+                                  className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
+                                  onChange={(e) => handleNumericInput(e.target.value, field.onChange)}
+                                />
+                              </FormControl>
+                              <p className="text-[10px] text-muted-foreground mt-1">رقم الرخصة المكون من 10 أرقام الصادر من الهيئة العامة للعقار</p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="falLicenseType"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground/80">نوع الرخصة <span className="text-destructive">*</span></FormLabel>
+                              <Select value={field.value} onValueChange={field.onChange}>
+                                <FormControl>
+                                  <SelectTrigger className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30">
+                                    <SelectValue placeholder="اختر نوع الرخصة" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent position="popper" sideOffset={4} className="z-[100]">
+                                  <SelectItem value="BROKERAGE_MARKETING">وساطة وتسويق عقاري</SelectItem>
+                                  <SelectItem value="PROPERTY_MANAGEMENT">إدارة أملاك</SelectItem>
+                                  <SelectItem value="FACILITY_MANAGEMENT">إدارة مرافق</SelectItem>
+                                  <SelectItem value="AUCTION">مزادات عقارية</SelectItem>
+                                  <SelectItem value="CONSULTING">استشارات وتحليلات عقارية</SelectItem>
+                                  <SelectItem value="ADVERTISING">إعلانات عقارية</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
                       <FormField
                         control={form.control}
                         name="certificationStartDate"
                         render={({ field }) => (
-                          <FormItem className="mt-6">
-                            <FormLabel className="text-sm font-medium text-foreground/80">تاريخ بداية الترخيص <span className="text-red-500">*</span></FormLabel>
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium text-foreground/80">تاريخ إصدار الرخصة <span className="text-destructive">*</span></FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
                                 type="date"
-                                className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30 text-end"
+                                className="h-12 rounded-xl bg-card/50 border-border focus:ring-primary/30"
                               />
                             </FormControl>
                             <FormMessage />
@@ -570,8 +618,8 @@ export default function SignupIndividual() {
                         control={form.control}
                         name="certificationFile"
                         render={({ field: { onChange, value, ...fieldRest } }) => (
-                          <FormItem className="mt-6">
-                            <FormLabel className="text-sm font-medium text-foreground/80">ملف ترخيص فال العقاري (PDF) <span className="text-red-500">*</span></FormLabel>
+                          <FormItem>
+                            <FormLabel className="text-sm font-medium text-foreground/80">صورة رخصة فال (PDF) <span className="text-destructive">*</span></FormLabel>
                             <FormControl>
                               <div className="relative group">
                                 <Input
@@ -579,7 +627,7 @@ export default function SignupIndividual() {
                                   type="file"
                                   accept="application/pdf"
                                   onChange={(e) => onChange(e.target.files)}
-                                  className="h-14 rounded-xl border-border bg-card/50 text-end focus:ring-primary/30 file:mr-10 file:h-full file:rounded-l-none file:rounded-r-xl file:border-0 file:bg-primary/10 file:px-6 file:py-0 file:text-sm file:font-medium file:text-primary hover:file:bg-primary/10 pl-10 cursor-pointer transition-all"
+                                  className="h-14 rounded-xl border-border bg-card/50 text-end focus:ring-primary/30 file:me-10 file:h-full file:rounded-s-none file:rounded-e-xl file:border-0 file:bg-primary/10 file:px-6 file:py-0 file:text-sm file:font-medium file:text-primary hover:file:bg-primary/10 ps-10 cursor-pointer transition-all"
                                 />
                                 <Upload className="w-5 h-5 text-primary absolute end-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                               </div>
@@ -588,9 +636,31 @@ export default function SignupIndividual() {
                               <span className="flex items-center justify-center w-4 h-4 rounded-full bg-primary/10 text-primary">
                                 <Check className="w-2.5 h-2.5" />
                               </span>
-                              يجب رفع ملف بصيغة PDF فقط
+                              يجب رفع صورة واضحة من رخصة فال بصيغة PDF
                             </div>
                             <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="sreiCertified"
+                        render={({ field }) => (
+                          <FormItem>
+                            <label className="flex items-start gap-3 p-4 rounded-xl border border-border hover:border-primary/20 hover:bg-primary/5 transition-all cursor-pointer">
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value === true}
+                                  onCheckedChange={field.onChange}
+                                  className="h-5 w-5 mt-0.5"
+                                />
+                              </FormControl>
+                              <div>
+                                <span className="text-sm font-medium text-foreground">اجتياز برنامج المعهد العقاري السعودي (SREI)</span>
+                                <p className="text-xs text-muted-foreground mt-0.5">أقر بأنني أكملت التدريب المطلوب من المعهد العقاري السعودي بنسبة 60% على الأقل</p>
+                              </div>
+                            </label>
                           </FormItem>
                         )}
                       />
@@ -609,7 +679,7 @@ export default function SignupIndividual() {
                       </div>
 
                       <div className="rounded-2xl border border-border bg-card/50 p-6 shadow-inner">
-                        <div className="space-y-4 text-sm leading-7 text-muted-foreground max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-4 text-sm leading-7 text-muted-foreground max-h-60 overflow-y-auto pe-2 custom-scrollbar">
                           <h3 className="text-base font-bold text-foreground mb-2">شروط استخدام منصة عقاراتي للوسطاء العقاريين:</h3>
 
                           <div className="space-y-4">

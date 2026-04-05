@@ -154,7 +154,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
                 <Switch
                   checked={formState.isPopular ?? false}
                   onCheckedChange={(checked) => setField("isPopular", checked)}
-                  className="data-[state=checked]:bg-amber-500"
+                  className="data-[state=checked]:bg-[hsl(var(--warning)/0.1)]0"
                 />
               </div>
             </div>

@@ -32,7 +32,7 @@ export const SAUDI_CITIES = [
 /** Currency settings */
 export const CURRENCY = {
   DEFAULT: "SAR",
-  SYMBOL: "ر.س",
+  SYMBOL: "SAR",
   LOCALE: "en-US",
 } as const;
 

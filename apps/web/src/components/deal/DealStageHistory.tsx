@@ -150,14 +150,14 @@ function StepIcon({
   if (status === "current") {
     if (outcome === "won") {
       return (
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-white shadow-md ring-4 ring-emerald-100 dark:ring-emerald-900/30">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/100 text-white shadow-md ring-4 ring-primary/15 dark:ring-primary/30">
           <Trophy className="h-4 w-4" />
         </div>
       );
     }
     if (outcome === "lost") {
       return (
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white shadow-md ring-4 ring-red-100 dark:ring-red-900/30">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-destructive/100 text-white shadow-md ring-4 ring-destructive/15 dark:ring-destructive/30">
           <XCircle className="h-4 w-4" />
         </div>
       );
@@ -328,8 +328,8 @@ function OutcomeBadge({
       className={cn(
         "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold",
         isWon
-          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
-          : "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400"
+          ? "bg-primary/10 text-primary dark:bg-primary/90/30 dark:text-primary"
+          : "bg-destructive/10 text-destructive dark:bg-destructive/90/30 dark:text-destructive"
       )}
     >
       {isWon ? (

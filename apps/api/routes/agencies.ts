@@ -19,7 +19,6 @@
  * - apps/web/src/pages/agency.tsx - Agency detail page
  */
 
-// @ts-nocheck
 import express from "express";
 import { storage } from "../storage-prisma";
 

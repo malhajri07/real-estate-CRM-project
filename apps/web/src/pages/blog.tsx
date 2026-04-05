@@ -180,7 +180,7 @@ export default function BlogPage() {
     // Single article view
     if (isLoadingArticle) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white" dir="rtl">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
           <PublicHeader />
           <div className="max-w-4xl mx-auto px-4 py-16">
             <div className="text-center text-muted-foreground">جار التحميل...</div>
@@ -191,7 +191,7 @@ export default function BlogPage() {
 
     if (!article) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white" dir="rtl">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
           <PublicHeader />
           <div className="max-w-4xl mx-auto px-4 py-16">
             <Card>
@@ -210,7 +210,7 @@ export default function BlogPage() {
     }
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
         <PublicHeader />
         <article className="max-w-4xl mx-auto px-4 py-8">
           <div className="mb-6">
@@ -325,7 +325,7 @@ export default function BlogPage() {
 
   // Article list view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
       <PublicHeader />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Header Section */}
@@ -344,7 +344,7 @@ export default function BlogPage() {
                   setSearchTerm(e.target.value);
                   setPage(1);
                 }}
-                className="pr-10"
+                className="pe-10"
               />
             </div>
             {hasActiveFilters && (

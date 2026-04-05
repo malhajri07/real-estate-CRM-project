@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * mailer.ts - Email Utility
  * 
@@ -13,7 +14,6 @@
  * - Environment variables: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD, SMTP_FROM
  */
 
-// @ts-nocheck
 import nodemailer from 'nodemailer';
 
 const {

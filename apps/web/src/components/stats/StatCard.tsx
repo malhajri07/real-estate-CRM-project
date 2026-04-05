@@ -25,7 +25,6 @@ import { LineChart, Line, ResponsiveContainer } from "recharts";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { CHART_COLORS } from "@/config/design-tokens";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -175,7 +174,7 @@ export function StatCard({
   comparisonText,
   icon: Icon,
   sparklineData,
-  accentColor = CHART_COLORS.primary,
+  accentColor = "hsl(var(--chart-1))",
   href,
   onClick,
   index = 0,

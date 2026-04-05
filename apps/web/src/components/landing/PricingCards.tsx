@@ -16,7 +16,7 @@ export const PricingCards = ({ content, pricingPlans, onSelectPlan }: PricingCar
     // Always show pricing section, even if empty (will show default content or empty state)
 
     return (
-        <section id="pricing" className="py-32 relative bg-white" dir="rtl">
+        <section id="pricing" className="py-32 relative bg-white">
             {/* Background Decor */}
             <div className="absolute inset-0 bg-gradient-to-br from-muted/50 via-card to-primary/5 -z-10" />
             <div className="absolute top-0 start-0 w-96 h-96 bg-primary/5 blur-[120px] rounded-full" />
@@ -103,7 +103,7 @@ export const PricingCards = ({ content, pricingPlans, onSelectPlan }: PricingCar
                                             <div className="flex items-baseline justify-center gap-2 mb-4">
                                                 <span className="text-5xl font-black text-foreground">{plan.price}</span>
                                                 <span className="text-lg text-muted-foreground font-bold">
-                                                    {plan.period === "monthly" ? "ريال/شهر" : "ريال/سنة"}
+                                                    {plan.period === "monthly" ? "شهر" : "سنة"}
                                                 </span>
                                             </div>
                                             {plan.description && (

@@ -51,7 +51,7 @@ export function AdminDatePicker({
             {label && (
                 <Label className="text-sm font-medium">
                     {label}
-                    {required && <span className="text-red-500 ms-1">*</span>}
+                    {required && <span className="text-destructive ms-1">*</span>}
                 </Label>
             )}
 
@@ -63,7 +63,7 @@ export function AdminDatePicker({
                         className={cn(
                             'w-full justify-start text-start font-normal',
                             !value && 'text-muted-foreground',
-                            error && 'border-red-500'
+                            error && 'border-destructive'
                         )}
                     >
                         <CalendarIcon className="me-2 h-4 w-4" />
@@ -84,7 +84,7 @@ export function AdminDatePicker({
                 </PopoverContent>
             </Popover>
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
     );
 }
@@ -128,7 +128,7 @@ export function AdminDateRangePicker({
             {label && (
                 <Label className="text-sm font-medium">
                     {label}
-                    {required && <span className="text-red-500 ms-1">*</span>}
+                    {required && <span className="text-destructive ms-1">*</span>}
                 </Label>
             )}
 
@@ -140,7 +140,7 @@ export function AdminDateRangePicker({
                         className={cn(
                             'w-full justify-start text-start font-normal',
                             !value?.from && 'text-muted-foreground',
-                            error && 'border-red-500'
+                            error && 'border-destructive'
                         )}
                     >
                         <CalendarIcon className="me-2 h-4 w-4" />
@@ -164,7 +164,7 @@ export function AdminDateRangePicker({
                 </PopoverContent>
             </Popover>
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
     );
 }

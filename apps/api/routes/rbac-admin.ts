@@ -251,8 +251,7 @@ router.get('/billing/invoices', async (req, res) => {
           include: {
             plan: true
           }
-        },
-        items: true
+        }
       }
     });
     res.json({ success: true, invoices });
@@ -413,7 +412,7 @@ router.get('/analytics/overview', async (req, res) => {
         { name: tabletLabel, value: Math.round((tablet / total) * 100), color: "#f59e0b" },
       ];
     } else {
-      // TODO: Populate device data once userAgent is tracked in analytics_event_logs payload
+      // TECH_DEBT: Device analytics requires userAgent tracking in event payload
       deviceData = [];
     }
 
@@ -450,7 +449,7 @@ router.get('/analytics/overview', async (req, res) => {
       const avgSec = Math.floor((avgMs % 60000) / 1000);
       avgSessionTime = `${avgMin}:${String(avgSec).padStart(2, '0')}`;
     }
-    // TODO: Implement session duration tracking in analytics_event_logs to populate this metric
+    // TECH_DEBT: Session duration requires analytics event tracking
 
     res.json({
       success: true,
@@ -537,9 +536,9 @@ router.get('/notifications/stats', async (req, res) => {
     const totalAttempted = notificationEventsToday + failedNotifications;
     const deliveryRate = totalAttempted > 0
       ? `${((notificationEventsToday / totalAttempted) * 100).toFixed(1)}%`
-      : null; // TODO: No notification tracking data available yet
+      : null; // TECH_DEBT: Notification tracking not yet implemented
 
-    // TODO: Implement average delivery time tracking via payload.deliveryMs in notification events
+    // TECH_DEBT: Delivery time tracking requires notification event payload
     const avgDeliveryTime: string | null = null;
 
     res.json({

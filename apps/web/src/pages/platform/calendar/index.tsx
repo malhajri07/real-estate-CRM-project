@@ -1,37 +1,86 @@
+/**
+ * calendar/index.tsx — Weekly calendar with draggable 15-min appointments (Google Calendar style)
+ */
 
-import { useState } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { PAGE_WRAPPER, CARD_HOVER, GRID_THREE_COL } from "@/config/platform-theme";
-import { DELETE_BUTTON_STYLES } from "@/config/design-tokens";
-import { getCalendarStatusVariant } from "@/lib/status-variants";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon, Clock, MapPin, CheckCircle, XCircle, Plus, ChevronsUpDown, Check } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetDescription,
-} from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import EmptyState from "@/components/ui/empty-state";
-import { CalendarSkeleton } from "@/components/skeletons/page-skeletons";
-import PageHeader from "@/components/ui/page-header";
-import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
-import { useToast } from "@/hooks/use-toast";
-import { apiPost, apiPut } from "@/lib/apiClient";
-import { format } from "date-fns";
-import { ar, enUS } from "date-fns/locale";
-import { cn } from "@/lib/utils";
-import type { Lead } from "@shared/types";
-import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { format, startOfWeek, addDays, isSameDay, addWeeks, subWeeks, isToday, parseISO } from "date-fns";
+import { ar, enUS } from "date-fns/locale";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar as CalendarPicker } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import PageHeader from "@/components/ui/page-header";
+import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import { CalendarSkeleton } from "@/components/skeletons/page-skeletons";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useLocation } from "wouter";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { apiPost, apiPut } from "@/lib/apiClient";
+import { useToast } from "@/hooks/use-toast";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { cn } from "@/lib/utils";
+import type { Lead } from "@shared/types";
+import {
+  Plus, ChevronLeft, ChevronRight, Calendar as CalendarIcon,
+  Clock, MapPin, User, CheckCircle, XCircle, Phone, ChevronDown, GripVertical,
+} from "lucide-react";
+
+// ── Types ──────────────────────────────────────────────────────────────────
+
+interface Appointment {
+  id: number;
+  status: string;
+  scheduledAt: string;
+  notes?: string;
+  customer?: { firstName: string; lastName: string; phone?: string };
+  agent?: { firstName: string; lastName: string };
+  property?: { title: string; address: string };
+}
+
+const STATUS_COLORS: Record<string, { bg: string; border: string; text: string; label: string; labelEn: string }> = {
+  SCHEDULED: { bg: "bg-primary/10", border: "border-s-primary", text: "text-primary", label: "مجدول", labelEn: "Scheduled" },
+  COMPLETED: { bg: "bg-primary/10", border: "border-s-primary", text: "text-primary", label: "مكتمل", labelEn: "Completed" },
+  CANCELLED: { bg: "bg-destructive/10", border: "border-s-destructive", text: "text-destructive", label: "ملغي", labelEn: "Cancelled" },
+  RESCHEDULED: { bg: "bg-[hsl(var(--warning)/0.1)]", border: "border-s-[hsl(var(--warning))]", text: "text-[hsl(var(--warning))]", label: "معاد جدولته", labelEn: "Rescheduled" },
+};
+
+// 15-minute time slots from 08:00 to 18:00
+interface TimeSlot { hour: number; minute: number }
+const TIME_SLOTS: TimeSlot[] = [];
+for (let h = 8; h <= 18; h++) {
+  for (let m = 0; m < 60; m += 15) {
+    if (h === 18 && m > 0) break;
+    TIME_SLOTS.push({ hour: h, minute: m });
+  }
+}
+
+const SLOT_HEIGHT = 28; // px per 15-min slot
+
+function slotKey(dayKey: string, hour: number, minute: number) {
+  return `${dayKey}-${hour}-${minute}`;
+}
+
+function pad2(n: number) {
+  return String(n).padStart(2, "0");
+}
+
+function formatSlotTime(hour: number, minute: number) {
+  return `${pad2(hour)}:${pad2(minute)}`;
+}
+
+// ── Form Schema ────────────────────────────────────────────────────────────
 
 const appointmentSchema = z.object({
   customerId: z.string().min(1, "يرجى اختيار العميل"),
@@ -39,398 +88,628 @@ const appointmentSchema = z.object({
   notes: z.string().optional(),
 });
 
-type AppointmentFormData = z.infer<typeof appointmentSchema>;
+// ── Main Component ─────────────────────────────────────────────────────────
 
-type Appointment = {
-    id: number;
-    scheduledAt: string;
-    status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED';
-    notes?: string;
-    customer?: { firstName: string; lastName: string; email: string; phone: string };
-    agent?: { firstName: string; lastName: string };
-    property?: { title: string; address: string };
-};
+export default function CalendarPage() {
+  const { t, dir, language } = useLanguage();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const showSkeleton = useMinLoadTime();
+  const queryClient = useQueryClient();
+  const locale = language === "ar" ? ar : enUS;
+  const isAr = language === "ar";
 
-const STATUS_LABELS: Record<string, string> = {
-    SCHEDULED: "مجدول",
-    COMPLETED: "مكتمل",
-    CANCELLED: "ملغي",
-    RESCHEDULED: "معاد جدولته",
-};
+  const [currentWeekStart, setCurrentWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 0 }));
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [timeValue, setTimeValue] = useState("");
 
-function AppointmentForm({
-    leads,
-    isPending,
-    onSubmit,
-}: {
-    leads: Lead[];
-    isPending: boolean;
-    onSubmit: (data: { customerId: string; scheduledAt: string; notes?: string }) => void;
-}) {
-    const [customerOpen, setCustomerOpen] = useState(false);
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-    const [timeValue, setTimeValue] = useState("");
+  // Drag state
+  const [draggedAppt, setDraggedAppt] = useState<Appointment | null>(null);
+  const [dragOverSlotKey, setDragOverSlotKey] = useState<string | null>(null);
+  const dragGhostRef = useRef<HTMLDivElement | null>(null);
 
-    const form = useForm<AppointmentFormData>({
-        resolver: zodResolver(appointmentSchema),
-        defaultValues: {
-            customerId: "",
-            scheduledAt: "",
-            notes: "",
-        },
+  const { data: appointments, isLoading, isError, refetch } = useQuery<Appointment[]>({
+    queryKey: ["/api/appointments"],
+  });
+  const { data: leads } = useQuery<Lead[]>({ queryKey: ["/api/leads"] });
+
+  const form = useForm<z.infer<typeof appointmentSchema>>({
+    resolver: zodResolver(appointmentSchema),
+    defaultValues: { customerId: "", scheduledAt: "", notes: "" },
+  });
+
+  // ── Mutations ────────────────────────────────────────────────────────────
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => apiPost("/api/appointments", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
+      setIsCreateOpen(false);
+      form.reset();
+      setSelectedDate(undefined);
+      setTimeValue("");
+      toast({ title: isAr ? "تم بنجاح" : "Success", description: isAr ? "تم إنشاء الموعد" : "Appointment created" });
+    },
+    onError: () => toast({ title: isAr ? "خطأ" : "Error", description: isAr ? "فشل إنشاء الموعد" : "Failed to create", variant: "destructive" }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => apiPut(`/api/appointments/${id}`, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
+      setSelectedAppointment(null);
+      toast({ title: isAr ? "تم التحديث" : "Updated" });
+    },
+  });
+
+  const rescheduleMutation = useMutation({
+    mutationFn: async ({ id, scheduledAt }: { id: number; scheduledAt: string }) =>
+      apiPut(`/api/appointments/${id}`, { scheduledAt, status: "RESCHEDULED" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
+      toast({ title: isAr ? "تم نقل الموعد" : "Appointment moved", description: isAr ? "تم تحديث وقت الموعد بنجاح" : "Time updated successfully" });
+    },
+    onError: () => toast({ title: isAr ? "خطأ" : "Error", description: isAr ? "فشل نقل الموعد" : "Failed to move", variant: "destructive" }),
+  });
+
+  // ── Week days ────────────────────────────────────────────────────────────
+
+  const weekDays = useMemo(() =>
+    Array.from({ length: 7 }, (_, i) => addDays(currentWeekStart, i)),
+    [currentWeekStart]
+  );
+
+  const DAY_NAMES = isAr
+    ? ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // Group appointments by 15-min slot
+  const appointmentsBySlot = useMemo(() => {
+    const map: Record<string, Appointment[]> = {};
+    (appointments || []).forEach((appt) => {
+      const date = parseISO(appt.scheduledAt);
+      const dayKey = format(date, "yyyy-MM-dd");
+      const hour = date.getHours();
+      const minute = Math.floor(date.getMinutes() / 15) * 15;
+      const key = slotKey(dayKey, hour, minute);
+      if (!map[key]) map[key] = [];
+      map[key].push(appt);
     });
+    return map;
+  }, [appointments]);
 
-    const handleDateSelect = (date: Date | undefined) => {
-        setSelectedDate(date);
-        if (date) {
-            const [hours, minutes] = timeValue ? timeValue.split(":") : ["09", "00"];
-            const combined = new Date(date);
-            combined.setHours(parseInt(hours || "9"), parseInt(minutes || "0"));
-            form.setValue("scheduledAt", combined.toISOString(), { shouldValidate: true });
-        }
-    };
+  // ── Navigation ───────────────────────────────────────────────────────────
 
-    const handleTimeChange = (time: string) => {
-        setTimeValue(time);
-        if (selectedDate) {
-            const [hours, minutes] = time.split(":");
-            const combined = new Date(selectedDate);
-            combined.setHours(parseInt(hours || "9"), parseInt(minutes || "0"));
-            form.setValue("scheduledAt", combined.toISOString(), { shouldValidate: true });
-        }
-    };
+  const goToday = () => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 0 }));
+  const goPrev = () => setCurrentWeekStart(subWeeks(currentWeekStart, 1));
+  const goNext = () => setCurrentWeekStart(addWeeks(currentWeekStart, 1));
 
-    const selectedLead = leads.find((l) => l.id === form.watch("customerId") || l.customerId === form.watch("customerId"));
+  // ── Form helpers ─────────────────────────────────────────────────────────
 
-    const handleSubmit = (data: AppointmentFormData) => {
-        // Send the actual customer ID (not the lead ID)
-        const lead = leads.find((l) => l.id === data.customerId);
-        const actualCustomerId = lead?.customerId || data.customerId;
-        onSubmit({
-            customerId: actualCustomerId,
-            scheduledAt: data.scheduledAt,
-            notes: data.notes || undefined,
-        });
-        form.reset();
-        setSelectedDate(undefined);
-        setTimeValue("");
-    };
+  const syncFormDateTime = useCallback((date: Date | undefined, time: string) => {
+    if (date && time) {
+      const [h, m] = time.split(":").map(Number);
+      const combined = new Date(date);
+      combined.setHours(h, m, 0, 0);
+      form.setValue("scheduledAt", combined.toISOString(), { shouldValidate: true });
+    }
+  }, [form]);
 
-    return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4 max-w-lg mx-auto">
-                {/* Customer selection via searchable Command combobox */}
-                <FormField
-                    control={form.control}
-                    name="customerId"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel>العميل</FormLabel>
-                            <Popover open={customerOpen} onOpenChange={setCustomerOpen}>
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            aria-expanded={customerOpen}
-                                            className={cn(
-                                                "w-full justify-between",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                            data-testid="select-customer"
-                                        >
-                                            {selectedLead
-                                                ? `${selectedLead.firstName} ${selectedLead.lastName}`
-                                                : "اختر العميل..."}
-                                            <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-full p-0" align="start">
-                                    <Command>
-                                        <CommandInput placeholder="ابحث عن عميل..." />
-                                        <CommandList>
-                                            <CommandEmpty>لا يوجد عملاء</CommandEmpty>
-                                            <CommandGroup>
-                                                {leads.map((lead) => (
-                                                    <CommandItem
-                                                        key={lead.id}
-                                                        value={`${lead.firstName} ${lead.lastName} ${lead.phone || ""}`}
-                                                        onSelect={() => {
-                                                            field.onChange(lead.id);
-                                                            setCustomerOpen(false);
-                                                        }}
-                                                    >
-                                                        <Check
-                                                            className={cn(
-                                                                "me-2 h-4 w-4",
-                                                                field.value === lead.id ? "opacity-100" : "opacity-0"
-                                                            )}
-                                                        />
-                                                        {lead.firstName} {lead.lastName} {lead.phone ? `(${lead.phone})` : ""}
-                                                    </CommandItem>
-                                                ))}
-                                            </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+  const handleDateSelect = (d: Date | undefined) => {
+    setSelectedDate(d);
+    syncFormDateTime(d, timeValue);
+  };
 
-                {/* Date selection via Calendar + Popover */}
-                <FormField
-                    control={form.control}
-                    name="scheduledAt"
-                    render={() => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel>التاريخ والوقت</FormLabel>
-                            <div className="flex gap-2">
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                                variant="outline"
-                                                className={cn(
-                                                    "flex-1 justify-start text-start font-normal",
-                                                    !selectedDate && "text-muted-foreground"
-                                                )}
-                                            >
-                                                <CalendarIcon className="me-2 h-4 w-4" />
-                                                {selectedDate ? format(selectedDate, "PPP", { locale: ar }) : "اختر تاريخ"}
-                                            </Button>
-                                        </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={selectedDate}
-                                            onSelect={handleDateSelect}
-                                            initialFocus
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                                <Input
-                                    type="time"
-                                    value={timeValue}
-                                    onChange={(e) => handleTimeChange(e.target.value)}
-                                    className="w-28"
-                                />
-                            </div>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+  const handleTimeChange = (time: string) => {
+    setTimeValue(time);
+    syncFormDateTime(selectedDate, time);
+  };
 
-                <FormField
-                    control={form.control}
-                    name="notes"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>ملاحظات</FormLabel>
-                            <FormControl>
-                                <Textarea {...field} placeholder="تفاصيل الاجتماع..." />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <SheetFooter>
-                    <Button type="submit" className="w-full" disabled={isPending}>
-                        {isPending ? "جاري الإنشاء..." : "جدولة الموعد"}
-                    </Button>
-                </SheetFooter>
-            </form>
-        </Form>
-    );
-}
+  const handleCellClick = (day: Date, hour: number, minute: number) => {
+    setSelectedDate(day);
+    const t = formatSlotTime(hour, minute);
+    setTimeValue(t);
+    const combined = new Date(day);
+    combined.setHours(hour, minute, 0, 0);
+    form.setValue("scheduledAt", combined.toISOString(), { shouldValidate: true });
+    setIsCreateOpen(true);
+  };
 
-export default function AppointmentsManager() {
-    const { t, dir, language } = useLanguage();
-    const { toast } = useToast();
-    const showSkeleton = useMinLoadTime();
-    const queryClient = useQueryClient();
-    const [isCreateOpen, setIsCreateOpen] = useState(false);
+  // ── Drag handlers ────────────────────────────────────────────────────────
 
-    const { data: appointments, isLoading, isError, refetch } = useQuery<Appointment[]>({
-        queryKey: ["/api/appointments"],
-    });
+  const handleDragStart = useCallback((e: React.DragEvent, appt: Appointment) => {
+    if (appt.status === "CANCELLED" || appt.status === "COMPLETED") return;
+    setDraggedAppt(appt);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", String(appt.id));
+    // Custom drag image
+    const ghost = e.currentTarget.cloneNode(true) as HTMLDivElement;
+    ghost.style.position = "absolute";
+    ghost.style.top = "-9999px";
+    ghost.style.opacity = "0.85";
+    ghost.style.width = `${e.currentTarget.clientWidth}px`;
+    document.body.appendChild(ghost);
+    e.dataTransfer.setDragImage(ghost, 20, 10);
+    dragGhostRef.current = ghost;
+  }, []);
 
-    const { data: leads } = useQuery<Lead[]>({
-        queryKey: ["/api/leads"],
-    });
+  const handleDragEnd = useCallback(() => {
+    setDraggedAppt(null);
+    setDragOverSlotKey(null);
+    if (dragGhostRef.current) {
+      document.body.removeChild(dragGhostRef.current);
+      dragGhostRef.current = null;
+    }
+  }, []);
 
-    const createMutation = useMutation({
-        mutationFn: async (data: any) => apiPost("/api/appointments", data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
-            setIsCreateOpen(false);
-            toast({ title: t("common.success"), description: "تم إنشاء الموعد بنجاح" });
-        },
-        onError: () => {
-            toast({ title: t("common.error"), description: "فشل إنشاء الموعد", variant: "destructive" });
-        }
-    });
+  const handleDragOver = useCallback((e: React.DragEvent, key: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverSlotKey(key);
+  }, []);
 
-    const updateStatusMutation = useMutation({
-        mutationFn: async ({ id, status }: { id: number; status: string }) =>
-            apiPut(`/api/appointments/${id}`, { status }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
-            toast({ title: t("common.success"), description: "تم تحديث الحالة" });
-        }
-    });
+  const handleDragLeave = useCallback(() => {
+    setDragOverSlotKey(null);
+  }, []);
 
-    const formatDate = (dateString: string) => {
-        return format(new Date(dateString), "PPP p", { locale: language === 'ar' ? ar : enUS });
-    };
+  const handleDrop = useCallback((e: React.DragEvent, day: Date, hour: number, minute: number) => {
+    e.preventDefault();
+    setDragOverSlotKey(null);
+    if (!draggedAppt) return;
 
-    if (isError) {
-        return (
-            <div className={PAGE_WRAPPER} dir={dir}>
-                <PageHeader title={t("nav.calendar") || "المواعيد"} />
-                <QueryErrorFallback message="فشل تحميل المواعيد" onRetry={() => refetch()} />
-            </div>
-        );
+    const newDate = new Date(day);
+    newDate.setHours(hour, minute, 0, 0);
+
+    // Don't reschedule if same time
+    const oldDate = parseISO(draggedAppt.scheduledAt);
+    if (
+      isSameDay(oldDate, newDate) &&
+      oldDate.getHours() === hour &&
+      Math.floor(oldDate.getMinutes() / 15) * 15 === minute
+    ) {
+      setDraggedAppt(null);
+      return;
     }
 
+    rescheduleMutation.mutate({ id: draggedAppt.id, scheduledAt: newDate.toISOString() });
+    setDraggedAppt(null);
+  }, [draggedAppt, rescheduleMutation]);
+
+  // ── Stats ────────────────────────────────────────────────────────────────
+
+  const allAppts = appointments || [];
+  const totalThisWeek = allAppts.filter((a) => {
+    const d = parseISO(a.scheduledAt);
+    return d >= weekDays[0] && d <= addDays(weekDays[6], 1);
+  }).length;
+
+  const upcomingCount = allAppts.filter(
+    (a) => parseISO(a.scheduledAt) > new Date() && a.status === "SCHEDULED"
+  ).length;
+
+  const todayCount = allAppts.filter((a) => isToday(parseISO(a.scheduledAt))).length;
+  const completedCount = allAppts.filter((a) => a.status === "COMPLETED").length;
+  const cancelledCount = allAppts.filter((a) => a.status === "CANCELLED").length;
+
+  // ── Render ───────────────────────────────────────────────────────────────
+
+  if (isError) {
     return (
-        <div className={PAGE_WRAPPER} dir={dir}>
-            <PageHeader title={t("nav.calendar") || "المواعيد"}>
-                <Button onClick={() => setIsCreateOpen(true)}>
-                    <Plus className="me-2 h-4 w-4" />
-                    {t("common.create") || "موعد جديد"}
-                </Button>
-            </PageHeader>
+      <div className={PAGE_WRAPPER}>
+        <PageHeader title={isAr ? "التقويم" : "Calendar"} />
+        <QueryErrorFallback message={isAr ? "فشل تحميل المواعيد" : "Failed to load appointments"} onRetry={() => refetch()} />
+      </div>
+    );
+  }
 
-            {/* ── Bottom Drawer: New Appointment ── */}
-            <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                <SheetContent side="bottom">
-                    <SheetHeader>
-                        <SheetTitle>موعد جديد</SheetTitle>
-                        <SheetDescription>أدخل تفاصيل الموعد الجديد</SheetDescription>
-                    </SheetHeader>
-                    <AppointmentForm
-                        leads={leads ?? []}
-                        isPending={createMutation.isPending}
-                        onSubmit={(data) => createMutation.mutate(data)}
-                    />
-                </SheetContent>
-            </Sheet>
+  if (isLoading || showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <PageHeader title={isAr ? "التقويم" : "Calendar"} />
+        <CalendarSkeleton />
+      </div>
+    );
+  }
 
-            <div className={GRID_THREE_COL}>
-                <Card className={CARD_HOVER}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">إجمالي المواعيد</CardTitle>
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                            <CalendarIcon className="h-6 w-6" />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">{appointments?.length || 0}</div>
-                    </CardContent>
-                </Card>
-                <Card className={CARD_HOVER}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">القادمة</CardTitle>
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                            <Clock className="h-6 w-6" />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">
-                            {appointments?.filter(a => new Date(a.scheduledAt) > new Date() && a.status === 'SCHEDULED').length || 0}
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className={CARD_HOVER}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">المكتملة</CardTitle>
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted">
-                            <CheckCircle className="h-6 w-6" />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">
-                            {appointments?.filter(a => a.status === 'COMPLETED').length || 0}
-                        </div>
-                    </CardContent>
-                </Card>
+  return (
+    <div className={PAGE_WRAPPER}>
+      {/* Header */}
+      <PageHeader
+        title={isAr ? "التقويم" : "Calendar"}
+        subtitle={`${totalThisWeek} ${isAr ? "موعد هذا الأسبوع" : "this week"} · ${upcomingCount} ${isAr ? "قادم" : "upcoming"}`}
+      >
+        <Button size="sm" onClick={() => setIsCreateOpen(true)}>
+          <Plus className="me-2 h-4 w-4" />
+          {isAr ? "موعد جديد" : "New Appointment"}
+        </Button>
+      </PageHeader>
+
+      {/* Week Navigation */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={goPrev}><ChevronRight className="h-4 w-4" /></Button>
+          <Button variant="outline" size="sm" onClick={goToday}>{isAr ? "اليوم" : "Today"}</Button>
+          <Button variant="outline" size="sm" onClick={goNext}><ChevronLeft className="h-4 w-4" /></Button>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* Drag hint */}
+          <span className="text-xs text-muted-foreground hidden sm:inline-flex items-center gap-1">
+            <GripVertical className="h-3 w-3" />
+            {isAr ? "اسحب المواعيد لإعادة الجدولة" : "Drag appointments to reschedule"}
+          </span>
+          <h2 className="text-lg font-bold text-foreground">
+            {format(weekDays[0], "d MMM", { locale })} — {format(weekDays[6], "d MMM yyyy", { locale })}
+          </h2>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {[
+          { label: isAr ? "اليوم" : "Today", value: todayCount, color: "text-primary" },
+          { label: isAr ? "هذا الأسبوع" : "This Week", value: totalThisWeek, color: "text-primary" },
+          { label: isAr ? "قادم" : "Upcoming", value: upcomingCount, color: "text-primary" },
+          { label: isAr ? "مكتمل" : "Completed", value: completedCount, color: "text-primary" },
+          { label: isAr ? "ملغي" : "Cancelled", value: cancelledCount, color: "text-destructive" },
+        ].map((s, i) => (
+          <Card key={i}>
+            <CardContent className="p-3 flex items-center gap-3">
+              <p className={cn("text-2xl font-black", s.color)}>{s.value}</p>
+              <p className="text-xs text-muted-foreground">{s.label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Weekly Calendar Grid */}
+      <Card className="overflow-hidden">
+        <div className="overflow-x-auto">
+          <div className="min-w-[800px]">
+            {/* Day Headers */}
+            <div className="grid grid-cols-[64px_repeat(7,1fr)] border-b border-border sticky top-0 bg-card z-10">
+              <div className="p-2 border-e border-border" />
+              {weekDays.map((day, i) => {
+                const today = isToday(day);
+                return (
+                  <div key={i} className={cn("p-3 text-center border-s border-border", today && "bg-primary/5")}>
+                    <p className={cn("text-xs font-bold uppercase tracking-wider", today ? "text-primary" : "text-muted-foreground")}>
+                      {DAY_NAMES[day.getDay()]}
+                    </p>
+                    <p className={cn("text-2xl font-black mt-0.5", today ? "text-primary" : "text-foreground")}>
+                      {format(day, "d")}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>قائمة المواعيد</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {(isLoading || showSkeleton) ? (
-                        <CalendarSkeleton />
-                    ) : appointments && appointments.length > 0 ? (
-                        <div className="space-y-4">
-                            {appointments.map((appointment) => (
-                                <Card key={appointment.id} className={CARD_HOVER}>
-                                    <CardContent className="flex flex-col md:flex-row items-start md:items-center justify-between p-4">
-                                        <div className="flex items-start space-x-4 rtl:space-x-reverse mb-4 md:mb-0">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
-                                                <CalendarIcon className="h-5 w-5" />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-semibold">
-                                                    {appointment.customer ? `${appointment.customer.firstName} ${appointment.customer.lastName}` : "عميل غير معروف"}
-                                                </h3>
-                                                <div className="flex items-center text-sm text-muted-foreground mt-1 space-x-3 rtl:space-x-reverse">
-                                                    <span className="flex items-center">
-                                                        <Clock className="w-3 h-3 ms-1" />
-                                                        {formatDate(appointment.scheduledAt)}
-                                                    </span>
-                                                    {appointment.property && (
-                                                        <span className="flex items-center">
-                                                            <MapPin className="w-3 h-3 ms-1" />
-                                                            {appointment.property.title}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                {appointment.notes && (
-                                                    <p className="text-sm text-muted-foreground mt-2 max-w-xl">{appointment.notes}</p>
-                                                )}
-                                            </div>
-                                        </div>
+            {/* Time Slot Rows — 15-minute intervals */}
+            {TIME_SLOTS.map(({ hour, minute }, slotIdx) => {
+              const isHourStart = minute === 0;
+              const isHalfHour = minute === 30;
 
-                                        <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                                            <Badge variant={getCalendarStatusVariant(appointment.status)}>
-                                                {STATUS_LABELS[appointment.status] || appointment.status}
-                                            </Badge>
-
-                                            {appointment.status === 'SCHEDULED' && (
-                                                <div className="flex space-x-1 rtl:space-x-reverse">
-                                                    <Button size="sm" variant="outline" className="text-muted-foreground hover:text-foreground/80 hover:bg-muted/50"
-                                                        onClick={() => updateStatusMutation.mutate({ id: appointment.id, status: 'COMPLETED' })}
-                                                    >
-                                                        <CheckCircle className="w-4 h-4" />
-                                                    </Button>
-                                                    <Button size="sm" variant="outline" className={DELETE_BUTTON_STYLES}
-                                                        onClick={() => updateStatusMutation.mutate({ id: appointment.id, status: 'CANCELLED' })}
-                                                    >
-                                                        <XCircle className="w-4 h-4" />
-                                                    </Button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    ) : (
-                        <EmptyState
-                            icon={CalendarIcon}
-                            title="لا توجد مواعيد"
-                            description="قم بجدولة أول موعد للبدء."
-                        />
+              return (
+                <div
+                  key={slotIdx}
+                  className={cn(
+                    "grid grid-cols-[64px_repeat(7,1fr)]",
+                    isHourStart && "border-t border-border",
+                    isHalfHour && "border-t border-border/50",
+                    !isHourStart && !isHalfHour && "border-t border-dashed border-border/25",
+                  )}
+                  style={{ minHeight: `${SLOT_HEIGHT}px` }}
+                >
+                  {/* Time Label */}
+                  <div className="border-e border-border flex items-start justify-center px-1 pt-0.5">
+                    {isHourStart && (
+                      <span className="text-[11px] font-bold text-muted-foreground tabular-nums leading-tight">
+                        {formatSlotTime(hour, 0)}
+                      </span>
                     )}
-                </CardContent>
-            </Card>
+                  </div>
+
+                  {/* Day Cells */}
+                  {weekDays.map((day, dayIdx) => {
+                    const dayKey = format(day, "yyyy-MM-dd");
+                    const key = slotKey(dayKey, hour, minute);
+                    const slotAppointments = appointmentsBySlot[key] || [];
+                    const today = isToday(day);
+                    const isDragTarget = dragOverSlotKey === key;
+
+                    return (
+                      <div
+                        key={dayIdx}
+                        className={cn(
+                          "border-s border-border relative cursor-pointer transition-colors",
+                          today && "bg-primary/[0.02]",
+                          isDragTarget && "bg-primary/15 ring-1 ring-inset ring-primary/30",
+                          !isDragTarget && "hover:bg-muted/50",
+                        )}
+                        style={{ minHeight: `${SLOT_HEIGHT}px` }}
+                        onClick={() => slotAppointments.length === 0 && handleCellClick(day, hour, minute)}
+                        onDragOver={(e) => handleDragOver(e, key)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, day, hour, minute)}
+                      >
+                        {/* Drop indicator */}
+                        {isDragTarget && (
+                          <div className="absolute inset-x-1 top-0.5 bottom-0.5 rounded border-2 border-dashed border-primary/40 pointer-events-none flex items-center justify-center">
+                            <span className="text-[10px] font-bold text-primary/60">{formatSlotTime(hour, minute)}</span>
+                          </div>
+                        )}
+
+                        {/* Appointment blocks */}
+                        {slotAppointments.map((appt) => {
+                          const status = STATUS_COLORS[appt.status] || STATUS_COLORS.SCHEDULED;
+                          const customerName = appt.customer
+                            ? `${appt.customer.firstName} ${appt.customer.lastName}`
+                            : isAr ? "عميل" : "Customer";
+                          const time = format(parseISO(appt.scheduledAt), "HH:mm");
+                          const isDragging = draggedAppt?.id === appt.id;
+                          const canDrag = appt.status === "SCHEDULED" || appt.status === "RESCHEDULED";
+
+                          return (
+                            <Tooltip key={appt.id}>
+                              <TooltipTrigger asChild>
+                                <div
+                                  draggable={canDrag}
+                                  onDragStart={(e) => handleDragStart(e, appt)}
+                                  onDragEnd={handleDragEnd}
+                                  className={cn(
+                                    "absolute inset-x-0.5 top-0.5 rounded-md px-1.5 py-0.5 text-[11px] border-s-[3px] z-[1]",
+                                    "select-none overflow-hidden",
+                                    status.bg, status.border, status.text,
+                                    canDrag && "cursor-grab active:cursor-grabbing hover:shadow-md hover:ring-1 hover:ring-primary/20",
+                                    !canDrag && "opacity-60",
+                                    isDragging && "opacity-30 ring-2 ring-primary",
+                                    appt.status === "CANCELLED" && "line-through",
+                                  )}
+                                  style={{ minHeight: `${SLOT_HEIGHT - 4}px` }}
+                                  onClick={(e) => { e.stopPropagation(); setSelectedAppointment(appt); }}
+                                >
+                                  <div className="flex items-center gap-1">
+                                    {canDrag && <GripVertical className="h-3 w-3 flex-shrink-0 opacity-40" />}
+                                    <span className="font-bold truncate">{customerName}</span>
+                                  </div>
+                                  <span className="opacity-70 tabular-nums">{time}</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs">
+                                <p className="font-bold">{customerName}</p>
+                                <p className="text-xs">{format(parseISO(appt.scheduledAt), "PPP p", { locale })}</p>
+                                {appt.property && <p className="text-xs opacity-80">{appt.property.title}</p>}
+                                {appt.notes && <p className="text-xs opacity-70 mt-1">{appt.notes}</p>}
+                                <Badge variant="outline" className="mt-1 text-[10px]">
+                                  {isAr ? status.label : status.labelEn}
+                                </Badge>
+                                {canDrag && (
+                                  <p className="text-[10px] opacity-50 mt-1">
+                                    {isAr ? "اسحب لإعادة الجدولة" : "Drag to reschedule"}
+                                  </p>
+                                )}
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
         </div>
-    );
+      </Card>
+
+      {/* ── Appointment Detail Sheet ──────────────────────────────────────── */}
+      <Sheet open={!!selectedAppointment} onOpenChange={() => setSelectedAppointment(null)}>
+        <SheetContent side="bottom">
+          {selectedAppointment && (() => {
+            const appt = selectedAppointment;
+            const status = STATUS_COLORS[appt.status] || STATUS_COLORS.SCHEDULED;
+            const customerName = appt.customer ? `${appt.customer.firstName} ${appt.customer.lastName}` : isAr ? "عميل" : "Customer";
+            return (
+              <>
+                <SheetHeader>
+                  <SheetTitle>{isAr ? "تفاصيل الموعد" : "Appointment Details"}</SheetTitle>
+                </SheetHeader>
+                <div className="space-y-4 py-4 max-w-lg mx-auto">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <User className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-lg">{customerName}</p>
+                      {appt.customer?.phone && (
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Phone className="h-3 w-3" /> {appt.customer.phone}
+                        </p>
+                      )}
+                    </div>
+                    <Badge className={cn("ms-auto", status.bg, status.text)}>
+                      {isAr ? status.label : status.labelEn}
+                    </Badge>
+                  </div>
+
+                  <Separator />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">{isAr ? "التاريخ" : "Date"}</p>
+                        <p className="font-bold text-sm">{format(parseISO(appt.scheduledAt), "PPP", { locale })}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">{isAr ? "الوقت" : "Time"}</p>
+                        <p className="font-bold text-sm">{format(parseISO(appt.scheduledAt), "p", { locale })}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {appt.property && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">{isAr ? "العقار" : "Property"}</p>
+                        <p className="font-bold text-sm">{appt.property.title}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {appt.notes && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">{isAr ? "ملاحظات" : "Notes"}</p>
+                      <p className="text-sm bg-muted/30 rounded-xl p-3">{appt.notes}</p>
+                    </div>
+                  )}
+
+                  {/* Quick contact actions */}
+                  {appt.customer?.phone && (
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => window.open(`tel:${appt.customer!.phone}`, "_self")}>
+                        <Phone className="h-3.5 w-3.5" /> {isAr ? "اتصال" : "Call"}
+                      </Button>
+                      <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => window.open(`https://wa.me/${appt.customer!.phone?.replace(/[^0-9]/g, "")}`, "_blank")}>
+                        <Clock className="h-3.5 w-3.5" /> {isAr ? "واتساب" : "WhatsApp"}
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Cross-page navigation */}
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => { setSelectedAppointment(null); setLocation("/home/platform/leads"); }}>
+                      <User className="h-3.5 w-3.5" /> {isAr ? "عرض العميل" : "View Lead"}
+                    </Button>
+                    <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => { setSelectedAppointment(null); setLocation("/home/platform/activities"); }}>
+                      <Clock className="h-3.5 w-3.5" /> {isAr ? "تسجيل نشاط" : "Log Activity"}
+                    </Button>
+                    <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => { setSelectedAppointment(null); setLocation("/home/platform/pipeline"); }}>
+                      <MapPin className="h-3.5 w-3.5" /> {isAr ? "المسار" : "Pipeline"}
+                    </Button>
+                  </div>
+
+                  {(appt.status === "SCHEDULED" || appt.status === "RESCHEDULED") && (
+                    <>
+                      <Separator />
+                      <div className="flex gap-2">
+                        <Button className="flex-1 gap-2" onClick={() => updateMutation.mutate({ id: appt.id, status: "COMPLETED" })}>
+                          <CheckCircle className="h-4 w-4" /> {isAr ? "إكمال" : "Complete"}
+                        </Button>
+                        <Button variant="outline" className="flex-1 gap-2 text-destructive" onClick={() => updateMutation.mutate({ id: appt.id, status: "CANCELLED" })}>
+                          <XCircle className="h-4 w-4" /> {isAr ? "إلغاء" : "Cancel"}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </>
+            );
+          })()}
+        </SheetContent>
+      </Sheet>
+
+      {/* ── Create Appointment Sheet ─────────────────────────────────────── */}
+      <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+        <SheetContent side="bottom">
+          <SheetHeader>
+            <SheetTitle>{isAr ? "موعد جديد" : "New Appointment"}</SheetTitle>
+            <SheetDescription>
+              {isAr ? "أدخل تفاصيل الموعد (الحد الأدنى 15 دقيقة)" : "Enter appointment details (minimum 15 minutes)"}
+            </SheetDescription>
+          </SheetHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit((data) => createMutation.mutate(data))} className="space-y-4 py-4 max-w-lg mx-auto">
+              {/* Customer */}
+              <FormField control={form.control} name="customerId" render={() => (
+                <FormItem>
+                  <FormLabel>{isAr ? "العميل" : "Customer"} *</FormLabel>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button type="button" variant="outline" className="w-full justify-between h-10 font-normal">
+                        {form.watch("customerId")
+                          ? (() => {
+                              const lead = leads?.find(l => l.id === form.watch("customerId"));
+                              return lead ? `${lead.firstName} ${lead.lastName}` : (isAr ? "عميل محدد" : "Selected");
+                            })()
+                          : (isAr ? "اختر العميل..." : "Select customer...")}
+                        <ChevronDown className="h-4 w-4 opacity-50" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto">
+                      {leads?.map((lead) => (
+                        <DropdownMenuItem key={lead.id} onClick={() => form.setValue("customerId", lead.id, { shouldValidate: true })}>
+                          <div>
+                            <p className="font-bold">{lead.firstName} {lead.lastName}</p>
+                            <p className="text-xs text-muted-foreground">{lead.phone || "—"}</p>
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              {/* Date + Time (15-min step) */}
+              <div className="grid grid-cols-2 gap-4">
+                <FormField control={form.control} name="scheduledAt" render={() => (
+                  <FormItem>
+                    <FormLabel>{isAr ? "التاريخ" : "Date"} *</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className={cn("w-full justify-start h-10 font-normal", !selectedDate && "text-muted-foreground")}>
+                          <CalendarIcon className="h-4 w-4 me-2" />
+                          {selectedDate ? format(selectedDate, "PPP", { locale }) : (isAr ? "اختر" : "Pick")}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <CalendarPicker mode="single" selected={selectedDate} onSelect={handleDateSelect} disabled={(d) => d < new Date()} initialFocus />
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )} />
+                <FormItem>
+                  <FormLabel>{isAr ? "الوقت" : "Time"} *</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="time"
+                      value={timeValue}
+                      onChange={(e) => handleTimeChange(e.target.value)}
+                      step={900}
+                      min="08:00"
+                      max="18:00"
+                      className="h-10 tabular-nums"
+                    />
+                  </FormControl>
+                  <p className="text-[10px] text-muted-foreground">{isAr ? "بفواصل 15 دقيقة" : "15-min intervals"}</p>
+                </FormItem>
+              </div>
+              <FormField control={form.control} name="scheduledAt" render={() => (<FormMessage />)} />
+
+              {/* Notes */}
+              <FormField control={form.control} name="notes" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{isAr ? "ملاحظات" : "Notes"}</FormLabel>
+                  <FormControl><Textarea {...field} placeholder={isAr ? "تفاصيل الموعد..." : "Details..."} rows={2} /></FormControl>
+                </FormItem>
+              )} />
+
+              <SheetFooter>
+                <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>{isAr ? "إلغاء" : "Cancel"}</Button>
+                <Button type="submit" disabled={createMutation.isPending}>
+                  {createMutation.isPending ? "..." : (isAr ? "إنشاء الموعد" : "Create")}
+                </Button>
+              </SheetFooter>
+            </form>
+          </Form>
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
 }
