@@ -82,6 +82,10 @@ const LazyMarketingRequestsBoardPage = lazy(() => import("@/pages/marketing/boar
 const FavoritesPage = lazy(() => import("@/pages/platform/favorites"));
 const ComparePage = lazy(() => import("@/pages/platform/compare"));
 const PostListingPage = lazy(() => import("@/pages/platform/properties/post-listing"));
+const MortgageCalculator = lazy(() => import("@/pages/platform/tools/mortgage"));
+const ROICalculator = lazy(() => import("@/pages/platform/tools/roi"));
+const ClientPortal = lazy(() => import("@/pages/client/index"));
+const TenantsPage = lazy(() => import("@/pages/platform/tenants/index"));
 const ModerationQueuePage = lazy(() => import("@/pages/admin/moderation"));
 const TeamPage = lazy(() => import("@/pages/platform/team"));
 const AgentPage = lazy(() => import("@/pages/platform/agents/detail"));
@@ -95,6 +99,9 @@ const ActivitiesPage = lazy(() => import("@/pages/platform/activities"));
 const CalendarPage = lazy(() => import("@/pages/platform/calendar"));
 const PoolPage = lazy(() => import("@/pages/platform/pool"));
 const ForumPage = lazy(() => import("@/pages/platform/forum"));
+const InboxPage = lazy(() => import("@/pages/platform/inbox/index"));
+const ProjectsPage = lazy(() => import("@/pages/platform/projects/index"));
+const ReportBuilderPage = lazy(() => import("@/pages/platform/reports/builder"));
 
 // Admin Pages
 const UserManagementPage = lazy(() => import("@/pages/admin/user-management"));
@@ -330,7 +337,9 @@ function Router() {
       { path: '/home/platform/marketing-requests', component: LazyMarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/unverified-listings', component: SuspendedUnverifiedListingsManagementPage, allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/pool', component: withSuspense(PoolPage), aliases: ['/pool'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/projects', component: ProjectsPage, aliases: ['/projects'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/forum', component: withSuspense(ForumPage), aliases: ['/forum'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/inbox', component: InboxPage, aliases: ['/inbox'], allowedRoles: PLATFORM_CORE_ROLES },
     ];
 
   const platformDynamicRoutes: Array<{
@@ -358,6 +367,11 @@ function Router() {
       { path: '/home/platform/favorites', component: FavoritesPage, aliases: ['/favorites'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/compare', component: ComparePage, aliases: ['/compare'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/post-listing', component: PostListingPage, aliases: ['/post-listing'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+      { path: '/home/platform/tools/mortgage', component: MortgageCalculator, aliases: ['/tools/mortgage'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/tools/roi', component: ROICalculator, aliases: ['/tools/roi'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/reports/builder', component: ReportBuilderPage, aliases: ['/reports/builder'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/client', component: ClientPortal, aliases: ['/client/dashboard'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+      { path: '/home/platform/tenants', component: TenantsPage, aliases: ['/tenants'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/saved-searches', component: SavedSearchesPage, aliases: ['/saved-searches'], allowedRoles: EXTENDED_PLATFORM_ROLES },
 
       { path: '/home/platform/activities', component: ActivitiesPage, aliases: ['/activities'], allowedRoles: EXTENDED_PLATFORM_ROLES },

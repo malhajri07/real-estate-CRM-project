@@ -52,7 +52,7 @@ function SkeletonListItem() {
   );
 }
 
-// ── Page-specific skeletons ─────���───────────────────────────────────────────
+// ── Page-specific skeletons ──────────────────────────────────────────────
 
 /** Pipeline / Kanban board skeleton */
 export function PipelineSkeleton() {
@@ -631,6 +631,87 @@ export function PostListingSkeleton() {
             ))}
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/** Activities skeleton — 4 stat cards + table */
+export function ActivitiesSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      <SkeletonMetricRow count={4} />
+      <div className="rounded-xl border border-border bg-card">
+        <div className="p-4 border-b border-border flex items-center gap-3">
+          <Skeleton className="h-8 w-48 rounded-lg" />
+          <Skeleton className="h-8 w-32 rounded-lg" />
+        </div>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 p-4 border-b border-border last:border-0">
+            <Skeleton className="h-5 w-5 rounded" />
+            <Skeleton className="h-5 w-20 rounded-full" />
+            <Skeleton className="h-4 w-40 rounded-lg flex-1" />
+            <Skeleton className="h-4 w-24 rounded-lg" />
+            <Skeleton className="h-5 w-16 rounded-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Campaigns skeleton — stats + tabs + card grid */
+export function CampaignsSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      <SkeletonMetricRow count={4} />
+      <div className="flex gap-2">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-9 w-20 rounded-lg" />
+        ))}
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="rounded-xl border border-border bg-card p-4 space-y-3">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-10 w-10 rounded-xl" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-40 rounded-lg" />
+                <Skeleton className="h-3 w-full rounded-lg" />
+              </div>
+            </div>
+            <Skeleton className="h-8 w-24 rounded-lg" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Promotions skeleton — stats + cards with thumbnails */
+export function PromotionsSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <SkeletonCard key={i} />
+        ))}
+      </div>
+      <div className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="rounded-xl border border-border bg-card p-4 flex items-start gap-4">
+            <Skeleton className="h-20 w-28 rounded-lg shrink-0" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-48 rounded-lg" />
+              <Skeleton className="h-3 w-32 rounded-lg" />
+              <div className="grid grid-cols-4 gap-3 pt-2">
+                {Array.from({ length: 4 }).map((_, j) => (
+                  <Skeleton key={j} className="h-10 w-full rounded-lg" />
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

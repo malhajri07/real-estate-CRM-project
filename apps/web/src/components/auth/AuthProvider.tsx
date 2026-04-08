@@ -148,16 +148,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    */
   const login = async (identifier: string, password: string, rememberMe: boolean = false) => {
     try {
-      // Log login attempt (password is masked for security)
+      // OTP login: token already obtained via /api/auth/verify-otp
+      if (identifier === "__otp_login__" && password) {
+        const otpToken = password; // password field carries the token
+        // Fetch user data using the token
+        const userRes = await fetch("/api/auth/user", {
+          headers: { Authorization: `Bearer ${otpToken}` },
+        });
+        if (!userRes.ok) throw new Error("فشل تحميل بيانات المستخدم");
+        const userData = await userRes.json();
+        // Parse roles: API may return string '["ROLE"]' or array ["ROLE"]
+        let rawRoles = userData.roles;
+        if (typeof rawRoles === "string") {
+          try { rawRoles = JSON.parse(rawRoles); } catch { /* keep as string */ }
+        }
+        const normalizedRoles = normalizeRoleKeys(rawRoles);
+        const normalizedUser = { ...userData, roles: normalizedRoles } as User;
+        setUser(normalizedUser);
+        setToken(otpToken);
+        localStorage.setItem("auth_token", otpToken);
+        localStorage.setItem("user_data", JSON.stringify(normalizedUser));
+        localStorage.setItem("remember_me", "true");
+        setSessionExpired(false);
+        const roles = normalizedRoles;
+        if (roles.includes(UserRole.WEBSITE_ADMIN)) {
+          setLocation("/admin/overview/main-dashboard");
+        } else if (roles.includes(UserRole.BUYER) || roles.includes(UserRole.SELLER)) {
+          setLocation("/client");
+        } else {
+          setLocation("/home/platform");
+        }
+        return;
+      }
+
+      // Standard username/password login (legacy fallback)
       logger.debug('Attempting login', {
         context: 'AuthProvider',
         data: { identifier, password: password ? '***' : 'undefined' }
       });
 
-      // Normalize identifier client-side (trim + lowercase for matching)
       const rawIdentifier = (identifier || '').trim();
       if (!rawIdentifier) {
-        throw new Error('يرجى إدخال البريد الإلكتروني أو اسم المستخدم');
+        throw new Error('يرجى إدخال رقم الجوال');
       }
       const isEmail = rawIdentifier.includes('@');
       const normalized = rawIdentifier.toLowerCase();
@@ -173,17 +205,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         payload.username = normalized;
       }
 
-      // Send authentication request to backend API
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Important: include cookies for session
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
 
-      // Parse response data robustly (handle non-JSON)
       const raw = await response.text();
       let data: any;
       try {

@@ -849,7 +849,7 @@ export default function PropertyDetail() {
                             alt={`${property.title} - صورة ${idx + 1}`}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                           />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                          <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/30 transition-colors flex items-center justify-center">
                             <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                           </div>
                           <div className="absolute bottom-2 start-2">
@@ -866,7 +866,7 @@ export default function PropertyDetail() {
 
               {/* Lightbox */}
               {lightboxOpen && photos.length > 0 && (
-                <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center print:hidden">
+                <div className="fixed inset-0 z-[100] bg-foreground/90 flex items-center justify-center print:hidden">
                   <Button
                     variant="ghost"
                     size="icon"

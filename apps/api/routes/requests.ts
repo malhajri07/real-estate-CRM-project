@@ -21,6 +21,7 @@
 import express from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";
+import { authenticateToken } from "../src/middleware/auth.middleware";
 
 const router = express.Router();
 
@@ -54,7 +55,7 @@ const RequestSchema = z.object({
   notes: z.string().trim().optional(),
 });
 
-router.post("/", async (req, res) => {
+router.post("/", authenticateToken, async (req, res) => {
   try {
     const data = RequestSchema.parse(req.body);
     const created = await storage.createRealEstateRequest({
@@ -89,7 +90,7 @@ router.get("/", async (_req, res) => {
 export default router;
 
 // Admin: update status
-router.patch("/:id/status", async (req, res) => {
+router.patch("/:id/status", authenticateToken, async (req, res) => {
   try {
     const { status } = req.body || {};
     if (!status) return res.status(400).json({ message: "status is required" });

@@ -86,7 +86,7 @@ export default function RBACLoginPage() {
 
   if (isAuthenticating) {
     primaryCard = (
-      <Card className="w-full rounded-3xl border border-border bg-card shadow-sm">
+      <Card className="w-full rounded-xl border border-border bg-card shadow-sm">
         <CardContent className="py-16 text-center space-y-6">
           <Spinner size="xl" className="mx-auto text-primary" />
           <p className="text-sm font-medium text-muted-foreground">{isAr ? "جاري التحميل..." : "Loading..."}</p>
@@ -104,12 +104,12 @@ export default function RBACLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative">
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary/10 to-transparent opacity-60" />
-        <div className="absolute -top-[20%] -right-[10%] w-[600px] h-[600px] rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute top-[20%] -left-[10%] w-[400px] h-[400px] rounded-full bg-accent/30 blur-3xl" />
+        
+        
+        
       </div>
 
       {/* Top Bar */}
@@ -152,13 +152,13 @@ export default function RBACLoginPage() {
         {/* Footer Links */}
         <div className="text-center space-y-4 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-200">
           <p className="text-sm text-muted-foreground">
-            {isAr ? "لا تملك حساباً بعد؟" : "Don't have an account?"}{' '}
+            لا تملك حساباً بعد؟{" "}
             <Button
               variant="link"
               onClick={() => setLocation('/signup')}
               className="font-bold text-primary hover:text-primary/80 hover:underline transition-colors p-0 h-auto"
             >
-              {isAr ? "إنشاء حساب جديد" : "Create an account"}
+              إنشاء حساب جديد
             </Button>
           </p>
 

@@ -82,9 +82,9 @@ export const queryClient = new QueryClient({
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
-      refetchOnWindowFocus: true,
-      staleTime: 2 * 60 * 1000, // 2 minutes - balance freshness vs requests
-      gcTime: 5 * 60 * 1000,   // 5 minutes - garbage collect unused cache
+      refetchOnWindowFocus: false,  // Only refetch explicitly — prevents 126 queries firing on tab switch
+      staleTime: 3 * 60 * 1000,    // 3 minutes — reduces redundant fetches
+      gcTime: 10 * 60 * 1000,      // 10 minutes — keep cache longer to avoid re-fetches
       retry: 1,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     },

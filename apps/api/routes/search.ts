@@ -24,6 +24,7 @@
 import express from "express";
 import { z } from "zod";
 import { storage } from "../storage-prisma";
+import { authenticateToken } from "../src/middleware/auth.middleware";
 
 const router = express.Router();
 
@@ -56,7 +57,7 @@ const SavedSearchSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
-router.post("/saved", async (req, res) => {
+router.post("/saved", authenticateToken, async (req, res) => {
   try {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ message: "Authentication required" });
@@ -75,7 +76,7 @@ router.post("/saved", async (req, res) => {
   }
 });
 
-router.delete("/saved/:id", async (req, res) => {
+router.delete("/saved/:id", authenticateToken, async (req, res) => {
   try {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ message: "Authentication required" });
@@ -89,7 +90,7 @@ router.delete("/saved/:id", async (req, res) => {
 });
 
 // Simulate running saved search alerts (dev helper)
-router.post("/run-alerts", async (req, res) => {
+router.post("/run-alerts", authenticateToken, async (req, res) => {
   try {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ message: "Authentication required" });

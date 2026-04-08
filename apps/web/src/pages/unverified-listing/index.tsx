@@ -602,21 +602,18 @@ export default function UnverifiedListingPage() {
   if (submitted) {
     return (
       <div className="min-h-screen bg-background font-sans text-foreground overflow-x-hidden">
-        <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
+        
         <PublicHeader />
 
-        <main className="relative pt-32 pb-20 px-4 flex items-center justify-center min-h-[80vh]">
-          {/* Background Blobs */}
-          <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-primary/50 blur-[100px] rounded-full pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
+        <main className="pt-20 pb-12 px-4 flex items-center justify-center min-h-[80vh]">
 
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="w-full max-w-2xl"
           >
-            <div className="glass rounded-2xl p-12 text-center shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-primary to-primary/70" />
+            <div className="rounded-xl border bg-card p-8 md:p-12 text-center shadow-sm relative overflow-hidden">
+              
 
               <motion.div
                 initial={{ scale: 0 }}
@@ -626,7 +623,7 @@ export default function UnverifiedListingPage() {
                 <CheckCircle2 className="h-10 w-10" />
               </motion.div>
 
-              <h1 className="text-3xl font-bold text-foreground mb-4">تم استلام إعلانك بنجاح</h1>
+              <h1 className="text-xl font-bold text-foreground mb-3">تم استلام إعلانك بنجاح</h1>
               <p className="text-muted-foreground text-lg leading-relaxed mb-8 max-w-lg mx-auto">
                 شكراً لثقتك بنا. سيقوم أحد الوسطاء المرخصين بمراجعة إعلانك والاتصال بك قريباً لإتمام عملية النشر.
               </p>
@@ -634,13 +631,13 @@ export default function UnverifiedListingPage() {
               {propertyId && (
                 <div className="mb-10 inline-block bg-primary/5 border border-primary/10 rounded-2xl px-8 py-4">
                   <p className="text-sm font-bold text-foreground mb-1">رقم الإعلان الخاص بك</p>
-                  <p className="text-3xl font-bold text-primary font-mono tracking-widest">{propertyId}</p>
+                  <p className="text-xl font-bold text-primary font-mono tracking-widest">{propertyId}</p>
                 </div>
               )}
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
-                  className="rounded-xl h-12 px-8 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20"
+                  className="h-10 bg-primary hover:bg-primary/90 text-primary-foreground"
                   onClick={() => {
                     setSubmitted(false);
                     setCurrentStep(1);
@@ -655,7 +652,7 @@ export default function UnverifiedListingPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-xl h-12 px-8 border-border hover:bg-muted/30 hover:text-primary hover:border-primary/20"
+                  className="h-10 variant-outline"
                   onClick={() => setLocation("/")}
                 >
                   <Home className={cn("me-2", "h-4 w-4")} />
@@ -671,22 +668,20 @@ export default function UnverifiedListingPage() {
 
   return (
     <div className="min-h-screen bg-background font-sans text-foreground overflow-x-hidden">
-      <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
+      
       <PublicHeader />
 
-      <main className="relative pt-32 pb-20 px-4">
-        {/* Background Blobs */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/50 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
+      <main className="pt-20 pb-12 px-4">
 
-        <div className="max-w-7xl mx-auto relative z-10">
+
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center space-y-4 mb-12"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-              أدرج <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary/70">عقارك للبيع</span>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight">
+              أدرج <span className="text-primary">عقارك للبيع</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
               أدخل تفاصيل عقارك خطوة بخطوة. أكمل كل خطوة للانتقال إلى الخطوة التالية.
@@ -701,7 +696,7 @@ export default function UnverifiedListingPage() {
               transition={{ delay: 0.1 }}
               className="lg:col-span-3 lg:sticky lg:top-32"
             >
-              <div className="glass rounded-2xl p-6 shadow-xl">
+              <div className="rounded-xl border bg-card p-5 shadow-sm">
                 <div className="flex flex-row lg:flex-col items-start gap-4 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
                   {STEPS.map((step, index) => {
                     const isCompleted = completedSteps.includes(step.id);
@@ -745,7 +740,7 @@ export default function UnverifiedListingPage() {
                           <div className="text-xs text-muted-foreground/70">{step.description}</div>
                         </div>
                         {index < STEPS.length - 1 && (
-                          <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-slate-200 -z-10" />
+                          <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-border -z-10" />
                         )}
                         {index < STEPS.length - 1 && (
                           <ChevronRight
@@ -771,7 +766,7 @@ export default function UnverifiedListingPage() {
               <Form {...form}>
                 <form
                   onSubmit={handleFormSubmit}
-                  className="glass rounded-2xl p-8 md:p-12 shadow-2xl space-y-10"
+                  className="rounded-xl border bg-card p-6 md:p-8 shadow-sm space-y-8"
                 >
                   {/* Step 1: Basic Information */}
                   {currentStep === 1 && (
@@ -1697,7 +1692,7 @@ export default function UnverifiedListingPage() {
                               الصور المرفوعة: {selectedImages.length} / {MAX_IMAGE_COUNT}
                             </p>
                           </div>
-                          <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-primary/20 bg-white text-primary hover:bg-primary/5 cursor-pointer transition">
+                          <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-primary/20 bg-card text-primary hover:bg-primary/5 cursor-pointer transition">
                             <UploadCloud className="w-4 h-4" /> رفع صور
                             <Input type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
                           </label>
@@ -1789,7 +1784,7 @@ export default function UnverifiedListingPage() {
                       <Button
                         type="button"
                         onClick={handleNext}
-                        className="rounded-2xl bg-primary/10 text-white hover:bg-primary/10"
+                        className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90"
                       >
                         التالي
                         <ChevronLeft className={cn("me-2", "h-4 w-4")} />
@@ -1798,7 +1793,7 @@ export default function UnverifiedListingPage() {
                       <Button
                         type="submit"
                         disabled={loading}
-                        className="rounded-2xl bg-primary/10 text-white hover:bg-primary/10 disabled:opacity-60"
+                        className="rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
                       >
                         {loading ? (
                           <>
@@ -1813,7 +1808,7 @@ export default function UnverifiedListingPage() {
                   </div>
 
                   {loading && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md">
+                    <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-card/70 backdrop-blur-md">
                       <div className="flex flex-col items-center gap-3 text-muted-foreground">
                         <Spinner size="xl" className="text-primary" />
                         <p className="text-sm font-medium">جارٍ إرسال إعلانك، يرجى الانتظار...</p>

@@ -1,3 +1,7 @@
+/**
+ * PreferencesSection.tsx — Expanded notification preferences (9 categories)
+ */
+
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -5,9 +9,13 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bell, Users, CheckCircle, TrendingUp, ChevronDown, Save } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
+import {
+  Bell, Save, Users, CheckCircle, TrendingUp,
+  Handshake, FileSignature, Calendar, Building,
+  Clock, CreditCard,
+} from "lucide-react";
 import { apiGet, apiPut } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -15,16 +23,49 @@ const preferencesSchema = z.object({
   newLeads: z.boolean(),
   taskUpdates: z.boolean(),
   newDeals: z.boolean(),
+  brokerRequests: z.boolean(),
+  agreementSigned: z.boolean(),
+  appointmentReminders: z.boolean(),
+  propertyInquiries: z.boolean(),
+  listingExpiry: z.boolean(),
+  commissionPayouts: z.boolean(),
 });
 
 type PreferencesFormValues = z.infer<typeof preferencesSchema>;
 
-export interface PreferencesSectionProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+const NOTIFICATION_GROUPS = [
+  {
+    title: "العملاء والصفقات",
+    items: [
+      { key: "newLeads" as const, icon: Users, label: "عملاء محتملين جدد", desc: "إشعار عند إضافة عميل محتمل جديد لقائمتك" },
+      { key: "newDeals" as const, icon: TrendingUp, label: "صفقات جديدة", desc: "إشعار عند إنشاء صفقة جديدة أو تغيير حالتها" },
+      { key: "taskUpdates" as const, icon: CheckCircle, label: "تحديثات المهام", desc: "إشعار عند اكتمال أو تحديث المهام المسندة إليك" },
+    ],
+  },
+  {
+    title: "التعاون والعقود",
+    items: [
+      { key: "brokerRequests" as const, icon: Handshake, label: "طلبات التعاون", desc: "إشعار عند وجود طلب تعاون جديد أو قبول طلبك" },
+      { key: "agreementSigned" as const, icon: FileSignature, label: "توقيع العقود", desc: "إشعار عند توقيع عقد التعاون من أحد الأطراف" },
+    ],
+  },
+  {
+    title: "المواعيد والعقارات",
+    items: [
+      { key: "appointmentReminders" as const, icon: Calendar, label: "تذكير المواعيد", desc: "تذكير قبل المواعيد المجدولة بساعة" },
+      { key: "propertyInquiries" as const, icon: Building, label: "استفسارات العقارات", desc: "إشعار عند وجود استفسار على عقاراتك المعروضة" },
+      { key: "listingExpiry" as const, icon: Clock, label: "انتهاء الإعلانات", desc: "تنبيه قبل انتهاء صلاحية إعلاناتك العقارية" },
+    ],
+  },
+  {
+    title: "المالية",
+    items: [
+      { key: "commissionPayouts" as const, icon: CreditCard, label: "العمولات والمستحقات", desc: "إشعار عند تحويل عمولة أو تحديث مستحقاتك" },
+    ],
+  },
+];
 
-export default function PreferencesSection({ isOpen, onOpenChange }: PreferencesSectionProps) {
+export default function PreferencesSection() {
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -34,6 +75,12 @@ export default function PreferencesSection({ isOpen, onOpenChange }: Preferences
       newLeads: true,
       taskUpdates: true,
       newDeals: true,
+      brokerRequests: true,
+      agreementSigned: true,
+      appointmentReminders: true,
+      propertyInquiries: true,
+      listingExpiry: true,
+      commissionPayouts: true,
     },
   });
 
@@ -46,10 +93,16 @@ export default function PreferencesSection({ isOpen, onOpenChange }: Preferences
             newLeads: data.preferences.newLeads ?? true,
             taskUpdates: data.preferences.taskUpdates ?? true,
             newDeals: data.preferences.newDeals ?? true,
+            brokerRequests: data.preferences.brokerRequests ?? true,
+            agreementSigned: data.preferences.agreementSigned ?? true,
+            appointmentReminders: data.preferences.appointmentReminders ?? true,
+            propertyInquiries: data.preferences.propertyInquiries ?? true,
+            listingExpiry: data.preferences.listingExpiry ?? true,
+            commissionPayouts: data.preferences.commissionPayouts ?? true,
           });
         }
       } catch {
-        // Use defaults on error
+        // Use defaults
       }
     })();
   }, [form]);
@@ -67,121 +120,59 @@ export default function PreferencesSection({ isOpen, onOpenChange }: Preferences
   };
 
   return (
-    <Collapsible open={isOpen} onOpenChange={onOpenChange}>
-      <Card>
-        <CardHeader className="border-b border-border pb-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="rounded-full bg-primary/10 p-2 text-primary"><Bell size={18} /></span>
-            <div className="text-end">
-              <CardTitle>إعدادات الإشعارات</CardTitle>
-              <CardDescription>حدد الإشعارات التي ترغب باستلامها عن نشاط المنصة</CardDescription>
-            </div>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <span className="rounded-full bg-primary/10 p-2 text-primary"><Bell size={18} /></span>
+          <div>
+            <CardTitle>إعدادات الإشعارات</CardTitle>
+            <CardDescription>حدد الإشعارات التي ترغب باستلامها</CardDescription>
           </div>
-          <CollapsibleTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="rounded-full border border-border bg-card p-2 text-muted-foreground transition hover:text-foreground/80"
-              aria-label="تبديل عرض إعدادات الإشعارات"
-            >
-              <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
-            </Button>
-          </CollapsibleTrigger>
-        </CardHeader>
-        <CollapsibleContent>
-          <CardContent className="space-y-4 pt-6">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                <Card className="rounded-2xl bg-muted/30 p-4">
-                  <div className="flex items-center justify-between">
-                    <FormField
-                      control={form.control}
-                      name="newLeads"
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-y-0">
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              data-testid="toggle-new-leads"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <div className="flex-1 pe-4 ps-4">
-                      <div className="font-medium text-foreground mb-1">عملاء محتملين جدد</div>
-                      <div className="text-sm text-muted-foreground">إشعار عند إضافة عملاء محتملين جدد</div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {NOTIFICATION_GROUPS.map((group, gi) => (
+              <div key={gi} className="space-y-3">
+                <h4 className="text-sm font-bold text-muted-foreground">{group.title}</h4>
+                <div className="space-y-2">
+                  {group.items.map((item) => (
+                    <div key={item.key} className="flex items-center justify-between rounded-lg border p-3">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted/50 text-muted-foreground shrink-0">
+                          <item.icon size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium">{item.label}</p>
+                          <p className="text-xs text-muted-foreground">{item.desc}</p>
+                        </div>
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name={item.key}
+                        render={({ field }) => (
+                          <FormItem className="flex items-center space-y-0">
+                            <FormControl>
+                              <Switch checked={field.value} onCheckedChange={field.onChange} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
-                      <Users size={18} />
-                    </div>
-                  </div>
-                </Card>
-                <Card className="rounded-2xl bg-muted/30 p-4">
-                  <div className="flex items-center justify-between">
-                    <FormField
-                      control={form.control}
-                      name="taskUpdates"
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-y-0">
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              data-testid="toggle-task-updates"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <div className="flex-1 pe-4 ps-4">
-                      <div className="font-medium text-foreground mb-1">تحديثات المهام</div>
-                      <div className="text-sm text-muted-foreground">إشعار عند اكتمال أو تحديث المهام</div>
-                    </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
-                      <CheckCircle size={18} />
-                    </div>
-                  </div>
-                </Card>
-                <Card className="rounded-2xl bg-muted/30 p-4">
-                  <div className="flex items-center justify-between">
-                    <FormField
-                      control={form.control}
-                      name="newDeals"
-                      render={({ field }) => (
-                        <FormItem className="flex items-center space-y-0">
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              data-testid="toggle-new-deals"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <div className="flex-1 pe-4 ps-4">
-                      <div className="font-medium text-foreground mb-1">صفقات جديدة</div>
-                      <div className="text-sm text-muted-foreground">إشعار عند إنشاء صفقات جديدة</div>
-                    </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
-                      <TrendingUp size={18} />
-                    </div>
-                  </div>
-                </Card>
-                <div className="flex justify-start pt-2">
-                  <Button type="submit" disabled={isSaving} className="flex items-center gap-2">
-                    <Save size={16} />
-                    {isSaving ? "جاري الحفظ..." : "حفظ إعدادات الإشعارات"}
-                  </Button>
+                  ))}
                 </div>
-              </form>
-            </Form>
-          </CardContent>
-        </CollapsibleContent>
-      </Card>
-    </Collapsible>
+                {gi < NOTIFICATION_GROUPS.length - 1 && <Separator />}
+              </div>
+            ))}
+
+            <Button type="submit" disabled={isSaving} className="gap-2">
+              <Save size={16} />
+              {isSaving ? "جاري الحفظ..." : "حفظ إعدادات الإشعارات"}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }

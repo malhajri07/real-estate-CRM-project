@@ -50,14 +50,13 @@ export default function SignupSelection() {
   return (
     <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden">
       {/* Background Effects */}
-      <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
-      
+            
       <PublicHeader />
 
       <main className="relative pt-32 pb-20 px-4 min-h-[85vh] flex flex-col items-center justify-center">
         {/* Background Blobs */}
-        <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
+
+
 
         <div className="w-full max-w-5xl mx-auto relative z-10">
           <motion.div
@@ -73,8 +72,8 @@ export default function SignupSelection() {
                 <span>حساب جديد</span>
               </span>
               
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-                اختر نوع الحساب للانضمام إلى <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary/70">منصة عقاراتي</span>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight">
+                اختر نوع الحساب للانضمام إلى <span className="text-primary">منصة عقاراتي</span>
               </h1>
               
               <p className="text-lg text-muted-foreground leading-relaxed">
@@ -88,7 +87,7 @@ export default function SignupSelection() {
               <motion.div variants={itemVariants}>
                 <div 
                   onClick={handleIndividualSignup}
-                  className="glass rounded-2xl p-8 md:p-10 h-full cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-white/40"
+                  className="rounded-xl border bg-card p-6 md:p-8 h-full cursor-pointer group hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-border"
                 >
                   <div className="absolute top-0 start-0 w-1 h-full bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
@@ -121,7 +120,7 @@ export default function SignupSelection() {
               <motion.div variants={itemVariants}>
                 <div 
                   onClick={handleCorporateSignup}
-                  className="glass rounded-2xl p-8 md:p-10 h-full cursor-pointer group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-white/40"
+                  className="rounded-xl border bg-card p-6 md:p-8 h-full cursor-pointer group hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden border border-border"
                 >
                   <div className="absolute top-0 start-0 w-1 h-full bg-accent0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
@@ -130,7 +129,7 @@ export default function SignupSelection() {
                       <div className="w-16 h-16 rounded-2xl bg-accent flex items-center justify-center text-accent-foreground group-hover:scale-110 group-hover:bg-accent transition-all duration-300">
                         <Building2 className="w-8 h-8" strokeWidth={1.5} />
                       </div>
-                      <div className="w-10 h-10 rounded-full bg-muted/30 flex items-center justify-center text-muted-foreground/70 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                      <div className="w-10 h-10 rounded-full bg-muted/30 flex items-center justify-center text-muted-foreground/70 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                         <ArrowRight className={cn("w-5 h-5", dir === 'rtl' ? "rotate-180" : "")} />
                       </div>
                     </div>

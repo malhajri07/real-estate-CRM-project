@@ -60,12 +60,22 @@ router.get("/", authenticateToken, async (req, res) => {
     }
 
     const { prisma } = await import('../prismaClient');
-    const leads = await prisma.leads.findMany({
-      where,
-      include: { users: true, customer: true, buyer_requests: true, seller_submissions: true },
-      orderBy: { createdAt: 'desc' },
-      take: 500,
-    });
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = Math.min(parseInt(req.query.pageSize as string) || 100, 200);
+
+    const [leads, total] = await Promise.all([
+      prisma.leads.findMany({
+        where,
+        include: {
+          users: { select: { id: true, firstName: true, lastName: true } },
+          customer: { select: { id: true, firstName: true, lastName: true, phone: true, email: true, city: true, type: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: pageSize,
+        skip: (page - 1) * pageSize,
+      }),
+      prisma.leads.count({ where }),
+    ]);
 
     res.json(leads.map(flattenLeadWithCustomer));
   } catch (error) {
@@ -156,7 +166,15 @@ router.post("/", authenticateToken, async (req, res) => {
     };
     const lead = await storage.createLead(leadData);
 
-    // Step 3: Return lead with customer info flattened
+    // Step 3: Apply lead routing (auto-assign to agent if org has routing rules)
+    try {
+      const { applyLeadRouting } = await import("./lead-routing");
+      await applyLeadRouting({ id: lead.id, organizationId: organizationId || null, city: city || null });
+    } catch {
+      // Routing is best-effort — don't fail lead creation
+    }
+
+    // Step 4: Return lead with customer info flattened
     const fullLead = await storage.getLead(lead.id);
     res.status(201).json(flattenLeadWithCustomer(fullLead));
   } catch (error) {

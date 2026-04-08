@@ -1,6 +1,7 @@
 import express from 'express';
 import { prisma } from '../prismaClient';
 import { decodeAuth } from '../src/middleware/auth-helpers';
+import { authenticateToken } from '../src/middleware/auth.middleware';
 
 const router = express.Router();
 
@@ -73,7 +74,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // PUT /api/notifications/:id - Mark notification as read
-router.put("/:id", async (req, res) => {
+router.put("/:id", authenticateToken, async (req, res) => {
     try {
         const auth = decodeAuth(req);
         if (!auth.id) {
@@ -114,7 +115,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE /api/notifications/:id - Dismiss/delete a notification
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticateToken, async (req, res) => {
     try {
         const auth = decodeAuth(req);
         if (!auth.id) {

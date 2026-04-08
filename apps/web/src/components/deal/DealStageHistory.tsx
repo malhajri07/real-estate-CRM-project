@@ -50,7 +50,7 @@ export interface DealStageHistoryProps {
   className?: string;
 }
 
-// ─── Stage Config ───────────────��────────────────────────────────────────────
+// ─── Stage Config ────────────────────────────────────────────────────────────
 
 const PIPELINE_ORDER = [
   "prospecting",
@@ -74,7 +74,7 @@ function getStageLabel(stage: string): string {
   return STAGE_LABELS[stage] ?? stage;
 }
 
-// ─── Helpers ─────────────────────────────���───────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function formatShortDate(iso: string): string {
   try {

@@ -160,6 +160,7 @@ router.get("/saudi-regions", async (req, res) => {
 });
 
 router.post("/saudi-regions/seed", async (req, res) => {
+  if (process.env.NODE_ENV === 'production') return res.status(403).json({ message: 'Disabled in production' });
   try {
     await storage.seedSaudiRegions(req.body);
     res.json({
@@ -190,6 +191,7 @@ router.get("/saudi-cities/region/:regionCode", async (req, res) => {
 });
 
 router.post("/saudi-cities/seed", async (req, res) => {
+  if (process.env.NODE_ENV === 'production') return res.status(403).json({ message: 'Disabled in production' });
   try {
     await storage.seedSaudiCities(req.body);
     res.json({
@@ -202,11 +204,10 @@ router.post("/saudi-cities/seed", async (req, res) => {
 
 // Seed default data
 router.post("/seed-defaults", async (req, res) => {
+  if (process.env.NODE_ENV === 'production') return res.status(403).json({ message: 'Disabled in production' });
   try {
     // Dynamic import to avoid loading data if not needed
     const { SAUDI_REGIONS, SAUDI_CITIES } = await import("../data/saudi-locations");
-
-    console.log("Seeding default regions and cities...");
     await storage.seedSaudiRegions(SAUDI_REGIONS);
     await storage.seedSaudiCities(SAUDI_CITIES);
 

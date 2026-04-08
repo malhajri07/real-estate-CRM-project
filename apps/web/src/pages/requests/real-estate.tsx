@@ -337,21 +337,21 @@ export default function RealEstateRequestsPage() {
   if (submitted) {
     return (
       <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden">
-        <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
+        
         <PublicHeader />
 
-        <main className="relative pt-32 pb-20 px-4 flex items-center justify-center min-h-[80vh]">
+        <main className="relative pt-20 pb-12 px-4 flex items-center justify-center min-h-[80vh]">
           {/* Background Blobs */}
-          <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
+  
+  
 
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="w-full max-w-2xl"
           >
-            <div className="glass rounded-2xl p-12 text-center shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-primary to-primary/70" />
+            <div className="rounded-xl border bg-card p-8 md:p-12 text-center shadow-sm relative overflow-hidden">
+              
 
               <motion.div
                 initial={{ scale: 0 }}
@@ -361,7 +361,7 @@ export default function RealEstateRequestsPage() {
                 <CheckCircle2 className="h-10 w-10" />
               </motion.div>
 
-              <h1 className="text-3xl font-bold text-foreground mb-4">تم استلام طلبك بنجاح</h1>
+              <h1 className="text-xl font-bold text-foreground mb-3">تم استلام طلبك بنجاح</h1>
               <p className="text-muted-foreground text-lg leading-relaxed mb-8 max-w-lg mx-auto">
                 شكراً لثقتك بنا. سيقوم أحد الوسطاء المرخصين بالتواصل معك قريباً لمراجعة احتياجاتك وتقديم أفضل الخيارات المتاحة.
               </p>
@@ -369,13 +369,13 @@ export default function RealEstateRequestsPage() {
               {seekerId && (
                 <div className="mb-10 inline-block bg-primary/10 border border-primary/20 rounded-2xl px-8 py-4">
                   <p className="text-sm font-bold text-primary mb-1">رقم الطلب الخاص بك</p>
-                  <p className="text-3xl font-bold text-primary font-mono tracking-widest">{seekerId}</p>
+                  <p className="text-xl font-bold text-primary font-mono tracking-widest">{seekerId}</p>
                 </div>
               )}
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
-                  className="rounded-xl h-12 px-8 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/500"
+                  className="h-10 bg-primary hover:bg-primary/90 text-primary-foreground"
                   onClick={() => setSubmitted(false)}
                 >
                   <FileEdit className={cn("me-2", "h-4 w-4")} />
@@ -383,7 +383,7 @@ export default function RealEstateRequestsPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="rounded-xl h-12 px-8 border-border hover:bg-muted/30 hover:text-primary hover:border-primary/20"
+                  className="h-10 variant-outline"
                   onClick={() => setLocation("/")}
                 >
                   <Home className={cn("me-2", "h-4 w-4")} />
@@ -399,13 +399,13 @@ export default function RealEstateRequestsPage() {
 
   return (
     <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden">
-      <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
+      
       <PublicHeader />
 
-      <main className="relative pt-32 pb-20 px-4">
+      <main className="pt-20 pb-12 px-4">
         {/* Background Blobs */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
+
+
 
         <div className="max-w-4xl mx-auto relative z-10">
           <motion.div
@@ -417,8 +417,8 @@ export default function RealEstateRequestsPage() {
               <Home className="w-4 h-4" />
               <span>استمارة طلب عقار</span>
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-              أخبرنا بتفاصيل <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary/70">بيت أحلامك</span>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight">
+              أخبرنا بتفاصيل <span className="text-primary">بيت أحلامك</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
               أدخل بياناتك وتفضيلاتك، وسيقوم فريقنا الخبير بالبحث عن أفضل الخيارات التي تناسب ميزانيتك واحتياجاتك.
@@ -433,7 +433,7 @@ export default function RealEstateRequestsPage() {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="glass rounded-2xl p-8 md:p-12 shadow-2xl"
+                className="rounded-xl border bg-card p-6 md:p-8 shadow-sm"
               >
                 <section className="space-y-8 mb-12">
                   <div className="flex items-center gap-4 pb-4 border-b border-border">
@@ -938,7 +938,7 @@ export default function RealEstateRequestsPage() {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="h-14 rounded-full bg-primary/10 px-10 text-lg font-bold text-white shadow-lg shadow-primary/500 hover:bg-primary/10 hover:shadow-primary/500 disabled:opacity-60 transition-all"
+                    className="h-11 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60 transition-all"
                   >
                     {loading ? (
                       <>
@@ -955,7 +955,7 @@ export default function RealEstateRequestsPage() {
                 </div>
 
                 {loading && (
-                  <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-sm">
+                  <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-card/80 backdrop-blur-sm">
                     {/* Loader overlay handled by button state mainly, but keep if user wants generic block */}
                   </div>
                 )}

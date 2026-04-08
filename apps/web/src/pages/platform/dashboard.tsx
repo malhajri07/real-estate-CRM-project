@@ -86,22 +86,50 @@ export default function Dashboard() {
   const [addPropertyDrawerOpen, setAddPropertyDrawerOpen] = useState(false);
   const [completedactivities, setCompletedActivities] = useState<string[]>([]);
   const minLoadTime = useMinLoadTime();
-  const { dir, language, t } = useLanguage();
+  const { dir, language } = useLanguage();
   const [, setLocation] = useLocation();
   const { user } = useAuth();
   const locale = language === "ar" ? "ar-SA" : "en-US";
   const numericLocale = "en-US"; // Numeric values (0-9) across application
 
-  // Get user's name for welcome message
+  // Get user's name and role for scoped dashboard
   const userName = user?.firstName || user?.name || user?.username || "مستخدم";
+  const userRoles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+  const isCorpOwner = userRoles.includes("CORP_OWNER");
+  const isCorpAgent = userRoles.includes("CORP_AGENT");
+  const isIndivAgent = userRoles.includes("INDIV_AGENT");
+  const isAdmin = userRoles.includes("WEBSITE_ADMIN");
+  const isCorporate = isCorpOwner || isCorpAgent;
 
+  // Personal metrics (always shown for all roles)
   const {
     data: metrics,
     isLoading: metricsLoading,
     isError: metricsError,
     refetch: refetchMetrics,
   } = useQuery<MetricResponse>({
-    queryKey: ["/api/reports/dashboard/metrics"],
+    queryKey: ["/api/reports/dashboard/metrics", "personal"],
+    queryFn: () => fetch("/api/reports/dashboard/metrics?view=personal", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
+    }).then((r) => r.json()),
+  });
+
+  // Org-wide metrics (shown for CORP_AGENT as aggregate + CORP_OWNER as full view)
+  const { data: orgMetrics } = useQuery<MetricResponse>({
+    queryKey: ["/api/reports/dashboard/metrics", "org"],
+    queryFn: () => fetch("/api/reports/dashboard/metrics?view=org", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
+    }).then((r) => r.json()),
+    enabled: isCorporate || isAdmin,
+  });
+
+  // Leaderboard (CORP_OWNER only)
+  const { data: leaderboard } = useQuery<{ id: string; name: string; deals: number; wonDeals: number; revenue: number; conversionRate: number }[]>({
+    queryKey: ["/api/reports/dashboard/leaderboard"],
+    queryFn: () => fetch("/api/reports/dashboard/leaderboard", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
+    }).then((r) => r.json()),
+    enabled: isCorpOwner || isAdmin,
   });
 
   const { data: leads, isLoading: leadsLoading } = useQuery<Lead[]>({
@@ -120,13 +148,13 @@ export default function Dashboard() {
 
   const statusBadges = useMemo<Record<string, { label: string; variant: NonNullable<BadgeProps["variant"]> }>>(
     () => ({
-      new: { label: t("status.new"), variant: "info" },
-      qualified: { label: t("status.qualified"), variant: "success" },
-      showing: { label: t("status.showing"), variant: "secondary" },
-      negotiation: { label: t("status.negotiation"), variant: "warning" },
-      closed: { label: t("status.closed"), variant: "success" },
+      new: { label: "جديد", variant: "info" },
+      qualified: { label: "مؤهل", variant: "success" },
+      showing: { label: "معاينة", variant: "secondary" },
+      negotiation: { label: "تفاوض", variant: "warning" },
+      closed: { label: "مغلق", variant: "success" },
     }),
-    [t]
+    []
   );
 
   const numberFormatter = useMemo(
@@ -144,7 +172,7 @@ export default function Dashboard() {
     () => [
       {
         id: "leads",
-        label: t("dashboard.total_leads"),
+        label: "إجمالي العملاء",
         value: metrics?.totalLeads ?? 0,
         icon: Users,
         // accent removed
@@ -153,7 +181,7 @@ export default function Dashboard() {
       },
       {
         id: "properties",
-        label: t("dashboard.active_properties"),
+        label: "العقارات النشطة",
         value: metrics?.activeProperties ?? 0,
         icon: Building,
         // accent removed
@@ -162,7 +190,7 @@ export default function Dashboard() {
       },
       {
         id: "pipeline",
-        label: t("dashboard.deals_in_pipeline"),
+        label: "الصفقات",
         value: metrics?.dealsInPipeline ?? 0,
         icon: Filter,
         // accent removed
@@ -171,14 +199,14 @@ export default function Dashboard() {
       },
       {
         id: "revenue",
-        label: t("dashboard.monthly_revenue"),
+        label: "الإيرادات الشهرية",
         value: formatCurrency(metrics?.monthlyRevenue ?? 0),
         icon: Banknote,
         currency: true,
         delta: { value: 24, tone: "up" as const },
       },
     ],
-    [metrics, formatCurrency, t]
+    [metrics, formatCurrency]
   );
 
   const pipelineStages = useMemo(() => {
@@ -191,39 +219,39 @@ export default function Dashboard() {
       }
     });
     return [
-      { id: "lead", label: t("dashboard.pipeline.lead"), value: counts.lead },
-      { id: "qualified", label: t("dashboard.pipeline.qualified"), value: counts.qualified },
-      { id: "showing", label: t("dashboard.pipeline.showing"), value: counts.showing },
-      { id: "negotiation", label: t("dashboard.pipeline.negotiation"), value: counts.negotiation },
-      { id: "closed", label: t("dashboard.pipeline.closed"), value: counts.closed },
+      { id: "lead", label: "عميل جديد", value: counts.lead },
+      { id: "qualified", label: "مؤهل", value: counts.qualified },
+      { id: "showing", label: "معاينة", value: counts.showing },
+      { id: "negotiation", label: "تفاوض", value: counts.negotiation },
+      { id: "closed", label: "مغلق", value: counts.closed },
     ];
-  }, [deals, t]);
+  }, [deals]);
 
   const quickActions = useMemo(
     () => [
       {
         id: "add-property",
-        label: t("dashboard.quick_actions.add_property"),
+        label: "إضافة عقار",
         icon: Home,
         onClick: () => setAddPropertyDrawerOpen(true),
         variant: "primary" as const,
       },
       {
         id: "schedule-showing",
-        label: t("dashboard.quick_actions.schedule_showing"),
+        label: "جدولة معاينة",
         icon: Calendar,
         onClick: () => setLocation("/home/platform/calendar"),
         variant: "secondary" as const,
       },
       {
         id: "export-leads",
-        label: t("dashboard.quick_actions.export_leads"),
+        label: "تصدير العملاء",
         icon: Download,
         onClick: () => setLocation("/home/platform/leads"),
         variant: "secondary" as const,
       },
     ],
-    [t, setLocation]
+    [setLocation]
   );
 
   const handleLeadCall = (phone: string) => {
@@ -238,11 +266,11 @@ export default function Dashboard() {
     return (
       <div className={PAGE_WRAPPER}>
         <PageHeader
-          title={`${t("dashboard.welcome") || "مرحباً"} ${userName}`}
-          subtitle={t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
+          title={`مرحباً ${userName}`}
+          subtitle={"نظرة عامة على أداءك اليوم"}
         />
         <QueryErrorFallback
-          message={t("dashboard.load_error") || "فشل تحميل بيانات لوحة التحكم"}
+          message={"فشل تحميل بيانات لوحة التحكم"}
           onRetry={() => refetchMetrics()}
         />
       </div>
@@ -253,8 +281,8 @@ export default function Dashboard() {
     return (
       <div className={PAGE_WRAPPER}>
         <PageHeader
-          title={`${t("dashboard.welcome") || "مرحباً"} ${userName}`}
-          subtitle={t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
+          title={`مرحباً ${userName}`}
+          subtitle={"نظرة عامة على أداءك اليوم"}
         />
         <DashboardSkeleton />
         <AddPropertyDrawer open={addPropertyDrawerOpen} onOpenChange={setAddPropertyDrawerOpen} />
@@ -271,11 +299,11 @@ export default function Dashboard() {
   return (
     <div className={PAGE_WRAPPER}>
       <PageHeader
-          title={`${t("dashboard.welcome") || "مرحباً"} ${userName}`}
-          subtitle={t("dashboard.welcome_subtitle") || "نظرة عامة على أداءك اليوم"}
+          title={`مرحباً ${userName}`}
+          subtitle={"نظرة عامة على أداءك اليوم"}
         />
       
-      <section aria-label={t("dashboard.quick_summary")} className={GRID_METRICS}>
+      <section aria-label={"ملخص سريع"} className={GRID_METRICS}>
         {metricCards.map((metric) => (
           <MetricCard
             key={metric.id}
@@ -283,6 +311,48 @@ export default function Dashboard() {
           />
         ))}
       </section>
+
+      {/* Org Aggregate (CORP_AGENT sees org summary, CORP_OWNER sees org + leaderboard) */}
+      {isCorporate && orgMetrics && (
+        <Card className="bg-primary/5 border-primary/10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-bold text-muted-foreground">أداء المنشأة</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div><p className="text-2xl font-black tabular-nums">{orgMetrics.totalLeads}</p><p className="text-xs text-muted-foreground">إجمالي العملاء</p></div>
+              <div><p className="text-2xl font-black tabular-nums">{orgMetrics.activeProperties}</p><p className="text-xs text-muted-foreground">العقارات النشطة</p></div>
+              <div><p className="text-2xl font-black tabular-nums">{orgMetrics.dealsInPipeline}</p><p className="text-xs text-muted-foreground">الصفقات النشطة</p></div>
+              <div><p className="text-2xl font-black tabular-nums text-primary">{orgMetrics.monthlyRevenue?.toLocaleString()}</p><p className="text-xs text-muted-foreground">إيرادات الشهر</p></div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Agent Leaderboard (CORP_OWNER only) */}
+      {(isCorpOwner || isAdmin) && leaderboard && leaderboard.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm">ترتيب الوسطاء</CardTitle>
+              <Button variant="ghost" size="sm" className="text-xs" onClick={() => setLocation("/home/platform/team")}>عرض الفريق</Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {leaderboard.slice(0, 5).map((agent, i) => (
+                <div key={agent.id} className="flex items-center gap-3 text-sm">
+                  <span className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-black">{i + 1}</span>
+                  <span className="flex-1 font-medium truncate">{agent.name}</span>
+                  <span className="text-xs text-muted-foreground">{agent.wonDeals} صفقة</span>
+                  <span className="text-xs font-bold text-primary tabular-nums">{agent.revenue.toLocaleString()}</span>
+                  <Badge variant="outline" className="text-[10px]">{agent.conversionRate}%</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Row 1: Pipeline Flow + Revenue Chart */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -293,8 +363,8 @@ export default function Dashboard() {
                 <Filter className="h-6 w-6" />
               </div>
               <div>
-                <CardTitle>{t("dashboard.deals_in_pipeline") || (language === "ar" ? "خط الأنابيب" : "Pipeline")}</CardTitle>
-                <CardDescription>{t("dashboard.pipeline_description") || (language === "ar" ? "توزيع الصفقات حسب المرحلة" : "Deal distribution by stage")}</CardDescription>
+                <CardTitle>خط الأنابيب</CardTitle>
+                <CardDescription>توزيع الصفقات حسب المرحلة</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -310,8 +380,8 @@ export default function Dashboard() {
                 <Banknote className="h-6 w-6" />
               </div>
               <div>
-                <CardTitle>{t("dashboard.monthly_revenue") || (language === "ar" ? "إيرادات الشهر" : "Monthly Revenue")}</CardTitle>
-                <CardDescription>{t("dashboard.revenue_description") || (language === "ar" ? "نظرة عامة على الإيرادات" : "Revenue overview")}</CardDescription>
+                <CardTitle>إيرادات الشهر</CardTitle>
+                <CardDescription>نظرة عامة على الإيرادات</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -330,8 +400,8 @@ export default function Dashboard() {
                 <Users className="h-6 w-6" />
               </div>
               <div>
-                <CardTitle>{t("dashboard.recent_leads")}</CardTitle>
-                <CardDescription>{t("dashboard.recent_leads_description")}</CardDescription>
+                <CardTitle>{"آخر العملاء"}</CardTitle>
+                <CardDescription>{"أحدث العملاء المضافين"}</CardDescription>
               </div>
             </div>
             <Button
@@ -340,7 +410,7 @@ export default function Dashboard() {
               className="rounded-full px-4 font-bold bg-muted text-muted-foreground hover:bg-muted/80"
               onClick={() => setLocation("/home/platform/leads")}
             >
-              {t("form.view_all")}
+              {"عرض الكل"}
             </Button>
           </CardHeader>
           <CardContent>
@@ -352,14 +422,14 @@ export default function Dashboard() {
               </div>
             ) : recentLeads.length === 0 ? (
               <EmptyState
-                title={t("dashboard.no_recent_leads")}
-                description={t("dashboard.no_recent_leads_description")}
+                title={"لا يوجد عملاء"}
+                description={"لم يتم إضافة عملاء بعد"}
               />
             ) : (
               <ul className="space-y-3" aria-live="polite">
                 {recentLeads.slice(0, 5).map((lead, index) => {
                   const status = statusBadges[lead.status ?? ""] ?? {
-                    label: lead.status ? t(`status.${lead.status}`) ?? lead.status : undefined,
+                    label: lead.status || undefined,
                     variant: "secondary" as const,
                   };
                   return (
@@ -386,8 +456,8 @@ export default function Dashboard() {
                 <Clock className="h-6 w-6" />
               </div>
               <div>
-                <CardTitle>{t("dashboard.recent_activity") || (language === "ar" ? "النشاط الأخير" : "Recent Activity")}</CardTitle>
-                <CardDescription>{t("dashboard.recent_activity_description") || (language === "ar" ? "آخر التحديثات والإجراءات" : "Latest updates and actions")}</CardDescription>
+                <CardTitle>النشاط الأخير</CardTitle>
+                <CardDescription>آخر التحديثات والإجراءات</CardDescription>
               </div>
             </div>
             <Button
@@ -396,7 +466,7 @@ export default function Dashboard() {
               className="rounded-full px-4 font-bold bg-muted text-muted-foreground hover:bg-muted/80"
               onClick={() => setLocation("/home/platform/activities")}
             >
-              {t("form.view_all")}
+              {"عرض الكل"}
             </Button>
           </CardHeader>
           <CardContent>
@@ -408,8 +478,8 @@ export default function Dashboard() {
               </div>
             ) : !todaysActivities || todaysActivities.length === 0 ? (
               <EmptyState
-                title={t("dashboard.no_activities_today")}
-                description={t("dashboard.no_tasks_description")}
+                title={"لا توجد مهام"}
+                description={"لا توجد مهام مجدولة لليوم"}
               />
             ) : (
               <ul className="space-y-3" aria-live="polite">

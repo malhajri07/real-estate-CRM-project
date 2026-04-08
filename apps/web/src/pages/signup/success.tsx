@@ -32,9 +32,9 @@ export default function SignupSuccess() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary via-white to-slate-100 px-4 py-16">
+    <div className="min-h-screen bg-background px-4 py-16">
       <div className="max-w-3xl mx-auto">
-        <div className="space-y-6 rounded-2xl border border-white/80 bg-card/90 p-10 text-end shadow-[0_35px_120px_rgba(16,185,129,0.18)] backdrop-blur-xl">
+        <div className="space-y-6 rounded-xl border bg-card p-8 text-end shadow-sm">
           <div className="flex items-center justify-end gap-4">
             <div className="rounded-3xl bg-primary/10 p-4 text-primary">
               {/* Success icon mirrors the real-estate request confirmation layout for a unified brand feel. */}

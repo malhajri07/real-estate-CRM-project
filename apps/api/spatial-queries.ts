@@ -143,7 +143,8 @@ export async function findPropertiesInDistrict(
       cityRef: true,
       districtRef: true,
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    take: 500,
   });
 }
 
@@ -338,7 +339,8 @@ export async function getPropertiesWithGeography(filters?: {
           nameEn: true,
         }
       }
-    }
+    },
+    take: 500,
   });
 }
 

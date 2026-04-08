@@ -1,40 +1,35 @@
 /**
- * platform-sidebar.ts - Platform Sidebar Configuration
- * 
- * Location: apps/web/src/ → Config/ → platform-sidebar.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * Platform sidebar navigation configuration. Defines:
- * - Sidebar menu items
- * - Navigation structure
- * - Icon mappings
- * 
- * Related Files:
- * - apps/web/src/components/layout/sidebar.tsx - Sidebar component
- * - apps/web/src/config/admin-sidebar.ts - Admin sidebar configuration
+ * platform-sidebar.ts — Agent Platform Sidebar Navigation
+ *
+ * Grouped by agent workflow:
+ *   1. Dashboard — overview
+ *   2. CRM — leads, pipeline, activities
+ *   3. Properties — listings, post, pool
+ *   4. Calendar — scheduling
+ *   5. Collaboration — broker requests, forum
+ *   6. Marketing — campaigns, promotions
+ *   7. Analytics — reports
+ *   8. Management — team (corp only), operations (admin only)
+ *   9. Settings
  */
 
 import {
   BarChart3,
-  Bell,
-  Bookmark,
   Building,
-  Building2,
+  Calendar,
+  CheckSquare,
   ClipboardList,
   FileText,
   Globe2,
-  Heart,
+  Handshake,
   Home,
   Inbox,
   LayoutDashboard,
-  Calendar,
-  CheckSquare,
   Megaphone,
+  MessageSquare,
   Settings,
   ShieldCheck,
-  Shuffle,
-  UserCircle2,
-  Users
+  Users,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -84,7 +79,7 @@ const EXTENDED_PLATFORM_ROLES = [
 ];
 
 export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
-  // 1. Dashboard (standalone)
+  // ── 1. Dashboard ──────────────────────────────────────────────────────
   {
     id: "dashboard",
     labelKey: "sidebar.dashboard",
@@ -102,11 +97,11 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
     ],
   },
 
-  // 2. Sales
+  // ── 2. CRM — Lead management & deal pipeline ─────────────────────────
   {
-    id: "sales",
-    labelKey: "sidebar.sales",
-    label: "المبيعات",
+    id: "crm",
+    labelKey: "sidebar.crm",
+    label: "إدارة العملاء",
     icon: Users,
     children: [
       {
@@ -115,14 +110,6 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/leads",
         icon: Users,
         matchPaths: ["/leads"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "clients",
-        labelKey: "nav.clients",
-        path: "/home/platform/clients",
-        icon: UserCircle2,
-        matchPaths: ["/clients"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
@@ -139,20 +126,28 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/activities",
         icon: CheckSquare,
         matchPaths: ["/activities"],
-        allowedRoles: EXTENDED_PLATFORM_ROLES,
+        allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
-        id: "calendar",
-        labelKey: "nav.calendar",
-        path: "/home/platform/calendar",
-        icon: Calendar,
-        matchPaths: ["/calendar"],
-        allowedRoles: EXTENDED_PLATFORM_ROLES,
+        id: "tenants",
+        label: "المستأجرين",
+        path: "/home/platform/tenants",
+        icon: Home,
+        matchPaths: ["/tenants"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "inbox",
+        label: "صندوق الرسائل",
+        path: "/home/platform/inbox",
+        icon: MessageSquare,
+        matchPaths: ["/inbox"],
+        allowedRoles: PLATFORM_CORE_ROLES,
       },
     ],
   },
 
-  // 3. Properties
+  // ── 3. Properties — Listings & inventory ──────────────────────────────
   {
     id: "properties-group",
     labelKey: "sidebar.properties",
@@ -174,92 +169,127 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/post-listing",
         icon: Megaphone,
         matchPaths: ["/post-listing"],
-        allowedRoles: EXTENDED_PLATFORM_ROLES,
+        allowedRoles: PLATFORM_CORE_ROLES,
       },
-      {
-        id: "favorites",
-        labelKey: "nav.favorites",
-        path: "/home/platform/favorites",
-        icon: Heart,
-        matchPaths: ["/favorites"],
-        allowedRoles: EXTENDED_PLATFORM_ROLES,
-      },
-      {
-        id: "compare",
-        labelKey: "nav.compare",
-        path: "/home/platform/compare",
-        icon: Shuffle,
-        matchPaths: ["/compare"],
-        allowedRoles: EXTENDED_PLATFORM_ROLES,
-      },
-      {
-        id: "saved-searches",
-        labelKey: "nav.saved_searches",
-        path: "/home/platform/saved-searches",
-        icon: Bookmark,
-        matchPaths: ["/saved-searches"],
-        allowedRoles: EXTENDED_PLATFORM_ROLES,
-      },
-    ],
-  },
-
-  // 4. Requests
-  {
-    id: "requests",
-    labelKey: "sidebar.requests",
-    label: "الطلبات",
-    icon: Inbox,
-    children: [
       {
         id: "pool",
         labelKey: "nav.pool",
-        label: "طلبات العملاء (Pool)",
+        label: "الطلبات العقارية",
         path: "/home/platform/pool",
         icon: Inbox,
         matchPaths: ["/pool", "/home/platform/pool"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
       {
+        id: "projects",
+        label: "المشاريع",
+        path: "/home/platform/projects",
+        icon: Building,
+        matchPaths: ["/projects", "/home/platform/projects"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+    ],
+  },
+
+  // ── 4. Calendar — Appointments & scheduling ───────────────────────────
+  {
+    id: "scheduling",
+    labelKey: "sidebar.scheduling",
+    label: "الجدولة",
+    icon: Calendar,
+    children: [
+      {
+        id: "calendar",
+        labelKey: "nav.calendar",
+        path: "/home/platform/calendar",
+        icon: Calendar,
+        matchPaths: ["/calendar"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+    ],
+  },
+
+  // ── 5. Collaboration — Broker requests & community ────────────────────
+  {
+    id: "collaboration",
+    labelKey: "sidebar.collaboration",
+    label: "التعاون",
+    icon: Handshake,
+    children: [
+      {
         id: "broker-requests",
         labelKey: "nav.broker_requests",
         label: "طلبات التعاون",
         path: "/home/platform/broker-requests",
-        icon: Inbox,
+        icon: Handshake,
         matchPaths: ["/broker-requests", "/home/platform/broker-requests"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
-    ],
-  },
-
-  // 5. Community
-  {
-    id: "community",
-    labelKey: "sidebar.community",
-    label: "المجتمع",
-    icon: Globe2,
-    children: [
       {
         id: "forum",
         labelKey: "nav.forum",
-        label: "المنتدى العقاري",
+        label: "المنتدى",
         path: "/home/platform/forum",
-        icon: Users,
+        icon: MessageSquare,
         matchPaths: ["/forum"],
         allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "team",
-        labelKey: "nav.team",
-        label: "فريق العمل",
-        path: "/home/platform/team",
-        icon: Users,
-        matchPaths: ["/team", "/home/platform/team"],
-        allowedRoles: ["CORP_OWNER", "WEBSITE_ADMIN"] as any,
       },
     ],
   },
 
-  // 6. Analytics (standalone)
+  // ── 6. Marketing — Campaigns & promotions ─────────────────────────────
+  {
+    id: "marketing",
+    labelKey: "sidebar.marketing",
+    label: "التسويق",
+    icon: Megaphone,
+    children: [
+      {
+        id: "campaigns",
+        labelKey: "nav.campaigns",
+        path: "/home/platform/notifications",
+        icon: Megaphone,
+        matchPaths: ["/notifications"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "promotions",
+        labelKey: "nav.marketing_requests",
+        path: "/home/platform/marketing-requests",
+        icon: BarChart3,
+        matchPaths: ["/marketing-requests"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+    ],
+  },
+
+  // ── 7. Tools — Calculators ─────────────────────────────────────────────
+  {
+    id: "tools",
+    labelKey: "sidebar.tools",
+    label: "الأدوات",
+    icon: BarChart3,
+    children: [
+      {
+        id: "mortgage",
+        label: "حاسبة التمويل",
+        path: "/home/platform/tools/mortgage",
+        icon: BarChart3,
+        matchPaths: ["/tools/mortgage"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+      {
+        id: "roi",
+        label: "العائد الاستثماري",
+        path: "/home/platform/tools/roi",
+        icon: BarChart3,
+        matchPaths: ["/tools/roi"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
+    ],
+  },
+
+  // ── 8. Analytics ──────────────────────────────────────────────────────
   {
     id: "analytics",
     labelKey: "sidebar.analytics",
@@ -274,23 +304,40 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         matchPaths: ["/reports"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
+      {
+        id: "report-builder",
+        label: "منشئ التقارير",
+        path: "/home/platform/reports/builder",
+        icon: BarChart3,
+        matchPaths: ["/reports/builder"],
+        allowedRoles: PLATFORM_CORE_ROLES,
+      },
     ],
   },
 
-  // 7. Operations (admin)
+  // ── 8. Management — Team (corp) + Admin operations ────────────────────
   {
-    id: "operations",
-    labelKey: "sidebar.operations",
-    label: "العمليات",
+    id: "management",
+    labelKey: "sidebar.management",
+    label: "الإدارة",
     icon: ShieldCheck,
     children: [
+      {
+        id: "team",
+        labelKey: "nav.team",
+        label: "فريق العمل",
+        path: "/home/platform/team",
+        icon: Users,
+        matchPaths: ["/team", "/home/platform/team"],
+        allowedRoles: ["CORP_OWNER", "WEBSITE_ADMIN"] as any,
+      },
       {
         id: "moderation",
         labelKey: "nav.moderation",
         path: "/home/platform/moderation",
         icon: ShieldCheck,
         matchPaths: ["/moderation"],
-        allowedRoles: PLATFORM_CORE_ROLES,
+        allowedRoles: ["WEBSITE_ADMIN"] as any,
       },
       {
         id: "unverified-listings",
@@ -298,7 +345,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/unverified-listings",
         icon: ShieldCheck,
         matchPaths: ["/unverified-listings", "/home/platform/unverified-listings"],
-        allowedRoles: PLATFORM_CORE_ROLES,
+        allowedRoles: ["WEBSITE_ADMIN"] as any,
       },
       {
         id: "cms",
@@ -306,20 +353,12 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/cms",
         icon: FileText,
         matchPaths: ["/cms", "/cms-admin"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "marketing-requests",
-        labelKey: "nav.marketing_requests",
-        path: "/home/platform/marketing-requests",
-        icon: Megaphone,
-        matchPaths: ["/marketing-requests"],
-        allowedRoles: PLATFORM_CORE_ROLES,
+        allowedRoles: ["WEBSITE_ADMIN"] as any,
       },
     ],
   },
 
-  // 8. Settings
+  // ── 9. Settings ───────────────────────────────────────────────────────
   {
     id: "settings-group",
     labelKey: "sidebar.settings",
@@ -332,14 +371,6 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/settings",
         icon: Settings,
         matchPaths: ["/settings"],
-        allowedRoles: PLATFORM_CORE_ROLES,
-      },
-      {
-        id: "notifications",
-        labelKey: "nav.notifications",
-        path: "/home/platform/notifications",
-        icon: Bell,
-        matchPaths: ["/notifications"],
         allowedRoles: PLATFORM_CORE_ROLES,
       },
     ],

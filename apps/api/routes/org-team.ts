@@ -103,32 +103,34 @@ router.get("/team", authenticateToken, requireOwnerOrAdmin, async (req: Request,
       orderBy: { createdAt: "desc" },
     });
 
-    // Get stats per agent
-    const membersWithStats = await Promise.all(
-      members.map(async (member) => {
-        const [leadCount, dealCount, appointmentCount, wonDeals, revenueResult] = await Promise.all([
-          prisma.leads.count({ where: { agentId: member.id } }),
-          prisma.deals.count({ where: { agentId: member.id } }),
-          prisma.appointments.count({ where: { agentId: member.id } }),
-          prisma.deals.count({ where: { agentId: member.id, stage: "WON" } }),
-          prisma.deals.aggregate({
-            where: { agentId: member.id, stage: "WON" },
-            _sum: { agreedPrice: true },
-          }),
-        ]);
+    // Get stats per agent — batch queries instead of N+1
+    const memberIds = members.map((m) => m.id);
 
-        return {
-          ...member,
-          stats: {
-            leads: leadCount,
-            deals: dealCount,
-            wonDeals,
-            appointments: appointmentCount,
-            revenue: Number(revenueResult._sum.agreedPrice || 0),
-          },
-        };
-      })
-    );
+    const [leadCounts, dealCounts, appointmentCounts, wonDealCounts, revenueResults] = await Promise.all([
+      prisma.leads.groupBy({ by: ["agentId"], where: { agentId: { in: memberIds } }, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { agentId: { in: memberIds } }, _count: true }),
+      prisma.appointments.groupBy({ by: ["agentId"], where: { agentId: { in: memberIds } }, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { agentId: { in: memberIds }, stage: "WON" }, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { agentId: { in: memberIds }, stage: "WON" }, _sum: { agreedPrice: true } }),
+    ]);
+
+    // Build lookup maps
+    const leadMap = Object.fromEntries(leadCounts.map((r) => [r.agentId, r._count]));
+    const dealMap = Object.fromEntries(dealCounts.map((r) => [r.agentId, r._count]));
+    const apptMap = Object.fromEntries(appointmentCounts.map((r) => [r.agentId, r._count]));
+    const wonMap = Object.fromEntries(wonDealCounts.map((r) => [r.agentId, r._count]));
+    const revMap = Object.fromEntries(revenueResults.map((r) => [r.agentId, Number(r._sum.agreedPrice || 0)]));
+
+    const membersWithStats = members.map((member) => ({
+      ...member,
+      stats: {
+        leads: leadMap[member.id] || 0,
+        deals: dealMap[member.id] || 0,
+        wonDeals: wonMap[member.id] || 0,
+        appointments: apptMap[member.id] || 0,
+        revenue: revMap[member.id] || 0,
+      },
+    }));
 
     res.json({
       organizationId: orgId,

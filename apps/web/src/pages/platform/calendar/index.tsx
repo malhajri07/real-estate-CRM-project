@@ -49,11 +49,11 @@ interface Appointment {
   property?: { title: string; address: string };
 }
 
-const STATUS_COLORS: Record<string, { bg: string; border: string; text: string; label: string; labelEn: string }> = {
-  SCHEDULED: { bg: "bg-primary/10", border: "border-s-primary", text: "text-primary", label: "مجدول", labelEn: "Scheduled" },
-  COMPLETED: { bg: "bg-primary/10", border: "border-s-primary", text: "text-primary", label: "مكتمل", labelEn: "Completed" },
-  CANCELLED: { bg: "bg-destructive/10", border: "border-s-destructive", text: "text-destructive", label: "ملغي", labelEn: "Cancelled" },
-  RESCHEDULED: { bg: "bg-[hsl(var(--warning)/0.1)]", border: "border-s-[hsl(var(--warning))]", text: "text-[hsl(var(--warning))]", label: "معاد جدولته", labelEn: "Rescheduled" },
+const STATUS_COLORS: Record<string, { bg: string; border: string; text: string; label: string }> = {
+  SCHEDULED: { bg: "bg-primary/10", border: "border-s-primary", text: "text-primary", label: "مجدول" },
+  COMPLETED: { bg: "bg-primary/10", border: "border-s-primary", text: "text-primary", label: "مكتمل" },
+  CANCELLED: { bg: "bg-destructive/10", border: "border-s-destructive", text: "text-destructive", label: "ملغي" },
+  RESCHEDULED: { bg: "bg-[hsl(var(--warning)/0.1)]", border: "border-s-[hsl(var(--warning))]", text: "text-[hsl(var(--warning))]", label: "معاد جدولته" },
 };
 
 // 15-minute time slots from 08:00 to 18:00
@@ -91,7 +91,7 @@ const appointmentSchema = z.object({
 // ── Main Component ─────────────────────────────────────────────────────────
 
 export default function CalendarPage() {
-  const { t, dir, language } = useLanguage();
+  const { dir, language } = useLanguage();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const showSkeleton = useMinLoadTime();
@@ -130,9 +130,9 @@ export default function CalendarPage() {
       form.reset();
       setSelectedDate(undefined);
       setTimeValue("");
-      toast({ title: isAr ? "تم بنجاح" : "Success", description: isAr ? "تم إنشاء الموعد" : "Appointment created" });
+      toast({ title: "تم بنجاح", description: "تم إنشاء الموعد" });
     },
-    onError: () => toast({ title: isAr ? "خطأ" : "Error", description: isAr ? "فشل إنشاء الموعد" : "Failed to create", variant: "destructive" }),
+    onError: () => toast({ title: "خطأ", description: "فشل إنشاء الموعد", variant: "destructive" }),
   });
 
   const updateMutation = useMutation({
@@ -140,7 +140,7 @@ export default function CalendarPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
       setSelectedAppointment(null);
-      toast({ title: isAr ? "تم التحديث" : "Updated" });
+      toast({ title: "تم التحديث" });
     },
   });
 
@@ -149,9 +149,9 @@ export default function CalendarPage() {
       apiPut(`/api/appointments/${id}`, { scheduledAt, status: "RESCHEDULED" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/appointments"] });
-      toast({ title: isAr ? "تم نقل الموعد" : "Appointment moved", description: isAr ? "تم تحديث وقت الموعد بنجاح" : "Time updated successfully" });
+      toast({ title: "تم نقل الموعد", description: "تم تحديث وقت الموعد بنجاح" });
     },
-    onError: () => toast({ title: isAr ? "خطأ" : "Error", description: isAr ? "فشل نقل الموعد" : "Failed to move", variant: "destructive" }),
+    onError: () => toast({ title: "خطأ", description: "فشل نقل الموعد", variant: "destructive" }),
   });
 
   // ── Week days ────────────────────────────────────────────────────────────
@@ -163,7 +163,7 @@ export default function CalendarPage() {
 
   const DAY_NAMES = isAr
     ? ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
-    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    : ["أحد", "إثنين", "ثلاثاء", "أربعاء", "خميس", "جمعة", "سبت"];
 
   // Group appointments by 15-min slot
   const appointmentsBySlot = useMemo(() => {
@@ -298,8 +298,8 @@ export default function CalendarPage() {
   if (isError) {
     return (
       <div className={PAGE_WRAPPER}>
-        <PageHeader title={isAr ? "التقويم" : "Calendar"} />
-        <QueryErrorFallback message={isAr ? "فشل تحميل المواعيد" : "Failed to load appointments"} onRetry={() => refetch()} />
+        <PageHeader title="التقويم" />
+        <QueryErrorFallback message="فشل تحميل المواعيد" onRetry={() => refetch()} />
       </div>
     );
   }
@@ -307,7 +307,7 @@ export default function CalendarPage() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
-        <PageHeader title={isAr ? "التقويم" : "Calendar"} />
+        <PageHeader title="التقويم" />
         <CalendarSkeleton />
       </div>
     );
@@ -317,12 +317,12 @@ export default function CalendarPage() {
     <div className={PAGE_WRAPPER}>
       {/* Header */}
       <PageHeader
-        title={isAr ? "التقويم" : "Calendar"}
-        subtitle={`${totalThisWeek} ${isAr ? "موعد هذا الأسبوع" : "this week"} · ${upcomingCount} ${isAr ? "قادم" : "upcoming"}`}
+        title="التقويم"
+        subtitle={`${totalThisWeek} موعد هذا الأسبوع · ${upcomingCount} قادم`}
       >
         <Button size="sm" onClick={() => setIsCreateOpen(true)}>
           <Plus className="me-2 h-4 w-4" />
-          {isAr ? "موعد جديد" : "New Appointment"}
+          موعد جديد
         </Button>
       </PageHeader>
 
@@ -330,14 +330,14 @@ export default function CalendarPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={goPrev}><ChevronRight className="h-4 w-4" /></Button>
-          <Button variant="outline" size="sm" onClick={goToday}>{isAr ? "اليوم" : "Today"}</Button>
+          <Button variant="outline" size="sm" onClick={goToday}>اليوم</Button>
           <Button variant="outline" size="sm" onClick={goNext}><ChevronLeft className="h-4 w-4" /></Button>
         </div>
         <div className="flex items-center gap-3">
           {/* Drag hint */}
           <span className="text-xs text-muted-foreground hidden sm:inline-flex items-center gap-1">
             <GripVertical className="h-3 w-3" />
-            {isAr ? "اسحب المواعيد لإعادة الجدولة" : "Drag appointments to reschedule"}
+            اسحب المواعيد لإعادة الجدولة
           </span>
           <h2 className="text-lg font-bold text-foreground">
             {format(weekDays[0], "d MMM", { locale })} — {format(weekDays[6], "d MMM yyyy", { locale })}
@@ -348,11 +348,11 @@ export default function CalendarPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {[
-          { label: isAr ? "اليوم" : "Today", value: todayCount, color: "text-primary" },
-          { label: isAr ? "هذا الأسبوع" : "This Week", value: totalThisWeek, color: "text-primary" },
-          { label: isAr ? "قادم" : "Upcoming", value: upcomingCount, color: "text-primary" },
-          { label: isAr ? "مكتمل" : "Completed", value: completedCount, color: "text-primary" },
-          { label: isAr ? "ملغي" : "Cancelled", value: cancelledCount, color: "text-destructive" },
+          { label: "اليوم", value: todayCount, color: "text-primary" },
+          { label: "هذا الأسبوع", value: totalThisWeek, color: "text-primary" },
+          { label: "قادم", value: upcomingCount, color: "text-primary" },
+          { label: "مكتمل", value: completedCount, color: "text-primary" },
+          { label: "ملغي", value: cancelledCount, color: "text-destructive" },
         ].map((s, i) => (
           <Card key={i}>
             <CardContent className="p-3 flex items-center gap-3">
@@ -445,7 +445,7 @@ export default function CalendarPage() {
                           const status = STATUS_COLORS[appt.status] || STATUS_COLORS.SCHEDULED;
                           const customerName = appt.customer
                             ? `${appt.customer.firstName} ${appt.customer.lastName}`
-                            : isAr ? "عميل" : "Customer";
+                            : "عميل";
                           const time = format(parseISO(appt.scheduledAt), "HH:mm");
                           const isDragging = draggedAppt?.id === appt.id;
                           const canDrag = appt.status === "SCHEDULED" || appt.status === "RESCHEDULED";
@@ -482,11 +482,11 @@ export default function CalendarPage() {
                                 {appt.property && <p className="text-xs opacity-80">{appt.property.title}</p>}
                                 {appt.notes && <p className="text-xs opacity-70 mt-1">{appt.notes}</p>}
                                 <Badge variant="outline" className="mt-1 text-[10px]">
-                                  {isAr ? status.label : status.labelEn}
+                                  {status.label}
                                 </Badge>
                                 {canDrag && (
                                   <p className="text-[10px] opacity-50 mt-1">
-                                    {isAr ? "اسحب لإعادة الجدولة" : "Drag to reschedule"}
+                                    "اسحب لإعادة الجدولة
                                   </p>
                                 )}
                               </TooltipContent>
@@ -509,11 +509,11 @@ export default function CalendarPage() {
           {selectedAppointment && (() => {
             const appt = selectedAppointment;
             const status = STATUS_COLORS[appt.status] || STATUS_COLORS.SCHEDULED;
-            const customerName = appt.customer ? `${appt.customer.firstName} ${appt.customer.lastName}` : isAr ? "عميل" : "Customer";
+            const customerName = appt.customer ? `${appt.customer.firstName} ${appt.customer.lastName}` : "عميل";
             return (
               <>
                 <SheetHeader>
-                  <SheetTitle>{isAr ? "تفاصيل الموعد" : "Appointment Details"}</SheetTitle>
+                  <SheetTitle>تفاصيل الموعد</SheetTitle>
                 </SheetHeader>
                 <div className="space-y-4 py-4 max-w-lg mx-auto">
                   <div className="flex items-center gap-3">
@@ -529,7 +529,7 @@ export default function CalendarPage() {
                       )}
                     </div>
                     <Badge className={cn("ms-auto", status.bg, status.text)}>
-                      {isAr ? status.label : status.labelEn}
+                      {status.label}
                     </Badge>
                   </div>
 
@@ -539,14 +539,14 @@ export default function CalendarPage() {
                     <div className="flex items-center gap-2">
                       <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">{isAr ? "التاريخ" : "Date"}</p>
+                        <p className="text-xs text-muted-foreground">التاريخ</p>
                         <p className="font-bold text-sm">{format(parseISO(appt.scheduledAt), "PPP", { locale })}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">{isAr ? "الوقت" : "Time"}</p>
+                        <p className="text-xs text-muted-foreground">الوقت</p>
                         <p className="font-bold text-sm">{format(parseISO(appt.scheduledAt), "p", { locale })}</p>
                       </div>
                     </div>
@@ -556,7 +556,7 @@ export default function CalendarPage() {
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">{isAr ? "العقار" : "Property"}</p>
+                        <p className="text-xs text-muted-foreground">العقار</p>
                         <p className="font-bold text-sm">{appt.property.title}</p>
                       </div>
                     </div>
@@ -564,7 +564,7 @@ export default function CalendarPage() {
 
                   {appt.notes && (
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">{isAr ? "ملاحظات" : "Notes"}</p>
+                      <p className="text-xs text-muted-foreground mb-1">ملاحظات</p>
                       <p className="text-sm bg-muted/30 rounded-xl p-3">{appt.notes}</p>
                     </div>
                   )}
@@ -573,10 +573,10 @@ export default function CalendarPage() {
                   {appt.customer?.phone && (
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => window.open(`tel:${appt.customer!.phone}`, "_self")}>
-                        <Phone className="h-3.5 w-3.5" /> {isAr ? "اتصال" : "Call"}
+                        <Phone className="h-3.5 w-3.5" /> "اتصال
                       </Button>
                       <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => window.open(`https://wa.me/${appt.customer!.phone?.replace(/[^0-9]/g, "")}`, "_blank")}>
-                        <Clock className="h-3.5 w-3.5" /> {isAr ? "واتساب" : "WhatsApp"}
+                        <Clock className="h-3.5 w-3.5" /> واتساب
                       </Button>
                     </div>
                   )}
@@ -584,13 +584,13 @@ export default function CalendarPage() {
                   {/* Cross-page navigation */}
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => { setSelectedAppointment(null); setLocation("/home/platform/leads"); }}>
-                      <User className="h-3.5 w-3.5" /> {isAr ? "عرض العميل" : "View Lead"}
+                      <User className="h-3.5 w-3.5" /> عرض العميل
                     </Button>
                     <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => { setSelectedAppointment(null); setLocation("/home/platform/activities"); }}>
-                      <Clock className="h-3.5 w-3.5" /> {isAr ? "تسجيل نشاط" : "Log Activity"}
+                      <Clock className="h-3.5 w-3.5" /> تسجيل نشاط
                     </Button>
                     <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => { setSelectedAppointment(null); setLocation("/home/platform/pipeline"); }}>
-                      <MapPin className="h-3.5 w-3.5" /> {isAr ? "المسار" : "Pipeline"}
+                      <MapPin className="h-3.5 w-3.5" /> المسار
                     </Button>
                   </div>
 
@@ -599,10 +599,10 @@ export default function CalendarPage() {
                       <Separator />
                       <div className="flex gap-2">
                         <Button className="flex-1 gap-2" onClick={() => updateMutation.mutate({ id: appt.id, status: "COMPLETED" })}>
-                          <CheckCircle className="h-4 w-4" /> {isAr ? "إكمال" : "Complete"}
+                          <CheckCircle className="h-4 w-4" /> إكمال
                         </Button>
                         <Button variant="outline" className="flex-1 gap-2 text-destructive" onClick={() => updateMutation.mutate({ id: appt.id, status: "CANCELLED" })}>
-                          <XCircle className="h-4 w-4" /> {isAr ? "إلغاء" : "Cancel"}
+                          <XCircle className="h-4 w-4" /> إلغاء
                         </Button>
                       </div>
                     </>
@@ -618,9 +618,9 @@ export default function CalendarPage() {
       <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <SheetContent side="bottom">
           <SheetHeader>
-            <SheetTitle>{isAr ? "موعد جديد" : "New Appointment"}</SheetTitle>
+            <SheetTitle>موعد جديد</SheetTitle>
             <SheetDescription>
-              {isAr ? "أدخل تفاصيل الموعد (الحد الأدنى 15 دقيقة)" : "Enter appointment details (minimum 15 minutes)"}
+              أدخل تفاصيل الموعد (الحد الأدنى 15 دقيقة)
             </SheetDescription>
           </SheetHeader>
           <Form {...form}>
@@ -628,16 +628,16 @@ export default function CalendarPage() {
               {/* Customer */}
               <FormField control={form.control} name="customerId" render={() => (
                 <FormItem>
-                  <FormLabel>{isAr ? "العميل" : "Customer"} *</FormLabel>
+                  <FormLabel>العميل *</FormLabel>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button type="button" variant="outline" className="w-full justify-between h-10 font-normal">
                         {form.watch("customerId")
                           ? (() => {
                               const lead = leads?.find(l => l.id === form.watch("customerId"));
-                              return lead ? `${lead.firstName} ${lead.lastName}` : (isAr ? "عميل محدد" : "Selected");
+                              return lead ? `${lead.firstName} ${lead.lastName}` : "عميل محدد";
                             })()
-                          : (isAr ? "اختر العميل..." : "Select customer...")}
+                          : "اختر العميل..."}
                         <ChevronDown className="h-4 w-4 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -660,12 +660,12 @@ export default function CalendarPage() {
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="scheduledAt" render={() => (
                   <FormItem>
-                    <FormLabel>{isAr ? "التاريخ" : "Date"} *</FormLabel>
+                    <FormLabel>التاريخ *</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="outline" className={cn("w-full justify-start h-10 font-normal", !selectedDate && "text-muted-foreground")}>
                           <CalendarIcon className="h-4 w-4 me-2" />
-                          {selectedDate ? format(selectedDate, "PPP", { locale }) : (isAr ? "اختر" : "Pick")}
+                          {selectedDate ? format(selectedDate, "PPP", { locale }) : "اختر"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -675,7 +675,7 @@ export default function CalendarPage() {
                   </FormItem>
                 )} />
                 <FormItem>
-                  <FormLabel>{isAr ? "الوقت" : "Time"} *</FormLabel>
+                  <FormLabel>الوقت *</FormLabel>
                   <FormControl>
                     <Input
                       type="time"
@@ -687,7 +687,7 @@ export default function CalendarPage() {
                       className="h-10 tabular-nums"
                     />
                   </FormControl>
-                  <p className="text-[10px] text-muted-foreground">{isAr ? "بفواصل 15 دقيقة" : "15-min intervals"}</p>
+                  <p className="text-[10px] text-muted-foreground">بفواصل 15 دقيقة</p>
                 </FormItem>
               </div>
               <FormField control={form.control} name="scheduledAt" render={() => (<FormMessage />)} />
@@ -695,15 +695,15 @@ export default function CalendarPage() {
               {/* Notes */}
               <FormField control={form.control} name="notes" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{isAr ? "ملاحظات" : "Notes"}</FormLabel>
-                  <FormControl><Textarea {...field} placeholder={isAr ? "تفاصيل الموعد..." : "Details..."} rows={2} /></FormControl>
+                  <FormLabel>ملاحظات</FormLabel>
+                  <FormControl><Textarea {...field} placeholder="تفاصيل الموعد..." rows={2} /></FormControl>
                 </FormItem>
               )} />
 
               <SheetFooter>
-                <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>{isAr ? "إلغاء" : "Cancel"}</Button>
+                <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>إلغاء</Button>
                 <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? "..." : (isAr ? "إنشاء الموعد" : "Create")}
+                  {createMutation.isPending ? "..." : "إنشاء الموعد"}
                 </Button>
               </SheetFooter>
             </form>

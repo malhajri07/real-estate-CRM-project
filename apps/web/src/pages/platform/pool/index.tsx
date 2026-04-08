@@ -1,5 +1,9 @@
 /**
- * pool/index.tsx — Unified Customer Requests Pool (single table + detail drawer)
+ * pool/index.tsx — الطلبات العقارية
+ *
+ * Two tabs:
+ *   1. باحثين عن عقار — Buyer requests (people looking for property)
+ *   2. ملاك عقار — Owner/seller submissions (have property, need agent)
  */
 
 import { useState, useMemo } from "react";
@@ -8,18 +12,20 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { formatDistanceToNow, differenceInHours } from "date-fns";
-import { ar, enUS } from "date-fns/locale";
+import { ar } from "date-fns/locale";
 import {
   Search, Ticket, MessageSquare, RefreshCw, Download,
   X, ChevronDown, Eye, Handshake, Clock, Flame,
   MapPin, BedDouble, Bath, Building, Sparkles,
-  ArrowUpDown, Inbox, DollarSign, Filter,
+  ArrowUpDown, Inbox, Filter, Home, User,
+  Phone, Mail, Ruler, Tag, CheckCircle2, Calendar as CalendarIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -30,7 +36,6 @@ import PageHeader from "@/components/ui/page-header";
 import EmptyState from "@/components/ui/empty-state";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { apiGet, apiPost } from "@/lib/apiClient";
 import { toast } from "sonner";
@@ -40,7 +45,7 @@ import { cn } from "@/lib/utils";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
-interface PoolRequest {
+interface BuyerRequest {
   id?: string | number;
   type?: string;
   city?: string;
@@ -59,6 +64,50 @@ interface PoolRequest {
   status?: string;
 }
 
+interface OwnerListing {
+  id: string;
+  propertyId?: string;
+  title?: string;
+  description?: string;
+  propertyCategory?: string;
+  propertyType?: string;
+  listingType?: string;
+  country?: string;
+  region?: string;
+  city?: string;
+  district?: string;
+  streetAddress?: string;
+  latitude?: number;
+  longitude?: number;
+  bedrooms?: number;
+  bathrooms?: number;
+  livingRooms?: number;
+  kitchens?: number;
+  floorNumber?: number;
+  totalFloors?: number;
+  areaSqm?: number;
+  buildingYear?: number;
+  hasParking?: boolean;
+  hasElevator?: boolean;
+  hasMaidsRoom?: boolean;
+  hasDriverRoom?: boolean;
+  furnished?: boolean;
+  balcony?: boolean;
+  swimmingPool?: boolean;
+  centralAc?: boolean;
+  price?: number;
+  currency?: string;
+  paymentFrequency?: string;
+  mainImageUrl?: string;
+  imageGallery?: string[];
+  videoClipUrl?: string;
+  contactName?: string;
+  mobileNumber?: string;
+  contactMobile?: string;
+  status?: string;
+  createdAt?: string;
+}
+
 interface PoolPagination {
   page: number;
   pageSize: number;
@@ -68,7 +117,7 @@ interface PoolPagination {
 
 interface PoolSearchResponse {
   success?: boolean;
-  data?: PoolRequest[];
+  data?: BuyerRequest[];
   pagination?: PoolPagination;
 }
 
@@ -77,83 +126,76 @@ type SortDir = "asc" | "desc";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-const formatSAR = (value: unknown): string => {
-  if (value === null || value === undefined) return "—";
-  const n = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(n)) return "—";
-  return `${n.toLocaleString("en-US")}`;
-};
-
 const formatBudgetRange = (min?: number | null, max?: number | null): string => {
-  if (min != null && max != null && min !== max) return `${formatSAR(min)} – ${formatSAR(max)}`;
-  if (min != null) return formatSAR(min);
-  if (max != null) return formatSAR(max);
+  const fmt = (v: number) => v.toLocaleString("en-US");
+  if (min != null && max != null && min !== max) return `${fmt(min)} – ${fmt(max)}`;
+  if (min != null) return fmt(min);
+  if (max != null) return fmt(max);
   return "—";
 };
 
 const isFresh = (createdAt?: string | Date | null): boolean => {
   if (!createdAt) return false;
-  const date = createdAt instanceof Date ? createdAt : new Date(String(createdAt));
-  return differenceInHours(new Date(), date) < 24;
+  return differenceInHours(new Date(), new Date(String(createdAt))) < 24;
 };
-
-// ── Form Schema ────────────────────────────────────────────────────────────
-
-const smsSchema = z.object({
-  message: z.string().min(1, "يرجى إدخال الرسالة").max(500, "الحد الأقصى 500 حرف"),
-});
 
 // ── Main Component ─────────────────────────────────────────────────────────
 
 export default function PoolPage() {
-  const { dir, language } = useLanguage();
-  const isAr = language === "ar";
-  const dateLocale = isAr ? ar : enUS;
   const showSkeleton = useMinLoadTime();
   const queryClient = useQueryClient();
 
-  // State
+  // ── Buyer tab state ──
   const [searchQuery, setSearchQuery] = useState("");
   const [poolTypeFilter, setPoolTypeFilter] = useState<string>("all");
-  const [poolSourceFilter, setPoolSourceFilter] = useState<string>("all");
   const [cityFilter, setCityFilter] = useState<string>("all");
   const [poolPage, setPoolPage] = useState(1);
   const [sortField, setSortField] = useState<SortField>("date");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
-  const poolPageSize = 100;
+  const [detailRequest, setDetailRequest] = useState<BuyerRequest | null>(null);
 
-  // Detail & SMS sheets
-  const [detailRequest, setDetailRequest] = useState<PoolRequest | null>(null);
+  // ── Owner tab state ──
+  const [ownerSearch, setOwnerSearch] = useState("");
+  const [ownerStatusFilter, setOwnerStatusFilter] = useState<string>("Pending");
+  const [detailOwner, setDetailOwner] = useState<OwnerListing | null>(null);
+
+  // SMS sheet
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsTargetId, setSmsTargetId] = useState<string | null>(null);
-
-  const smsForm = useForm<z.infer<typeof smsSchema>>({
-    resolver: zodResolver(smsSchema),
+  const smsForm = useForm<{ message: string }>({
+    resolver: zodResolver(z.object({ message: z.string().min(1).max(500) })),
     defaultValues: { message: "" },
   });
 
-  // ── Query ────────────────────────────────────────────────────────────────
+  // ── Queries ──────────────────────────────────────────────────────────────
 
   const {
     data: poolData,
-    isLoading: poolLoading,
-    isError: poolIsError,
-    error: poolError,
-    refetch: poolRefetch,
+    isLoading: buyerLoading,
+    isError: buyerError,
+    refetch: buyerRefetch,
   } = useQuery<PoolSearchResponse>({
     queryKey: ["/api/pool/search", searchQuery, poolPage],
     queryFn: async () => {
-      const params = new URLSearchParams({ page: String(poolPage), pageSize: String(poolPageSize) });
+      const params = new URLSearchParams({ page: String(poolPage), pageSize: "100" });
       if (searchQuery) params.set("city", searchQuery);
       const json = await apiGet<PoolSearchResponse>(`api/pool/search?${params}`);
-      const defaultPag: PoolPagination = { page: 1, pageSize: poolPageSize, total: 0, totalPages: 1 };
+      const defaultPag: PoolPagination = { page: 1, pageSize: 100, total: 0, totalPages: 1 };
       if (!json || typeof json !== "object") return { success: false, data: [], pagination: defaultPag };
       return { success: json.success, data: json.data ?? [], pagination: { ...defaultPag, ...json.pagination } };
     },
     retry: 1,
-    staleTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
+    staleTime: 60_000, // 1 minute — pool data doesn't change every second
+  });
+
+  const {
+    data: ownerListings,
+    isLoading: ownerLoading,
+    isError: ownerError,
+    refetch: ownerRefetch,
+  } = useQuery<OwnerListing[]>({
+    queryKey: ["/api/unverified-listings", ownerStatusFilter],
+    queryFn: () => apiGet<OwnerListing[]>(`api/unverified-listings?status=${ownerStatusFilter}`),
   });
 
   // ── Mutations ────────────────────────────────────────────────────────────
@@ -166,33 +208,23 @@ export default function PoolPage() {
       return apiPost(`api/pool/${requestId}/claim`, { notes: "Quick claim via Platform" });
     },
     onSuccess: () => {
-      toast.success(isAr ? "تم استلام الطلب بنجاح!" : "Request claimed successfully!");
+      toast.success("تم استلام الطلب بنجاح!");
       queryClient.invalidateQueries({ queryKey: ["/api/pool/search"] });
       setDetailRequest(null);
     },
-    onError: () => {
-      toast.error(isAr ? "فشل استلام الطلب. تم الوصول للحد الأقصى أو تم حجزه مسبقاً." : "Claim failed.");
-    },
+    onError: () => toast.error("فشل استلام الطلب"),
   });
 
   const sendSmsMutation = useMutation({
     mutationFn: async ({ requestId, message }: { requestId: string; message: string }) =>
       apiPost(`api/pool/customer-requests/${requestId}/send-sms`, { message }),
-    onSuccess: () => {
-      toast.success(isAr ? "تم إرسال الرسالة بنجاح" : "SMS sent");
-      smsForm.reset();
-      setSmsOpen(false);
-      setSmsTargetId(null);
-    },
-    onError: (err: unknown) => {
-      const raw = err instanceof Error ? err.message : String(err);
-      toast.error(raw.includes("not configured") ? (isAr ? "خدمة الرسائل غير مفعّلة" : "SMS not configured") : (isAr ? "فشل إرسال الرسالة" : "SMS failed"));
-    },
+    onSuccess: () => { toast.success("تم إرسال الرسالة"); smsForm.reset(); setSmsOpen(false); },
+    onError: () => toast.error("فشل إرسال الرسالة"),
   });
 
-  // ── Computed ──────────────────────────────────────────────────────────────
+  // ── Buyer computed ───────────────────────────────────────────────────────
 
-  const rawPool: PoolRequest[] = Array.isArray(poolData?.data) ? poolData.data : [];
+  const rawPool: BuyerRequest[] = Array.isArray(poolData?.data) ? poolData.data : [];
 
   const topCities = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -200,16 +232,15 @@ export default function PoolPage() {
     return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([c]) => c);
   }, [rawPool]);
 
-  const filtered = useMemo(() => {
+  const buyerFiltered = useMemo(() => {
     let items = rawPool;
     if (poolTypeFilter !== "all") items = items.filter((r) => r.type === poolTypeFilter);
-    if (poolSourceFilter !== "all") items = items.filter((r) => r.source === poolSourceFilter);
     if (cityFilter !== "all") items = items.filter((r) => r.city === cityFilter);
     return items;
-  }, [rawPool, poolTypeFilter, poolSourceFilter, cityFilter]);
+  }, [rawPool, poolTypeFilter, cityFilter]);
 
-  const sorted = useMemo(() => {
-    const arr = [...filtered];
+  const buyerSorted = useMemo(() => {
+    const arr = [...buyerFiltered];
     arr.sort((a, b) => {
       let cmp = 0;
       switch (sortField) {
@@ -221,18 +252,35 @@ export default function PoolPage() {
       return sortDir === "desc" ? -cmp : cmp;
     });
     return arr;
-  }, [filtered, sortField, sortDir]);
+  }, [buyerFiltered, sortField, sortDir]);
 
-  const stats = useMemo(() => ({
+  const buyerStats = useMemo(() => ({
     total: rawPool.length,
     buy: rawPool.filter((r) => r.type === "Buy" || r.type === "شراء").length,
     rent: rawPool.filter((r) => r.type === "Rent" || r.type === "إيجار").length,
     fresh: rawPool.filter((r) => isFresh(r.createdAt)).length,
-    customerReqs: rawPool.filter((r) => r.source === "customer_request").length,
   }), [rawPool]);
 
-  // ── Sort toggle ──────────────────────────────────────────────────────────
+  // ── Owner computed ───────────────────────────────────────────────────────
 
+  const allOwnerListings = ownerListings ?? [];
+  const ownerFiltered = useMemo(() => {
+    if (!ownerSearch.trim()) return allOwnerListings;
+    const q = ownerSearch.toLowerCase();
+    return allOwnerListings.filter((l) =>
+      (l.title || "").toLowerCase().includes(q) ||
+      (l.city || "").toLowerCase().includes(q) ||
+      (l.contactName || "").toLowerCase().includes(q)
+    );
+  }, [allOwnerListings, ownerSearch]);
+
+  const ownerStats = useMemo(() => ({
+    total: allOwnerListings.length,
+    pending: allOwnerListings.filter((l) => l.status === "Pending").length,
+    approved: allOwnerListings.filter((l) => l.status === "Approved").length,
+  }), [allOwnerListings]);
+
+  // ── Sort helper ──
   const toggleSort = (field: SortField) => {
     if (sortField === field) setSortDir((d) => d === "desc" ? "asc" : "desc");
     else { setSortField(field); setSortDir("desc"); }
@@ -245,348 +293,486 @@ export default function PoolPage() {
     </button>
   );
 
-  const activeFilters = [poolTypeFilter !== "all", poolSourceFilter !== "all", cityFilter !== "all"].filter(Boolean).length;
-
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
     <div className={PAGE_WRAPPER}>
-      {/* Header */}
       <PageHeader
-        title={isAr ? "مجمع الطلبات" : "Requests Pool"}
-        subtitle={isAr ? "استعرض طلبات العملاء واستلمها" : "Browse and claim customer requests"}
+        title="الطلبات العقارية"
+        subtitle="طلبات الباحثين عن عقار وإعلانات الملاك الذين يبحثون عن وسيط"
       >
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <a href="/api/requests/export" target="_blank" rel="noreferrer">
-              <Download className="h-4 w-4 me-1.5" />
-              {isAr ? "تصدير" : "Export"}
-            </a>
-          </Button>
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => poolRefetch()} disabled={poolLoading}>
-            <RefreshCw className={cn("h-4 w-4", poolLoading && "animate-spin")} />
-            {isAr ? "تحديث" : "Refresh"}
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => { buyerRefetch(); ownerRefetch(); }}>
+          <RefreshCw className={cn("h-4 w-4", (buyerLoading || ownerLoading) && "animate-spin")} />
+          تحديث
+        </Button>
       </PageHeader>
 
-      {/* ── Stats ──────────────────────────────────────────────────────── */}
-      {(poolLoading || showSkeleton) ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i}><CardContent className="p-4"><Skeleton className="h-10 w-full" /></CardContent></Card>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { icon: Inbox, iconBg: "bg-primary/10", iconColor: "text-primary", value: stats.total, label: isAr ? "إجمالي الطلبات" : "Total" },
-            { icon: Building, iconBg: "bg-accent", iconColor: "text-accent-foreground", value: stats.buy, label: isAr ? "شراء" : "Buy" },
-            { icon: DollarSign, iconBg: "bg-secondary", iconColor: "text-secondary-foreground", value: stats.rent, label: isAr ? "إيجار" : "Rent" },
-            { icon: Sparkles, iconBg: "bg-[hsl(var(--warning)/0.1)]", iconColor: "text-[hsl(var(--warning))]", value: stats.fresh, label: isAr ? "جديد اليوم" : "New Today" },
-          ].map((s, i) => (
-            <Card key={i}>
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center", s.iconBg)}>
-                  <s.icon className={cn("h-5 w-5", s.iconColor)} />
+      <Tabs defaultValue="buyers" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsTrigger value="buyers" className="gap-1.5">
+            <Search size={14} />
+            باحثين عن عقار
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ms-1">{buyerStats.total}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="owners" className="gap-1.5">
+            <Home size={14} />
+            ملاك عقار
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ms-1">{ownerStats.total}</Badge>
+          </TabsTrigger>
+        </TabsList>
+
+        {/* ══════════════ TAB 1: Buyers (Looking for property) ══════════════ */}
+        <TabsContent value="buyers" className="space-y-4">
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { icon: Inbox, bg: "bg-primary/10", color: "text-primary", value: buyerStats.total, label: "إجمالي" },
+              { icon: Building, bg: "bg-accent", color: "text-accent-foreground", value: buyerStats.buy, label: "شراء" },
+              { icon: Tag, bg: "bg-primary/10", color: "text-primary", value: buyerStats.rent, label: "إيجار" },
+              { icon: Sparkles, bg: "bg-[hsl(var(--warning)/0.1)]", color: "text-[hsl(var(--warning))]", value: buyerStats.fresh, label: "جديد اليوم" },
+            ].map((s, i) => (
+              <Card key={i}><CardContent className="p-4 flex items-center gap-3">
+                <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center", s.bg)}>
+                  <s.icon className={cn("h-5 w-5", s.color)} />
                 </div>
                 <div>
-                  <p className="text-2xl font-black">{s.value}</p>
+                  <p className="text-2xl font-black tabular-nums">{s.value}</p>
                   <p className="text-xs text-muted-foreground">{s.label}</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+              </CardContent></Card>
+            ))}
+          </div>
 
-      {/* ── Search + Filters ───────────────────────────────────────────── */}
-      <div className="flex flex-col gap-3">
-        <Card className="flex items-center p-2">
-          <Search className="ms-4 h-5 w-5 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder={isAr ? "ابحث بالمدينة..." : "Search by city..."}
-            value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setPoolPage(1); }}
-            className="flex-1 border-0 bg-transparent shadow-none focus-visible:ring-0"
-          />
-          {searchQuery && (
-            <Button variant="ghost" size="icon" onClick={() => setSearchQuery("")}><X className="h-4 w-4" /></Button>
-          )}
-        </Card>
-
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Type */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1.5 h-8">
-                <Filter className="h-3.5 w-3.5" />
-                {poolTypeFilter === "all" ? (isAr ? "النوع" : "Type") : poolTypeFilter === "Buy" ? (isAr ? "شراء" : "Buy") : (isAr ? "إيجار" : "Rent")}
-                <ChevronDown className="h-3 w-3 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setPoolTypeFilter("all")}>{isAr ? "الكل" : "All"}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPoolTypeFilter("Buy")}>{isAr ? "شراء" : "Buy"} ({stats.buy})</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPoolTypeFilter("Rent")}>{isAr ? "إيجار" : "Rent"} ({stats.rent})</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Source */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1.5 h-8">
-                {poolSourceFilter === "all" ? (isAr ? "المصدر" : "Source") : poolSourceFilter === "customer_request" ? (isAr ? "طلب عميل" : "Customer") : (isAr ? "مجمع" : "Pool")}
-                <ChevronDown className="h-3 w-3 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setPoolSourceFilter("all")}>{isAr ? "الكل" : "All"}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPoolSourceFilter("customer_request")}>{isAr ? "طلبات العملاء" : "Customer"} ({stats.customerReqs})</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setPoolSourceFilter("buyer_pool")}>{isAr ? "مجمع المشترين" : "Buyer Pool"}</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* City chips */}
-          {topCities.length > 0 && (
-            <>
-              <Separator orientation="vertical" className="h-6" />
-              {topCities.map((city) => (
-                <Button
-                  key={city}
-                  size="sm"
-                  variant={cityFilter === city ? "default" : "outline"}
-                  className="h-7 text-xs px-2.5"
-                  onClick={() => setCityFilter(cityFilter === city ? "all" : city)}
-                >
-                  <MapPin className="h-3 w-3 me-1" />{city}
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5 h-8">
+                  <Filter className="h-3.5 w-3.5" />
+                  {poolTypeFilter === "all" ? "النوع" : poolTypeFilter === "Buy" ? "شراء" : "إيجار"}
+                  <ChevronDown className="h-3 w-3 opacity-50" />
                 </Button>
-              ))}
-            </>
-          )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setPoolTypeFilter("all")}>الكل</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPoolTypeFilter("Buy")}>شراء ({buyerStats.buy})</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPoolTypeFilter("Rent")}>إيجار ({buyerStats.rent})</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-          {activeFilters > 0 && (
-            <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-destructive" onClick={() => { setPoolTypeFilter("all"); setPoolSourceFilter("all"); setCityFilter("all"); }}>
-              <X className="h-3 w-3" />{isAr ? "مسح" : "Clear"} ({activeFilters})
-            </Button>
-          )}
+            {topCities.length > 0 && (
+              <>
+                <Separator orientation="vertical" className="h-6" />
+                {topCities.map((city) => (
+                  <Button key={city} size="sm" variant={cityFilter === city ? "default" : "outline"} className="h-7 text-xs px-2.5" onClick={() => setCityFilter(cityFilter === city ? "all" : city)}>
+                    <MapPin className="h-3 w-3 me-1" />{city}
+                  </Button>
+                ))}
+              </>
+            )}
 
-          <span className="ms-auto text-xs text-muted-foreground">{sorted.length} {isAr ? "طلب" : "requests"}</span>
-        </div>
-      </div>
+            {(poolTypeFilter !== "all" || cityFilter !== "all") && (
+              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-destructive" onClick={() => { setPoolTypeFilter("all"); setCityFilter("all"); }}>
+                <X className="h-3 w-3" />مسح
+              </Button>
+            )}
+            <span className="ms-auto text-xs text-muted-foreground">{buyerSorted.length} طلب</span>
+          </div>
 
-      {/* ── Table ──────────────────────────────────────────────────────── */}
-      <Card className="overflow-hidden">
-        {(poolLoading || showSkeleton) ? (
-          <TableSkeleton rows={8} cols={8} />
-        ) : poolIsError ? (
-          <QueryErrorFallback
-            message={`${isAr ? "فشل تحميل الطلبات" : "Failed to load"} ${poolError instanceof Error ? poolError.message : ""}`}
-            onRetry={() => poolRefetch()}
-          />
-        ) : sorted.length === 0 ? (
-          <EmptyState
-            icon={Ticket}
-            title={isAr ? "لا توجد طلبات" : "No requests"}
-            description={isAr ? "لا توجد طلبات متاحة حالياً" : "No requests available"}
-          />
-        ) : (
-          <div className="w-full overflow-x-auto">
-            <Table className="min-w-[850px]">
-              <TableHeader className="bg-muted/50">
-                <TableRow>
-                  <TableHead className="w-[44px]">#</TableHead>
-                  <TableHead><SortHeader field="type">{isAr ? "النوع" : "Type"}</SortHeader></TableHead>
-                  <TableHead><SortHeader field="city">{isAr ? "المدينة" : "City"}</SortHeader></TableHead>
-                  <TableHead><SortHeader field="budget">{isAr ? "الميزانية" : "Budget"}</SortHeader></TableHead>
-                  <TableHead>{isAr ? "المواصفات" : "Specs"}</TableHead>
-                  <TableHead>{isAr ? "المصدر" : "Source"}</TableHead>
-                  <TableHead><SortHeader field="date">{isAr ? "التاريخ" : "Date"}</SortHeader></TableHead>
-                  <TableHead className="w-[110px]">{isAr ? "إجراء" : "Action"}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sorted.map((req, idx) => {
-                  const reqId = req.id != null ? String(req.id) : undefined;
-                  const reqSource = req.source ?? "";
-                  const fresh = isFresh(req.createdAt);
+          {/* Table */}
+          <Card className="overflow-hidden">
+            {(buyerLoading || showSkeleton) ? (
+              <TableSkeleton rows={8} cols={7} />
+            ) : buyerError ? (
+              <QueryErrorFallback message="فشل تحميل الطلبات" onRetry={() => buyerRefetch()} />
+            ) : buyerSorted.length === 0 ? (
+              <EmptyState icon={Ticket} title="لا توجد طلبات" description="لا توجد طلبات باحثين عن عقار حالياً" />
+            ) : (
+              <div className="w-full overflow-x-auto">
+                <Table className="min-w-[800px]">
+                  <TableHeader className="bg-muted/50">
+                    <TableRow>
+                      <TableHead className="w-[44px]">#</TableHead>
+                      <TableHead><SortHeader field="type">النوع</SortHeader></TableHead>
+                      <TableHead><SortHeader field="city">المدينة</SortHeader></TableHead>
+                      <TableHead><SortHeader field="budget">الميزانية</SortHeader></TableHead>
+                      <TableHead>المواصفات</TableHead>
+                      <TableHead><SortHeader field="date">التاريخ</SortHeader></TableHead>
+                      <TableHead className="w-[100px]">إجراء</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {buyerSorted.map((req, idx) => {
+                      const reqId = req.id != null ? String(req.id) : undefined;
+                      const fresh = isFresh(req.createdAt);
+                      return (
+                        <TableRow key={reqId ?? idx} className="cursor-pointer hover:bg-muted/50" onClick={() => setDetailRequest(req)}>
+                          <TableCell className="text-muted-foreground tabular-nums text-xs">{idx + 1}</TableCell>
+                          <TableCell>
+                            <Badge variant={req.type === "Buy" || req.type === "شراء" ? "default" : "secondary"}>
+                              {req.type === "Buy" ? "شراء" : req.type === "Rent" ? "إيجار" : (req.type || "—")}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-muted-foreground" />{req.city || "—"}</span>
+                          </TableCell>
+                          <TableCell className="font-bold text-primary tabular-nums">{formatBudgetRange(req.minPrice, req.maxPrice)}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-0.5"><BedDouble className="h-3 w-3" />{req.minBedrooms ?? req.maxBedrooms ?? "—"}</span>
+                              <span className="flex items-center gap-0.5"><Bath className="h-3 w-3" />{req.bathrooms ?? "—"}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1.5">
+                              {fresh && <Flame className="h-3.5 w-3.5 text-[hsl(var(--warning))]" />}
+                              <span className="text-sm text-muted-foreground">
+                                {req.createdAt ? formatDistanceToNow(new Date(req.createdAt), { addSuffix: true, locale: ar }) : "—"}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                              <Button size="sm" className="h-7 text-xs gap-1" onClick={() => reqId && claimMutation.mutate({ requestId: reqId, source: req.source })} disabled={claimMutation.isPending}>
+                                <Handshake className="h-3.5 w-3.5" />استلام
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </Card>
+        </TabsContent>
 
-                  return (
-                    <TableRow
-                      key={reqId ?? `r-${idx}`}
-                      className={cn("cursor-pointer hover:bg-muted/50 transition-colors", fresh && "bg-[hsl(var(--warning)/0.1)]/30")}
-                      onClick={() => setDetailRequest(req)}
-                    >
-                      <TableCell className="text-muted-foreground tabular-nums text-xs">{idx + 1}</TableCell>
-                      <TableCell>
-                        <Badge variant={req.type === "Buy" || req.type === "شراء" ? "default" : "secondary"}>
-                          {req.type === "Buy" ? (isAr ? "شراء" : "Buy") : req.type === "Rent" ? (isAr ? "إيجار" : "Rent") : (req.type || "—")}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1.5">
-                          <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                          <span>{req.city || "—"}</span>
-                          {req.region && <span className="text-xs text-muted-foreground">({req.region})</span>}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-bold text-primary tabular-nums">{formatBudgetRange(req.minPrice, req.maxPrice)}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-0.5"><BedDouble className="h-3 w-3" />{req.minBedrooms ?? req.maxBedrooms ?? "—"}</span>
-                          <span className="flex items-center gap-0.5"><Bath className="h-3 w-3" />{req.bathrooms ?? "—"}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={cn("text-[10px]", reqSource === "customer_request" ? "border-[hsl(var(--warning)/0.3)] text-[hsl(var(--warning))]" : "")}>
-                          {reqSource === "customer_request" ? (isAr ? "عميل" : "Customer") : (isAr ? "مجمع" : "Pool")}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1.5">
-                          {fresh && <Flame className="h-3.5 w-3.5 text-[hsl(var(--warning))] flex-shrink-0" />}
-                          <span className="text-sm text-muted-foreground">
-                            {req.createdAt ? formatDistanceToNow(new Date(req.createdAt), { addSuffix: true, locale: dateLocale }) : "—"}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                          <Button
-                            size="sm"
-                            className="h-7 text-xs gap-1"
-                            onClick={() => reqId && claimMutation.mutate({ requestId: reqId, source: reqSource })}
-                            disabled={claimMutation.isPending}
-                          >
-                            <Handshake className="h-3.5 w-3.5" />
-                            {isAr ? "استلام" : "Claim"}
-                          </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setDetailRequest(req)}>
+        {/* ══════════════ TAB 2: Owners (Have property, need agent) ══════════════ */}
+        <TabsContent value="owners" className="space-y-4">
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {[
+              { icon: Home, bg: "bg-primary/10", color: "text-primary", value: ownerStats.total, label: "إجمالي" },
+              { icon: Clock, bg: "bg-[hsl(var(--warning)/0.1)]", color: "text-[hsl(var(--warning))]", value: ownerStats.pending, label: "بانتظار وسيط" },
+              { icon: Handshake, bg: "bg-accent", color: "text-accent-foreground", value: ownerStats.approved, label: "تم التعيين" },
+            ].map((s, i) => (
+              <Card key={i}><CardContent className="p-4 flex items-center gap-3">
+                <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center", s.bg)}>
+                  <s.icon className={cn("h-5 w-5", s.color)} />
+                </div>
+                <div>
+                  <p className="text-2xl font-black tabular-nums">{s.value}</p>
+                  <p className="text-xs text-muted-foreground">{s.label}</p>
+                </div>
+              </CardContent></Card>
+            ))}
+          </div>
+
+          {/* Search + Status filter */}
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1 max-w-sm">
+              <Search size={14} className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="ابحث بالعنوان أو المدينة أو المالك..." value={ownerSearch} onChange={(e) => setOwnerSearch(e.target.value)} className="ps-9 h-9" />
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5 h-9">
+                  <Filter className="h-3.5 w-3.5" />
+                  {ownerStatusFilter === "Pending" ? "بانتظار" : ownerStatusFilter === "Approved" ? "معتمد" : "الكل"}
+                  <ChevronDown className="h-3 w-3 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setOwnerStatusFilter("Pending")}>بانتظار وسيط</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setOwnerStatusFilter("Approved")}>معتمد</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setOwnerStatusFilter("Rejected")}>مرفوض</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setOwnerStatusFilter("")}>الكل</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <span className="ms-auto text-xs text-muted-foreground">{ownerFiltered.length} إعلان</span>
+          </div>
+
+          {/* Table */}
+          <Card className="overflow-hidden">
+            {(ownerLoading || showSkeleton) ? (
+              <TableSkeleton rows={8} cols={7} />
+            ) : ownerError ? (
+              <QueryErrorFallback message="فشل تحميل إعلانات الملاك" onRetry={() => ownerRefetch()} />
+            ) : ownerFiltered.length === 0 ? (
+              <EmptyState icon={Home} title="لا توجد إعلانات" description="لا توجد إعلانات من ملاك عقار حالياً" />
+            ) : (
+              <div className="w-full overflow-x-auto">
+                <Table className="min-w-[800px]">
+                  <TableHeader className="bg-muted/50">
+                    <TableRow>
+                      <TableHead className="w-[44px]">#</TableHead>
+                      <TableHead>العقار</TableHead>
+                      <TableHead>النوع</TableHead>
+                      <TableHead>المدينة</TableHead>
+                      <TableHead>السعر</TableHead>
+                      <TableHead>المالك</TableHead>
+                      <TableHead>الحالة</TableHead>
+                      <TableHead className="w-[80px]">عرض</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {ownerFiltered.map((listing, idx) => (
+                      <TableRow key={listing.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setDetailOwner(listing)}>
+                        <TableCell className="text-muted-foreground tabular-nums text-xs">{idx + 1}</TableCell>
+                        <TableCell>
+                          <p className="font-bold text-sm truncate max-w-[200px]">{listing.title || "بدون عنوان"}</p>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="text-[10px]">{listing.propertyType || listing.listingType || "—"}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-muted-foreground" />{listing.city || "—"}</span>
+                        </TableCell>
+                        <TableCell className="font-bold text-primary tabular-nums">
+                          {listing.price ? <SarPrice value={listing.price} /> : "—"}
+                        </TableCell>
+                        <TableCell>
+                          <span className="flex items-center gap-1.5 text-sm"><User className="h-3.5 w-3.5 text-muted-foreground" />{listing.contactName || "—"}</span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={listing.status === "Approved" ? "default" : listing.status === "Rejected" ? "destructive" : "outline"}>
+                            {listing.status === "Pending" ? "بانتظار" : listing.status === "Approved" ? "معتمد" : listing.status === "Rejected" ? "مرفوض" : listing.status || "—"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setDetailOwner(listing)}>
                             <Eye className="h-3.5 w-3.5" />
                           </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </Card>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+      </Tabs>
 
-      {/* Pagination */}
-      {!poolLoading && (() => {
-        const pag = poolData?.pagination;
-        if (!pag || pag.totalPages <= 1) return null;
-        return (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              {((pag.page - 1) * pag.pageSize + 1).toLocaleString()}–{Math.min(pag.page * pag.pageSize, pag.total).toLocaleString()} {isAr ? "من" : "of"} {pag.total.toLocaleString()}
-            </p>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setPoolPage((p) => Math.max(1, p - 1))} disabled={poolPage <= 1}>{isAr ? "السابق" : "Prev"}</Button>
-              <Button variant="outline" size="sm" onClick={() => setPoolPage((p) => Math.min(pag.totalPages, p + 1))} disabled={poolPage >= pag.totalPages}>{isAr ? "التالي" : "Next"}</Button>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* ── Detail Sheet ─────────────────────────────────────────────── */}
+      {/* ── Buyer Detail Sheet ────────────────────────────────────────── */}
       <Sheet open={!!detailRequest} onOpenChange={() => setDetailRequest(null)}>
         <SheetContent side="bottom">
           {detailRequest && (() => {
             const req = detailRequest;
             const reqId = req.id != null ? String(req.id) : undefined;
-            const reqSource = req.source ?? "";
             const fresh = isFresh(req.createdAt);
             return (
               <>
                 <SheetHeader>
                   <SheetTitle className="flex items-center gap-2">
-                    {isAr ? "تفاصيل الطلب" : "Request Details"}
-                    {fresh && <Badge variant="outline" className="text-[hsl(var(--warning))] border-[hsl(var(--warning)/0.3)] gap-1"><Flame className="h-3 w-3" />{isAr ? "جديد" : "New"}</Badge>}
+                    تفاصيل طلب الباحث
+                    {fresh && <Badge variant="outline" className="text-[hsl(var(--warning))] border-[hsl(var(--warning)/0.3)] gap-1"><Flame className="h-3 w-3" />جديد</Badge>}
                   </SheetTitle>
-                  <SheetDescription>
-                    {reqSource === "customer_request" ? (isAr ? "طلب عميل مباشر" : "Direct customer request") : (isAr ? "من مجمع المشترين" : "From buyer pool")}
-                  </SheetDescription>
+                  <SheetDescription>باحث عن عقار</SheetDescription>
                 </SheetHeader>
-
                 <div className="py-4 max-w-lg mx-auto space-y-4">
-                  {/* Type + Budget */}
                   <div className="flex items-center justify-between">
                     <Badge variant={req.type === "Buy" || req.type === "شراء" ? "default" : "secondary"} className="text-sm px-3 py-1">
-                      {req.type === "Buy" ? (isAr ? "شراء" : "Buy") : req.type === "Rent" ? (isAr ? "إيجار" : "Rent") : (req.type || "—")}
+                      {req.type === "Buy" ? "شراء" : req.type === "Rent" ? "إيجار" : (req.type || "—")}
                     </Badge>
                     <p className="text-xl font-bold text-primary">{formatBudgetRange(req.minPrice, req.maxPrice)}</p>
                   </div>
-
                   <Separator />
-
-                  {/* Info grid */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{isAr ? "الموقع" : "Location"}</p>
-                        <p className="font-bold text-sm">{req.city || "—"}{req.region ? ` · ${req.region}` : ""}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{isAr ? "التاريخ" : "Date"}</p>
-                        <p className="font-bold text-sm">
-                          {req.createdAt ? formatDistanceToNow(new Date(req.createdAt), { addSuffix: true, locale: dateLocale }) : "—"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <BedDouble className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{isAr ? "الغرف" : "Bedrooms"}</p>
-                        <p className="font-bold text-sm">{req.minBedrooms ?? req.maxBedrooms ?? "—"}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Bath className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{isAr ? "الحمامات" : "Bathrooms"}</p>
-                        <p className="font-bold text-sm">{req.bathrooms ?? "—"}</p>
-                      </div>
-                    </div>
+                    <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">الموقع</p><p className="font-bold text-sm">{req.city || "—"}</p></div></div>
+                    <div className="flex items-center gap-2"><BedDouble className="h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">الغرف</p><p className="font-bold text-sm">{req.minBedrooms ?? req.maxBedrooms ?? "—"}</p></div></div>
+                    <div className="flex items-center gap-2"><Bath className="h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">الحمامات</p><p className="font-bold text-sm">{req.bathrooms ?? "—"}</p></div></div>
+                    <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-muted-foreground" /><div><p className="text-xs text-muted-foreground">التاريخ</p><p className="font-bold text-sm">{req.createdAt ? formatDistanceToNow(new Date(req.createdAt), { addSuffix: true, locale: ar }) : "—"}</p></div></div>
                   </div>
+                  {req.notes && <div><p className="text-xs text-muted-foreground mb-1">ملاحظات</p><p className="text-sm bg-muted/30 rounded-xl p-3">{req.notes}</p></div>}
+                  <Separator />
+                  <Button className="w-full gap-2" onClick={() => reqId && claimMutation.mutate({ requestId: reqId, source: req.source })} disabled={claimMutation.isPending}>
+                    <Handshake className="h-4 w-4" />{claimMutation.isPending ? "..." : "استلام الطلب"}
+                  </Button>
+                </div>
+              </>
+            );
+          })()}
+        </SheetContent>
+      </Sheet>
 
-                  {req.livingRooms && (
-                    <p className="text-sm text-muted-foreground">{isAr ? "الصالات:" : "Living rooms:"} <span className="font-bold text-foreground">{req.livingRooms}</span></p>
-                  )}
+      {/* ── Owner Detail Sheet — Full Property Overview ────────────── */}
+      <Sheet open={!!detailOwner} onOpenChange={() => setDetailOwner(null)}>
+        <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
+          {detailOwner && (() => {
+            const l = detailOwner;
+            const phone = l.mobileNumber || l.contactMobile || "";
+            const photos: string[] = (() => {
+              try {
+                if (l.mainImageUrl && !l.mainImageUrl.startsWith("data:")) return [l.mainImageUrl];
+                const gallery = l.imageGallery ?? [];
+                const arr = typeof gallery === "string" ? JSON.parse(gallery) : gallery;
+                return Array.isArray(arr) ? arr.filter((u: string) => u && !u.startsWith("data:image")) : [];
+              } catch { return []; }
+            })();
+            const amenities = [
+              { key: "hasParking", label: "موقف سيارات", value: l.hasParking },
+              { key: "hasElevator", label: "مصعد", value: l.hasElevator },
+              { key: "hasMaidsRoom", label: "غرفة خادمة", value: l.hasMaidsRoom },
+              { key: "hasDriverRoom", label: "غرفة سائق", value: l.hasDriverRoom },
+              { key: "furnished", label: "مفروش", value: l.furnished },
+              { key: "balcony", label: "بلكونة", value: l.balcony },
+              { key: "swimmingPool", label: "مسبح", value: l.swimmingPool },
+              { key: "centralAc", label: "تكييف مركزي", value: l.centralAc },
+            ].filter((a) => a.value);
 
-                  {req.notes && (
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">{isAr ? "ملاحظات" : "Notes"}</p>
-                      <p className="text-sm bg-muted/30 rounded-xl p-3">{req.notes}</p>
+            return (
+              <>
+                <SheetHeader>
+                  <SheetTitle className="flex items-center gap-2">
+                    {l.title || "عقار مالك"}
+                    {l.listingType && <Badge variant="default">{l.listingType}</Badge>}
+                    <Badge variant="outline">{l.status === "Pending" ? "بانتظار وسيط" : l.status === "Approved" ? "معتمد" : l.status || "—"}</Badge>
+                  </SheetTitle>
+                  <SheetDescription>
+                    {l.propertyId && <span className="font-mono text-xs">#{l.propertyId}</span>}
+                    {l.createdAt && <> · {formatDistanceToNow(new Date(l.createdAt), { addSuffix: true, locale: ar })}</>}
+                  </SheetDescription>
+                </SheetHeader>
+
+                <div className="py-4 max-w-3xl mx-auto space-y-5">
+
+                  {/* Photos */}
+                  {photos.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {photos.slice(0, 8).map((url, i) => (
+                        <img key={i} src={url} alt={`${l.title} - ${i + 1}`} className={cn("w-full object-cover rounded-lg", i === 0 ? "col-span-2 row-span-2 h-48" : "h-24")} />
+                      ))}
                     </div>
                   )}
 
-                  <Separator />
-
-                  <div className="flex gap-2">
-                    <Button
-                      className="flex-1 gap-2"
-                      onClick={() => reqId && claimMutation.mutate({ requestId: reqId, source: reqSource })}
-                      disabled={claimMutation.isPending}
-                    >
-                      <Handshake className="h-4 w-4" />
-                      {claimMutation.isPending ? "..." : (isAr ? "استلام الطلب" : "Claim Request")}
-                    </Button>
-                    {reqSource === "customer_request" && req.canSendSms && (
-                      <Button variant="outline" className="gap-2" onClick={() => { setSmsTargetId(reqId ?? null); setSmsOpen(true); }}>
-                        <MessageSquare className="h-4 w-4" />
-                        {isAr ? "رسالة" : "SMS"}
-                      </Button>
+                  {/* Price + Type header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {l.propertyType && <Badge variant="secondary">{l.propertyType}</Badge>}
+                      {l.propertyCategory && <Badge variant="outline">{l.propertyCategory}</Badge>}
+                    </div>
+                    {l.price && (
+                      <div className="text-end">
+                        <p className="text-2xl font-black text-primary"><SarPrice value={l.price} /></p>
+                        {l.paymentFrequency && <p className="text-xs text-muted-foreground">{l.paymentFrequency}</p>}
+                      </div>
                     )}
                   </div>
+
+                  <Separator />
+
+                  {/* Location */}
+                  <div>
+                    <p className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-1"><MapPin size={14} />الموقع</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      {l.region && <div><p className="text-xs text-muted-foreground">المنطقة</p><p className="font-bold">{l.region}</p></div>}
+                      {l.city && <div><p className="text-xs text-muted-foreground">المدينة</p><p className="font-bold">{l.city}</p></div>}
+                      {l.district && <div><p className="text-xs text-muted-foreground">الحي</p><p className="font-bold">{l.district}</p></div>}
+                      {l.streetAddress && <div><p className="text-xs text-muted-foreground">الشارع</p><p className="font-bold">{l.streetAddress}</p></div>}
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Specifications */}
+                  <div>
+                    <p className="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-1"><Building size={14} />المواصفات</p>
+                    <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                      {[
+                        { label: "غرف نوم", value: l.bedrooms, icon: BedDouble },
+                        { label: "حمامات", value: l.bathrooms, icon: Bath },
+                        { label: "صالات", value: l.livingRooms, icon: Home },
+                        { label: "مطابخ", value: l.kitchens, icon: Home },
+                        { label: "المساحة", value: l.areaSqm ? `${l.areaSqm} م²` : null, icon: Ruler },
+                        { label: "الطابق", value: l.floorNumber ? `${l.floorNumber}/${l.totalFloors || "—"}` : null, icon: Building },
+                      ].filter((s) => s.value != null).map((s, i) => (
+                        <div key={i} className="text-center p-2 rounded-lg bg-muted/30">
+                          <s.icon size={16} className="mx-auto mb-1 text-muted-foreground" />
+                          <p className="text-sm font-black">{s.value}</p>
+                          <p className="text-[10px] text-muted-foreground">{s.label}</p>
+                        </div>
+                      ))}
+                      {l.buildingYear && (
+                        <div className="text-center p-2 rounded-lg bg-muted/30">
+                          <CalendarIcon size={16} className="mx-auto mb-1 text-muted-foreground" />
+                          <p className="text-sm font-black">{l.buildingYear}</p>
+                          <p className="text-[10px] text-muted-foreground">سنة البناء</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Amenities */}
+                  {amenities.length > 0 && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-xs font-bold text-muted-foreground mb-2">المرافق والخدمات</p>
+                        <div className="flex flex-wrap gap-2">
+                          {amenities.map((a) => (
+                            <Badge key={a.key} variant="secondary" className="gap-1 text-xs">
+                              <CheckCircle2 size={12} className="text-primary" />
+                              {a.label}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* Description */}
+                  {l.description && (
+                    <>
+                      <Separator />
+                      <div>
+                        <p className="text-xs font-bold text-muted-foreground mb-1">الوصف</p>
+                        <p className="text-sm leading-relaxed whitespace-pre-line bg-muted/30 rounded-xl p-4">{l.description}</p>
+                      </div>
+                    </>
+                  )}
+
+                  <Separator />
+
+                  {/* Owner Contact Card */}
+                  <Card className="bg-primary/5 border-primary/10">
+                    <CardContent className="p-4 space-y-3">
+                      <p className="text-sm font-bold">بيانات المالك — تواصل لتقديم خدمة الوساطة</p>
+                      <div className="flex items-center gap-6">
+                        {l.contactName && (
+                          <span className="flex items-center gap-2 text-sm">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center"><User size={16} className="text-primary" /></div>
+                            {l.contactName}
+                          </span>
+                        )}
+                        {phone && (
+                          <span className="flex items-center gap-2 text-sm font-mono" dir="ltr">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center"><Phone size={16} className="text-primary" /></div>
+                            {phone}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2 pt-1">
+                        {phone && (
+                          <Button className="flex-1 gap-2" onClick={() => window.open(`https://wa.me/${phone.replace(/\D/g, "")}`, "_blank")}>
+                            <MessageSquare className="h-4 w-4" />
+                            تواصل واتساب — عرض خدمة الوساطة
+                          </Button>
+                        )}
+                        {phone && (
+                          <Button variant="outline" className="gap-2" onClick={() => window.open(`tel:${phone}`)}>
+                            <Phone className="h-4 w-4" />اتصال
+                          </Button>
+                        )}
+                      </div>
+
+                      <p className="text-[11px] text-muted-foreground">
+                        تواصل مع المالك لعرض خدماتك كوسيط عقاري معتمد. اشرح خبرتك في المنطقة واعرض عليه عقد وساطة حصري.
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
               </>
             );
@@ -598,31 +784,21 @@ export default function PoolPage() {
       <Sheet open={smsOpen} onOpenChange={(open) => { setSmsOpen(open); if (!open) { setSmsTargetId(null); smsForm.reset(); } }}>
         <SheetContent side="bottom">
           <SheetHeader>
-            <SheetTitle>{isAr ? "إرسال رسالة نصية" : "Send SMS"}</SheetTitle>
-            <SheetDescription>{isAr ? "أرسل رسالة للعميل عبر SMS" : "Send an SMS to the customer"}</SheetDescription>
+            <SheetTitle>إرسال رسالة نصية</SheetTitle>
           </SheetHeader>
           <Form {...smsForm}>
-            <form
-              onSubmit={smsForm.handleSubmit((data) => { if (smsTargetId) sendSmsMutation.mutate({ requestId: smsTargetId, message: data.message }); })}
-              className="space-y-4 py-4 max-w-lg mx-auto"
-            >
+            <form onSubmit={smsForm.handleSubmit((data) => { if (smsTargetId) sendSmsMutation.mutate({ requestId: smsTargetId, message: data.message }); })} className="space-y-4 py-4 max-w-lg mx-auto">
               <FormField control={smsForm.control} name="message" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{isAr ? "نص الرسالة" : "Message"}</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder={isAr ? "اكتب رسالتك للعميل..." : "Write your message..."} {...field} rows={4} maxLength={500} />
-                  </FormControl>
-                  <div className="flex justify-between text-[10px] text-muted-foreground">
-                    <FormMessage />
-                    <span>{field.value?.length || 0}/500</span>
-                  </div>
+                  <FormLabel>نص الرسالة</FormLabel>
+                  <FormControl><Textarea placeholder="اكتب رسالتك..." {...field} rows={4} maxLength={500} /></FormControl>
+                  <FormMessage />
                 </FormItem>
               )} />
               <SheetFooter>
-                <Button type="button" variant="outline" onClick={() => setSmsOpen(false)}>{isAr ? "إلغاء" : "Cancel"}</Button>
+                <Button type="button" variant="outline" onClick={() => setSmsOpen(false)}>إلغاء</Button>
                 <Button type="submit" disabled={sendSmsMutation.isPending} className="gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  {sendSmsMutation.isPending ? "..." : (isAr ? "إرسال" : "Send")}
+                  <MessageSquare className="h-4 w-4" />{sendSmsMutation.isPending ? "..." : "إرسال"}
                 </Button>
               </SheetFooter>
             </form>

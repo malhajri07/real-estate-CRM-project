@@ -239,8 +239,33 @@ class PrismaStorageSimple {
         prisma.properties.count({ where }),
         prisma.properties.findMany({
           where,
-          include: {
-            listings: true,
+          select: {
+            id: true,
+            title: true,
+            type: true,
+            category: true,
+            city: true,
+            district: true,
+            address: true,
+            bedrooms: true,
+            bathrooms: true,
+            areaSqm: true,
+            price: true,
+            status: true,
+            photos: true,
+            latitude: true,
+            longitude: true,
+            createdAt: true,
+            listings: {
+              select: {
+                id: true,
+                listingType: true,
+                status: true,
+                price: true,
+                exclusive: true,
+              },
+              take: 1,
+            },
           },
           orderBy,
           ...(shouldFetchAll ? {} : { skip, take }),
@@ -250,7 +275,7 @@ class PrismaStorageSimple {
       const totalPages = shouldFetchAll ? 1 : Math.ceil(total / pageSize);
 
       return {
-        items,
+        items: items as any,
         total,
         page,
         pageSize,

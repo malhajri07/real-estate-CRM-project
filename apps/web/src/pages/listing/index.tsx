@@ -17,6 +17,7 @@ import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import PublicHeader from "@/components/layout/PublicHeader";
+import ChatWidget from "@/components/chatbot/ChatWidget";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -67,9 +68,9 @@ export default function PublicListingPage() {
   const WORKING_HOURS = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00"];
 
   const bookingSchema = z.object({
-    customerName: z.string().min(2, isAr ? "الاسم مطلوب (حرفين على الأقل)" : "Name required"),
-    customerPhone: z.string().regex(/^(\+?966|0)?5[0-9]{8}$/, isAr ? "رقم هاتف سعودي غير صالح" : "Invalid Saudi phone"),
-    scheduledAt: z.string().min(1, isAr ? "يرجى اختيار الموعد" : "Please select date & time"),
+    customerName: z.string().min(2, "الاسم مطلوب (حرفين على الأقل)"),
+    customerPhone: z.string().regex(/^(\+?966|0)?5[0-9]{8}$/, "رقم هاتف سعودي غير صالح"),
+    scheduledAt: z.string().min(1, "يرجى اختيار الموعد"),
     notes: z.string().optional(),
   });
 
@@ -91,7 +92,7 @@ export default function PublicListingPage() {
       setSelectedDate(undefined);
     },
     onError: () => {
-      toast.error(isAr ? "فشل إرسال طلب الحجز" : "Failed to submit booking");
+      toast.error("فشل إرسال طلب الحجز");
     },
   });
 
@@ -115,7 +116,7 @@ export default function PublicListingPage() {
     await navigator.clipboard.writeText(window.location.href).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast.success(isAr ? "تم نسخ الرابط" : "Link copied");
+    toast.success("تم نسخ الرابط");
   };
 
   const shareWhatsApp = () => {
@@ -144,9 +145,9 @@ export default function PublicListingPage() {
         <PublicHeader />
         <div className="max-w-6xl mx-auto p-6 text-center py-20">
           <Building2 className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <h2 className="text-2xl font-black text-foreground mb-2">{isAr ? "العقار غير متوفر" : "Property not found"}</h2>
-          <p className="text-muted-foreground mb-6">{isAr ? "لم يتم العثور على هذا العقار أو تم حذفه" : "This property was not found or has been removed"}</p>
-          <Button onClick={() => navigate("/map")}>{isAr ? "عرض العقارات" : "Browse Properties"}</Button>
+          <h2 className="text-2xl font-black text-foreground mb-2">العقار غير متوفر</h2>
+          <p className="text-muted-foreground mb-6">لم يتم العثور على هذا العقار أو تم حذفه</p>
+          <Button onClick={() => navigate("/map")}>عرض العقارات</Button>
         </div>
       </div>
     );
@@ -161,10 +162,10 @@ export default function PublicListingPage() {
   const org = agent?.organization || p.organization;
 
   const features = [
-    p.bedrooms && { icon: Bed, label: isAr ? "غرف النوم" : "Bedrooms", value: p.bedrooms },
-    p.bathrooms && { icon: Bath, label: isAr ? "دورات المياه" : "Bathrooms", value: Number(p.bathrooms) },
-    p.livingRooms && { icon: Sofa, label: isAr ? "الصالات" : "Living Rooms", value: p.livingRooms },
-    p.areaSqm && { icon: Maximize, label: isAr ? "المساحة" : "Area", value: `${Number(p.areaSqm).toLocaleString("en-US")} م²` },
+    p.bedrooms && { icon: Bed, label: "غرف النوم", value: p.bedrooms },
+    p.bathrooms && { icon: Bath, label: "دورات المياه", value: Number(p.bathrooms) },
+    p.livingRooms && { icon: Sofa, label: "الصالات", value: p.livingRooms },
+    p.areaSqm && { icon: Maximize, label: "المساحة", value: `${Number(p.areaSqm).toLocaleString("en-US")} م²` },
   ].filter(Boolean) as { icon: any; label: string; value: any }[];
 
   return (
@@ -176,7 +177,7 @@ export default function PublicListingPage() {
         <div className="flex items-center justify-between">
           <Button variant="ghost" onClick={() => navigate("/map")} className="gap-2">
             <ArrowRight className="h-4 w-4" />
-            {isAr ? "العودة للبحث" : "Back to search"}
+            العودة للبحث
           </Button>
           <div className="flex items-center gap-2">
             <Tooltip>
@@ -185,7 +186,7 @@ export default function PublicListingPage() {
                   <Heart className={cn("h-4 w-4", favorited && "fill-destructive text-destructive")} />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{isAr ? "حفظ" : "Save"}</TooltipContent>
+              <TooltipContent>حفظ</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -193,7 +194,7 @@ export default function PublicListingPage() {
                   <Share2 className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{isAr ? "مشاركة" : "Share"}</TooltipContent>
+              <TooltipContent>مشاركة</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -201,7 +202,7 @@ export default function PublicListingPage() {
                   {copied ? <Check className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{copied ? (isAr ? "تم النسخ" : "Copied") : (isAr ? "نسخ الرابط" : "Copy link")}</TooltipContent>
+              <TooltipContent>{copied ? "تم النسخ" : "نسخ الرابط"}</TooltipContent>
             </Tooltip>
           </div>
         </div>
@@ -215,18 +216,18 @@ export default function PublicListingPage() {
             {(p.falLicenseNumber || p.listing?.falLicenseNumber || p.regaAdLicenseNumber || p.listing?.regaAdLicenseNumber) && (
               <Badge variant="outline" className="gap-1 border-primary/30 text-primary bg-primary/10">
                 <ShieldCheck className="h-3 w-3" />
-                {isAr ? "مرخص REGA" : "REGA Licensed"}
+                مرخص REGA
               </Badge>
             )}
           </div>
-          <h1 className="text-3xl font-black text-foreground mb-2">{p.title || (isAr ? "عقار بدون عنوان" : "Untitled Property")}</h1>
+          <h1 className="text-3xl font-black text-foreground mb-2">{p.title || "عقار بدون عنوان"}</h1>
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin className="h-4 w-4" />
             <span>{[p.district, p.city, p.state].filter(Boolean).join("، ") || p.address || "—"}</span>
           </div>
           <div className="mt-4">
             <SarPrice value={p.price} className="text-3xl font-bold text-primary" />
-            {p.listingType === "rent" && <span className="text-muted-foreground ms-1">/ {isAr ? "شهرياً" : "month"}</span>}
+            {p.listingType === "rent" && <span className="text-muted-foreground ms-1">/ "شهرياً"</span>}
           </div>
         </div>
 
@@ -241,7 +242,7 @@ export default function PublicListingPage() {
           <Card className="h-64 flex items-center justify-center bg-muted/30">
             <div className="text-center text-muted-foreground">
               <Building2 className="h-12 w-12 mx-auto mb-2 opacity-30" />
-              <p className="font-bold">{isAr ? "لا توجد صور" : "No photos available"}</p>
+              <p className="font-bold">لا توجد صور</p>
             </div>
           </Card>
         )}
@@ -274,11 +275,11 @@ export default function PublicListingPage() {
             {/* Description */}
             <Card>
               <CardHeader>
-                <CardTitle>{isAr ? "الوصف" : "Description"}</CardTitle>
+                <CardTitle>الوصف</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                  {p.description || (isAr ? "لا يوجد وصف متاح" : "No description available")}
+                  {p.description || "لا يوجد وصف متاح"}
                 </p>
               </CardContent>
             </Card>
@@ -286,25 +287,25 @@ export default function PublicListingPage() {
             {/* Property Details Table */}
             <Card>
               <CardHeader>
-                <CardTitle>{isAr ? "تفاصيل العقار" : "Property Details"}</CardTitle>
+                <CardTitle>تفاصيل العقار</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
                   {[
-                    { label: isAr ? "النوع" : "Type", value: PROPERTY_TYPE_LABELS[p.type] || p.type, icon: Home },
-                    { label: isAr ? "التصنيف" : "Category", value: p.category || "—", icon: Tag },
-                    { label: isAr ? "الحالة" : "Status", value: LISTING_STATUS_LABELS[p.status] || p.status, icon: Layers },
-                    { label: isAr ? "المدينة" : "City", value: p.city || "—", icon: MapPin },
-                    { label: isAr ? "الحي" : "District", value: p.district || "—", icon: MapPin },
-                    { label: isAr ? "العنوان" : "Address", value: p.address || "—", icon: MapPin },
-                    p.bedrooms != null && { label: isAr ? "غرف النوم" : "Bedrooms", value: p.bedrooms, icon: Bed },
-                    p.bathrooms != null && { label: isAr ? "دورات المياه" : "Bathrooms", value: Number(p.bathrooms), icon: Bath },
-                    p.areaSqm != null && { label: isAr ? "المساحة (م²)" : "Area (sqm)", value: Number(p.areaSqm).toLocaleString("en-US"), icon: Maximize },
-                    p.areaSqm && p.price && { label: isAr ? "سعر المتر²" : "Price/sqm", value: `${Math.round(Number(p.price) / Number(p.areaSqm)).toLocaleString("en-US")}`, icon: Maximize },
-                    p.facadeDirection && { label: isAr ? "واجهة العقار" : "Facade", value: FACADE_LABELS[p.facadeDirection] || p.facadeDirection, icon: Compass },
-                    p.buildingAge != null && { label: isAr ? "عمر المبنى" : "Building Age", value: `${p.buildingAge} ${isAr ? "سنة" : "years"}`, icon: Calendar },
-                    p.legalStatus && { label: isAr ? "الحالة القانونية" : "Legal Status", value: LEGAL_LABELS[p.legalStatus] || p.legalStatus, icon: FileText },
-                    p.deedNumber && { label: isAr ? "رقم الصك" : "Deed #", value: p.deedNumber, icon: FileText },
+                    { label: "النوع", value: PROPERTY_TYPE_LABELS[p.type] || p.type, icon: Home },
+                    { label: "التصنيف", value: p.category || "—", icon: Tag },
+                    { label: "الحالة", value: LISTING_STATUS_LABELS[p.status] || p.status, icon: Layers },
+                    { label: "المدينة", value: p.city || "—", icon: MapPin },
+                    { label: "الحي", value: p.district || "—", icon: MapPin },
+                    { label: "العنوان", value: p.address || "—", icon: MapPin },
+                    p.bedrooms != null && { label: "غرف النوم", value: p.bedrooms, icon: Bed },
+                    p.bathrooms != null && { label: "دورات المياه", value: Number(p.bathrooms), icon: Bath },
+                    p.areaSqm != null && { label: "المساحة (م²)", value: Number(p.areaSqm).toLocaleString("en-US"), icon: Maximize },
+                    p.areaSqm && p.price && { label: "سعر المتر²", value: `${Math.round(Number(p.price) / Number(p.areaSqm)).toLocaleString("en-US")}`, icon: Maximize },
+                    p.facadeDirection && { label: "واجهة العقار", value: FACADE_LABELS[p.facadeDirection] || p.facadeDirection, icon: Compass },
+                    p.buildingAge != null && { label: "عمر المبنى", value: `${p.buildingAge} $"سنة"`, icon: Calendar },
+                    p.legalStatus && { label: "الحالة القانونية", value: LEGAL_LABELS[p.legalStatus] || p.legalStatus, icon: FileText },
+                    p.deedNumber && { label: "رقم الصك", value: p.deedNumber, icon: FileText },
                   ].filter(Boolean).map((detail: any, i) => (
                     <div key={i} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
                       <detail.icon className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -320,14 +321,14 @@ export default function PublicListingPage() {
             {p.availableServices && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" /> {isAr ? "الخدمات المتوفرة" : "Available Services"}</CardTitle>
+                  <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" /> "الخدمات المتوفرة"</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
                     {String(p.availableServices).split(",").map((svc: string, idx: number) => {
                       const trimmed = svc.trim();
                       if (!trimmed) return null;
-                      const labels: Record<string, string> = { electricity: isAr ? "كهرباء" : "Electricity", water: isAr ? "مياه" : "Water", sewage: isAr ? "صرف صحي" : "Sewage", gas: isAr ? "غاز" : "Gas", fiber: isAr ? "ألياف بصرية" : "Fiber" };
+                      const labels: Record<string, string> = { electricity: "كهرباء", water: "مياه", sewage: "صرف صحي", gas: "غاز", fiber: "ألياف بصرية" };
                       return (
                         <Badge key={idx} variant="secondary" className="rounded-full px-4 py-1.5 text-sm gap-1.5">
                           {trimmed === "electricity" ? <Zap className="h-3.5 w-3.5" /> : (trimmed === "water" || trimmed === "sewage") ? <Droplets className="h-3.5 w-3.5" /> : null}
@@ -346,7 +347,7 @@ export default function PublicListingPage() {
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-base">
                     <ShieldCheck className="h-5 w-5 text-primary" />
-                    {isAr ? "بيانات الترخيص — الهيئة العامة للعقار" : "REGA Licensing"}
+                    "بيانات الترخيص — الهيئة العامة للعقار"
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -357,7 +358,7 @@ export default function PublicListingPage() {
                           <Shield className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">{isAr ? "رقم رخصة فال" : "FAL License"}</p>
+                          <p className="text-xs text-muted-foreground">رقم رخصة فال</p>
                           <p className="font-black tabular-nums">{p.falLicenseNumber || p.listing?.falLicenseNumber}</p>
                         </div>
                       </div>
@@ -368,14 +369,14 @@ export default function PublicListingPage() {
                           <FileText className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <p className="text-xs text-muted-foreground">{isAr ? "رقم ترخيص الإعلان" : "Ad License"}</p>
+                          <p className="text-xs text-muted-foreground">رقم ترخيص الإعلان</p>
                           <p className="font-black tabular-nums">{p.regaAdLicenseNumber || p.listing?.regaAdLicenseNumber}</p>
                         </div>
                       </div>
                     )}
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-3 text-center">
-                    {isAr ? "مرخص من الهيئة العامة للعقار — rega.gov.sa" : "Licensed by the Real Estate General Authority — rega.gov.sa"}
+                    مرخص من الهيئة العامة للعقار — rega.gov.sa
                   </p>
                 </CardContent>
               </Card>
@@ -385,7 +386,7 @@ export default function PublicListingPage() {
             {(p.latitude || p.longitude) && (
               <Card>
                 <CardHeader>
-                  <CardTitle>{isAr ? "الموقع" : "Location"}</CardTitle>
+                  <CardTitle>الموقع</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="rounded-xl border-2 border-dashed border-border bg-muted/30 h-48 flex items-center justify-center text-muted-foreground">
@@ -393,7 +394,7 @@ export default function PublicListingPage() {
                       <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm font-bold">{p.city || ""}{p.district ? `، ${p.district}` : ""}</p>
                       <Button variant="link" size="sm" className="mt-2" onClick={() => window.open(`https://www.google.com/maps?q=${p.latitude},${p.longitude}`, "_blank")}>
-                        {isAr ? "فتح في خرائط جوجل" : "Open in Google Maps"}
+                        فتح في خرائط جوجل
                       </Button>
                     </div>
                   </div>
@@ -409,26 +410,26 @@ export default function PublicListingPage() {
               <CardContent className="p-6 space-y-4">
                 <div className="text-center">
                   <SarPrice value={p.price} className="text-3xl font-bold text-primary" />
-                  {p.listingType === "rent" && <p className="text-sm text-muted-foreground">{isAr ? "شهرياً" : "per month"}</p>}
+                  {p.listingType === "rent" && <p className="text-sm text-muted-foreground">شهرياً</p>}
                 </div>
 
                 <Separator />
 
                 {/* Agent Card */}
                 <div>
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">{isAr ? "الوسيط العقاري" : "Listed by"}</p>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">الوسيط العقاري</p>
                   <div className="flex items-center gap-3 mb-4">
                     <Avatar className="h-12 w-12">
                       <AvatarFallback className="bg-primary/10 text-primary font-bold">{agentInitials}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-bold text-foreground">{agentName || (isAr ? "وسي�� عقاري" : "Real Estate Agent")}</p>
+                      <p className="font-bold text-foreground">{agentName || "وسيط عقاري"}</p>
                       {org?.tradeName && <p className="text-xs text-muted-foreground">{org.tradeName}</p>}
                       {(agent?.agent_profiles?.licenseNo || agent?.agent_profiles?.falLicenseNumber) && (
                         <div className="flex items-center gap-1 mt-0.5">
                           <ShieldCheck className="h-3 w-3 text-primary" />
                           <span className="text-[10px] text-primary font-bold">
-                            {isAr ? "فال" : "FAL"}: {agent.agent_profiles.falLicenseNumber || agent.agent_profiles.licenseNo}
+                            "فال": {agent.agent_profiles.falLicenseNumber || agent.agent_profiles.licenseNo}
                           </span>
                         </div>
                       )}
@@ -439,17 +440,17 @@ export default function PublicListingPage() {
                   <div className="grid grid-cols-2 gap-2">
                     {agent?.phone && (
                       <Button variant="outline" className="gap-1.5" onClick={() => window.open(`tel:${agent.phone}`, "_self")}>
-                        <Phone className="h-4 w-4" /> {isAr ? "اتصال" : "Call"}
+                        <Phone className="h-4 w-4" /> "اتصال
                       </Button>
                     )}
                     {agent?.phone && (
                       <Button className="gap-1.5" onClick={() => window.open(`https://wa.me/${agent.phone.replace(/[^0-9]/g, "")}`, "_blank")}>
-                        <MessageCircle className="h-4 w-4" /> {isAr ? "واتساب" : "WhatsApp"}
+                        <MessageCircle className="h-4 w-4" /> واتساب
                       </Button>
                     )}
                     {agent?.email && (
                       <Button variant="outline" className="gap-1.5 col-span-2" onClick={() => window.open(`mailto:${agent.email}`, "_self")}>
-                        <Mail className="h-4 w-4" /> {isAr ? "بريد إلكتروني" : "Email"}
+                        <Mail className="h-4 w-4" /> بريد إلكتروني
                       </Button>
                     )}
                   </div>
@@ -460,7 +461,7 @@ export default function PublicListingPage() {
                 {/* Schedule Viewing */}
                 <Button className="w-full gap-2" size="lg" onClick={() => { setBookingOpen(true); setBookingSuccess(false); }}>
                   <Calendar className="h-4 w-4" />
-                  {isAr ? "حجز موعد معاينة" : "Schedule a Viewing"}
+                  حجز موعد معاينة
                 </Button>
 
                 {/* Report */}
@@ -470,14 +471,14 @@ export default function PublicListingPage() {
                   onClick={async () => {
                     try {
                       await apiPost("/api/reports", { listingId: id, reason: "محتوى غير مناسب" });
-                      toast.success(isAr ? "تم إرسال البلاغ" : "Report submitted");
+                      toast.success("تم إرسال البلاغ");
                     } catch {
-                      toast.error(isAr ? "فشل إرسال البلاغ" : "Failed to submit report");
+                      toast.error("فشل إرسال البلاغ");
                     }
                   }}
                 >
                   <Flag className="h-4 w-4" />
-                  {isAr ? "الإبلاغ عن هذا الإعلان" : "Report this listing"}
+                  "الإبلاغ عن هذا الإعلان
                 </Button>
               </CardContent>
             </Card>
@@ -487,7 +488,7 @@ export default function PublicListingPage() {
         {/* Similar Properties */}
         {similar.length > 0 && (
           <div>
-            <h2 className="text-2xl font-black text-foreground mb-4">{isAr ? "عقارات مشابهة" : "Similar Properties"}</h2>
+            <h2 className="text-2xl font-black text-foreground mb-4">عقارات مشابهة</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {similar.map((item: any) => (
                 <Card key={item.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/listing/${item.id}`)}>
@@ -514,9 +515,9 @@ export default function PublicListingPage() {
       <Sheet open={bookingOpen} onOpenChange={setBookingOpen}>
         <SheetContent side="bottom">
           <SheetHeader>
-            <SheetTitle>{isAr ? "حجز موعد معاينة" : "Schedule a Viewing"}</SheetTitle>
+            <SheetTitle>حجز موعد معاينة</SheetTitle>
             <SheetDescription>
-              {isAr ? "اختر الموعد المناسب وأدخل بياناتك ليتواصل معك الوسيط" : "Choose a time and enter your details so the agent can confirm"}
+              اختر الموعد المناسب وأدخل بياناتك ليتواصل معك الوسيط
             </SheetDescription>
           </SheetHeader>
 
@@ -525,11 +526,11 @@ export default function PublicListingPage() {
               <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                 <Check className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-xl font-black text-foreground">{isAr ? "تم إرسال طلب الحجز" : "Booking Request Sent"}</h3>
+              <h3 className="text-xl font-black text-foreground">تم إرسال طلب الحجز</h3>
               <p className="text-muted-foreground">
-                {isAr ? "سيتواصل معك الوسيط لتأكيد الموعد عبر الهاتف أو الواتساب" : "The agent will contact you to confirm the appointment"}
+                سيتواصل معك الوسيط لتأكيد الموعد عبر الهاتف أو الواتساب
               </p>
-              <Button onClick={() => setBookingOpen(false)}>{isAr ? "إغلاق" : "Close"}</Button>
+              <Button onClick={() => setBookingOpen(false)}>إغلاق</Button>
             </div>
           ) : (
             <Form {...bookingForm}>
@@ -538,12 +539,12 @@ export default function PublicListingPage() {
                 {/* Date Picker */}
                 <FormField control={bookingForm.control} name="scheduledAt" render={() => (
                   <FormItem>
-                    <FormLabel>{isAr ? "اختر التاريخ" : "Select Date"} *</FormLabel>
+                    <FormLabel>اختر التاريخ *</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button variant="outline" className={cn("w-full justify-start text-start h-10 font-normal", !selectedDate && "text-muted-foreground")}>
                           <Calendar className="h-4 w-4 me-2" />
-                          {selectedDate ? format(selectedDate, "PPP", { locale: isAr ? ar : undefined }) : (isAr ? "اختر تاريخ المعاينة" : "Pick a date")}
+                          {selectedDate ? format(selectedDate, "PPP", { locale: isAr ? ar : undefined }) : "اختر تاريخ المعاينة"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -568,7 +569,7 @@ export default function PublicListingPage() {
                 {selectedDate && (
                   <FormField control={bookingForm.control} name="scheduledAt" render={() => (
                     <FormItem>
-                      <FormLabel>{isAr ? "اختر الوقت" : "Select Time"} *</FormLabel>
+                      <FormLabel>اختر الوقت *</FormLabel>
                       <div className="grid grid-cols-4 gap-2">
                         {WORKING_HOURS.map((time) => {
                           const [hours, minutes] = time.split(":");
@@ -593,7 +594,7 @@ export default function PublicListingPage() {
                           );
                         })}
                       </div>
-                      <p className="text-xs text-muted-foreground">{isAr ? "أوقات العمل: 9 صباحاً - 5 مساءً (الجمعة عطلة)" : "Working hours: 9AM-5PM (Friday off)"}</p>
+                      <p className="text-xs text-muted-foreground">أوقات العمل: 9 صباحاً - 5 مساءً (الجمعة عطلة)</p>
                       <FormMessage />
                     </FormItem>
                   )} />
@@ -604,9 +605,9 @@ export default function PublicListingPage() {
                 {/* Customer Info */}
                 <FormField control={bookingForm.control} name="customerName" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isAr ? "الاسم الكامل" : "Full Name"} *</FormLabel>
+                    <FormLabel>الاسم الكامل *</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder={isAr ? "مثال: محمد أحمد" : "e.g. Mohammed Ahmed"} />
+                      <Input {...field} placeholder="مثال: محمد أحمد" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -614,32 +615,32 @@ export default function PublicListingPage() {
 
                 <FormField control={bookingForm.control} name="customerPhone" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isAr ? "رقم الهاتف" : "Phone Number"} *</FormLabel>
+                    <FormLabel>رقم الهاتف *</FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="05XXXXXXXX" dir="ltr" className="text-start" />
                     </FormControl>
-                    <p className="text-xs text-muted-foreground">{isAr ? "سيتواصل معك الوسيط لتأكيد الموعد" : "The agent will contact you to confirm"}</p>
+                    <p className="text-xs text-muted-foreground">سيتواصل معك الوسيط لتأكيد الموعد</p>
                     <FormMessage />
                   </FormItem>
                 )} />
 
                 <FormField control={bookingForm.control} name="notes" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isAr ? "ملاحظات (اختياري)" : "Notes (optional)"}</FormLabel>
+                    <FormLabel>ملاحظات (اختياري)</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder={isAr ? "أي ملاحظات تود إبلاغ الوسيط بها..." : "Any notes for the agent..."} rows={2} />
+                      <Textarea {...field} placeholder="أي ملاحظات تود إبلاغ الوسيط بها..." rows={2} />
                     </FormControl>
                   </FormItem>
                 )} />
 
                 <SheetFooter>
                   <Button type="button" variant="outline" onClick={() => setBookingOpen(false)}>
-                    {isAr ? "إلغاء" : "Cancel"}
+                    إلغاء
                   </Button>
                   <Button type="submit" disabled={bookingMutation.isPending} className="gap-2">
                     {bookingMutation.isPending
-                      ? (isAr ? "جاري الإرسال..." : "Submitting...")
-                      : (isAr ? "تأكيد الحجز" : "Confirm Booking")}
+                      ? "جاري الإرسال..."
+                      : "تأكيد الحجز"}
                     <Calendar className="h-4 w-4" />
                   </Button>
                 </SheetFooter>
@@ -651,6 +652,9 @@ export default function PublicListingPage() {
 
       {/* Footer */}
       <LandingFooter content={{ footerDescription: "", footerCopyright: `© ${new Date().getFullYear()} عقاركم. جميع الحقوق محفوظة.` } as any} footerGroups={[]} />
+
+      {/* AI Chatbot */}
+      <ChatWidget />
     </div>
   );
 }

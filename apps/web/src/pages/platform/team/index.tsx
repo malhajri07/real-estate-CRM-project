@@ -415,7 +415,6 @@ export default function TeamPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const showSkeleton = useMinLoadTime();
-  const isAr = language === "ar";
 
   // -- State --
   const [activeTab, setActiveTab] = useState("overview");
@@ -835,7 +834,7 @@ export default function TeamPage() {
               {[
                 { label: "إجمالي الوكلاء", value: stats.totalAgents, icon: Users, color: "text-accent-foreground" },
                 { label: "النشطون", value: stats.activeAgents, icon: UserCheck, color: "text-primary" },
-                { label: "المعطلون", value: stats.inactiveAgents, icon: UserX, color: "text-gray-400" },
+                { label: "المعطلون", value: stats.inactiveAgents, icon: UserX, color: "text-muted-foreground" },
                 { label: "العملاء المحتملون", value: stats.totalLeads, icon: Target, color: "text-accent-foreground" },
                 { label: "الصفقات", value: stats.totalDeals, icon: Briefcase, color: "text-[hsl(var(--warning))]" },
                 { label: "صفقات رابحة", value: stats.wonDeals, icon: TrendingUp, color: "text-primary" },
@@ -970,13 +969,13 @@ export default function TeamPage() {
                       {leaderboardData.leaderboard[1] && (
                         <div className="flex flex-col items-center">
                           <Avatar className="h-10 w-10 ring-2 ring-gray-300 mb-1">
-                            <AvatarFallback className="bg-gray-100 text-gray-600 text-xs font-bold">
+                            <AvatarFallback className="bg-muted text-muted-foreground text-xs font-bold">
                               {getInitials(leaderboardData.leaderboard[1].name.split(" ")[0], leaderboardData.leaderboard[1].name.split(" ")[1])}
                             </AvatarFallback>
                           </Avatar>
                           <p className="text-[10px] font-bold truncate max-w-[70px]">{leaderboardData.leaderboard[1].name}</p>
                           <p className="text-[9px] text-muted-foreground">{leaderboardData.leaderboard[1].wonDeals} صفقة</p>
-                          <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-t-lg mt-1 flex items-center justify-center text-lg font-bold text-gray-500" style={{ height: 50 }}>
+                          <div className="w-16 bg-muted/80 dark:bg-muted rounded-t-lg mt-1 flex items-center justify-center text-lg font-bold text-muted-foreground" style={{ height: 50 }}>
                             2
                           </div>
                         </div>
@@ -1311,7 +1310,7 @@ export default function TeamPage() {
                                       <TooltipTrigger asChild>
                                         <div className={cn(
                                           "w-2 h-2 rounded-full",
-                                          isOff ? "bg-gray-300 dark:bg-gray-600" : "bg-primary/100"
+                                          isOff ? "bg-border dark:bg-muted-foreground" : "bg-primary/100"
                                         )} />
                                       </TooltipTrigger>
                                       <TooltipContent side="top" className="text-[10px]">
@@ -1800,7 +1799,7 @@ export default function TeamPage() {
                                         className={cn(
                                           "rounded-lg p-2 text-[10px] font-bold cursor-pointer transition-colors",
                                           isOff
-                                            ? "bg-gray-100 dark:bg-gray-800 text-gray-400"
+                                            ? "bg-muted dark:bg-foreground/90 text-muted-foreground"
                                             : "bg-primary/10 dark:bg-primary/90/30 text-primary dark:text-primary hover:bg-primary/15 dark:hover:bg-primary/90/50"
                                         )}
                                         onClick={() => openWorkingHours(member.id)}
@@ -1835,7 +1834,7 @@ export default function TeamPage() {
                   متاح
                 </div>
                 <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                  <div className="w-3 h-3 rounded bg-gray-100 dark:bg-gray-800 border border-gray-200" />
+                  <div className="w-3 h-3 rounded bg-muted dark:bg-foreground/90 border border-gray-200" />
                   إجازة
                 </div>
               </div>

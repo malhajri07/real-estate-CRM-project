@@ -48,6 +48,130 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// ── OTP-based Login Flow ─────────────────────────────────────────────────────
+
+// In-memory OTP store (dev mode — no SMS integration yet)
+const otpStore = new Map<string, { code: string; expiresAt: number; attempts: number }>();
+
+// POST /api/auth/send-otp — Send OTP to mobile number
+router.post('/send-otp', async (req, res) => {
+  try {
+    const { phone } = z.object({ phone: z.string().min(10).max(15) }).parse(req.body);
+
+    // Normalize: remove +966, spaces, dashes
+    const normalized = phone.replace(/[\s\-\+]/g, '').replace(/^966/, '0');
+
+    // Check if user exists with this phone
+    const user = await prisma.users.findFirst({
+      where: { phone: normalized },
+      select: { id: true, phone: true, firstName: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "رقم الجوال غير مسجّل في النظام" });
+    }
+
+    // Generate 4-digit OTP
+    const code = String(Math.floor(1000 + Math.random() * 9000));
+    otpStore.set(normalized, { code, expiresAt: Date.now() + 5 * 60 * 1000, attempts: 0 });
+
+    // In production: send SMS via Twilio/Unifonic/etc.
+    // For dev: return the OTP in the response so the frontend can show it
+    logger.info({ phone: normalized }, `OTP generated: ${code}`);
+
+    res.json({
+      success: true,
+      message: "تم إرسال رمز التحقق",
+      // DEV ONLY: expose OTP for testing — remove in production
+      ...(process.env.NODE_ENV !== "production" && { otp: code }),
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, message: "رقم جوال غير صالح" });
+    }
+    logger.error({ err: error }, 'Send OTP Error');
+    res.status(500).json({ success: false, message: "فشل إرسال رمز التحقق" });
+  }
+});
+
+// POST /api/auth/verify-otp — Verify OTP and login
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { phone, otp } = z.object({
+      phone: z.string().min(10).max(15),
+      otp: z.string().length(4),
+    }).parse(req.body);
+
+    const normalized = phone.replace(/[\s\-\+]/g, '').replace(/^966/, '0');
+    const stored = otpStore.get(normalized);
+
+    if (!stored) {
+      return res.status(400).json({ success: false, message: "لم يتم إرسال رمز تحقق لهذا الرقم" });
+    }
+
+    if (Date.now() > stored.expiresAt) {
+      otpStore.delete(normalized);
+      return res.status(400).json({ success: false, message: "انتهت صلاحية رمز التحقق. أعد الإرسال." });
+    }
+
+    stored.attempts += 1;
+    if (stored.attempts > 5) {
+      otpStore.delete(normalized);
+      return res.status(429).json({ success: false, message: "تم تجاوز عدد المحاولات. أعد إرسال الرمز." });
+    }
+
+    if (stored.code !== otp) {
+      return res.status(400).json({ success: false, message: "رمز التحقق غير صحيح" });
+    }
+
+    // OTP valid — find user and generate JWT
+    otpStore.delete(normalized);
+
+    const user = await prisma.users.findFirst({
+      where: { phone: normalized },
+      include: { organization: true, agent_profiles: true },
+    });
+
+    if (!user || !user.isActive) {
+      return res.status(401).json({ success: false, message: "الحساب غير نشط" });
+    }
+
+    const token = AuthService.generateToken({
+      id: user.id,
+      email: user.email ?? null,
+      username: user.username ?? null,
+      roles: user.roles,
+      organizationId: user.organizationId || undefined,
+    });
+
+    if (req.session) {
+      req.session.user = user as any;
+      req.session.authToken = token;
+    }
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        roles: typeof user.roles === "string" ? JSON.parse(user.roles) : user.roles,
+        organizationId: user.organizationId,
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, message: "بيانات غير صالحة" });
+    }
+    logger.error({ err: error }, 'Verify OTP Error');
+    res.status(500).json({ success: false, message: "فشل التحقق" });
+  }
+});
+
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
@@ -139,8 +263,19 @@ router.put('/user', authenticateToken, async (req, res) => {
       email: z.string().email().optional(),
       jobTitle: z.string().optional(),
       department: z.string().optional(),
+      whatsapp: z.string().optional(),
+      timezone: z.string().optional(),
     });
     const data = schema.parse(req.body);
+
+    // Store whatsapp in metadata
+    let metaUpdate: Record<string, unknown> | undefined;
+    if (data.whatsapp !== undefined) {
+      const user = await prisma.users.findUnique({ where: { id: req.user!.id } });
+      const existing = (user?.metadata as Record<string, unknown>) || {};
+      metaUpdate = { ...existing, whatsapp: data.whatsapp || null };
+    }
+
     const updated = await prisma.users.update({
       where: { id: req.user!.id },
       data: {
@@ -150,6 +285,8 @@ router.put('/user', authenticateToken, async (req, res) => {
         ...(data.email !== undefined && { email: data.email || null }),
         ...(data.jobTitle !== undefined && { jobTitle: data.jobTitle || null }),
         ...(data.department !== undefined && { department: data.department || null }),
+        ...(data.timezone !== undefined && { timezone: data.timezone || null }),
+        ...(metaUpdate && { metadata: metaUpdate as any }),
       },
     });
     res.json({ success: true, user: updated });
@@ -159,6 +296,72 @@ router.put('/user', authenticateToken, async (req, res) => {
       return res.status(400).json(getErrorResponse('VALIDATION_ERROR', locale, error.errors));
     }
     logger.error({ err: error }, 'Profile update error');
+    res.status(500).json(getErrorResponse('UPDATE_FAILED', locale));
+  }
+});
+
+// PUT /api/auth/agent-profile — update agent professional profile + FAL license
+router.put('/agent-profile', authenticateToken, async (req, res) => {
+  try {
+    const schema = z.object({
+      bio: z.string().max(1000).optional(),
+      specialties: z.string().optional(),
+      territories: z.string().optional(),
+      experience: z.coerce.number().int().min(0).max(60).optional(),
+      falLicenseNumber: z.string().optional(),
+      falLicenseType: z.enum(["BROKERAGE_MARKETING", "PROPERTY_MANAGEMENT", "FACILITY_MANAGEMENT", "AUCTION", "CONSULTING", "ADVERTISING"]).optional(),
+      falIssuedAt: z.string().datetime().optional().or(z.literal("")),
+      falExpiresAt: z.string().datetime().optional().or(z.literal("")),
+      nationalIdNumber: z.string().optional(),
+      sreiCertified: z.boolean().optional(),
+      workingHours: z.string().optional(),
+      iban: z.string().optional(),
+      bankName: z.string().optional(),
+    });
+    const data = schema.parse(req.body);
+
+    const existing = await prisma.agent_profiles.findUnique({ where: { userId: req.user!.id } });
+    if (!existing) {
+      return res.status(404).json({ success: false, message: "لا يوجد ملف وسيط مرتبط بحسابك" });
+    }
+
+    // Store workingHours, iban, bankName in user metadata
+    let metaUpdate: Record<string, unknown> | undefined;
+    if (data.workingHours !== undefined || data.iban !== undefined || data.bankName !== undefined) {
+      const user = await prisma.users.findUnique({ where: { id: req.user!.id } });
+      const existingMeta = (user?.metadata as Record<string, unknown>) || {};
+      metaUpdate = {
+        ...existingMeta,
+        ...(data.workingHours !== undefined && { workingHours: data.workingHours }),
+        ...(data.iban !== undefined && { iban: data.iban }),
+        ...(data.bankName !== undefined && { bankName: data.bankName }),
+      };
+      await prisma.users.update({ where: { id: req.user!.id }, data: { metadata: metaUpdate as any } });
+    }
+
+    const updated = await prisma.agent_profiles.update({
+      where: { userId: req.user!.id },
+      data: {
+        ...(data.bio !== undefined && { bio: data.bio || null }),
+        ...(data.specialties !== undefined && { specialties: data.specialties || "" }),
+        ...(data.territories !== undefined && { territories: data.territories || "" }),
+        ...(data.experience !== undefined && { experience: data.experience }),
+        ...(data.falLicenseNumber !== undefined && { falLicenseNumber: data.falLicenseNumber || null }),
+        ...(data.falLicenseType !== undefined && { falLicenseType: data.falLicenseType }),
+        ...(data.falIssuedAt !== undefined && { falIssuedAt: data.falIssuedAt ? new Date(data.falIssuedAt) : null }),
+        ...(data.falExpiresAt !== undefined && { falExpiresAt: data.falExpiresAt ? new Date(data.falExpiresAt) : null }),
+        ...(data.nationalIdNumber !== undefined && { nationalIdNumber: data.nationalIdNumber || null }),
+        ...(data.sreiCertified !== undefined && { sreiCertified: data.sreiCertified }),
+      },
+    });
+
+    res.json({ success: true, profile: updated });
+  } catch (error) {
+    const locale = (req as any).locale || 'ar';
+    if (error instanceof z.ZodError) {
+      return res.status(400).json(getErrorResponse('VALIDATION_ERROR', locale, error.errors));
+    }
+    logger.error({ err: error }, 'Agent profile update error');
     res.status(500).json(getErrorResponse('UPDATE_FAILED', locale));
   }
 });
@@ -207,19 +410,27 @@ router.put('/preferences', authenticateToken, async (req, res) => {
       newLeads: z.boolean().optional(),
       taskUpdates: z.boolean().optional(),
       newDeals: z.boolean().optional(),
+      brokerRequests: z.boolean().optional(),
+      agreementSigned: z.boolean().optional(),
+      appointmentReminders: z.boolean().optional(),
+      propertyInquiries: z.boolean().optional(),
+      listingExpiry: z.boolean().optional(),
+      commissionPayouts: z.boolean().optional(),
     });
     const prefs = schema.parse(req.body);
 
     const user = await prisma.users.findUnique({ where: { id: req.user!.id } });
     const existingMeta = (user?.metadata as Record<string, unknown>) || {};
-    const updatedMeta = { ...existingMeta, notificationPreferences: prefs };
+    const existingPrefs = (existingMeta.notificationPreferences as Record<string, boolean>) || {};
+    const mergedPrefs = { ...existingPrefs, ...prefs };
+    const updatedMeta = { ...existingMeta, notificationPreferences: mergedPrefs };
 
     await prisma.users.update({
       where: { id: req.user!.id },
       data: { metadata: updatedMeta },
     });
 
-    res.json({ success: true, preferences: prefs });
+    res.json({ success: true, preferences: mergedPrefs });
   } catch (error) {
     const locale = (req as any).locale || 'ar';
     if (error instanceof z.ZodError) {
@@ -235,10 +446,17 @@ router.get('/preferences', authenticateToken, async (req, res) => {
   try {
     const user = await prisma.users.findUnique({ where: { id: req.user!.id } });
     const meta = (user?.metadata as Record<string, unknown>) || {};
-    const prefs = (meta.notificationPreferences as Record<string, boolean>) || {
+    const prefs = {
       newLeads: true,
       taskUpdates: true,
       newDeals: true,
+      brokerRequests: true,
+      agreementSigned: true,
+      appointmentReminders: true,
+      propertyInquiries: true,
+      listingExpiry: true,
+      commissionPayouts: true,
+      ...((meta.notificationPreferences as Record<string, boolean>) || {}),
     };
     res.json({ success: true, preferences: prefs });
   } catch (error) {

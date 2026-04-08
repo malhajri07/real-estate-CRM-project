@@ -172,7 +172,7 @@ export function PropertiesList({
 
                 {/* Price */}
                 <TableCell className="px-6 py-4 text-end text-sm">
-                  <div className="font-bold text-[rgb(128_193_165)]">
+                  <div className="font-bold text-[rgb(128, 193, 165)]">
                     {formatCurrency(property.price)}
                   </div>
                 </TableCell>

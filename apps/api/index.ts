@@ -188,6 +188,7 @@ const apiLimiter = rateLimit({
 // Serve attached assets (raw datasets/images) as static files
 const rawAssetsDir = path.resolve(process.cwd(), 'data/raw-assets');
 app.use('/attached_assets', express.static(rawAssetsDir));
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
 /**
  * Request Logging Middleware

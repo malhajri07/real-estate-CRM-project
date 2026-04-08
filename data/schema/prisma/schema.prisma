@@ -239,6 +239,7 @@ model listings {
   inquiries        inquiries[]
   appointments     appointments[]
   deals            deals[]
+  promotions       listing_promotions[]
 
   @@index([agentId])
   @@index([listingType])
@@ -300,6 +301,8 @@ model organizations {
   deals                deals[]
   support_tickets      support_tickets[]
   broker_requests      broker_requests[]
+  campaigns            campaigns[]          @relation("CampaignOrg")
+  leadRoutingRule      lead_routing_rules?
 
   @@index([industry])
   @@index([licenseNo])
@@ -379,6 +382,7 @@ model properties {
   agent          users?      @relation("PropertyAgent", fields: [agentId], references: [id], onDelete: SetNull)
   favorites        favorites[]
   broker_requests  broker_requests[]
+  tenancies        tenancies[]
 
   @@index([agentId])
   @@index([organizationId])
@@ -500,6 +504,7 @@ model customers {
   deals             deals[]
   support_tickets   support_tickets[]
   listings          listings[]        @relation("listing_seller")
+  tenancies         tenancies[]
 
   @@index([organizationId])
   @@index([phone])
@@ -597,7 +602,9 @@ model deals {
   listing               listings?     @relation(fields: [listingId], references: [id], onDelete: SetNull)
   property              properties?   @relation(fields: [propertyId], references: [id], onDelete: SetNull)
   customer              customers     @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  agent                 users?        @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  agent                 users?            @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  commissionSplits      commission_splits[]
+  documents             deal_documents[]
 
   @@index([organizationId])
   @@index([customerId])
@@ -715,6 +722,13 @@ model users {
   marketingProposals       marketing_proposals[]      @relation("MarketingProposalAgent")
   brokerRequestsOwned      broker_requests[]          @relation("BrokerRequestOwner")
   brokerAcceptances        broker_acceptances[]       @relation("BrokerAcceptanceAgent")
+  campaigns                campaigns[]                @relation("CampaignAgent")
+  automationRules          automation_rules[]         @relation("AutomationAgent")
+  listingPromotions        listing_promotions[]       @relation("PromotionAgent")
+  commissionSplits         commission_splits[]        @relation("CommissionRecipient")
+  tenancies                tenancies[]                @relation("TenancyAgent")
+  sequences                campaign_sequences[]       @relation("SequenceAgent")
+  uploadedDocuments        deal_documents[]           @relation("DocumentUploader")
 
   @@index([approvalStatus])
   @@index([email])
@@ -1665,15 +1679,22 @@ model broker_requests {
 }
 
 model broker_acceptances {
-  id               String              @id @default(uuid())
-  brokerRequestId  String
-  marketingAgentId String                                    // Agent who accepted to market
-  organizationId   String?
-  status           String              @default("PENDING")   // PENDING, APPROVED, REJECTED, COMPLETED
-  notes            String?             @db.Text
-  agreedRate       Decimal?            @db.Decimal(5, 2)     // May differ from original offer after negotiation
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
+  id                      String              @id @default(uuid())
+  brokerRequestId         String
+  marketingAgentId        String                                    // Agent who accepted to market
+  organizationId          String?
+  status                  String              @default("PENDING")   // PENDING, APPROVED, REJECTED, COMPLETED
+  notes                   String?             @db.Text
+  agreedRate              Decimal?            @db.Decimal(5, 2)     // May differ from original offer after negotiation
+  // ── Co-Brokerage Agreement ──
+  agreementStatus         String?                                   // DRAFT, PENDING_SIGNATURES, SIGNED, EXPIRED
+  agreementNumber         String?                                   // CBA-YYYY-XXXXX
+  agreementTerms          String?             @db.Text              // JSON: property, agents, commission, terms
+  agreementGeneratedAt    DateTime?
+  listingAgentSignedAt    DateTime?
+  marketingAgentSignedAt  DateTime?
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
 
   brokerRequest    broker_requests     @relation(fields: [brokerRequestId], references: [id], onDelete: Cascade)
   marketingAgent   users               @relation("BrokerAcceptanceAgent", fields: [marketingAgentId], references: [id])
@@ -1681,5 +1702,386 @@ model broker_acceptances {
   @@unique([brokerRequestId, marketingAgentId])
   @@index([brokerRequestId])
   @@index([marketingAgentId])
+  @@index([status])
+  @@index([agreementStatus])
+}
+
+// ── Campaign Management ────────────────────────────────────────────────────────
+
+model campaigns {
+  id              String               @id @default(uuid())
+  agentId         String
+  organizationId  String?
+  title           String
+  message         String               @db.Text
+  channel         String               // whatsapp, sms, email
+  status          CampaignStatus       @default(SENT)
+  recipientCount  Int                  @default(0)
+  deliveredCount  Int                  @default(0)
+  openedCount     Int                  @default(0)
+  respondedCount  Int                  @default(0)
+  templateId      String?
+  segmentFilter   String?              @db.Text  // JSON: filter criteria used
+  scheduledAt     DateTime?
+  sentAt          DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  agent           users                @relation("CampaignAgent", fields: [agentId], references: [id])
+  organization    organizations?       @relation("CampaignOrg", fields: [organizationId], references: [id], onDelete: SetNull)
+  recipients      campaign_recipients[]
+
+  @@index([agentId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model campaign_recipients {
+  id           String              @id @default(uuid())
+  campaignId   String
+  leadId       String?
+  customerId   String?
+  name         String?
+  phone        String?
+  email        String?
+  status       CampaignRecipientStatus @default(PENDING)
+  deliveredAt  DateTime?
+  openedAt     DateTime?
+  respondedAt  DateTime?
+  createdAt    DateTime            @default(now())
+
+  campaign     campaigns           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([leadId])
+  @@index([status])
+}
+
+model automation_rules {
+  id              String             @id @default(uuid())
+  agentId         String
+  organizationId  String?
+  name            String
+  description     String?
+  triggerType     String             // new_lead, cold_lead, listing_match, appointment_reminder, price_drop, deal_stale
+  triggerConfig   String?            @db.Text  // JSON: threshold days, conditions
+  actionType      String             // send_whatsapp, send_sms, send_email, internal_notification
+  actionConfig    String?            @db.Text  // JSON: template, message
+  channel         String             // whatsapp, sms, email, internal
+  enabled         Boolean            @default(true)
+  lastTriggeredAt DateTime?
+  triggerCount    Int                @default(0)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  agent           users              @relation("AutomationAgent", fields: [agentId], references: [id])
+
+  @@index([agentId])
+  @@index([enabled])
+  @@index([triggerType])
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENT
+  DELIVERING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum CampaignRecipientStatus {
+  PENDING
+  DELIVERED
+  OPENED
+  RESPONDED
+  FAILED
+  BOUNCED
+}
+
+// ── Listing Promotions (Boost / Ads) ───────────────────────────────────────────
+
+model listing_promotions {
+  id              String              @id @default(uuid())
+  listingId       String
+  agentId         String
+  organizationId  String?
+  status          PromotionStatus     @default(ACTIVE)
+  dailyBudget     Decimal             // ميزانية يومية
+  totalBudget     Decimal?            // ميزانية إجمالية (اختياري)
+  spentAmount     Decimal             @default(0)
+  bidAmount       Decimal             // مبلغ المزايدة لكل ظهور
+  targetCities    String?             // JSON: المدن المستهدفة
+  targetTypes     String?             // JSON: أنواع العقارات المستهدفة
+  targetBudgetMin Decimal?            // الحد الأدنى لميزانية الباحث
+  targetBudgetMax Decimal?            // الحد الأقصى لميزانية الباحث
+  impressions     Int                 @default(0)
+  clicks          Int                 @default(0)
+  inquiries       Int                 @default(0)
+  startDate       DateTime            @default(now())
+  endDate         DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  listing         listings            @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  agent           users               @relation("PromotionAgent", fields: [agentId], references: [id])
+
+  @@index([agentId])
+  @@index([listingId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum PromotionStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  EXHAUSTED      // ميزانية مستنفدة
+  ENDED
+  CANCELLED
+}
+
+// ── Commission Splits ──────────────────────────────────────────────────────────
+
+model commission_splits {
+  id              String              @id @default(uuid())
+  dealId          String
+  recipientId     String
+  recipientType   String              // AGENT, BROKERAGE, REFERRAL
+  percentage      Decimal             @db.Decimal(5, 2)
+  amount          Decimal             @db.Decimal(14, 2)
+  status          CommissionStatus    @default(PENDING)
+  paidAt          DateTime?
+  notes           String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  deal            deals               @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  recipient       users               @relation("CommissionRecipient", fields: [recipientId], references: [id])
+
+  @@index([dealId])
+  @@index([recipientId])
+  @@index([status])
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+// ── Lead Routing ───────────────────────────────────────────────────────────────
+
+model lead_routing_rules {
+  id              String   @id @default(uuid())
+  organizationId  String   @unique
+  strategy        String   @default("manual")  // round_robin, territory, manual, first_to_claim
+  config          String?  @db.Text             // JSON: { lastAssignedIndex, excludeInactive, maxLeadsPerAgent }
+  enabled         Boolean  @default(true)
+  lastAssignedIdx Int      @default(0)          // For round-robin tracking
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization    organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+}
+
+// ── Tenant Management (Post-Rental Lifecycle) ──────────────────────────────────
+
+model tenancies {
+  id              String          @id @default(uuid())
+  dealId          String?
+  propertyId      String
+  tenantId        String          // customerId
+  agentId         String
+  organizationId  String?
+  leaseStart      DateTime
+  leaseEnd        DateTime
+  monthlyRent     Decimal         @db.Decimal(14, 2)
+  securityDeposit Decimal?        @db.Decimal(14, 2)
+  status          TenancyStatus   @default(ACTIVE)
+  ejarContractNo  String?
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  property        properties      @relation(fields: [propertyId], references: [id])
+  tenant          customers       @relation(fields: [tenantId], references: [id])
+  agent           users           @relation("TenancyAgent", fields: [agentId], references: [id])
+  rentPayments    rent_payments[]
+
+  @@index([agentId])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([leaseEnd])
+}
+
+model rent_payments {
+  id          String            @id @default(uuid())
+  tenancyId   String
+  amount      Decimal           @db.Decimal(14, 2)
+  dueDate     DateTime
+  paidDate    DateTime?
+  status      RentPaymentStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime          @default(now())
+
+  tenancy     tenancies         @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+
+  @@index([tenancyId])
+  @@index([dueDate])
+  @@index([status])
+}
+
+enum TenancyStatus {
+  ACTIVE
+  EXPIRING      // within 90 days of end
+  EXPIRED
+  RENEWED
+  TERMINATED
+}
+
+enum RentPaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  PARTIAL
+  WAIVED
+}
+
+// ── Drip Campaign Sequences ─────────────────────────────────────────────────────
+
+model campaign_sequences {
+  id          String   @id @default(uuid())
+  agentId     String
+  name        String
+  channel     String   @default("whatsapp")
+  steps       String   @db.Text  // JSON array: [{delay: "0d", template: "welcome", message: "..."}, ...]
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  agent       users    @relation("SequenceAgent", fields: [agentId], references: [id])
+  enrollments sequence_enrollments[]
+
+  @@index([agentId])
+}
+
+model sequence_enrollments {
+  id          String   @id @default(uuid())
+  sequenceId  String
+  leadId      String
+  currentStep Int      @default(0)
+  nextRunAt   DateTime?
+  status      String   @default("ACTIVE")  // ACTIVE, PAUSED, COMPLETED, CANCELLED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sequence    campaign_sequences @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  @@unique([sequenceId, leadId])
+  @@index([sequenceId])
+  @@index([leadId])
+  @@index([status])
+  @@index([nextRunAt])
+}
+
+// ── Deal Documents ─────────────────────────────────────────────────────────────
+
+model deal_documents {
+  id          String   @id @default(uuid())
+  dealId      String
+  fileName    String
+  fileUrl     String
+  fileType    String?  // pdf, image, doc
+  fileSize    Int?     // bytes
+  uploadedBy  String
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  deal        deals    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  uploader    users    @relation("DocumentUploader", fields: [uploadedBy], references: [id])
+
+  @@index([dealId])
+  @@index([uploadedBy])
+}
+
+// ── WhatsApp / Omnichannel Inbox Messages ──────────────────────────────────────
+
+model messages {
+  id          String   @id @default(uuid())
+  leadId      String?
+  customerId  String?
+  agentId     String
+  direction   String   // INBOUND, OUTBOUND
+  channel     String   // whatsapp, sms, email
+  content     String   @db.Text
+  phone       String?
+  status      String   @default("SENT")  // SENT, DELIVERED, READ, FAILED
+  sentAt      DateTime @default(now())
+  deliveredAt DateTime?
+  readAt      DateTime?
+  metadata    String?  @db.Text  // JSON: whatsapp message id, etc.
+
+  @@index([leadId])
+  @@index([customerId])
+  @@index([agentId])
+  @@index([channel])
+  @@index([sentAt])
+}
+
+// ── Off-Plan Projects ────────────────────────────────────────────────────────
+
+model projects {
+  id              String          @id @default(uuid())
+  name            String
+  developer       String?
+  city            String
+  district        String?
+  description     String?         @db.Text
+  status          String          @default("PLANNING")  // PLANNING, UNDER_CONSTRUCTION, COMPLETED, ON_HOLD
+  completionDate  DateTime?
+  totalUnits      Int             @default(0)
+  agentId         String
+  organizationId  String?
+  coverImage      String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  units           project_units[]
+
+  @@index([agentId])
+  @@index([organizationId])
+  @@index([city])
+  @@index([status])
+}
+
+model project_units {
+  id          String   @id @default(uuid())
+  projectId   String
+  unitNumber  String
+  floor       Int?
+  type        String?  // apartment, villa, townhouse, etc.
+  areaSqm     Decimal? @db.Decimal(10, 2)
+  bedrooms    Int?
+  bathrooms   Int?
+  price       Decimal? @db.Decimal(14, 2)
+  status      String   @default("AVAILABLE")  // AVAILABLE, RESERVED, SOLD, BLOCKED
+  buyerName   String?
+  buyerPhone  String?
+  reservedAt  DateTime?
+  paymentSchedule String? @db.Text  // JSON: [{milestone, percentage, amount, dueDate, paidDate}]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project     projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
   @@index([status])
 }

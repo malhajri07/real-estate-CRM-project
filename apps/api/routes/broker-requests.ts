@@ -9,6 +9,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../prismaClient";
 import { authenticateToken } from "../src/middleware/auth.middleware";
+import { requireFalLicense } from "../src/middleware/fal-license.middleware";
 import { validateCommissionCap, COMMISSION_CAP_PERCENTAGE } from "../src/validators/saudi-regulation.validators";
 
 const router = Router();
@@ -74,12 +75,12 @@ router.get("/", authenticateToken, async (req, res) => {
 
 // ── POST /api/broker-requests — Create a new broker request ────────────────
 
-router.post("/", authenticateToken, async (req, res) => {
+router.post("/", authenticateToken, requireFalLicense, async (req, res) => {
   try {
     const user = (req as any).user;
     const data = createSchema.parse(req.body);
 
-    // Validate commission against Saudi regulatory cap (2.5%)
+    // Validate commission against Saudi regulatory cap (2.5%) — Article 14
     const capCheck = validateCommissionCap(data.commissionRate);
     const commissionCapValidated = capCheck.valid;
 
@@ -219,6 +220,172 @@ router.patch("/:id", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Error updating broker request:", error);
     res.status(500).json({ message: "Failed to update" });
+  }
+});
+
+// ── POST /api/broker-requests/:id/acceptances/:acceptId/generate-agreement ──
+
+router.post("/:id/acceptances/:acceptId/generate-agreement", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const { id, acceptId } = req.params;
+
+    const brokerRequest = await prisma.broker_requests.findUnique({
+      where: { id },
+      include: {
+        listingAgent: { select: { id: true, firstName: true, lastName: true, organizationId: true, agent_profiles: { select: { falLicenseNumber: true, falLicenseType: true, licenseNo: true } } } },
+        organization: { select: { tradeName: true } },
+        property: { select: { title: true, city: true, district: true, type: true, deedNumber: true, price: true } },
+      },
+    });
+    if (!brokerRequest) return res.status(404).json({ message: "الطلب غير موجود" });
+    if (brokerRequest.listingAgentId !== user.id) return res.status(403).json({ message: "فقط صاحب الطلب يمكنه إنشاء العقد" });
+
+    const acceptance = await prisma.broker_acceptances.findUnique({
+      where: { id: acceptId },
+      include: {
+        marketingAgent: { select: { id: true, firstName: true, lastName: true, organizationId: true, agent_profiles: { select: { falLicenseNumber: true, falLicenseType: true, licenseNo: true } } } },
+      },
+    });
+    if (!acceptance) return res.status(404).json({ message: "طلب التعاون غير موجود" });
+    if (acceptance.status !== "APPROVED") return res.status(400).json({ message: "يجب الموافقة على الطلب أولاً" });
+
+    // Generate agreement number
+    const count = await prisma.broker_acceptances.count({ where: { agreementNumber: { not: null } } });
+    const year = new Date().getFullYear();
+    const agreementNumber = `CBA-${year}-${String(count + 1).padStart(5, "0")}`;
+
+    const listingAgentProfile = brokerRequest.listingAgent.agent_profiles;
+    const marketingAgentProfile = acceptance.marketingAgent.agent_profiles;
+
+    const agreementTerms = JSON.stringify({
+      property: {
+        title: brokerRequest.property?.title || brokerRequest.title,
+        type: brokerRequest.propertyType || brokerRequest.property?.type,
+        city: brokerRequest.city || brokerRequest.property?.city,
+        district: brokerRequest.district || brokerRequest.property?.district,
+        deedNumber: brokerRequest.property?.deedNumber || null,
+        price: brokerRequest.price ? Number(brokerRequest.price) : null,
+      },
+      listingAgent: {
+        name: `${brokerRequest.listingAgent.firstName} ${brokerRequest.listingAgent.lastName}`,
+        falNumber: listingAgentProfile?.falLicenseNumber || listingAgentProfile?.licenseNo || null,
+        falType: listingAgentProfile?.falLicenseType || null,
+        organization: brokerRequest.organization?.tradeName || null,
+      },
+      marketingAgent: {
+        name: `${acceptance.marketingAgent.firstName} ${acceptance.marketingAgent.lastName}`,
+        falNumber: marketingAgentProfile?.falLicenseNumber || marketingAgentProfile?.licenseNo || null,
+        falType: marketingAgentProfile?.falLicenseType || null,
+        organization: null,
+      },
+      commission: {
+        totalRate: Number(brokerRequest.commissionRate),
+        type: brokerRequest.commissionType,
+        fixedAmount: brokerRequest.fixedCommission ? Number(brokerRequest.fixedCommission) : null,
+        agreedRate: acceptance.agreedRate ? Number(acceptance.agreedRate) : Number(brokerRequest.commissionRate),
+        listingAgentShare: Number(brokerRequest.commissionRate) / 2,
+        marketingAgentShare: (acceptance.agreedRate ? Number(acceptance.agreedRate) : Number(brokerRequest.commissionRate)) / 2,
+      },
+      duration: {
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+        daysValid: 90,
+      },
+    });
+
+    const updated = await prisma.broker_acceptances.update({
+      where: { id: acceptId },
+      data: {
+        agreementStatus: "PENDING_SIGNATURES",
+        agreementNumber,
+        agreementTerms,
+        agreementGeneratedAt: new Date(),
+      },
+    });
+
+    res.json(updated);
+  } catch (error) {
+    console.error("Error generating agreement:", error);
+    res.status(500).json({ message: "فشل إنشاء العقد" });
+  }
+});
+
+// ── PATCH /api/broker-requests/:id/acceptances/:acceptId/sign ───────────────
+
+router.patch("/:id/acceptances/:acceptId/sign", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const { id, acceptId } = req.params;
+
+    const acceptance = await prisma.broker_acceptances.findUnique({ where: { id: acceptId } });
+    if (!acceptance) return res.status(404).json({ message: "غير موجود" });
+    if (acceptance.agreementStatus !== "PENDING_SIGNATURES") return res.status(400).json({ message: "العقد ليس بانتظار التوقيع" });
+
+    const brokerRequest = await prisma.broker_requests.findUnique({ where: { id } });
+    if (!brokerRequest) return res.status(404).json({ message: "الطلب غير موجود" });
+
+    const isListingAgent = brokerRequest.listingAgentId === user.id;
+    const isMarketingAgent = acceptance.marketingAgentId === user.id;
+    if (!isListingAgent && !isMarketingAgent) return res.status(403).json({ message: "ليس لديك صلاحية التوقيع" });
+
+    const updateData: any = {};
+    if (isListingAgent && !acceptance.listingAgentSignedAt) {
+      updateData.listingAgentSignedAt = new Date();
+    }
+    if (isMarketingAgent && !acceptance.marketingAgentSignedAt) {
+      updateData.marketingAgentSignedAt = new Date();
+    }
+
+    // Check if both signed after this update
+    const willListingSigned = updateData.listingAgentSignedAt || acceptance.listingAgentSignedAt;
+    const willMarketingSigned = updateData.marketingAgentSignedAt || acceptance.marketingAgentSignedAt;
+    if (willListingSigned && willMarketingSigned) {
+      updateData.agreementStatus = "SIGNED";
+    }
+
+    const updated = await prisma.broker_acceptances.update({
+      where: { id: acceptId },
+      data: updateData,
+    });
+
+    res.json(updated);
+  } catch (error) {
+    console.error("Error signing agreement:", error);
+    res.status(500).json({ message: "فشل التوقيع" });
+  }
+});
+
+// ── GET /api/broker-requests/:id/acceptances/:acceptId/agreement ────────────
+
+router.get("/:id/acceptances/:acceptId/agreement", authenticateToken, async (req, res) => {
+  try {
+    const { acceptId } = req.params;
+
+    const acceptance = await prisma.broker_acceptances.findUnique({
+      where: { id: acceptId },
+      include: {
+        marketingAgent: {
+          select: { id: true, firstName: true, lastName: true, phone: true, agent_profiles: { select: { falLicenseNumber: true, falLicenseType: true, licenseNo: true } } },
+        },
+        brokerRequest: {
+          include: {
+            listingAgent: {
+              select: { id: true, firstName: true, lastName: true, phone: true, agent_profiles: { select: { falLicenseNumber: true, falLicenseType: true, licenseNo: true } } },
+            },
+            organization: { select: { tradeName: true } },
+            property: { select: { title: true, city: true, district: true, type: true, deedNumber: true, price: true } },
+          },
+        },
+      },
+    });
+
+    if (!acceptance) return res.status(404).json({ message: "غير موجود" });
+
+    res.json(acceptance);
+  } catch (error) {
+    console.error("Error fetching agreement:", error);
+    res.status(500).json({ message: "فشل تحميل العقد" });
   }
 });
 

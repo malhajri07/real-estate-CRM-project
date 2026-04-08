@@ -77,25 +77,37 @@ function getDealStage(deal: any): string {
   return typeof raw === "string" ? raw.toLowerCase().trim() : "";
 }
 
-// Dashboard metrics — scoped to the authenticated agent
+// Dashboard metrics — scoped by role and optional ?view= param
+// ?view=personal → always agent's own data (for CORP_AGENT personal cards)
+// ?view=org → org-wide data (for CORP_OWNER/CORP_AGENT aggregate cards)
+// Default: uses rbac scope (admin=global, corp=corporate, indiv=self)
 router.get("/dashboard/metrics", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
+    const viewParam = req.query.view as string | undefined;
     const scope = getVisibilityScope(user.roles);
 
-    // Build WHERE clauses based on agent's scope
     let leadsWhere: any = {};
     let dealsWhere: any = {};
     let propertiesWhere: any = {};
 
-    if (scope === "global") {
+    if (viewParam === "personal") {
+      // Force personal scope regardless of role
+      leadsWhere = { agentId: user.id };
+      dealsWhere = { agentId: user.id };
+      propertiesWhere = { agentId: user.id };
+    } else if (viewParam === "org" && user.organizationId) {
+      // Force org scope
+      leadsWhere = { organizationId: user.organizationId };
+      dealsWhere = { organizationId: user.organizationId };
+      propertiesWhere = { organizationId: user.organizationId };
+    } else if (scope === "global") {
       // Admin sees all
     } else if (scope === "corporate" && user.organizationId) {
       leadsWhere = { organizationId: user.organizationId };
       dealsWhere = { organizationId: user.organizationId };
       propertiesWhere = { organizationId: user.organizationId };
     } else {
-      // self — individual agent
       leadsWhere = { agentId: user.id };
       dealsWhere = { agentId: user.id };
       propertiesWhere = { agentId: user.id };
@@ -192,6 +204,62 @@ router.get("/dashboard/revenue-chart", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Revenue chart error:", error);
     res.status(500).json({ message: "Failed to fetch revenue chart data" });
+  }
+});
+
+// Agent leaderboard — CORP_OWNER sees top agents by deals/revenue
+router.get("/dashboard/leaderboard", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const roles = typeof user.roles === "string" ? JSON.parse(user.roles) : user.roles;
+
+    if (!roles.includes("CORP_OWNER") && !roles.includes("WEBSITE_ADMIN")) {
+      return res.status(403).json({ message: "صلاحيات غير كافية" });
+    }
+
+    const orgId = user.organizationId;
+    if (!orgId && !roles.includes("WEBSITE_ADMIN")) {
+      return res.json([]);
+    }
+
+    const agentWhere = orgId ? { organizationId: orgId, isActive: true } : { isActive: true };
+
+    const agents = await prisma.users.findMany({
+      where: agentWhere,
+      select: { id: true, firstName: true, lastName: true },
+      take: 50,
+    });
+
+    const agentIds = agents.map((a) => a.id);
+
+    const [dealCounts, wonCounts, revenues] = await Promise.all([
+      prisma.deals.groupBy({ by: ["agentId"], where: { agentId: { in: agentIds } }, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { agentId: { in: agentIds }, stage: "WON" }, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { agentId: { in: agentIds }, stage: "WON" }, _sum: { agreedPrice: true } }),
+    ]);
+
+    const dealMap = Object.fromEntries(dealCounts.map((r) => [r.agentId, r._count]));
+    const wonMap = Object.fromEntries(wonCounts.map((r) => [r.agentId, r._count]));
+    const revMap = Object.fromEntries(revenues.map((r) => [r.agentId, Number(r._sum.agreedPrice || 0)]));
+
+    const leaderboard = agents
+      .map((agent) => ({
+        id: agent.id,
+        name: `${agent.firstName} ${agent.lastName}`,
+        deals: dealMap[agent.id] || 0,
+        wonDeals: wonMap[agent.id] || 0,
+        revenue: revMap[agent.id] || 0,
+        conversionRate: (dealMap[agent.id] || 0) > 0
+          ? Math.round(((wonMap[agent.id] || 0) / (dealMap[agent.id] || 1)) * 100)
+          : 0,
+      }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+
+    res.json(leaderboard);
+  } catch (error) {
+    console.error("Leaderboard error:", error);
+    res.status(500).json({ message: "فشل تحميل ترتيب الوسطاء" });
   }
 });
 

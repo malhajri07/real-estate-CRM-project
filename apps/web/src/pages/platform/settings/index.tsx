@@ -1,424 +1,286 @@
 /**
- * settings/index.tsx - Workspace Settings Page
+ * settings/index.tsx — Agent Settings Page
  *
- * Route: /home/platform/settings or /settings
- *
- * Workspace settings page. Keeps all state here, delegates rendering to:
- *   - ProfileSection      — profile editing form
- *   - AccountSection      — password change / security
- *   - PreferencesSection  — notification preferences
+ * Two-column layout: sticky sidebar nav + content area.
+ * Profile summary card at top with completion %.
  */
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useRef } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, User, Save, ChevronDown } from "lucide-react";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { Separator } from "@/components/ui/separator";
-import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  User, Users, Briefcase, Building2, CreditCard, Shield, Bell,
+  ShieldCheck, AlertTriangle, CheckCircle, ChevronLeft,
+} from "lucide-react";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import PageHeader from "@/components/ui/page-header";
 import { SettingsSkeleton } from "@/components/skeletons/page-skeletons";
 import { apiGet, apiPut } from "@/lib/apiClient";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { cn } from "@/lib/utils";
 
 import ProfileSection from "./ProfileSection";
-import type { UserProfile } from "./ProfileSection";
+import ProfessionalSection from "./ProfessionalSection";
+import CompanySection from "./CompanySection";
+import PaymentsSection from "./PaymentsSection";
 import AccountSection from "./AccountSection";
 import PreferencesSection from "./PreferencesSection";
+import LeadRoutingSection from "./LeadRoutingSection";
 
-interface AccountDetails {
-  companyName: string;
-  businessType: string;
-  taxId: string;
-  website: string;
-  description: string;
-  address: string;
-  city: string;
-  country: string;
-  postalCode: string;
-  phone: string;
-  email: string;
-  contactPerson: string;
-  contactTitle: string;
-  contactPhone: string;
-  contactEmail: string;
+type SectionKey = "profile" | "professional" | "company" | "payments" | "security" | "notifications" | "lead-routing";
+
+const NAV_ITEMS: { key: SectionKey; icon: typeof User; label: string; corporateOnly?: boolean; ownerOnly?: boolean }[] = [
+  { key: "profile", icon: User, label: "الملف الشخصي" },
+  { key: "professional", icon: Briefcase, label: "المهني" },
+  { key: "company", icon: Building2, label: "الشركة", corporateOnly: true },
+  { key: "lead-routing", icon: Users, label: "توزيع العملاء", ownerOnly: true },
+  { key: "payments", icon: CreditCard, label: "المالية" },
+  { key: "security", icon: Shield, label: "الأمان" },
+  { key: "notifications", icon: Bell, label: "الإشعارات" },
+];
+
+function computeCompletion(userData: any): { percent: number; missing: string[] } {
+  const missing: string[] = [];
+  const checks = [
+    { ok: !!userData?.firstName && !!userData?.lastName, label: "الاسم الكامل" },
+    { ok: !!userData?.email, label: "البريد الإلكتروني" },
+    { ok: !!userData?.phone, label: "رقم الجوال" },
+    { ok: !!(userData?.metadata as any)?.whatsapp, label: "رقم واتساب" },
+    { ok: !!userData?.agent_profiles?.falLicenseNumber, label: "رخصة فال" },
+    { ok: !!userData?.agent_profiles?.bio, label: "نبذة مهنية" },
+    { ok: !!userData?.agent_profiles?.specialties, label: "التخصصات" },
+    { ok: !!userData?.agent_profiles?.territories, label: "مناطق الخدمة" },
+    { ok: !!(userData?.metadata as any)?.iban, label: "الآيبان" },
+    { ok: (userData?.agent_profiles?.experience ?? null) !== null, label: "سنوات الخبرة" },
+  ];
+  checks.forEach((c) => { if (!c.ok) missing.push(c.label); });
+  const done = checks.filter((c) => c.ok).length;
+  return { percent: Math.round((done / checks.length) * 100), missing };
 }
 
 export default function Settings() {
   const { toast } = useToast();
-  const { t, dir } = useLanguage();
   const showSkeleton = useMinLoadTime();
+  const queryClient = useQueryClient();
+  const [activeSection, setActiveSection] = useState<SectionKey>("profile");
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  const [accountDetails, setAccountDetails] = useState<AccountDetails>({
-    companyName: "",
-    businessType: "",
-    taxId: "",
-    website: "",
-    description: "",
-    address: "",
-    city: "",
-    country: "",
-    postalCode: "",
-    phone: "",
-    email: "",
-    contactPerson: "",
-    contactTitle: "",
-    contactPhone: "",
-    contactEmail: "",
+  const { data: userData, isLoading } = useQuery<any>({
+    queryKey: ["/api/auth/user"],
+    queryFn: () => apiGet("/api/auth/user"),
   });
 
-  const [userProfile, setUserProfile] = useState<UserProfile>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    title: "",
-    department: "",
-    avatar: "",
+  const isCorporate = !!userData?.organizationId;
+
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: any) => apiPut("/api/auth/user", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({ title: "تم الحفظ بنجاح", description: "تم تحديث الملف الشخصي" });
+    },
+    onError: () => toast({ title: "خطأ", description: "فشل تحديث الملف الشخصي", variant: "destructive" }),
   });
 
-  const [companyOpen, setCompanyOpen] = useState(true);
-  const [profileOpen, setProfileOpen] = useState(true);
-  const [securityOpen, setSecurityOpen] = useState(true);
-  const [notificationsOpen, setNotificationsOpen] = useState(true);
-  const [pageLoading, setPageLoading] = useState(true);
+  const updateAgentProfileMutation = useMutation({
+    mutationFn: (data: any) => apiPut("/api/auth/agent-profile", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      toast({ title: "تم الحفظ بنجاح" });
+    },
+    onError: () => toast({ title: "خطأ", description: "فشل التحديث", variant: "destructive" }),
+  });
 
-  // Load user profile and organization data from API on mount
-  useEffect(() => {
-    (async () => {
-      try {
-        const data: any = await apiGet("/api/auth/user");
-        if (data) {
-          setUserProfile({
-            firstName: data.firstName || "",
-            lastName: data.lastName || "",
-            email: data.email || "",
-            phone: data.phone || "",
-            title: data.jobTitle || "",
-            department: data.department || "",
-            avatar: data.avatarUrl || "",
-          });
-          // Load organization data for company section
-          const org = data.organization;
-          if (org) {
-            setAccountDetails({
-              companyName: org.tradeName || org.legalName || "",
-              businessType: org.industry || "",
-              taxId: org.licenseNo || "",
-              website: org.website || "",
-              description: "",
-              address: org.address || "",
-              city: "",
-              country: "",
-              postalCode: "",
-              phone: org.phone || "",
-              email: org.email || "",
-              contactPerson: data.firstName ? `${data.firstName} ${data.lastName || ""}`.trim() : "",
-              contactTitle: data.jobTitle || "",
-              contactPhone: data.phone || "",
-              contactEmail: data.email || "",
-            });
-          }
-        }
-      } catch {
-        // Silently fall back to empty profile — user can fill in manually
-      } finally {
-        setPageLoading(false);
-      }
-    })();
-  }, []);
-
-  const handleAccountSave = () => {
-    toast({
-      title: "تم الحفظ بنجاح",
-      description: "تم تحديث تفاصيل الحساب بنجاح",
-      variant: "default",
-    });
-  };
-
-  // handleProfileSave is now inlined on the ProfileSection component (see JSX below)
-
-  if (pageLoading || showSkeleton) {
+  if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
-        <PageHeader title={t("الإعدادات")} subtitle={t("إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد")} />
+        <PageHeader title="الإعدادات" subtitle="إدارة ملفك الشخصي، بياناتك المهنية، والأمان" />
         <SettingsSkeleton />
       </div>
     );
   }
 
+  const { percent, missing } = computeCompletion(userData);
+  const initials = `${(userData?.firstName || "")[0] || ""}${(userData?.lastName || "")[0] || ""}`;
+  const fullName = `${userData?.firstName || ""} ${userData?.lastName || ""}`.trim();
+  const agentProfile = userData?.agent_profiles;
+  const hasFal = !!agentProfile?.falLicenseNumber;
+
+  const userRoles: string[] = Array.isArray(userData?.roles)
+    ? userData.roles
+    : typeof userData?.roles === "string"
+      ? (() => { try { return JSON.parse(userData.roles); } catch { return []; } })()
+      : [];
+  const isOwner = userRoles.includes("CORP_OWNER") || userRoles.includes("WEBSITE_ADMIN");
+  const navItems = NAV_ITEMS.filter((item) => {
+    if (item.corporateOnly && !isCorporate) return false;
+    if (item.ownerOnly && !isOwner) return false;
+    return true;
+  });
+
+  const handleNavClick = (key: SectionKey) => {
+    setActiveSection(key);
+    contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className={PAGE_WRAPPER}>
-      <section className="space-y-6">
-        <PageHeader title={t("الإعدادات")} subtitle={t("إدارة بيانات الشركة، الملف الشخصي، والأمان والإشعارات من مكان واحد")}>
-          <Button size="sm" onClick={handleAccountSave}>
-            <Save size={16} className="me-2" /> حفظ التغييرات
-          </Button>
-        </PageHeader>
+      <PageHeader title="الإعدادات" subtitle="إدارة ملفك الشخصي، بياناتك المهنية، والأمان" />
 
-        <div className="grid gap-6">
-          {/* Company Info — kept inline as it was not requested for extraction */}
-          <Collapsible open={companyOpen} onOpenChange={setCompanyOpen}>
-            <Card>
-              <CardHeader className="pb-5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="rounded-full bg-primary/10 p-2 text-primary"><Building2 size={18} /></span>
-                  <div className="text-end">
-                    <CardTitle>معلومات الشركة</CardTitle>
-                    <CardDescription>تفاصيل النشاط التجاري وقنوات التواصل الرسمية</CardDescription>
-                  </div>
-                </div>
-                <CollapsibleTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full border border-border bg-card p-2 text-muted-foreground transition hover:text-foreground/80"
-                    aria-label="تبديل عرض معلومات الشركة"
-                  >
-                    <ChevronDown className={`h-4 w-4 transition-transform ${companyOpen ? "rotate-180" : ""}`} />
-                  </Button>
-                </CollapsibleTrigger>
-              </CardHeader>
-              <CollapsibleContent>
-                <CardContent className="space-y-6 pt-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="companyName" className="block text-sm font-medium text-foreground/80">اسم الشركة</Label>
-                        <Input
-                          id="companyName"
-                          className="text-subtle"
-                          value={accountDetails.companyName}
-                          onChange={(e) => setAccountDetails({ ...accountDetails, companyName: e.target.value })}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="businessType" className="block text-sm font-medium text-foreground/80">نوع النشاط</Label>
-                        <Select value={accountDetails.businessType} onValueChange={(value) => setAccountDetails({ ...accountDetails, businessType: value })}>
-                          <SelectTrigger className="text-subtle">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent position="popper" sideOffset={4}>
-                            <SelectItem value="تطوير عقاري">تطوير عقاري</SelectItem>
-                            <SelectItem value="وساطة عقارية">وساطة عقارية</SelectItem>
-                            <SelectItem value="إدارة عقارات">إدارة عقارات</SelectItem>
-                            <SelectItem value="استثمار عقاري">استثمار عقاري</SelectItem>
-                            <SelectItem value="تقييم عقاري">تقييم عقاري</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="taxId" className="block text-sm font-medium text-foreground/80">الرقم الضريبي</Label>
-                          <Input
-                            id="taxId"
-                            className="text-subtle"
-                            value={accountDetails.taxId}
-                            onChange={(e) => setAccountDetails({ ...accountDetails, taxId: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="website" className="block text-sm font-medium text-foreground/80">الموقع الإلكتروني</Label>
-                          <Input
-                            id="website"
-                            type="url"
-                            className="text-subtle"
-                            value={accountDetails.website}
-                            onChange={(e) => setAccountDetails({ ...accountDetails, website: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="description" className="block text-sm font-medium text-foreground/80">وصف الشركة</Label>
-                        <Textarea
-                          id="description"
-                          rows={3}
-                          className="text-subtle"
-                          value={accountDetails.description}
-                          onChange={(e) => setAccountDetails({ ...accountDetails, description: e.target.value })}
-                        />
-                      </div>
-                    </div>
+      {/* ── Profile Summary Card ── */}
+      <Card className="bg-primary/5 border-primary/10">
+        <CardContent className="p-5">
+          <div className="flex items-center gap-5">
+            <Avatar className="h-16 w-16 border-2 border-primary/20">
+              <AvatarImage src={userData?.avatarUrl} />
+              <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h2 className="text-lg font-bold truncate">{fullName || "بدون اسم"}</h2>
+                {hasFal ? (
+                  <Badge variant="outline" className="gap-1 border-primary/30 text-primary shrink-0">
+                    <ShieldCheck size={12} />
+                    فال
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="gap-1 border-[hsl(var(--warning)/0.3)] text-[hsl(var(--warning))] shrink-0">
+                    <AlertTriangle size={12} />
+                    بدون فال
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground truncate">
+                {userData?.email} {userData?.jobTitle ? `· ${userData.jobTitle}` : ""}
+              </p>
+              <div className="flex items-center gap-3 mt-2.5">
+                <Progress value={percent} className="h-2 flex-1 max-w-xs" />
+                <span className={cn("text-xs font-bold tabular-nums", percent === 100 ? "text-primary" : "text-muted-foreground")}>
+                  {percent}%
+                </span>
+              </div>
+              {missing.length > 0 && missing.length <= 3 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  ينقصك: {missing.join("، ")}
+                </p>
+              )}
+              {missing.length > 3 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  ينقصك {missing.length} عناصر لإكمال ملفك
+                </p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="address" className="block text-sm font-medium text-foreground/80">العنوان</Label>
-                        <Input
-                          id="address"
-                          className="text-subtle"
-                          value={accountDetails.address}
-                          onChange={(e) => setAccountDetails({ ...accountDetails, address: e.target.value })}
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="city" className="block text-sm font-medium text-foreground/80">المدينة</Label>
-                          <Input
-                            id="city"
-                            className="text-subtle"
-                            value={accountDetails.city}
-                            onChange={(e) => setAccountDetails({ ...accountDetails, city: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="postalCode" className="block text-sm font-medium text-foreground/80">الرمز البريدي</Label>
-                          <Input
-                            id="postalCode"
-                            className="text-subtle"
-                            value={accountDetails.postalCode}
-                            onChange={(e) => setAccountDetails({ ...accountDetails, postalCode: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="country" className="block text-sm font-medium text-foreground/80">البلد</Label>
-                        <Select value={accountDetails.country} onValueChange={(value) => setAccountDetails({ ...accountDetails, country: value })}>
-                          <SelectTrigger className="text-subtle">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent position="popper" sideOffset={4}>
-                            <SelectItem value="المملكة العربية السعودية">المملكة العربية السعودية</SelectItem>
-                            <SelectItem value="الإمارات العربية المتحدة">الإمارات العربية المتحدة</SelectItem>
-                            <SelectItem value="الكويت">الكويت</SelectItem>
-                            <SelectItem value="قطر">قطر</SelectItem>
-                            <SelectItem value="البحرين">البحرين</SelectItem>
-                            <SelectItem value="عمان">عمان</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="phone" className="block text-sm font-medium text-foreground/80">هاتف الشركة</Label>
-                          <Input
-                            id="phone"
-                            type="tel"
-                            className="text-subtle"
-                            value={accountDetails.phone}
-                            onChange={(e) => setAccountDetails({ ...accountDetails, phone: e.target.value })}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="email" className="block text-sm font-medium text-foreground/80">البريد الإلكتروني للشركة</Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            className="text-subtle"
-                            value={accountDetails.email}
-                            onChange={(e) => setAccountDetails({ ...accountDetails, email: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Card>
-                    <CardHeader className="pb-4 border-b border-dashed border-border">
-                      <div className="flex items-center gap-3">
-                        <span className="rounded-full bg-primary/10 p-2 text-primary"><User size={18} /></span>
-                        <div>
-                          <CardTitle>جهة الاتصال الرئيسية</CardTitle>
-                          <CardDescription>بيانات الشخص المسؤول عن إدارة الحساب</CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-6">
-                      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="contactPerson" className="block text-sm font-medium text-foreground/80">الاسم الكامل</Label>
-                          <Input
-                            id="contactPerson"
-                            className="text-subtle"
-                            value={accountDetails.contactPerson}
-                            onChange={(e) => setAccountDetails({ ...accountDetails, contactPerson: e.target.value })}
-                            data-testid="input-contact-person"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="contactTitle" className="block text-sm font-medium text-foreground/80">المسمى الوظيفي</Label>
-                          <Input
-                            id="contactTitle"
-                            className="text-subtle"
-                            value={accountDetails.contactTitle}
-                            onChange={(e) => setAccountDetails({ ...accountDetails, contactTitle: e.target.value })}
-                            data-testid="input-contact-title"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="contactPhone" className="block text-sm font-medium text-foreground/80">رقم الهاتف</Label>
-                          <Input
-                            id="contactPhone"
-                            type="tel"
-                            className="text-subtle"
-                            value={accountDetails.contactPhone}
-                            onChange={(e) => setAccountDetails({ ...accountDetails, contactPhone: e.target.value })}
-                            data-testid="input-contact-phone"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="contactEmail" className="block text-sm font-medium text-foreground/80">البريد الإلكتروني</Label>
-                          <Input
-                            id="contactEmail"
-                            type="email"
-                            className="text-subtle"
-                            value={accountDetails.contactEmail}
-                            onChange={(e) => setAccountDetails({ ...accountDetails, contactEmail: e.target.value })}
-                            data-testid="input-contact-email"
-                          />
-                        </div>
-                      </div>
-                      <div className="mt-6 flex justify-start">
-                        <Button onClick={handleAccountSave} className="flex items-center gap-2" data-testid="button-save-account">
-                          <Save size={16} />
-                          حفظ تفاصيل الحساب
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-
-          <Separator />
-
-          <ProfileSection
-            userProfile={userProfile}
-            onSave={async (values) => {
-              try {
-                await apiPut("/api/auth/user", {
-                  firstName: values.firstName,
-                  lastName: values.lastName,
-                  email: values.email,
-                  phone: values.phone,
-                  jobTitle: values.title,
-                  department: values.department,
-                });
-                setUserProfile(prev => ({ ...prev, ...values }));
-                toast({ title: "تم الحفظ بنجاح", description: "تم تحديث الملف الشخصي" });
-              } catch {
-                toast({ title: "خطأ", description: "فشل تحديث الملف الشخصي", variant: "destructive" });
-              }
-            }}
-            isOpen={profileOpen}
-            onOpenChange={setProfileOpen}
-          />
-
-          <Separator />
-
-          <AccountSection isOpen={securityOpen} onOpenChange={setSecurityOpen} />
-
-          <Separator />
-
-          <PreferencesSection isOpen={notificationsOpen} onOpenChange={setNotificationsOpen} />
+      {/* ── Mobile Tab Bar ── */}
+      <div className="md:hidden mt-4">
+        <div className="flex overflow-x-auto gap-1 pb-3 mb-4 border-b border-border">
+          {navItems.map((item) => (
+            <Button
+              key={item.key}
+              size="sm"
+              variant={activeSection === item.key ? "default" : "ghost"}
+              className="shrink-0 gap-1.5 h-9"
+              onClick={() => handleNavClick(item.key)}
+            >
+              <item.icon size={14} />
+              {item.label}
+            </Button>
+          ))}
         </div>
-      </section>
+      </div>
+
+      {/* ── Two Column Layout ── */}
+      <div className="flex gap-6 mt-2 md:mt-6">
+        {/* Sidebar Nav — desktop only */}
+        <nav className="w-52 shrink-0 hidden md:block">
+          <div className="sticky top-4 space-y-1">
+            {navItems.map((item) => {
+              const isActive = activeSection === item.key;
+              return (
+                <button
+                  key={item.key}
+                  onClick={() => handleNavClick(item.key)}
+                  className={cn(
+                    "w-full flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors text-start",
+                    isActive
+                      ? "bg-primary text-primary-foreground font-bold"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <item.icon size={16} />
+                  {item.label}
+                  {isActive && <ChevronLeft size={14} className="ms-auto" />}
+                </button>
+              );
+            })}
+
+            {/* Completion checklist in sidebar */}
+            {percent < 100 && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-xs font-bold text-muted-foreground mb-2 px-3">أكمل ملفك</p>
+                <div className="space-y-1.5 px-3">
+                  {missing.slice(0, 4).map((item) => (
+                    <div key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--warning))]" />
+                      {item}
+                    </div>
+                  ))}
+                  {missing.length > 4 && (
+                    <p className="text-xs text-muted-foreground">+{missing.length - 4} أخرى</p>
+                  )}
+                </div>
+              </div>
+            )}
+            {percent === 100 && (
+              <div className="mt-4 pt-4 border-t border-border px-3">
+                <div className="flex items-center gap-2 text-xs text-primary">
+                  <CheckCircle size={14} />
+                  <span className="font-bold">ملفك مكتمل</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </nav>
+
+        {/* Content Area */}
+        <div ref={contentRef} className="flex-1 min-w-0">
+          {activeSection === "profile" && (
+            <ProfileSection
+              userData={userData}
+              onSave={(data: any) => updateProfileMutation.mutate(data)}
+              isSaving={updateProfileMutation.isPending}
+            />
+          )}
+          {activeSection === "professional" && (
+            <ProfessionalSection
+              agentProfile={agentProfile}
+              userMetadata={userData?.metadata}
+              onSave={(data: any) => updateAgentProfileMutation.mutate(data)}
+              isSaving={updateAgentProfileMutation.isPending}
+            />
+          )}
+          {activeSection === "company" && isCorporate && (
+            <CompanySection organization={userData?.organization} />
+          )}
+          {activeSection === "payments" && (
+            <PaymentsSection
+              userMetadata={userData?.metadata}
+              onSave={(data: any) => updateAgentProfileMutation.mutate(data)}
+              isSaving={updateAgentProfileMutation.isPending}
+            />
+          )}
+          {activeSection === "security" && <AccountSection />}
+          {activeSection === "notifications" && <PreferencesSection />}
+          {activeSection === "lead-routing" && isOwner && <LeadRoutingSection />}
+        </div>
+      </div>
     </div>
   );
 }

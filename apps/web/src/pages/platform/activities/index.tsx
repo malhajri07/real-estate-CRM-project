@@ -19,7 +19,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import EmptyState from "@/components/ui/empty-state";
 import PageHeader from "@/components/ui/page-header";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
-import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { ActivitiesSkeleton } from "@/components/skeletons/page-skeletons";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
@@ -52,8 +52,7 @@ export default function Activities() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [detailActivity, setDetailActivity] = useState<Activity | null>(null);
-  const { t, language } = useLanguage();
-  const isAr = language === "ar";
+  const { language } = useLanguage();
   const [, setLocation] = useLocation();
   const showSkeleton = useMinLoadTime();
   const { toast } = useToast();
@@ -129,7 +128,7 @@ export default function Activities() {
   if (isError) {
     return (
       <div className={PAGE_WRAPPER}>
-        <PageHeader title={isAr ? "الأنشطة" : "Activities"} />
+        <PageHeader title="الأنشطة" />
         <QueryErrorFallback message="فشل تحميل الأنشطة" onRetry={() => refetch()} />
       </div>
     );
@@ -138,31 +137,28 @@ export default function Activities() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
-        <PageHeader title={isAr ? "الأنشطة" : "Activities"} />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => <Card key={i}><CardContent className="p-4"><Skeleton className="h-10 w-full" /></CardContent></Card>)}
-        </div>
-        <TableSkeleton rows={6} cols={6} />
+        <PageHeader title="الأنشطة" />
+        <ActivitiesSkeleton />
       </div>
     );
   }
 
   return (
     <div className={PAGE_WRAPPER}>
-      <PageHeader title={isAr ? "الأنشطة" : "Activities"} subtitle={isAr ? "تتبع المكالمات والاجتماعات والمعاينات" : "Track calls, meetings, and viewings"}>
+      <PageHeader title="الأنشطة" subtitle="تتبع المكالمات والاجتماعات والمعاينات">
         <Button size="sm" onClick={() => { form.reset(); setIsCreateOpen(true); }}>
           <Plus className="me-1.5" size={16} />
-          {isAr ? "نشاط جديد" : "New Activity"}
+          نشاط جديد
         </Button>
       </PageHeader>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: isAr ? "الإجمالي" : "Total", value: total, icon: FileText },
-          { label: isAr ? "مكتمل" : "Completed", value: completed, icon: Check },
-          { label: isAr ? "قيد الانتظار" : "Pending", value: pending, icon: Clock },
-          { label: isAr ? "اليوم" : "Today", value: todayCount, icon: CalendarDays },
+          { label: "الإجمالي", value: total, icon: FileText },
+          { label: "مكتمل", value: completed, icon: Check },
+          { label: "قيد الانتظار", value: pending, icon: Clock },
+          { label: "اليوم", value: todayCount, icon: CalendarDays },
         ].map((s, i) => (
           <Card key={i}>
             <CardContent className="p-4 flex items-center gap-3">
@@ -182,19 +178,19 @@ export default function Activities() {
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder={isAr ? "بحث..." : "Search..."} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="ps-9" />
+          <Input placeholder="بحث..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="ps-9" />
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="gap-1.5 h-8">
               <Filter className="h-3.5 w-3.5" />
-              {typeFilter === "all" ? (isAr ? "النوع" : "Type") : getTypeInfo(typeFilter).label}
+              {typeFilter === "all" ? "النوع" : getTypeInfo(typeFilter).label}
               <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setTypeFilter("all")}>{isAr ? "الكل" : "All"}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setTypeFilter("all")}>الكل</DropdownMenuItem>
             {ACTIVITY_TYPES.map(t => <DropdownMenuItem key={t.value} onClick={() => setTypeFilter(t.value)}>{t.label}</DropdownMenuItem>)}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -202,24 +198,24 @@ export default function Activities() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="gap-1.5 h-8">
-              {statusFilter === "all" ? (isAr ? "الحالة" : "Status") : statusFilter === "completed" ? (isAr ? "مكتمل" : "Done") : (isAr ? "قيد الانتظار" : "Pending")}
+              {statusFilter === "all" ? "الحالة" : statusFilter === "completed" ? "مكتمل" : "قيد الانتظار"}
               <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => setStatusFilter("all")}>{isAr ? "الكل" : "All"}</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter("completed")}>{isAr ? "مكتمل" : "Completed"}</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setStatusFilter("pending")}>{isAr ? "قيد الانتظار" : "Pending"}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setStatusFilter("all")}>الكل</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setStatusFilter("completed")}>مكتمل</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setStatusFilter("pending")}>قيد الانتظار</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
         {activeFilters > 0 && (
           <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-destructive" onClick={() => { setTypeFilter("all"); setStatusFilter("all"); }}>
-            <X className="h-3 w-3" />{isAr ? "مسح" : "Clear"}
+            <X className="h-3 w-3" />مسح
           </Button>
         )}
 
-        <span className="ms-auto text-xs text-muted-foreground">{filtered.length} {isAr ? "نشاط" : "activities"}</span>
+        <span className="ms-auto text-xs text-muted-foreground">{filtered.length} نشاط</span>
       </div>
 
       {/* Table */}
@@ -227,9 +223,9 @@ export default function Activities() {
         <CardContent className="pt-6">
           {filtered.length === 0 ? (
             <EmptyState
-              title={searchQuery ? (isAr ? "لا توجد نتائج" : "No results") : (isAr ? "لا توجد أنشطة" : "No activities")}
-              description={!searchQuery ? (isAr ? "أضف نشاطك الأول" : "Add your first activity") : undefined}
-              action={!searchQuery ? <Button onClick={() => setIsCreateOpen(true)}><Plus className="me-2" size={16} />{isAr ? "إضافة نشاط" : "Add Activity"}</Button> : undefined}
+              title={searchQuery ? "لا توجد نتائج" : "لا توجد أنشطة"}
+              description={!searchQuery ? "أضف نشاطك الأول" : undefined}
+              action={!searchQuery ? <Button onClick={() => setIsCreateOpen(true)}><Plus className="me-2" size={16} />إضافة نشاط</Button> : undefined}
             />
           ) : (
             <div className="overflow-x-auto">
@@ -237,11 +233,11 @@ export default function Activities() {
                 <TableHeader className="bg-muted/50">
                   <TableRow>
                     <TableHead className="w-[60px]"></TableHead>
-                    <TableHead>{isAr ? "النوع" : "Type"}</TableHead>
-                    <TableHead>{isAr ? "العنوان" : "Title"}</TableHead>
-                    <TableHead>{isAr ? "العميل" : "Customer"}</TableHead>
-                    <TableHead>{isAr ? "التاريخ" : "Date"}</TableHead>
-                    <TableHead>{isAr ? "الحالة" : "Status"}</TableHead>
+                    <TableHead>النوع</TableHead>
+                    <TableHead>العنوان</TableHead>
+                    <TableHead>العميل</TableHead>
+                    <TableHead>التاريخ</TableHead>
+                    <TableHead>الحالة</TableHead>
                     <TableHead className="w-[60px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -263,7 +259,7 @@ export default function Activities() {
                                 <Check className={cn("w-4 h-4", activity.completed && "text-primary")} />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>{activity.completed ? (isAr ? "إلغاء" : "Undo") : (isAr ? "إكمال" : "Complete")}</TooltipContent>
+                            <TooltipContent>{activity.completed ? "إلغاء" : "إكمال"}</TooltipContent>
                           </Tooltip>
                         </TableCell>
                         <TableCell>
@@ -278,7 +274,7 @@ export default function Activities() {
                         </TableCell>
                         <TableCell>
                           <Badge variant={activity.completed ? "default" : "secondary"}>
-                            {activity.completed ? (isAr ? "مكتمل" : "Done") : (isAr ? "انتظار" : "Pending")}
+                            {activity.completed ? "مكتمل" : "انتظار"}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -314,27 +310,27 @@ export default function Activities() {
                 <div className="py-4 max-w-lg mx-auto space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-xs text-muted-foreground">{isAr ? "العميل" : "Customer"}</p>
+                      <p className="text-xs text-muted-foreground">العميل</p>
                       <p className="font-bold text-sm">{getLeadName((detailActivity as any).leadId)}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">{isAr ? "الحالة" : "Status"}</p>
+                      <p className="text-xs text-muted-foreground">الحالة</p>
                       <Badge variant={detailActivity.completed ? "default" : "secondary"}>
-                        {detailActivity.completed ? (isAr ? "مكتمل" : "Done") : (isAr ? "قيد الانتظار" : "Pending")}
+                        {detailActivity.completed ? "مكتمل" : "قيد الانتظار"}
                       </Badge>
                     </div>
                   </div>
 
                   {detailActivity.description && (
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">{isAr ? "الوصف" : "Description"}</p>
+                      <p className="text-xs text-muted-foreground mb-1">الوصف</p>
                       <p className="text-sm bg-muted/30 rounded-xl p-3">{detailActivity.description}</p>
                     </div>
                   )}
 
                   {(detailActivity as any).notes && (
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">{isAr ? "ملاحظات" : "Notes"}</p>
+                      <p className="text-xs text-muted-foreground mb-1">ملاحظات</p>
                       <p className="text-sm bg-muted/30 rounded-xl p-3">{(detailActivity as any).notes}</p>
                     </div>
                   )}
@@ -342,13 +338,13 @@ export default function Activities() {
                   {/* Cross-page navigation */}
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => { setDetailActivity(null); setLocation("/home/platform/leads"); }}>
-                      <Users className="h-3.5 w-3.5" /> {isAr ? "العملاء" : "Leads"}
+                      <Users className="h-3.5 w-3.5" /> "العملاء
                     </Button>
                     <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => { setDetailActivity(null); setLocation("/home/platform/calendar"); }}>
-                      <CalendarDays className="h-3.5 w-3.5" /> {isAr ? "التقويم" : "Calendar"}
+                      <CalendarDays className="h-3.5 w-3.5" /> التقويم
                     </Button>
                     <Button variant="outline" size="sm" className="flex-1 gap-1.5" onClick={() => { setDetailActivity(null); setLocation("/home/platform/pipeline"); }}>
-                      <FileText className="h-3.5 w-3.5" /> {isAr ? "المسار" : "Pipeline"}
+                      <FileText className="h-3.5 w-3.5" /> المسار
                     </Button>
                   </div>
 
@@ -360,7 +356,7 @@ export default function Activities() {
                       onClick={() => { toggleCompleteMutation.mutate(detailActivity.id); setDetailActivity(null); }}
                     >
                       <Check className="h-4 w-4" />
-                      {detailActivity.completed ? (isAr ? "إلغاء الإكمال" : "Mark Pending") : (isAr ? "إكمال" : "Complete")}
+                      {detailActivity.completed ? "إلغاء الإكمال" : "إكمال"}
                     </Button>
                     <Button
                       variant="outline"
@@ -369,7 +365,7 @@ export default function Activities() {
                       disabled={deleteMutation.isPending}
                     >
                       <Trash2 className="h-4 w-4" />
-                      {isAr ? "حذف" : "Delete"}
+                      حذف
                     </Button>
                   </div>
                 </div>
@@ -383,15 +379,15 @@ export default function Activities() {
       <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <SheetContent side="bottom">
           <SheetHeader>
-            <SheetTitle>{isAr ? "نشاط جديد" : "New Activity"}</SheetTitle>
-            <SheetDescription>{isAr ? "سجّل مكالمة، اجتماع، معاينة، أو ملاحظة" : "Log a call, meeting, viewing, or note"}</SheetDescription>
+            <SheetTitle>نشاط جديد</SheetTitle>
+            <SheetDescription>سجّل مكالمة، اجتماع، معاينة، أو ملاحظة</SheetDescription>
           </SheetHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit((data) => createMutation.mutate(data))} className="space-y-4 py-4 max-w-lg mx-auto">
               {/* Activity Type */}
               <FormField control={form.control} name="type" render={() => (
                 <FormItem>
-                  <FormLabel>{isAr ? "نوع النشاط" : "Type"}</FormLabel>
+                  <FormLabel>نوع النشاط</FormLabel>
                   <div className="flex flex-wrap gap-2">
                     {ACTIVITY_TYPES.map((at) => {
                       const Icon = at.icon;
@@ -409,11 +405,11 @@ export default function Activities() {
               {/* Lead selector */}
               <FormField control={form.control} name="leadId" render={() => (
                 <FormItem>
-                  <FormLabel>{isAr ? "العميل" : "Customer"} *</FormLabel>
+                  <FormLabel>العميل *</FormLabel>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button type="button" variant="outline" className="w-full justify-between h-10 font-normal">
-                        {form.watch("leadId") ? (() => { const l = leads?.find(l => l.id === form.watch("leadId")); return l ? `${l.firstName} ${l.lastName}` : "عميل محدد"; })() : (isAr ? "اختر العميل..." : "Select customer...")}
+                        {form.watch("leadId") ? (() => { const l = leads?.find(l => l.id === form.watch("leadId")); return l ? `${l.firstName} ${l.lastName}` : "عميل محدد"; })() : "اختر العميل..."}
                         <ChevronDown className="h-4 w-4 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -433,14 +429,14 @@ export default function Activities() {
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="title" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isAr ? "العنوان" : "Title"} *</FormLabel>
-                    <FormControl><Input {...field} placeholder={isAr ? "متابعة عرض الشقة" : "Follow up on viewing"} /></FormControl>
+                    <FormLabel>العنوان *</FormLabel>
+                    <FormControl><Input {...field} placeholder="متابعة عرض الشقة" /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="scheduledDate" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{isAr ? "التاريخ المحدد" : "Scheduled Date"}</FormLabel>
+                    <FormLabel>التاريخ المحدد</FormLabel>
                     <FormControl><Input {...field} type="datetime-local" /></FormControl>
                   </FormItem>
                 )} />
@@ -449,15 +445,15 @@ export default function Activities() {
               {/* Notes */}
               <FormField control={form.control} name="notes" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{isAr ? "ملاحظات" : "Notes"}</FormLabel>
-                  <FormControl><Textarea {...field} placeholder={isAr ? "تفاصيل إضافية..." : "Additional details..."} rows={2} /></FormControl>
+                  <FormLabel>ملاحظات</FormLabel>
+                  <FormControl><Textarea {...field} placeholder="تفاصيل إضافية..." rows={2} /></FormControl>
                 </FormItem>
               )} />
 
               <SheetFooter>
-                <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>{isAr ? "إلغاء" : "Cancel"}</Button>
+                <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>إلغاء</Button>
                 <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? "..." : (isAr ? "حفظ النشاط" : "Save")}
+                  {createMutation.isPending ? "..." : "حفظ النشاط"}
                 </Button>
               </SheetFooter>
             </form>

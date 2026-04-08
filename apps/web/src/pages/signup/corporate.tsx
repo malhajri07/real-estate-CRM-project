@@ -244,13 +244,12 @@ export default function SignupCorporate() {
 
   return (
     <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden">
-      <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
-      <PublicHeader />
+            <PublicHeader />
 
       <main className="relative pt-32 pb-20 px-4">
         {/* Background Blobs */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-accent0/10 blur-[100px] rounded-full pointer-events-none" />
+
+
 
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
@@ -262,8 +261,8 @@ export default function SignupCorporate() {
               <Building2 className="w-4 h-4" />
               <span>تسجيل منشأة عقارية</span>
             </span>
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-              ابدأ رحلة النجاح مع <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary">حساب مؤسسي</span>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight">
+              ابدأ رحلة النجاح مع <span className="text-primary">حساب مؤسسي</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
               خطوات بسيطة لتسجيل منشأتك والبدء في إدارة أعمالك العقارية باحترافية.
@@ -278,7 +277,7 @@ export default function SignupCorporate() {
               transition={{ delay: 0.1 }}
               className="lg:col-span-3 lg:sticky lg:top-32"
             >
-              <div className="glass rounded-2xl p-6 shadow-xl">
+              <div className="rounded-xl border bg-card p-6 shadow-sm">
                 <div className="flex flex-row lg:flex-col items-start gap-4 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
                   {STEPS.map((step, index) => {
                     const isCompleted = completedSteps.includes(step.id);
@@ -322,7 +321,7 @@ export default function SignupCorporate() {
                           <div className="text-xs text-muted-foreground/70">{step.description}</div>
                         </div>
                         {index < STEPS.length - 1 && (
-                          <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-slate-200 -z-10" />
+                          <div className="hidden lg:block absolute end-[23px] top-[48px] h-8 w-0.5 bg-border -z-10" />
                         )}
                       </div>
                     );
@@ -340,7 +339,7 @@ export default function SignupCorporate() {
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="glass rounded-2xl p-8 md:p-12 shadow-2xl space-y-8"
+                  className="rounded-xl border bg-card p-8 md:p-12 shadow-md space-y-8"
                 >
                   {/* Step 1: Account Credentials */}
                   {currentStep === 1 && (

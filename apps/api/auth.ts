@@ -216,13 +216,7 @@ export async function comparePassword(password: string, hash: string): Promise<b
       });
       return false;
     }
-    console.log('comparePassword: Comparing password', { 
-      passwordLength: password.length, 
-      hashLength: hash.length,
-      hashPrefix: hash.substring(0, 20) 
-    });
     const result = await bcrypt.compare(password, hash);
-    console.log('comparePassword result:', result);
     return result;
   } catch (error) {
     console.error('comparePassword error:', error);
@@ -239,16 +233,13 @@ export async function login(identifier: string, password: string): Promise<{
   message?: string;
 }> {
   try {
-    console.log('Login function called:', { identifier: identifier.substring(0, 20), passwordLength: password.length });
     
     const normalizedIdentifier = identifier.trim();
     if (!normalizedIdentifier) {
-      console.log('Login failed: empty identifier');
       return { success: false, message: 'Invalid credentials' };
     }
 
     const lookupIdentifier = normalizedIdentifier.toLowerCase();
-    console.log('Looking up user with identifier:', lookupIdentifier);
 
     // Try to find by username first, then by email for compatibility
     let user = null;
@@ -257,7 +248,6 @@ export async function login(identifier: string, password: string): Promise<{
       user = await prisma.users.findUnique({
         where: { username: lookupIdentifier }
       });
-      console.log('Username query result:', user ? `Found user: ${user.username}` : 'No user found');
     } catch (error) {
       console.error('Error querying by username:', error);
     }
@@ -269,7 +259,6 @@ export async function login(identifier: string, password: string): Promise<{
           user = await prisma.users.findUnique({
             where: { email: lookupIdentifier }
           });
-          console.log('Email query result:', user ? `Found user: ${user.username}` : 'No user found');
         }
       } catch (error) {
         console.error('Error querying by email:', error);
@@ -277,28 +266,20 @@ export async function login(identifier: string, password: string): Promise<{
     }
 
     if (!user) {
-      console.log('Login failed: user not found');
       return { success: false, message: 'Invalid credentials' };
     }
 
     if (!user.isActive) {
-      console.log('Login failed: user is not active');
       return { success: false, message: 'Account is not active' };
     }
 
-    console.log('User found, checking password...');
-    console.log('Password hash exists:', !!user.passwordHash);
-    console.log('Password hash length:', user.passwordHash?.length);
     
     const isValidPassword = await comparePassword(password, user.passwordHash);
-    console.log('Password comparison result:', isValidPassword);
     
     if (!isValidPassword) {
-      console.log('Login failed: invalid password');
       return { success: false, message: 'Invalid credentials' };
     }
 
-    console.log('Password verified, updating last login...');
 
     // Update last login
     try {
@@ -317,7 +298,6 @@ export async function login(identifier: string, password: string): Promise<{
     try {
       parsedRoles = parseStoredRoles(user.roles);
       normalizedRoles = normalizeRoleKeys(parsedRoles);
-      console.log('Roles parsed successfully:', normalizedRoles);
     } catch (roleError) {
       console.error('Error parsing roles:', roleError);
       // Default to empty roles array if parsing fails
@@ -339,7 +319,6 @@ export async function login(identifier: string, password: string): Promise<{
         roles: user.roles,
         organizationId: user.organizationId || undefined
       });
-      console.log('Token generated successfully');
     } catch (tokenError) {
       console.error('Error generating token:', tokenError);
       throw new Error(`Failed to generate authentication token: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`);

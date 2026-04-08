@@ -4,7 +4,7 @@ import { storage } from '../storage-prisma';
 import { decodeAuth } from '../src/middleware/auth-helpers';
 import { hasPermission } from '../rbac-policy';
 import { getErrorResponse } from '../i18n';
-import { guardOrgAccess } from '../src/middleware/org-isolation.middleware';
+import { guardOrgAccess, guardWriteAccess } from '../src/middleware/org-isolation.middleware';
 
 const router = express.Router();
 
@@ -85,6 +85,10 @@ router.put("/:id", async (req, res) => {
         }
         if (!guardOrgAccess(req, existing.organizationId)) {
             return res.status(403).json(getErrorResponse('FORBIDDEN', (req as any).locale));
+        }
+        // CORP_AGENT can only edit their own deals
+        if (!guardWriteAccess(req, existing)) {
+            return res.status(403).json({ error: 'FORBIDDEN', message: 'يمكنك تعديل صفقاتك فقط' });
         }
 
         // Build update payload — only include defined fields

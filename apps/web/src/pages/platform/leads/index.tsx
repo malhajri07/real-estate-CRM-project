@@ -216,14 +216,14 @@ export default function Contacts() {
       queryClient.invalidateQueries({ queryKey: ["/api/leads"] });
       queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
       toast({
-        title: t("message.success") || "نجح",
-        description: t("leads.delete_success") || "تم حذف العميل المحتمل بنجاح",
+        title: "نجح",
+        description: "تم حذف العميل المحتمل بنجاح",
       });
     },
     onError: () => {
       toast({
-        title: t("message.error") || "خطأ",
-        description: t("leads.delete_error") || "فشل في حذف العميل المحتمل",
+        title: "خطأ",
+        description: "فشل في حذف العميل المحتمل",
         variant: "destructive",
       });
     },
@@ -321,18 +321,18 @@ export default function Contacts() {
       queryClient.invalidateQueries({ queryKey: ["/api/reports/dashboard/metrics"] });
       if (data.results.errors.length > 0) {
         toast({
-          title: t("leads.csv_partial_title"),
-          description: `${data.message}. ${t("leads.csv_partial_description")}`,
+          title: "تحميل جزئي",
+          description: `${data.message}. ${"تم استيراد بعض البيانات مع وجود أخطاء"}`,
           variant: "default",
         });
       } else {
-        toast({ title: t("message.success"), description: data.message });
+        toast({ title: "نجح", description: data.message });
       }
     },
     onError: (error) => {
       toast({
-        title: t("message.error"),
-        description: error instanceof Error ? error.message : t("leads.csv_error"),
+        title: "خطأ",
+        description: error instanceof Error ? error.message : "فشل استيراد البيانات",
         variant: "destructive",
       });
     },
@@ -361,8 +361,8 @@ export default function Contacts() {
   const handleSendWhatsApp = (lead: Lead) => {
     if (!lead.phone) {
       toast({
-        title: t("message.error"),
-        description: t("leads.no_phone_error"),
+        title: "خطأ",
+        description: "لا يوجد رقم هاتف لهذا العميل",
         variant: "destructive",
       });
       return;
@@ -374,8 +374,8 @@ export default function Contacts() {
   const exportLeads = () => {
     if (!quickDisplayLeads || quickDisplayLeads.length === 0) {
       toast({
-        title: t("leads.export_no_data_title"),
-        description: t("leads.export_no_data_description"),
+        title: "لا توجد بيانات",
+        description: "لا توجد بيانات للتصدير",
         variant: "destructive",
       });
       return;
@@ -399,7 +399,7 @@ export default function Contacts() {
     a.download = `leads-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
-    toast({ title: t("message.success"), description: t("leads.export_success") });
+    toast({ title: "نجح", description: "تم تصدير البيانات بنجاح" });
   };
 
   // Advanced View filters
@@ -479,9 +479,9 @@ export default function Contacts() {
   if (isError) {
     return (
       <div className={PAGE_WRAPPER}>
-        <PageHeader title={t("contacts.title") || "جهات الاتصال"} />
+        <PageHeader title="جهات الاتصال" />
         <QueryErrorFallback
-          message={t("contacts.load_error") || t("leads.load_error") || "Failed to load contacts."}
+          message={"فشل تحميل جهات الاتصال"}
           onRetry={() => refetch()}
         />
       </div>
@@ -492,7 +492,7 @@ export default function Contacts() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
-        <PageHeader title={t("contacts.title") || "جهات الاتصال"} />
+        <PageHeader title="جهات الاتصال" />
         <LeadsSkeleton />
       </div>
     );
@@ -501,8 +501,8 @@ export default function Contacts() {
   return (
     <div className={PAGE_WRAPPER}>
       <PageHeader
-        title={t("contacts.title") || "جهات الاتصال"}
-        subtitle={t("contacts.subtitle") || "إدارة العملاء المحتملين"}
+        title="جهات الاتصال"
+        subtitle="إدارة العملاء المحتملين"
       >
         <div className="flex items-center gap-2">
           <Button size="sm" onClick={() => { createForm.reset(); setCreateOpen(true); }}>
@@ -528,7 +528,7 @@ export default function Contacts() {
           <AlertDescription className="space-y-2">
             <div className="flex items-center gap-3">
               <Spinner size="sm" className="me-2" />
-              {t("leads.csv_processing") || "جاري معالجة ملف CSV..."}
+              جاري معالجة ملف CSV...
             </div>
             <Progress value={undefined} className="h-2" />
           </AlertDescription>
@@ -541,7 +541,7 @@ export default function Contacts() {
           <div className="relative flex-1">
             <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder={t("contacts.search_placeholder") || "بحث بالاسم، الهاتف، البريد، المدينة..."}
+              placeholder="بحث بالاسم، الهاتف، البريد، المدينة..."
               value={advancedSearchQuery}
               onChange={(e) => { setAdvancedSearchQuery(e.target.value); setCurrentPage(1); }}
               className="ps-9 border-0 bg-transparent shadow-none focus-visible:ring-0"
@@ -549,7 +549,7 @@ export default function Contacts() {
           </div>
           <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setShowFilters(!showFilters)}>
             <SlidersHorizontal size={16} />
-            {t("contacts.filters") || "الفلاتر"}
+            الفلاتر
             {(statusFilter !== "all" || cityFilter !== "all" || interestTypeFilter !== "all") && (
               <Badge variant="default" className="text-[10px] px-1.5 h-5">
                 {[statusFilter !== "all", cityFilter !== "all", ageRangeFilter !== "all", maritalStatusFilter !== "all", interestTypeFilter !== "all", dependentsFilter !== "all"].filter(Boolean).length}
@@ -564,12 +564,12 @@ export default function Contacts() {
         <Card>
           <CardContent className="pt-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold">{t("contacts.search_filters") || "فلاتر البحث"}</h3>
-              <Button variant="ghost" size="sm" onClick={resetFilters}>{t("contacts.reset") || "إعادة تعيين"}</Button>
+              <h3 className="text-sm font-bold">فلاتر البحث</h3>
+              <Button variant="ghost" size="sm" onClick={resetFilters}>إعادة تعيين</Button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">{t("contacts.filter_status") || "الحالة"}</Label>
+                <Label className="text-xs">الحالة</Label>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -579,7 +579,7 @@ export default function Contacts() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{t("contacts.filter_city") || "المدينة"}</Label>
+                <Label className="text-xs">المدينة</Label>
                 <Select value={cityFilter} onValueChange={setCityFilter}>
                   <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -589,7 +589,7 @@ export default function Contacts() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{t("contacts.filter_interest") || "الاهتمام"}</Label>
+                <Label className="text-xs">الاهتمام</Label>
                 <Select value={interestTypeFilter} onValueChange={setInterestTypeFilter}>
                   <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -599,7 +599,7 @@ export default function Contacts() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{t("contacts.filter_age") || "العمر"}</Label>
+                <Label className="text-xs">العمر</Label>
                 <Select value={ageRangeFilter} onValueChange={setAgeRangeFilter}>
                   <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -612,7 +612,7 @@ export default function Contacts() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{t("contacts.filter_marital") || "الحالة الاجتماعية"}</Label>
+                <Label className="text-xs">الحالة الاجتماعية</Label>
                 <Select value={maritalStatusFilter} onValueChange={setMaritalStatusFilter}>
                   <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -622,7 +622,7 @@ export default function Contacts() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">{t("contacts.filter_dependents") || "المُعالين"}</Label>
+                <Label className="text-xs">المُعالين</Label>
                 <Select value={dependentsFilter} onValueChange={setDependentsFilter}>
                   <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -645,13 +645,13 @@ export default function Contacts() {
                 <EmptyState
                   title={
                     advancedSearchQuery || showFilters
-                      ? (t("contacts.no_filter_results") || "لا توجد عملاء يطابقون الفلاتر المحددة")
-                      : (t("contacts.no_customers") || "لا توجد عملاء محتملين")
+                      ? ("لا توجد عملاء يطابقون الفلاتر المحددة")
+                      : ("لا توجد عملاء محتملين")
                   }
                   description={
                     advancedSearchQuery || showFilters
                       ? undefined
-                      : (t("contacts.add_first") || "أضف أول عميل للبدء.")
+                      : ("أضف أول عميل للبدء.")
                   }
                 />
               ) : (
@@ -730,7 +730,7 @@ export default function Contacts() {
                   {totalPages > 1 && (
                     <div className="flex items-center justify-between px-6 py-4 border-t">
                       <div className="text-sm text-muted-foreground">
-                        {t("contacts.showing") || "عرض"} {startIndex + 1} {t("contacts.to") || "إلى"} {Math.min(endIndex, totalItems)} {t("contacts.of") || "من"} {totalItems} {t("contacts.customer_count") || "عميل"}
+                        عرض" {startIndex + 1} "إلى" {Math.min(endIndex, totalItems)} "من" {totalItems} "عميل
                       </div>
                       <Pagination>
                         <PaginationContent>
@@ -784,12 +784,12 @@ export default function Contacts() {
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              {t("contacts.confirm_delete_title") || "تأكيد الحذف"}
+              تأكيد الحذف
             </SheetTitle>
             <SheetDescription className="pt-2" asChild>
               <div className="space-y-3">
                 <p className="text-muted-foreground">
-                  {t("contacts.confirm_delete_message") || "هل أنت متأكد من حذف العميل التالي؟"}
+                  هل أنت متأكد من حذف العميل التالي؟
                 </p>
                 {leadToDelete && (
                   <Card>
@@ -801,17 +801,17 @@ export default function Contacts() {
                         {leadToDelete.phone}
                       </div>
                       <div className="text-muted-foreground">
-                        {leadToDelete.city || (t("contacts.unspecified") || "غير محدد")}
+                        {leadToDelete.city || ("غير محدد")}
                       </div>
                     </CardContent>
                   </Card>
                 )}
                 <Alert variant="destructive">
                   <AlertTitle>
-                    {t("contacts.warning") || "⚠️ تحذير: هذا الإجراء لا يمكن التراجع عنه"}
+                    "⚠️ تحذير: هذا الإجراء لا يمكن التراجع عنه"
                   </AlertTitle>
                   <AlertDescription>
-                    {t("contacts.delete_permanent") || "سيتم حذف جميع بيانات العميل نهائياً من النظام"}
+                    سيتم حذف جميع بيانات العميل نهائياً من النظام
                   </AlertDescription>
                 </Alert>
               </div>
@@ -819,7 +819,7 @@ export default function Contacts() {
           </SheetHeader>
           <SheetFooter className="gap-2 sm:gap-2">
             <Button variant="outline" className="flex-1" onClick={() => setDeleteDialogOpen(false)}>
-              {t("contacts.cancel") || "إلغاء"}
+              إلغاء
             </Button>
             <Button
               onClick={confirmDelete}
@@ -827,8 +827,8 @@ export default function Contacts() {
               disabled={deleteLeadMutation.isPending}
             >
               {deleteLeadMutation.isPending
-                ? (t("contacts.deleting") || "جاري الحذف...")
-                : (t("contacts.confirm_delete") || "تأكيد الحذف")}
+                ? ("جاري الحذف...")
+                : ("تأكيد الحذف")}
             </Button>
           </SheetFooter>
         </SheetContent>
@@ -885,7 +885,7 @@ export default function Contacts() {
                           className={cn(
                             "h-full rounded-full transition-all",
                             scoreInfo.score >= 80 ? "bg-primary/100" :
-                            scoreInfo.score >= 50 ? "bg-[hsl(var(--warning)/0.1)]0" : "bg-accent0"
+                            scoreInfo.score >= 50 ? "bg-[hsl(var(--warning))]" : "bg-accent"
                           )}
                           style={{ width: `${scoreInfo.score}%` }}
                         />

@@ -23,12 +23,10 @@ export default function NotFound() {
 
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-foreground">
-            {isAr ? "الصفحة غير موجودة" : "Page Not Found"}
+            "الصفحة غير موجودة"
           </h1>
           <p className="text-muted-foreground">
-            {isAr
-              ? "الصفحة التي تبحث عنها غير موجودة أو تم نقلها"
-              : "The page you're looking for doesn't exist or has been moved"}
+            الصفحة التي تبحث عنها غير موجودة أو تم نقلها
           </p>
         </div>
 
@@ -36,23 +34,23 @@ export default function NotFound() {
           {isLoggedIn ? (
             <Button onClick={() => setLocation("/home/platform")} className="gap-2 w-full sm:w-auto">
               <Home className="h-4 w-4" />
-              {isAr ? "لوحة التحكم" : "Dashboard"}
+              "لوحة التحكم"
             </Button>
           ) : (
             <>
               <Button onClick={() => setLocation("/")} className="gap-2 w-full sm:w-auto">
                 <Home className="h-4 w-4" />
-                {isAr ? "الصفحة الرئيسية" : "Home"}
+                "الصفحة الرئيسية"
               </Button>
               <Button variant="outline" onClick={() => setLocation("/login")} className="gap-2 w-full sm:w-auto">
                 <LogIn className="h-4 w-4" />
-                {isAr ? "تسجيل الدخول" : "Sign In"}
+                "تسجيل الدخول"
               </Button>
             </>
           )}
           <Button variant="ghost" onClick={() => window.history.back()} className="gap-2 w-full sm:w-auto">
             <ArrowRight className="h-4 w-4" />
-            {isAr ? "العودة" : "Go Back"}
+            "العودة"
           </Button>
         </div>
       </div>

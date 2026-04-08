@@ -1,363 +1,611 @@
 /**
- * marketing-requests.tsx - Marketing Requests Board Page
- * 
- * Location: apps/web/src/ → Pages/ → Platform Pages → marketing-requests.tsx
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * Marketing requests board for authenticated users. Provides:
- * - Marketing request listing
- * - Request filtering and search
- * - Request status management
- * - Proposal management
- * 
- * Route: /home/platform/marketing-requests or /marketing-requests
- * 
- * Related Files:
- * - apps/web/src/pages/marketing-request.tsx - Marketing request form
- * - apps/api/routes/marketing-requests.ts - Marketing requests API routes
+ * Listing Promotions — ترويج الإعلانات
+ *
+ * Agent bids to boost their listings in search results.
+ * Higher bid = higher ranking. Like Google Ads for real estate.
+ *
+ * Flow: Pick listing → Set daily budget + bid → Choose targeting → Launch
  */
 
-import { useMemo, useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { Megaphone, Sparkles, ShieldCheck } from "lucide-react";
-import { formatPrice } from "@/lib/formatters";
-import type { MarketingProposal, MarketingRequest, MarketingRequestStatus, MarketingRequestTier } from "@shared/types";
-import { useToast } from "@/hooks/use-toast";
-import { apiPost, apiGet } from "@/lib/apiClient";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Megaphone, TrendingUp, Eye, MousePointerClick, Users,
+  Plus, Search, Pause, Play, X, Zap, Target, MapPin,
+  Building, ChevronDown, ArrowUp, ArrowDown, Sparkles,
+  CircleDollarSign, BarChart3, CheckCircle, Clock, Ban,
+} from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PromotionsSkeleton } from "@/components/skeletons/page-skeletons";
+import PageHeader from "@/components/ui/page-header";
+import EmptyState from "@/components/ui/empty-state";
+import { useToast } from "@/hooks/use-toast";
+import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { apiGet, apiPost, apiPatch } from "@/lib/apiClient";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { cn } from "@/lib/utils";
+import { SarPrice } from "@/components/ui/sar-symbol";
 
-interface RequestWithExtras extends MarketingRequest {
-  proposals?: MarketingProposal[];
+// ── Types ──────────────────────────────────────────────────────────────
+
+interface Promotion {
+  id: string;
+  listingId: string;
+  status: string;
+  dailyBudget: number;
+  totalBudget: number | null;
+  spentAmount: number;
+  bidAmount: number;
+  targetCities: string | null;
+  targetTypes: string | null;
+  impressions: number;
+  clicks: number;
+  inquiries: number;
+  startDate: string;
+  endDate: string | null;
+  createdAt: string;
+  listing: {
+    id: string;
+    listingType: string;
+    price: number | null;
+    properties: {
+      title: string | null;
+      city: string | null;
+      district: string | null;
+      type: string | null;
+      price: number | null;
+      photos: string | null;
+    };
+  };
 }
 
-const TIER_BADGE: Record<MarketingRequestTier, { label: string; className: string }> = {
-  STANDARD: { label: "أساسي", className: "bg-slate-200 text-foreground/80" },
-  SERIOUS: { label: "جاد", className: "bg-[hsl(var(--warning)/0.2)] text-[hsl(var(--warning))]" },
-  ENTERPRISE: { label: "مؤسسي", className: "bg-accent text-accent-foreground" },
+interface AgentListing {
+  id: string;
+  listingType: string;
+  price: number | null;
+  isPromoted: boolean;
+  properties: {
+    id: string;
+    title: string | null;
+    city: string | null;
+    district: string | null;
+    type: string | null;
+    price: number | null;
+    photos: string | null;
+  };
+}
+
+// ── Constants ──────────────────────────────────────────────────────────
+
+const STATUS_CONFIG: Record<string, { label: string; icon: typeof Play; color: string }> = {
+  ACTIVE: { label: "نشط", icon: Play, color: "text-primary" },
+  PAUSED: { label: "متوقف", icon: Pause, color: "text-[hsl(var(--warning))]" },
+  EXHAUSTED: { label: "ميزانية مستنفدة", icon: Ban, color: "text-destructive" },
+  ENDED: { label: "منتهي", icon: Clock, color: "text-muted-foreground" },
+  CANCELLED: { label: "ملغي", icon: X, color: "text-muted-foreground" },
+  DRAFT: { label: "مسودة", icon: Clock, color: "text-muted-foreground" },
 };
 
-const STATUS_LABEL: Record<MarketingRequestStatus, string> = {
-  DRAFT: "مسودة",
-  PENDING_REVIEW: "بانتظار المراجعة",
-  OPEN: "متاح للوسطاء",
-  AWARDED: "تم الترسية",
-  CLOSED: "مغلق",
-  REJECTED: "مرفوض",
-};
-
-const statusFilterOptions: { value: "all" | MarketingRequestStatus; label: string }[] = [
-  { value: "all", label: "جميع الحالات" },
-  { value: "PENDING_REVIEW", label: "بانتظار المراجعة" },
-  { value: "OPEN", label: "متاح" },
-  { value: "AWARDED", label: "تم الترسية" },
-  { value: "CLOSED", label: "مغلق" },
+const SAUDI_CITIES = [
+  "الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام",
+  "الخبر", "الطائف", "تبوك", "أبها", "نجران",
 ];
 
-const tierFilterOptions: { value: "all" | MarketingRequestTier; label: string }[] = [
-  { value: "all", label: "كل الفئات" },
-  { value: "STANDARD", label: "أساسي" },
-  { value: "SERIOUS", label: "جاد" },
-  { value: "ENTERPRISE", label: "مؤسسي" },
+const BID_TIERS = [
+  { value: 0.5, label: "أساسي", desc: "ظهور عادي", color: "text-muted-foreground" },
+  { value: 1, label: "مميز", desc: "ظهور أعلى", color: "text-primary" },
+  { value: 2, label: "متقدم", desc: "أولوية في النتائج", color: "text-primary" },
+  { value: 5, label: "بريميوم", desc: "أعلى ترتيب + شارة مميز", color: "text-[hsl(var(--warning))]" },
 ];
 
-export default function MarketingRequestsBoardPage() {
-  const qc = useQueryClient();
-  const [statusFilter, setStatusFilter] = useState<"all" | MarketingRequestStatus>("OPEN");
-  const [tierFilter, setTierFilter] = useState<"all" | MarketingRequestTier>("all");
-  const [search, setSearch] = useState("");
-  const [selectedRequest, setSelectedRequest] = useState<RequestWithExtras | null>(null);
-  const [proposalMessage, setProposalMessage] = useState("");
-  const [commissionRate, setCommissionRate] = useState("");
-  const [marketingBudget, setMarketingBudget] = useState("");
-  const [estimatedTimeline, setEstimatedTimeline] = useState("");
-  const [proposalFeedback, setProposalFeedback] = useState<string | null>(null);
+// ── Component ──────────────────────────────────────────────────────────
+
+export default function ListingPromotionsPage() {
   const { toast } = useToast();
+  const showSkeleton = useMinLoadTime();
+  const queryClient = useQueryClient();
 
-  const { data: requests = [], isLoading, isFetching } = useQuery<RequestWithExtras[]>({
-    queryKey: ["/api/marketing-requests", statusFilter, tierFilter, search],
-    queryFn: async () => {
-      const params = new URLSearchParams();
-      params.set("includeOwner", "1");
-      params.set("includeProposals", "1");
-      params.set("scope", "agent");
-      if (statusFilter !== "all") params.set("status", statusFilter);
-      if (tierFilter !== "all") params.set("seriousnessTier", tierFilter);
-      if (search.trim()) params.set("search", search.trim());
+  const [createOpen, setCreateOpen] = useState(false);
+  const [selectedListing, setSelectedListing] = useState<AgentListing | null>(null);
+  const [dailyBudget, setDailyBudget] = useState("50");
+  const [totalBudget, setTotalBudget] = useState("");
+  const [bidAmount, setBidAmount] = useState("1");
+  const [targetCities, setTargetCities] = useState<string[]>([]);
+  const [listingSearch, setListingSearch] = useState("");
 
-      return apiGet<RequestWithExtras[]>(`/api/marketing-requests?${params.toString()}`);
-    },
+  // ── Queries ──────────────────────────────────────────────────────────
+
+  const { data: promotions, isLoading: promoLoading } = useQuery<Promotion[]>({
+    queryKey: ["/api/promotions"],
+    queryFn: () => apiGet<Promotion[]>("api/promotions"),
   });
 
-  const mutation = useMutation({
-    mutationFn: async (payload: { requestId: string; message?: string; commissionRate?: number; marketingBudget?: number; estimatedTimeline?: string }) => {
-      const { requestId, ...rest } = payload;
-      return apiPost(`/api/marketing-requests/${requestId}/proposals`, rest);
-    },
+  const { data: stats } = useQuery<any>({
+    queryKey: ["/api/promotions/stats"],
+    queryFn: () => apiGet("api/promotions/stats"),
+  });
+
+  const { data: agentListings } = useQuery<AgentListing[]>({
+    queryKey: ["/api/promotions/listings"],
+    queryFn: () => apiGet<AgentListing[]>("api/promotions/listings"),
+    enabled: createOpen,
+  });
+
+  const isLoading = promoLoading;
+
+  // ── Mutations ────────────────────────────────────────────────────────
+
+  const createMutation = useMutation({
+    mutationFn: (data: any) => apiPost("api/promotions", data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["/api/marketing-requests"] });
-      setProposalMessage("");
-      setCommissionRate("");
-      setMarketingBudget("");
-      setEstimatedTimeline("");
-      setProposalFeedback("تم إرسال العرض بنجاح وسيصلك إشعار عند الرد.");
-      toast({
-        title: "تم إرسال العرض",
-        description: "تم تسجيل عرضك التسويقي بنجاح.",
-      });
+      queryClient.invalidateQueries({ queryKey: ["/api/promotions"] });
+      setCreateOpen(false);
+      resetForm();
+      toast({ title: "تم إطلاق الترويج", description: "إعلانك سيظهر في أعلى نتائج البحث" });
     },
-    onError: (error: any) => {
-      setProposalFeedback(error instanceof Error ? error.message : "تعذر إرسال العرض");
-      toast({
-        title: "تعذر إرسال العرض",
-        description: error instanceof Error ? error.message : "يرجى المحاولة مرة أخرى",
-        variant: "destructive" as any,
-      });
-    }
+    onError: (err: any) => toast({ title: "خطأ", description: err?.message || "فشل إنشاء الترويج", variant: "destructive" }),
   });
 
-  const filteredRequests = useMemo(() => {
-    return requests
-      .filter((request) => {
-        if (statusFilter !== "all" && request.status !== statusFilter) return false;
-        if (tierFilter !== "all" && request.seriousnessTier !== tierFilter) return false;
-        if (search.trim()) {
-          const haystack = `${request.title} ${request.summary} ${request.city}`.toLowerCase();
-          if (!haystack.includes(search.trim().toLowerCase())) return false;
-        }
-        return true;
-      });
-  }, [requests, statusFilter, tierFilter, search]);
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: any) => apiPatch(`api/promotions/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/promotions"] });
+      toast({ title: "تم التحديث" });
+    },
+  });
 
-  const handleSelectRequest = (request: RequestWithExtras) => {
-    setSelectedRequest(request);
-    setProposalMessage("");
-    setCommissionRate("");
-    setMarketingBudget("");
-    setEstimatedTimeline("");
+  // ── Computed ─────────────────────────────────────────────────────────
+
+  const allPromos = promotions ?? [];
+  const activePromos = allPromos.filter((p) => p.status === "ACTIVE");
+  const totalImpressions = stats?.totalImpressions ?? 0;
+  const totalClicks = stats?.totalClicks ?? 0;
+  const totalInquiries = stats?.totalInquiries ?? 0;
+  const totalSpent = stats?.totalSpent ?? 0;
+  const ctr = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(1) : "0";
+
+  const filteredListings = useMemo(() => {
+    if (!agentListings) return [];
+    if (!listingSearch.trim()) return agentListings;
+    const q = listingSearch.toLowerCase();
+    return agentListings.filter((l) =>
+      (l.properties?.title || "").toLowerCase().includes(q) ||
+      (l.properties?.city || "").toLowerCase().includes(q)
+    );
+  }, [agentListings, listingSearch]);
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+
+  const resetForm = () => {
+    setSelectedListing(null);
+    setDailyBudget("50");
+    setTotalBudget("");
+    setBidAmount("1");
+    setTargetCities([]);
+    setListingSearch("");
   };
 
-  const handleSubmitProposal = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!selectedRequest) return;
-    setProposalFeedback(null);
+  const getPhoto = (photos: string | null): string | null => {
+    if (!photos) return null;
+    try {
+      const arr = JSON.parse(photos);
+      return Array.isArray(arr) && arr.length > 0 ? arr[0] : null;
+    } catch { return null; }
+  };
 
-    mutation.mutate({
-      requestId: selectedRequest.id,
-      message: proposalMessage.trim() || undefined,
-      commissionRate: commissionRate ? Number(commissionRate) : undefined,
-      marketingBudget: marketingBudget ? Number(marketingBudget) : undefined,
-      estimatedTimeline: estimatedTimeline.trim() || undefined,
+  const handleCreate = () => {
+    if (!selectedListing) {
+      toast({ title: "اختر إعلان أولاً", variant: "destructive" });
+      return;
+    }
+    createMutation.mutate({
+      listingId: selectedListing.id,
+      dailyBudget: Number(dailyBudget),
+      totalBudget: totalBudget ? Number(totalBudget) : undefined,
+      bidAmount: Number(bidAmount),
+      targetCities: targetCities.length > 0 ? targetCities : undefined,
     });
   };
 
+  const toggleCity = (city: string) => {
+    setTargetCities((prev) => prev.includes(city) ? prev.filter((c) => c !== city) : [...prev, city]);
+  };
+
+  // ── Render ──────────────────────────────────────────────────────────
+
+  if (isLoading || showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <PageHeader title="ترويج الإعلانات" subtitle="ارفع ترتيب إعلاناتك في نتائج البحث" />
+        <PromotionsSkeleton />
+      </div>
+    );
+  }
+
   return (
-    <main className="w-full space-y-6">
-      <section className="space-y-6">
-        <header className="bg-card border-0 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 p-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
-            <Megaphone className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">سوق طلبات التسويق</h1>
-            <p className="text-muted-foreground text-sm">اطلع على طلبات الملاك وقدّم عرضك التسويقي لإغلاق المزيد من الصفقات.</p>
-          </div>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as any)}>
-            <SelectTrigger className="rounded-xl border border-border bg-card px-4 py-2 text-sm shadow-sm focus:border-primary/20 focus:outline-none">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {statusFilterOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={tierFilter} onValueChange={(value) => setTierFilter(value as any)}>
-            <SelectTrigger className="rounded-xl border border-border bg-card px-4 py-2 text-sm shadow-sm focus:border-primary/20 focus:outline-none">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {tierFilterOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            className="rounded-xl border border-border bg-card px-4 py-2 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-            placeholder="ابحث حسب العنوان أو المدينة"
-          />
-        </div>
-      </header>
+    <div className={PAGE_WRAPPER}>
+      <PageHeader title="ترويج الإعلانات" subtitle="ارفع ترتيب إعلاناتك في نتائج البحث — كلما زادت المزايدة ارتفع الترتيب">
+        <Button size="sm" className="gap-1.5" onClick={() => { resetForm(); setCreateOpen(true); }}>
+          <Plus size={16} />
+          ترويج جديد
+        </Button>
+      </PageHeader>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <section className="xl:col-span-2 space-y-4">
-          {isLoading || isFetching ? (
-            <div className="bg-card border border-border rounded-3xl p-6 text-center text-muted-foreground">
-              جاري تحميل الطلبات...
-            </div>
-          ) : filteredRequests.length === 0 ? (
-            <div className="bg-card border border-border rounded-3xl p-6 text-center text-muted-foreground">
-              لا توجد طلبات مطابقة للمرشحات الحالية.
-            </div>
-          ) : (
-            filteredRequests.map((request) => {
-              const tierBadge = TIER_BADGE[request.seriousnessTier];
+      {/* ── Stats ── */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {[
+          { icon: Megaphone, value: activePromos.length, label: "ترويج نشط", color: "text-primary", bg: "bg-primary/10" },
+          { icon: Eye, value: totalImpressions.toLocaleString(), label: "ظهور", color: "text-primary", bg: "bg-primary/10" },
+          { icon: MousePointerClick, value: `${totalClicks} (${ctr}%)`, label: "نقرة (CTR)", color: "text-primary", bg: "bg-accent" },
+          { icon: Users, value: totalInquiries, label: "استفسار", color: "text-primary", bg: "bg-primary/10" },
+          { icon: CircleDollarSign, value: Number(totalSpent).toLocaleString(), label: "إجمالي الإنفاق", color: "text-[hsl(var(--warning))]", bg: "bg-[hsl(var(--warning)/0.1)]" },
+        ].map((s, i) => (
+          <Card key={i}>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0", s.bg)}>
+                <s.icon size={18} className={s.color} />
+              </div>
+              <div>
+                <p className="text-xl font-black tabular-nums">{s.value}</p>
+                <p className="text-[11px] text-muted-foreground">{s.label}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-              return (
-                <article
-                  key={request.id}
-                  className="bg-card border border-border rounded-3xl p-5 shadow-sm hover:shadow-md transition cursor-pointer"
-                  onClick={() => handleSelectRequest(request)}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h2 className="text-lg font-bold text-foreground">{request.title}</h2>
-                      <p className="text-muted-foreground text-sm mt-1 line-clamp-2">{request.summary}</p>
-                      <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-muted-foreground">
-                        <span className="px-2 py-1 bg-muted/50 rounded-full">{request.city}{request.district ? ` • ${request.district}` : ""}</span>
-                        {request.propertyType && (
-                          <span className="px-2 py-1 bg-muted/50 rounded-full">{request.propertyType}</span>
+      {/* ── How it works (first time) ── */}
+      {allPromos.length === 0 && (
+        <Card className="bg-primary/5 border-primary/10">
+          <CardContent className="p-6">
+            <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+              <Sparkles size={20} className="text-primary" />
+              كيف يعمل ترويج الإعلانات؟
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {[
+                { step: "1", title: "اختر إعلانك", desc: "حدد العقار الذي تريد ترويجه من قائمة إعلاناتك النشطة", icon: Building },
+                { step: "2", title: "حدد الميزانية", desc: "اختر ميزانية يومية وإجمالية — أنت تتحكم بالإنفاق", icon: CircleDollarSign },
+                { step: "3", title: "زايد على الترتيب", desc: "كلما زادت مزايدتك، ارتفع ترتيب إعلانك في نتائج البحث", icon: TrendingUp },
+                { step: "4", title: "تابع الأداء", desc: "شاهد الظهور والنقرات والاستفسارات في لوحة التحكم", icon: BarChart3 },
+              ].map((item) => (
+                <div key={item.step} className="text-center">
+                  <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-black mx-auto mb-2">{item.step}</div>
+                  <h4 className="font-bold text-sm mb-1">{item.title}</h4>
+                  <p className="text-xs text-muted-foreground">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+            <Button className="mt-6 gap-1.5" onClick={() => { resetForm(); setCreateOpen(true); }}>
+              <Plus size={16} />
+              ابدأ أول ترويج
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── Active Promotions ── */}
+      {allPromos.length > 0 && (
+        <div className="space-y-3">
+          {allPromos.map((promo) => {
+            const prop = promo.listing?.properties;
+            const statusCfg = STATUS_CONFIG[promo.status] || STATUS_CONFIG.DRAFT;
+            const StatusIcon = statusCfg.icon;
+            const photo = getPhoto(prop?.photos || null);
+            const budgetUsed = promo.totalBudget ? (Number(promo.spentAmount) / Number(promo.totalBudget)) * 100 : 0;
+            const ctrLocal = promo.impressions > 0 ? ((promo.clicks / promo.impressions) * 100).toFixed(1) : "0";
+
+            return (
+              <Card key={promo.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-4">
+                    {/* Thumbnail */}
+                    <div className="h-20 w-28 rounded-lg bg-muted shrink-0 overflow-hidden">
+                      {photo ? (
+                        <img src={photo} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-muted-foreground"><Building size={24} /></div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-bold text-sm truncate">{prop?.title || "بدون عنوان"}</h3>
+                        <Badge variant="outline" className={cn("gap-1 text-[10px]", statusCfg.color)}>
+                          <StatusIcon size={10} />
+                          {statusCfg.label}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
+                        {prop?.city && <span className="flex items-center gap-1"><MapPin size={10} />{prop.city}</span>}
+                        {prop?.type && <span className="flex items-center gap-1"><Building size={10} />{prop.type}</span>}
+                        <span className="flex items-center gap-1"><Zap size={10} />مزايدة: <SarPrice value={promo.bidAmount} /></span>
+                      </div>
+
+                      {/* Performance metrics */}
+                      <div className="grid grid-cols-4 gap-3 text-center">
+                        <div>
+                          <p className="text-lg font-black tabular-nums">{promo.impressions.toLocaleString()}</p>
+                          <p className="text-[10px] text-muted-foreground">ظهور</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-black tabular-nums">{promo.clicks}</p>
+                          <p className="text-[10px] text-muted-foreground">نقرة ({ctrLocal}%)</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-black tabular-nums">{promo.inquiries}</p>
+                          <p className="text-[10px] text-muted-foreground">استفسار</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-black tabular-nums"><SarPrice value={promo.spentAmount} /></p>
+                          <p className="text-[10px] text-muted-foreground">إنفاق</p>
+                        </div>
+                      </div>
+
+                      {/* Budget progress */}
+                      {promo.totalBudget && (
+                        <div className="mt-2">
+                          <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1">
+                            <span>الميزانية: <SarPrice value={promo.spentAmount} /> / <SarPrice value={promo.totalBudget} /></span>
+                            <span>{budgetUsed.toFixed(0)}%</span>
+                          </div>
+                          <Progress value={budgetUsed} className="h-1.5" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-col gap-1 shrink-0">
+                      {promo.status === "ACTIVE" && (
+                        <Button size="sm" variant="outline" className="h-8 gap-1 text-xs" onClick={() => updateMutation.mutate({ id: promo.id, status: "PAUSED" })}>
+                          <Pause size={12} />إيقاف
+                        </Button>
+                      )}
+                      {promo.status === "PAUSED" && (
+                        <Button size="sm" variant="outline" className="h-8 gap-1 text-xs" onClick={() => updateMutation.mutate({ id: promo.id, status: "ACTIVE" })}>
+                          <Play size={12} />تشغيل
+                        </Button>
+                      )}
+                      {(promo.status === "ACTIVE" || promo.status === "PAUSED") && (
+                        <Button size="sm" variant="ghost" className="h-8 gap-1 text-xs text-destructive" onClick={() => updateMutation.mutate({ id: promo.id, status: "CANCELLED" })}>
+                          <X size={12} />إلغاء
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Create Promotion Sheet ── */}
+      <Sheet open={createOpen} onOpenChange={setCreateOpen}>
+        <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Megaphone size={20} />
+              ترويج إعلان جديد
+            </SheetTitle>
+            <SheetDescription>
+              اختر الإعلان، حدد ميزانيتك ومزايدتك — كلما زادت المزايدة ارتفع ترتيبك
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="py-4 max-w-3xl mx-auto space-y-6">
+            {/* Step 1: Pick listing */}
+            <div>
+              <h4 className="font-bold text-sm mb-3 flex items-center gap-1.5">
+                <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">1</span>
+                اختر الإعلان
+              </h4>
+
+              <div className="relative mb-3">
+                <Search size={14} className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="ابحث في إعلاناتك..."
+                  value={listingSearch}
+                  onChange={(e) => setListingSearch(e.target.value)}
+                  className="ps-9"
+                />
+              </div>
+
+              <div className="grid gap-2 max-h-60 overflow-y-auto border rounded-lg p-2">
+                {!agentListings ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground">جاري التحميل...</div>
+                ) : filteredListings.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground">لا توجد إعلانات نشطة</div>
+                ) : (
+                  filteredListings.map((listing) => {
+                    const photo = getPhoto(listing.properties?.photos || null);
+                    const isSelected = selectedListing?.id === listing.id;
+                    return (
+                      <button
+                        key={listing.id}
+                        type="button"
+                        className={cn(
+                          "flex items-center gap-3 p-2.5 rounded-lg text-start transition-colors w-full",
+                          isSelected ? "bg-primary/10 ring-2 ring-primary" : "hover:bg-muted/50",
+                          listing.isPromoted && "opacity-50"
                         )}
-                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${tierBadge.className}`}>
-                          {tierBadge.label}
-                        </span>
-                        <span className="px-2 py-1 bg-muted/50 rounded-full">{STATUS_LABEL[request.status]}</span>
+                        onClick={() => !listing.isPromoted && setSelectedListing(listing)}
+                        disabled={listing.isPromoted}
+                      >
+                        <div className="h-12 w-16 rounded bg-muted shrink-0 overflow-hidden">
+                          {photo ? <img src={photo} alt="" className="h-full w-full object-cover" /> : <div className="h-full w-full flex items-center justify-center"><Building size={16} className="text-muted-foreground" /></div>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{listing.properties?.title || "بدون عنوان"}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {listing.properties?.city} · {listing.properties?.type}
+                            {listing.price ? <> · <SarPrice value={listing.price} /></> : ""}
+                          </p>
+                        </div>
+                        {listing.isPromoted && <Badge variant="outline" className="text-[10px] shrink-0">مروّج</Badge>}
+                        {isSelected && <CheckCircle size={18} className="text-primary shrink-0" />}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Step 2: Budget + Bid */}
+            <div>
+              <h4 className="font-bold text-sm mb-3 flex items-center gap-1.5">
+                <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">2</span>
+                الميزانية والمزايدة
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="text-xs font-bold text-muted-foreground mb-1.5 block">الميزانية اليومية *</label>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      min={10}
+                      value={dailyBudget}
+                      onChange={(e) => setDailyBudget(e.target.value)}
+                      className="pe-12"
+                    />
+                    <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">ر.س/يوم</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-1">الحد الأقصى الذي ستنفقه يومياً</p>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-muted-foreground mb-1.5 block">الميزانية الإجمالية (اختياري)</label>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      min={50}
+                      value={totalBudget}
+                      onChange={(e) => setTotalBudget(e.target.value)}
+                      placeholder="مثال: 1000"
+                      className="pe-8"
+                    />
+                    <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">ر.س</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-1">يتوقف الترويج عند استنفاد الميزانية</p>
+                </div>
+              </div>
+
+              {/* Bid tiers */}
+              <label className="text-xs font-bold text-muted-foreground mb-2 block">مستوى المزايدة</label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {BID_TIERS.map((tier) => (
+                  <button
+                    key={tier.value}
+                    type="button"
+                    className={cn(
+                      "rounded-lg border p-3 text-center transition-colors",
+                      Number(bidAmount) === tier.value
+                        ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+                        : "hover:bg-muted/50"
+                    )}
+                    onClick={() => setBidAmount(String(tier.value))}
+                  >
+                    <p className="text-lg font-black tabular-nums">{tier.value} <span className="text-xs font-normal">ر.س</span></p>
+                    <p className={cn("text-xs font-bold", tier.color)}>{tier.label}</p>
+                    <p className="text-[10px] text-muted-foreground">{tier.desc}</p>
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-2">أو أدخل مبلغ مخصص:</p>
+              <Input
+                type="number"
+                min={0.1}
+                step={0.1}
+                value={bidAmount}
+                onChange={(e) => setBidAmount(e.target.value)}
+                className="max-w-[200px] mt-1"
+              />
+            </div>
+
+            <Separator />
+
+            {/* Step 3: Targeting (optional) */}
+            <div>
+              <h4 className="font-bold text-sm mb-3 flex items-center gap-1.5">
+                <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">3</span>
+                الاستهداف
+                <Badge variant="outline" className="text-[10px]">اختياري</Badge>
+              </h4>
+
+              <p className="text-xs text-muted-foreground mb-2">اختر المدن التي تريد ظهور إعلانك فيها (اتركها فارغة للظهور في كل المدن)</p>
+              <div className="flex flex-wrap gap-2">
+                {SAUDI_CITIES.map((city) => (
+                  <Button
+                    key={city}
+                    type="button"
+                    size="sm"
+                    variant={targetCities.includes(city) ? "default" : "outline"}
+                    className="h-8 text-xs rounded-full"
+                    onClick={() => toggleCity(city)}
+                  >
+                    <MapPin size={12} className="me-1" />
+                    {city}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Summary */}
+            {selectedListing && (
+              <>
+                <Separator />
+                <Card className="bg-primary/5 border-primary/20">
+                  <CardContent className="p-4">
+                    <h4 className="font-bold text-sm mb-2">ملخص الترويج</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                      <div>
+                        <p className="text-xs text-muted-foreground">الإعلان</p>
+                        <p className="font-bold truncate">{selectedListing.properties?.title || "—"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">الميزانية اليومية</p>
+                        <p className="font-bold"><SarPrice value={Number(dailyBudget)} /> / يوم</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">المزايدة</p>
+                        <p className="font-bold"><SarPrice value={Number(bidAmount)} /> / ظهور</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">الاستهداف</p>
+                        <p className="font-bold">{targetCities.length > 0 ? targetCities.join("، ") : "كل المدن"}</p>
                       </div>
                     </div>
-                    <span className="inline-flex items-center gap-1 text-muted-foreground/70 text-xs">
-                      <ShieldCheck className="w-4 h-4" /> {request.proposals?.length || 0} عروض مقدمة
-                    </span>
-                  </div>
-                </article>
-              );
-            })
-          )}
-        </section>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </div>
 
-        <aside className="bg-card border border-border rounded-3xl shadow-sm p-6 space-y-4">
-          {selectedRequest ? (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-foreground/80">
-                <Sparkles className="w-4 h-4 text-muted-foreground" />
-                <h3 className="text-base font-bold">تفاصيل الطلب</h3>
-              </div>
-              <div className="space-y-3 text-sm">
-                <div className="font-bold text-foreground">{selectedRequest.title}</div>
-                <div className="text-muted-foreground leading-relaxed whitespace-pre-line">{selectedRequest.summary}</div>
-                {selectedRequest.requirements && (
-                  <div className="bg-muted/30 border border-border rounded-2xl p-3 text-muted-foreground text-sm">
-                    <span className="font-medium text-foreground block mb-1">تفاصيل إضافية:</span>
-                    {selectedRequest.requirements}
-                  </div>
-                )}
-                <dl className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
-                  <div>
-                    <dt className="font-medium text-foreground/80">المدينة</dt>
-                    <dd>{selectedRequest.city}</dd>
-                  </div>
-                  {selectedRequest.listingType && (
-                    <div>
-                      <dt className="font-medium text-foreground/80">نوع العرض</dt>
-                      <dd>{selectedRequest.listingType}</dd>
-                    </div>
-                  )}
-                  {selectedRequest.budgetMin && (
-                    <div>
-                      <dt className="font-medium text-foreground/80">الميزانية</dt>
-                      <dd>
-                        {formatPrice(selectedRequest.budgetMin)} - {selectedRequest.budgetMax ? formatPrice(selectedRequest.budgetMax) : "غير محدد"}
-                      </dd>
-                    </div>
-                  )}
-                  {selectedRequest.preferredStartDate && (
-                    <div>
-                      <dt className="font-medium text-foreground/80">بداية الحملة</dt>
-                      <dd>{format(new Date(selectedRequest.preferredStartDate), "yyyy/MM/dd")}</dd>
-                    </div>
-                  )}
-                  {selectedRequest.preferredEndDate && (
-                    <div>
-                      <dt className="font-medium text-foreground/80">نهاية الحملة</dt>
-                      <dd>{format(new Date(selectedRequest.preferredEndDate), "yyyy/MM/dd")}</dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-
-              <form onSubmit={handleSubmitProposal} className="border-t border-border pt-4 space-y-3">
-                <h4 className="text-sm font-bold text-foreground">قدّم عرضك التسويقي</h4>
-                <Textarea
-                  value={proposalMessage}
-                  onChange={(event) => setProposalMessage(event.target.value)}
-                  className="w-full min-h-[120px] rounded-2xl border border-border bg-card px-4 py-3 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                  placeholder="اشرح استراتيجيتك التسويقية والقنوات المقترحة"
-                  required
-                />
-                <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    value={commissionRate}
-                    onChange={(event) => setCommissionRate(event.target.value)}
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    className="rounded-xl border border-border bg-card px-4 py-2 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                    placeholder="نسبة السعي %"
-                  />
-                  <Input
-                    value={marketingBudget}
-                    onChange={(event) => setMarketingBudget(event.target.value)}
-                    type="number"
-                    min="0"
-                    className="rounded-xl border border-border bg-card px-4 py-2 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                    placeholder="ميزانية التسويق"
-                  />
-                </div>
-                <Input
-                  value={estimatedTimeline}
-                  onChange={(event) => setEstimatedTimeline(event.target.value)}
-                  className="w-full rounded-xl border border-border bg-card px-4 py-2 text-sm shadow-sm focus:border-primary/20 focus:outline-none"
-                  placeholder="المدة المتوقعة للتنفيذ"
-                />
-                {proposalFeedback && (
-                  <div
-                    className={`text-sm rounded-xl px-3 py-2 border ${
-                      mutation.isError
-                        ? "text-destructive bg-destructive/10 border-destructive/15"
-                        : "text-primary bg-primary/10 border-primary/20"
-                    }`}
-                  >
-                    {proposalFeedback}
-                  </div>
-                )}
-                <Button
-                  type="submit"
-                  disabled={mutation.isPending}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-bold shadow shadow-primary/20 transition hover:bg-primary/90 disabled:opacity-60"
-                >
-                  {mutation.isPending ? "جاري الإرسال..." : "إرسال العرض"}
-                </Button>
-              </form>
-            </div>
-          ) : (
-            <div className="text-muted-foreground text-sm">
-              اختر أحد الطلبات من القائمة لمراجعة التفاصيل وتقديم عرضك.
-            </div>
-          )}
-        </aside>
-      </div>
-      </section>
-    </main>
+          <SheetFooter className="max-w-3xl mx-auto pt-4 border-t">
+            <Button
+              className="gap-2 flex-1 md:flex-none"
+              onClick={handleCreate}
+              disabled={createMutation.isPending || !selectedListing}
+            >
+              <Megaphone size={16} />
+              {createMutation.isPending ? "جاري الإطلاق..." : "إطلاق الترويج"}
+            </Button>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}>إلغاء</Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </div>
   );
 }

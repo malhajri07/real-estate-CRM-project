@@ -98,9 +98,12 @@ const createDealSchema = z.object({
   commission: z.coerce
     .number()
     .min(0, "العمولة لا يمكن أن تكون سالبة")
-    .max(100, "العمولة لا يمكن أن تتجاوز ١٠٠٪")
+    .max(50, "العمولة لا يمكن أن تتجاوز ٥٠٪")
     .optional()
     .nullable(),
+  // REGA Article 14: Commission cap warning tracked on deal
+  commissionCapValidated: z.boolean().optional().nullable(),
+  earnestMoney: z.coerce.number().nonnegative().optional().nullable(),
   commissionDetails: commissionSchema,
 
   // Dates

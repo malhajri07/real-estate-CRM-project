@@ -30,7 +30,7 @@ import { Separator } from "@/components/ui/separator";
 import EmptyState from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Phone, Mail, Calendar, Clock, Building2, User, FileText,
+  Phone, Mail, Calendar, Clock, Building2, User, Users, FileText,
   TrendingUp, ArrowRightCircle, DollarSign, CheckCircle2,
   XCircle, MessageCircle, Briefcase, Activity, Calendar as CalendarLucide,
 } from "lucide-react";
@@ -73,12 +73,59 @@ const STAGE_LABELS: Record<string, string> = {
   LOST: "خاسرة",
 };
 
+// ── Commission Split Card (embedded) ──────────────────────────────────────
+function CommissionSplitCard({ dealId }: { dealId: string }) {
+  const { data, isLoading } = useQuery<any>({
+    queryKey: ["/api/deals", dealId, "commission"],
+    queryFn: () => apiGet(`api/deals/${dealId}/commission`),
+    enabled: !!dealId,
+  });
+
+  if (isLoading) return <Skeleton className="h-20 w-full" />;
+  if (!data || !data.splits || data.splits.length === 0) {
+    return (
+      <div className="text-center py-4 text-sm text-muted-foreground">
+        <p>لم يتم تحديد توزيع العمولة بعد</p>
+        <p className="text-xs mt-1">يتم التوزيع تلقائياً عند إغلاق الصفقة</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {data.totalCommission && (
+        <div className="flex justify-between text-sm border-b border-border pb-2 mb-2">
+          <span className="text-muted-foreground">إجمالي العمولة</span>
+          <span className="font-bold text-primary">{Number(data.totalCommission).toLocaleString()} ر.س</span>
+        </div>
+      )}
+      {data.splits.map((split: any) => (
+        <div key={split.id} className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2">
+            <Badge variant={split.recipientType === "AGENT" ? "default" : "secondary"} className="text-[10px]">
+              {split.recipientType === "AGENT" ? "وسيط" : split.recipientType === "BROKERAGE" ? "منشأة" : "إحالة"}
+            </Badge>
+            <span>{split.recipientName}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">{split.percentage}%</span>
+            <span className="font-bold tabular-nums">{Number(split.amount).toLocaleString()}</span>
+            <Badge variant={split.status === "PAID" ? "default" : "outline"} className="text-[9px]">
+              {split.status === "PENDING" ? "بانتظار" : split.status === "APPROVED" ? "معتمد" : split.status === "PAID" ? "مدفوع" : split.status}
+            </Badge>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Pipeline() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const [showRequestDrawer, setShowRequestDrawer] = useState(false);
-  const { dir, language } = useLanguage();
+  const { language } = useLanguage();
   const showSkeleton = useMinLoadTime();
   const locale = language === "ar" ? "ar-SA" : "en-US";
 
@@ -906,6 +953,21 @@ export default function Pipeline() {
                           </div>
                         );
                       })()}
+
+                      {/* Commission Split */}
+                      {selectedDeal && (
+                        <Card className="mt-4">
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-sm flex items-center gap-2">
+                              <Users size={16} />
+                              توزيع العمولة
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <CommissionSplitCard dealId={selectedDeal.id} />
+                          </CardContent>
+                        </Card>
+                      )}
                     </div>
                   </TabsContent>
 

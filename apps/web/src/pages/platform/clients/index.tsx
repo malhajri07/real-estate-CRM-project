@@ -96,7 +96,7 @@ export default function Clients() {
     return (
       <div className={PAGE_WRAPPER}>
         <PageHeader
-          title={t("nav.clients") || "العملاء"}
+          title={"العملاء"}
           subtitle={t("clients.subtitle") || "إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم"}
         />
         <QueryErrorFallback
@@ -111,7 +111,7 @@ export default function Clients() {
     return (
       <div className={PAGE_WRAPPER}>
         <PageHeader
-          title={t("nav.clients") || "العملاء"}
+          title={"العملاء"}
           subtitle={t("clients.subtitle") || "إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم"}
         />
         <ClientDetailSkeleton />
@@ -122,7 +122,7 @@ export default function Clients() {
   return (
     <div className={PAGE_WRAPPER}>
         <PageHeader
-          title={t("nav.clients") || "العملاء"}
+          title={"العملاء"}
           subtitle={t("clients.subtitle") || "إدارة العملاء ومتابعة أنشطتهم وتفاصيلهم"}
         />
         <div className={GRID_THREE_COL}>
@@ -231,7 +231,7 @@ export default function Clients() {
                 <CardContent className="flex h-96 items-center justify-center">
                   <div className="space-y-2 text-center text-muted-foreground">
                     <MessageCircle size={48} className="mx-auto opacity-40" />
-                    <h3 className={`${TYPOGRAPHY.sectionTitle} text-end`}>اختر عميلاً</h3>
+                    <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-end")}>اختر عميلاً</h3>
                     <p className="text-sm">اختر عميلاً من القائمة لعرض تفاصيله وتاريخ نشاطه.</p>
                   </div>
                 </CardContent>
@@ -431,7 +431,7 @@ export default function Clients() {
 
                     <TabsContent value="activities" className="p-6">
                       <div className="mb-4 flex items-center justify-between">
-                        <h3 className={`${TYPOGRAPHY.sectionTitle} text-end`}>{language === "ar" ? "سجل الأنشطة" : "Activity Log"}</h3>
+                        <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-end")}>{language === "ar" ? "سجل الأنشطة" : "Activity Log"}</h3>
                       <Button size="sm" onClick={() => setLocation("/home/platform/activities")}>
                         <Plus className={"me-2"} size={16} />
                           إضافة نشاط
@@ -483,7 +483,7 @@ export default function Clients() {
 
                     {/* Timeline Tab - Activity Timeline */}
                     <TabsContent value="timeline" className="p-6">
-                      <h3 className={`${TYPOGRAPHY.sectionTitle} text-end mb-4`}>الخط الزمني</h3>
+                      <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-end", "mb-4")}>الخط الزمني</h3>
                       <div className="relative">
                         <div className="absolute start-5 top-0 bottom-0 w-px bg-border" />
 
@@ -561,7 +561,7 @@ export default function Clients() {
 
                     {/* Properties Tab - Properties They've Viewed/Inquired About */}
                     <TabsContent value="properties" className="p-6">
-                      <h3 className={`${TYPOGRAPHY.sectionTitle} text-end mb-4`}>العقارات المرتبطة</h3>
+                      <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-end", "mb-4")}>العقارات المرتبطة</h3>
                       <div className="space-y-4">
                         {/* Placeholder for properties the client showed interest in */}
                         <div className="py-8 text-center text-muted-foreground">
@@ -614,7 +614,7 @@ export default function Clients() {
                     {/* Communication Tab - Communication Log */}
                     <TabsContent value="communication" className="p-6">
                       <div className="mb-4 flex items-center justify-between">
-                        <h3 className={`${TYPOGRAPHY.sectionTitle} text-end`}>سجل التواصل</h3>
+                        <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-end")}>سجل التواصل</h3>
                         <div className="flex gap-2">
                           <Button size="sm" variant="outline" onClick={() => {
                             if (selectedLead.phone) window.open(`tel:${selectedLead.phone}`, '_self');
@@ -714,7 +714,7 @@ export default function Clients() {
 
                     {/* Notes Tab */}
                     <TabsContent value="notes" className="p-6">
-                      <h3 className={`${TYPOGRAPHY.sectionTitle} text-end mb-4`}>الملاحظات</h3>
+                      <h3 className={cn(TYPOGRAPHY.sectionTitle, "text-end", "mb-4")}>الملاحظات</h3>
                       {selectedLead.notes ? (
                         <Card>
                           <CardContent className="p-4">

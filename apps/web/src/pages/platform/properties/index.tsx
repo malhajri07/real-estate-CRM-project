@@ -12,7 +12,8 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { Plus, SlidersHorizontal, LayoutGrid, List, Search, X } from "lucide-react";
+import { Plus, SlidersHorizontal, LayoutGrid, List, Search, X, CheckCircle, XCircle, Clock } from "lucide-react";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocation } from "wouter";
 import {
   Sheet, SheetContent, SheetHeader, SheetFooter,
@@ -29,7 +30,7 @@ import {
 } from "@/components/ui/pagination";
 import EmptyState from "@/components/ui/empty-state";
 import AddPropertyDrawer from "@/components/modals/add-property-drawer";
-import { apiDelete } from "@/lib/apiClient";
+import { apiDelete, apiPatch } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Property } from "@shared/types";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
@@ -46,6 +47,11 @@ import PropertiesTable from "./PropertiesTable";
 export default function Properties() {
   const showSkeleton = useMinLoadTime();
   const { t, dir } = useLanguage();
+  const { user } = useAuth();
+  const userRoles: string[] = Array.isArray(user?.roles) ? user.roles : [];
+  const isCorpOwner = userRoles.includes("CORP_OWNER");
+  const isAdmin = userRoles.includes("WEBSITE_ADMIN");
+  const canApprove = isCorpOwner || isAdmin;
   const [addPropertyDrawerOpen, setAddPropertyDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,6 +116,30 @@ export default function Properties() {
       toast({ title: "خطأ", description: "فشل في حذف العقار", variant: "destructive" });
     },
   });
+
+  const approveMutation = useMutation({
+    mutationFn: (id: string) => apiPatch(`api/listings/${id}/approve`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
+      toast({ title: "تم الموافقة على الإعلان" });
+    },
+    onError: () => toast({ title: "خطأ", variant: "destructive" }),
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: (id: string) => apiPatch(`api/listings/${id}/reject`, { reason: "لم يستوفِ المتطلبات" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/listings"] });
+      toast({ title: "تم رفض الإعلان" });
+    },
+    onError: () => toast({ title: "خطأ", variant: "destructive" }),
+  });
+
+  // Pending approval listings (CORP_OWNER only)
+  const pendingApproval = useMemo(() => {
+    if (!canApprove) return [];
+    return (properties || []).filter((p: any) => p.status === "PENDING_APPROVAL");
+  }, [properties, canApprove]);
 
   const toNumber = (value: string | number | null | undefined): number | null => {
     if (value === null || value === undefined) return null;
@@ -288,7 +318,7 @@ export default function Properties() {
   if (isLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
-        <PageHeader title={t("nav.properties") || "العقارات"} />
+        <PageHeader title={"العقارات"} />
         <PropertiesGridSkeleton />
       </div>
     );
@@ -296,7 +326,7 @@ export default function Properties() {
 
   return (
     <div className={PAGE_WRAPPER}>
-      <PageHeader title={t("nav.properties") || "العقارات"} />
+      <PageHeader title={"العقارات"} />
       {/* Search + Toolbar */}
       <Card className="p-3">
         <div className="flex items-center gap-3">
@@ -392,6 +422,37 @@ export default function Properties() {
         activeFilterCount={activeFilterCount}
         onResetFilters={resetFilters}
       />
+
+      {/* Pending Approval Section — CORP_OWNER only */}
+      {canApprove && pendingApproval.length > 0 && (
+        <Card className="border-[hsl(var(--warning)/0.3)] bg-[hsl(var(--warning)/0.05)]">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Clock size={16} className="text-[hsl(var(--warning))]" />
+              بانتظار الموافقة ({pendingApproval.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {pendingApproval.map((p: any) => (
+              <div key={p.id} className="flex items-center justify-between rounded-lg border bg-card p-3">
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm truncate">{p.title || "بدون عنوان"}</p>
+                  <p className="text-xs text-muted-foreground">{p.city}{p.district ? ` · ${p.district}` : ""} · {p.propertyType || p.type}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Badge variant="outline" className="text-[10px] border-[hsl(var(--warning)/0.3)] text-[hsl(var(--warning))]">بانتظار</Badge>
+                  <Button size="sm" className="h-7 text-xs gap-1" onClick={() => approveMutation.mutate(p.id)} disabled={approveMutation.isPending}>
+                    <CheckCircle size={12} />موافقة
+                  </Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1 text-destructive" onClick={() => rejectMutation.mutate(p.id)} disabled={rejectMutation.isPending}>
+                    <XCircle size={12} />رفض
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

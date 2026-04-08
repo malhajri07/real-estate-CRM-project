@@ -1,3 +1,7 @@
+/**
+ * AccountSection.tsx — Password change + active sessions
+ */
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,8 +10,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Shield, ChevronDown } from "lucide-react";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { Badge } from "@/components/ui/badge";
+import { Shield, Smartphone, Monitor, Clock } from "lucide-react";
 import { apiPut } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,12 +28,7 @@ const passwordSchema = z
 
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
-export interface AccountSectionProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export default function AccountSection({ isOpen, onOpenChange }: AccountSectionProps) {
+export default function AccountSection() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -60,80 +59,85 @@ export default function AccountSection({ isOpen, onOpenChange }: AccountSectionP
   };
 
   return (
-    <Collapsible open={isOpen} onOpenChange={onOpenChange}>
+    <div className="space-y-6">
+      {/* Password Change */}
       <Card>
-        <CardHeader className="border-b border-border pb-5 flex items-center justify-between">
+        <CardHeader>
           <div className="flex items-center gap-3">
             <span className="rounded-full bg-primary/10 p-2 text-primary"><Shield size={18} /></span>
-            <div className="text-end">
-              <CardTitle>الأمان وكلمة المرور</CardTitle>
-              <CardDescription>قم بتحديث كلمة المرور الخاصة بك بانتظام لحماية الحساب</CardDescription>
+            <div>
+              <CardTitle>كلمة المرور</CardTitle>
+              <CardDescription>قم بتحديث كلمة المرور بانتظام لحماية حسابك</CardDescription>
             </div>
           </div>
-          <CollapsibleTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="rounded-full border border-border bg-card p-2 text-muted-foreground transition hover:text-foreground/80"
-              aria-label="تبديل عرض إعدادات الأمان"
-            >
-              <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
-            </Button>
-          </CollapsibleTrigger>
         </CardHeader>
-        <CollapsibleContent>
-          <CardContent className="space-y-4 pt-6">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="currentPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="block text-sm font-medium text-foreground/80">كلمة المرور الحالية</FormLabel>
-                      <FormControl>
-                        <Input type="password" className="text-subtle" data-testid="input-current-password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="newPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="block text-sm font-medium text-foreground/80">كلمة المرور الجديدة</FormLabel>
-                      <FormControl>
-                        <Input type="password" className="text-subtle" data-testid="input-new-password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="block text-sm font-medium text-foreground/80">تأكيد كلمة المرور الجديدة</FormLabel>
-                      <FormControl>
-                        <Input type="password" className="text-subtle" data-testid="input-confirm-password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="mt-4 flex items-center gap-2" disabled={isSubmitting} data-testid="button-change-password">
-                  <Shield size={16} />
-                  {isSubmitting ? "جاري التغيير..." : "تغيير كلمة المرور"}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </CollapsibleContent>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 max-w-md">
+              <FormField control={form.control} name="currentPassword" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>كلمة المرور الحالية</FormLabel>
+                  <FormControl><Input type="password" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="newPassword" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>كلمة المرور الجديدة</FormLabel>
+                  <FormControl><Input type="password" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <FormField control={form.control} name="confirmPassword" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>تأكيد كلمة المرور الجديدة</FormLabel>
+                  <FormControl><Input type="password" {...field} /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+              <Button type="submit" disabled={isSubmitting} className="gap-2">
+                <Shield size={16} />
+                {isSubmitting ? "جاري التغيير..." : "تغيير كلمة المرور"}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
       </Card>
-    </Collapsible>
+
+      {/* Active Sessions */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <span className="rounded-full bg-primary/10 p-2 text-primary"><Monitor size={18} /></span>
+            <div>
+              <CardTitle>الجلسات النشطة</CardTitle>
+              <CardDescription>الأجهزة المتصلة حالياً بحسابك</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {/* Current session */}
+          <div className="flex items-center justify-between rounded-lg border p-3">
+            <div className="flex items-center gap-3">
+              <Monitor size={20} className="text-primary" />
+              <div>
+                <p className="text-sm font-bold">هذا الجهاز</p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Clock size={12} />
+                  نشط الآن
+                </p>
+              </div>
+            </div>
+            <Badge variant="default" className="gap-1">
+              الجلسة الحالية
+            </Badge>
+          </div>
+
+          <p className="text-xs text-muted-foreground pt-2">
+            إذا لاحظت أي نشاط مشبوه، قم بتغيير كلمة المرور فوراً.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

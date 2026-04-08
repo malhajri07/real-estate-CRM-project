@@ -266,7 +266,7 @@ export default function BlogPage() {
                   <div className="flex flex-wrap gap-2">
                     <span className="text-sm text-muted-foreground font-medium">الوسوم:</span>
                     {article.tags.map((tag) => (
-                      <Badge key={tag.id} variant="secondary" className="bg-muted/50 text-foreground/80 hover:bg-slate-200">
+                      <Badge key={tag.id} variant="secondary" className="bg-muted/50 text-foreground/80 hover:bg-border">
                         {tag.name}
                       </Badge>
                     ))}
@@ -369,7 +369,7 @@ export default function BlogPage() {
                   className={cn(
                     selectedCategory === null
                       ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "bg-white hover:bg-muted/30"
+                      : "bg-card hover:bg-muted/30"
                   )}
                 >
                   الكل
@@ -386,7 +386,7 @@ export default function BlogPage() {
                     className={cn(
                       selectedCategory === category.id
                         ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                        : "bg-white hover:bg-muted/30"
+                        : "bg-card hover:bg-muted/30"
                     )}
                   >
                     {category.name}
@@ -408,7 +408,7 @@ export default function BlogPage() {
                       "cursor-pointer transition-colors",
                       selectedTag === tag.id
                         ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                        : "bg-white hover:bg-primary/10"
+                        : "bg-card hover:bg-primary/10"
                     )}
                     onClick={() => {
                       setSelectedTag(selectedTag === tag.id ? null : tag.id);

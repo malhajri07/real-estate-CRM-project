@@ -1,15 +1,13 @@
 /**
  * saudi-regulation.validators.ts — Saudi Real Estate Regulation Validators
  *
- * Shared validation rules for FAL license, REGA, National Address,
- * commission caps, and RETT (Real Estate Transaction Tax).
+ * Enforces REGA (الهيئة العامة للعقار) regulations:
+ * - نظام الوساطة العقارية (Royal Decree M/130, 1443H)
+ * - اللائحة التنفيذية لنظام الوساطة العقارية (1444H)
+ * - ضوابط الإعلانات العقارية (1442H)
+ * - معايير ترخيص المنصات العقارية الإلكترونية (1442H)
  *
- * References:
- * - REGA (الهيئة العامة للعقار): rega.gov.sa
- * - FAL License: 10-digit numeric
- * - Commission cap: 2.5% sale, 2.5% first-year rent
- * - RETT: 5% of transaction value (ZATCA)
- * - National Address: Saudi Post (SPL)
+ * References: rega.gov.sa/الأنظمة-واللوائح-والأدلة/
  */
 
 import { z } from "zod";
@@ -54,7 +52,7 @@ export const saudiMobileSchema = z
 
 // ── REGA Advertising License ───────────────────────────────────────────────
 
-/** Per-listing REGA advertising license (SAR 50 each) */
+/** Per-listing REGA advertising license — required per ضوابط الإعلانات العقارية */
 export const regaAdLicenseSchema = z
   .string()
   .min(1, "رقم ترخيص الإعلان العقاري مطلوب")
@@ -78,35 +76,45 @@ export const nationalAddressSchema = z.object({
     .string()
     .regex(/^\d{4}$/, "الرقم الإضافي يجب أن يتكون من 4 أرقام")
     .optional(),
-  shortCode: z.string().max(20).optional(), // Alphanumeric short address
+  shortCode: z.string().max(20).optional(),
 });
 
-// ── Commission Cap (نظام الوساطة العقارية) ──────────────────────────────────
+// ── Commission Cap (نظام الوساطة العقارية — المادة 14) ─────────────────────
 
-/** Saudi law: max 2.5% commission for both sale and rental */
+/**
+ * Saudi Brokerage Law Article 14:
+ * - Sale: max 2.5% of transaction value
+ * - Rental: max 2.5% of first year's rent only
+ * - Multi-party: total must not exceed 2.5% (split equally by default)
+ * - Can be varied by written agreement of the parties
+ */
 export const COMMISSION_CAP_PERCENTAGE = 2.5;
 
-/** VAT rate on brokerage services */
+/** VAT rate on brokerage services (15% per ZATCA) */
 export const VAT_RATE = 0.15;
 
 /**
  * Validates commission rate against Saudi regulatory cap.
- * Returns { valid, warning } — allows override but warns.
+ * Article 14: 2.5% max for both sale and rental.
+ * Returns { valid, warning, rentalNote } — allows override with written agreement.
  */
 export function validateCommissionCap(
   rate: number,
   transactionType: "SALE" | "RENT" = "SALE"
-): { valid: boolean; warning?: string } {
+): { valid: boolean; warning?: string; rentalNote?: string } {
   const cap = COMMISSION_CAP_PERCENTAGE;
 
-  if (rate <= cap) {
-    return { valid: true };
+  const result: { valid: boolean; warning?: string; rentalNote?: string } = { valid: rate <= cap };
+
+  if (rate > cap) {
+    result.warning = `العمولة ${rate}% تتجاوز الحد النظامي (${cap}%) حسب المادة 14 من نظام الوساطة العقارية. يجب تضمينها في عقد وساطة مكتوب وموقّع.`;
   }
 
-  return {
-    valid: false,
-    warning: `العمولة ${rate}% تتجاوز الحد النظامي (${cap}%) حسب نظام الوساطة العقارية. يجب تضمينها في عقد الوساطة.`,
-  };
+  if (transactionType === "RENT") {
+    result.rentalNote = "عمولة الإيجار تحتسب على إيجار السنة الأولى فقط (المادة 14)";
+  }
+
+  return result;
 }
 
 /** Commission amount with optional VAT */
@@ -124,19 +132,43 @@ export function calculateCommission(
   };
 }
 
+// ── Earnest Money / العربون (اللائحة التنفيذية — المادة 21) ──────────────────
+
+/**
+ * Earnest money (عربون) cap per Implementing Regulations Article 21:
+ * - Max 5% of transaction value
+ * - Beyond 5%, it becomes a price down-payment
+ * - If deal fails and seller keeps earnest, broker receives 25% of earnest
+ */
+export const EARNEST_MONEY_CAP_PERCENTAGE = 5;
+export const BROKER_EARNEST_SHARE = 0.25;
+
+export function validateEarnestMoney(
+  earnestAmount: number,
+  transactionValue: number
+): { valid: boolean; warning?: string; brokerShare: number } {
+  const cap = transactionValue * (EARNEST_MONEY_CAP_PERCENTAGE / 100);
+  const brokerShare = Math.round(earnestAmount * BROKER_EARNEST_SHARE * 100) / 100;
+
+  if (earnestAmount <= cap) {
+    return { valid: true, brokerShare };
+  }
+
+  return {
+    valid: false,
+    warning: `العربون ${earnestAmount.toLocaleString()} ر.س يتجاوز الحد النظامي (5% = ${cap.toLocaleString()} ر.س). المبلغ الزائد يعتبر دفعة من الثمن.`,
+    brokerShare,
+  };
+}
+
 // ── RETT — Real Estate Transaction Tax (ضريبة التصرفات العقارية) ───────────
 
-/** RETT rate: 5% of property value, paid by seller */
+/** RETT rate: 5% of property value, paid by seller (ZATCA) */
 export const RETT_RATE = 0.05;
 
 /** First-home exemption cap under Sakani program */
-export const FIRST_HOME_EXEMPTION_CAP = 1_000_000; // SAR
+export const FIRST_HOME_EXEMPTION_CAP = 1_000_000;
 
-/**
- * Calculates RETT for a transaction.
- * - Standard: 5% of sale price
- * - First home: government bears tax up to SAR 1M (Sakani program)
- */
 export function calculateRETT(
   salePrice: number,
   isFirstHome: boolean = false
@@ -147,7 +179,6 @@ export function calculateRETT(
     return { rettAmount, exemptionAmount: 0, netRett: rettAmount };
   }
 
-  // First-home: government covers RETT on first SAR 1M
   const exemptableBase = Math.min(salePrice, FIRST_HOME_EXEMPTION_CAP);
   const exemptionAmount = Math.round(exemptableBase * RETT_RATE * 100) / 100;
   const netRett = Math.max(0, rettAmount - exemptionAmount);
@@ -168,8 +199,6 @@ export const LEGAL_STATUS_LABELS: Record<string, { ar: string; en: string }> = {
   ENDOWMENT: { ar: "وقف", en: "Endowment (Waqf)" },
 };
 
-// ── Facade Direction Labels ────────────────────────────────────────────────
-
 export const FACADE_DIRECTION_LABELS: Record<string, { ar: string; en: string }> = {
   NORTH: { ar: "شمال", en: "North" },
   SOUTH: { ar: "جنوب", en: "South" },
@@ -180,8 +209,6 @@ export const FACADE_DIRECTION_LABELS: Record<string, { ar: string; en: string }>
   SOUTH_EAST: { ar: "جنوب شرق", en: "South East" },
   SOUTH_WEST: { ar: "جنوب غرب", en: "South West" },
 };
-
-// ── Available Services ─────────────────────────────────────────────────────
 
 export const PROPERTY_SERVICES = [
   { key: "electricity", ar: "كهرباء", en: "Electricity" },
@@ -194,8 +221,12 @@ export const PROPERTY_SERVICES = [
 // ── Mandatory Listing Fields per REGA ──────────────────────────────────────
 
 /**
- * Checks if a listing has all REGA-mandated fields.
- * Returns array of missing field names.
+ * ضوابط الإعلانات العقارية (1442H):
+ * Every real estate ad must include: purpose, property type, advertiser name,
+ * FAL license number, REGA ad license, location (city + district min),
+ * area, price, active contact method, property description.
+ *
+ * Returns array of missing field names (Arabic labels).
  */
 export function checkListingRegaCompliance(listing: Record<string, unknown>): string[] {
   const required: { field: string; label: string }[] = [
@@ -206,10 +237,43 @@ export function checkListingRegaCompliance(listing: Record<string, unknown>): st
     { field: "areaSqm", label: "المساحة" },
     { field: "price", label: "السعر" },
     { field: "type", label: "نوع العقار" },
-    { field: "facadeDirection", label: "واجهة العقار" },
+    { field: "description", label: "وصف العقار" },
   ];
 
   return required
     .filter(({ field }) => !listing[field])
     .map(({ label }) => label);
+}
+
+/**
+ * Listing auto-expiry per ضوابط الإعلانات العقارية:
+ * "يجب حذف الإعلان خلال يومين من إتمام الغرض منه"
+ * Ads must be removed within 2 days of purpose completion (sale/lease).
+ */
+export const AD_REMOVAL_DEADLINE_DAYS = 2;
+
+/**
+ * Validates that a FAL license is not expired.
+ * Returns { valid, daysRemaining, warning }
+ */
+export function validateFalExpiry(expiresAt: Date | string | null): {
+  valid: boolean;
+  daysRemaining: number | null;
+  warning?: string;
+} {
+  if (!expiresAt) return { valid: true, daysRemaining: null };
+
+  const expiry = new Date(expiresAt);
+  const now = new Date();
+  const daysRemaining = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (daysRemaining < 0) {
+    return { valid: false, daysRemaining, warning: "رخصة فال منتهية الصلاحية. يجب تجديدها قبل ممارسة النشاط." };
+  }
+
+  if (daysRemaining <= 60) {
+    return { valid: true, daysRemaining, warning: `رخصة فال تنتهي خلال ${daysRemaining} يوم. يجب تقديم طلب التجديد قبل 60 يوم من الانتهاء.` };
+  }
+
+  return { valid: true, daysRemaining };
 }

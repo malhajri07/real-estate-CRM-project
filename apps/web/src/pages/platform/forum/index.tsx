@@ -214,7 +214,7 @@ export default function ForumPage() {
           : undefined,
       }),
     onSuccess: () => {
-      toast.success(t("forum.post_success"));
+      toast.success("تم نشر المنشور");
       postForm.reset();
       setMediaUrls([]);
       setIsCreateOpen(false);
@@ -222,7 +222,7 @@ export default function ForumPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/community/channels"] });
     },
     onError: () => {
-      toast.error(t("forum.post_error"));
+      toast.error("فشل نشر المنشور");
     },
   });
 
@@ -234,13 +234,13 @@ export default function ForumPage() {
         description: values.description || undefined,
       }),
     onSuccess: () => {
-      toast.success(t("forum.channel_success"));
+      toast.success("تم إنشاء القناة");
       channelForm.reset();
       setIsChannelOpen(false);
       queryClient.invalidateQueries({ queryKey: ["/api/community/channels"] });
     },
     onError: () => {
-      toast.error(t("forum.channel_error"));
+      toast.error("فشل إنشاء القناة");
     },
   });
 
@@ -255,7 +255,7 @@ export default function ForumPage() {
     mutationFn: (postId: string) => apiPost(`api/community/post/${postId}/delete`, {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: feedQueryKey });
-      toast.success(t("forum.post_deleted") || "تم حذف المنشور");
+      toast.success("تم حذف المنشور");
     },
     onError: () => toast.error("فشل حذف المنشور"),
   });
@@ -286,7 +286,7 @@ export default function ForumPage() {
   const handleShare = (post: ForumPost) => {
     const text = post.content.substring(0, 100);
     navigator.clipboard.writeText(`${text}...\n\n${window.location.href}`);
-    toast.success(t("forum.link_copied") || "تم نسخ الرابط");
+    toast.success("تم نسخ الرابط");
   };
 
   const addMedia = () => {
@@ -305,7 +305,7 @@ export default function ForumPage() {
   if (isError)
     return (
       <QueryErrorFallback
-        message={t("forum.post_error") || "فشل تحميل المنتدى"}
+        message={"فشل نشر المنشور"}
         onRetry={() => refetch()}
       />
     );
@@ -313,16 +313,16 @@ export default function ForumPage() {
   return (
     <div className={PAGE_WRAPPER}>
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <PageHeader title={t("forum.title") || t("nav.forum") || "المنتدى العقاري"} />
+        <PageHeader title="المنتدى العقاري" />
 
         <div className="flex gap-2">
           <Button variant="outline" className="gap-2" onClick={() => setIsChannelOpen(true)}>
             <Plus className="h-4 w-4" />
-            <span>{t("forum.create_channel")}</span>
+            <span>{"إنشاء قناة"}</span>
           </Button>
           <Button className="gap-2" onClick={() => setIsCreateOpen(true)}>
             <PenLine className="h-4 w-4" />
-            <span>{t("forum.create_post")}</span>
+            <span>{"منشور جديد"}</span>
           </Button>
         </div>
 
@@ -330,8 +330,8 @@ export default function ForumPage() {
         <Sheet open={isChannelOpen} onOpenChange={setIsChannelOpen}>
           <SheetContent side="bottom">
             <SheetHeader>
-              <SheetTitle>{t("forum.create_channel")}</SheetTitle>
-              <SheetDescription>{t("forum.channel_description") || "إنشاء قناة جديدة في المنتدى"}</SheetDescription>
+              <SheetTitle>{"إنشاء قناة"}</SheetTitle>
+              <SheetDescription>{"وصف القناة"}</SheetDescription>
             </SheetHeader>
             <Form {...channelForm}>
               <form onSubmit={channelForm.handleSubmit(handleChannelSubmit)}>
@@ -341,7 +341,7 @@ export default function ForumPage() {
                     name="nameAr"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("forum.channel_name_ar")}</FormLabel>
+                        <FormLabel>{"اسم القناة (عربي)"}</FormLabel>
                         <FormControl>
                           <Input placeholder="مثال: أخبار السوق" {...field} />
                         </FormControl>
@@ -354,7 +354,7 @@ export default function ForumPage() {
                     name="nameEn"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("forum.channel_name_en")}</FormLabel>
+                        <FormLabel>{"اسم القناة (إنجليزي)"}</FormLabel>
                         <FormControl>
                           <Input placeholder="مثال: Market News" {...field} />
                         </FormControl>
@@ -367,10 +367,10 @@ export default function ForumPage() {
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("forum.channel_description")}</FormLabel>
+                        <FormLabel>{"وصف القناة"}</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder={t("forum.channel_description")}
+                            placeholder={"وصف القناة"}
                             rows={2}
                             {...field}
                           />
@@ -382,13 +382,13 @@ export default function ForumPage() {
                 </div>
                 <SheetFooter className="max-w-lg mx-auto">
                   <Button type="button" variant="outline" onClick={() => setIsChannelOpen(false)}>
-                    {t("forum.cancel")}
+                    {"إلغاء"}
                   </Button>
                   <Button
                     type="submit"
                     disabled={createChannelMutation.isPending}
                   >
-                    {createChannelMutation.isPending ? "..." : t("forum.create_channel")}
+                    {createChannelMutation.isPending ? "..." : "إنشاء قناة"}
                   </Button>
                 </SheetFooter>
               </form>
@@ -400,8 +400,8 @@ export default function ForumPage() {
         <Sheet open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <SheetContent side="bottom">
             <SheetHeader>
-              <SheetTitle>{t("forum.start_discussion")}</SheetTitle>
-              <SheetDescription>{t("forum.placeholder") || "ابدأ نقاشاً جديداً"}</SheetDescription>
+              <SheetTitle>{"ابدأ نقاش جديد"}</SheetTitle>
+              <SheetDescription>{"اكتب منشورك هنا..."}</SheetDescription>
             </SheetHeader>
             <Form {...postForm}>
               <form onSubmit={postForm.handleSubmit(handlePostSubmit)}>
@@ -411,13 +411,13 @@ export default function ForumPage() {
                     name="type"
                     render={() => (
                       <FormItem>
-                        <FormLabel>{t("forum.post_type.discussion")}</FormLabel>
+                        <FormLabel>{"نقاش"}</FormLabel>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button type="button" variant="outline" className="w-full justify-between h-10 font-normal">
                               {POST_TYPES.find(pt => pt.value === postForm.watch("type"))
                                 ? t(POST_TYPES.find(pt => pt.value === postForm.watch("type"))!.key)
-                                : t("forum.post_type.discussion")}
+                                : "نقاش"}
                               <ChevronDown className="h-4 w-4 opacity-50" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -439,19 +439,19 @@ export default function ForumPage() {
                       name="channelId"
                       render={() => (
                         <FormItem>
-                          <FormLabel>{t("forum.channels")}</FormLabel>
+                          <FormLabel>{"القنوات"}</FormLabel>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button type="button" variant="outline" className="w-full justify-between h-10 font-normal">
                                 {postForm.watch("channelId")
-                                  ? channels.find(c => c.id === postForm.watch("channelId"))?.nameAr || t("forum.all_channels")
-                                  : t("forum.all_channels")}
+                                  ? channels.find(c => c.id === postForm.watch("channelId"))?.nameAr || "كل القنوات"
+                                  : "كل القنوات"}
                                 <ChevronDown className="h-4 w-4 opacity-50" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
                               <DropdownMenuItem onClick={() => postForm.setValue("channelId", "")}>
-                                {t("forum.all_channels")}
+                                {"كل القنوات"}
                               </DropdownMenuItem>
                               {channels.map((ch) => (
                                 <DropdownMenuItem key={ch.id} onClick={() => postForm.setValue("channelId", ch.id)}>
@@ -470,10 +470,10 @@ export default function ForumPage() {
                     name="content"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("forum.placeholder")}</FormLabel>
+                        <FormLabel>{"اكتب منشورك هنا..."}</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder={t("forum.placeholder")}
+                            placeholder={"اكتب منشورك هنا..."}
                             className="min-h-[120px] resize-none"
                             {...field}
                           />
@@ -483,7 +483,7 @@ export default function ForumPage() {
                     )}
                   />
                   <div className="space-y-2">
-                    <Label>{t("forum.media_url_placeholder")}</Label>
+                    <Label>{"رابط صورة أو فيديو (اختياري)"}</Label>
                     <div className="flex gap-2">
                       <Input
                         placeholder="https://..."
@@ -525,13 +525,13 @@ export default function ForumPage() {
                 </div>
                 <SheetFooter className="max-w-lg mx-auto">
                   <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
-                    {t("forum.cancel")}
+                    {"إلغاء"}
                   </Button>
                   <Button
                     type="submit"
                     disabled={createPostMutation.isPending}
                   >
-                    {createPostMutation.isPending ? t("forum.posting") : t("forum.post")}
+                    {createPostMutation.isPending ? "جاري النشر..." : "نشر"}
                   </Button>
                 </SheetFooter>
               </form>
@@ -545,7 +545,7 @@ export default function ForumPage() {
         <div className="hidden space-y-6 lg:block lg:col-span-1">
           <Card>
             <CardContent className="p-6">
-              <h3 className={`${TYPOGRAPHY.sectionTitle} mb-4`}>{t("forum.channels")}</h3>
+              <h3 className={`${TYPOGRAPHY.sectionTitle} mb-4`}>{"القنوات"}</h3>
               <ul className="space-y-4">
                 <li
                   className={cn(
@@ -558,7 +558,7 @@ export default function ForumPage() {
                 >
                   <span className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-primary" />
-                    {t("forum.all_channels")}
+                    {"كل القنوات"}
                   </span>
                 </li>
                 {channels.map((ch) => (
@@ -602,7 +602,7 @@ export default function ForumPage() {
                         <FormItem className="space-y-0">
                           <FormControl>
                             <Textarea
-                              placeholder={t("forum.placeholder") || "ماذا يحدث في السوق العقاري؟"}
+                              placeholder={"اكتب منشورك هنا..."}
                               className="min-h-[80px] resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 text-base p-0"
                               {...field}
                             />
@@ -631,13 +631,13 @@ export default function ForumPage() {
                             <Button type="button" variant="ghost" className="h-8 gap-1 text-xs font-bold text-primary hover:bg-primary/5 rounded-full px-3">
                               <TrendingUp className="h-3.5 w-3.5 shrink-0" />
                               {postForm.watch("channelId")
-                                ? channels.find(c => c.id === postForm.watch("channelId"))?.nameAr || t("forum.all_channels") || "جميع القنوات"
-                                : t("forum.all_channels") || "جميع القنوات"}
+                                ? channels.find(c => c.id === postForm.watch("channelId"))?.nameAr || "كل القنوات"
+                                : "كل القنوات"}
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="start">
                             <DropdownMenuItem onClick={() => postForm.setValue("channelId", "")}>
-                              {t("forum.all_channels") || "جميع القنوات"}
+                              {"كل القنوات"}
                             </DropdownMenuItem>
                             {channels.map((ch) => (
                               <DropdownMenuItem key={ch.id} onClick={() => postForm.setValue("channelId", ch.id)}>
@@ -653,7 +653,7 @@ export default function ForumPage() {
                               <Award className="h-3.5 w-3.5 shrink-0" />
                               {POST_TYPES.find(pt => pt.value === postForm.watch("type"))
                                 ? t(POST_TYPES.find(pt => pt.value === postForm.watch("type"))!.key)
-                                : t("forum.post_type.discussion")}
+                                : "نقاش"}
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="start">
@@ -671,7 +671,7 @@ export default function ForumPage() {
                           size="sm"
                           className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5"
                           onClick={() => {
-                            const url = prompt(t("forum.media_url_placeholder") || "أدخل رابط الصورة أو الفيديو");
+                            const url = prompt("رابط صورة أو فيديو (اختياري)");
                             if (url?.trim()) {
                               const type = isVideoUrl(url) ? "VIDEO" : "IMAGE";
                               setMediaUrls((prev) => [...prev, { url: url.trim(), type }]);
@@ -687,7 +687,7 @@ export default function ForumPage() {
                         className="rounded-full px-6 font-bold"
                         disabled={createPostMutation.isPending || !postForm.watch("content")?.trim()}
                       >
-                        {createPostMutation.isPending ? "..." : (t("forum.post") || "نشر")}
+                        {createPostMutation.isPending ? "..." : ("نشر")}
                       </Button>
                     </div>
                   </div>
@@ -700,8 +700,8 @@ export default function ForumPage() {
             <ForumSkeleton />
           ) : posts.length === 0 ? (
             <EmptyState
-              title={t("forum.no_posts")}
-              description={t("forum.no_posts_description")}
+              title={"لا توجد منشورات"}
+              description={"كن أول من يشارك في هذا المجتمع"}
             />
           ) : (
             <AnimatePresence>
@@ -784,7 +784,7 @@ export default function ForumPage() {
                                 const ytEmbed = getYouTubeEmbedUrl(m.url);
                                 const vimeoEmbed = getVimeoEmbedUrl(m.url);
                                 return (
-                                  <div key={m.id} className="rounded-lg overflow-hidden border bg-black aspect-video">
+                                  <div key={m.id} className="rounded-lg overflow-hidden border bg-foreground aspect-video">
                                     {ytEmbed ? (
                                       <iframe
                                         src={ytEmbed}
@@ -878,7 +878,7 @@ export default function ForumPage() {
           {/* Forum stats */}
           <Card>
             <CardContent className="p-4 space-y-3">
-              <h3 className="text-sm font-bold">{t("forum.stats") || "إحصائيات المنتدى"}</h3>
+              <h3 className="text-sm font-bold">{"إحصائيات"}</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">المنشورات</span>
@@ -896,7 +896,7 @@ export default function ForumPage() {
           {channels.length > 0 && (
             <Card>
               <CardContent className="p-4 space-y-2">
-                <h3 className="text-sm font-bold">{t("forum.popular_channels") || "القنوات النشطة"}</h3>
+                <h3 className="text-sm font-bold">{"القنوات الشائعة"}</h3>
                 {channels.slice(0, 5).map((ch) => (
                   <Button
                     key={ch.id}

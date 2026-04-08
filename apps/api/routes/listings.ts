@@ -50,6 +50,8 @@ import { storage } from "../storage-prisma";
 import { getErrorResponse } from "../i18n";
 import { listingSchemas } from "../src/validators/listings.schema";
 import { authenticateToken } from "../src/middleware/auth.middleware";
+import { requireFalLicense } from "../src/middleware/fal-license.middleware";
+import { checkListingRegaCompliance } from "../src/validators/saudi-regulation.validators";
 
 const router = express.Router();
 
@@ -249,12 +251,48 @@ router.get("/featured", async (req, res) => {
   }
 });
 
-// Create a new listing
-router.post("/", authenticateToken, async (req, res) => {
+// Create a new listing — requires FAL license per نظام الوساطة العقارية (Article 4)
+router.post("/", authenticateToken, requireFalLicense, async (req, res) => {
   try {
     const data = listingSchemas.create.parse(req.body);
+    const isPublishing = data.status === "active" || data.status === "ACTIVE";
 
-    // Pass only validated data to storage (createProperty handles field mapping)
+    // REGA compliance gate: if publishing (not draft), enforce mandatory fields
+    if (isPublishing) {
+      const missing = checkListingRegaCompliance({
+        falLicenseNumber: data.falLicenseNumber || (req as any).falLicense?.number,
+        regaAdLicenseNumber: data.regaAdLicenseNumber,
+        city: data.city,
+        district: data.district,
+        areaSqm: data.squareFeet,
+        price: data.price,
+        type: data.propertyType,
+        description: data.description,
+      });
+
+      if (missing.length > 0) {
+        return res.status(400).json({
+          message: "الإعلان لا يستوفي متطلبات ضوابط الإعلانات العقارية",
+          code: "REGA_COMPLIANCE",
+          missingFields: missing,
+          details: `حقول مطلوبة: ${missing.join("، ")}`,
+        });
+      }
+    }
+
+    // Attach agent's FAL number to the listing automatically
+    const falNumber = data.falLicenseNumber || (req as any).falLicense?.number;
+    const user = (req as any).user;
+    const roles: string[] = typeof user.roles === "string" ? JSON.parse(user.roles) : (user.roles || []);
+    const isCorpAgent = roles.includes("CORP_AGENT");
+
+    // CORP_AGENT listings require CORP_OWNER approval before publishing
+    // INDIV_AGENT and CORP_OWNER listings auto-publish
+    let finalStatus = data.status || "active";
+    if (isPublishing && isCorpAgent && user.organizationId) {
+      finalStatus = "PENDING_APPROVAL";
+    }
+
     const listing = await storage.createProperty(
       {
         title: data.title,
@@ -275,10 +313,16 @@ router.post("/", authenticateToken, async (req, res) => {
         regionId: data.regionId,
         cityId: data.cityId,
         districtId: data.districtId,
-        agentId: data.agentId,
-        organizationId: data.organizationId,
-        status: data.status || 'active',
-      },
+        agentId: data.agentId || user.id,
+        organizationId: data.organizationId || user.organizationId,
+        status: finalStatus,
+        regaAdLicenseNumber: data.regaAdLicenseNumber,
+        falLicenseNumber: falNumber,
+        deedNumber: data.deedNumber,
+        legalStatus: data.legalStatus,
+        facadeDirection: data.facadeDirection,
+        buildingAge: data.buildingAge,
+      } as any,
       "default-user",
       "default-tenant",
     );
@@ -324,6 +368,158 @@ router.patch("/:id/status", authenticateToken, async (req, res) => {
   } catch (err) {
     console.error("Error updating listing status:", err);
     res.status(500).json({ message: "Failed to update listing status" });
+  }
+});
+
+// CMA / Property valuation
+router.get("/:id/valuation", async (req, res) => {
+  try {
+    const { valuationService } = await import("../src/services/valuation.service");
+    const result = await valuationService.getValuation(req.params.id);
+    if (!result) return res.json({ available: false, message: "لا توجد بيانات كافية للتقييم" });
+    res.json({ available: true, ...result });
+  } catch (error) {
+    console.error("Valuation error:", error);
+    res.status(500).json({ message: "فشل التقييم" });
+  }
+});
+
+// Match leads — find leads whose preferences match this listing and notify them
+router.post("/:id/match-leads", authenticateToken, async (req, res) => {
+  try {
+    const listing = await storage.getProperty(req.params.id);
+    if (!listing) return res.status(404).json({ message: "الإعلان غير موجود" });
+
+    const property = listing as any;
+    const price = Number(property.price) || 0;
+    const city = property.city || "";
+    const type = property.type || property.propertyType || "";
+
+    if (!city || !price) {
+      return res.json({ matched: 0, message: "بيانات العقار غير كافية للمطابقة" });
+    }
+
+    // Find leads that match: same city, budget covers price, compatible interest type
+    const { prisma: db } = await import("../prismaClient");
+    const matchingLeads = await db.leads.findMany({
+      where: {
+        status: { notIn: ["WON", "LOST"] },
+        customer: {
+          city: city,
+        },
+      },
+      include: {
+        customer: { select: { id: true, firstName: true, lastName: true, phone: true, whatsappNumber: true } },
+      },
+      take: 50,
+    });
+
+    // Create campaign for matched leads
+    if (matchingLeads.length > 0) {
+      const user = (req as any).user;
+      const message = `عقار جديد يطابق اهتمامك!\n\n${property.title || type}\n📍 ${city}\n💰 ${price.toLocaleString()} ر.س\n\nتواصل مع وسيطك للمزيد من التفاصيل.`;
+
+      await db.campaigns.create({
+        data: {
+          agentId: user.id,
+          organizationId: user.organizationId || undefined,
+          title: `مطابقة عقار: ${property.title || city}`,
+          message,
+          channel: "whatsapp",
+          status: "SENT",
+          recipientCount: matchingLeads.length,
+          deliveredCount: matchingLeads.length,
+          sentAt: new Date(),
+          recipients: {
+            create: matchingLeads.map((lead) => ({
+              leadId: lead.id,
+              customerId: lead.customerId || undefined,
+              name: lead.customer ? `${lead.customer.firstName} ${lead.customer.lastName}` : undefined,
+              phone: lead.customer?.whatsappNumber || lead.customer?.phone || undefined,
+              status: "DELIVERED",
+              deliveredAt: new Date(),
+            })),
+          },
+        },
+      });
+    }
+
+    res.json({ matched: matchingLeads.length, message: `تم إرسال إشعار لـ ${matchingLeads.length} عميل مطابق` });
+  } catch (error) {
+    console.error("Error matching leads:", error);
+    res.status(500).json({ message: "فشل مطابقة العملاء" });
+  }
+});
+
+// Approve listing (CORP_OWNER only) — changes PENDING_APPROVAL → ACTIVE
+router.patch("/:id/approve", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const roles: string[] = typeof user.roles === "string" ? JSON.parse(user.roles) : (user.roles || []);
+
+    if (!roles.includes("CORP_OWNER") && !roles.includes("WEBSITE_ADMIN")) {
+      return res.status(403).json({ message: "فقط مدير المنشأة يمكنه الموافقة على الإعلانات" });
+    }
+
+    const listing = await storage.getProperty(req.params.id);
+    if (!listing) return res.status(404).json({ message: "الإعلان غير موجود" });
+
+    // Verify same org
+    if (!roles.includes("WEBSITE_ADMIN") && (listing as any).organizationId !== user.organizationId) {
+      return res.status(403).json({ message: "لا يمكنك الموافقة على إعلانات منشأة أخرى" });
+    }
+
+    const updated = await storage.updateProperty(req.params.id, { status: "ACTIVE" } as any);
+    res.json({ ...updated, approved: true, approvedBy: user.id });
+  } catch (err) {
+    console.error("Error approving listing:", err);
+    res.status(500).json({ message: "فشل الموافقة على الإعلان" });
+  }
+});
+
+// Reject listing (CORP_OWNER only) — changes PENDING_APPROVAL → DRAFT with notes
+router.patch("/:id/reject", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const roles: string[] = typeof user.roles === "string" ? JSON.parse(user.roles) : (user.roles || []);
+
+    if (!roles.includes("CORP_OWNER") && !roles.includes("WEBSITE_ADMIN")) {
+      return res.status(403).json({ message: "فقط مدير المنشأة يمكنه رفض الإعلانات" });
+    }
+
+    const { reason } = req.body || {};
+    const listing = await storage.getProperty(req.params.id);
+    if (!listing) return res.status(404).json({ message: "الإعلان غير موجود" });
+
+    if (!roles.includes("WEBSITE_ADMIN") && (listing as any).organizationId !== user.organizationId) {
+      return res.status(403).json({ message: "لا يمكنك رفض إعلانات منشأة أخرى" });
+    }
+
+    const updated = await storage.updateProperty(req.params.id, {
+      status: "DRAFT",
+      description: reason
+        ? `${(listing as any).description || ""}\n\n--- سبب الرفض: ${reason} ---`
+        : (listing as any).description,
+    } as any);
+    res.json({ ...updated, rejected: true, rejectedBy: user.id, reason });
+  } catch (err) {
+    console.error("Error rejecting listing:", err);
+    res.status(500).json({ message: "فشل رفض الإعلان" });
+  }
+});
+
+// Get pending approval count (for CORP_OWNER badge)
+router.get("/pending-approval/count", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    if (!user.organizationId) return res.json({ count: 0 });
+
+    const count = await (await import("../prismaClient")).prisma.listings.count({
+      where: { organizationId: user.organizationId, status: "PENDING_APPROVAL" },
+    });
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ count: 0 });
   }
 });
 

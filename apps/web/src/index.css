@@ -11,13 +11,23 @@
     margin-left: 0 !important;
     padding-right: 0 !important;
     padding-left: 0 !important;
+    /* Override the CSS variable that react-remove-scroll-bar injects */
+    --removed-body-scroll-bar-size: 0px !important;
   }
 
-  /* The app root must be isolated from body margin/padding changes */
+  /* The app root must be isolated from body margin/padding changes.
+     overflow-y: scroll ensures the scrollbar gutter is always reserved,
+     preventing layout shift when sheets/dialogs toggle scroll-lock. */
   #root {
     position: fixed;
     inset: 0;
-    overflow: auto;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
+  /* Reserve scrollbar gutter on all platforms so content width never shifts */
+  html {
+    scrollbar-gutter: stable;
   }
 
   :root {
@@ -92,7 +102,7 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white/60 backdrop-blur-xl border border-white/20;
+    @apply bg-card/60 backdrop-blur-xl border border-border/30;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
   }
 
@@ -108,7 +118,7 @@
   }
 
   .glass-dark {
-    @apply bg-slate-900/60 backdrop-blur-xl border border-white/10;
+    @apply bg-card/80 backdrop-blur-xl border border-border/20;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   }
 

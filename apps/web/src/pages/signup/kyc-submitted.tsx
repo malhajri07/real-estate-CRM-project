@@ -29,21 +29,18 @@ export default function KYCSubmitted() {
 
   return (
     <div className="min-h-screen bg-muted/30 font-sans text-foreground overflow-x-hidden">
-      <div className="fixed inset-0 aurora-bg opacity-30 pointer-events-none" />
+      
       <PublicHeader />
 
-      <main className="relative pt-32 pb-20 px-4 flex items-center justify-center min-h-[80vh]">
-        {/* Background Blobs */}
-        <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/20 blur-[100px] rounded-full pointer-events-none" />
+      <main className="pt-20 pb-12 px-4 flex items-center justify-center min-h-[80vh]">
 
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="w-full max-w-3xl"
         >
-          <div className="glass rounded-2xl p-8 md:p-12 text-center shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-primary to-primary/70" />
+          <div className="rounded-xl border bg-card p-6 md:p-8 text-center shadow-sm relative overflow-hidden">
+            
 
             <div className="flex flex-col items-center">
               <motion.div
@@ -56,7 +53,7 @@ export default function KYCSubmitted() {
               </motion.div>
 
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                طلب الحساب المؤسسي <span className="text-transparent bg-clip-text bg-gradient-to-br from-primary to-primary/70">قيد المراجعة</span>
+                طلب الحساب المؤسسي <span className="text-primary">قيد المراجعة</span>
               </h1>
               
               <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-10">

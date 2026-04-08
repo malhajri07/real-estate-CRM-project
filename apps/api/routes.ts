@@ -35,6 +35,7 @@ import favoritesRoutes        from "./routes/favorites";
 import messagesRoutes         from "./routes/messages";
 import notificationsRoutes    from "./routes/notifications";
 import campaignsRoutes        from "./routes/campaigns";
+import sequencesRoutes        from "./routes/sequences";
 import billingRoutes          from "./routes/billing";
 import supportRoutes          from "./routes/support";
 import appointmentsRoutes     from "./routes/appointments";
@@ -44,6 +45,16 @@ import auditLogsRoutes        from "./routes/audit-logs";
 // ── Agent collaboration ──────────────────────────────────────────────────────
 import brokerRequestsRoutes   from "./routes/broker-requests";
 import nearbyPlacesRoutes     from "./routes/nearby-places";
+import promotionsRoutes       from "./routes/promotions";
+import commissionRoutes       from "./routes/commission";
+import leadRoutingRoutes      from "./routes/lead-routing";
+import clientPortalRoutes     from "./routes/client-portal";
+import dealDocumentsRoutes    from "./routes/deal-documents";
+import tenanciesRoutes        from "./routes/tenancies";
+import inboxRoutes            from "./routes/inbox";
+import customReportsRoutes    from "./routes/custom-reports";
+import chatbotRoutes          from "./routes/chatbot";
+import projectsRoutes         from "./routes/projects";
 
 // ── Org-scoped domain routes (auth + org enforced at mount) ───────────────────
 import leadsRoutes            from "./routes/leads";
@@ -69,11 +80,10 @@ import sitemapRoutes          from "./routes/sitemap";
 import { localeMiddleware }   from "./src/middleware/locale";
 import { requireOrg, injectOrgFilter } from "./src/middleware/org-isolation.middleware";
 import { authenticateToken }  from "./src/middleware/auth.middleware";
+import { apiRateLimit, authRateLimit } from "./src/middleware/rate-limit.middleware";
 import { optionalAuth }      from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  const rateLimit = (await import("express-rate-limit")).default;
-
   // ─────────────────────────────────────────────────────────────────────────────
   // 1. MIDDLEWARE
   // ─────────────────────────────────────────────────────────────────────────────
@@ -83,39 +93,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(200).json({ ok: true, timestamp: new Date().toISOString() });
   });
 
-  // General API rate limiter
-  const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: process.env.NODE_ENV === "development" ? 1000 : 100,
-    message: { error: "TOO_MANY_REQUESTS", message: "Too many requests, please try again later" },
-    standardHeaders: true,
-    legacyHeaders: false,
-    skip: (req) => req.path === "/health",
-  });
-  app.use("/api/", apiLimiter);
-
-  // Strict limiter for auth endpoints (brute-force protection)
-  const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 15,
-    message: { error: "TOO_MANY_REQUESTS", message: "Too many login attempts, please try again after 15 minutes" },
-    standardHeaders: true,
-    legacyHeaders: false,
-    skip: (req) => {
-      const ip = req.ip ?? "";
-      return process.env.NODE_ENV === "development" &&
-        (ip === "127.0.0.1" || ip === "::1" || ip === "::ffff:127.0.0.1" || !ip);
-    },
-  });
-
-  // Stricter limiter for admin + CMS endpoints
-  const adminLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: process.env.NODE_ENV === "development" ? 500 : 50,
-    message: { error: "TOO_MANY_REQUESTS", message: "Too many admin requests, please try again later" },
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
+  // General API rate limiter (100 req/min per IP) — custom in-memory implementation
+  app.use("/api/", apiRateLimit);
 
   // Locale detection middleware (runs on every request)
   app.use(localeMiddleware);
@@ -123,8 +102,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ─────────────────────────────────────────────────────────────────────────────
   // 2. AUTHENTICATION  /api/auth/*
   // ─────────────────────────────────────────────────────────────────────────────
-  app.use("/api/auth/login", authLimiter);
-  app.use("/api/auth/register", authLimiter);
+  app.use("/api/auth/login", authRateLimit);
+  app.use("/api/auth/register", authRateLimit);
   app.use("/api/auth", authRoutes);
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -150,12 +129,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Organization team routes (corp owner sees their agents)
   const orgTeamRoutes = (await import("./routes/org-team")).default;
   app.use("/api/org", orgTeamRoutes);
+  app.use("/api/org/lead-routing", leadRoutingRoutes);
+  app.use("/api/client", clientPortalRoutes);
+  app.use("/api/tenancies", authenticateToken, tenanciesRoutes);
 
   app.use("/api/pool",           buyerPoolRoutes);
   app.use("/api/favorites",      favoritesRoutes);
   app.use("/api/messages",       messagesRoutes);
   app.use("/api/notifications",  notificationsRoutes);
   app.use("/api/campaigns",      campaignsRoutes);
+  app.use("/api/sequences",     sequencesRoutes);
   app.use("/api/billing",        billingRoutes);
   app.use("/api/support",        supportRoutes);
   app.use("/api/appointments",   appointmentsRoutes);
@@ -163,6 +146,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/audit-logs",     authenticateToken, auditLogsRoutes);
   app.use("/api/broker-requests", brokerRequestsRoutes);
   app.use("/api/nearby-places",  nearbyPlacesRoutes);
+  app.use("/api/promotions",     promotionsRoutes);
+  app.use("/api/deals",          commissionRoutes);  // mounts under /api/deals/:dealId/commission
+  app.use("/api/deals",          dealDocumentsRoutes);  // mounts under /api/deals/:dealId/documents
+  app.use("/api/inbox",          inboxRoutes);
+  app.use("/api/webhooks",       inboxRoutes);       // webhook handler at POST /api/webhooks/whatsapp
+  app.use("/api/reports",        customReportsRoutes);  // POST /api/reports/custom, GET/POST /api/reports/saved
+  app.use("/api/chatbot",        chatbotRoutes);        // public chatbot (no auth)
+  app.use("/api/projects",       projectsRoutes);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // 5. ORG-SCOPED ROUTES  (authenticateToken + requireOrg enforced at mount)
@@ -175,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ─────────────────────────────────────────────────────────────────────────────
   // 6. ADMIN ROUTES  (rate-limited; admin check enforced inside handlers)
   // ─────────────────────────────────────────────────────────────────────────────
-  app.use("/api/rbac-admin", adminLimiter, rbacAdminRoutes);
+  app.use("/api/rbac-admin", apiRateLimit, rbacAdminRoutes);
 
   // All CMS sub-modules grouped under a single /api/cms mount point
   const cmsRouter = express.Router();
@@ -185,7 +176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   cmsRouter.use(cmsSEORoutes);
   cmsRouter.use(cmsTemplatesRoutes);
   cmsRouter.use(cmsNavigationRoutes);
-  app.use("/api/cms", adminLimiter, cmsRouter);
+  app.use("/api/cms", apiRateLimit, cmsRouter);
 
   app.use("/api/moderation", moderationRoutes);
   app.use("/api/reports",    reportsRoutes);

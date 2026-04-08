@@ -64,7 +64,7 @@ const routeMatches = (item: PlatformSidebarChildConfig, currentLocation: string)
 const PATH_PREFETCH_KEYS: Record<string, unknown[][]> = {
   "/home/platform/leads": [["/api/leads"]],
   "/home/platform/properties": [["/api/listings?pageSize=all"]],
-  "/home/platform/notifications": [["/api/leads"]],
+  "/home/platform/notifications": [["/api/leads"], ["/api/campaigns"]],
   "/home/platform/clients": [["/api/leads"]],
   "/home/platform/dashboard": [["/api/reports/dashboard/metrics"]],
 };
