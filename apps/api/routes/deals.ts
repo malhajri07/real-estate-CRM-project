@@ -100,9 +100,17 @@ router.put("/:id", async (req, res) => {
         if (validatedData.source !== undefined) updatePayload.source = validatedData.source;
         if (validatedData.agentId !== undefined) updatePayload.agentId = validatedData.agentId;
 
-        // Track won/lost timestamps
+        // Track won/lost timestamps + stageEnteredAt
         if (validatedData.stage === 'WON') updatePayload.wonAt = new Date();
         if (validatedData.stage === 'LOST') updatePayload.lostAt = new Date();
+        if (validatedData.stage !== undefined && validatedData.stage !== existing.stage) {
+            updatePayload.stageEnteredAt = new Date();
+            // Record stage transition history
+            try {
+                const { prisma: db } = await import('../prismaClient');
+                await db.$executeRaw`INSERT INTO deal_stage_history ("id", "dealId", "fromStage", "toStage", "changedAt", "changedBy") VALUES (gen_random_uuid()::text, ${req.params.id}, ${existing.stage}, ${validatedData.stage}, NOW(), ${req.user?.id || null})`;
+            } catch { /* best effort */ }
+        }
 
         const deal = await storage.updateDeal(req.params.id, updatePayload);
         res.json(deal);
@@ -111,6 +119,43 @@ router.put("/:id", async (req, res) => {
             return res.status(400).json(getErrorResponse('VALIDATION_ERROR', (req as any).locale, error.errors));
         }
         res.status(500).json(getErrorResponse('UPDATE_FAILED', (req as any).locale));
+    }
+});
+
+// GET /api/deals/forecast — Revenue forecast by stage probability
+router.get("/forecast", async (req, res) => {
+    try {
+        const auth = decodeAuth(req);
+        const orgId = auth.organizationId;
+        const where: any = orgId ? { organizationId: orgId, stage: { notIn: ["WON", "LOST"] } } : { agentId: auth.id, stage: { notIn: ["WON", "LOST"] } };
+
+        const { prisma: db } = await import('../prismaClient');
+        const deals = await db.deals.findMany({ where, select: { stage: true, agreedPrice: true, stageEnteredAt: true, updatedAt: true } });
+
+        const stageProbability: Record<string, number> = { NEW: 0.10, NEGOTIATION: 0.40, UNDER_OFFER: 0.70 };
+        const now = Date.now();
+        const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+
+        let onTrack = 0, atRisk = 0;
+        deals.forEach((d: any) => {
+            const value = Number(d.agreedPrice || 0);
+            const prob = stageProbability[d.stage] || 0.2;
+            const stageAge = now - new Date(d.stageEnteredAt || d.updatedAt || d.createdAt).getTime();
+            if (stageAge > thirtyDays) {
+                atRisk += value * prob;
+            } else {
+                onTrack += value * prob;
+            }
+        });
+
+        res.json({
+            onTrack: Math.round(onTrack),
+            atRisk: Math.round(atRisk),
+            total: Math.round(onTrack + atRisk),
+            dealCount: deals.length,
+        });
+    } catch (error) {
+        res.status(500).json({ message: "فشل حساب التوقعات" });
     }
 });
 

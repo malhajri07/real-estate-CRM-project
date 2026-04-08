@@ -14,6 +14,17 @@ const router = express.Router();
 function flattenLeadWithCustomer(lead: any): any {
   if (!lead) return lead;
   const { customer, ...rest } = lead;
+
+  // Lead quality score: 0-100 based on profile completeness
+  let score = 0;
+  if (customer?.firstName) score += 15;
+  if (customer?.lastName) score += 10;
+  if (customer?.phone) score += 25;
+  if (customer?.email) score += 15;
+  if (customer?.city) score += 15;
+  if (lead.source) score += 10;
+  if (lead.notes) score += 10;
+
   return {
     ...rest,
     firstName: customer?.firstName ?? '',
@@ -22,6 +33,7 @@ function flattenLeadWithCustomer(lead: any): any {
     phone: customer?.phone ?? null,
     city: customer?.city ?? null,
     leadSource: lead.source ?? null,
+    leadScore: score,
   };
 }
 
@@ -183,6 +195,24 @@ router.post("/", authenticateToken, async (req, res) => {
     }
     console.error("Error creating lead:", error);
     res.status(500).json(getErrorResponse('CREATE_FAILED', (req as any).locale));
+  }
+});
+
+// POST /api/leads/batch/assign — Reassign multiple leads to an agent
+router.post("/batch/assign", authenticateToken, async (req, res) => {
+  try {
+    const { leadIds, agentId } = req.body;
+    if (!Array.isArray(leadIds) || !agentId) {
+      return res.status(400).json({ message: "leadIds و agentId مطلوبان" });
+    }
+    const { prisma } = await import('../prismaClient');
+    const result = await prisma.leads.updateMany({
+      where: { id: { in: leadIds } },
+      data: { agentId, assignedAt: new Date() },
+    });
+    res.json({ updated: result.count });
+  } catch (error) {
+    res.status(500).json({ message: "فشل التعيين" });
   }
 });
 

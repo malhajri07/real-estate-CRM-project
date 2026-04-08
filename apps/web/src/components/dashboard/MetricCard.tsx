@@ -7,7 +7,7 @@
 
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { LucideIcon, TrendingUp, TrendingDown } from "lucide-react";
+import { LucideIcon, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SarSymbol } from "@/components/ui/sar-symbol";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,7 @@ interface MetricCardProps {
   currency?: boolean;
   delta?: {
     value: number;
-    tone: "up" | "down";
+    tone: "up" | "down" | "neutral";
   };
   href?: string;
   index?: number;
@@ -84,16 +84,18 @@ export function MetricCard({
             <Icon className="h-6 w-6" />
           </div>
           {delta && (
-            <Badge 
-              variant={delta.tone === "down" ? "warning" : "success"} 
+            <Badge
+              variant={delta.tone === "down" ? "destructive" : delta.tone === "up" ? "default" : "secondary"}
               className="rounded-full px-2.5 py-1 text-xs font-bold shadow-none border-0"
             >
               {delta.tone === "down" ? (
                 <TrendingDown className="h-3 w-3 ms-1 inline" />
-              ) : (
+              ) : delta.tone === "up" ? (
                 <TrendingUp className="h-3 w-3 ms-1 inline" />
+              ) : (
+                <Minus className="h-3 w-3 ms-1 inline" />
               )}
-              {delta.tone === "down" ? "-" : "+"}
+              {delta.tone === "down" ? "-" : delta.tone === "up" ? "+" : ""}
               {Math.abs(delta.value)}%
             </Badge>
           )}

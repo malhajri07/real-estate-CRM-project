@@ -45,6 +45,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Banknote,
@@ -80,11 +81,15 @@ type MetricResponse = {
     negotiation: number;
     closed: number;
   };
+  growth?: { leads: number; deals: number; revenue: number };
+  stuckDeals?: { count: number; totalValue: number };
+  period?: string;
 };
 
 export default function Dashboard() {
   const [addPropertyDrawerOpen, setAddPropertyDrawerOpen] = useState(false);
   const [completedactivities, setCompletedActivities] = useState<string[]>([]);
+  const [period, setPeriod] = useState("30d");
   const minLoadTime = useMinLoadTime();
   const { dir, language } = useLanguage();
   const [, setLocation] = useLocation();
@@ -108,8 +113,8 @@ export default function Dashboard() {
     isError: metricsError,
     refetch: refetchMetrics,
   } = useQuery<MetricResponse>({
-    queryKey: ["/api/reports/dashboard/metrics", "personal"],
-    queryFn: () => fetch("/api/reports/dashboard/metrics?view=personal", {
+    queryKey: ["/api/reports/dashboard/metrics", "personal", period],
+    queryFn: () => fetch(`/api/reports/dashboard/metrics?view=personal&period=${period}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("auth_token")}` },
     }).then((r) => r.json()),
   });
@@ -168,6 +173,13 @@ export default function Dashboard() {
 
   const formatCurrency = (value: number) => `${numberFormatter.format(value)}`;
 
+  const growthData = metrics?.growth;
+  const makeDelta = (val: number | undefined) => {
+    if (val === undefined) return undefined;
+    const tone = val > 0 ? "up" as const : val < 0 ? "down" as const : "neutral" as const;
+    return { value: Math.abs(val), tone };
+  };
+
   const metricCards = useMemo(
     () => [
       {
@@ -175,8 +187,7 @@ export default function Dashboard() {
         label: "إجمالي العملاء",
         value: metrics?.totalLeads ?? 0,
         icon: Users,
-        // accent removed
-        delta: { value: 12, tone: "up" as const },
+        delta: makeDelta(growthData?.leads),
         href: "/home/platform/leads",
       },
       {
@@ -184,8 +195,7 @@ export default function Dashboard() {
         label: "العقارات النشطة",
         value: metrics?.activeProperties ?? 0,
         icon: Building,
-        // accent removed
-        delta: { value: 8, tone: "up" as const },
+        delta: makeDelta(0),
         href: "/home/platform/properties",
       },
       {
@@ -193,8 +203,7 @@ export default function Dashboard() {
         label: "الصفقات",
         value: metrics?.dealsInPipeline ?? 0,
         icon: Filter,
-        // accent removed
-        delta: { value: -2, tone: "down" as const },
+        delta: makeDelta(growthData?.deals),
         href: "/home/platform/pipeline",
       },
       {
@@ -203,10 +212,10 @@ export default function Dashboard() {
         value: formatCurrency(metrics?.monthlyRevenue ?? 0),
         icon: Banknote,
         currency: true,
-        delta: { value: 24, tone: "up" as const },
+        delta: makeDelta(growthData?.revenue),
       },
     ],
-    [metrics, formatCurrency]
+    [metrics, formatCurrency, growthData]
   );
 
   const pipelineStages = useMemo(() => {
@@ -300,9 +309,28 @@ export default function Dashboard() {
     <div className={PAGE_WRAPPER}>
       <PageHeader
           title={`مرحباً ${userName}`}
-          subtitle={"نظرة عامة على أداءك اليوم"}
-        />
-      
+          subtitle={"نظرة عامة على أداءك"}
+        >
+          {/* Period Selector */}
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            {[
+              { value: "30d", label: "30 يوم" },
+              { value: "90d", label: "90 يوم" },
+              { value: "1y", label: "سنة" },
+            ].map((p) => (
+              <Button
+                key={p.value}
+                size="sm"
+                variant={period === p.value ? "default" : "ghost"}
+                className="h-7 text-xs rounded-md"
+                onClick={() => setPeriod(p.value)}
+              >
+                {p.label}
+              </Button>
+            ))}
+          </div>
+        </PageHeader>
+
       <section aria-label={"ملخص سريع"} className={GRID_METRICS}>
         {metricCards.map((metric) => (
           <MetricCard
@@ -311,6 +339,41 @@ export default function Dashboard() {
           />
         ))}
       </section>
+
+      {/* Growth Indicators — only show non-zero changes */}
+      {metrics?.growth && (metrics.growth.leads !== 0 || metrics.growth.deals !== 0 || metrics.growth.revenue !== 0) && (
+        <div className="flex flex-wrap gap-3">
+          {[
+            { label: "العملاء", value: metrics.growth.leads },
+            { label: "الصفقات", value: metrics.growth.deals },
+            { label: "الإيرادات", value: metrics.growth.revenue },
+          ].filter((g) => g.value !== 0).map((g) => (
+            <Badge key={g.label} variant="outline" className={cn("gap-1 text-xs", g.value > 0 ? "text-primary border-primary/30" : "text-destructive border-destructive/30")}>
+              {g.value > 0 ? "⬆" : "⬇"} {Math.abs(g.value)}% {g.label}
+            </Badge>
+          ))}
+        </div>
+      )}
+
+      {/* Stuck Deals Alert */}
+      {metrics?.stuckDeals && metrics.stuckDeals.count > 0 && (
+        <Card className="border-[hsl(var(--warning)/0.3)] bg-[hsl(var(--warning)/0.05)]">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-[hsl(var(--warning)/0.1)] flex items-center justify-center">
+                <Clock className="h-5 w-5 text-[hsl(var(--warning))]" />
+              </div>
+              <div>
+                <p className="font-bold text-sm">{metrics.stuckDeals.count} صفقة متوقفة</p>
+                <p className="text-xs text-muted-foreground">في مرحلة التفاوض أكثر من 30 يوم · قيمة إجمالية {metrics.stuckDeals.totalValue.toLocaleString()} ر.س</p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setLocation("/home/platform/pipeline")}>
+              عرض الصفقات
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Org Aggregate (CORP_AGENT sees org summary, CORP_OWNER sees org + leaderboard) */}
       {isCorporate && orgMetrics && (

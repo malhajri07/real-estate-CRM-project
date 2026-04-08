@@ -113,32 +113,72 @@ router.get("/dashboard/metrics", authenticateToken, async (req, res) => {
       propertiesWhere = { agentId: user.id };
     }
 
-    const [leadsCount, propertiesCount, deals] = await Promise.all([
-      prisma.leads.count({ where: leadsWhere }),
+    // Period filtering: ?period=30d|90d|1y (default: current month)
+    const periodParam = req.query.period as string | undefined;
+    const now = new Date();
+    let periodStart: Date;
+    let prevPeriodStart: Date;
+    let prevPeriodEnd: Date;
+
+    switch (periodParam) {
+      case "90d":
+        periodStart = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        prevPeriodStart = new Date(periodStart.getTime() - 90 * 24 * 60 * 60 * 1000);
+        prevPeriodEnd = periodStart;
+        break;
+      case "1y":
+        periodStart = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+        prevPeriodStart = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate());
+        prevPeriodEnd = periodStart;
+        break;
+      case "30d":
+      default:
+        periodStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        prevPeriodStart = new Date(periodStart.getTime() - 30 * 24 * 60 * 60 * 1000);
+        prevPeriodEnd = periodStart;
+        break;
+    }
+
+    const periodFilter = { createdAt: { gte: periodStart } };
+    const prevPeriodFilter = { createdAt: { gte: prevPeriodStart, lt: prevPeriodEnd } };
+
+    const [leadsCount, prevLeads, propertiesCount, deals, prevDeals] = await Promise.all([
+      prisma.leads.count({ where: { ...leadsWhere, ...periodFilter } }),
+      prisma.leads.count({ where: { ...leadsWhere, ...prevPeriodFilter } }),
       prisma.properties.count({ where: { ...propertiesWhere, status: "ACTIVE" } }),
-      prisma.deals.findMany({ where: dealsWhere, select: { stage: true, agreedPrice: true, commissionPercentage: true, commissionAmount: true, wonAt: true, createdAt: true } }),
+      prisma.deals.findMany({ where: { ...dealsWhere, ...periodFilter }, select: { stage: true, agreedPrice: true, commissionPercentage: true, commissionAmount: true, wonAt: true, createdAt: true, updatedAt: true } }),
+      prisma.deals.findMany({ where: { ...dealsWhere, ...prevPeriodFilter }, select: { stage: true, agreedPrice: true, commissionPercentage: true, commissionAmount: true, wonAt: true, createdAt: true } }),
     ]);
 
     const activeDeals = deals.filter((d: any) => !["WON", "LOST"].includes(d.stage));
     const wonDeals = deals.filter((d: any) => d.stage === "WON");
+    const prevWonDeals = prevDeals.filter((d: any) => d.stage === "WON");
 
-    // Monthly revenue: sum of commission from won deals this month
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthlyRevenue = wonDeals
-      .filter((d: any) => new Date(d.wonAt || d.createdAt) >= monthStart)
-      .reduce((sum: number, d: any) => {
-        if (d.commissionAmount) return sum + Number(d.commissionAmount);
-        if (d.agreedPrice && d.commissionPercentage) return sum + Number(d.agreedPrice) * Number(d.commissionPercentage) / 100;
-        if (d.agreedPrice) return sum + Number(d.agreedPrice) * 0.025; // default 2.5%
-        return sum;
-      }, 0);
+    const calcRevenue = (dealList: any[]) => dealList.reduce((sum: number, d: any) => {
+      if (d.commissionAmount) return sum + Number(d.commissionAmount);
+      if (d.agreedPrice && d.commissionPercentage) return sum + Number(d.agreedPrice) * Number(d.commissionPercentage) / 100;
+      if (d.agreedPrice) return sum + Number(d.agreedPrice) * 0.025;
+      return sum;
+    }, 0);
+
+    const monthlyRevenue = Math.round(calcRevenue(wonDeals));
+    const prevRevenue = Math.round(calcRevenue(prevWonDeals));
+
+    // Growth calculations
+    const calcGrowth = (current: number, previous: number) => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return Math.round(((current - previous) / previous) * 100);
+    };
+
+    // Stuck deals: in NEGOTIATION >30 days
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const stuckDeals = deals.filter((d: any) => d.stage === "NEGOTIATION" && new Date(d.updatedAt || d.createdAt) < thirtyDaysAgo);
 
     res.json({
       totalLeads: leadsCount,
       activeProperties: propertiesCount,
       dealsInPipeline: activeDeals.length,
-      monthlyRevenue: Math.round(monthlyRevenue),
+      monthlyRevenue,
       pipelineByStage: {
         lead: deals.filter((d: any) => d.stage === "NEW").length,
         qualified: deals.filter((d: any) => d.stage === "NEGOTIATION").length,
@@ -146,6 +186,18 @@ router.get("/dashboard/metrics", authenticateToken, async (req, res) => {
         negotiation: deals.filter((d: any) => d.stage === "NEGOTIATION").length,
         closed: deals.filter((d: any) => d.stage === "WON").length,
       },
+      // Growth vs previous period
+      growth: {
+        leads: calcGrowth(leadsCount, prevLeads),
+        deals: calcGrowth(deals.length, prevDeals.length),
+        revenue: calcGrowth(monthlyRevenue, prevRevenue),
+      },
+      // Stuck deals alert
+      stuckDeals: {
+        count: stuckDeals.length,
+        totalValue: stuckDeals.reduce((s: number, d: any) => s + Number(d.agreedPrice || 0), 0),
+      },
+      period: periodParam || "30d",
     });
   } catch (error) {
     console.error("Dashboard metrics error:", error);

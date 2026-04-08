@@ -14,6 +14,7 @@
 
 import { useState, useEffect } from "react";
 import PublicHeader from "@/components/layout/PublicHeader";
+import ChatWidget from "@/components/chatbot/ChatWidget";
 import { type LandingPageContent, type PricingPlan } from "@/lib/cms";
 import { useLocation } from "wouter";
 import { useSEO } from "@/hooks/useSEO";
@@ -337,6 +338,7 @@ export default function Landing() {
           content={landingContent}
           footerGroups={footerGroups}
         />
+        <ChatWidget />
       </div>
     </LandingErrorBoundary>
   );

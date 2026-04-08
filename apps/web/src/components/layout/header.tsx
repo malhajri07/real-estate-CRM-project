@@ -48,12 +48,11 @@ export default function Header({
     onSearch?.(value);
   };
 
-  const { data: notifications } = useQuery({
-    queryKey: ["/api/notifications"],
+  const { data: notifData } = useQuery<{ count: number }>({
+    queryKey: ["/api/notifications/count"],
+    refetchInterval: 60_000,
   });
-  const notificationCount = Array.isArray(notifications)
-    ? notifications.filter((n: { read?: boolean; readAt?: string }) => !n?.read && !n?.readAt).length
-    : 0;
+  const notificationCount = notifData?.count ?? 0;
 
   const username = user?.name || user?.username || user?.email?.split("@")[0] || "المستخدم";
   const initials = `${user?.firstName?.[0] || ""}${user?.lastName?.[0] || ""}`.toUpperCase() || "U";

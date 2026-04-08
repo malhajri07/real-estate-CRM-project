@@ -55,6 +55,12 @@ import inboxRoutes            from "./routes/inbox";
 import customReportsRoutes    from "./routes/custom-reports";
 import chatbotRoutes          from "./routes/chatbot";
 import projectsRoutes         from "./routes/projects";
+import maintenanceRoutes      from "./routes/maintenance";
+import vendorsRoutes          from "./routes/vendors";
+import feedbackRoutes         from "./routes/feedback";
+import shortlistsRoutes       from "./routes/shortlists";
+import subdivisionsRoutes     from "./routes/subdivisions";
+import warrantiesRoutes       from "./routes/warranties";
 
 // ── Org-scoped domain routes (auth + org enforced at mount) ───────────────────
 import leadsRoutes            from "./routes/leads";
@@ -154,6 +160,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/reports",        customReportsRoutes);  // POST /api/reports/custom, GET/POST /api/reports/saved
   app.use("/api/chatbot",        chatbotRoutes);        // public chatbot (no auth)
   app.use("/api/projects",       projectsRoutes);
+  app.use("/api/maintenance",    maintenanceRoutes);
+  app.use("/api/vendors",        vendorsRoutes);
+  app.use("/api/feedback",       feedbackRoutes);
+  app.use("/api/shortlists",    shortlistsRoutes);
+  app.use("/api/subdivisions", subdivisionsRoutes);
+  app.use("/api/warranties",   warrantiesRoutes);
 
   // ─────────────────────────────────────────────────────────────────────────────
   // 5. ORG-SCOPED ROUTES  (authenticateToken + requireOrg enforced at mount)

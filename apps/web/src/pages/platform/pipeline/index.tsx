@@ -17,7 +17,8 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,6 +51,7 @@ import { SarSymbol, SarPrice } from "@/components/ui/sar-symbol";
 import type { Deal, Lead } from "@shared/types";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { STATUS_COLORS } from "@/config/design-tokens";
@@ -122,6 +124,7 @@ function CommissionSplitCard({ dealId }: { dealId: string }) {
 
 export default function Pipeline() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const [showRequestDrawer, setShowRequestDrawer] = useState(false);
@@ -151,7 +154,12 @@ export default function Pipeline() {
   });
 
   const { data: deals, isLoading, isError, refetch } = useQuery<Deal[]>({ queryKey: ["/api/deals"] });
-  const { data: leads } = useQuery<Lead[]>({ queryKey: ["/api/leads"] });
+  const { data: allLeads } = useQuery<Lead[]>({ queryKey: ["/api/leads"] });
+  // Filter to agent's own leads only (for deal creation dropdown)
+  const leads = useMemo(() => {
+    if (!allLeads || !user?.id) return allLeads;
+    return allLeads.filter((l) => l.agentId === user.id);
+  }, [allLeads, user?.id]);
 
   type PropertyRequestSummary = {
     seekerId?: string | null;
@@ -432,6 +440,27 @@ export default function Pipeline() {
         );
       })()}
 
+      {/* Revenue Forecast */}
+      {deals && deals.filter((d) => !["WON", "LOST"].includes(d.stage)).length > 0 && (() => {
+        const stageProbability: Record<string, number> = { NEW: 0.10, NEGOTIATION: 0.40, UNDER_OFFER: 0.70 };
+        const now = Date.now();
+        const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+        let onTrack = 0, atRisk = 0;
+        deals.filter((d) => !["WON", "LOST"].includes(d.stage)).forEach((d: any) => {
+          const value = toNumericAmount(d.agreedPrice ?? d.dealValue) ?? 0;
+          const prob = stageProbability[d.stage] || 0.2;
+          const age = now - new Date(d.stageEnteredAt || d.updatedAt || d.createdAt).getTime();
+          if (age > thirtyDays) atRisk += value * prob; else onTrack += value * prob;
+        });
+        return (
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-muted-foreground">التوقعات:</span>
+            <Badge variant="default" className="gap-1"><TrendingUp size={12} /><SarPrice value={Math.round(onTrack)} /> متوقع</Badge>
+            {atRisk > 0 && <Badge variant="outline" className="gap-1 border-[hsl(var(--warning)/0.3)] text-[hsl(var(--warning))]"><Clock size={12} /><SarPrice value={Math.round(atRisk)} /> معرّض للخطر</Badge>}
+          </div>
+        );
+      })()}
+
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
           {STAGES.map((stage) => {
@@ -495,6 +524,13 @@ export default function Pipeline() {
                                       <div className="flex items-center gap-1.5 flex-wrap">
                                         {deal.source && <Badge variant="outline" className="text-[10px]">{deal.source}</Badge>}
                                         <span className="text-[10px] text-muted-foreground">{formatAdminDate(deal.createdAt)}</span>
+                                        {(() => {
+                                          const stageDate = (deal as any).stageEnteredAt || deal.updatedAt || deal.createdAt;
+                                          const daysInStage = Math.floor((Date.now() - new Date(stageDate).getTime()) / (1000 * 60 * 60 * 24));
+                                          if (daysInStage > 30) return <Badge variant="destructive" className="text-[9px] gap-0.5"><Clock size={10} />{daysInStage} يوم</Badge>;
+                                          if (daysInStage > 14) return <Badge variant="outline" className="text-[9px] gap-0.5 border-[hsl(var(--warning)/0.3)] text-[hsl(var(--warning))]"><Clock size={10} />{daysInStage} يوم</Badge>;
+                                          return null;
+                                        })()}
                                       </div>
                                     </CardContent>
                                   </Card>
@@ -1135,8 +1171,29 @@ export default function Pipeline() {
             <form onSubmit={createDealForm.handleSubmit((data) => createDealMutation.mutate(data))} className="space-y-4 py-4 max-w-lg mx-auto">
               <FormField control={createDealForm.control} name="customerName" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>اسم العميل *</FormLabel>
-                  <FormControl><Input {...field} placeholder="مثال: محمد أحمد" /></FormControl>
+                  <FormLabel>العميل * (من جهات الاتصال)</FormLabel>
+                  <Select value={field.value} onValueChange={(val) => {
+                    field.onChange(val);
+                    // Auto-fill phone from selected lead's customer
+                    const lead = leads?.find((l) => `${l.firstName} ${l.lastName}`.trim() === val);
+                    if (lead?.phone) createDealForm.setValue("phone", lead.phone);
+                  }}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر عميل من جهات الاتصال..." />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {(leads || []).filter((l) => l.firstName || l.lastName).map((lead) => {
+                        const name = `${lead.firstName || ""} ${lead.lastName || ""}`.trim();
+                        return (
+                          <SelectItem key={lead.id} value={name}>
+                            {name} {lead.phone ? `· ${lead.phone}` : ""} {lead.city ? `· ${lead.city}` : ""}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )} />
@@ -1144,7 +1201,7 @@ export default function Pipeline() {
                 <FormField control={createDealForm.control} name="phone" render={({ field }) => (
                   <FormItem>
                     <FormLabel>رقم الهاتف</FormLabel>
-                    <FormControl><Input {...field} type="tel" dir="ltr" className="text-start" placeholder="05XXXXXXXX" /></FormControl>
+                    <FormControl><Input {...field} type="tel" dir="ltr" className="text-start" placeholder="يتم تعبئته تلقائياً" /></FormControl>
                   </FormItem>
                 )} />
                 <FormField control={createDealForm.control} name="agreedPrice" render={({ field }) => (

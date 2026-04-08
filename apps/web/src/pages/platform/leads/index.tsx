@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -110,6 +111,7 @@ export default function Contacts() {
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [quickSearchQuery, setQuickSearchQuery] = useState("");
+  const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
 
   // Advanced View state
   const [advancedSearchQuery, setAdvancedSearchQuery] = useState("");
@@ -300,6 +302,7 @@ export default function Contacts() {
 
   // Open edit form with lead data
   const openEditForm = (lead: Lead) => {
+    setDetailLead(lead);
     editForm.reset({
       firstName: lead.firstName || "",
       lastName: lead.lastName || "",
@@ -640,7 +643,7 @@ export default function Contacts() {
 
       {/* ───── Single Unified Table ───── */}
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="p-0">
               {totalItems === 0 ? (
                 <EmptyState
                   title={
@@ -656,25 +659,40 @@ export default function Contacts() {
                 />
               ) : (
                 <>
-                  <div className="overflow-x-auto">
-                  <Table className="min-w-[900px]">
+                  {/* Bulk action bar */}
+                  {selectedLeadIds.length > 0 && (
+                    <div className="flex items-center gap-3 p-3 bg-primary/5 border border-primary/10 rounded-lg mb-3">
+                      <span className="text-sm font-bold">{selectedLeadIds.length} محدد</span>
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => { toast({ title: "تعيين جماعي — قريباً" }); }}>تعيين لوسيط</Button>
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => { toast({ title: "إضافة لحملة — قريباً" }); }}>إضافة لحملة</Button>
+                      <Button size="sm" variant="ghost" className="h-7 text-xs text-destructive" onClick={() => setSelectedLeadIds([])}>إلغاء التحديد</Button>
+                    </div>
+                  )}
+
+                  <div className="overflow-x-auto -mx-0">
+                  <Table className="min-w-[900px] [&_td]:px-2 [&_td]:py-1.5 [&_th]:px-2 [&_th]:py-1.5 [&_th]:h-9">
                     <TableHeader className="bg-muted/50">
                       <TableRow>
-                        <TableHead className="w-[100px]">{"الإجراءات"}</TableHead>
-                        <TableHead>{"تاريخ الانضمام"}</TableHead>
-                        <TableHead>{"الحالة"}</TableHead>
-                        <TableHead>{"نطاق الميزانية"}</TableHead>
-                        <TableHead>{"نوع الاهتمام"}</TableHead>
-                        <TableHead>{"المُعالين"}</TableHead>
-                        <TableHead>{"الحالة الاجتماعية"}</TableHead>
-                        <TableHead>{"العمر"}</TableHead>
-                        <TableHead>{"المدينة"}</TableHead>
-                        <TableHead>{"العميل"}</TableHead>
+                        <TableHead className="w-[40px]">
+                          <Checkbox checked={selectedLeadIds.length === currentPageLeads.length && currentPageLeads.length > 0} onCheckedChange={(checked) => { if (checked) setSelectedLeadIds(currentPageLeads.map((l) => l.id)); else setSelectedLeadIds([]); }} />
+                        </TableHead>
+                        <TableHead className="w-[100px]">الإجراءات</TableHead>
+                        <TableHead>العميل</TableHead>
+                        <TableHead>الجودة</TableHead>
+                        <TableHead>المصدر</TableHead>
+                        <TableHead>الحالة</TableHead>
+                        <TableHead>نوع الاهتمام</TableHead>
+                        <TableHead>الميزانية</TableHead>
+                        <TableHead>المدينة</TableHead>
+                        <TableHead>التاريخ</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {currentPageLeads.map((lead) => (
-                        <TableRow key={lead.id}>
+                        <TableRow key={lead.id} className={selectedLeadIds.includes(lead.id) ? "bg-primary/5" : ""}>
+                          <TableCell>
+                            <Checkbox checked={selectedLeadIds.includes(lead.id)} onCheckedChange={(checked) => { if (checked) setSelectedLeadIds((prev) => [...prev, lead.id]); else setSelectedLeadIds((prev) => prev.filter((id) => id !== lead.id)); }} />
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-1">
                               <Tooltip>
@@ -685,7 +703,7 @@ export default function Contacts() {
                               </Tooltip>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon"><Edit size={16} /></Button>
+                                  <Button variant="ghost" size="icon" onClick={() => openEditForm(lead)}><Edit size={16} /></Button>
                                 </TooltipTrigger>
                                 <TooltipContent>تعديل</TooltipContent>
                               </Tooltip>
@@ -699,28 +717,39 @@ export default function Contacts() {
                               </Tooltip>
                             </div>
                           </TableCell>
-                          <TableCell>{formatAdminDate(lead.createdAt)}</TableCell>
                           <TableCell>
-                            <Badge variant={getLeadStatusVariant(lead.status)}>{getStatusLabel(lead.status)}</Badge>
-                          </TableCell>
-                          <TableCell>{formatBudgetRange(lead.budgetRange)}</TableCell>
-                          <TableCell>{getInterestTypeLabel(lead.interestType || "")}</TableCell>
-                          <TableCell>{lead.numberOfDependents || 0}</TableCell>
-                          <TableCell>{getMaritalStatusLabel(lead.maritalStatus || "")}</TableCell>
-                          <TableCell>{lead.age || "غير محدد"}</TableCell>
-                          <TableCell>{lead.city || "غير محدد"}</TableCell>
-                          <TableCell>
-                            <div
-                              className="cursor-pointer hover:underline"
-                              onClick={() => openLeadDetail(lead)}
-                            >
-                              <div className="font-bold text-primary">{lead.firstName} {lead.lastName}</div>
-                              <div className="mt-1 flex items-center gap-2 text-muted-foreground">
-                                <Phone size={12} />
-                                <span>{lead.phone}</span>
-                              </div>
+                            <div className="cursor-pointer hover:underline" onClick={() => openLeadDetail(lead)}>
+                              <div className="font-bold text-sm">{lead.firstName} {lead.lastName}</div>
+                              <div className="text-xs text-muted-foreground">{lead.phone}</div>
                             </div>
                           </TableCell>
+                          <TableCell>
+                            {(() => {
+                              const score = (lead as any).leadScore ?? 0;
+                              const color = score >= 80 ? "bg-primary text-primary-foreground" : score >= 50 ? "bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground,#fff))]" : "bg-destructive text-destructive-foreground";
+                              return <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${color}`}>{score}</span>;
+                            })()}
+                          </TableCell>
+                          <TableCell>
+                            {(() => {
+                              const src = lead.source || (lead as any).leadSource || "";
+                              const sourceConfig: Record<string, { label: string; color: string }> = {
+                                WEBSITE: { label: "الموقع", color: "bg-primary/10 text-primary" },
+                                REFERRAL: { label: "إحالة", color: "bg-accent text-accent-foreground" },
+                                CHATBOT: { label: "شات بوت", color: "bg-purple-100 text-purple-700" },
+                                PHONE: { label: "اتصال", color: "bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))]" },
+                                SOCIAL_MEDIA: { label: "تواصل", color: "bg-blue-100 text-blue-700" },
+                                WALK_IN: { label: "زيارة", color: "bg-muted text-muted-foreground" },
+                              };
+                              const cfg = sourceConfig[src.toUpperCase()] || { label: src || "—", color: "bg-muted text-muted-foreground" };
+                              return <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${cfg.color}`}>{cfg.label}</span>;
+                            })()}
+                          </TableCell>
+                          <TableCell><Badge variant={getLeadStatusVariant(lead.status)}>{getStatusLabel(lead.status)}</Badge></TableCell>
+                          <TableCell>{getInterestTypeLabel(lead.interestType || "")}</TableCell>
+                          <TableCell className="tabular-nums">{formatBudgetRange(lead.budgetRange)}</TableCell>
+                          <TableCell>{lead.city || "—"}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">{formatAdminDate(lead.createdAt)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

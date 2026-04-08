@@ -585,6 +585,7 @@ model deals {
   currency          String        @default("SAR")
   wonAt             DateTime?
   lostAt            DateTime?
+  stageEnteredAt    DateTime?     @default(now())
   notes             String?
   // ── Saudi Regulation: Commission, RETT, Ejar ──
   commissionPercentage  Decimal?      @db.Decimal(5, 2)   // نسبة العمولة (max 2.5% by law)
@@ -2084,4 +2085,122 @@ model project_units {
 
   @@index([projectId])
   @@index([status])
+}
+
+// ── Maintenance Request System (Session 5.6) ────────────────────────────────
+
+model maintenance_requests {
+  id              String   @id @default(uuid())
+  tenancyId       String?
+  propertyId      String
+  reportedBy      String   // userId or customerId
+  category        String   // plumbing, electrical, hvac, general, structural
+  description     String   @db.Text
+  photos          String?  @db.Text  // JSON array of URLs
+  priority        String   @default("MEDIUM")  // LOW, MEDIUM, HIGH, URGENT
+  status          String   @default("SUBMITTED")  // SUBMITTED, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED
+  assignedVendor  String?
+  vendorNotes     String?
+  completedAt     DateTime?
+  cost            Decimal? @db.Decimal(10, 2)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([propertyId])
+  @@index([status])
+  @@index([tenancyId])
+}
+
+// ── Vendor / Contractor Database (Session 5.7) ──────────────────────────────
+
+model vendors {
+  id              String   @id @default(uuid())
+  name            String
+  phone           String
+  email           String?
+  specialization  String   // plumbing, electrical, hvac, cleaning, painting, general
+  city            String?
+  rating          Decimal? @db.Decimal(2, 1)  // 1.0 - 5.0
+  isActive        Boolean  @default(true)
+  notes           String?
+  agentId         String
+  organizationId  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([agentId])
+  @@index([organizationId])
+  @@index([specialization])
+}
+
+// ── Viewing Feedback Forms (Session 5.8) ─────────────────────────────────────
+
+model viewing_feedback {
+  id                String   @id @default(uuid())
+  appointmentId     String   @unique
+  customerId        String?
+  locationRating    Int?     // 1-5
+  conditionRating   Int?     // 1-5
+  priceRating       Int?     // 1-5
+  overallRating     Int?     // 1-5
+  comments          String?
+  createdAt         DateTime @default(now())
+
+  @@index([appointmentId])
+  @@index([customerId])
+}
+
+// ── Land Subdivision ───────────────────────────────────────────────────────────
+
+model land_subdivisions {
+  id              String   @id @default(uuid())
+  parentPropertyId String
+  agentId         String
+  organizationId  String?
+  totalArea       Decimal  @db.Decimal(14, 2)
+  lotCount        Int      @default(0)
+  status          String   @default("PLANNING")  // PLANNING, APPROVED, IN_PROGRESS, COMPLETED
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  lots            subdivision_lots[]
+
+  @@index([parentPropertyId])
+  @@index([agentId])
+}
+
+model subdivision_lots {
+  id              String   @id @default(uuid())
+  subdivisionId   String
+  lotNumber       String
+  areaSqm         Decimal  @db.Decimal(10, 2)
+  price           Decimal? @db.Decimal(14, 2)
+  status          String   @default("AVAILABLE")  // AVAILABLE, RESERVED, SOLD
+  buyerName       String?
+  buyerPhone      String?
+  infrastructure  String?  @db.Text  // JSON: { water, electricity, sewage, road }
+  createdAt       DateTime @default(now())
+
+  subdivision     land_subdivisions @relation(fields: [subdivisionId], references: [id], onDelete: Cascade)
+
+  @@index([subdivisionId])
+  @@index([status])
+}
+
+// ── Warranty Tracking ──────────────────────────────────────────────────────────
+
+model property_warranties {
+  id          String   @id @default(uuid())
+  propertyId  String
+  itemName    String   // AC, water heater, elevator, etc.
+  brand       String?
+  installedAt DateTime?
+  expiresAt   DateTime
+  vendor      String?
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  @@index([propertyId])
+  @@index([expiresAt])
 }

@@ -25,6 +25,7 @@ import {
 import { motion } from "framer-motion";
 
 import PublicHeader from "@/components/layout/PublicHeader";
+import ChatWidget from "@/components/chatbot/ChatWidget";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MapSkeleton } from "@/components/skeletons/page-skeletons";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
@@ -761,6 +762,7 @@ export default function MapPage() {
           </div>
         </SheetContent>
       </Sheet>
+      <ChatWidget />
     </div>
   );
 }
