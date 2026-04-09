@@ -1,3 +1,4 @@
+
 /**
  * routes/nearby-places.ts — Nearby POI endpoint
  *

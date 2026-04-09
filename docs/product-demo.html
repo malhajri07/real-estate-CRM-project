@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>عقاركم — عرض المنتج</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: #0a0a0a; color: #fff; overflow: hidden; }
+
+  .slide { width: 100vw; height: 100vh; display: none; flex-direction: column; justify-content: center; padding: 60px 80px; position: relative; }
+  .slide.active { display: flex; }
+
+  /* Backgrounds */
+  .bg-dark { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%); }
+  .bg-green { background: linear-gradient(135deg, #064e3b 0%, #0d9668 100%); }
+  .bg-white { background: #fafafa; color: #1a1a1a; }
+  .bg-gradient { background: linear-gradient(135deg, #0d9668 0%, #047857 50%, #064e3b 100%); }
+
+  h1 { font-size: 56px; font-weight: 700; line-height: 1.2; margin-bottom: 20px; }
+  h2 { font-size: 42px; font-weight: 700; line-height: 1.3; margin-bottom: 16px; }
+  h3 { font-size: 28px; font-weight: 600; margin-bottom: 12px; }
+  p { font-size: 22px; line-height: 1.6; opacity: 0.85; }
+  .subtitle { font-size: 26px; opacity: 0.7; margin-bottom: 40px; }
+  .small { font-size: 18px; opacity: 0.6; }
+
+  .accent { color: #10b981; }
+  .accent-dark { color: #064e3b; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; margin-top: 40px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 24px; margin-top: 40px; }
+
+  .card { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 30px; }
+  .card-white { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+  .card h3 { font-size: 22px; margin-bottom: 8px; }
+  .card p { font-size: 17px; }
+
+  .stat { text-align: center; }
+  .stat .number { font-size: 52px; font-weight: 700; color: #10b981; }
+  .stat .label { font-size: 16px; opacity: 0.6; margin-top: 4px; }
+
+  .badge { display: inline-block; background: rgba(16,185,129,0.15); color: #10b981; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+  .badge-white { background: rgba(255,255,255,0.15); color: #fff; }
+
+  .icon { font-size: 36px; margin-bottom: 12px; }
+
+  .logo { font-size: 32px; font-weight: 700; color: #10b981; }
+
+  .footer { position: absolute; bottom: 30px; left: 80px; right: 80px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; opacity: 0.4; }
+
+  .pill-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .pill { background: rgba(16,185,129,0.12); color: #10b981; padding: 8px 18px; border-radius: 24px; font-size: 15px; font-weight: 600; }
+  .pill-dark { background: rgba(0,0,0,0.08); color: #064e3b; }
+
+  .timeline { display: flex; flex-direction: column; gap: 20px; margin-top: 30px; }
+  .timeline-item { display: flex; align-items: flex-start; gap: 16px; }
+  .timeline-dot { width: 12px; height: 12px; border-radius: 50%; background: #10b981; margin-top: 8px; flex-shrink: 0; }
+  .timeline-content h4 { font-size: 20px; font-weight: 600; }
+  .timeline-content p { font-size: 16px; opacity: 0.7; }
+
+  .two-col { display: flex; gap: 60px; align-items: center; margin-top: 40px; }
+  .two-col .col { flex: 1; }
+
+  .feature-row { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .feature-row:last-child { border-bottom: none; }
+  .feature-icon { font-size: 24px; width: 44px; height: 44px; background: rgba(16,185,129,0.12); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .feature-text h4 { font-size: 18px; font-weight: 600; }
+  .feature-text p { font-size: 14px; opacity: 0.6; }
+
+  .nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 100; }
+  .nav button { width: 10px; height: 10px; border-radius: 50%; border: none; background: rgba(255,255,255,0.3); cursor: pointer; transition: all 0.3s; }
+  .nav button.active { background: #10b981; width: 30px; border-radius: 5px; }
+
+  .arrow { position: fixed; top: 50%; z-index: 100; width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; transition: all 0.3s; }
+  .arrow:hover { background: rgba(16,185,129,0.3); }
+  .arrow-right { right: 20px; }
+  .arrow-left { left: 20px; }
+
+  @media print {
+    .slide { display: flex !important; page-break-after: always; height: 100vh; }
+    .nav, .arrow { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<div class="slide active bg-dark" id="s1">
+  <div class="badge">منصة عقارية سعودية متكاملة</div>
+  <h1>عقاركم</h1>
+  <p class="subtitle">نظام تشغيل عقاري شامل — من اكتساب العميل إلى إدارة العقار</p>
+  <div class="grid-4" style="margin-top:60px">
+    <div class="stat"><div class="number">121K</div><div class="label">سطر برمجي</div></div>
+    <div class="stat"><div class="number">78</div><div class="label">جدول بيانات</div></div>
+    <div class="stat"><div class="number">57</div><div class="label">واجهة برمجية</div></div>
+    <div class="stat"><div class="number">91</div><div class="label">صفحة تفاعلية</div></div>
+  </div>
+  <div class="footer"><span class="logo">عقاركم</span><span>عرض المنتج — 2026</span></div>
+</div>
+
+<!-- Slide 2: Problem -->
+<div class="slide bg-white" id="s2">
+  <div class="badge pill-dark" style="background:rgba(0,0,0,0.06)">المشكلة</div>
+  <h2 class="accent-dark">الوسيط العقاري السعودي يعمل بأدوات متفرقة</h2>
+  <div class="grid-3" style="margin-top:40px">
+    <div class="card-white">
+      <div class="icon">📱</div>
+      <h3 style="color:#1a1a1a">واتساب للتواصل</h3>
+      <p style="color:#666">رسائل متناثرة، بدون تتبع أو تصنيف للعملاء</p>
+    </div>
+    <div class="card-white">
+      <div class="icon">📋</div>
+      <h3 style="color:#1a1a1a">إكسل للمتابعة</h3>
+      <p style="color:#666">جداول يدوية، بدون تنبيهات أو أتمتة</p>
+    </div>
+    <div class="card-white">
+      <div class="icon">🏢</div>
+      <h3 style="color:#1a1a1a">منصات متعددة للإعلان</h3>
+      <p style="color:#666">عقار.فم، بيوت، حراج — كل منصة بشكل منفصل</p>
+    </div>
+  </div>
+  <p style="margin-top:40px;font-size:24px;color:#dc2626;font-weight:600">النتيجة: 40% من الفرص تضيع بسبب تأخر المتابعة</p>
+  <div class="footer"><span class="logo accent-dark">عقاركم</span><span style="color:#999">عرض المنتج — 2026</span></div>
+</div>
+
+<!-- Slide 3: Solution -->
+<div class="slide bg-green" id="s3">
+  <div class="badge badge-white">الحل</div>
+  <h1>منصة واحدة لكل شيء</h1>
+  <p class="subtitle" style="opacity:0.85">عقاركم يجمع إدارة العملاء، العقارات، الصفقات، التسويق، والامتثال في نظام واحد</p>
+  <div class="grid-3">
+    <div class="card">
+      <div class="icon">👥</div>
+      <h3>إدارة العملاء (CRM)</h3>
+      <p>عملاء، صفقات، مهام، تقويم</p>
+    </div>
+    <div class="card">
+      <div class="icon">🏠</div>
+      <h3>إدارة العقارات</h3>
+      <p>إعلانات، تقييم، مشاريع، تقسيم أراضي</p>
+    </div>
+    <div class="card">
+      <div class="icon">📢</div>
+      <h3>التسويق الذكي</h3>
+      <p>حملات، أتمتة، شات بوت، ترويج</p>
+    </div>
+  </div>
+  <div class="footer"><span>عقاركم</span><span>عرض المنتج — 2026</span></div>
+</div>
+
+<!-- Slide 4: CRM Features -->
+<div class="slide bg-dark" id="s4">
+  <div class="badge">إدارة العملاء</div>
+  <h2>من الاستفسار إلى إتمام الصفقة</h2>
+  <div class="two-col">
+    <div class="col">
+      <div class="feature-row"><div class="feature-icon">👤</div><div class="feature-text"><h4>جهات الاتصال</h4><p>تصنيف، جودة، مصدر، متابعة تلقائية</p></div></div>
+      <div class="feature-row"><div class="feature-icon">📊</div><div class="feature-text"><h4>مسار الصفقات</h4><p>سحب وإفلات، توقعات إيرادات، تنبيه الصفقات المتوقفة</p></div></div>
+      <div class="feature-row"><div class="feature-icon">📅</div><div class="feature-text"><h4>التقويم</h4><p>مواعيد معاينة، سحب لإعادة الجدولة، 15 دقيقة كحد أدنى</p></div></div>
+      <div class="feature-row"><div class="feature-icon">✅</div><div class="feature-text"><h4>المهام</h4><p>متابعة، تصنيف، ربط بالعقار والعميل</p></div></div>
+    </div>
+    <div class="col">
+      <div class="feature-row"><div class="feature-icon">💬</div><div class="feature-text"><h4>صندوق الرسائل</h4><p>واتساب ثنائي الاتجاه، محادثات، تتبع القراءة</p></div></div>
+      <div class="feature-row"><div class="feature-icon">🏘</div><div class="feature-text"><h4>إدارة المستأجرين</h4><p>عقود إيجار، مدفوعات، تجديد، تنبيهات</p></div></div>
+      <div class="feature-row"><div class="feature-icon">📈</div><div class="feature-text"><h4>لوحة التحكم</h4><p>مقاييس حسب الدور، فترات مقارنة، ترتيب الوسطاء</p></div></div>
+      <div class="feature-row"><div class="feature-icon">🤝</div><div class="feature-text"><h4>التعاون</h4><p>طلبات تعاون، عقود وساطة، توقيع رقمي</p></div></div>
+    </div>
+  </div>
+  <div class="footer"><span class="logo">عقاركم</span><span>عرض المنتج — 2026</span></div>
+</div>
+
+<!-- Slide 5: Properties -->
+<div class="slide bg-white" id="s5">
+  <div class="badge pill-dark" style="background:rgba(0,0,0,0.06)">إدارة العقارات</div>
+  <h2 class="accent-dark">33 نوع عقاري حسب تصنيف REGA</h2>
+  <div class="grid-2" style="margin-top:30px">
+    <div>
+      <div class="pill-list">
+        <span class="pill pill-dark">شقة</span>
+        <span class="pill pill-dark">فيلا</span>
+        <span class="pill pill-dark">أرض</span>
+        <span class="pill pill-dark">دوبلكس</span>
+        <span class="pill pill-dark">تجاري</span>
+        <span class="pill pill-dark">مكتب</span>
+        <span class="pill pill-dark">فندق</span>
+        <span class="pill pill-dark">مزرعة</span>
+        <span class="pill pill-dark">مصنع</span>
+        <span class="pill pill-dark">قصر</span>
+        <span class="pill pill-dark">شاليه</span>
+        <span class="pill pill-dark">كمباوند</span>
+      </div>
+      <div style="margin-top:30px">
+        <h3 style="color:#1a1a1a">أدوات متقدمة</h3>
+        <ul style="list-style:none;font-size:18px;color:#555;line-height:2.2">
+          <li>✓ تقييم عقاري تلقائي (CMA)</li>
+          <li>✓ بحث تفاعلي على الخريطة</li>
+          <li>✓ معالم قريبة (مساجد، مدارس، مستشفيات)</li>
+          <li>✓ مقارنة عقارات جنب إلى جنب</li>
+          <li>✓ مشاريع البيع على الخارطة</li>
+          <li>✓ تقسيم الأراضي</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card-white" style="text-align:center">
+        <div style="font-size:64px;margin-bottom:16px">🏗</div>
+        <h3 style="color:#1a1a1a">إدارة المشاريع</h3>
+        <p style="color:#666;font-size:16px">تتبع المشروع → الوحدات → الحجوزات → الدفعات</p>
+        <div style="display:flex;justify-content:center;gap:20px;margin-top:20px">
+          <div><div style="font-size:28px;font-weight:700;color:#10b981">5</div><div style="font-size:12px;color:#999">فئات رئيسية</div></div>
+          <div><div style="font-size:28px;font-weight:700;color:#10b981">33</div><div style="font-size:12px;color:#999">نوع عقاري</div></div>
+          <div><div style="font-size:28px;font-weight:700;color:#10b981">78</div><div style="font-size:12px;color:#999">جدول بيانات</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="logo accent-dark">عقاركم</span><span style="color:#999">عرض المنتج — 2026</span></div>
+</div>
+
+<!-- Slide 6: Marketing & AI -->
+<div class="slide bg-dark" id="s6">
+  <div class="badge">التسويق والذكاء الاصطناعي</div>
+  <h2>محرك تسويق ذكي يعمل لك 24/7</h2>
+  <div class="grid-2" style="margin-top:30px">
+    <div>
+      <h3 style="color:#10b981;margin-bottom:20px">إدارة الحملات</h3>
+      <div class="feature-row"><div class="feature-icon">🎯</div><div class="feature-text"><h4>شرائح ذكية</h4><p>تصنيف تلقائي: باحثين شراء، إيجار، ميزانية عالية</p></div></div>
+      <div class="feature-row"><div class="feature-icon">🤖</div><div class="feature-text"><h4>أتمتة القواعد</h4><p>إذا لم يتم التواصل 7 أيام → إرسال تلقائي</p></div></div>
+      <div class="feature-row"><div class="feature-icon">📱</div><div class="feature-text"><h4>واتساب + SMS + بريد</h4><p>3 قنوات، قوالب جاهزة، تتبع التسليم</p></div></div>
+      <div class="feature-row"><div class="feature-icon">📊</div><div class="feature-text"><h4>ترويج الإعلانات</h4><p>نظام مزايدة (مثل Google Ads) لرفع ترتيب العقار</p></div></div>
+    </div>
+    <div>
+      <h3 style="color:#10b981;margin-bottom:20px">الشات بوت الذكي</h3>
+      <div class="card" style="padding:24px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="background:rgba(16,185,129,0.15);padding:10px 16px;border-radius:12px 12px 4px 12px;font-size:15px;max-width:80%">مرحباً! أنا المساعد العقاري 🏠</div>
+          <div style="background:rgba(255,255,255,0.1);padding:10px 16px;border-radius:12px 12px 12px 4px;font-size:15px;max-width:80%;align-self:flex-end">أبحث عن فيلا في الرياض</div>
+          <div style="background:rgba(16,185,129,0.15);padding:10px 16px;border-radius:12px 12px 4px 12px;font-size:15px;max-width:80%">وجدت 5 فلل تطابق معاييرك!</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span style="background:rgba(255,255,255,0.08);padding:6px 12px;border-radius:16px;font-size:12px;border:1px solid rgba(255,255,255,0.15)">معاينة عقار</span>
+            <span style="background:rgba(255,255,255,0.08);padding:6px 12px;border-radius:16px;font-size:12px;border:1px solid rgba(255,255,255,0.15)">أرسل على واتساب</span>
+          </div>
+        </div>
+      </div>
+      <p style="margin-top:16px;font-size:15px;opacity:0.6">بحث حقيقي من قاعدة البيانات → إنشاء عميل تلقائي → تحويل لواتساب</p>
+    </div>
+  </div>
+  <div class="footer"><span class="logo">عقاركم</span><span>عرض المنتج — 2026</span></div>
+</div>
+
+<!-- Slide 7: REGA Compliance -->
+<div class="slide bg-gradient" id="s7">
+  <div class="badge badge-white">الامتثال التنظيمي</div>
+  <h1>متوافق 100% مع أنظمة REGA</h1>
+  <p class="subtitle" style="opacity:0.9">نظام الوساطة العقارية · ضوابط الإعلانات · اللائحة التنفيذية</p>
+  <div class="grid-3" style="margin-top:40px">
+    <div class="card">
+      <h3>🔒 رخصة فال</h3>
+      <p>بوابة إلزامية: لا يمكن إنشاء إعلان بدون رخصة فال سارية</p>
+    </div>
+    <div class="card">
+      <h3>📋 ترخيص الإعلان</h3>
+      <p>8 حقول إلزامية حسب ضوابط الإعلانات العقارية 1442هـ</p>
+    </div>
+    <div class="card">
+      <h3>💰 سقف العمولة</h3>
+      <p>2.5% كحد أقصى (المادة 14) — تنبيه عند التجاوز</p>
+    </div>
+    <div class="card">
+      <h3>📑 عقود التعاون</h3>
+      <p>عقد وساطة رقمي مع 8 مواد قانونية وتوقيع إلكتروني</p>
+    </div>
+    <div class="card">
+      <h3>🏛 التكامل الحكومي</h3>
+      <p>نفاذ · إيجار · سداد · العنوان الوطني (جاهز للربط)</p>
+    </div>
+    <div class="card">
+      <h3>💵 ض.ت.ع (RETT)</h3>
+      <p>حساب تلقائي 5% مع إعفاء المسكن الأول (سكني)</p>
+    </div>
+  </div>
+  <div class="footer"><span>عقاركم</span><span>عرض المنتج — 2026</span></div>
+</div>
+
+<!-- Slide 8: Role-Based -->
+<div class="slide bg-dark" id="s8">
+  <div class="badge">3 أدوار · تجربة مختلفة</div>
+  <h2>كل مستخدم يرى ما يحتاجه فقط</h2>
+  <div class="grid-3" style="margin-top:40px">
+    <div class="card">
+      <h3>🧑‍💼 وسيط فردي</h3>
+      <p style="margin-bottom:16px">يرى بياناته الشخصية فقط</p>
+      <div class="pill-list">
+        <span class="pill" style="font-size:12px">عملائي</span>
+        <span class="pill" style="font-size:12px">صفقاتي</span>
+        <span class="pill" style="font-size:12px">عقاراتي</span>
+        <span class="pill" style="font-size:12px">حاسبة التمويل</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>👔 وسيط مؤسسي</h3>
+      <p style="margin-bottom:16px">يرى بيانات المنشأة (قراءة) + بياناته (تعديل)</p>
+      <div class="pill-list">
+        <span class="pill" style="font-size:12px">كل عملاء المنشأة</span>
+        <span class="pill" style="font-size:12px">صفقاتي فقط</span>
+        <span class="pill" style="font-size:12px">إعلان يحتاج موافقة</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🏢 مدير المنشأة</h3>
+      <p style="margin-bottom:16px">تحكم كامل + إدارة الفريق</p>
+      <div class="pill-list">
+        <span class="pill" style="font-size:12px">ترتيب الوسطاء</span>
+        <span class="pill" style="font-size:12px">توزيع العملاء</span>
+        <span class="pill" style="font-size:12px">موافقة الإعلانات</span>
+        <span class="pill" style="font-size:12px">توزيع العمولة</span>
+        <span class="pill" style="font-size:12px">الفوترة</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="logo">عقاركم</span><span>عرض المنتج — 2026</span></div>
+</div>
+
+<!-- Slide 9: Tech Stack -->
+<div class="slide bg-white" id="s9">
+  <div class="badge pill-dark" style="background:rgba(0,0,0,0.06)">البنية التقنية</div>
+  <h2 class="accent-dark">بنية حديثة وقابلة للتوسع</h2>
+  <div class="grid-2" style="margin-top:30px">
+    <div>
+      <h3 style="color:#1a1a1a;margin-bottom:20px">الواجهة الأمامية</h3>
+      <ul style="list-style:none;font-size:17px;color:#555;line-height:2.4">
+        <li>⚡ React 18 + TypeScript + Vite</li>
+        <li>🎨 Tailwind CSS + shadcn/ui + Radix</li>
+        <li>🔤 IBM Plex Sans Arabic</li>
+        <li>↩️ RTL كامل (CSS Logical Properties)</li>
+        <li>📊 Recharts (shadcn ChartContainer)</li>
+        <li>🔄 TanStack React Query</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color:#1a1a1a;margin-bottom:20px">الواجهة الخلفية</h3>
+      <ul style="list-style:none;font-size:17px;color:#555;line-height:2.4">
+        <li>🖥 Express.js + TypeScript</li>
+        <li>🗄 PostgreSQL + Prisma ORM</li>
+        <li>🔐 JWT + OTP Login (بدون كلمة مرور)</li>
+        <li>🛡 Rate Limiting + FAL Middleware</li>
+        <li>🧪 Playwright E2E (41 اختبار)</li>
+        <li>🏗 16 خدمة + 11 middleware</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span class="logo accent-dark">عقاركم</span><span style="color:#999">عرض المنتج — 2026</span></div>
+</div>
+
+<!-- Slide 10: Numbers -->
+<div class="slide bg-dark" id="s10">
+  <div class="badge">بالأرقام</div>
+  <h2>منصة متكاملة في 121 ألف سطر</h2>
+  <div class="grid-4" style="margin-top:50px">
+    <div class="stat"><div class="number">91</div><div class="label">صفحة تفاعلية</div></div>
+    <div class="stat"><div class="number">57</div><div class="label">واجهة برمجية (API)</div></div>
+    <div class="stat"><div class="number">78</div><div class="label">جدول بيانات</div></div>
+    <div class="stat"><div class="number">16</div><div class="label">خدمة متخصصة</div></div>
+  </div>
+  <div class="grid-4" style="margin-top:40px">
+    <div class="stat"><div class="number">127</div><div class="label">مكون واجهة</div></div>
+    <div class="stat"><div class="number">11</div><div class="label">طبقة أمان</div></div>
+    <div class="stat"><div class="number">41</div><div class="label">اختبار E2E</div></div>
+    <div class="stat"><div class="number">33</div><div class="label">نوع عقاري</div></div>
+  </div>
+  <div class="footer"><span class="logo">عقاركم</span><span>عرض المنتج — 2026</span></div>
+</div>
+
+<!-- Slide 11: CTA -->
+<div class="slide bg-gradient" id="s11">
+  <div style="text-align:center">
+    <h1 style="font-size:64px;margin-bottom:24px">مستقبل الوساطة العقارية<br>يبدأ من هنا</h1>
+    <p style="font-size:28px;opacity:0.9;margin-bottom:60px">عقاركم — نظام تشغيل عقاري متكامل للسوق السعودي</p>
+    <div style="display:flex;justify-content:center;gap:20px">
+      <div class="card" style="padding:20px 40px;text-align:center">
+        <div style="font-size:20px;font-weight:700">جرّب المنصة الآن</div>
+        <div style="font-size:14px;opacity:0.7;margin-top:4px">localhost:3000</div>
+      </div>
+    </div>
+    <p style="margin-top:60px;font-size:16px;opacity:0.6">تسجيل دخول: 0560000001 (مدير) · 0560001005 (وسيط)</p>
+  </div>
+  <div class="footer"><span>عقاركم</span><span>عرض المنتج — 2026</span></div>
+</div>
+
+<!-- Navigation -->
+<div class="nav" id="nav"></div>
+<div class="arrow arrow-left" onclick="prev()">→</div>
+<div class="arrow arrow-right" onclick="next()">←</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+let current = 0;
+
+function show(n) {
+  slides.forEach(s => s.classList.remove('active'));
+  slides[n].classList.add('active');
+  current = n;
+  updateNav();
+}
+
+function next() { if (current < slides.length - 1) show(current + 1); }
+function prev() { if (current > 0) show(current - 1); }
+
+function updateNav() {
+  const nav = document.getElementById('nav');
+  nav.innerHTML = '';
+  slides.forEach((_, i) => {
+    const btn = document.createElement('button');
+    if (i === current) btn.classList.add('active');
+    btn.onclick = () => show(i);
+    nav.appendChild(btn);
+  });
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowDown' || e.key === ' ') next();
+  if (e.key === 'ArrowRight' || e.key === 'ArrowUp') prev();
+});
+
+// Touch support
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', (e) => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) { diff > 0 ? next() : prev(); }
+});
+
+updateNav();
+</script>
+</body>
+</html>

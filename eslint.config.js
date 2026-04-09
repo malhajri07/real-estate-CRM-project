@@ -1,5 +1,6 @@
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
+import tsdocPlugin from 'eslint-plugin-tsdoc';
 
 export default [
   {
@@ -41,13 +42,19 @@ export default [
         fetch: 'readonly',
       },
     },
-    plugins: { '@typescript-eslint': tsPlugin },
+    plugins: {
+      '@typescript-eslint': tsPlugin,
+      tsdoc: tsdocPlugin,
+    },
     rules: {
       'no-debugger': 'error',
       'no-var': 'error',
       'no-unreachable': 'warn', // TODO: fix unreachable code, then restore to 'error'
       'no-duplicate-case': 'error',
       '@typescript-eslint/no-explicit-any': 'warn',
+      // TSDoc syntax check — currently 'warn' so it doesn't block legacy code.
+      // Bumped to 'error' once Comment Plan C1-C20 reaches >70% coverage.
+      'tsdoc/syntax': 'warn',
     },
   },
   {

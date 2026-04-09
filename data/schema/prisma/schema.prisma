@@ -10,6 +10,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// Imported broker / agency account records (REGA-style account numbers).
+/// Distinct from `users` — these are pre-existing entity registrations.
 model accounts {
   id            String    @id @default(uuid())
   firstNameAr   String?
@@ -31,31 +33,34 @@ model accounts {
   @@index([createdAt])
 }
 
+/// Per-agent extended profile — REGA license, FAL details, specialties, bio.
+/// 1:1 with `users` (only users with INDIV_AGENT or CORP_AGENT role have one).
+/// FAL fields are required for compliance — see [[Features/REGA Compliance]].
 model agent_profiles {
-  id                    String                      @id @default(uuid())
-  userId                String                      @unique
-  organizationId        String?
-  licenseNo             String                      @unique
-  licenseValidTo        DateTime
-  territories           String
-  isIndividualAgent     Boolean                     @default(false)
-  status                AgentStatus                 @default(PENDING_VERIFICATION)
-  specialties           String
-  experience            Int?
-  bio                   String?
-  avatar                String?
+  id                String                    @id @default(uuid())
+  userId            String                    @unique
+  organizationId    String?
+  licenseNo         String                    @unique
+  licenseValidTo    DateTime
+  territories       String
+  isIndividualAgent Boolean                   @default(false)
+  status            AgentStatus               @default(PENDING_VERIFICATION)
+  specialties       String
+  experience        Int?
+  bio               String?
+  avatar            String?
   // ── FAL License (REGA) ──
-  falLicenseNumber      String?                     // رقم رخصة فال (10-digit)
-  falLicenseType        FalLicenseType?             // نوع الرخصة
-  falIssuedAt           DateTime?                   // تاريخ الإصدار
-  falExpiresAt          DateTime?                   // تاريخ الانتهاء
-  falStatus             LicenseVerificationStatus   @default(PENDING)
-  nationalIdNumber      String?                     // رقم الهوية الوطنية / الإقامة
-  sreiCertified         Boolean                     @default(false) // اجتياز تدريب المعهد العقاري
-  createdAt             DateTime                    @default(now())
-  updatedAt             DateTime                    @updatedAt
-  organizations         organizations?              @relation(fields: [organizationId], references: [id])
-  users                 users                       @relation(fields: [userId], references: [id])
+  falLicenseNumber  String? // رقم رخصة فال (10-digit)
+  falLicenseType    FalLicenseType? // نوع الرخصة
+  falIssuedAt       DateTime? // تاريخ الإصدار
+  falExpiresAt      DateTime? // تاريخ الانتهاء
+  falStatus         LicenseVerificationStatus @default(PENDING)
+  nationalIdNumber  String? // رقم الهوية الوطنية / الإقامة
+  sreiCertified     Boolean                   @default(false) // اجتياز تدريب المعهد العقاري
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  organizations     organizations?            @relation(fields: [organizationId], references: [id])
+  users             users                     @relation(fields: [userId], references: [id])
 
   @@index([licenseNo])
   @@index([falLicenseNumber])
@@ -64,6 +69,8 @@ model agent_profiles {
   @@index([userId])
 }
 
+/// Immutable append-only log of every meaningful mutation. Used for REGA audits and
+/// for the per-record activity timeline. Stores before/after JSON snapshots.
 model audit_logs {
   id         String   @id @default(uuid())
   userId     String
@@ -83,6 +90,8 @@ model audit_logs {
   @@index([userId])
 }
 
+/// Buyer-side entries in the shared Pool (الطلبات العقارية).
+/// Any agent can claim them via `claims`. Contact details are masked until claim.
 model buyer_requests {
   id                 String             @id @default(uuid())
   createdByUserId    String
@@ -111,6 +120,7 @@ model buyer_requests {
   @@index([type])
 }
 
+/// Saudi cities, FK to regions. Used by listing/customer location pickers.
 model cities {
   id              Int         @id
   regionId        Int
@@ -128,6 +138,8 @@ model cities {
   @@index([regionId])
 }
 
+/// An agent reserving a buyer request from the Pool. Active for 7 days (`expiresAt`).
+/// While active, only the claiming agent sees full contact details.
 model claims {
   id             String         @id @default(uuid())
   agentId        String
@@ -147,6 +159,8 @@ model claims {
   @@index([status])
 }
 
+/// Append-only log of every touchpoint with a lead — calls, WhatsApps, emails, in-person.
+/// Used to compute `lastContactAt` on the parent lead and to power activity timelines.
 model contact_logs {
   id          String         @id @default(uuid())
   leadId      String
@@ -163,6 +177,7 @@ model contact_logs {
   @@index([leadId])
 }
 
+/// Saudi districts (الأحياء) within cities. Seeded with official boundary polygons (GeoJSON).
 model districts {
   id        BigInt   @id
   regionId  Int
@@ -181,7 +196,10 @@ model districts {
   @@index([regionId])
 }
 
-
+/// A Lead is the *opportunity* wrapping a customer + intent (buy / rent / sell).
+/// Distinct from `customers` which is the master record.
+/// Lifecycle: NEW → IN_PROGRESS → WON / LOST. Once WON, a `deals` row is created.
+/// Org-scoped via `organizationId`. See [[Features/CRM Core]].
 model leads {
   id                 String              @id @default(uuid())
   agentId            String
@@ -196,7 +214,7 @@ model leads {
   assignedAt         DateTime?
   lastContactAt      DateTime?
   createdAt          DateTime            @default(now())
-  updatedAt          DateTime           @updatedAt
+  updatedAt          DateTime            @updatedAt
   contact_logs       contact_logs[]
   users              users               @relation(fields: [agentId], references: [id])
   organization       organizations?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
@@ -212,34 +230,37 @@ model leads {
   @@index([status])
 }
 
+/// A specific publication of a property to the market — for SALE or RENT.
+/// REGA-compliant: must carry `regaAdLicenseNumber` + `falLicenseNumber` to publish.
+/// Status lifecycle: DRAFT → PENDING_APPROVAL → ACTIVE → SOLD/RENTED.
 model listings {
-  id               String          @id @default(uuid())
-  propertyId       String
-  agentId          String
-  organizationId   String?
-  unitId           String?
-  sellerCustomerId String?
-  listingType      ListingType
-  exclusive        Boolean         @default(false)
-  publishedAt      DateTime?
-  status           ListingStatus   @default(ACTIVE)
-  price            Decimal?
-  description      String?
+  id                  String               @id @default(uuid())
+  propertyId          String
+  agentId             String
+  organizationId      String?
+  unitId              String?
+  sellerCustomerId    String?
+  listingType         ListingType
+  exclusive           Boolean              @default(false)
+  publishedAt         DateTime?
+  status              ListingStatus        @default(ACTIVE)
+  price               Decimal?
+  description         String?
   // ── REGA Advertising Compliance ──
-  regaAdLicenseNumber String?                         // رقم ترخيص الإعلان العقاري
-  falLicenseNumber    String?                         // رقم رخصة فال المستخدمة
-  adStartDate         DateTime?                       // تاريخ بداية الإعلان
-  adEndDate           DateTime?                       // تاريخ انتهاء الإعلان
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime       @updatedAt
-  users            users           @relation(fields: [agentId], references: [id])
-  organizations    organizations?  @relation(fields: [organizationId], references: [id])
-  properties       properties      @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "listings_propertyid_fkey")
-  seller           customers?      @relation("listing_seller", fields: [sellerCustomerId], references: [id], onDelete: SetNull)
-  inquiries        inquiries[]
-  appointments     appointments[]
-  deals            deals[]
-  promotions       listing_promotions[]
+  regaAdLicenseNumber String? // رقم ترخيص الإعلان العقاري
+  falLicenseNumber    String? // رقم رخصة فال المستخدمة
+  adStartDate         DateTime? // تاريخ بداية الإعلان
+  adEndDate           DateTime? // تاريخ انتهاء الإعلان
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  users               users                @relation(fields: [agentId], references: [id])
+  organizations       organizations?       @relation(fields: [organizationId], references: [id])
+  properties          properties           @relation(fields: [propertyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "listings_propertyid_fkey")
+  seller              customers?           @relation("listing_seller", fields: [sellerCustomerId], references: [id], onDelete: SetNull)
+  inquiries           inquiries[]
+  appointments        appointments[]
+  deals               deals[]
+  promotions          listing_promotions[]
 
   @@index([agentId])
   @@index([listingType])
@@ -250,59 +271,62 @@ model listings {
   @@index([status])
 }
 
+/// Tenancy / agency / brokerage. The org-isolation key for the entire app.
+/// Every multi-tenant table carries `organizationId` and is scoped via
+/// `injectOrgFilter` middleware — see [[Architecture/Org Isolation]].
 model organizations {
-  id                   String                     @id @default(uuid())
-  legalName            String
-  tradeName            String
-  licenseNo            String                     @unique
-  status               OrganizationStatus         @default(PENDING_VERIFICATION)
-  address              String?
-  phone                String?
-  email                String?
-  website              String?
-  industry             String?
-  size                 Int?
-  countryCode          String?
-  city                 String?
-  region               String?
-  timezone             String?
-  billingEmail         String?
-  billingPhone         String?
-  metadata                   Json?
-  primaryContactId           String?
+  id                          String                     @id @default(uuid())
+  legalName                   String
+  tradeName                   String
+  licenseNo                   String                     @unique
+  status                      OrganizationStatus         @default(PENDING_VERIFICATION)
+  address                     String?
+  phone                       String?
+  email                       String?
+  website                     String?
+  industry                    String?
+  size                        Int?
+  countryCode                 String?
+  city                        String?
+  region                      String?
+  timezone                    String?
+  billingEmail                String?
+  billingPhone                String?
+  metadata                    Json?
+  primaryContactId            String?
   // ── FAL License (REGA) ──
-  falLicenseNumber           String?                     // رقم رخصة فال المنشأة
-  falLicenseType             FalLicenseType?
-  falIssuedAt                DateTime?
-  falExpiresAt               DateTime?
-  falStatus                  LicenseVerificationStatus   @default(PENDING)
-  crNumber                   String?                     // رقم السجل التجاري
-  vatNumber                  String?                     // رقم التسجيل الضريبي
+  falLicenseNumber            String? // رقم رخصة فال المنشأة
+  falLicenseType              FalLicenseType?
+  falIssuedAt                 DateTime?
+  falExpiresAt                DateTime?
+  falStatus                   LicenseVerificationStatus  @default(PENDING)
+  crNumber                    String? // رقم السجل التجاري
+  vatNumber                   String? // رقم التسجيل الضريبي
   // ── National Address (العنوان الوطني) ──
-  nationalAddressBuildingNo  String?                     // رقم المبنى (4-digit)
-  nationalAddressStreet      String?                     // اسم الشارع
-  nationalAddressPostalCode  String?                     // الرمز البريدي (5-digit)
-  nationalAddressAdditionalNo String?                    // الرقم الإضافي (4-digit)
-  nationalAddressShortCode   String?                     // العنوان المختصر
-  createdAt                  DateTime                    @default(now())
-  updatedAt                  DateTime                    @updatedAt
-  agent_profiles             agent_profiles[]
-  listings                   listings[]
-  users                users[]
-  primaryContact       users?                     @relation("organization_primary_contact", fields: [primaryContactId], references: [id])
-  memberships          organization_memberships[]
-  billing_accounts     billing_accounts[]
-  settings             organization_settings?
-  analytics_event_logs analytics_event_logs[]
-  leads                leads[]
-  customers            customers[]
-  inquiries            inquiries[]
-  appointments         appointments[]
-  deals                deals[]
-  support_tickets      support_tickets[]
-  broker_requests      broker_requests[]
-  campaigns            campaigns[]          @relation("CampaignOrg")
-  leadRoutingRule      lead_routing_rules?
+  nationalAddressBuildingNo   String? // رقم المبنى (4-digit)
+  nationalAddressStreet       String? // اسم الشارع
+  nationalAddressPostalCode   String? // الرمز البريدي (5-digit)
+  nationalAddressAdditionalNo String? // الرقم الإضافي (4-digit)
+  nationalAddressShortCode    String? // العنوان المختصر
+  createdAt                   DateTime                   @default(now())
+  updatedAt                   DateTime                   @updatedAt
+  agent_profiles              agent_profiles[]
+  listings                    listings[]
+  users                       users[]
+  primaryContact              users?                     @relation("organization_primary_contact", fields: [primaryContactId], references: [id])
+  memberships                 organization_memberships[]
+  billing_accounts            billing_accounts[]
+  settings                    organization_settings?
+  analytics_event_logs        analytics_event_logs[]
+  leads                       leads[]
+  customers                   customers[]
+  inquiries                   inquiries[]
+  appointments                appointments[]
+  deals                       deals[]
+  support_tickets             support_tickets[]
+  broker_requests             broker_requests[]
+  campaigns                   campaigns[]                @relation("CampaignOrg")
+  leadRoutingRule             lead_routing_rules?
 
   @@index([industry])
   @@index([licenseNo])
@@ -310,17 +334,19 @@ model organizations {
   @@index([status])
 }
 
+/// Feature line items for a pricing plan (the bullets shown on the pricing page).
 model pricing_plan_features {
   id            String        @id @default(uuid())
   text          String
   included      Boolean       @default(true)
   order         Int           @default(0)
   createdAt     DateTime      @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime      @updatedAt
   pricingPlanId String
   pricing_plans pricing_plans @relation(fields: [pricingPlanId], references: [id], onDelete: Cascade)
 }
 
+/// Subscription plan catalog — name, price, billing interval, currency (SAR by default).
 model pricing_plans {
   id                    String                  @id @default(uuid())
   name                  String
@@ -335,54 +361,58 @@ model pricing_plans {
   order                 Int                     @default(0)
   metadata              Json?
   createdAt             DateTime                @default(now())
-  updatedAt             DateTime              @updatedAt
+  updatedAt             DateTime                @updatedAt
   pricing_plan_features pricing_plan_features[]
   subscriptions         billing_subscriptions[]
 }
 
+/// Master property record — physical real estate the agency knows about.
+/// Distinct from `listings` (a property can be unlisted, listed multiple times, etc.).
+/// REGA fields: building age, facade direction, deed number, legal status.
+/// See [[Features/Properties & Listings]].
 model properties {
-  id             String           @id @default(uuid())
-  agentId        String?
-  organizationId String?
-  title          String?
-  description    String?
-  type           String?
-  category       String?
-  city           String?
-  district       String?
-  address        String?
-  bedrooms       Int?
-  bathrooms      Decimal?
-  areaSqm        Decimal?
-  price          Decimal?
-  status         PropertyStatus?
-  visibility     String?
-  latitude       Decimal?
-  longitude      Decimal?
-  features       String?
-  photos         String?
+  id                          String               @id @default(uuid())
+  agentId                     String?
+  organizationId              String?
+  title                       String?
+  description                 String?
+  type                        String?
+  category                    String?
+  city                        String?
+  district                    String?
+  address                     String?
+  bedrooms                    Int?
+  bathrooms                   Decimal?
+  areaSqm                     Decimal?
+  price                       Decimal?
+  status                      PropertyStatus?
+  visibility                  String?
+  latitude                    Decimal?
+  longitude                   Decimal?
+  features                    String?
+  photos                      String?
   // ── REGA Compliance Fields ──
-  buildingAge              Int?                      // عمر المبنى (بالسنوات)
-  facadeDirection          String?                   // واجهة العقار (NORTH, SOUTH, etc.)
-  availableServices        String?                   // الخدمات المتوفرة (JSON: electricity, water, sewage)
-  legalStatus              PropertyLegalStatus?      // الحالة القانونية
-  deedNumber               String?                   // رقم الصك
-  nationalAddressBuildingNo  String?
-  nationalAddressPostalCode  String?
+  buildingAge                 Int? // عمر المبنى (بالسنوات)
+  facadeDirection             String? // واجهة العقار (NORTH, SOUTH, etc.)
+  availableServices           String? // الخدمات المتوفرة (JSON: electricity, water, sewage)
+  legalStatus                 PropertyLegalStatus? // الحالة القانونية
+  deedNumber                  String? // رقم الصك
+  nationalAddressBuildingNo   String?
+  nationalAddressPostalCode   String?
   nationalAddressAdditionalNo String?
-  createdAt      DateTime?  @default(now())
-  updatedAt      DateTime?  @updatedAt
-  cityId         Int?
-  districtId     BigInt?
-  regionId       Int?
-  listings       listings[]
-  inquiries      inquiries[]
-  appointments   appointments[]
-  deals          deals[]
-  agent          users?      @relation("PropertyAgent", fields: [agentId], references: [id], onDelete: SetNull)
-  favorites        favorites[]
-  broker_requests  broker_requests[]
-  tenancies        tenancies[]
+  createdAt                   DateTime?            @default(now())
+  updatedAt                   DateTime?            @updatedAt
+  cityId                      Int?
+  districtId                  BigInt?
+  regionId                    Int?
+  listings                    listings[]
+  inquiries                   inquiries[]
+  appointments                appointments[]
+  deals                       deals[]
+  agent                       users?               @relation("PropertyAgent", fields: [agentId], references: [id], onDelete: SetNull)
+  favorites                   favorites[]
+  broker_requests             broker_requests[]
+  tenancies                   tenancies[]
 
   @@index([agentId])
   @@index([organizationId])
@@ -397,7 +427,8 @@ model properties {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 
-
+/// Public buyer-side seeker entries from the landing page form.
+/// Imported into `buyer_requests` once an agent claims them.
 model properties_seeker {
   seeker_num             BigInt   @id @default(autoincrement())
   first_name             String
@@ -436,6 +467,7 @@ model properties_seeker {
   @@index([type_of_property, type_of_contract])
 }
 
+/// Saudi Arabia administrative regions (13 total). Seeded from official GASTAT data.
 model regions {
   id              Int         @id
   code            String?
@@ -446,7 +478,7 @@ model regions {
   centerLongitude Decimal?
   boundary        Json?
   createdAt       DateTime    @default(now())
-  updatedAt       DateTime      @updatedAt
+  updatedAt       DateTime    @updatedAt
   cities          cities[]
   districts       districts[]
 
@@ -454,6 +486,8 @@ model regions {
   @@index([nameEn])
 }
 
+/// Seller-side entries in the shared Pool — owners looking for an agent to sell their property.
+/// Mirror of `buyer_requests` for the opposite side of the marketplace.
 model seller_submissions {
   id                  String                 @id @default(uuid())
   createdByUserId     String
@@ -467,7 +501,7 @@ model seller_submissions {
   fullContactJson     String
   notes               String?
   createdAt           DateTime               @default(now())
-  updatedAt           DateTime             @updatedAt
+  updatedAt           DateTime               @updatedAt
   leads               leads[]
   users               users                  @relation(fields: [createdByUserId], references: [id])
 
@@ -477,6 +511,9 @@ model seller_submissions {
   @@index([type])
 }
 
+/// Master record for a person — buyer, seller, or both.
+/// Phone is unique within an organization (enforced at zod layer, not DB).
+/// Linked to leads, inquiries, appointments, deals, listings (as seller), and tenancies.
 model customers {
   id                String            @id @default(uuid())
   organizationId    String
@@ -512,6 +549,8 @@ model customers {
   @@index([city])
 }
 
+/// Inbound interest in a specific listing or property. Created by website forms,
+/// WhatsApp webhooks, walk-ins, or referrals. Often the first step before a `lead` is created.
 model inquiries {
   id             String         @id @default(uuid())
   organizationId String
@@ -540,6 +579,8 @@ model inquiries {
   @@index([status])
 }
 
+/// Scheduled meetings — viewings, signings, follow-ups. Linked to a customer + optional
+/// property/listing/inquiry. Powers the calendar page.
 model appointments {
   id             String            @id @default(uuid())
   organizationId String
@@ -571,41 +612,46 @@ model appointments {
   @@index([scheduledAt])
 }
 
+/// A deal is the post-qualification, pre-close opportunity. Drives the Kanban pipeline.
+/// Stage transitions are tracked via `stageEnteredAt` (set on every stage change in
+/// `apps/api/routes/deals.ts`) and powers the stuck-deal alerts on the dashboard.
+/// Saudi compliance: commission ≤ 2.5%, RETT 5%, optional Ejar contract reference.
+/// See [[Features/Pipeline & Deals]].
 model deals {
-  id                String        @id @default(uuid())
-  organizationId    String
-  listingId         String?
-  propertyId        String?
-  customerId        String
-  agentId           String?
-  stage             DealStage     @default(NEW)
-  source            String?
-  expectedCloseDate DateTime?
-  agreedPrice       Decimal?      @db.Decimal(14, 2)
-  currency          String        @default("SAR")
-  wonAt             DateTime?
-  lostAt            DateTime?
-  stageEnteredAt    DateTime?     @default(now())
-  notes             String?
+  id                   String              @id @default(uuid())
+  organizationId       String
+  listingId            String?
+  propertyId           String?
+  customerId           String
+  agentId              String?
+  stage                DealStage           @default(NEW)
+  source               String?
+  expectedCloseDate    DateTime?
+  agreedPrice          Decimal?            @db.Decimal(14, 2)
+  currency             String              @default("SAR")
+  wonAt                DateTime?
+  lostAt               DateTime?
+  stageEnteredAt       DateTime?           @default(now())
+  notes                String?
   // ── Saudi Regulation: Commission, RETT, Ejar ──
-  commissionPercentage  Decimal?      @db.Decimal(5, 2)   // نسبة العمولة (max 2.5% by law)
-  commissionAmount      Decimal?      @db.Decimal(14, 2)  // مبلغ العمولة
-  rettAmount            Decimal?      @db.Decimal(14, 2)  // ضريبة التصرفات العقارية (5%)
-  rettPaidDate          DateTime?                          // تاريخ سداد الضريبة
-  rettReference         String?                            // رقم مرجع هيئة الزكاة (ZATCA)
-  firstHomeExemption    Boolean       @default(false)      // إعفاء المسكن الأول (سكني)
-  ejarContractNumber    String?                            // رقم عقد إيجار
-  ejarRegistrationDate  DateTime?                          // تاريخ تسجيل عقد إيجار
-  brokerageContractRef  String?                            // مرجع عقد الوساطة
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
-  organization          organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  listing               listings?     @relation(fields: [listingId], references: [id], onDelete: SetNull)
-  property              properties?   @relation(fields: [propertyId], references: [id], onDelete: SetNull)
-  customer              customers     @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  agent                 users?            @relation(fields: [agentId], references: [id], onDelete: SetNull)
-  commissionSplits      commission_splits[]
-  documents             deal_documents[]
+  commissionPercentage Decimal?            @db.Decimal(5, 2) // نسبة العمولة (max 2.5% by law)
+  commissionAmount     Decimal?            @db.Decimal(14, 2) // مبلغ العمولة
+  rettAmount           Decimal?            @db.Decimal(14, 2) // ضريبة التصرفات العقارية (5%)
+  rettPaidDate         DateTime? // تاريخ سداد الضريبة
+  rettReference        String? // رقم مرجع هيئة الزكاة (ZATCA)
+  firstHomeExemption   Boolean             @default(false) // إعفاء المسكن الأول (سكني)
+  ejarContractNumber   String? // رقم عقد إيجار
+  ejarRegistrationDate DateTime? // تاريخ تسجيل عقد إيجار
+  brokerageContractRef String? // مرجع عقد الوساطة
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  organization         organizations       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  listing              listings?           @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  property             properties?         @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  customer             customers           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  agent                users?              @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  commissionSplits     commission_splits[]
+  documents            deal_documents[]
 
   @@index([organizationId])
   @@index([customerId])
@@ -615,6 +661,7 @@ model deals {
   @@index([stage])
 }
 
+/// Customer support tickets — opened by users, assigned to support staff.
 model support_tickets {
   id               String                @id @default(uuid())
   organizationId   String
@@ -644,34 +691,40 @@ model support_tickets {
   @@index([categoryId])
 }
 
+/// Categories for grouping support tickets in the admin queue.
 model support_categories {
-  id              String            @id @default(uuid())
-  name            String
-  description     String?
-  slug            String            @unique
-  displayOrder    Int               @default(0)
-  isActive        Boolean           @default(true)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  tickets         support_tickets[]
+  id           String            @id @default(uuid())
+  name         String
+  description  String?
+  slug         String            @unique
+  displayOrder Int               @default(0)
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  tickets      support_tickets[]
 
   @@index([slug])
   @@index([isActive])
 }
 
+/// Saved canned responses for support agents.
 model support_templates {
-  id              String            @id @default(uuid())
-  title           String
-  content         String            @db.Text
-  usageCount      Int               @default(0)
-  isActive        Boolean           @default(true)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id         String   @id @default(uuid())
+  title      String
+  content    String   @db.Text
+  usageCount Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   // TODO: Review if this model needs relations or should be removed
   @@index([title])
 }
 
+/// Master user account — agents, admins, customers, owners.
+/// All authentication and authorization flows hang off this table.
+/// Roles are stored as a comma-separated string in `roles` and joined out via `user_roles`.
+/// See [[Architecture/Authentication & RBAC]] in the vault.
 model users {
   id                       String                     @id @default(uuid())
   username                 String                     @unique
@@ -714,7 +767,7 @@ model users {
   deals                    deals[]
   community_posts          community_posts[]
   community_comments       community_comments[]
-  forum_channels          forum_channels[]
+  forum_channels           forum_channels[]
   agentProperties          properties[]               @relation("PropertyAgent")
   saved_searches           saved_searches[]
   favorites                favorites[]
@@ -737,6 +790,7 @@ model users {
   @@index([organizationId])
 }
 
+/// Agent profile lifecycle state.
 enum AgentStatus {
   ACTIVE
   INACTIVE
@@ -746,15 +800,17 @@ enum AgentStatus {
 
 // ── Saudi REGA Regulation Enums ──────────────────────────────────────────────
 
+/// REGA FAL license category — see [[Features/REGA Compliance]].
 enum FalLicenseType {
-  BROKERAGE_MARKETING   // وساطة وتسويق
-  PROPERTY_MANAGEMENT   // إدارة أملاك
-  FACILITY_MANAGEMENT   // إدارة مرافق
-  AUCTION               // مزادات عقارية
-  CONSULTING            // استشارات وتحليلات
-  ADVERTISING           // إعلانات عقارية
+  BROKERAGE_MARKETING // وساطة وتسويق
+  PROPERTY_MANAGEMENT // إدارة أملاك
+  FACILITY_MANAGEMENT // إدارة مرافق
+  AUCTION // مزادات عقارية
+  CONSULTING // استشارات وتحليلات
+  ADVERTISING // إعلانات عقارية
 }
 
+/// Generic license verification status.
 enum LicenseVerificationStatus {
   PENDING
   VERIFIED
@@ -762,13 +818,15 @@ enum LicenseVerificationStatus {
   EXPIRED
 }
 
+/// Saudi property legal classifications (deed type / encumbrance).
 enum PropertyLegalStatus {
-  FREE           // صك حر
-  MORTGAGED      // مرهون
-  UNDER_DISPUTE  // تحت النزاع
-  ENDOWMENT      // وقف
+  FREE // صك حر
+  MORTGAGED // مرهون
+  UNDER_DISPUTE // تحت النزاع
+  ENDOWMENT // وقف
 }
 
+/// Pool buyer-request lifecycle.
 enum BuyerRequestStatus {
   OPEN
   CLAIMED
@@ -777,6 +835,7 @@ enum BuyerRequestStatus {
   ARCHIVED
 }
 
+/// Claim lifecycle on a buyer/owner request.
 enum ClaimStatus {
   ACTIVE
   EXPIRED
@@ -784,6 +843,7 @@ enum ClaimStatus {
   CONVERTED
 }
 
+/// Channel of a contact_log entry.
 enum ContactChannel {
   PHONE
   EMAIL
@@ -792,6 +852,7 @@ enum ContactChannel {
   IN_PERSON
 }
 
+/// Lead funnel state — see [[Features/CRM Core]].
 enum LeadStatus {
   NEW
   IN_PROGRESS
@@ -799,6 +860,7 @@ enum LeadStatus {
   LOST
 }
 
+/// Listing lifecycle — DRAFT → PENDING_APPROVAL → ACTIVE → SOLD/RENTED.
 enum ListingStatus {
   DRAFT
   ACTIVE
@@ -810,17 +872,20 @@ enum ListingStatus {
   PENDING_APPROVAL
 }
 
+/// RENT vs SALE — drives validation rules and commission cap.
 enum ListingType {
   RENT
   SALE
 }
 
+/// Organization onboarding lifecycle.
 enum OrganizationStatus {
   ACTIVE
   SUSPENDED
   PENDING_VERIFICATION
 }
 
+/// Coarse property visibility/availability state.
 enum PropertyStatus {
   ACTIVE
   INACTIVE
@@ -830,6 +895,7 @@ enum PropertyStatus {
   ARCHIVED
 }
 
+/// Seller submission lifecycle in the Pool.
 enum SellerSubmissionStatus {
   OPEN
   IN_PROGRESS
@@ -837,6 +903,7 @@ enum SellerSubmissionStatus {
   PAUSED
 }
 
+/// Role taxonomy — drives RBAC and route guards.
 enum UserRole {
   WEBSITE_ADMIN
   CORP_OWNER
@@ -846,6 +913,7 @@ enum UserRole {
   BUYER
 }
 
+/// Admin moderation state for a newly registered user.
 enum UserApprovalStatus {
   PENDING
   APPROVED
@@ -853,11 +921,13 @@ enum UserApprovalStatus {
   NEEDS_INFO
 }
 
+/// Whether a role applies platform-wide or per organization.
 enum RoleScope {
   PLATFORM
   ORGANIZATION
 }
 
+/// Org membership invite lifecycle.
 enum MembershipStatus {
   INVITED
   PENDING
@@ -865,6 +935,7 @@ enum MembershipStatus {
   SUSPENDED
 }
 
+/// Billing account state used by gating logic.
 enum BillingAccountStatus {
   ACTIVE
   PAST_DUE
@@ -872,6 +943,7 @@ enum BillingAccountStatus {
   SUSPENDED
 }
 
+/// Subscription lifecycle — see [[Features/CRM Core]] for gating rules.
 enum SubscriptionStatus {
   TRIALING
   ACTIVE
@@ -880,6 +952,7 @@ enum SubscriptionStatus {
   EXPIRED
 }
 
+/// Invoice lifecycle.
 enum InvoiceStatus {
   DRAFT
   OPEN
@@ -888,6 +961,7 @@ enum InvoiceStatus {
   VOID
 }
 
+/// Payment processing state.
 enum PaymentStatus {
   PENDING
   PROCESSING
@@ -897,6 +971,7 @@ enum PaymentStatus {
   PARTIALLY_REFUNDED
 }
 
+/// Supported payment methods.
 enum PaymentMethodType {
   CARD
   BANK_TRANSFER
@@ -904,6 +979,7 @@ enum PaymentMethodType {
   CASH
 }
 
+/// Payment method validity.
 enum PaymentMethodStatus {
   ACTIVE
   INACTIVE
@@ -911,6 +987,7 @@ enum PaymentMethodStatus {
   FAILED
 }
 
+/// Revenue metric types tracked by analytics.
 enum RevenueMetricType {
   MRR
   ARR
@@ -919,6 +996,7 @@ enum RevenueMetricType {
   NET_REVENUE
 }
 
+/// Catalog of analytics metric kinds.
 enum AnalyticsMetricType {
   USERS_ACTIVE
   USERS_NEW
@@ -936,12 +1014,14 @@ enum AnalyticsMetricType {
   CASH_COLLECTED
 }
 
+/// Whether a customer is a buyer, seller, or both.
 enum CustomerType {
   BUYER
   SELLER
   BOTH
 }
 
+/// Inbound inquiry source channel.
 enum InquiryChannel {
   WEBSITE
   WHATSAPP
@@ -951,6 +1031,7 @@ enum InquiryChannel {
   EMAIL
 }
 
+/// Inquiry handling state.
 enum InquiryStatus {
   NEW
   IN_PROGRESS
@@ -958,6 +1039,7 @@ enum InquiryStatus {
   CLOSED
 }
 
+/// Appointment lifecycle (calendar page).
 enum AppointmentStatus {
   SCHEDULED
   COMPLETED
@@ -965,6 +1047,7 @@ enum AppointmentStatus {
   RESCHEDULED
 }
 
+/// Pipeline stages — see [[Features/Pipeline & Deals]] for probabilities.
 enum DealStage {
   NEW
   NEGOTIATION
@@ -973,6 +1056,7 @@ enum DealStage {
   LOST
 }
 
+/// Support ticket lifecycle.
 enum SupportTicketStatus {
   OPEN
   IN_PROGRESS
@@ -980,6 +1064,7 @@ enum SupportTicketStatus {
   CLOSED
 }
 
+/// Support ticket priority levels.
 enum SupportTicketPriority {
   LOW
   MEDIUM
@@ -987,6 +1072,8 @@ enum SupportTicketPriority {
   URGENT
 }
 
+/// Catalog of permission keys (e.g. `leads.create`, `deals.delete`).
+/// Joined to `system_roles` via `role_permissions`.
 model permissions {
   id               String             @id @default(uuid())
   key              String             @unique
@@ -1000,6 +1087,8 @@ model permissions {
   @@index([domain])
 }
 
+/// Named role definitions — WEBSITE_ADMIN, CORP_OWNER, CORP_AGENT, INDIV_AGENT, SELLER, BUYER.
+/// Scope distinguishes platform-wide vs org-scoped roles.
 model system_roles {
   id                       String                     @id @default(uuid())
   key                      String                     @unique
@@ -1018,6 +1107,7 @@ model system_roles {
   @@index([isSystem])
 }
 
+/// Junction: which permissions a role has. Maintained by RBAC admin UI.
 model role_permissions {
   id           String       @id @default(uuid())
   roleId       String
@@ -1032,6 +1122,7 @@ model role_permissions {
   @@index([permissionId])
 }
 
+/// Junction: which roles a user holds. A user can hold multiple roles simultaneously.
 model user_roles {
   id         String       @id @default(uuid())
   userId     String
@@ -1046,6 +1137,8 @@ model user_roles {
   @@index([assignedAt])
 }
 
+/// Many-to-many: which users belong to which organization, with which role.
+/// Status tracks the invite lifecycle (INVITED → PENDING → ACTIVE).
 model organization_memberships {
   id             String           @id @default(uuid())
   organizationId String
@@ -1069,6 +1162,8 @@ model organization_memberships {
   @@index([status])
 }
 
+/// Per-org preferences — locale, timezone, notification routing, feature flags.
+/// 1:1 with `organizations`.
 model organization_settings {
   id                 String        @id @default(uuid())
   organizationId     String        @unique
@@ -1083,53 +1178,53 @@ model organization_settings {
   organization       organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
-
+/// Billing entity — typically 1:1 with an organization, but individual agents have one too.
 model billing_accounts {
-  id              String                    @id @default(uuid())
-  organizationId  String?
-  userId          String?
-  status          BillingAccountStatus      @default(ACTIVE)
-  currency        String                    @default("SAR")
-  billingEmail    String?
-  billingPhone    String?
-  taxNumber       String?
-  addressLine1    String?
-  addressLine2    String?
-  city            String?
-  region          String?
-  postalCode      String?
-  countryCode     String?
-  metadata        Json?
-  createdAt       DateTime                  @default(now())
-  updatedAt       DateTime                  @updatedAt
-  organization    organizations?            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user            users?                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subscriptions   billing_subscriptions[]
-  invoices        billing_invoices[]
+  id             String                  @id @default(uuid())
+  organizationId String?
+  userId         String?
+  status         BillingAccountStatus    @default(ACTIVE)
+  currency       String                  @default("SAR")
+  billingEmail   String?
+  billingPhone   String?
+  taxNumber      String?
+  addressLine1   String?
+  addressLine2   String?
+  city           String?
+  region         String?
+  postalCode     String?
+  countryCode    String?
+  metadata       Json?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  organization   organizations?          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           users?                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscriptions  billing_subscriptions[]
+  invoices       billing_invoices[]
 
   @@index([organizationId])
   @@index([userId])
   @@index([status])
 }
 
-
+/// Active subscription for a billing_account. Status drives platform feature gating.
 model billing_subscriptions {
-  id                    String                  @id @default(uuid())
+  id                    String             @id @default(uuid())
   accountId             String
   planId                String
-  status                SubscriptionStatus      @default(TRIALING)
+  status                SubscriptionStatus @default(TRIALING)
   trialEndsAt           DateTime?
-  startDate             DateTime                @default(now())
+  startDate             DateTime           @default(now())
   currentPeriodStart    DateTime
   currentPeriodEnd      DateTime
-  cancelAtPeriodEnd     Boolean                 @default(false)
+  cancelAtPeriodEnd     Boolean            @default(false)
   canceledAt            DateTime?
   renewalReminderSentAt DateTime?
   metadata              Json?
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  account               billing_accounts        @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  plan                  pricing_plans           @relation(fields: [planId], references: [id], onDelete: Restrict)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  account               billing_accounts   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  plan                  pricing_plans      @relation(fields: [planId], references: [id], onDelete: Restrict)
   invoices              billing_invoices[]
 
   @@index([accountId])
@@ -1137,32 +1232,32 @@ model billing_subscriptions {
   @@index([status])
 }
 
-
+/// Issued invoice for a subscription. PDF stored externally; URL only in DB.
 model billing_invoices {
-  id             String                  @id @default(uuid())
+  id             String                 @id @default(uuid())
   accountId      String
   subscriptionId String?
-  number         String                  @unique
-  status         InvoiceStatus           @default(DRAFT)
-  issueDate      DateTime                @default(now())
+  number         String                 @unique
+  status         InvoiceStatus          @default(DRAFT)
+  issueDate      DateTime               @default(now())
   dueDate        DateTime?
-  amountDue      Decimal                 @default(0) @db.Decimal(14, 2)
-  amountPaid     Decimal                 @default(0) @db.Decimal(14, 2)
-  currency       String                  @default("SAR")
+  amountDue      Decimal                @default(0) @db.Decimal(14, 2)
+  amountPaid     Decimal                @default(0) @db.Decimal(14, 2)
+  currency       String                 @default("SAR")
   notes          String?
   pdfUrl         String?
   metadata       Json?
-  createdAt      DateTime                @default(now())
-  updatedAt      DateTime                @updatedAt
-  account        billing_accounts        @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  subscription   billing_subscriptions?  @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  account        billing_accounts       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  subscription   billing_subscriptions? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
 
   @@index([accountId])
   @@index([subscriptionId])
   @@index([status])
 }
 
-
+/// Generic event log for platform analytics — user actions, system events.
 model analytics_event_logs {
   id             String         @id @default(uuid())
   eventName      String
@@ -1180,8 +1275,8 @@ model analytics_event_logs {
   @@index([organizationId])
 }
 
-
 // CMS Tables for Landing Page Management
+/// CMS-managed section on the public landing page. Has draft/published JSON for editing.
 model LandingSection {
   id            String        @id @default(uuid())
   slug          String        @unique
@@ -1206,6 +1301,7 @@ model LandingSection {
   @@index([orderIndex])
 }
 
+/// Card widget within a LandingSection — title, body, media, CTA.
 model LandingCard {
   id            String         @id @default(uuid())
   sectionId     String
@@ -1233,31 +1329,31 @@ model LandingCard {
   @@index([orderIndex])
 }
 
-
 // CMS Article Management
+/// Blog / news article managed via the admin CMS. Supports rich JSON content + SEO fields.
 model CMSArticle {
-  id            String              @id @default(uuid())
-  slug          String              @unique
-  title         String
-  excerpt        String?             @db.Text
-  content        String              @db.Text
-  contentJson    Json?               // For rich text editor JSON format
+  id              String    @id @default(uuid())
+  slug            String    @unique
+  title           String
+  excerpt         String?   @db.Text
+  content         String    @db.Text
+  contentJson     Json? // For rich text editor JSON format
   featuredImageId String?
-  authorId       String
-  status         String              @default("draft") // draft, published, archived
-  publishedAt    DateTime?
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-  
+  authorId        String
+  status          String    @default("draft") // draft, published, archived
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
   // SEO fields
-  metaTitle      String?
-  metaDescription String?            @db.Text
-  metaKeywords   String?
-  ogImage        String?
-  
+  metaTitle       String?
+  metaDescription String? @db.Text
+  metaKeywords    String?
+  ogImage         String?
+
   // Relationships
-  featuredImage  MediaLibrary?      @relation("ArticleFeaturedImage", fields: [featuredImageId], references: [id], onDelete: SetNull)
-  
+  featuredImage MediaLibrary? @relation("ArticleFeaturedImage", fields: [featuredImageId], references: [id], onDelete: SetNull)
+
   @@index([slug])
   @@index([status])
   @@index([authorId])
@@ -1265,60 +1361,60 @@ model CMSArticle {
   @@index([createdAt])
 }
 
-
 // Media Library
+/// Uploaded media files (images, videos) — referenced by listings, articles, posts.
 model MediaLibrary {
-  id          String      @id @default(uuid())
-  filename    String
+  id           String   @id @default(uuid())
+  filename     String
   originalName String
-  url         String      @db.Text
-  mimeType    String
-  size        Int         // Size in bytes
-  width       Int?
-  height      Int?
-  alt         String?
-  title       String?
-  description String?    @db.Text
-  uploadedBy  String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
+  url          String   @db.Text
+  mimeType     String
+  size         Int // Size in bytes
+  width        Int?
+  height       Int?
+  alt          String?
+  title        String?
+  description  String?  @db.Text
+  uploadedBy   String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
   // Relationships
   featuredArticles CMSArticle[] @relation("ArticleFeaturedImage")
-  
+
   @@index([mimeType])
   @@index([uploadedBy])
   @@index([createdAt])
 }
 
-
 // SEO Settings
+/// Per-page SEO meta — title, description, OG tags, Twitter card. Keyed by page path.
 model SEOSettings {
-  id              String   @id @default(uuid())
-  pagePath        String   @unique // e.g., "/", "/blog", "/blog/:slug"
-  metaTitle       String?
-  metaDescription String?  @db.Text
-  metaKeywords    String?
-  ogTitle         String?
-  ogDescription   String?  @db.Text
-  ogImage         String?
-  ogType          String?  @default("website")
-  twitterCard     String?  @default("summary_large_image")
-  twitterTitle    String?
-  twitterDescription String? @db.Text
-  twitterImage    String?
-  robotsMeta      String?  @default("index, follow")
-  canonicalUrl    String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  id                 String   @id @default(uuid())
+  pagePath           String   @unique // e.g., "/", "/blog", "/blog/:slug"
+  metaTitle          String?
+  metaDescription    String?  @db.Text
+  metaKeywords       String?
+  ogTitle            String?
+  ogDescription      String?  @db.Text
+  ogImage            String?
+  ogType             String?  @default("website")
+  twitterCard        String?  @default("summary_large_image")
+  twitterTitle       String?
+  twitterDescription String?  @db.Text
+  twitterImage       String?
+  robotsMeta         String?  @default("index, follow")
+  canonicalUrl       String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
   @@index([pagePath])
 }
 
 // Content Templates
 
-
 // Navigation Links
+/// CMS-managed navigation link in the public site header.
 model NavigationLink {
   id        String   @id @default(uuid())
   label     String
@@ -1329,12 +1425,13 @@ model NavigationLink {
   icon      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@index([order])
   @@index([visible])
 }
 
 // Session table for express-session with connect-pg-simple
+/// express-session storage for `connect-pg-simple`. Not application data.
 model session {
   sid    String   @id @db.VarChar
   sess   Json     @db.Json
@@ -1344,51 +1441,53 @@ model session {
   @@map("session")
 }
 
+/// Legacy denormalized listings table from the original aqar.fm import.
+/// Kept for backward compatibility with the public map; new code uses `listings`.
 model property_listings {
-  id                BigInt    @id @default(autoincrement())
-  property_id       String    @unique @db.VarChar(20)
-  title             String    @db.VarChar(150)
-  description       String?   @db.Text
-  property_type     String    @db.VarChar(50)
-  listing_type      String    @db.VarChar(30)
-  country           String?   @default("Saudi Arabia") @db.VarChar(100)
-  region            String?   @db.VarChar(100)
-  city              String?   @db.VarChar(100)
-  district          String?   @db.VarChar(100)
-  street_address    String?   @db.VarChar(255)
-  latitude          Decimal?  @db.Decimal(9, 6)
-  longitude         Decimal?  @db.Decimal(9, 6)
+  id                BigInt   @id @default(autoincrement())
+  property_id       String   @unique @db.VarChar(20)
+  title             String   @db.VarChar(150)
+  description       String?  @db.Text
+  property_type     String   @db.VarChar(50)
+  listing_type      String   @db.VarChar(30)
+  country           String?  @default("Saudi Arabia") @db.VarChar(100)
+  region            String?  @db.VarChar(100)
+  city              String?  @db.VarChar(100)
+  district          String?  @db.VarChar(100)
+  street_address    String?  @db.VarChar(255)
+  latitude          Decimal? @db.Decimal(9, 6)
+  longitude         Decimal? @db.Decimal(9, 6)
   bedrooms          Int?
   bathrooms         Int?
   living_rooms      Int?
   kitchens          Int?
   floor_number      Int?
   total_floors      Int?
-  area_sq_m         Decimal?  @db.Decimal(10, 2)
+  area_sq_m         Decimal? @db.Decimal(10, 2)
   building_year     Int?
-  has_parking       Boolean   @default(false)
-  has_elevator      Boolean   @default(false)
-  has_maids_room    Boolean   @default(false)
-  has_driver_room   Boolean   @default(false)
-  furnished         Boolean   @default(false)
-  balcony           Boolean   @default(false)
-  swimming_pool     Boolean   @default(false)
-  central_ac        Boolean   @default(false)
-  price             Decimal   @db.Decimal(15, 2)
-  currency          String?   @default("SAR") @db.VarChar(10)
-  payment_frequency String?   @db.VarChar(30)
-  main_image_url    String?   @db.Text
+  has_parking       Boolean  @default(false)
+  has_elevator      Boolean  @default(false)
+  has_maids_room    Boolean  @default(false)
+  has_driver_room   Boolean  @default(false)
+  furnished         Boolean  @default(false)
+  balcony           Boolean  @default(false)
+  swimming_pool     Boolean  @default(false)
+  central_ac        Boolean  @default(false)
+  price             Decimal  @db.Decimal(15, 2)
+  currency          String?  @default("SAR") @db.VarChar(10)
+  payment_frequency String?  @db.VarChar(30)
+  main_image_url    String?  @db.Text
   image_gallery     String[]
-  video_clip_url    String?   @db.Text
-  contact_name      String?   @db.VarChar(100)
-  mobile_number     String    @db.VarChar(20)
-  is_verified       Boolean   @default(false)
-  is_active         Boolean   @default(true)
-  status            String?   @default("Pending") @db.VarChar(30)
-  views_count       Int       @default(0)
-  favorites_count   Int       @default(0)
-  listed_date       DateTime  @default(now())
-  updated_at        DateTime  @default(now()) @updatedAt
+  video_clip_url    String?  @db.Text
+  contact_name      String?  @db.VarChar(100)
+  mobile_number     String   @db.VarChar(20)
+  is_verified       Boolean  @default(false)
+  is_active         Boolean  @default(true)
+  status            String?  @default("Pending") @db.VarChar(30)
+  views_count       Int      @default(0)
+  favorites_count   Int      @default(0)
+  listed_date       DateTime @default(now())
+  updated_at        DateTime @default(now()) @updatedAt
 
   @@index([property_id])
   @@index([city])
@@ -1402,18 +1501,20 @@ model property_listings {
   @@map("property_listings")
 }
 
+/// GASTAT-aligned top-level property categories (5 total): Residential, Commercial,
+/// Industrial, Agricultural, Land. See [[Features/REGA Compliance]].
 model property_category {
-  id          Int      @id @default(autoincrement())
-  code        String   @unique @db.VarChar(20)
-  name_ar     String   @db.VarChar(100)
-  name_en     String?  @db.VarChar(100)
-  description String?  @db.Text
-  icon        String?  @db.VarChar(100)
-  display_order Int     @default(0)
-  is_active   Boolean  @default(true)
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @default(now()) @updatedAt
-  
+  id            Int      @id @default(autoincrement())
+  code          String   @unique @db.VarChar(20)
+  name_ar       String   @db.VarChar(100)
+  name_en       String?  @db.VarChar(100)
+  description   String?  @db.Text
+  icon          String?  @db.VarChar(100)
+  display_order Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
   property_types property_type[]
 
   @@index([code])
@@ -1421,19 +1522,21 @@ model property_category {
   @@map("property_category")
 }
 
+/// GASTAT-aligned property types (33 total) within each category.
+/// Drives the property creation form's category → type cascade.
 model property_type {
-  id          Int      @id @default(autoincrement())
-  category_id Int
-  code        String   @db.VarChar(50)
-  name_ar     String   @db.VarChar(100)
-  name_en     String?  @db.VarChar(100)
-  description String?  @db.Text
-  icon        String?  @db.VarChar(100)
-  display_order Int     @default(0)
-  is_active   Boolean  @default(true)
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @default(now()) @updatedAt
-  
+  id            Int      @id @default(autoincrement())
+  category_id   Int
+  code          String   @db.VarChar(50)
+  name_ar       String   @db.VarChar(100)
+  name_en       String?  @db.VarChar(100)
+  description   String?  @db.Text
+  icon          String?  @db.VarChar(100)
+  display_order Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+
   category property_category @relation(fields: [category_id], references: [id], onDelete: Cascade)
 
   @@unique([category_id, code])
@@ -1443,36 +1546,37 @@ model property_type {
   @@map("property_type")
 }
 
-
+/// Topical forum channels (e.g. عام, سوق, قانوني, تقنية).
 model forum_channels {
-  id          String   @id @default(uuid())
-  nameAr      String   @db.VarChar(100)
-  nameEn      String?  @db.VarChar(100)
-  description String?  @db.Text
+  id          String            @id @default(uuid())
+  nameAr      String            @db.VarChar(100)
+  nameEn      String?           @db.VarChar(100)
+  description String?           @db.Text
   createdById String
-  isPublic    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   users    @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  isPublic    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  createdBy   users             @relation(fields: [createdById], references: [id], onDelete: Cascade)
   posts       community_posts[]
 
   @@index([createdById])
   @@index([isPublic])
 }
 
+/// Forum posts. Has likes, pinning, type tag (DISCUSSION/NEWS/ANNOUNCEMENT/DEAL/ALERT).
 model community_posts {
-  id        String   @id @default(uuid())
+  id        String                 @id @default(uuid())
   authorId  String
   channelId String?
-  content   String   @db.Text
-  tags      Json?    // Array of strings e.g. ["Riyadh", "Villa"]
-  likes     Int      @default(0)
-  isPinned  Boolean  @default(false)
-  type      String   @default("DISCUSSION") // DISCUSSION, NEWS, ANNOUNCEMENT, DEAL, ALERT
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  author    users    @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  channel   forum_channels? @relation(fields: [channelId], references: [id], onDelete: SetNull)
+  content   String                 @db.Text
+  tags      Json? // Array of strings e.g. ["Riyadh", "Villa"]
+  likes     Int                    @default(0)
+  isPinned  Boolean                @default(false)
+  type      String                 @default("DISCUSSION") // DISCUSSION, NEWS, ANNOUNCEMENT, DEAL, ALERT
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+  author    users                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  channel   forum_channels?        @relation(fields: [channelId], references: [id], onDelete: SetNull)
   comments  community_comments[]
   media     community_post_media[]
 
@@ -1482,25 +1586,27 @@ model community_posts {
   @@index([createdAt])
 }
 
+/// Media attachments (image / video) for a community post.
 model community_post_media {
-  id        String   @id @default(uuid())
+  id        String          @id @default(uuid())
   postId    String
-  url       String   @db.Text
-  type      String   @db.VarChar(20) // IMAGE, VIDEO
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
+  url       String          @db.Text
+  type      String          @db.VarChar(20) // IMAGE, VIDEO
+  order     Int             @default(0)
+  createdAt DateTime        @default(now())
   post      community_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId])
 }
 
+/// Comments on community posts.
 model community_comments {
-  id        String   @id @default(uuid())
+  id        String          @id @default(uuid())
   postId    String
   authorId  String
-  content   String   @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  content   String          @db.Text
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
   post      community_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
   author    users           @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
@@ -1508,6 +1614,7 @@ model community_comments {
   @@index([authorId])
 }
 
+/// Per-agent notes / reminders. Lightweight memory store for agent-specific facts.
 model agent_memory {
   id             String   @id @default(uuid())
   agentId        String
@@ -1525,26 +1632,28 @@ model agent_memory {
   @@index([createdAt])
 }
 
+/// Customer-saved search criteria with frequency-based alerting.
 model saved_searches {
-  id             String   @id @default(uuid())
-  customerId     String
-  alertName      String
-  propertyTypes  String[]
-  cities         String[]
-  minPrice       Decimal? @db.Decimal(14, 2)
-  maxPrice       Decimal? @db.Decimal(14, 2)
-  minBedrooms    Int?
-  maxBedrooms    Int?
-  frequency      String?  @default("daily")
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  user           users    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  id            String   @id @default(uuid())
+  customerId    String
+  alertName     String
+  propertyTypes String[]
+  cities        String[]
+  minPrice      Decimal? @db.Decimal(14, 2)
+  maxPrice      Decimal? @db.Decimal(14, 2)
+  minBedrooms   Int?
+  maxBedrooms   Int?
+  frequency     String?  @default("daily")
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          users    @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([customerId])
   @@index([isActive])
 }
 
+/// Customer's saved properties on the public site / client portal.
 model favorites {
   id         String     @id @default(uuid())
   userId     String
@@ -1558,22 +1667,25 @@ model favorites {
   @@index([propertyId])
 }
 
+/// User-submitted reports of inappropriate listings. Drives the moderation queue.
 model content_reports {
-  id         String    @id @default(uuid())
+  id         String   @id @default(uuid())
   listingId  String
   reporterId String?
   reason     String
-  status     String    @default("PENDING")
+  status     String   @default("PENDING")
   note       String?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  reporter   users?    @relation(fields: [reporterId], references: [id], onDelete: SetNull)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  reporter   users?   @relation(fields: [reporterId], references: [id], onDelete: SetNull)
 
   @@index([listingId])
   @@index([reporterId])
   @@index([status])
 }
 
+/// Generic marketing-help requests posted by property owners. Agents respond with
+/// `marketing_proposals`. The owner picks the winning proposal.
 model marketing_requests {
   id                    String                @id @default(uuid())
   ownerId               String
@@ -1611,6 +1723,8 @@ model marketing_requests {
   @@index([seriousnessTier])
 }
 
+/// Agent proposal in response to a marketing_request — message, commission rate,
+/// marketing budget, estimated timeline.
 model marketing_proposals {
   id                String             @id @default(uuid())
   requestId         String
@@ -1637,6 +1751,7 @@ model marketing_proposals {
 // Agents post their listings for co-marketing. Other agents accept and market
 // the property in exchange for an agreed commission split.
 
+/// Co-marketing broker request lifecycle.
 enum BrokerRequestStatus {
   OPEN
   ACCEPTED
@@ -1646,31 +1761,33 @@ enum BrokerRequestStatus {
   EXPIRED
 }
 
+/// Co-marketing offers — an agent posts their listing for other agents to help market
+/// in exchange for a commission split. Capped by REGA commission rules.
 model broker_requests {
-  id               String              @id @default(uuid())
-  listingAgentId   String                                    // Agent who owns the listing
-  organizationId   String?
-  propertyId       String?                                   // Optional link to property
-  listingId        String?                                   // Optional link to listing
-  title            String                                    // e.g. "فيلا VIP في الرياض — عمولة 2%"
-  description      String?             @db.Text              // Details about the deal
-  propertyType     String?                                   // villa, apartment, land, etc.
-  city             String?
-  district         String?
-  price            Decimal?            @db.Decimal(14, 2)    // Property asking price
-  commissionRate   Decimal             @db.Decimal(5, 2)     // e.g. 2.50 = 2.5%
-  commissionType   String              @default("PERCENTAGE") // PERCENTAGE or FIXED
-  fixedCommission  Decimal?            @db.Decimal(14, 2)    // Flat amount if commissionType=FIXED
-  status                BrokerRequestStatus @default(OPEN)
-  commissionCapValidated Boolean           @default(false) // تم التحقق من سقف العمولة النظامي
-  expiresAt             DateTime?
-  createdAt             DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
+  id                     String              @id @default(uuid())
+  listingAgentId         String // Agent who owns the listing
+  organizationId         String?
+  propertyId             String? // Optional link to property
+  listingId              String? // Optional link to listing
+  title                  String // e.g. "فيلا VIP في الرياض — عمولة 2%"
+  description            String?             @db.Text // Details about the deal
+  propertyType           String? // villa, apartment, land, etc.
+  city                   String?
+  district               String?
+  price                  Decimal?            @db.Decimal(14, 2) // Property asking price
+  commissionRate         Decimal             @db.Decimal(5, 2) // e.g. 2.50 = 2.5%
+  commissionType         String              @default("PERCENTAGE") // PERCENTAGE or FIXED
+  fixedCommission        Decimal?            @db.Decimal(14, 2) // Flat amount if commissionType=FIXED
+  status                 BrokerRequestStatus @default(OPEN)
+  commissionCapValidated Boolean             @default(false) // تم التحقق من سقف العمولة النظامي
+  expiresAt              DateTime?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
 
-  listingAgent     users               @relation("BrokerRequestOwner", fields: [listingAgentId], references: [id])
-  organization     organizations?      @relation(fields: [organizationId], references: [id])
-  property         properties?         @relation(fields: [propertyId], references: [id], onDelete: SetNull)
-  acceptances      broker_acceptances[]
+  listingAgent users                @relation("BrokerRequestOwner", fields: [listingAgentId], references: [id])
+  organization organizations?       @relation(fields: [organizationId], references: [id])
+  property     properties?          @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  acceptances  broker_acceptances[]
 
   @@index([listingAgentId])
   @@index([organizationId])
@@ -1679,26 +1796,28 @@ model broker_requests {
   @@index([createdAt])
 }
 
+/// Agent acceptance of a broker_request. Carries the negotiated rate and the
+/// co-brokerage agreement signing state (DRAFT → PENDING_SIGNATURES → SIGNED).
 model broker_acceptances {
-  id                      String              @id @default(uuid())
-  brokerRequestId         String
-  marketingAgentId        String                                    // Agent who accepted to market
-  organizationId          String?
-  status                  String              @default("PENDING")   // PENDING, APPROVED, REJECTED, COMPLETED
-  notes                   String?             @db.Text
-  agreedRate              Decimal?            @db.Decimal(5, 2)     // May differ from original offer after negotiation
+  id                     String    @id @default(uuid())
+  brokerRequestId        String
+  marketingAgentId       String // Agent who accepted to market
+  organizationId         String?
+  status                 String    @default("PENDING") // PENDING, APPROVED, REJECTED, COMPLETED
+  notes                  String?   @db.Text
+  agreedRate             Decimal?  @db.Decimal(5, 2) // May differ from original offer after negotiation
   // ── Co-Brokerage Agreement ──
-  agreementStatus         String?                                   // DRAFT, PENDING_SIGNATURES, SIGNED, EXPIRED
-  agreementNumber         String?                                   // CBA-YYYY-XXXXX
-  agreementTerms          String?             @db.Text              // JSON: property, agents, commission, terms
-  agreementGeneratedAt    DateTime?
-  listingAgentSignedAt    DateTime?
-  marketingAgentSignedAt  DateTime?
-  createdAt               DateTime            @default(now())
-  updatedAt               DateTime            @updatedAt
+  agreementStatus        String? // DRAFT, PENDING_SIGNATURES, SIGNED, EXPIRED
+  agreementNumber        String? // CBA-YYYY-XXXXX
+  agreementTerms         String?   @db.Text // JSON: property, agents, commission, terms
+  agreementGeneratedAt   DateTime?
+  listingAgentSignedAt   DateTime?
+  marketingAgentSignedAt DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
-  brokerRequest    broker_requests     @relation(fields: [brokerRequestId], references: [id], onDelete: Cascade)
-  marketingAgent   users               @relation("BrokerAcceptanceAgent", fields: [marketingAgentId], references: [id])
+  brokerRequest  broker_requests @relation(fields: [brokerRequestId], references: [id], onDelete: Cascade)
+  marketingAgent users           @relation("BrokerAcceptanceAgent", fields: [marketingAgentId], references: [id])
 
   @@unique([brokerRequestId, marketingAgentId])
   @@index([brokerRequestId])
@@ -1709,28 +1828,30 @@ model broker_acceptances {
 
 // ── Campaign Management ────────────────────────────────────────────────────────
 
+/// Bulk WhatsApp / SMS / email blast to a segment of leads or customers.
+/// Counters track delivered/opened/responded for performance reporting.
 model campaigns {
-  id              String               @id @default(uuid())
-  agentId         String
-  organizationId  String?
-  title           String
-  message         String               @db.Text
-  channel         String               // whatsapp, sms, email
-  status          CampaignStatus       @default(SENT)
-  recipientCount  Int                  @default(0)
-  deliveredCount  Int                  @default(0)
-  openedCount     Int                  @default(0)
-  respondedCount  Int                  @default(0)
-  templateId      String?
-  segmentFilter   String?              @db.Text  // JSON: filter criteria used
-  scheduledAt     DateTime?
-  sentAt          DateTime?
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
+  id             String         @id @default(uuid())
+  agentId        String
+  organizationId String?
+  title          String
+  message        String         @db.Text
+  channel        String // whatsapp, sms, email
+  status         CampaignStatus @default(SENT)
+  recipientCount Int            @default(0)
+  deliveredCount Int            @default(0)
+  openedCount    Int            @default(0)
+  respondedCount Int            @default(0)
+  templateId     String?
+  segmentFilter  String?        @db.Text // JSON: filter criteria used
+  scheduledAt    DateTime?
+  sentAt         DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
-  agent           users                @relation("CampaignAgent", fields: [agentId], references: [id])
-  organization    organizations?       @relation("CampaignOrg", fields: [organizationId], references: [id], onDelete: SetNull)
-  recipients      campaign_recipients[]
+  agent        users                 @relation("CampaignAgent", fields: [agentId], references: [id])
+  organization organizations?        @relation("CampaignOrg", fields: [organizationId], references: [id], onDelete: SetNull)
+  recipients   campaign_recipients[]
 
   @@index([agentId])
   @@index([organizationId])
@@ -1738,51 +1859,55 @@ model campaigns {
   @@index([createdAt])
 }
 
+/// Per-recipient state for a campaign. One row per (campaign, recipient).
 model campaign_recipients {
-  id           String              @id @default(uuid())
-  campaignId   String
-  leadId       String?
-  customerId   String?
-  name         String?
-  phone        String?
-  email        String?
-  status       CampaignRecipientStatus @default(PENDING)
-  deliveredAt  DateTime?
-  openedAt     DateTime?
-  respondedAt  DateTime?
-  createdAt    DateTime            @default(now())
+  id          String                  @id @default(uuid())
+  campaignId  String
+  leadId      String?
+  customerId  String?
+  name        String?
+  phone       String?
+  email       String?
+  status      CampaignRecipientStatus @default(PENDING)
+  deliveredAt DateTime?
+  openedAt    DateTime?
+  respondedAt DateTime?
+  createdAt   DateTime                @default(now())
 
-  campaign     campaigns           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaign campaigns @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
   @@index([campaignId])
   @@index([leadId])
   @@index([status])
 }
 
+/// Trigger → action rules for hands-off agent workflows.
+/// Triggers: new_lead, cold_lead, listing_match, appointment_reminder, price_drop, deal_stale.
 model automation_rules {
-  id              String             @id @default(uuid())
+  id              String    @id @default(uuid())
   agentId         String
   organizationId  String?
   name            String
   description     String?
-  triggerType     String             // new_lead, cold_lead, listing_match, appointment_reminder, price_drop, deal_stale
-  triggerConfig   String?            @db.Text  // JSON: threshold days, conditions
-  actionType      String             // send_whatsapp, send_sms, send_email, internal_notification
-  actionConfig    String?            @db.Text  // JSON: template, message
-  channel         String             // whatsapp, sms, email, internal
-  enabled         Boolean            @default(true)
+  triggerType     String // new_lead, cold_lead, listing_match, appointment_reminder, price_drop, deal_stale
+  triggerConfig   String?   @db.Text // JSON: threshold days, conditions
+  actionType      String // send_whatsapp, send_sms, send_email, internal_notification
+  actionConfig    String?   @db.Text // JSON: template, message
+  channel         String // whatsapp, sms, email, internal
+  enabled         Boolean   @default(true)
   lastTriggeredAt DateTime?
-  triggerCount    Int                @default(0)
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  triggerCount    Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  agent           users              @relation("AutomationAgent", fields: [agentId], references: [id])
+  agent users @relation("AutomationAgent", fields: [agentId], references: [id])
 
   @@index([agentId])
   @@index([enabled])
   @@index([triggerType])
 }
 
+/// Bulk campaign send lifecycle.
 enum CampaignStatus {
   DRAFT
   SCHEDULED
@@ -1793,6 +1918,7 @@ enum CampaignStatus {
   CANCELLED
 }
 
+/// Per-recipient delivery state.
 enum CampaignRecipientStatus {
   PENDING
   DELIVERED
@@ -1804,30 +1930,32 @@ enum CampaignRecipientStatus {
 
 // ── Listing Promotions (Boost / Ads) ───────────────────────────────────────────
 
+/// Paid boost / ad placement for a listing. Daily + total budget, bid amount,
+/// targeting (cities, types, buyer budget). Auto-pause when spend ≥ 95%.
 model listing_promotions {
-  id              String              @id @default(uuid())
+  id              String          @id @default(uuid())
   listingId       String
   agentId         String
   organizationId  String?
-  status          PromotionStatus     @default(ACTIVE)
-  dailyBudget     Decimal             // ميزانية يومية
-  totalBudget     Decimal?            // ميزانية إجمالية (اختياري)
-  spentAmount     Decimal             @default(0)
-  bidAmount       Decimal             // مبلغ المزايدة لكل ظهور
-  targetCities    String?             // JSON: المدن المستهدفة
-  targetTypes     String?             // JSON: أنواع العقارات المستهدفة
-  targetBudgetMin Decimal?            // الحد الأدنى لميزانية الباحث
-  targetBudgetMax Decimal?            // الحد الأقصى لميزانية الباحث
-  impressions     Int                 @default(0)
-  clicks          Int                 @default(0)
-  inquiries       Int                 @default(0)
-  startDate       DateTime            @default(now())
+  status          PromotionStatus @default(ACTIVE)
+  dailyBudget     Decimal // ميزانية يومية
+  totalBudget     Decimal? // ميزانية إجمالية (اختياري)
+  spentAmount     Decimal         @default(0)
+  bidAmount       Decimal // مبلغ المزايدة لكل ظهور
+  targetCities    String? // JSON: المدن المستهدفة
+  targetTypes     String? // JSON: أنواع العقارات المستهدفة
+  targetBudgetMin Decimal? // الحد الأدنى لميزانية الباحث
+  targetBudgetMax Decimal? // الحد الأقصى لميزانية الباحث
+  impressions     Int             @default(0)
+  clicks          Int             @default(0)
+  inquiries       Int             @default(0)
+  startDate       DateTime        @default(now())
   endDate         DateTime?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
-  listing         listings            @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  agent           users               @relation("PromotionAgent", fields: [agentId], references: [id])
+  listing listings @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  agent   users    @relation("PromotionAgent", fields: [agentId], references: [id])
 
   @@index([agentId])
   @@index([listingId])
@@ -1835,38 +1963,42 @@ model listing_promotions {
   @@index([createdAt])
 }
 
+/// Listing promotion / boost lifecycle.
 enum PromotionStatus {
   DRAFT
   ACTIVE
   PAUSED
-  EXHAUSTED      // ميزانية مستنفدة
+  EXHAUSTED // ميزانية مستنفدة
   ENDED
   CANCELLED
 }
 
 // ── Commission Splits ──────────────────────────────────────────────────────────
 
+/// How a deal's commission is divided between agents, brokerages, and referrers.
+/// Status tracks the payout lifecycle (PENDING → APPROVED → PAID).
 model commission_splits {
-  id              String              @id @default(uuid())
-  dealId          String
-  recipientId     String
-  recipientType   String              // AGENT, BROKERAGE, REFERRAL
-  percentage      Decimal             @db.Decimal(5, 2)
-  amount          Decimal             @db.Decimal(14, 2)
-  status          CommissionStatus    @default(PENDING)
-  paidAt          DateTime?
-  notes           String?
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  id            String           @id @default(uuid())
+  dealId        String
+  recipientId   String
+  recipientType String // AGENT, BROKERAGE, REFERRAL
+  percentage    Decimal          @db.Decimal(5, 2)
+  amount        Decimal          @db.Decimal(14, 2)
+  status        CommissionStatus @default(PENDING)
+  paidAt        DateTime?
+  notes         String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 
-  deal            deals               @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  recipient       users               @relation("CommissionRecipient", fields: [recipientId], references: [id])
+  deal      deals @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  recipient users @relation("CommissionRecipient", fields: [recipientId], references: [id])
 
   @@index([dealId])
   @@index([recipientId])
   @@index([status])
 }
 
+/// Commission split payout state.
 enum CommissionStatus {
   PENDING
   APPROVED
@@ -1876,44 +2008,49 @@ enum CommissionStatus {
 
 // ── Lead Routing ───────────────────────────────────────────────────────────────
 
+/// How new leads are auto-assigned within an org.
+/// Strategies: manual, round_robin, territory, first_to_claim.
 model lead_routing_rules {
   id              String   @id @default(uuid())
   organizationId  String   @unique
-  strategy        String   @default("manual")  // round_robin, territory, manual, first_to_claim
-  config          String?  @db.Text             // JSON: { lastAssignedIndex, excludeInactive, maxLeadsPerAgent }
+  strategy        String   @default("manual") // round_robin, territory, manual, first_to_claim
+  config          String?  @db.Text // JSON: { lastAssignedIndex, excludeInactive, maxLeadsPerAgent }
   enabled         Boolean  @default(true)
-  lastAssignedIdx Int      @default(0)          // For round-robin tracking
+  lastAssignedIdx Int      @default(0) // For round-robin tracking
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  organization    organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization organizations @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@index([organizationId])
 }
 
 // ── Tenant Management (Post-Rental Lifecycle) ──────────────────────────────────
 
+/// Active rental contract — tenant, property, agent, monthly rent, lease window.
+/// Created from a deal once stage = WON for a RENT listing.
+/// Powers the tenant management page.
 model tenancies {
-  id              String          @id @default(uuid())
+  id              String        @id @default(uuid())
   dealId          String?
   propertyId      String
-  tenantId        String          // customerId
+  tenantId        String // customerId
   agentId         String
   organizationId  String?
   leaseStart      DateTime
   leaseEnd        DateTime
-  monthlyRent     Decimal         @db.Decimal(14, 2)
-  securityDeposit Decimal?        @db.Decimal(14, 2)
-  status          TenancyStatus   @default(ACTIVE)
+  monthlyRent     Decimal       @db.Decimal(14, 2)
+  securityDeposit Decimal?      @db.Decimal(14, 2)
+  status          TenancyStatus @default(ACTIVE)
   ejarContractNo  String?
   notes           String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
-  property        properties      @relation(fields: [propertyId], references: [id])
-  tenant          customers       @relation(fields: [tenantId], references: [id])
-  agent           users           @relation("TenancyAgent", fields: [agentId], references: [id])
-  rentPayments    rent_payments[]
+  property     properties      @relation(fields: [propertyId], references: [id])
+  tenant       customers       @relation(fields: [tenantId], references: [id])
+  agent        users           @relation("TenancyAgent", fields: [agentId], references: [id])
+  rentPayments rent_payments[]
 
   @@index([agentId])
   @@index([propertyId])
@@ -1923,31 +2060,35 @@ model tenancies {
   @@index([leaseEnd])
 }
 
+/// Scheduled rent payments for a tenancy. One row per due-date.
+/// Status PENDING → PAID / OVERDUE / PARTIAL / WAIVED. Drives late-payment alerts.
 model rent_payments {
-  id          String            @id @default(uuid())
-  tenancyId   String
-  amount      Decimal           @db.Decimal(14, 2)
-  dueDate     DateTime
-  paidDate    DateTime?
-  status      RentPaymentStatus @default(PENDING)
-  notes       String?
-  createdAt   DateTime          @default(now())
+  id        String            @id @default(uuid())
+  tenancyId String
+  amount    Decimal           @db.Decimal(14, 2)
+  dueDate   DateTime
+  paidDate  DateTime?
+  status    RentPaymentStatus @default(PENDING)
+  notes     String?
+  createdAt DateTime          @default(now())
 
-  tenancy     tenancies         @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
+  tenancy tenancies @relation(fields: [tenancyId], references: [id], onDelete: Cascade)
 
   @@index([tenancyId])
   @@index([dueDate])
   @@index([status])
 }
 
+/// Active rental lifecycle. EXPIRING = within 90 days of leaseEnd.
 enum TenancyStatus {
   ACTIVE
-  EXPIRING      // within 90 days of end
+  EXPIRING // within 90 days of end
   EXPIRED
   RENEWED
   TERMINATED
 }
 
+/// Rent payment state — drives late-payment alerts.
 enum RentPaymentStatus {
   PENDING
   PAID
@@ -1958,33 +2099,36 @@ enum RentPaymentStatus {
 
 // ── Drip Campaign Sequences ─────────────────────────────────────────────────────
 
+/// Drip-campaign sequence definition — ordered steps with delays + templates.
+/// Stored as JSON in `steps`.
 model campaign_sequences {
-  id          String   @id @default(uuid())
-  agentId     String
-  name        String
-  channel     String   @default("whatsapp")
-  steps       String   @db.Text  // JSON array: [{delay: "0d", template: "welcome", message: "..."}, ...]
-  enabled     Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(uuid())
+  agentId   String
+  name      String
+  channel   String   @default("whatsapp")
+  steps     String   @db.Text // JSON array: [{delay: "0d", template: "welcome", message: "..."}, ...]
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  agent       users    @relation("SequenceAgent", fields: [agentId], references: [id])
+  agent       users                  @relation("SequenceAgent", fields: [agentId], references: [id])
   enrollments sequence_enrollments[]
 
   @@index([agentId])
 }
 
+/// Active enrollment of a lead in a campaign_sequence. Tracks current step + next run time.
 model sequence_enrollments {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   sequenceId  String
   leadId      String
-  currentStep Int      @default(0)
+  currentStep Int       @default(0)
   nextRunAt   DateTime?
-  status      String   @default("ACTIVE")  // ACTIVE, PAUSED, COMPLETED, CANCELLED
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  status      String    @default("ACTIVE") // ACTIVE, PAUSED, COMPLETED, CANCELLED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  sequence    campaign_sequences @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  sequence campaign_sequences @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
 
   @@unique([sequenceId, leadId])
   @@index([sequenceId])
@@ -1995,19 +2139,21 @@ model sequence_enrollments {
 
 // ── Deal Documents ─────────────────────────────────────────────────────────────
 
+/// Files attached to a deal — contracts, ID copies, brokerage agreements, payment receipts.
+/// URL points to S3 / GCS storage; metadata only is stored in the DB.
 model deal_documents {
-  id          String   @id @default(uuid())
-  dealId      String
-  fileName    String
-  fileUrl     String
-  fileType    String?  // pdf, image, doc
-  fileSize    Int?     // bytes
-  uploadedBy  String
-  notes       String?
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  dealId     String
+  fileName   String
+  fileUrl    String
+  fileType   String? // pdf, image, doc
+  fileSize   Int? // bytes
+  uploadedBy String
+  notes      String?
+  createdAt  DateTime @default(now())
 
-  deal        deals    @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  uploader    users    @relation("DocumentUploader", fields: [uploadedBy], references: [id])
+  deal     deals @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  uploader users @relation("DocumentUploader", fields: [uploadedBy], references: [id])
 
   @@index([dealId])
   @@index([uploadedBy])
@@ -2015,20 +2161,22 @@ model deal_documents {
 
 // ── WhatsApp / Omnichannel Inbox Messages ──────────────────────────────────────
 
+/// Two-way inbox — every WhatsApp/SMS/email message in or out of the system.
+/// Inbound messages from the WhatsApp webhook are matched to a customer by phone.
 model messages {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   leadId      String?
   customerId  String?
   agentId     String
-  direction   String   // INBOUND, OUTBOUND
-  channel     String   // whatsapp, sms, email
-  content     String   @db.Text
+  direction   String // INBOUND, OUTBOUND
+  channel     String // whatsapp, sms, email
+  content     String    @db.Text
   phone       String?
-  status      String   @default("SENT")  // SENT, DELIVERED, READ, FAILED
-  sentAt      DateTime @default(now())
+  status      String    @default("SENT") // SENT, DELIVERED, READ, FAILED
+  sentAt      DateTime  @default(now())
   deliveredAt DateTime?
   readAt      DateTime?
-  metadata    String?  @db.Text  // JSON: whatsapp message id, etc.
+  metadata    String?   @db.Text // JSON: whatsapp message id, etc.
 
   @@index([leadId])
   @@index([customerId])
@@ -2039,23 +2187,25 @@ model messages {
 
 // ── Off-Plan Projects ────────────────────────────────────────────────────────
 
+/// Off-plan / under-construction projects (مشاريع تطويرية).
+/// Status: PLANNING → UNDER_CONSTRUCTION → COMPLETED → ON_HOLD.
 model projects {
-  id              String          @id @default(uuid())
-  name            String
-  developer       String?
-  city            String
-  district        String?
-  description     String?         @db.Text
-  status          String          @default("PLANNING")  // PLANNING, UNDER_CONSTRUCTION, COMPLETED, ON_HOLD
-  completionDate  DateTime?
-  totalUnits      Int             @default(0)
-  agentId         String
-  organizationId  String?
-  coverImage      String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id             String    @id @default(uuid())
+  name           String
+  developer      String?
+  city           String
+  district       String?
+  description    String?   @db.Text
+  status         String    @default("PLANNING") // PLANNING, UNDER_CONSTRUCTION, COMPLETED, ON_HOLD
+  completionDate DateTime?
+  totalUnits     Int       @default(0)
+  agentId        String
+  organizationId String?
+  coverImage     String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  units           project_units[]
+  units project_units[]
 
   @@index([agentId])
   @@index([organizationId])
@@ -2063,25 +2213,27 @@ model projects {
   @@index([status])
 }
 
+/// Individual units (apartments, villas, townhouses) within a project.
+/// Status: AVAILABLE → RESERVED → SOLD → BLOCKED. Has payment milestone schedule.
 model project_units {
-  id          String   @id @default(uuid())
-  projectId   String
-  unitNumber  String
-  floor       Int?
-  type        String?  // apartment, villa, townhouse, etc.
-  areaSqm     Decimal? @db.Decimal(10, 2)
-  bedrooms    Int?
-  bathrooms   Int?
-  price       Decimal? @db.Decimal(14, 2)
-  status      String   @default("AVAILABLE")  // AVAILABLE, RESERVED, SOLD, BLOCKED
-  buyerName   String?
-  buyerPhone  String?
-  reservedAt  DateTime?
-  paymentSchedule String? @db.Text  // JSON: [{milestone, percentage, amount, dueDate, paidDate}]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String    @id @default(uuid())
+  projectId       String
+  unitNumber      String
+  floor           Int?
+  type            String? // apartment, villa, townhouse, etc.
+  areaSqm         Decimal?  @db.Decimal(10, 2)
+  bedrooms        Int?
+  bathrooms       Int?
+  price           Decimal?  @db.Decimal(14, 2)
+  status          String    @default("AVAILABLE") // AVAILABLE, RESERVED, SOLD, BLOCKED
+  buyerName       String?
+  buyerPhone      String?
+  reservedAt      DateTime?
+  paymentSchedule String?   @db.Text // JSON: [{milestone, percentage, amount, dueDate, paidDate}]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  project     projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project projects @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
   @@index([status])
@@ -2089,22 +2241,23 @@ model project_units {
 
 // ── Maintenance Request System (Session 5.6) ────────────────────────────────
 
+/// Tenant-reported maintenance issues. Routed to vendors. Tracks status + cost.
 model maintenance_requests {
-  id              String   @id @default(uuid())
-  tenancyId       String?
-  propertyId      String
-  reportedBy      String   // userId or customerId
-  category        String   // plumbing, electrical, hvac, general, structural
-  description     String   @db.Text
-  photos          String?  @db.Text  // JSON array of URLs
-  priority        String   @default("MEDIUM")  // LOW, MEDIUM, HIGH, URGENT
-  status          String   @default("SUBMITTED")  // SUBMITTED, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED
-  assignedVendor  String?
-  vendorNotes     String?
-  completedAt     DateTime?
-  cost            Decimal? @db.Decimal(10, 2)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String    @id @default(uuid())
+  tenancyId      String?
+  propertyId     String
+  reportedBy     String // userId or customerId
+  category       String // plumbing, electrical, hvac, general, structural
+  description    String    @db.Text
+  photos         String?   @db.Text // JSON array of URLs
+  priority       String    @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  status         String    @default("SUBMITTED") // SUBMITTED, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED
+  assignedVendor String?
+  vendorNotes    String?
+  completedAt    DateTime?
+  cost           Decimal?  @db.Decimal(10, 2)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([propertyId])
   @@index([status])
@@ -2113,20 +2266,21 @@ model maintenance_requests {
 
 // ── Vendor / Contractor Database (Session 5.7) ──────────────────────────────
 
+/// Contractor / vendor directory — plumbing, electrical, HVAC, etc. Rated 1-5.
 model vendors {
-  id              String   @id @default(uuid())
-  name            String
-  phone           String
-  email           String?
-  specialization  String   // plumbing, electrical, hvac, cleaning, painting, general
-  city            String?
-  rating          Decimal? @db.Decimal(2, 1)  // 1.0 - 5.0
-  isActive        Boolean  @default(true)
-  notes           String?
-  agentId         String
-  organizationId  String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(uuid())
+  name           String
+  phone          String
+  email          String?
+  specialization String // plumbing, electrical, hvac, cleaning, painting, general
+  city           String?
+  rating         Decimal? @db.Decimal(2, 1) // 1.0 - 5.0
+  isActive       Boolean  @default(true)
+  notes          String?
+  agentId        String
+  organizationId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([agentId])
   @@index([organizationId])
@@ -2135,16 +2289,17 @@ model vendors {
 
 // ── Viewing Feedback Forms (Session 5.8) ─────────────────────────────────────
 
+/// Post-viewing feedback from customers. Ratings for location/condition/price/overall.
 model viewing_feedback {
-  id                String   @id @default(uuid())
-  appointmentId     String   @unique
-  customerId        String?
-  locationRating    Int?     // 1-5
-  conditionRating   Int?     // 1-5
-  priceRating       Int?     // 1-5
-  overallRating     Int?     // 1-5
-  comments          String?
-  createdAt         DateTime @default(now())
+  id              String   @id @default(uuid())
+  appointmentId   String   @unique
+  customerId      String?
+  locationRating  Int? // 1-5
+  conditionRating Int? // 1-5
+  priceRating     Int? // 1-5
+  overallRating   Int? // 1-5
+  comments        String?
+  createdAt       DateTime @default(now())
 
   @@index([appointmentId])
   @@index([customerId])
@@ -2152,37 +2307,39 @@ model viewing_feedback {
 
 // ── Land Subdivision ───────────────────────────────────────────────────────────
 
+/// Land subdivision plans — splitting a large parcel into sellable lots (مخططات الأراضي).
 model land_subdivisions {
-  id              String   @id @default(uuid())
+  id               String   @id @default(uuid())
   parentPropertyId String
-  agentId         String
-  organizationId  String?
-  totalArea       Decimal  @db.Decimal(14, 2)
-  lotCount        Int      @default(0)
-  status          String   @default("PLANNING")  // PLANNING, APPROVED, IN_PROGRESS, COMPLETED
-  notes           String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  agentId          String
+  organizationId   String?
+  totalArea        Decimal  @db.Decimal(14, 2)
+  lotCount         Int      @default(0)
+  status           String   @default("PLANNING") // PLANNING, APPROVED, IN_PROGRESS, COMPLETED
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  lots            subdivision_lots[]
+  lots subdivision_lots[]
 
   @@index([parentPropertyId])
   @@index([agentId])
 }
 
+/// Individual lots within a land_subdivision.
 model subdivision_lots {
-  id              String   @id @default(uuid())
-  subdivisionId   String
-  lotNumber       String
-  areaSqm         Decimal  @db.Decimal(10, 2)
-  price           Decimal? @db.Decimal(14, 2)
-  status          String   @default("AVAILABLE")  // AVAILABLE, RESERVED, SOLD
-  buyerName       String?
-  buyerPhone      String?
-  infrastructure  String?  @db.Text  // JSON: { water, electricity, sewage, road }
-  createdAt       DateTime @default(now())
+  id             String   @id @default(uuid())
+  subdivisionId  String
+  lotNumber      String
+  areaSqm        Decimal  @db.Decimal(10, 2)
+  price          Decimal? @db.Decimal(14, 2)
+  status         String   @default("AVAILABLE") // AVAILABLE, RESERVED, SOLD
+  buyerName      String?
+  buyerPhone     String?
+  infrastructure String?  @db.Text // JSON: { water, electricity, sewage, road }
+  createdAt      DateTime @default(now())
 
-  subdivision     land_subdivisions @relation(fields: [subdivisionId], references: [id], onDelete: Cascade)
+  subdivision land_subdivisions @relation(fields: [subdivisionId], references: [id], onDelete: Cascade)
 
   @@index([subdivisionId])
   @@index([status])
@@ -2190,16 +2347,17 @@ model subdivision_lots {
 
 // ── Warranty Tracking ──────────────────────────────────────────────────────────
 
+/// Tracked warranties on property components (AC, water heater, elevator) with expiry dates.
 model property_warranties {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   propertyId  String
-  itemName    String   // AC, water heater, elevator, etc.
+  itemName    String // AC, water heater, elevator, etc.
   brand       String?
   installedAt DateTime?
   expiresAt   DateTime
   vendor      String?
   notes       String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
 
   @@index([propertyId])
   @@index([expiresAt])

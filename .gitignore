@@ -19,3 +19,17 @@ start-local.sh
 local_pg_data/
 *.db
 *.sqlite
+
+# Generated docs (rebuild via `pnpm run docs`)
+docs/api/
+docs/api-md/
+
+# Obsidian per-user state (vault config files are committed; this is the open-tabs UI state)
+Aqarkom_Knowledge/.obsidian/workspace.json
+
+# Office lock files
+~$*.xlsx
+~$*.xls
+~$*.docx
+~$*.doc
+.~lock.*#

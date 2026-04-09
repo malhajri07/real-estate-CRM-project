@@ -1,0 +1,50 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Aqarkom — API Reference",
+  "tsconfig": "./tsconfig.json",
+  "entryPoints": [
+    "apps/api/index.ts",
+    "apps/api/routes",
+    "apps/api/middleware",
+    "apps/api/lib",
+    "apps/web/src/main.tsx",
+    "apps/web/src/hooks",
+    "apps/web/src/lib",
+    "apps/web/src/components"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs/api",
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.test.tsx",
+    "**/__tests__/**",
+    "**/tests/**",
+    "**/generated/**",
+    "**/*.d.ts",
+    "apps/web/src/components/ui/**",
+    "apps/api/scripts/**",
+    "apps/api/lib/seeds/**"
+  ],
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "skipErrorChecking": true,
+  "githubPages": false,
+  "navigationLinks": {
+    "Vault": "https://github.com/anthropics/claude-code",
+    "Repo": "https://github.com/"
+  },
+  "validation": {
+    "notExported": false,
+    "invalidLink": true,
+    "notDocumented": true
+  },
+  "treatWarningsAsErrors": false,
+  "logLevel": "Warn"
+}
