@@ -72,10 +72,11 @@ Unified view: every git commit and every Claude session, month by month.
 
 ## 2026-04
 
-- 💬 **2026-04-09 → 2026-04-10** · Session 04 (this conversation) — Aqarkom_Knowledge vault setup, 30 skills, Comment Plan C1-C20, schema commenting (C1+C2)
-- 📦 **55 commits** (2026-04-01 → 2026-04-10) — see [[History/Changelog/2026-04|→ full month log]]
-  - **Highlights (this session):**
-    - `ac81643` 2026-04-10 — knowledge vault, 30 Claude Code skills, Comment Plan C1-C20 + C2 schema docs (138 files, +10,897 LOC)
+- 💬 **2026-04-09 → 2026-04-10** · Session 04 — Vault setup + 30 skills + Comment Plan C1-C6 (coverage 18.9% → 36.1%)
+  - `ac81643` vault (86 notes) + 30 skills + C1 tooling + C2 schema docs
+  - `857fa3f` C3: auth + RBAC middleware · `414aa9d` C4: CRM routes · `72e5249` C5: properties & deals
+  - C6: marketing & inbox (campaigns, chatbot, inbox, messages, sequences, promotions)
+- 📦 **58 commits** (2026-04-01 → 2026-04-10) — see [[History/Changelog/2026-04|→ full month log]]
   - **Earlier highlights:**
     - `6872703` 2026-04-01 — 2-second minimum skeleton display on ALL pages (38 files)
     - `1e2f90a` 2026-04-01 — structural loading skeletons for all pages — replace spinners with page-shape previews

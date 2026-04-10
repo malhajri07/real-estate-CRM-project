@@ -1,8 +1,26 @@
 /**
- * routes/campaigns.ts — Campaign Management API
+ * routes/campaigns.ts — Bulk campaign management + automation rules.
  *
- * CRUD for campaigns, recipients, and automation rules.
- * Now backed by dedicated database tables instead of audit_logs.
+ * Mounted at `/api/campaigns` in `apps/api/routes.ts`.
+ *
+ * | Method | Path                          | Auth? | Purpose                              |
+ * |--------|-------------------------------|-------|--------------------------------------|
+ * | GET    | /                             | Yes   | List agent's campaigns (newest first) |
+ * | POST   | /                             | Yes   | Create + send campaign to lead list   |
+ * | GET    | /:id                          | Yes   | Campaign detail with recipients       |
+ * | GET    | /automation-rules             | Yes   | List agent's automation rules         |
+ * | POST   | /automation-rules             | Yes   | Create trigger → action rule          |
+ * | PUT    | /automation-rules/:id         | Yes   | Update rule (enable/disable/config)   |
+ * | DELETE | /automation-rules/:id         | Yes   | Delete rule                           |
+ *
+ * Campaign send creates one `campaigns` row + N `campaign_recipients` rows.
+ * Delivery counters (deliveredCount, openedCount, respondedCount) are updated
+ * asynchronously by the messaging adapter (Unifonic/Twilio webhook, not here).
+ *
+ * Consumer: notifications page `apps/web/src/pages/platform/notifications/index.tsx`
+ *   (query key `['/api/campaigns']`).
+ *
+ * @see [[Features/Marketing & Campaigns]]
  */
 
 import express from "express";

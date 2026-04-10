@@ -52,6 +52,7 @@
 
 ### ⚙️ Engineering
 - [[Engineering/Comment Style]] — TSDoc convention with Source/Consumer lineage
+- [[Engineering/Coverage Report]] — TSDoc coverage: **36.1%** (231/640) after C6
 
 ### 📐 Decisions
 - [[Decisions/ADR Index]]
@@ -63,4 +64,4 @@
 - [[Reference/Useful Commands]]
 
 ---
-*Last updated: 2026-04-10*
+*Last updated: 2026-04-10 — 90 notes, 30 skills, Comment Plan at C6/C20*

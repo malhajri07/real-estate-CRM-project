@@ -1,3 +1,25 @@
+/**
+ * routes/messages.ts — Low-level message CRUD (WhatsApp / SMS / email).
+ *
+ * Mounted at `/api/messages` in `apps/api/routes.ts`.
+ *
+ * | Method | Path            | Auth?  | Purpose                           |
+ * |--------|-----------------|--------|-----------------------------------|
+ * | GET    | /               | No*    | List all messages                 |
+ * | GET    | /lead/:leadId   | No*    | Messages for a specific lead      |
+ * | POST   | /               | Yes    | Send a message on a lead thread   |
+ *
+ * * Auth via `decodeAuth` on POST; GET endpoints are currently open (legacy).
+ *
+ * For the **two-way inbox** experience, see `routes/inbox.ts` which groups
+ * messages into conversations. This file is the raw message store.
+ *
+ * Consumer: inbox page `apps/web/src/pages/platform/inbox/index.tsx` (indirect,
+ *   via inbox.ts); also used by campaign send + chatbot handoff flows.
+ *
+ * @see [[Features/Marketing & Campaigns]]
+ */
+
 import express from 'express';
 import { z } from "zod";
 import { storage } from '../storage-prisma';

@@ -1,14 +1,30 @@
 /**
- * routes/chatbot.ts — Smart AI Chatbot for Lead Capture
+ * routes/chatbot.ts — Conversational property search bot + lead capture.
  *
- * Features:
- *  - Natural language property search (pulls real listings from DB)
- *  - WhatsApp handoff ("أرسل على واتساب")
- *  - Viewing scheduler
- *  - Mortgage quick check
- *  - Neighborhood intelligence
- *  - Smart conversation flow with branching
- *  - Auto-creates lead when phone collected
+ * Mounted at `/api/chatbot` in `apps/api/routes.ts`.
+ *
+ * | Method | Path       | Auth? | Purpose                                      |
+ * |--------|------------|-------|----------------------------------------------|
+ * | POST   | /message   | No    | Send user message → get bot response          |
+ * | POST   | /reset     | No    | Reset conversation state                      |
+ *
+ * The chatbot is a stateful finite-state machine stored in a per-session
+ * `conversations` Map (in-memory, auto-cleaned after 30 min). Steps:
+ *
+ * 1. `greeting` → asks what the user is looking for
+ * 2. `city` → collects target city
+ * 3. `type` → collects property type
+ * 4. `budget` → parses budget range (supports Arabic numerals + SAR)
+ * 5. `results` → searches real listings from Postgres, returns top 5
+ * 6. `phone` → collects phone → **auto-creates a lead** in the CRM
+ *
+ * Additional branches: WhatsApp handoff, viewing scheduler, mortgage check,
+ * neighborhood intelligence.
+ *
+ * Consumer: chatbot widget on the landing page; also embeddable via the
+ *   chatbot API for WhatsApp bot integrations.
+ *
+ * @see [[Features/Chatbot]]
  */
 
 import { Router } from "express";

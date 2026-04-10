@@ -1,8 +1,23 @@
 /**
- * routes/promotions.ts — Listing Promotion / Boost API
+ * routes/promotions.ts — Listing boost / paid promotion API.
  *
- * Agents bid to promote their listings in search results.
- * Higher bid = higher ranking, like Google Ads for real estate.
+ * Mounted at `/api/promotions` in `apps/api/routes.ts`.
+ *
+ * | Method | Path        | Auth? | Purpose                                  |
+ * |--------|-------------|-------|------------------------------------------|
+ * | GET    | /           | Yes   | List agent's promotions with spend stats  |
+ * | POST   | /           | Yes   | Create a new promotion (bid + budget)     |
+ * | PUT    | /:id        | Yes   | Update status (ACTIVE/PAUSED/CANCELLED)   |
+ * | GET    | /stats      | Yes   | Aggregate impressions/clicks/spend        |
+ *
+ * Higher bid = higher ranking in listing search results — similar to Google Ads.
+ * Budget tracking: `spentAmount` incremented by the ad-serving layer; when
+ * `spentAmount >= totalBudget * 0.95` the promotion should be auto-paused
+ * (enforcement planned in E20).
+ *
+ * Consumer: marketing board `apps/web/src/pages/platform/marketing/board.tsx`.
+ *
+ * @see [[Features/Marketing & Campaigns]]
  */
 
 import { Router } from "express";

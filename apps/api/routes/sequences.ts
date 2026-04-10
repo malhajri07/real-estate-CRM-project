@@ -1,8 +1,26 @@
 /**
- * routes/sequences.ts — Drip Campaign Sequences API
+ * routes/sequences.ts — Drip campaign sequences + lead enrollment.
  *
- * CRUD for multi-step drip sequences and lead enrollment.
- * The /process endpoint advances enrollments whose nextRunAt is due.
+ * Mounted at `/api/sequences` in `apps/api/routes.ts`.
+ *
+ * | Method | Path                          | Auth? | Purpose                              |
+ * |--------|-------------------------------|-------|--------------------------------------|
+ * | GET    | /                             | Yes   | List agent's sequences                |
+ * | POST   | /                             | Yes   | Create a new multi-step sequence      |
+ * | PUT    | /:id                          | Yes   | Update sequence name/steps/enabled    |
+ * | DELETE | /:id                          | Yes   | Delete sequence + enrollments         |
+ * | POST   | /:id/enroll                   | Yes   | Enroll a lead in a sequence           |
+ * | GET    | /:id/enrollments              | Yes   | List enrollments + current step       |
+ * | POST   | /process                      | Yes   | Advance enrollments where nextRunAt ≤ now |
+ *
+ * A sequence's `steps` field is a JSON array of
+ * `[{delay: "0d", template: "welcome", message: "..."}]`.
+ * The `/process` endpoint is meant to be called by a cron job to tick
+ * enrollments forward.
+ *
+ * Consumer: automation section in notifications page.
+ *
+ * @see [[Features/Marketing & Campaigns]]
  */
 
 import express from "express";

@@ -1,11 +1,25 @@
 /**
- * inbox.ts - WhatsApp Two-Way Chat API
+ * routes/inbox.ts — Two-way WhatsApp / omnichannel inbox.
  *
- * Routes:
- *   GET  /api/inbox            — list conversations (grouped by leadId/phone)
- *   GET  /api/inbox/:leadId    — full message thread for a lead
- *   POST /api/inbox/send       — send a message
- *   POST /api/webhooks/whatsapp — incoming webhook (no auth)
+ * Mounted at `/api/inbox` in `apps/api/routes.ts`.
+ *
+ * | Method | Path                     | Auth? | Purpose                                 |
+ * |--------|--------------------------|-------|-----------------------------------------|
+ * | GET    | /                        | Yes   | Conversation list (grouped by lead/phone)|
+ * | GET    | /:leadId                 | Yes   | Full message thread for a lead           |
+ * | POST   | /send                    | Yes   | Send outbound message                    |
+ * | POST   | /webhooks/whatsapp       | No    | Inbound webhook from Unifonic/Twilio     |
+ *
+ * Messages are grouped into conversations by `leadId` (preferred) or `phone`
+ * (fallback for unknown contacts). Unread counts are computed per conversation.
+ *
+ * The webhook matches inbound messages to a customer by phone, creates a
+ * `messages` row with `direction = 'INBOUND'`, and surfaces it in the inbox.
+ *
+ * Consumer: inbox page `apps/web/src/pages/platform/inbox/index.tsx`
+ *   (query key `['/api/inbox']`).
+ *
+ * @see [[Features/Marketing & Campaigns]]
  */
 
 import { Router, Request, Response } from "express";
