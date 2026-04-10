@@ -140,22 +140,31 @@ router.get("/", authenticateToken, async (req, res) => {
       },
     });
 
-    // Map to a flat response
-    const result = campaigns.map((c) => ({
-      id: c.id,
-      title: c.title,
-      message: c.message,
-      type: c.channel,
-      status: c.status,
-      recipientCount: c.recipientCount,
-      deliveredCount: c.deliveredCount,
-      openedCount: c.openedCount,
-      respondedCount: c.respondedCount,
-      sentAt: c.sentAt?.toISOString() || c.createdAt.toISOString(),
-      scheduledAt: c.scheduledAt?.toISOString() || null,
-      templateId: c.templateId,
-      createdAt: c.createdAt.toISOString(),
-    }));
+    /** Map to flat response with calculated delivery/open/response rates (E11). */
+    const result = campaigns.map((c) => {
+      const total = c.recipientCount || 1;
+      return {
+        id: c.id,
+        title: c.title,
+        message: c.message,
+        type: c.channel,
+        status: c.status,
+        recipientCount: c.recipientCount,
+        deliveredCount: c.deliveredCount,
+        openedCount: c.openedCount,
+        respondedCount: c.respondedCount,
+        /** Delivery rate 0-100%. Consumer: performance column in notifications page (E11). */
+        deliveryRate: Math.round((c.deliveredCount / total) * 100),
+        /** Open rate 0-100%. */
+        openRate: Math.round((c.openedCount / total) * 100),
+        /** Response rate 0-100%. */
+        responseRate: Math.round((c.respondedCount / total) * 100),
+        sentAt: c.sentAt?.toISOString() || c.createdAt.toISOString(),
+        scheduledAt: c.scheduledAt?.toISOString() || null,
+        templateId: c.templateId,
+        createdAt: c.createdAt.toISOString(),
+      };
+    });
 
     res.json(result);
   } catch (error) {
@@ -186,6 +195,34 @@ router.get("/:id", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Error fetching campaign:", error);
     res.status(500).json({ message: "Failed to fetch campaign" });
+  }
+});
+
+/**
+ * @route GET /api/campaigns/:id/recipients
+ * @auth  Required
+ * @returns Per-recipient delivery status list.
+ *   Consumer: expandable recipient detail row in notifications page (E11).
+ */
+router.get("/:id/recipients", authenticateToken, async (req, res) => {
+  try {
+    const recipients = await prisma.campaign_recipients.findMany({
+      where: { campaignId: req.params.id },
+      orderBy: { createdAt: "desc" },
+      take: 500,
+    });
+    res.json(recipients.map((r) => ({
+      id: r.id,
+      name: r.name,
+      phone: r.phone,
+      email: r.email,
+      status: r.status,
+      deliveredAt: r.deliveredAt,
+      openedAt: r.openedAt,
+      respondedAt: r.respondedAt,
+    })));
+  } catch (error) {
+    res.json([]);
   }
 });
 

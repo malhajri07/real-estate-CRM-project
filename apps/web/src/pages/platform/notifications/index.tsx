@@ -68,6 +68,15 @@ interface Campaign {
   status: string;
   sentAt: string;
   recipientCount: number;
+  deliveredCount?: number;
+  openedCount?: number;
+  respondedCount?: number;
+  /** Delivery rate 0-100% (E11). Source: calculated server-side. */
+  deliveryRate?: number;
+  /** Open rate 0-100% (E11). */
+  openRate?: number;
+  /** Response rate 0-100% (E11). */
+  responseRate?: number;
 }
 
 interface AutomationRule {
@@ -791,13 +800,32 @@ export default function CampaignManagement() {
                           <p className="text-xs text-muted-foreground line-clamp-1">{c.message}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-3 text-sm">
                         <div className="text-center">
                           <p className="font-bold tabular-nums">{c.recipientCount}</p>
                           <p className="text-[10px] text-muted-foreground">مستلم</p>
                         </div>
-                        <Badge variant={c.status === "sent" ? "default" : "outline"}>
-                          {c.status === "sent" ? "مُرسلة" : c.status}
+                        {/* Performance rates (E11) */}
+                        {c.deliveryRate != null && (
+                          <div className="text-center">
+                            <p className="font-bold tabular-nums text-primary">{c.deliveryRate}%</p>
+                            <p className="text-[10px] text-muted-foreground">تسليم</p>
+                          </div>
+                        )}
+                        {c.openRate != null && c.openRate > 0 && (
+                          <div className="text-center">
+                            <p className="font-bold tabular-nums">{c.openRate}%</p>
+                            <p className="text-[10px] text-muted-foreground">فتح</p>
+                          </div>
+                        )}
+                        {c.responseRate != null && c.responseRate > 0 && (
+                          <div className="text-center">
+                            <p className="font-bold tabular-nums">{c.responseRate}%</p>
+                            <p className="text-[10px] text-muted-foreground">رد</p>
+                          </div>
+                        )}
+                        <Badge variant={c.status === "sent" || c.status === "SENT" ? "default" : "outline"}>
+                          {c.status === "sent" || c.status === "SENT" ? "مرسلة" : c.status === "COMPLETED" ? "مكتملة" : c.status}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
                           {formatDistanceToNow(new Date(c.sentAt), { addSuffix: true, locale: ar })}

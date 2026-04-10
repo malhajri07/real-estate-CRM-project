@@ -21,8 +21,8 @@ created: 2026-04-10
 | E8 | Property detail | ✅ Done | [[Sessions/E8 - Property Detail]] |
 | E9 | Pool | ✅ Done | [[Sessions/E9 - Pool]] |
 | E10 | Broker requests | ✅ Done | [[Sessions/E10 - Broker Requests]] |
-| E11 | Campaigns | ⏳ Next | analytics, A/B testing |
-| E12 | Inbox | ⏳ | unread, search, labels |
+| E11 | Campaigns | ✅ Done | [[Sessions/E11 - Campaigns]] |
+| E12 | Inbox | ⏳ Next | unread, search, labels |
 | E13 | Settings | ⏳ | completion actions, activity log |
 | E14 | Tools | ⏳ | save calcs, share, compare |
 | E15 | Client portal | ⏳ | docs, history, rating |
