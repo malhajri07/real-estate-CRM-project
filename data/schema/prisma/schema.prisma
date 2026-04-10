@@ -2381,3 +2381,20 @@ model saved_filters {
 
   @@index([agentId])
 }
+
+// ── Property Price History (E8) ───────────────────────────────────────────────
+
+/// Tracks price changes on a property over time (E8).
+/// One row per price modification. Source: listing update route.
+/// Consumer: price timeline on property detail page.
+model property_price_history {
+  id         String   @id @default(uuid())
+  propertyId String
+  oldPrice   Decimal  @db.Decimal(14, 2)
+  newPrice   Decimal  @db.Decimal(14, 2)
+  changedAt  DateTime @default(now())
+  changedBy  String?  // userId who made the change
+
+  @@index([propertyId])
+  @@index([changedAt])
+}

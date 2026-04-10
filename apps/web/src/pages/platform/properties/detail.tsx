@@ -35,7 +35,7 @@ import {
   ExternalLink, Image as ImageIcon, ShieldCheck, FileText, Compass,
   Zap, Droplets, ChevronDown, Save,
   GraduationCap, Pill, ShoppingBag, ShoppingCart, Fuel,
-  UtensilsCrossed, MoonStar, Stethoscope, Landmark, type LucideIcon,
+  UtensilsCrossed, MoonStar, Stethoscope, Landmark, Users, type LucideIcon,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -151,6 +151,27 @@ export default function PropertyDetail() {
   const { data: property, isLoading, error } = useQuery<Property>({
     queryKey: ["/api/listings", id],
     queryFn: () => apiGet<Property>(`/api/listings/${id}`),
+    enabled: !!id,
+  });
+
+  /** Similar properties — same city + type from DB (E8). Replaces placeholder. */
+  const { data: similarProperties } = useQuery<any[]>({
+    queryKey: ["/api/listings", id, "similar"],
+    queryFn: () => apiGet<any[]>(`/api/listings/${id}/similar`),
+    enabled: !!id,
+  });
+
+  /** Interested count — number of favorites on this property (E8). */
+  const { data: interestedData } = useQuery<{ count: number }>({
+    queryKey: ["/api/listings", id, "interested-count"],
+    queryFn: () => apiGet<{ count: number }>(`/api/listings/${id}/interested-count`),
+    enabled: !!id,
+  });
+
+  /** Price change history (E8). Source: property_price_history table. */
+  const { data: priceHistory } = useQuery<{ oldPrice: number; newPrice: number; changedAt: string }[]>({
+    queryKey: ["/api/listings", id, "price-history"],
+    queryFn: () => apiGet(`/api/listings/${id}/price-history`),
     enabled: !!id,
   });
 
@@ -396,7 +417,14 @@ export default function PropertyDetail() {
           </div>
           <div className="text-end">
             <div className="text-2xl font-bold text-primary"><SarPrice value={property.price} /></div>
-            <Badge variant={getPropertyStatusVariant(property.status)}>{property.status}</Badge>
+            <div className="flex items-center gap-1.5">
+              {(interestedData?.count ?? 0) > 0 && (
+                <Badge variant="outline" className="text-xs gap-0.5">
+                  <Users size={12} /> {interestedData!.count} مهتم
+                </Badge>
+              )}
+              <Badge variant={getPropertyStatusVariant(property.status)}>{property.status}</Badge>
+            </div>
           </div>
         </div>
 
@@ -1067,10 +1095,14 @@ export default function PropertyDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {SIMILAR_PROPERTIES_PLACEHOLDER.map((similar) => (
+                    {(similarProperties || []).length === 0 && (
+                      <p className="text-sm text-muted-foreground col-span-full text-center py-8">لا توجد عقارات مشابهة</p>
+                    )}
+                    {(similarProperties || []).map((similar: any) => (
                       <Card
                         key={similar.id}
                         className="cursor-pointer hover:shadow-md transition-shadow overflow-hidden"
+                        onClick={() => setLocation(`/listing/${similar.id}`)}
                       >
                         <div className="h-40 bg-muted/50 flex items-center justify-center">
                           <ImageIcon className="h-10 w-10 text-muted-foreground/40" />
@@ -1087,7 +1119,7 @@ export default function PropertyDetail() {
                           <div className="flex items-center gap-3 text-xs text-muted-foreground">
                             <span className="flex items-center gap-1"><Bed size={12} /> {similar.bedrooms}</span>
                             <span className="flex items-center gap-1"><Bath size={12} /> {similar.bathrooms}</span>
-                            <span className="flex items-center gap-1"><Square size={12} /> {similar.area} م²</span>
+                            <span className="flex items-center gap-1"><Square size={12} /> {(similar as any).areaSqm || "—"} م²</span>
                           </div>
                         </CardContent>
                       </Card>
@@ -1124,28 +1156,29 @@ export default function PropertyDetail() {
                         <Badge variant="default" className="rounded-full">حالي</Badge>
                       </div>
 
-                      {/* Past prices placeholder */}
+                      {/* Real price history from DB (E8) */}
                       <div className="mt-4 space-y-3">
-                        {[
-                          { date: "يناير 2026", label: "تحديث السعر" },
-                          { date: "أكتوبر 2025", label: "تحديث السعر" },
-                          { date: "يونيو 2025", label: "السعر الأول" },
-                        ].map((entry, idx) => (
-                          <div key={idx} className="flex items-center gap-3 p-3 border border-border/50 rounded-xl">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                              <Clock size={16} className="text-muted-foreground" />
+                        {(priceHistory || []).length === 0 ? (
+                          <p className="text-xs text-muted-foreground text-center py-4">لا توجد تغييرات سعرية مسجلة</p>
+                        ) : (
+                          priceHistory!.map((entry, idx) => (
+                            <div key={idx} className="flex items-center gap-3 p-3 border border-border/50 rounded-xl">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                                {entry.newPrice < entry.oldPrice ? <TrendingDown size={16} className="text-destructive" /> : <TrendingUp size={16} className="text-primary" />}
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm font-medium">
+                                  <SarPrice value={entry.oldPrice} /> → <SarPrice value={entry.newPrice} />
+                                </p>
+                                <p className="text-xs text-muted-foreground">{new Date(entry.changedAt).toLocaleDateString("ar-SA")}</p>
+                              </div>
+                              <Badge variant={entry.newPrice < entry.oldPrice ? "destructive" : "default"} className="text-[10px]">
+                                {entry.newPrice < entry.oldPrice ? "انخفاض" : "ارتفاع"}
+                              </Badge>
                             </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">{entry.label}</p>
-                              <p className="text-xs text-muted-foreground">{entry.date}</p>
-                            </div>
-                            <span className="text-sm text-muted-foreground">—</span>
-                          </div>
-                        ))}
+                          ))
+                        )}
                       </div>
-                      <p className="text-xs text-muted-foreground text-center mt-4">
-                        سجل الأسعار المفصل سيتوفر قريبا
-                      </p>
                     </div>
                   </CardContent>
                 </Card>

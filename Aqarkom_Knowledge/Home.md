@@ -43,6 +43,7 @@
 - [[Sessions/E5 - Activities]]
 - [[Sessions/E6 - Tenants]]
 - [[Sessions/E7 - Properties]]
+- [[Sessions/E8 - Property Detail]]
 
 ### 📝 Documentation Plan
 - [[Sessions/Comment Plan C1-C20]] — adds TSDoc comments to every function (Source/Consumer data lineage)

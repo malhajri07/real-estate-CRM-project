@@ -228,6 +228,46 @@ router.get("/:id/similar", async (req, res) => {
   }
 });
 
+/**
+ * @route GET /api/listings/:id/interested-count
+ * @auth  Not required
+ * @returns `{ count }` — number of users who favorited this property.
+ *   Source: `favorites` table. Consumer: "X مهتم" badge on property detail (E8).
+ */
+router.get("/:id/interested-count", async (req, res) => {
+  try {
+    const { prisma: db } = await import("../prismaClient");
+    const count = await db.favorites.count({ where: { propertyId: req.params.id } });
+    res.json({ count });
+  } catch (err) {
+    res.json({ count: 0 });
+  }
+});
+
+/**
+ * @route GET /api/listings/:id/price-history
+ * @auth  Not required
+ * @returns Array of `{ oldPrice, newPrice, changedAt }` — price change timeline.
+ *   Source: `property_price_history` table. Consumer: price timeline on detail page (E8).
+ */
+router.get("/:id/price-history", async (req, res) => {
+  try {
+    const { prisma: db } = await import("../prismaClient");
+    const history = await db.property_price_history.findMany({
+      where: { propertyId: req.params.id },
+      orderBy: { changedAt: "desc" },
+      take: 20,
+    });
+    res.json(history.map((h) => ({
+      oldPrice: Number(h.oldPrice),
+      newPrice: Number(h.newPrice),
+      changedAt: h.changedAt,
+    })));
+  } catch (err) {
+    res.json([]);
+  }
+});
+
 // Featured/new listings
 router.get("/featured", async (req, res) => {
   try {
@@ -336,6 +376,27 @@ router.put("/:id", authenticateToken, async (req, res) => {
     if (!body || Object.keys(body).length === 0) {
       return res.status(400).json({ message: "Request body is required" });
     }
+
+    // Track price changes in history table (E8)
+    if (body.price !== undefined) {
+      try {
+        const existing = await storage.getProperty(req.params.id);
+        const oldPrice = Number((existing as any)?.price || 0);
+        const newPrice = Number(body.price);
+        if (oldPrice > 0 && newPrice > 0 && oldPrice !== newPrice) {
+          const { prisma: db } = await import("../prismaClient");
+          await db.property_price_history.create({
+            data: {
+              propertyId: req.params.id,
+              oldPrice,
+              newPrice,
+              changedBy: (req as any).user?.id || null,
+            },
+          });
+        }
+      } catch { /* best effort — don't fail the update */ }
+    }
+
     const updated = await storage.updateProperty(req.params.id, body);
     if (!updated) return res.status(404).json({ message: "Listing not found" });
     res.json(updated);
