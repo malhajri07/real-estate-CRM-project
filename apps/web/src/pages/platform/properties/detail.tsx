@@ -1102,7 +1102,7 @@ export default function PropertyDetail() {
                       <Card
                         key={similar.id}
                         className="cursor-pointer hover:shadow-md transition-shadow overflow-hidden"
-                        onClick={() => setLocation(`/listing/${similar.id}`)}
+                        onClick={() => setLocation(`/home/platform/properties/${similar.id}`)}
                       >
                         <div className="h-40 bg-muted/50 flex items-center justify-center">
                           <ImageIcon className="h-10 w-10 text-muted-foreground/40" />
