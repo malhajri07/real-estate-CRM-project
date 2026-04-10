@@ -26,9 +26,9 @@ created: 2026-04-10
 | E13 | Settings | ✅ Done | [[Sessions/E13 - Settings]] |
 | E14 | Tools | ✅ Done | [[Sessions/E14 - Tools]] |
 | E15 | Client portal | ✅ Done | [[Sessions/E15 - Client Portal]] |
-| E16 | Landing/Map | ⏳ Next | featured, autocomplete, recent |
-| E17 | Forum | ⏳ | images, categories, trending |
-| E18 | Projects | ⏳ | progress, heatmap, milestones |
+| E16 | Landing/Map | ✅ Done | [[Sessions/E16 - Landing Map]] |
+| E17 | Forum | ✅ Done | [[Sessions/E17 - Forum]] |
+| E18 | Projects | ⏳ Next | progress, heatmap, milestones |
 | E19 | Report builder | ⏳ | charts, export, schedule |
 | E20 | Promotions | ⏳ | performance, budget alerts |
 

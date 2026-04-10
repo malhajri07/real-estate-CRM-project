@@ -51,6 +51,8 @@
 - [[Sessions/E13 - Settings]]
 - [[Sessions/E14 - Tools]]
 - [[Sessions/E15 - Client Portal]]
+- [[Sessions/E16 - Landing Map]]
+- [[Sessions/E17 - Forum]]
 
 ### 📝 Documentation Plan
 - [[Sessions/Comment Plan C1-C20]] — adds TSDoc comments to every function (Source/Consumer data lineage)

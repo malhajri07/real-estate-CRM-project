@@ -12,7 +12,12 @@
  * Refactored to "Aurora Glass" design system (Jan 2026).
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Bed, Bath } from "lucide-react";
+import { SarPrice } from "@/components/ui/sar-symbol";
 import PublicHeader from "@/components/layout/PublicHeader";
 import ChatWidget from "@/components/chatbot/ChatWidget";
 import { type LandingPageContent, type PricingPlan } from "@/lib/cms";
@@ -312,6 +317,9 @@ export default function Landing() {
 
           <StatsBanner content={landingContent} />
 
+          {/* Featured Listings Section (E16) */}
+          <FeaturedListings />
+
           <FeatureGrid
             content={landingContent}
             iconMap={ICON_COMPONENTS}
@@ -341,5 +349,75 @@ export default function Landing() {
         <ChatWidget />
       </div>
     </LandingErrorBoundary>
+  );
+}
+
+/**
+ * Featured Listings horizontal scroll section (E16).
+ * Source: GET /api/listings/featured (top 8 promoted or newest).
+ * Consumer: landing page between StatsBanner and FeatureGrid.
+ */
+function FeaturedListings() {
+  const [, setLocation] = useLocation();
+  const { data: listings } = useQuery<any[]>({
+    queryKey: ["/api/listings/featured"],
+    queryFn: async () => {
+      const res = await fetch("/api/listings/featured");
+      return res.ok ? res.json() : [];
+    },
+  });
+
+  /** Recently viewed property IDs from localStorage (E16). */
+  const recentIds: string[] = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem("aqarkom_recently_viewed") || "[]"); } catch { return []; }
+  }, []);
+
+  const featured = listings || [];
+  if (featured.length === 0) return null;
+
+  return (
+    <section className="py-12 px-4 sm:px-8 max-w-7xl mx-auto">
+      <div className="text-center mb-8">
+        <Badge variant="outline" className="mb-2">عقارات مميزة</Badge>
+        <h2 className="text-2xl font-black">اكتشف أحدث العقارات</h2>
+      </div>
+
+      <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory">
+        {featured.slice(0, 8).map((p: any) => {
+          const imgs: string[] = Array.isArray(p.photoUrls) ? p.photoUrls : Array.isArray(p.photos) ? p.photos : [];
+          return (
+            <Card
+              key={p.id}
+              className="min-w-[260px] max-w-[280px] snap-start shrink-0 cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => {
+                // Track recently viewed (E16)
+                const recent = [p.id, ...recentIds.filter((id: string) => id !== p.id)].slice(0, 10);
+                localStorage.setItem("aqarkom_recently_viewed", JSON.stringify(recent));
+                setLocation(`/listing/${p.id}`);
+              }}
+            >
+              {imgs.length > 0 ? (
+                <img src={imgs[0]} alt={p.title} className="w-full h-36 object-cover rounded-t-lg" loading="lazy" />
+              ) : (
+                <div className="w-full h-36 bg-muted rounded-t-lg flex items-center justify-center text-muted-foreground text-sm">لا توجد صور</div>
+              )}
+              <CardContent className="p-3 space-y-1.5">
+                <h3 className="font-bold text-sm line-clamp-1">{p.title}</h3>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <MapPin size={12} />{p.city || p.district || ""}
+                </div>
+                <div className="flex items-center justify-between">
+                  <SarPrice value={p.price} className="text-primary font-bold" />
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {p.bedrooms && <span className="flex items-center gap-0.5"><Bed size={12} />{p.bedrooms}</span>}
+                    {p.bathrooms && <span className="flex items-center gap-0.5"><Bath size={12} />{p.bathrooms}</span>}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </section>
   );
 }

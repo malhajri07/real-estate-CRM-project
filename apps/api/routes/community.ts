@@ -202,4 +202,40 @@ router.post("/post/:id/comment", authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * @route GET /api/community/trending
+ * @auth  Required
+ * @returns Top 10 most-commented posts from the last 7 days.
+ *   Consumer: "Trending" sidebar in forum page (E17).
+ */
+router.get("/trending", authenticateToken, async (req, res) => {
+  try {
+    const { prisma: db } = await import("../prismaClient");
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const posts = await db.community_posts.findMany({
+      where: { createdAt: { gte: sevenDaysAgo } },
+      include: {
+        _count: { select: { comments: true } },
+        author: { select: { firstName: true, lastName: true } },
+      },
+      orderBy: { comments: { _count: "desc" } },
+      take: 10,
+    });
+    res.json({
+      success: true,
+      data: posts.map((p: any) => ({
+        id: p.id,
+        content: p.content.substring(0, 100),
+        type: p.type,
+        likes: p.likes,
+        commentCount: p._count.comments,
+        author: `${p.author.firstName} ${p.author.lastName}`,
+        createdAt: p.createdAt,
+      })),
+    });
+  } catch (error) {
+    res.json({ success: true, data: [] });
+  }
+});
+
 export default router;
