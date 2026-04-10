@@ -2303,6 +2303,10 @@ model viewing_feedback {
   priceRating     Int? // 1-5
   overallRating   Int? // 1-5
   comments        String?
+  /// Agent rating from the customer (1-5 stars). Source: client portal "Rate Agent" (E15).
+  agentRating     Int?
+  /// Free-text agent review. Source: client portal rating form (E15).
+  agentReviewText String?
   createdAt       DateTime @default(now())
 
   @@index([appointmentId])
