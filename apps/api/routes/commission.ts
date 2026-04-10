@@ -1,8 +1,19 @@
 /**
- * routes/commission.ts — Commission Split Management
+ * routes/commission.ts — Commission split management per deal.
  *
- * Track how commission is divided between agent and brokerage per deal.
- * Auto-creates splits when deal → WON. CORP_OWNER can edit splits.
+ * Mounted at `/api/deals` (nested: `/:dealId/commission`) in `apps/api/routes.ts`.
+ *
+ * | Method | Path                                | Auth? | Purpose                    |
+ * |--------|-------------------------------------|-------|----------------------------|
+ * | GET    | /:dealId/commission                 | Yes   | Get splits + deal value     |
+ * | POST   | /:dealId/commission                 | Yes   | Set/replace splits (OWNER)  |
+ * | PATCH  | /:dealId/commission/:splitId/status  | Yes   | Mark split PAID/APPROVED    |
+ *
+ * Business rule: total split percentages must not exceed 100%.
+ * Commission amount = `agreedPrice × commissionPercentage / 100`.
+ * REGA cap: commission ≤ 2.5% — validated on the deal, not here.
+ *
+ * Consumer: commission detail panel in the deal sheet (pipeline page).
  */
 
 import { Router } from "express";

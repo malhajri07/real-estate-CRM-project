@@ -1,8 +1,19 @@
 /**
- * routes/deal-documents.ts — Document Storage per Deal
+ * routes/deal-documents.ts — Document attachment CRUD per deal.
  *
- * Upload/download documents (contracts, receipts, deeds) per deal.
- * Files stored locally in /uploads/deals/ (S3 later).
+ * Mounted at `/api/deals` (nested: `/:dealId/documents`) in `apps/api/routes.ts`.
+ *
+ * | Method | Path                            | Auth? | Purpose                |
+ * |--------|---------------------------------|-------|------------------------|
+ * | GET    | /:dealId/documents              | Yes   | List attached files     |
+ * | POST   | /:dealId/documents              | Yes   | Upload (base64 → disk)  |
+ * | DELETE | /:dealId/documents/:docId       | Yes   | Delete file + DB row    |
+ *
+ * Files stored locally in `uploads/deals/` — S3 migration planned.
+ * Base64 data URLs are decoded, written to disk, and the path stored in
+ * `deal_documents.fileUrl`.
+ *
+ * Consumer: deal detail sheet in `pipeline/index.tsx` (Documents tab).
  */
 
 import { Router } from "express";

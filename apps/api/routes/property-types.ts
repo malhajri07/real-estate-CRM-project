@@ -1,18 +1,13 @@
 /**
- * routes/property-types.ts - Property Types API Routes
- * 
- * Location: apps/api/ → Routes/ → property-types.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for property type management. Handles:
- * - Retrieving property types
- * - Filtering by category
- * 
- * API Endpoints:
- * - GET /api/property-types - Get all property types
- * 
- * Related Files:
- * - apps/api/routes/property-categories.ts - Property categories routes
+ * routes/property-types.ts — GASTAT-aligned property types (33 total, nested under categories).
+ *
+ * Mounted at `/api/property-types`. Read-only — seeded from official data.
+ * Supports filtering by `categoryId` or `categoryCode`.
+ *
+ * Consumer: type dropdown in listing creation form (cascades from the
+ * selected category). Also drives the Pool request property type picker.
+ *
+ * @see [[Features/REGA Compliance]] for GASTAT classification details
  */
 
 import express from "express";

@@ -1,14 +1,22 @@
 /**
- * routes/projects.ts — Off-Plan Projects & Units
+ * routes/projects.ts — Off-plan development projects & unit CRUD.
  *
- * Endpoints:
- *   GET    /api/projects           — list agent's projects
- *   GET    /api/projects/stats     — aggregate stats
- *   POST   /api/projects           — create project
- *   GET    /api/projects/:id       — project with all units
- *   GET    /api/projects/:id/units — list units
- *   POST   /api/projects/:id/units — create unit
- *   PATCH  /api/projects/:id/units/:unitId — update unit
+ * Mounted at `/api/projects` in `apps/api/routes.ts`.
+ *
+ * | Method | Path                       | Auth? | Purpose                            |
+ * |--------|----------------------------|-------|------------------------------------|
+ * | GET    | /                          | Yes   | List agent's projects (with stats)  |
+ * | GET    | /stats                     | Yes   | Aggregate sold/available/revenue    |
+ * | POST   | /                          | Yes   | Create project                     |
+ * | GET    | /:id                       | Yes   | Project detail + all units          |
+ * | GET    | /:id/units                 | Yes   | List units for a project            |
+ * | POST   | /:id/units                 | Yes   | Add a unit to a project             |
+ * | PATCH  | /:id/units/:unitId         | Yes   | Update unit status/buyer/payment    |
+ *
+ * Ownership scoped: agents see only their own or their org's projects via
+ * `ownerWhere(user)`. Unit statuses: AVAILABLE → RESERVED → SOLD → BLOCKED.
+ *
+ * Consumer: projects page `apps/web/src/pages/platform/projects/index.tsx`.
  */
 
 import { Router } from "express";

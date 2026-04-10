@@ -1,3 +1,29 @@
+/**
+ * routes/deals.ts — Pipeline deal CRUD + revenue forecast.
+ *
+ * Mounted at `/api/deals` in `apps/api/routes.ts`.
+ *
+ * | Method | Path             | Auth? | Purpose                                          |
+ * |--------|------------------|-------|--------------------------------------------------|
+ * | GET    | /                | Yes*  | List all deals (org-scoped via middleware)         |
+ * | GET    | /stage/:stage    | Yes*  | Filter deals by pipeline stage                    |
+ * | POST   | /                | Yes   | Create deal from a qualified lead                 |
+ * | PUT    | /:id             | Yes   | Update stage/price/notes + track stage transition  |
+ * | GET    | /forecast        | Yes   | Revenue forecast: onTrack vs atRisk per stage prob |
+ * | DELETE | /:id             | Yes   | Soft-delete (moves to LOST stage)                 |
+ *
+ * * org-isolation enforced via `guardOrgAccess` / `guardWriteAccess`.
+ *
+ * Stage transitions update `deals.stageEnteredAt` and insert a row into
+ * `deal_stage_history` (raw SQL) for the timeline view.
+ *
+ * Consumer: Kanban board `apps/web/src/pages/platform/pipeline/index.tsx`
+ *   (query key `['/api/deals']`) and forecast bar.
+ *
+ * @see [[Features/Pipeline & Deals]]
+ * @see [[Sessions/E3 - Pipeline]]
+ */
+
 import express from 'express';
 import { z } from "zod";
 import { storage } from '../storage-prisma';
@@ -122,7 +148,16 @@ router.put("/:id", async (req, res) => {
     }
 });
 
-// GET /api/deals/forecast — Revenue forecast by stage probability
+/**
+ * @route GET /api/deals/forecast
+ * @auth  Required (via decodeAuth — uses JWT, not middleware guard)
+ * @returns `{ onTrack, atRisk, total, dealCount }` — weighted revenue forecast.
+ *   On-track = Σ(agreedPrice × stageProbability) for deals with stageAge ≤ 30 days.
+ *   At-risk = same formula for deals stuck > 30 days.
+ *   Consumer: forecast bar in `pipeline/index.tsx`.
+ *
+ * @see [[Features/Pipeline & Deals]] for stage probabilities
+ */
 router.get("/forecast", async (req, res) => {
     try {
         const auth = decodeAuth(req);

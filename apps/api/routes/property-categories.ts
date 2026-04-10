@@ -1,17 +1,12 @@
 /**
- * routes/property-categories.ts - Property Categories API Routes
- * 
- * Location: apps/api/ → Routes/ → property-categories.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for property category management. Handles:
- * - Retrieving property categories
- * 
- * API Endpoints:
- * - GET /api/property-categories - Get all property categories
- * 
- * Related Files:
- * - apps/api/routes/property-types.ts - Property types routes
+ * routes/property-categories.ts — GASTAT-aligned property categories (5 total).
+ *
+ * Mounted at `/api/property-categories`. Read-only — seeded from official data.
+ *
+ * Consumer: category → type cascade in the listing creation form
+ *   (`apps/web/src/pages/platform/properties/post-listing.tsx`).
+ *
+ * @see [[Features/REGA Compliance]] for GASTAT classification details
  */
 
 import express from "express";

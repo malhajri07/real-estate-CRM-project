@@ -1,47 +1,35 @@
 /**
- * routes/listings.ts - Property Listings API Routes
- * 
- * Location: apps/api/ → Routes/ → listings.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * This file defines all property listing-related API endpoints for the real estate CRM platform.
- * It handles:
- * - Property listing retrieval and search
- * - Property filtering and sorting
- * - Featured property management
- * - Property detail operations
- * 
- * The routes use Prisma-based storage for database operations and provide
- * comprehensive property management functionality.
- * 
- * API Endpoints:
- * - GET /api/listings - List all listings
- * - GET /api/listings/featured - Get featured listings
- * - GET /api/listings/:id - Get listing by ID
- * - POST /api/listings - Create new listing
- * - PUT /api/listings/:id - Update listing
- * - DELETE /api/listings/:id - Delete listing
- * 
- * Related Files:
- * - apps/web/src/pages/properties.tsx - Property listing page
- * - apps/web/src/pages/listing.tsx - Property detail page
- * - apps/web/src/pages/post-listing.tsx - Create listing page
- * 
- * Dependencies:
- * - Express.js router for route handling
- * - Zod for request validation
- * - Prisma-based storage for database operations
- * 
- * API Endpoints:
- * - GET /api/listings - Get all listings with filtering
- * - GET /api/listings/featured - Get featured listings
- * - GET /api/listings/:id - Get specific listing
- * - POST /api/listings - Create new listing
- * - PUT /api/listings/:id - Update listing
- * - DELETE /api/listings/:id - Delete listing
- * 
- * Routes affected: Property listings, search, management
- * Pages affected: Property listings page, search results, property detail, property management
+ * routes/listings.ts — Property listing CRUD, search, map markers, REGA compliance,
+ * approval workflow, lead matching, and CMA valuation.
+ *
+ * Mounted at `/api/listings` in `apps/api/routes.ts`.
+ *
+ * | Method | Path                     | Auth? | Purpose                                          |
+ * |--------|--------------------------|-------|--------------------------------------------------|
+ * | GET    | /                        | No    | Paginated + filtered listing search               |
+ * | GET    | /map                     | No    | Lightweight markers (lat/lng/price) for map view  |
+ * | GET    | /featured                | No    | Top 12 featured or newest listings                |
+ * | GET    | /pending-approval/count  | Yes   | Badge count for CORP_OWNER                        |
+ * | GET    | /:id                     | No    | Full listing detail                               |
+ * | GET    | /:id/similar             | No    | Same city + type, limit 8                         |
+ * | GET    | /:id/valuation           | No    | CMA / automated valuation                         |
+ * | POST   | /                        | Yes   | Create listing (REGA compliance gated)            |
+ * | PUT    | /:id                     | Yes   | Update listing fields                             |
+ * | PATCH  | /:id/status              | Yes   | Moderation status update                          |
+ * | PATCH  | /:id/approve             | Yes   | CORP_OWNER approves PENDING_APPROVAL → ACTIVE     |
+ * | PATCH  | /:id/reject              | Yes   | CORP_OWNER rejects → DRAFT with reason            |
+ * | POST   | /:id/match-leads         | Yes   | Find + notify matching leads in the same city     |
+ * | DELETE | /:id                     | Yes   | Hard-delete listing                               |
+ *
+ * REGA compliance: `POST /` with `status=ACTIVE` runs `checkListingRegaCompliance`
+ * and rejects if FAL, ad license, or address fields are missing. CORP_AGENT listings
+ * auto-route to PENDING_APPROVAL for owner review.
+ *
+ * Consumer: property pages (`properties/index.tsx`, `properties/detail.tsx`,
+ * `post-listing.tsx`), map page, landing featured section.
+ *
+ * @see [[Features/Properties & Listings]]
+ * @see [[Features/REGA Compliance]]
  */
 
 import express from "express";
