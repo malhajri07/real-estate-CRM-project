@@ -421,6 +421,21 @@ export default function BrokerRequestsPage() {
                 onClick={() => setDetailItem(req)}
               >
                 <CardContent className="p-4 space-y-3">
+                  {/* Property thumbnail (E10) */}
+                  {(() => {
+                    const photos = req.property?.photos;
+                    let imgUrl: string | null = null;
+                    if (photos) {
+                      try {
+                        const parsed = typeof photos === "string" ? JSON.parse(photos) : photos;
+                        if (Array.isArray(parsed) && parsed.length > 0) imgUrl = parsed[0];
+                      } catch {}
+                    }
+                    return imgUrl ? (
+                      <img src={imgUrl} alt={req.title} className="w-full h-32 object-cover rounded-lg" loading="lazy" />
+                    ) : null;
+                  })()}
+
                   {/* Header */}
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-bold text-sm leading-tight line-clamp-2 flex-1">{req.title}</h3>
@@ -474,6 +489,41 @@ export default function BrokerRequestsPage() {
                       <span className="text-muted-foreground">{formatDistanceToNow(new Date(req.createdAt), { addSuffix: true, locale: dateLocale })}</span>
                     </div>
                   </div>
+
+                  {/* Agreement status timeline (E10) */}
+                  {req.acceptances.length > 0 && (() => {
+                    const firstAcc = req.acceptances[0];
+                    const steps = [
+                      { label: "مقدم", done: true },
+                      { label: "مقبول", done: firstAcc.status === "APPROVED" || firstAcc.agreementStatus === "SIGNED" },
+                      { label: "موقع", done: firstAcc.agreementStatus === "SIGNED" },
+                    ];
+                    return (
+                      <div className="flex items-center gap-1 pt-1">
+                        {steps.map((s, i) => (
+                          <div key={i} className="flex items-center gap-1">
+                            <div className={cn("h-2 w-2 rounded-full", s.done ? "bg-primary" : "bg-muted-foreground/30")} />
+                            <span className={cn("text-[10px]", s.done ? "text-primary font-bold" : "text-muted-foreground")}>{s.label}</span>
+                            {i < steps.length - 1 && <div className={cn("h-px w-4", s.done ? "bg-primary" : "bg-muted-foreground/20")} />}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+
+                  {/* WhatsApp share (E10) */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full h-7 text-xs gap-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const text = `فرصة تعاون عقاري\n${req.title}\n${req.city ? req.city : ""}\nالعمولة: ${req.commissionType === "FIXED" ? req.fixedCommission + " ر.س" : req.commissionRate + "%"}\nللتفاصيل تواصل معنا`;
+                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+                    }}
+                  >
+                    <MessageSquare className="h-3 w-3" /> مشاركة عبر واتساب
+                  </Button>
                 </CardContent>
               </Card>
             );

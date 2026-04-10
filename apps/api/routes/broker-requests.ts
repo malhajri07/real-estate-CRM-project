@@ -401,4 +401,39 @@ router.get("/:id/acceptances/:acceptId/agreement", authenticateToken, async (req
   }
 });
 
+/**
+ * @route GET /api/broker-requests/stats/monthly
+ * @auth  Required
+ * @returns `{ months: [{ month, created, accepted }] }` — last 6 months.
+ *   Consumer: broker requests page stats section (E10).
+ */
+router.get("/stats/monthly", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+    const requests = await prisma.broker_requests.findMany({
+      where: { createdAt: { gte: sixMonthsAgo } },
+      select: { createdAt: true, status: true },
+    });
+
+    const monthMap: Record<string, { created: number; accepted: number }> = {};
+    requests.forEach((r) => {
+      const key = `${r.createdAt.getFullYear()}-${String(r.createdAt.getMonth() + 1).padStart(2, "0")}`;
+      if (!monthMap[key]) monthMap[key] = { created: 0, accepted: 0 };
+      monthMap[key].created++;
+      if (r.status === "ACCEPTED" || r.status === "COMPLETED") monthMap[key].accepted++;
+    });
+
+    const months = Object.entries(monthMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, data]) => ({ month, ...data }));
+
+    res.json({ months });
+  } catch (error) {
+    res.json({ months: [] });
+  }
+});
+
 export default router;
