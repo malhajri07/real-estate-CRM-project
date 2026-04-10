@@ -9,7 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { TrendingUp, Home, Calculator, BarChart3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, Home, Calculator, BarChart3, Share2 } from "lucide-react";
 import PageHeader from "@/components/ui/page-header";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { cn } from "@/lib/utils";
@@ -134,6 +135,14 @@ export default function ROICalculator() {
                     <div className="flex justify-between text-sm"><span className="text-muted-foreground">فترة الاسترداد</span><span className="font-bold">{roi.paybackYears > 0 ? `${roi.paybackYears.toFixed(1)} سنة` : "—"}</span></div>
                   </CardContent>
                 </Card>
+
+                {/* WhatsApp share (E14) */}
+                <Button variant="outline" className="w-full gap-1.5" onClick={() => {
+                  const text = `تحليل العائد الاستثماري\n\nسعر الشراء: ${fmt(Number(purchasePrice))} ر.س\nالإيجار السنوي: ${fmt(Number(annualRent))} ر.س\n\nصافي العائد: ${roi.netYield.toFixed(1)}%\nمعدل الرسملة: ${roi.capRate.toFixed(1)}%\nفترة الاسترداد: ${roi.paybackYears > 0 ? roi.paybackYears.toFixed(1) + " سنة" : "—"}`;
+                  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+                }}>
+                  <Share2 size={14} /> مشاركة عبر واتساب
+                </Button>
               </div>
             )}
           </div>

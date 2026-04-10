@@ -24,8 +24,8 @@ created: 2026-04-10
 | E11 | Campaigns | ✅ Done | [[Sessions/E11 - Campaigns]] |
 | E12 | Inbox | ✅ Done | [[Sessions/E12 - Inbox]] |
 | E13 | Settings | ✅ Done | [[Sessions/E13 - Settings]] |
-| E14 | Tools | ⏳ Next | save calcs, share, compare |
-| E15 | Client portal | ⏳ | docs, history, rating |
+| E14 | Tools | ✅ Done | [[Sessions/E14 - Tools]] |
+| E15 | Client portal | ⏳ Next | docs, history, rating |
 | E16 | Landing/Map | ⏳ | featured, autocomplete, recent |
 | E17 | Forum | ⏳ | images, categories, trending |
 | E18 | Projects | ⏳ | progress, heatmap, milestones |

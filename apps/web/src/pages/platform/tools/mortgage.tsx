@@ -9,11 +9,16 @@ import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Calculator, Home, Percent, Calendar, Banknote } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calculator, Home, Percent, Calendar, Banknote, Share2, Save, History, Trash2 } from "lucide-react";
 import PageHeader from "@/components/ui/page-header";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { SarPrice } from "@/components/ui/sar-symbol";
 import { cn } from "@/lib/utils";
+
+/** Saved mortgage calculation (E14). Stored in localStorage. */
+interface SavedCalc { id: string; name: string; price: string; downPaymentPct: string; interestRate: string; tenureYears: string; monthly: number; savedAt: string }
+const STORAGE_KEY = "aqarkom_mortgage_calcs";
 
 export default function MortgageCalculator() {
   const [price, setPrice] = useState("1000000");
@@ -48,6 +53,46 @@ export default function MortgageCalculator() {
   }, [price, downPaymentPct, interestRate, tenureYears]);
 
   const formatNum = (n: number) => n.toLocaleString("en-US");
+
+  /** Load saved calculations from localStorage (E14). */
+  const [savedCalcs, setSavedCalcs] = useState<SavedCalc[]>(() => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; }
+  });
+
+  /** Save current calculation to localStorage (E14). */
+  const saveCalc = () => {
+    const name = prompt("اسم الحساب:");
+    if (!name?.trim()) return;
+    const calc: SavedCalc = {
+      id: Date.now().toString(),
+      name: name.trim(),
+      price, downPaymentPct, interestRate, tenureYears,
+      monthly: result.monthly,
+      savedAt: new Date().toISOString(),
+    };
+    const updated = [calc, ...savedCalcs].slice(0, 20);
+    setSavedCalcs(updated);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  };
+
+  /** Load a saved calculation (E14). */
+  const loadCalc = (c: SavedCalc) => {
+    setPrice(c.price); setDownPaymentPct(c.downPaymentPct);
+    setInterestRate(c.interestRate); setTenureYears(c.tenureYears);
+  };
+
+  /** Delete a saved calculation (E14). */
+  const deleteCalc = (id: string) => {
+    const updated = savedCalcs.filter((c) => c.id !== id);
+    setSavedCalcs(updated);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  };
+
+  /** Share result via WhatsApp (E14). */
+  const shareWhatsApp = () => {
+    const text = `حاسبة التمويل العقاري\n\nسعر العقار: ${formatNum(Number(price))} ر.س\nالدفعة المقدمة: ${downPaymentPct}%\nنسبة الربح: ${interestRate}%\nالمدة: ${tenureYears} سنة\n\nالقسط الشهري: ${formatNum(result.monthly)} ر.س\nإجمالي المسدد: ${formatNum(result.total)} ر.س\nإجمالي الأرباح: ${formatNum(result.totalInterest)} ر.س`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+  };
 
   return (
     <div className={PAGE_WRAPPER}>
@@ -190,12 +235,46 @@ export default function MortgageCalculator() {
             </CardContent>
           </Card>
 
+          {/* Share + Save buttons (E14) */}
+          <div className="flex gap-2">
+            <Button variant="outline" className="flex-1 gap-1.5" onClick={shareWhatsApp}>
+              <Share2 size={14} /> مشاركة عبر واتساب
+            </Button>
+            <Button variant="outline" className="flex-1 gap-1.5" onClick={saveCalc}>
+              <Save size={14} /> حفظ الحساب
+            </Button>
+          </div>
+
           {/* Quick Note */}
           <p className="text-[11px] text-muted-foreground text-center">
             الحساب تقريبي ولا يشمل رسوم التأمين أو الرسوم الإدارية. يرجى مراجعة البنك للحصول على عرض دقيق.
           </p>
         </div>
       </div>
+
+      {/* Saved Calculations History (E14) */}
+      {savedCalcs.length > 0 && (
+        <Card className="mt-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2"><History size={16} /> الحسابات المحفوظة</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {savedCalcs.map((c) => (
+                <div key={c.id} className="flex items-center justify-between rounded-lg border p-3 cursor-pointer hover:bg-muted/50" onClick={() => loadCalc(c)}>
+                  <div>
+                    <p className="text-sm font-bold">{c.name}</p>
+                    <p className="text-xs text-muted-foreground">{formatNum(c.monthly)} ر.س / شهر</p>
+                  </div>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={(e) => { e.stopPropagation(); deleteCalc(c.id); }}>
+                    <Trash2 size={14} />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
