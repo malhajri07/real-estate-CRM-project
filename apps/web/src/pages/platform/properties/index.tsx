@@ -522,15 +522,14 @@ export default function Properties() {
       )}
 
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>
-              جميع العقارات ({allProperties?.length || 0})
-              {totalPages > 1 && ` — صفحة ${currentPage} من ${totalPages}`}
-            </CardTitle>
-          </div>
+        <CardHeader className="pb-2">
+          <CardTitle>جميع العقارات</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {allProperties?.length || 0} عقار
+            {totalPages > 1 && ` — ��فحة ${currentPage} من ${totalPages}`}
+          </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {!displayProperties || displayProperties.length === 0 ? (
             <EmptyState
               title={searchQuery ? "لا توجد عقارات تطابق بحثك" : "لا توجد عقارات"}
