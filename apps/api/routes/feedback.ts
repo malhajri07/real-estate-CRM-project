@@ -1,7 +1,16 @@
 /**
- * routes/feedback.ts — Viewing Feedback Forms (Session 5.8)
+ * routes/feedback.ts — Post-viewing feedback collection and statistics.
  *
- * Collect and query post-viewing feedback ratings/comments.
+ * Mounted at `/api/feedback`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /stats | Yes | Aggregate average ratings across all feedback |
+ * | GET | / | Yes | List feedback entries (filterable by property/agent) |
+ * | POST | / | Yes | Submit post-viewing feedback |
+ * | GET | /:id | Yes | Get single feedback entry |
+ *
+ * Consumer: platform reports page, property detail feedback section.
  */
 
 import { Router } from "express";

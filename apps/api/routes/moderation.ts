@@ -1,21 +1,15 @@
 /**
- * routes/moderation.ts - Content Moderation API Routes
- * 
- * Location: apps/api/ → Routes/ → moderation.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for content moderation. Handles:
- * - Moderation queue retrieval
- * - Property approval/rejection
- * - Moderation status management
- * 
- * API Endpoints:
- * - GET /api/moderation/queue - Get moderation queue
- * - POST /api/moderation/approve - Approve content
- * - POST /api/moderation/reject - Reject content
- * 
- * Related Files:
- * - apps/web/src/pages/moderation.tsx - Moderation queue page
+ * routes/moderation.ts — Listing moderation queue and approval workflow (admin-only).
+ *
+ * Mounted at `/api/moderation`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /queue | Admin | Fetch pending listings awaiting review |
+ * | POST | /approve | Admin | Approve a listing |
+ * | POST | /reject | Admin | Reject a listing with reason |
+ *
+ * Consumer: admin moderation page (`/admin/moderation`), query key `moderation-queue`.
  */
 
 import express from "express";

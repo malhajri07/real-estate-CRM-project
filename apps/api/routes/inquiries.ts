@@ -1,24 +1,17 @@
 /**
- * routes/inquiries.ts - Inquiries API Routes
+ * routes/inquiries.ts — Property inquiry submission and management.
  *
- * Location: apps/api/ -> Routes/ -> inquiries.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * Mounted at `/api/inquiries`.
  *
- * API routes for property inquiries. Handles:
- * - Creating property inquiries
- * - Retrieving user inquiries
- * - Updating inquiry status
- * - Deleting inquiries
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Yes | List inquiries for authenticated user/agent |
+ * | GET | /:id | Yes | Get single inquiry detail |
+ * | POST | / | Optional | Submit a new property inquiry |
+ * | PUT | /:id | Yes | Update inquiry status or notes |
+ * | DELETE | /:id | Yes | Delete inquiry |
  *
- * API Endpoints:
- * - GET /api/inquiries - Get user inquiries
- * - GET /api/inquiries/:id - Get single inquiry
- * - POST /api/inquiries - Create inquiry
- * - PUT /api/inquiries/:id - Update inquiry
- * - DELETE /api/inquiries/:id - Delete inquiry
- *
- * Related Files:
- * - apps/web/src/pages/property-detail.tsx - Property detail page with inquiry form
+ * Consumer: property detail page inquiry form, agent leads inbox.
  */
 
 import express from "express";

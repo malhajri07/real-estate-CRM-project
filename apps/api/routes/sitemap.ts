@@ -1,19 +1,14 @@
 /**
- * routes/sitemap.ts - Sitemap API Routes
- * 
- * Location: apps/api/ → Routes/ → sitemap.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for sitemap generation. Handles:
- * - XML sitemap generation
- * - Robots.txt generation
- * 
- * API Endpoints:
- * - GET /sitemap.xml - Generate XML sitemap
- * - GET /robots.txt - Generate robots.txt
- * 
- * Related Files:
- * - apps/web/src/pages/ - Page components included in sitemap
+ * routes/sitemap.ts — Dynamic XML sitemap and robots.txt generation.
+ *
+ * Mounted at root (not under `/api`).
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /sitemap.xml | No | Generate XML sitemap with all listings + static pages |
+ * | GET | /robots.txt | No | Serve robots.txt with sitemap reference |
+ *
+ * Consumer: search engine crawlers; no frontend query key.
  */
 
 import express from 'express';

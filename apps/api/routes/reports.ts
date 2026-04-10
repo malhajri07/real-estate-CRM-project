@@ -1,18 +1,15 @@
 /**
- * routes/reports.ts - Reports API Routes
- * 
- * Location: apps/api/ → Routes/ → reports.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for reporting functionality. Handles:
- * - Property listing reports
- * - User reporting of inappropriate content
- * 
- * API Endpoints:
- * - POST /api/reports - Submit a report
- * 
- * Related Files:
- * - apps/web/src/pages/reports.tsx - Reports page
+ * routes/reports.ts — Dashboard metrics, period comparison, and stuck-deals detection.
+ *
+ * Mounted at `/api/reports`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /dashboard/metrics?period= | Yes | Aggregated KPIs with growth vs. prior period |
+ * | GET | /dashboard/stuck-deals | Yes | Deals stalled beyond threshold |
+ *
+ * Consumer: `apps/web/src/pages/platform/dashboard.tsx` — MetricCards + stuck-deals alert.
+ * @see [[Sessions/E1 - Dashboard]]
  */
 
 import express from "express";

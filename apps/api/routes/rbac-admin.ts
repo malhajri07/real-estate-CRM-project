@@ -1,9 +1,19 @@
 /**
- * routes/rbac-admin.ts - RBAC Admin API Routes
- * Refactored to use RbacService and rbac.middleware.ts
- * 
- * Location: apps/api/ → Routes/ → rbac-admin.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * routes/rbac-admin.ts — Role-based access control management (admin-only).
+ *
+ * Mounted at `/api/admin/rbac`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /debug-session | Admin | Debug: inspect current session/token |
+ * | GET | /roles | Admin | List all defined roles |
+ * | GET | /permissions | Admin | List all permissions |
+ * | POST | /roles | Admin | Create new role |
+ * | PUT | /roles/:id | Admin | Update role permissions |
+ * | DELETE | /roles/:id | Admin | Delete role |
+ * | POST | /users/:id/roles | Admin | Assign roles to a user |
+ *
+ * Consumer: admin role management page (`/admin/roles`), query key `rbac-roles`.
  */
 
 import { Router } from 'express';

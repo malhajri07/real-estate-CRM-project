@@ -1,7 +1,17 @@
 /**
- * routes/tenancies.ts — Tenant Management (Post-Rental Lifecycle)
+ * routes/tenancies.ts — Post-rental lifecycle management.
  *
- * After rental deal → WON, track lease dates, rent payments, renewals.
+ * Mounted at `/api/tenancies`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Yes | List agent tenancies |
+ * | POST | / | Yes | Create tenancy from a closed deal |
+ * | GET | /:id | Yes | Tenancy detail + payment schedule |
+ * | POST | /:id/payments | Yes | Create rent payment schedule |
+ * | PATCH | /payments/:paymentId | Yes | Mark payment paid or overdue |
+ *
+ * Consumer: tenants page — query key `tenancies`.
  */
 
 import { Router } from "express";

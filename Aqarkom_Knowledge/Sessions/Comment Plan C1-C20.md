@@ -85,8 +85,8 @@ export async function batchAssignLeads(req, res) { ... }
 | C4 | Backend — CRM (leads, activities, appointments, lead-routing) | 4 | ✅ |
 | C5 | Backend — Properties & deals (listings, deals, projects, commission, property-categories/types, deal-documents) | 7 | ✅ |
 | C6 | Backend — Marketing & inbox (campaigns, inbox, chatbot, messages, sequences, promotions) | 6 | ✅ |
-| C7 | Backend — Pool, tenancy, reports, notifications | ~7 | ⏳ |
-| C8 | Backend — Billing, admin, remaining routes | ~10 | ⏳ |
+| C7 | Backend — Pool, tenancy, reports, notifications (buyer-pool, requests, broker-requests, tenancies, reports, custom-reports, notifications) | 7 | ✅ |
+| C8 | Backend — Billing, admin, CMS, all remaining routes (30 files) | 30 | ✅ |
 | C9 | Backend — `lib/` (validation, integrations, helpers) | ~15 | ⏳ |
 | C10 | Frontend — hooks (`hooks/api/*`, useAuth, useToast, useMobile…) | 10 | ⏳ |
 | C11 | Frontend — admin pages | 26 | ⏳ |

@@ -1,3 +1,19 @@
+/**
+ * routes/csv.ts — CSV bulk import and export for listings, leads, and clients.
+ *
+ * Mounted at `/api/csv`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /export/listings | Yes | Export listings as CSV download |
+ * | GET | /export/leads | Yes | Export leads as CSV download |
+ * | GET | /export/clients | Yes | Export clients as CSV download |
+ * | POST | /import/listings | Yes | Bulk-import listings from CSV upload |
+ * | POST | /import/leads | Yes | Bulk-import leads from CSV upload |
+ *
+ * Consumer: admin/agent data management flows; no dedicated frontend query key.
+ */
+
 import express, { Request, Response } from 'express';
 import { authenticateToken } from '../auth';
 import { prisma } from '../prismaClient';

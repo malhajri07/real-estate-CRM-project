@@ -1,24 +1,18 @@
 /**
- * routes/search.ts - Search API Routes
+ * routes/search.ts — Full-text and filtered search across listings, agencies, and agents.
  *
- * Location: apps/api/ → Routes/ → search.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * Mounted at `/api/search`.
  *
- * API routes for search functionality. Handles:
- * - Property search
- * - Agency search
- * - Agent search
- * - Saved searches management
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /properties | No | Search listings with filter/sort params |
+ * | GET | /agencies | No | Search agencies by name/location |
+ * | GET | /agents | No | Search agents by name/specialty |
+ * | GET | /saved | Yes | List authenticated user's saved searches |
+ * | POST | /saved | Yes | Save a search query |
+ * | DELETE | /saved/:id | Yes | Delete a saved search |
  *
- * API Endpoints:
- * - GET /api/search/properties - Search properties
- * - GET /api/search/agencies - Search agencies
- * - GET /api/search/agents - Search agents
- * - GET /api/search/saved - Get saved searches
- *
- * Related Files:
- * - apps/web/src/pages/map/ - Map search page
- * - apps/web/src/pages/saved-searches.tsx - Saved searches page
+ * Consumer: map search page, global search bar, saved searches page.
  */
 
 import express from "express";

@@ -1,3 +1,20 @@
+/**
+ * routes/support.ts — Help-desk support ticket system.
+ *
+ * Mounted at `/api/support`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /tickets | Yes | List tickets (admin sees all; agents see own) |
+ * | GET | /tickets/:id | Yes | Get ticket detail with messages |
+ * | POST | /tickets | Yes | Submit new support ticket |
+ * | POST | /tickets/:id/messages | Yes | Reply to a ticket |
+ * | PATCH | /tickets/:id/status | Admin | Update ticket status |
+ * | PATCH | /tickets/:id/assign | Admin | Assign ticket to agent |
+ *
+ * Consumer: platform settings support tab, admin complaints management page (`/admin/complaints`).
+ */
+
 import { Router, Request, Response } from 'express';
 import { prisma } from '../prismaClient';
 import { z } from 'zod';

@@ -1,8 +1,17 @@
 /**
- * routes/shortlists.ts — Property Shortlist Sharing (Session 5.9)
+ * routes/shortlists.ts — Agent-curated property shortlists with shareable client links.
  *
- * Agent creates a curated shortlist → generates a public share link →
- * Client browses and rates properties.
+ * Mounted at `/api/shortlists`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Yes | List agent's shortlists |
+ * | POST | / | Yes | Create shortlist and generate share token |
+ * | GET | /share/:token | No | Public: client views shortlist by share token |
+ * | POST | /share/:token/rate | No | Client rates a property in the shortlist |
+ * | DELETE | /:id | Yes | Delete a shortlist |
+ *
+ * Consumer: platform properties page shortlist panel, client share link.
  */
 
 import { Router } from "express";

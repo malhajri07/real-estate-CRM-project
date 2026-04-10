@@ -1,8 +1,20 @@
 /**
- * routes/broker-requests.ts — Agent collaboration marketplace
+ * routes/broker-requests.ts — Co-marketing agent collaboration.
  *
- * Agents post their listings for co-marketing. Other agents accept and
- * market the property in exchange for an agreed commission split.
+ * Mounted at `/api/broker-requests`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Yes | List broker requests |
+ * | POST | / | Yes | Create request with commission split (FAL license required) |
+ * | GET | /:id | Yes | Request detail + acceptances |
+ * | POST | /:id/accept | Yes | Agent accepts a broker request |
+ * | PATCH | /acceptances/:id/agreement | Yes | Generate / sign co-brokerage agreement |
+ *
+ * All write endpoints require a valid FAL license via `requireFalLicense` middleware.
+ *
+ * Consumer: `apps/web/src/pages/platform/broker-requests/index.tsx` — query key `broker-requests`.
+ * @see [[Features/Buyer Pool]]
  */
 
 import { Router } from "express";

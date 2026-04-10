@@ -1,22 +1,17 @@
 /**
- * routes/cms-templates.ts - CMS Templates API Routes
- * 
- * Location: apps/api/ → Routes/ → cms-templates.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for content template management. Handles:
- * - Template CRUD operations
- * - Template type management
- * - Template content and structure
- * 
- * API Endpoints:
- * - GET /api/cms/templates - Get templates
- * - POST /api/cms/templates - Create template
- * - PUT /api/cms/templates/:id - Update template
- * 
- * Related Files:
- * - apps/api/services/templateService.ts - Template service
- * - apps/web/src/pages/admin/templates-management.tsx - Template management UI
+ * routes/cms-templates.ts — Reusable content template CRUD (admin-only).
+ *
+ * Mounted at `/api/cms/templates`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Admin | List all templates (filterable by type) |
+ * | GET | /:id | Admin | Get single template |
+ * | POST | / | Admin | Create template |
+ * | PUT | /:id | Admin | Update template content/structure |
+ * | DELETE | /:id | Admin | Delete template |
+ *
+ * Consumer: admin templates management page (`/admin/templates`), query key `cms-templates`.
  */
 
 import express from "express";

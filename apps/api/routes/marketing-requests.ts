@@ -1,22 +1,16 @@
 /**
- * routes/marketing-requests.ts - Marketing Request API Routes
- * 
- * Location: apps/api/ → Routes/ → marketing-requests.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for marketing request management. Handles:
- * - Marketing request creation
- * - Request retrieval and filtering
- * - Request status management
- * - Agent assignment and workflow
- * 
- * API Endpoints:
- * - GET /api/marketing-requests - Get marketing requests
- * - POST /api/marketing-requests - Create marketing request
- * 
- * Related Files:
- * - apps/web/src/pages/marketing-request.tsx - Marketing request form
- * - apps/web/src/pages/marketing-requests.tsx - Marketing requests board
+ * routes/marketing-requests.ts — Marketing service requests between agents and marketing team.
+ *
+ * Mounted at `/api/marketing-requests`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Yes | List marketing requests (with status/type filter) |
+ * | GET | /:id | Yes | Get single request detail |
+ * | POST | / | Yes | Submit new marketing request |
+ * | PATCH | /:id/status | Yes | Update request status |
+ *
+ * Consumer: platform requests board (`/platform/requests`), query key `marketing-requests`.
  */
 
 import express from "express";

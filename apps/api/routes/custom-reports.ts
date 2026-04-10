@@ -1,7 +1,16 @@
 /**
- * routes/custom-reports.ts — Custom Report Builder API
+ * routes/custom-reports.ts — Dynamic report builder.
  *
- * Dynamic report queries: choose dimensions + metrics + filters → get data.
+ * Mounted at `/api/custom-reports`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /dimensions | Yes | List available dimensions / fields |
+ * | POST | /query | Yes | Run a custom report with chosen dimensions, metrics, and filters |
+ * | GET | /saved | Yes | List saved report configurations |
+ * | POST | /saved | Yes | Save a report configuration |
+ *
+ * Consumer: reports builder page — query key `custom-reports`.
  */
 
 import { Router } from "express";

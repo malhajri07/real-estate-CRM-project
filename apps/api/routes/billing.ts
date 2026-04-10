@@ -1,3 +1,19 @@
+/**
+ * routes/billing.ts — Subscription and invoice management.
+ *
+ * Mounted at `/api/billing`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /subscription | Yes | Get current org subscription details |
+ * | GET | /invoices | Yes | List invoices for the org |
+ * | GET | /invoices/:id | Yes | Get single invoice |
+ * | POST | /subscription/upgrade | Admin | Upgrade subscription plan |
+ * | POST | /subscription/cancel | Admin | Cancel subscription |
+ *
+ * Consumer: admin billing management page (`/admin/billing`), query key `billing`.
+ */
+
 import { Router } from 'express';
 import { prisma } from '../prismaClient';
 import { z } from 'zod';

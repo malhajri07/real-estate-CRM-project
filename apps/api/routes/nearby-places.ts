@@ -1,9 +1,14 @@
-
 /**
- * routes/nearby-places.ts — Nearby POI endpoint
+ * routes/nearby-places.ts — Nearby points-of-interest for a property.
  *
- * Primary: precomputed cache from nearby-places-cache.json (instant, no external dependency)
- * Fallback: Overpass API (if property not in cache)
+ * Mounted at `/api/nearby-places`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /:propertyId | No | Return POIs near property (schools, hospitals, etc.) |
+ *
+ * Primary: precomputed JSON cache; Fallback: Overpass API.
+ * Consumer: property detail map POI panel, query key `nearby-places`.
  */
 
 import { Router } from "express";

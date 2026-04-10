@@ -1,3 +1,15 @@
+/**
+ * routes/landing.ts — Public landing-page data endpoint.
+ *
+ * Mounted at `/api/landing`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | No | Fetch all published landing sections and cards |
+ *
+ * Consumer: public home page (`/`), query key `landing-data`; supports `Cache-Control: no-cache` bypass.
+ */
+
 import express from 'express';
 import crypto from 'crypto';
 import { LandingService } from '../services/landingService';

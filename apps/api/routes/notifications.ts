@@ -1,3 +1,16 @@
+/**
+ * routes/notifications.ts — Notification system.
+ *
+ * Mounted at `/api/notifications`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Yes | List notifications for the authenticated user |
+ * | GET | /count | Yes | Actionable count badge (new leads + pending approvals + upcoming appointments + overdue payments + unread messages) |
+ * | POST | /:id/read | Yes | Mark a notification as read |
+ *
+ * Consumer: header bell badge + `apps/web/src/pages/platform/notifications/index.tsx` — query key `notifications`.
+ */
 import express from 'express';
 import { prisma } from '../prismaClient';
 import { decodeAuth } from '../src/middleware/auth-helpers';

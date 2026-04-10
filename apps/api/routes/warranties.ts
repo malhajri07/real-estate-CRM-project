@@ -1,5 +1,16 @@
 /**
- * routes/warranties.ts — Property Warranty Tracking (Session 5.16)
+ * routes/warranties.ts — Property warranty tracking and expiry alerts.
+ *
+ * Mounted at `/api/warranties`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /:propertyId | Yes | List warranties for a property (sorted by expiry) |
+ * | POST | /:propertyId | Yes | Add warranty to a property |
+ * | PUT | /:propertyId/:id | Yes | Update warranty details |
+ * | DELETE | /:propertyId/:id | Yes | Delete warranty record |
+ *
+ * Consumer: platform property detail warranty tab, query key `warranties`.
  */
 import { Router } from "express";
 import { z } from "zod";

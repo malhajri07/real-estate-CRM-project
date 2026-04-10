@@ -1,5 +1,17 @@
 /**
- * routes/subdivisions.ts — Land Subdivision Tool (Session 5.13)
+ * routes/subdivisions.ts — Land subdivision planning and lot management.
+ *
+ * Mounted at `/api/subdivisions`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Yes | List subdivisions for agent/org |
+ * | GET | /:id | Yes | Get subdivision with lots |
+ * | POST | / | Yes | Create new subdivision |
+ * | PUT | /:id | Yes | Update subdivision details |
+ * | DELETE | /:id | Yes | Delete subdivision |
+ *
+ * Consumer: platform tools subdivision page, query key `subdivisions`.
  */
 import { Router } from "express";
 import { z } from "zod";

@@ -1,8 +1,16 @@
 /**
- * routes/client-portal.ts — Client Portal API
+ * routes/client-portal.ts — Read-only buyer/seller client portal API.
  *
- * Read-only endpoints for buyers/sellers to view their deals,
- * appointments, and documents. Authenticated via OTP (same as agents).
+ * Mounted at `/api/client`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /dashboard | Yes | Client's active deals + upcoming appointments |
+ * | GET | /deals | Yes | List client's deals |
+ * | GET | /deals/:id | Yes | Deal detail with linked documents |
+ * | GET | /documents | Yes | List documents shared with the client |
+ *
+ * Consumer: client portal page; authenticated via OTP (same token flow as agents).
  */
 
 import { Router } from "express";

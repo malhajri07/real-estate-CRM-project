@@ -1,7 +1,18 @@
 /**
- * routes/maintenance.ts — Maintenance Request System (Session 5.6)
+ * routes/maintenance.ts — Property maintenance request tracking.
  *
- * CRUD + stats for property maintenance requests.
+ * Mounted at `/api/maintenance`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /stats | Yes | Count requests by status |
+ * | GET | / | Yes | List maintenance requests (filterable by status/priority) |
+ * | GET | /:id | Yes | Get single request detail |
+ * | POST | / | Yes | Create maintenance request |
+ * | PATCH | /:id | Yes | Update request status or assignment |
+ * | DELETE | /:id | Yes | Delete request |
+ *
+ * Consumer: platform property detail maintenance tab, query key `maintenance-requests`.
  */
 
 import { Router } from "express";

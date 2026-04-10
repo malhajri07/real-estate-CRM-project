@@ -1,24 +1,16 @@
 /**
- * routes/cms-media.ts - CMS Media API Routes
- * 
- * Location: apps/api/ → Routes/ → cms-media.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for media file management. Handles:
- * - Media file upload
- * - Media library retrieval
- * - Media file deletion
- * - Media metadata management
- * 
- * API Endpoints:
- * - GET /api/cms/media - Get media files
- * - POST /api/cms/media/upload - Upload media file
- * - DELETE /api/cms/media/:id - Delete media file
- * 
- * Related Files:
- * - apps/api/services/mediaService.ts - Media service
- * - apps/web/src/pages/admin/media-library.tsx - Media library UI
- * - apps/web/src/components/cms/MediaSelector.tsx - Media selector component
+ * routes/cms-media.ts — Media library upload and management (admin-only).
+ *
+ * Mounted at `/api/cms/media`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Admin | List media files (paginated, filterable by type) |
+ * | POST | /upload | Admin | Upload new media file (multipart) |
+ * | PATCH | /:id | Admin | Update media metadata (alt text, tags) |
+ * | DELETE | /:id | Admin | Delete media file from storage |
+ *
+ * Consumer: admin media library (`/admin/media-library`), CMS editors that embed images.
  */
 
 import express from "express";

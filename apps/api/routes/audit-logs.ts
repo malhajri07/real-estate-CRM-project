@@ -1,3 +1,15 @@
+/**
+ * routes/audit-logs.ts — Admin audit log viewer.
+ *
+ * Mounted at `/api/audit-logs`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Admin | List audit log entries (filterable by user, action, date range) |
+ *
+ * Consumer: admin audit log / security page (`/admin/security`), query key `audit-logs`.
+ */
+
 import { Router } from 'express';
 import { prisma } from '../prismaClient';
 import { normalizeRoleKeys, UserRole } from '@shared/rbac';

@@ -1,22 +1,15 @@
 /**
- * routes/agencies.ts - Agency Management API Routes
- * 
- * Location: apps/api/ → Routes/ → agencies.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for managing agencies and their agents. Handles:
- * - Agency listing and retrieval
- * - Agency detail with agent and listing counts
- * - Agent listing by agency
- * 
- * API Endpoints:
- * - GET /api/agencies - List all agencies
- * - GET /api/agencies/:id - Get agency details
- * - GET /api/agencies/:id/agents - Get agency agents
- * 
- * Related Files:
- * - apps/web/src/pages/agencies.tsx - Agency listing page
- * - apps/web/src/pages/agency.tsx - Agency detail page
+ * routes/agencies.ts — Agency directory and detail API.
+ *
+ * Mounted at `/api/agencies`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | No | List all agencies (paginated) |
+ * | GET | /:id | No | Agency detail with agent/listing counts |
+ * | GET | /:id/agents | No | List agents belonging to an agency |
+ *
+ * Consumer: platform agencies page (`/agencies`), agency detail page (`/agencies/:id`).
  */
 
 import express from "express";

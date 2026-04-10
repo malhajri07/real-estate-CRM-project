@@ -1,3 +1,17 @@
+/**
+ * routes/knowledge-base.ts — Agent AI memory / knowledge-base logging.
+ *
+ * Mounted at `/api/knowledge`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | POST | / | Yes | Log a new agent memory/action |
+ * | GET | / | Yes | Retrieve memories for an agent (`?agentId=`) |
+ * | DELETE | /:id | Yes | Delete a memory entry |
+ *
+ * Consumer: chatbot/AI agent internals; no direct user-facing page.
+ */
+
 import { Router } from 'express';
 import { knowledgeBaseService } from '../src/services/knowledge.service';
 import { getErrorResponse } from '../i18n';

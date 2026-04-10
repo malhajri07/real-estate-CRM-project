@@ -1,21 +1,15 @@
 /**
- * routes/requests.ts - General Request API Routes
- * 
- * Location: apps/api/ → Routes/ → requests.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for general real estate service requests. Handles:
- * - Request creation and submission
- * - Request retrieval and management
- * - Request status updates
- * 
- * API Endpoints:
- * - GET /api/requests - Get all requests
- * - POST /api/requests - Create request
- * - PUT /api/requests/:id - Update request
- * 
- * Related Files:
- * - apps/web/src/pages/real-estate-requests.tsx - Request submission page
+ * routes/requests.ts — Seller submission requests (owner-side of the pool).
+ *
+ * Mounted at `/api/requests`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Yes | List seller submission requests |
+ * | POST | / | Yes | Create a seller submission |
+ * | GET | /:id | Yes | Seller submission detail |
+ *
+ * Consumer: pool page (`apps/web/src/pages/platform/pool/index.tsx`) — owner requests tab.
  */
 
 import express from "express";

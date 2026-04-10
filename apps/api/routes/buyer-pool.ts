@@ -1,23 +1,20 @@
 /**
- * routes/buyer-pool.ts - Buyer Pool API Routes
- * 
- * Location: apps/api/ → Routes/ → buyer-pool.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for buyer pool and claims workflow. Handles:
- * - Buyer request search and retrieval
- * - Claiming buyer requests (agent feature)
- * - Releasing claims
- * - Contact information masking based on RBAC
- * 
- * API Endpoints:
- * - GET /api/pool/buyers - Search buyer requests
- * - POST /api/pool/buyers/:id/claim - Claim a buyer request
- * - POST /api/pool/buyers/:id/release - Release a claim
- * 
- * Related Files:
- * - apps/web/src/pages/platform/pool - Pool page (customer requests, claims)
- * - apps/api/rbac.ts - RBAC system for permissions
+ * routes/buyer-pool.ts — Buyer pool + claims workflow.
+ *
+ * Mounted at `/api/buyer-pool`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Yes | List open buyer requests |
+ * | GET | /:id | Yes | Buyer request detail |
+ * | POST | /claim | Yes | Agent claims a request (7-day expiry) |
+ * | POST | /:id/release | Yes | Release an active claim |
+ * | GET | /my-claims | Yes | Agent's active claims |
+ *
+ * Contact fields are masked based on RBAC; only the claiming agent sees full details.
+ *
+ * Consumer: `apps/web/src/pages/platform/pool/index.tsx` — query key `buyer-pool`.
+ * @see [[Features/Buyer Pool]]
  */
 
 // @ts-nocheck

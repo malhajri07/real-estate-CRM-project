@@ -1,7 +1,17 @@
 /**
- * routes/vendors.ts — Vendor / Contractor Database (Session 5.7)
+ * routes/vendors.ts — Vendor/contractor database per agent or organization.
  *
- * CRUD for managing vendors/contractors per agent or organization.
+ * Mounted at `/api/vendors`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Yes | List vendors for agent/org (filterable by specialization) |
+ * | GET | /:id | Yes | Get vendor detail |
+ * | POST | / | Yes | Create new vendor record |
+ * | PUT | /:id | Yes | Update vendor details |
+ * | DELETE | /:id | Yes | Delete vendor |
+ *
+ * Consumer: platform maintenance vendor picker, query key `vendors`.
  */
 
 import { Router } from "express";

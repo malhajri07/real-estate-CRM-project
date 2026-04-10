@@ -1,21 +1,16 @@
 /**
- * routes/cms-seo.ts - CMS SEO API Routes
- * 
- * Location: apps/api/ → Routes/ → cms-seo.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for SEO settings management. Handles:
- * - SEO metadata management
- * - Open Graph settings
- * - Page-specific SEO configuration
- * 
- * API Endpoints:
- * - GET /api/cms/seo - Get SEO settings
- * - PUT /api/cms/seo - Update SEO settings
- * 
- * Related Files:
- * - apps/api/services/seoService.ts - SEO service
- * - apps/web/src/pages/admin/seo-management.tsx - SEO management UI
+ * routes/cms-seo.ts — Global and per-page SEO settings management (admin-only).
+ *
+ * Mounted at `/api/cms/seo`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Admin | Get global SEO + Open Graph defaults |
+ * | PUT | / | Admin | Update global SEO settings |
+ * | GET | /pages | Admin | List per-page SEO overrides |
+ * | PUT | /pages/:slug | Admin | Set SEO override for a specific page |
+ *
+ * Consumer: admin SEO management page (`/admin/seo`), query key `cms-seo`.
  */
 
 import express from "express";

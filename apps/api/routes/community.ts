@@ -1,3 +1,22 @@
+/**
+ * routes/community.ts — Agent community forum (posts, comments, reactions).
+ *
+ * Mounted at `/api/community`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | /posts | Yes | List posts (filterable by type/channel/tags) |
+ * | GET | /posts/:id | Yes | Get post with comments |
+ * | POST | /posts | Yes | Create new post |
+ * | PUT | /posts/:id | Yes | Edit post |
+ * | DELETE | /posts/:id | Yes | Delete post |
+ * | POST | /posts/:id/comments | Yes | Add comment to post |
+ * | POST | /posts/:id/react | Yes | Add reaction to post |
+ * | GET | /channels | Yes | List available forum channels |
+ *
+ * Consumer: platform forum page (`/platform/forum`), query key `community-posts`.
+ */
+
 import express from "express";
 import { z } from "zod";
 import { authenticateToken } from "../src/middleware/auth.middleware";

@@ -1,21 +1,16 @@
 /**
- * routes/unverified-listings.ts - Unverified Listings API Routes
- * 
- * Location: apps/api/ → Routes/ → unverified-listings.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for unverified property listings. Handles:
- * - Public submission of unverified listings
- * - Retrieval of unverified listings
- * - Listing verification workflow
- * 
- * API Endpoints:
- * - GET /api/unverified-listings - Get unverified listings
- * - POST /api/unverified-listings - Submit unverified listing
- * 
- * Related Files:
- * - apps/web/src/pages/unverified-listing.tsx - Public listing submission
- * - apps/web/src/pages/unverified-listings-management.tsx - Management interface
+ * routes/unverified-listings.ts — Public unverified listing submission and admin review.
+ *
+ * Mounted at `/api/unverified-listings`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Admin | Fetch unverified listings pending review |
+ * | POST | / | No | Public submission of unverified listing |
+ * | PATCH | /:id/verify | Admin | Mark listing as verified |
+ * | PATCH | /:id/reject | Admin | Reject submitted listing |
+ *
+ * Consumer: admin unverified listings page (`/admin/unverified-listings`), public post-listing flow.
  */
 
 import express from "express";

@@ -1,22 +1,15 @@
 /**
- * routes/favorites.ts - Favorites API Routes
+ * routes/favorites.ts — Saved/favorite properties per user.
  *
- * Location: apps/api/ → Routes/ → favorites.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
+ * Mounted at `/api/favorites`.
  *
- * API routes for managing user favorites. Handles:
- * - Retrieving user's favorite properties
- * - Adding properties to favorites
- * - Removing properties from favorites
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Yes | List authenticated user's favorited properties |
+ * | POST | / | Yes | Add a property to favorites |
+ * | DELETE | /:id | Yes | Remove property from favorites |
  *
- * API Endpoints:
- * - GET /api/favorites - Get user favorites
- * - POST /api/favorites - Add to favorites
- * - DELETE /api/favorites/:id - Remove from favorites
- *
- * Related Files:
- * - apps/web/src/pages/favorites.tsx - Favorites page
- * - apps/web/src/components/listings/ListingCard.tsx - Uses favorites
+ * Consumer: favorites page (`/favorites`), listing card heart toggle.
  */
 
 import express from "express";

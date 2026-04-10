@@ -1,21 +1,17 @@
 /**
- * routes/cms-navigation.ts - CMS Navigation API Routes
- * 
- * Location: apps/api/ → Routes/ → cms-navigation.ts
- * Tree Map: docs/architecture/FILE_STRUCTURE_TREE_MAP.md
- * 
- * API routes for navigation menu management. Handles:
- * - Navigation link CRUD operations
- * - Link ordering and visibility
- * - Navigation menu structure
- * 
- * API Endpoints:
- * - GET /api/cms/navigation - Get navigation
- * - PUT /api/cms/navigation - Update navigation
- * 
- * Related Files:
- * - apps/api/services/navigationService.ts - Navigation service
- * - apps/web/src/pages/admin/navigation-management.tsx - Navigation management UI
+ * routes/cms-navigation.ts — Site navigation menu management (admin-only).
+ *
+ * Mounted at `/api/cms/navigation`.
+ *
+ * | Method | Path | Auth? | Purpose |
+ * |--------|------|-------|---------|
+ * | GET | / | Admin | Get full nav tree |
+ * | PUT | / | Admin | Replace entire navigation structure |
+ * | POST | /items | Admin | Add nav item |
+ * | PUT | /items/:id | Admin | Update nav item |
+ * | DELETE | /items/:id | Admin | Remove nav item |
+ *
+ * Consumer: admin navigation management page (`/admin/navigation`), query key `cms-navigation`.
  */
 
 import express from "express";
