@@ -591,6 +591,8 @@ model appointments {
   agentId        String?
   status         AppointmentStatus @default(SCHEDULED)
   scheduledAt    DateTime
+  /// Duration in minutes. Default 30. Used by conflict detection and calendar rendering.
+  duration       Int               @default(30)
   location       String?
   notes          String?
   createdAt      DateTime          @default(now())

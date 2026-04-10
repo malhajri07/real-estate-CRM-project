@@ -14,8 +14,8 @@ created: 2026-04-10
 | E1 | Dashboard | ✅ Done | [[Sessions/E1 - Dashboard]] |
 | E2 | Leads | ✅ Done | [[Sessions/E2 - Leads]] |
 | E3 | Pipeline | ✅ Done | [[Sessions/E3 - Pipeline]] |
-| E4 | Calendar | ⏳ Next | duration, conflicts, agenda sidebar |
-| E5 | Activities | ⏳ | overdue, property link, outcomes |
+| E4 | Calendar | ✅ Done | [[Sessions/E4 - Calendar]] |
+| E5 | Activities | ⏳ Next | overdue, property link, outcomes |
 | E6 | Tenants | ⏳ | renewal reminders, late payments |
 | E7 | Properties list | ⏳ | days-on-market, map view, saved filters |
 | E8 | Property detail | ⏳ | similar, price history, interested |

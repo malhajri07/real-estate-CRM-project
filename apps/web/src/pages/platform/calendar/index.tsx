@@ -43,6 +43,8 @@ interface Appointment {
   id: number;
   status: string;
   scheduledAt: string;
+  /** Duration in minutes (default 30). Source: appointments.duration column (E4). */
+  duration?: number;
   notes?: string;
   customer?: { firstName: string; lastName: string; phone?: string };
   agent?: { firstName: string; lastName: string };
@@ -104,6 +106,8 @@ export default function CalendarPage() {
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [timeValue, setTimeValue] = useState("");
+  /** The day whose agenda is shown in the right sidebar (E4). */
+  const [agendaDay, setAgendaDay] = useState<Date>(new Date());
 
   // Drag state
   const [draggedAppt, setDraggedAppt] = useState<Appointment | null>(null);
@@ -178,6 +182,40 @@ export default function CalendarPage() {
       map[key].push(appt);
     });
     return map;
+  }, [appointments]);
+
+  /**
+   * Agenda: appointments for the selected day, sorted by time.
+   * Source: `agendaDay` state (set when user clicks a day header).
+   * Consumer: right sidebar agenda list (E4).
+   */
+  const agendaAppointments = useMemo(() => {
+    return (appointments || [])
+      .filter((a) => isSameDay(parseISO(a.scheduledAt), agendaDay))
+      .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+  }, [appointments, agendaDay]);
+
+  /**
+   * Set of appointment IDs that overlap with another appointment on the same day.
+   * Two appointments overlap when their time ranges [start, start + duration) intersect.
+   * Consumer: calendar grid renders an orange border on overlapping blocks (E4).
+   */
+  const overlappingIds = useMemo(() => {
+    const ids = new Set<number>();
+    const sorted = [...(appointments || [])]
+      .filter((a) => a.status === "SCHEDULED" || a.status === "RESCHEDULED")
+      .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+    for (let i = 0; i < sorted.length; i++) {
+      const aStart = new Date(sorted[i].scheduledAt).getTime();
+      const aEnd = aStart + (sorted[i].duration || 30) * 60 * 1000;
+      for (let j = i + 1; j < sorted.length; j++) {
+        const bStart = new Date(sorted[j].scheduledAt).getTime();
+        if (bStart >= aEnd) break;
+        ids.add(sorted[i].id);
+        ids.add(sorted[j].id);
+      }
+    }
+    return ids;
   }, [appointments]);
 
   // ── Navigation ───────────────────────────────────────────────────────────
@@ -363,8 +401,11 @@ export default function CalendarPage() {
         ))}
       </div>
 
+      {/* Calendar Grid + Agenda Sidebar (E4) */}
+      <div className="flex gap-4">
+
       {/* Weekly Calendar Grid */}
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden flex-1 min-w-0">
         <div className="overflow-x-auto">
           <div className="min-w-[800px]">
             {/* Day Headers */}
@@ -373,7 +414,7 @@ export default function CalendarPage() {
               {weekDays.map((day, i) => {
                 const today = isToday(day);
                 return (
-                  <div key={i} className={cn("p-3 text-center border-s border-border", today && "bg-primary/5")}>
+                  <div key={i} className={cn("p-3 text-center border-s border-border cursor-pointer hover:bg-muted/50 transition-colors", today && "bg-primary/5", isSameDay(day, agendaDay) && "ring-2 ring-inset ring-primary/30")} onClick={() => setAgendaDay(day)}>
                     <p className={cn("text-xs font-bold uppercase tracking-wider", today ? "text-primary" : "text-muted-foreground")}>
                       {DAY_NAMES[day.getDay()]}
                     </p>
@@ -449,6 +490,7 @@ export default function CalendarPage() {
                           const time = format(parseISO(appt.scheduledAt), "HH:mm");
                           const isDragging = draggedAppt?.id === appt.id;
                           const canDrag = appt.status === "SCHEDULED" || appt.status === "RESCHEDULED";
+                          const isOverlapping = overlappingIds.has(appt.id);
 
                           return (
                             <Tooltip key={appt.id}>
@@ -461,6 +503,7 @@ export default function CalendarPage() {
                                     "absolute inset-x-0.5 top-0.5 rounded-md px-1.5 py-0.5 text-[11px] border-s-[3px] z-[1]",
                                     "select-none overflow-hidden",
                                     status.bg, status.border, status.text,
+                                    isOverlapping && "ring-2 ring-[hsl(var(--warning))] ring-inset",
                                     canDrag && "cursor-grab active:cursor-grabbing hover:shadow-md hover:ring-1 hover:ring-primary/20",
                                     !canDrag && "opacity-60",
                                     isDragging && "opacity-30 ring-2 ring-primary",
@@ -503,7 +546,61 @@ export default function CalendarPage() {
         </div>
       </Card>
 
-      {/* ── Appointment Detail Sheet ──────────────────────────────────────── */}
+      {/* ── Day Agenda Sidebar (E4) ──────────────────────────────────────── */}
+      <Card className="hidden lg:block w-72 flex-shrink-0 self-start sticky top-4">
+        <CardContent className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-sm">
+              {format(agendaDay, "EEEE d MMM", { locale })}
+            </h3>
+            <Badge variant="outline" className="text-xs">
+              {agendaAppointments.length} موعد
+            </Badge>
+          </div>
+          <Separator />
+          {agendaAppointments.length === 0 ? (
+            <div className="text-center py-6">
+              <p className="text-sm text-muted-foreground">لا توجد مواعيد</p>
+              <Button size="sm" variant="outline" className="mt-2 gap-1" onClick={() => { setSelectedDate(agendaDay); setIsCreateOpen(true); }}>
+                <Plus className="h-3 w-3" /> إضافة مو��د
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {agendaAppointments.map((appt) => {
+                const status = STATUS_COLORS[appt.status] || STATUS_COLORS.SCHEDULED;
+                const customerName = appt.customer ? `${appt.customer.firstName} ${appt.customer.lastName}` : "عميل";
+                const time = format(parseISO(appt.scheduledAt), "HH:mm");
+                const dur = appt.duration || 30;
+                const isConflict = overlappingIds.has(appt.id);
+                return (
+                  <div
+                    key={appt.id}
+                    className={cn(
+                      "rounded-lg border-s-[3px] p-2 cursor-pointer hover:bg-muted/50 transition-colors",
+                      status.bg, status.border,
+                      isConflict && "ring-1 ring-[hsl(var(--warning))]",
+                    )}
+                    onClick={() => setSelectedAppointment(appt)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={cn("text-xs font-bold tabular-nums", status.text)}>{time}</span>
+                      <span className="text-[10px] text-muted-foreground">{dur} د</span>
+                    </div>
+                    <p className="text-sm font-medium truncate">{customerName}</p>
+                    {appt.property && <p className="text-[11px] text-muted-foreground truncate">{appt.property.title}</p>}
+                    {isConflict && <Badge variant="outline" className="text-[10px] mt-1 border-[hsl(var(--warning))] text-[hsl(var(--warning))]">تعارض</Badge>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      </div>{/* end flex wrapper */}
+
+      {/* ── Appointment Detail Sheet ─────────��───────────────���────────────── */}
       <Sheet open={!!selectedAppointment} onOpenChange={() => setSelectedAppointment(null)}>
         <SheetContent side="bottom">
           {selectedAppointment && (() => {
@@ -546,8 +643,8 @@ export default function CalendarPage() {
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs text-muted-foreground">الوقت</p>
-                        <p className="font-bold text-sm">{format(parseISO(appt.scheduledAt), "p", { locale })}</p>
+                        <p className="text-xs text-muted-foreground">الوقت · المدة</p>
+                        <p className="font-bold text-sm">{format(parseISO(appt.scheduledAt), "p", { locale })} · {appt.duration || 30} دقيقة</p>
                       </div>
                     </div>
                   </div>
@@ -691,6 +788,21 @@ export default function CalendarPage() {
                 </FormItem>
               </div>
               <FormField control={form.control} name="scheduledAt" render={() => (<FormMessage />)} />
+
+              {/* Duration (E4) */}
+              <FormItem>
+                <FormLabel>المدة (دقيقة)</FormLabel>
+                <FormControl>
+                  <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" defaultValue="30" onChange={(e) => (form as any).setValue("duration", parseInt(e.target.value))}>
+                    <option value="15">15 دقيقة</option>
+                    <option value="30">30 دقيقة</option>
+                    <option value="45">45 دقيقة</option>
+                    <option value="60">ساعة</option>
+                    <option value="90">ساعة ونصف</option>
+                    <option value="120">ساعتين</option>
+                  </select>
+                </FormControl>
+              </FormItem>
 
               {/* Notes */}
               <FormField control={form.control} name="notes" render={({ field }) => (

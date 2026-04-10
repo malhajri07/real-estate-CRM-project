@@ -63,3 +63,4 @@ created: 2026-04-10
 ## Recent additions
 - `deals.stageEnteredAt` — added for [[Sessions/E3 - Pipeline]]
 - `deal_stage_history` — added for [[Sessions/E3 - Pipeline]]
+- `appointments.duration` (Int, default 30) — added for [[Sessions/E4 - Calendar]] (conflict detection)

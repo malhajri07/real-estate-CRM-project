@@ -9,13 +9,17 @@
  * | GET    | /                | Yes   | List appointments (agent + org scoped)       |
  * | POST   | /                | Yes   | Create appointment linked to customer/lead   |
  * | PUT    | /:id             | Yes   | Update status / reschedule / reassign        |
+ * | GET    | /conflicts       | Yes   | Check time-slot overlaps for conflict display |
  * | POST   | /public-booking  | No    | Public property viewing request (creates     |
  * |        |                  |       | customer + lead + appointment in one go)     |
+ *
+ * E4 additions: `duration` field (default 30 min), conflict detection endpoint.
  *
  * Consumer: calendar page `apps/web/src/pages/platform/calendar/index.tsx`
  *   (query key `['/api/appointments']`).
  *
  * @see [[Features/CRM Core]]
+ * @see [[Sessions/E4 - Calendar]]
  */
 
 import { Router, Request, Response } from 'express';
@@ -25,10 +29,13 @@ import { authenticateToken } from '../auth';
 
 const router = Router();
 
-/** Zod schema for authenticated appointment creation. */
+/** Zod schema for authenticated appointment creation.
+ * @param duration - Minutes (default 30). Source: duration picker in create form.
+ */
 const AppointmentSchema = z.object({
     customerId: z.string().min(1),
     scheduledAt: z.string().datetime(),
+    duration: z.number().int().min(15).max(480).default(30),
     propertyId: z.string().optional(),
     listingId: z.string().optional(),
     notes: z.string().optional(),
@@ -112,6 +119,7 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
             data: {
                 customerId,
                 scheduledAt: data.scheduledAt,
+                duration: data.duration ?? 30,
                 organizationId: orgId!,
                 propertyId: data.propertyId,
                 listingId: data.listingId,
@@ -155,6 +163,70 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
         res.json(result);
     } catch (error) {
         res.status(500).json({ message: 'Failed to update appointment' });
+    }
+});
+
+/**
+ * @route GET /api/appointments/conflicts
+ * @auth  Required
+ * @param req.query.date - ISO date string (YYYY-MM-DD). Source: calendar day click.
+ * @param req.query.time - HH:mm. Source: time slot click.
+ * @param req.query.duration - Minutes (default 30). Source: duration picker.
+ * @returns `{ hasConflict, conflicts: Appointment[] }` — overlapping appointments.
+ *   Consumer: calendar create form — shows orange warning if conflicts exist.
+ */
+router.get('/conflicts', authenticateToken, async (req: Request, res: Response) => {
+    try {
+        const { date, time, duration: durStr } = req.query as Record<string, string>;
+        if (!date || !time) {
+            return res.status(400).json({ message: "date and time are required" });
+        }
+
+        const userId = req.user?.id;
+        const orgId = req.user?.organizationId;
+        const duration = parseInt(durStr || "30", 10);
+
+        // Build the proposed time window
+        const [h, m] = time.split(":").map(Number);
+        const start = new Date(`${date}T${time}:00`);
+        const end = new Date(start.getTime() + duration * 60 * 1000);
+
+        // Find overlapping appointments for this agent
+        const conflicts = await prisma.appointments.findMany({
+            where: {
+                agentId: userId,
+                status: { in: ['SCHEDULED', 'RESCHEDULED'] },
+                scheduledAt: {
+                    // Appointment starts before proposed end
+                    lt: end,
+                },
+            },
+            include: {
+                customer: { select: { firstName: true, lastName: true } },
+            },
+            orderBy: { scheduledAt: 'asc' },
+        });
+
+        // Filter: only those whose end (scheduledAt + duration) is after proposed start
+        const overlapping = conflicts.filter((appt) => {
+            const apptStart = new Date(appt.scheduledAt);
+            const apptEnd = new Date(apptStart.getTime() + (appt.duration || 30) * 60 * 1000);
+            return apptEnd > start;
+        });
+
+        res.json({
+            hasConflict: overlapping.length > 0,
+            conflicts: overlapping.map((a) => ({
+                id: a.id,
+                scheduledAt: a.scheduledAt,
+                duration: a.duration,
+                customer: a.customer ? `${a.customer.firstName} ${a.customer.lastName}` : "عميل",
+                status: a.status,
+            })),
+        });
+    } catch (error) {
+        console.error('Error checking conflicts:', error);
+        res.status(500).json({ message: 'Failed to check conflicts' });
     }
 });
 

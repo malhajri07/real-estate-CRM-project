@@ -41,3 +41,4 @@ created: 2026-04-10
 - `POST /api/leads/batch/assign` — bulk reassign ([[Sessions/E2 - Leads]])
 - `GET /api/deals/forecast` — pipeline forecast ([[Sessions/E3 - Pipeline]])
 - `GET /api/notifications/count` — actionable notification aggregator
+- `GET /api/appointments/conflicts` — time-slot overlap detection ([[Sessions/E4 - Calendar]])
