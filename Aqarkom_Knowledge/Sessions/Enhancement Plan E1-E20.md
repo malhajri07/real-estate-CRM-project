@@ -16,8 +16,8 @@ created: 2026-04-10
 | E3 | Pipeline | ✅ Done | [[Sessions/E3 - Pipeline]] |
 | E4 | Calendar | ✅ Done | [[Sessions/E4 - Calendar]] |
 | E5 | Activities | ✅ Done | [[Sessions/E5 - Activities]] |
-| E6 | Tenants | ⏳ Next | renewal reminders, late payments |
-| E7 | Properties list | ⏳ | days-on-market, map view, saved filters |
+| E6 | Tenants | ✅ Done | [[Sessions/E6 - Tenants]] |
+| E7 | Properties list | ⏳ Next | days-on-market, map view, saved filters |
 | E8 | Property detail | ⏳ | similar, price history, interested |
 | E9 | Pool | ⏳ | match score, expiry countdown |
 | E10 | Broker requests | ⏳ | timeline, share |

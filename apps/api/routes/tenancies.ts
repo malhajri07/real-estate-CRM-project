@@ -10,8 +10,12 @@
  * | GET | /:id | Yes | Tenancy detail + payment schedule |
  * | POST | /:id/payments | Yes | Create rent payment schedule |
  * | PATCH | /payments/:paymentId | Yes | Mark payment paid or overdue |
+ * | POST  | /:id/send-reminder   | Yes | WhatsApp renewal reminder (E6)       |
+ * | GET   | /stats/summary       | Yes | Aggregate stats                       |
  *
- * Consumer: tenants page — query key `tenancies`.
+ * E6: `renewalReminderSentAt`, `paymentSummary` in list, renewal reminder endpoint.
+ * Consumer: tenants page — query key `['/api/tenancies']`.
+ * @see [[Sessions/E6 - Tenants]]
  */
 
 import { Router } from "express";
@@ -44,17 +48,30 @@ router.get("/", authenticateToken, async (req, res) => {
     const now = new Date();
     const in90 = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
 
-    const result = tenancies.map((t) => ({
-      ...t,
-      monthlyRent: Number(t.monthlyRent),
-      securityDeposit: t.securityDeposit ? Number(t.securityDeposit) : null,
-      isExpiring: t.leaseEnd <= in90 && t.leaseEnd > now && t.status === "ACTIVE",
-      daysUntilExpiry: Math.ceil((t.leaseEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
-      rentPayments: t.rentPayments.map((p) => ({
-        ...p,
-        amount: Number(p.amount),
-      })),
-    }));
+    const result = tenancies.map((t) => {
+      /** Payment summary computed per tenancy (E6). Consumer: frontend stat badges. */
+      const allPayments = t.rentPayments;
+      const paid = allPayments.filter((p) => p.status === "PAID").length;
+      const overdue = allPayments.filter((p) => p.status === "PENDING" && new Date(p.dueDate) < now).length;
+      const upcoming = allPayments.filter((p) => p.status === "PENDING" && new Date(p.dueDate) >= now).length;
+
+      return {
+        ...t,
+        monthlyRent: Number(t.monthlyRent),
+        securityDeposit: t.securityDeposit ? Number(t.securityDeposit) : null,
+        isExpiring: t.leaseEnd <= in90 && t.leaseEnd > now && t.status === "ACTIVE",
+        daysUntilExpiry: Math.ceil((t.leaseEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+        renewalReminderSentAt: t.renewalReminderSentAt,
+        paymentSummary: { total: allPayments.length, paid, overdue, upcoming },
+        rentPayments: allPayments.map((p) => ({
+          ...p,
+          amount: Number(p.amount),
+          daysOverdue: p.status === "PENDING" && new Date(p.dueDate) < now
+            ? Math.ceil((now.getTime() - new Date(p.dueDate).getTime()) / (1000 * 60 * 60 * 24))
+            : 0,
+        })),
+      };
+    });
 
     res.json(result);
   } catch (error) {
@@ -153,6 +170,52 @@ router.patch("/:tenancyId/payments/:paymentId", authenticateToken, async (req, r
     res.json({ ...updated, amount: Number(updated.amount) });
   } catch (error) {
     res.status(500).json({ message: "فشل تحديث حالة الدفع" });
+  }
+});
+
+/**
+ * @route POST /api/tenancies/:id/send-reminder
+ * @auth  Required
+ * @returns `{ success, sentTo, message }`.
+ *   Consumer: "Send renewal reminder" button in the tenancy detail sheet (E6).
+ * @sideEffect Updates `tenancies.renewalReminderSentAt` to now.
+ *   In production, would send WhatsApp via Unifonic/Twilio.
+ */
+router.post("/:id/send-reminder", authenticateToken, async (req, res) => {
+  try {
+    const tenancy = await prisma.tenancies.findUnique({
+      where: { id: req.params.id },
+      include: {
+        tenant: { select: { firstName: true, lastName: true, phone: true } },
+        property: { select: { title: true, city: true } },
+      },
+    });
+    if (!tenancy) return res.status(404).json({ message: "العقد غير موجود" });
+
+    const tenantName = `${tenancy.tenant.firstName} ${tenancy.tenant.lastName}`;
+    const propertyTitle = tenancy.property?.title || "العقار";
+    const leaseEnd = new Date(tenancy.leaseEnd).toLocaleDateString("ar-SA");
+
+    // Pre-filled renewal message
+    const message = `مرحباً ${tenantName}،\n\nنود تذكيرك بأن عقد إيجار "${propertyTitle}" ينتهي بتاريخ ${leaseEnd}.\n\nيرجى التواصل معنا لتجديد العقد.\n\nشكراً لكم.`;
+
+    // Update the reminder timestamp
+    await prisma.tenancies.update({
+      where: { id: req.params.id },
+      data: { renewalReminderSentAt: new Date() },
+    });
+
+    // In production: send via WhatsApp API (Unifonic/Twilio)
+    // For now: return the message for the frontend to open wa.me link
+    res.json({
+      success: true,
+      sentTo: tenancy.tenant.phone,
+      message,
+      waLink: `https://wa.me/${(tenancy.tenant.phone || "").replace(/\D/g, "")}?text=${encodeURIComponent(message)}`,
+    });
+  } catch (error) {
+    console.error("Error sending renewal reminder:", error);
+    res.status(500).json({ message: "فشل إرسال التذكير" });
   }
 });
 

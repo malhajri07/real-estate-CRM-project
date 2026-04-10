@@ -35,9 +35,13 @@ interface Tenancy {
   isExpiring: boolean;
   daysUntilExpiry: number;
   ejarContractNo: string | null;
+  /** Last WhatsApp renewal reminder timestamp (E6). Source: tenancies.renewalReminderSentAt. */
+  renewalReminderSentAt: string | null;
+  /** Per-tenancy payment breakdown (E6). Source: computed server-side. */
+  paymentSummary?: { total: number; paid: number; overdue: number; upcoming: number };
   property: { id: string; title: string; city: string; district: string; type: string } | null;
   tenant: { id: string; firstName: string; lastName: string; phone: string } | null;
-  rentPayments: { id: string; amount: number; dueDate: string; paidDate: string | null; status: string }[];
+  rentPayments: { id: string; amount: number; dueDate: string; paidDate: string | null; status: string; daysOverdue?: number }[];
 }
 
 interface TenancyStats {
@@ -72,7 +76,28 @@ export default function TenantsPage() {
     },
   });
 
-  const allTenancies = tenancies ?? [];
+  /** Sort: expiring (< 7 days) first, then expiring (< 90 days), then rest (E6). */
+  const allTenancies = [...(tenancies ?? [])].sort((a, b) => {
+    if (a.isExpiring && !b.isExpiring) return -1;
+    if (!a.isExpiring && b.isExpiring) return 1;
+    if (a.isExpiring && b.isExpiring) return a.daysUntilExpiry - b.daysUntilExpiry;
+    return 0;
+  });
+
+  /**
+   * Send renewal reminder mutation (E6).
+   * Consumer: "تذكير بالتجديد" button in tenancy detail sheet.
+   */
+  const sendReminderMutation = useMutation({
+    mutationFn: (tenancyId: string) =>
+      apiPatch(`api/tenancies/${tenancyId}/send-reminder`, {}),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/tenancies"] });
+      if (data?.waLink) window.open(data.waLink, "_blank");
+      toast({ title: "تم إرسال تذكير التجديد" });
+    },
+    onError: () => toast({ title: "فشل إرسال التذكير", variant: "destructive" }),
+  });
 
   if (isLoading || showSkeleton) {
     return (
@@ -139,7 +164,8 @@ export default function TenantsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-bold text-sm truncate">{t.property?.title || "عقار"}</p>
-                        {t.isExpiring && <Badge variant="outline" className="text-[10px] border-[hsl(var(--warning)/0.3)] text-[hsl(var(--warning))]">ينتهي خلال {t.daysUntilExpiry} يوم</Badge>}
+                        {t.isExpiring && t.daysUntilExpiry <= 7 && <Badge variant="destructive" className="text-[10px]">ينتهي خلال {t.daysUntilExpiry} يوم</Badge>}
+                        {t.isExpiring && t.daysUntilExpiry > 7 && <Badge variant="outline" className="text-[10px] border-[hsl(var(--warning)/0.3)] text-[hsl(var(--warning))]">ينتهي خلال {t.daysUntilExpiry} يوم</Badge>}
                         <Badge variant={t.status === "ACTIVE" ? "default" : "outline"} className="text-[10px]">
                           {t.status === "ACTIVE" ? "نشط" : t.status === "EXPIRED" ? "منتهي" : t.status}
                         </Badge>
@@ -196,6 +222,24 @@ export default function TenantsPage() {
                     </div>
                   )}
 
+                  {/* Renewal reminder button (E6) */}
+                  {t.isExpiring && (
+                    <Button
+                      variant="outline"
+                      className="w-full gap-2 border-[hsl(var(--warning)/0.3)] text-[hsl(var(--warning))] hover:bg-[hsl(var(--warning)/0.1)]"
+                      onClick={() => sendReminderMutation.mutate(t.id)}
+                      disabled={sendReminderMutation.isPending}
+                    >
+                      <MessageSquare size={14} />
+                      تذكير بالتجديد عبر واتساب
+                      {t.renewalReminderSentAt && (
+                        <span className="text-[10px] text-muted-foreground ms-auto">
+                          آخر تذكير: {new Date(t.renewalReminderSentAt).toLocaleDateString("ar-SA")}
+                        </span>
+                      )}
+                    </Button>
+                  )}
+
                   <Separator />
 
                   {/* Payment history */}
@@ -204,11 +248,15 @@ export default function TenantsPage() {
                     <div className="space-y-2">
                       {t.rentPayments.map((p) => {
                         const isOverdue = p.status === "PENDING" && new Date(p.dueDate) < new Date();
+                        const daysOverdue = (p as any).daysOverdue || (isOverdue ? Math.ceil((Date.now() - new Date(p.dueDate).getTime()) / 86400000) : 0);
                         return (
-                          <div key={p.id} className="flex items-center justify-between rounded-lg border p-3">
+                          <div key={p.id} className={cn("flex items-center justify-between rounded-lg border p-3", isOverdue && "border-destructive/30 bg-destructive/5")}>
                             <div>
                               <p className="text-sm font-medium">{new Date(p.dueDate).toLocaleDateString("ar-SA", { year: "numeric", month: "long" })}</p>
-                              <p className="text-xs text-muted-foreground"><SarPrice value={p.amount} /></p>
+                              <p className={cn("text-xs", isOverdue ? "text-destructive font-bold" : "text-muted-foreground")}>
+                                <SarPrice value={p.amount} />
+                                {isOverdue && ` · متأخر ${daysOverdue} يوم`}
+                              </p>
                             </div>
                             <div className="flex items-center gap-2">
                               {isOverdue && <Badge variant="destructive" className="text-[10px]">متأخر</Badge>}

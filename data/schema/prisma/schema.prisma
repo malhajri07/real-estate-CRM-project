@@ -2046,6 +2046,8 @@ model tenancies {
   status          TenancyStatus @default(ACTIVE)
   ejarContractNo  String?
   notes           String?
+  /// Last time a WhatsApp renewal reminder was sent to the tenant (E6).
+  renewalReminderSentAt DateTime?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
