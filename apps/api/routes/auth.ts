@@ -1,6 +1,31 @@
 /**
- * routes/auth.ts - Authentication API Routes
- * Refactored to use AuthService, AuthValidator, and AuthMiddleware
+ * routes/auth.ts — Authentication & user-profile API routes.
+ *
+ * Mounted at `/api/auth` in `apps/api/index.ts`.
+ *
+ * Endpoints:
+ * | Method | Path                  | Auth? | Purpose                                    |
+ * |--------|-----------------------|-------|--------------------------------------------|
+ * | POST   | /login                | No    | Admin login (username/email + password)     |
+ * | POST   | /send-otp             | No    | Send 4-digit OTP to Saudi mobile            |
+ * | POST   | /verify-otp           | No    | Verify OTP → JWT (primary agent login)      |
+ * | POST   | /register             | No    | Create account + auto-login                 |
+ * | GET    | /me                   | Yes   | Return `req.user` (lightweight)             |
+ * | GET    | /user                 | Yes   | Full user + org + agent_profile from DB     |
+ * | POST   | /impersonate          | Admin | Generate token for another user             |
+ * | PUT    | /user                 | Yes   | Update own profile fields                   |
+ * | PUT    | /agent-profile        | Yes   | Update agent FAL license + professional     |
+ * | PUT    | /password             | Yes   | Change own password                         |
+ * | PUT    | /preferences          | Yes   | Save notification prefs in user.metadata    |
+ * | GET    | /preferences          | Yes   | Load notification prefs                     |
+ * | POST   | /logout               | Yes   | Client-side token removal                   |
+ * | POST   | /ensure-primary-admin | Dev   | Idempotent admin seed (setup-token gated)   |
+ *
+ * Consumer: frontend `useAuth` hook in `apps/web/src/hooks/use-auth.ts` and the
+ * settings page at `apps/web/src/pages/platform/settings/`.
+ *
+ * @see [[Architecture/Authentication & RBAC]]
+ * @see [[Features/REGA Compliance]] for FAL license fields
  */
 
 import { Router } from 'express';
@@ -17,7 +42,15 @@ import { logger } from '../logger';
 const router = Router();
 const authService = new AuthService();
 
-// POST /api/auth/login
+/**
+ * @route POST /api/auth/login
+ * @auth  Not required
+ * @param req.body.identifier - Username or email. Source: admin login form.
+ * @param req.body.password - Plaintext password.
+ * @returns `{ success, token, user }`.
+ *   Consumer: frontend `useAuth.login()`, stored in localStorage.
+ * @sideEffect Sets express-session (`req.session.user`, `req.session.authToken`).
+ */
 router.post('/login', async (req, res) => {
   try {
     const credentials = authSchemas.login.parse(req.body);
@@ -50,10 +83,19 @@ router.post('/login', async (req, res) => {
 
 // ── OTP-based Login Flow ─────────────────────────────────────────────────────
 
-// In-memory OTP store (dev mode — no SMS integration yet)
+/** In-memory OTP store keyed by normalized phone. Dev-only — production uses SMS. */
 const otpStore = new Map<string, { code: string; expiresAt: number; attempts: number }>();
 
-// POST /api/auth/send-otp — Send OTP to mobile number
+/**
+ * @route POST /api/auth/send-otp
+ * @auth  Not required
+ * @param req.body.phone - Saudi mobile number (`05XXXXXXXX` or `+9665XXXXXXXX`).
+ *   Source: OTP login form in `apps/web/src/pages/platform/auth/login.tsx`.
+ * @returns `{ success, message, otp? }` — OTP exposed in response only in dev mode.
+ *   Consumer: frontend OTP form auto-fills in dev mode for testing.
+ * @sideEffect Stores the 4-digit OTP in `otpStore` (expires after 5 min).
+ *   In production: would send SMS via Unifonic / Twilio.
+ */
 router.post('/send-otp', async (req, res) => {
   try {
     const { phone } = z.object({ phone: z.string().min(10).max(15) }).parse(req.body);
@@ -94,7 +136,16 @@ router.post('/send-otp', async (req, res) => {
   }
 });
 
-// POST /api/auth/verify-otp — Verify OTP and login
+/**
+ * @route POST /api/auth/verify-otp
+ * @auth  Not required
+ * @param req.body.phone - Same normalized phone used in send-otp.
+ * @param req.body.otp - 4-digit code. Source: OTP input in the login form.
+ * @returns `{ success, token, user }` — JWT for the matched user.
+ *   Consumer: frontend stores token and navigates to `/home/platform`.
+ * @throws 429 after 5 failed attempts per phone.
+ * @sideEffect Deletes the OTP from the store; sets express-session.
+ */
 router.post('/verify-otp', async (req, res) => {
   try {
     const { phone, otp } = z.object({

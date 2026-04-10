@@ -33,6 +33,15 @@ const SENSITIVE_PATTERNS = [
   /[A-Z]:\\[^\s]+/g,
 ];
 
+/**
+ * Strip database connection strings, password fields, and absolute filesystem
+ * paths out of an error message before it can leak into a response or log.
+ *
+ * @param msg - Raw error message that may contain secrets.
+ *   Source: `err.message` / `err.stack` from any thrown error.
+ * @returns Sanitized message with each match replaced by `[REDACTED]`.
+ *   Consumer: returned to the client in dev mode and written to `logger.error`.
+ */
 function sanitizeMessage(msg: string): string {
   let sanitized = msg;
   for (const pattern of SENSITIVE_PATTERNS) {
@@ -42,8 +51,30 @@ function sanitizeMessage(msg: string): string {
 }
 
 /**
- * Error handling middleware
- * Catches all errors and returns consistent error responses
+ * Centralized Express error-handling middleware. Catches every error thrown by
+ * upstream handlers and returns a consistent localized response.
+ *
+ * Behavior:
+ * - {@link AppError} → respects `err.statusCode` and looks up a localized message
+ *   via `getErrorResponse(err.code, locale, err.details)`.
+ * - {@link ZodError} → 400 with `VALIDATION_ERROR` + the zod error array.
+ * - Body-parser 413 → friendly Arabic message about payload size (typically
+ *   triggered by base64 listing photos).
+ * - Anything else → 500 `SERVER_ERROR`. In production, no internal details
+ *   leak to the client; in dev, the sanitized stack trace is included.
+ *
+ * Mounted last in `apps/api/index.ts`, after all routes.
+ *
+ * @param err - The thrown error.
+ *   Source: bubbled up from any route handler via `next(err)` or `asyncHandler`.
+ * @param req - Express request. Used for `req.path`, `req.method`, `req.user.id`
+ *   (logging) and `req.locale` (i18n).
+ * @param res - Express response. The middleware writes the JSON response on it
+ *   and returns; no further middleware runs after this.
+ *
+ * @sideEffect Writes a structured error log via `logger.error`.
+ *
+ * @see [[Architecture/Authentication & RBAC]]
  */
 export const errorHandler = (
   err: Error,
@@ -111,8 +142,20 @@ export const errorHandler = (
 };
 
 /**
- * Async handler wrapper
- * Automatically catches promise rejections in async route handlers
+ * Wrap an async Express route handler so promise rejections automatically
+ * route into the {@link errorHandler} via `next(err)`. Without this wrapper,
+ * `throw` inside an async handler would silently hang the request.
+ *
+ * @param fn - Any async (or sync) Express route handler.
+ *   Source: route file authors who don't want try/catch boilerplate.
+ * @returns A new handler with the same signature that catches rejections.
+ *   Consumer: any `router.post('/x', asyncHandler(myHandler))` call site.
+ *
+ * @example
+ * router.get('/leads', asyncHandler(async (req, res) => {
+ *   const leads = await prisma.leads.findMany({ where: { agentId: req.user.id } });
+ *   res.json(leads);
+ * }));
  */
 export const asyncHandler = (fn: Function) => {
   return (req: Request, res: Response, next: NextFunction) => {

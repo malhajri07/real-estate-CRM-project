@@ -45,7 +45,16 @@ interface JWTPayload {
   exp?: number;
 }
 
-// Generate JWT token
+/**
+ * Create a signed JWT carrying user identity + role string + org scope.
+ *
+ * @param user - Minimal user fields. Source: `users` table, loaded at login/register.
+ * @returns Signed JWT string (HS256, 24 h expiry).
+ *   Consumer: sent to the frontend as `{ token }`, stored in localStorage,
+ *   and attached to every API call via `Authorization: Bearer <token>`.
+ *
+ * @sideEffect None — pure function (no DB write).
+ */
 export function generateToken(user: {
   id: string;
   email: string | null;
@@ -64,7 +73,14 @@ export function generateToken(user: {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
 }
 
-// Verify JWT token
+/**
+ * Decode and verify a JWT. Returns the payload on success, `null` on any
+ * failure (expired, tampered, malformed).
+ *
+ * @param token - Raw JWT string. Source: `Authorization: Bearer <token>` header.
+ * @returns Decoded payload or `null`.
+ *   Consumer: `authenticateToken` middleware.
+ */
 export function verifyToken(token: string): JWTPayload | null {
   try {
     return jwt.verify(token, JWT_SECRET) as JWTPayload;
@@ -73,7 +89,25 @@ export function verifyToken(token: string): JWTPayload | null {
   }
 }
 
-// Authentication middleware
+/**
+ * Express middleware — extract the Bearer token from the `Authorization` header,
+ * verify it, load the user from Postgres, and attach it to `req.user`.
+ *
+ * The user is loaded fresh on **every request** (not cached from the JWT) so
+ * role changes and deactivation take effect immediately.
+ *
+ * @param req - Express request. Reads `req.headers['authorization']`.
+ *   Source: frontend fetch wrapper in `apps/web/src/lib/queryClient.ts` which
+ *   attaches the stored JWT to every request.
+ * @sideEffect Populates `req.user` (type: {@link AuthenticatedUser}) for
+ *   downstream handlers.
+ *
+ * @throws 401 if no token provided
+ * @throws 403 if token invalid/expired or user inactive
+ * @throws 500 on Prisma/DB errors
+ *
+ * @see [[Architecture/Authentication & RBAC]]
+ */
 export async function authenticateToken(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
@@ -137,7 +171,13 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
   }
 }
 
-// Optional authentication middleware (doesn't fail if no token)
+/**
+ * Like `authenticateToken` but **never rejects** — if the token is missing
+ * or invalid, `req.user` stays `undefined` and the request continues.
+ *
+ * Used on routes that work for both anonymous and authenticated users
+ * (e.g. public property listing + "is this favorited?" for logged-in).
+ */
 export async function optionalAuth(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -197,14 +237,27 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
   }
 }
 
-// Hash password (using bcryptjs)
 import bcrypt from 'bcryptjs';
 
+/**
+ * Hash a plaintext password with bcrypt (12 salt rounds).
+ *
+ * @param password - Plaintext. Source: register form or admin reset.
+ * @returns bcrypt hash. Consumer: stored in `users.passwordHash`.
+ */
 export async function hashPassword(password: string): Promise<string> {
   const saltRounds = 12;
   return bcrypt.hash(password, saltRounds);
 }
 
+/**
+ * Constant-time comparison of a plaintext password against a bcrypt hash.
+ *
+ * @param password - Candidate plaintext. Source: login form.
+ * @param hash - Stored bcrypt hash. Source: `users.passwordHash`.
+ * @returns `true` if they match.
+ *   Consumer: `login()` below.
+ */
 export async function comparePassword(password: string, hash: string): Promise<boolean> {
   try {
     if (!password || !hash) {
@@ -224,8 +277,17 @@ export async function comparePassword(password: string, hash: string): Promise<b
   }
 }
 
-// Login function
-// Updated to support username-based login (email kept for compatibility if used elsewhere)
+/**
+ * Authenticate a user by username or email + password. This is the
+ * **admin login** flow; agent login uses OTP via `/api/auth/send-otp`.
+ *
+ * @param identifier - Username or email. Source: admin login form.
+ * @param password - Plaintext password. Source: admin login form.
+ * @returns `{ success, user?, token?, message? }`.
+ *   Consumer: `POST /api/auth/login` handler in `routes/auth.ts`.
+ *
+ * @sideEffect Updates `users.lastLoginAt` on success.
+ */
 export async function login(identifier: string, password: string): Promise<{
   success: boolean;
   user?: any;
@@ -367,7 +429,17 @@ export async function login(identifier: string, password: string): Promise<{
   }
 }
 
-// Register function
+/**
+ * Create a new user account + return a signed JWT.
+ *
+ * @param userData - Registration payload.
+ *   Source: `POST /api/auth/register` handler in `routes/auth.ts`.
+ * @returns `{ success, user?, token?, message? }`.
+ *   Consumer: same route handler — responds with the token so the
+ *   frontend can auto-login after signup.
+ *
+ * @sideEffect Creates a row in `users`.
+ */
 export async function register(userData: {
   email: string;
   password: string;
@@ -454,7 +526,20 @@ export async function register(userData: {
   }
 }
 
-// Impersonation function (for website admin)
+/**
+ * Generate a JWT for another user, allowing admin to "log in as" them.
+ * Restricted to WEBSITE_ADMIN. Writes an audit log entry.
+ *
+ * @param adminUserId - The admin performing the impersonation.
+ *   Source: `req.user.id` from the calling route handler.
+ * @param targetUserId - The user to impersonate.
+ *   Source: `POST /api/auth/impersonate` body (`targetUserId` field).
+ * @returns `{ success, token?, message? }`.
+ *   Consumer: frontend stores the new token and navigates to the platform
+ *   as the impersonated user.
+ *
+ * @sideEffect Creates an `audit_logs` row with action `IMPERSONATE`.
+ */
 export async function impersonateUser(adminUserId: string, targetUserId: string): Promise<{
   success: boolean;
   token?: string;
