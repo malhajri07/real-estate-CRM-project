@@ -85,12 +85,14 @@ const Carousel = React.forwardRef<
 
     const handleKeyDown = React.useCallback(
       (event: React.KeyboardEvent<HTMLDivElement>) => {
+        // RTL: ArrowRight = previous (toward start), ArrowLeft = next (toward end)
+        const isRtl = document.documentElement.dir === "rtl"
         if (event.key === "ArrowLeft") {
           event.preventDefault()
-          scrollPrev()
+          isRtl ? scrollNext() : scrollPrev()
         } else if (event.key === "ArrowRight") {
           event.preventDefault()
-          scrollNext()
+          isRtl ? scrollPrev() : scrollNext()
         }
       },
       [scrollPrev, scrollNext]
@@ -214,7 +216,7 @@ const CarouselPrevious = React.forwardRef<
       onClick={scrollPrev}
       {...props}
     >
-      <ArrowLeft className="h-4 w-4" />
+      <ArrowRight className="h-4 w-4" />
       <span className="sr-only">Previous slide</span>
     </Button>
   )
@@ -243,7 +245,7 @@ const CarouselNext = React.forwardRef<
       onClick={scrollNext}
       {...props}
     >
-      <ArrowRight className="h-4 w-4" />
+      <ArrowLeft className="h-4 w-4" />
       <span className="sr-only">Next slide</span>
     </Button>
   )

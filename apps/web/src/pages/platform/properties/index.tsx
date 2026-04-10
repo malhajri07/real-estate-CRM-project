@@ -526,7 +526,7 @@ export default function Properties() {
           <CardTitle>جميع العقارات</CardTitle>
           <p className="text-sm text-muted-foreground">
             {allProperties?.length || 0} عقار
-            {totalPages > 1 && ` — ��فحة ${currentPage} من ${totalPages}`}
+            {totalPages > 1 && ` — صفحة ${currentPage} من ${totalPages}`}
           </p>
         </CardHeader>
         <CardContent className="p-0">

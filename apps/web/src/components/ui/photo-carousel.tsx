@@ -75,21 +75,23 @@ export function PhotoCarousel({
         {/* Navigation Arrows - only show if more than 1 photo */}
         {photos.length > 1 && (
           <>
+            {/* RTL: start = right, so right arrow goes forward (next).
+                    end = left, so left arrow goes backward (prev). */}
             <Button
               variant="ghost"
               size="sm"
               className="absolute start-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={prevPhoto}
+              onClick={nextPhoto}
             >
-              <ChevronLeft size={16} />
+              <ChevronRight size={16} />
             </Button>
             <Button
               variant="ghost"
               size="sm"
               className="absolute end-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={nextPhoto}
+              onClick={prevPhoto}
             >
-              <ChevronRight size={16} />
+              <ChevronLeft size={16} />
             </Button>
           </>
         )}
