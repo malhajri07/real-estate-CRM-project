@@ -171,12 +171,15 @@ router.get('/search', authenticateToken, async (req, res) => {
           },
           claims: {
             where: { agentId: req.user!.id, status: ClaimStatus.ACTIVE }
-          }
+          },
+          /** Count ALL active claims (interested agents) per request (E9). */
+          _count: { select: { claims: true } },
         }
       });
 
       buyerPoolItems = buyerRequests.map((request: any) => {
-      const hasActiveClaim = request.claims.length > 0;
+      const myClaim = request.claims[0]; // agent's own active claim (if any)
+      const hasActiveClaim = !!myClaim;
       const canViewFullContact = hasActiveClaim || req.user!.roles.includes(UserRole.WEBSITE_ADMIN);
       const creator = request.users;
       return {
@@ -203,7 +206,11 @@ router.get('/search', authenticateToken, async (req, res) => {
           id: creator.id,
           firstName: creator.firstName,
           lastName: creator.lastName
-        } : null
+        } : null,
+        /** Number of agents who claimed this request (E9). Consumer: "X وسطاء" badge. */
+        claimCount: request._count?.claims ?? 0,
+        /** Expiry of the current agent's claim (E9). Consumer: countdown badge. */
+        claimExpiresAt: myClaim?.expiresAt ?? null,
       };
     });
     } catch (err) {
@@ -417,6 +424,55 @@ router.post('/customer-requests/:id/claim', authenticateToken, async (req, res) 
     }
     logger.error({ err: error }, 'Claim customer request error');
     res.status(500).json({ message: 'Failed to claim customer request' });
+  }
+});
+
+/**
+ * @route GET /api/pool/:id/match-score
+ * @auth  Required
+ * @returns `{ score: 0-100, matchedListings: number }` — how well this request
+ *   matches the agent's active listings (same city + overlapping price range).
+ *   Consumer: match score badge on pool cards (E9).
+ */
+router.get('/:id/match-score', authenticateToken, async (req, res) => {
+  try {
+    const request = await basePrisma.buyer_requests.findUnique({
+      where: { id: req.params.id },
+      select: { city: true, type: true, minPrice: true, maxPrice: true },
+    });
+    if (!request) return res.json({ score: 0, matchedListings: 0 });
+
+    // Find agent's active listings matching city + price overlap
+    const agentListings = await basePrisma.properties.findMany({
+      where: {
+        agentId: req.user!.id,
+        status: 'ACTIVE',
+        ...(request.city && { city: request.city }),
+      },
+      select: { id: true, price: true, type: true, city: true },
+      take: 200,
+    });
+
+    const minP = Number(request.minPrice || 0);
+    const maxP = Number(request.maxPrice || Infinity);
+    const matched = agentListings.filter((l) => {
+      const price = Number(l.price || 0);
+      if (price <= 0) return false;
+      // Price within +/- 20% of the requested range
+      return price >= minP * 0.8 && price <= (maxP === Infinity ? Infinity : maxP * 1.2);
+    });
+
+    // Score: 0-100 based on match quality
+    let score = 0;
+    if (matched.length > 0) score += 40;
+    if (matched.length >= 3) score += 20;
+    if (matched.length >= 5) score += 10;
+    if (request.city && matched.some((l) => l.city === request.city)) score += 15;
+    if (request.type && matched.some((l) => l.type === request.type)) score += 15;
+
+    res.json({ score: Math.min(score, 100), matchedListings: matched.length });
+  } catch (error) {
+    res.json({ score: 0, matchedListings: 0 });
   }
 });
 

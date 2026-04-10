@@ -19,8 +19,8 @@ created: 2026-04-10
 | E6 | Tenants | ✅ Done | [[Sessions/E6 - Tenants]] |
 | E7 | Properties list | ✅ Done | [[Sessions/E7 - Properties]] |
 | E8 | Property detail | ✅ Done | [[Sessions/E8 - Property Detail]] |
-| E9 | Pool | ⏳ Next | match score, expiry countdown |
-| E10 | Broker requests | ⏳ | timeline, share |
+| E9 | Pool | ✅ Done | [[Sessions/E9 - Pool]] |
+| E10 | Broker requests | ⏳ Next | timeline, share |
 | E11 | Campaigns | ⏳ | analytics, A/B testing |
 | E12 | Inbox | ⏳ | unread, search, labels |
 | E13 | Settings | ⏳ | completion actions, activity log |

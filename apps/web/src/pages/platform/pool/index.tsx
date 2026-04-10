@@ -62,6 +62,10 @@ interface BuyerRequest {
   canSendSms?: boolean;
   hasActiveClaim?: boolean;
   status?: string;
+  /** Number of agents who claimed this request (E9). */
+  claimCount?: number;
+  /** Expiry date of the current agent's claim (E9). */
+  claimExpiresAt?: string;
 }
 
 interface OwnerListing {
@@ -398,6 +402,7 @@ export default function PoolPage() {
                       <TableHead><SortHeader field="budget">الميزانية</SortHeader></TableHead>
                       <TableHead>المواصفات</TableHead>
                       <TableHead><SortHeader field="date">التاريخ</SortHeader></TableHead>
+                      <TableHead>وسطاء</TableHead>
                       <TableHead className="w-[100px]">إجراء</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -429,6 +434,21 @@ export default function PoolPage() {
                               <span className="text-sm text-muted-foreground">
                                 {req.createdAt ? formatDistanceToNow(new Date(req.createdAt), { addSuffix: true, locale: ar }) : "—"}
                               </span>
+                            </div>
+                          </TableCell>
+                          {/* Interested agents count + claim expiry (E9) */}
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              {(req as any).claimCount > 0 && (
+                                <Badge variant="outline" className="text-[10px] gap-0.5">
+                                  <User className="h-3 w-3" /> {(req as any).claimCount}
+                                </Badge>
+                              )}
+                              {(req as any).claimExpiresAt && (
+                                <Badge variant="outline" className="text-[10px] border-[hsl(var(--warning)/0.3)] text-[hsl(var(--warning))]">
+                                  <Clock className="h-3 w-3" /> {Math.max(0, Math.ceil((new Date((req as any).claimExpiresAt).getTime() - Date.now()) / 86400000))} يوم
+                                </Badge>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>
