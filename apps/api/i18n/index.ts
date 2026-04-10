@@ -1,3 +1,11 @@
+/**
+ * i18n/index.ts — Bilingual error-message resolver (Arabic / English).
+ *
+ * Exports `t()` for single-key translation and `getErrorResponse()` for
+ * structured JSON error bodies. Locale defaults to Arabic per Saudi market
+ * requirements; falls back to English when a key is missing from the AR bundle.
+ */
+
 import arErrors from './ar/errors.json';
 import enErrors from './en/errors.json';
 

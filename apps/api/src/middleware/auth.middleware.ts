@@ -1,3 +1,11 @@
+/**
+ * auth.middleware.ts — JWT-based authentication middleware for the src/ route layer.
+ *
+ * Verifies the Bearer token on incoming requests, resolves the user record via
+ * `AuthService`, attaches `AuthenticatedUser` to `req.user`, and rejects
+ * unauthenticated requests with a localized 401 response.
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
 import { prisma } from '../../prismaClient';

@@ -1,3 +1,11 @@
+/**
+ * knowledge.service.ts — AI agent knowledge-base and memory persistence service.
+ *
+ * Manages `KnowledgeBaseService` for storing, tagging, and retrieving agent
+ * conversation memories. Enables AI agents to recall past interactions and
+ * client preferences across sessions.
+ */
+
 import { prisma } from '../../prismaClient';
 
 export interface CreateMemoryInput {

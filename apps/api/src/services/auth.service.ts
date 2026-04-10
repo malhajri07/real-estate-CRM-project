@@ -1,3 +1,11 @@
+/**
+ * auth.service.ts — Core authentication and session management service.
+ *
+ * Handles user login/logout, JWT signing and verification, password hashing
+ * via bcrypt, and session token persistence. Used by `auth.middleware.ts` and
+ * the `/api/auth` route handlers throughout the application.
+ */
+
 import { prisma } from '../../prismaClient';
 import { UserRole, parseStoredRoles, serializeRoles, normalizeRoleKeys } from '@shared/rbac';
 import { JWT_SECRET as getJwtSecret } from '../../config/env';

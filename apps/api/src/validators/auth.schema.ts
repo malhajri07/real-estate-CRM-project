@@ -1,3 +1,11 @@
+/**
+ * auth.schema.ts — Zod validation schemas for authentication endpoints.
+ *
+ * Exports `authSchemas` covering login, registration, password reset, and
+ * profile update. Enforces Saudi phone format, Arabic/Latin name characters,
+ * and strong-password rules before data reaches `AuthService`.
+ */
+
 import { z } from 'zod';
 
 const arabicNameRegex = /^[\u0600-\u06FFa-zA-Z\s]+$/;

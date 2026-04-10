@@ -1,3 +1,11 @@
+/**
+ * leads.schema.ts — Zod validation schemas for lead management endpoints.
+ *
+ * Exports `leadSchemas` with `create` and `update` shapes used by the leads
+ * route handlers. Validates Saudi mobile numbers, optional budget ranges, and
+ * CRM pipeline fields (status, source, priority, interestType).
+ */
+
 import { z } from "zod";
 
 const saudiPhoneRegex = /^(\+?966|0)?5[0-9]{8}$/;

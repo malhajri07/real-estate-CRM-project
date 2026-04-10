@@ -1,3 +1,11 @@
+/**
+ * rate-limit.middleware.ts — Configurable in-memory IP-based rate limiter.
+ *
+ * Exports `createRateLimiter()` to produce Express middleware instances with
+ * independent per-IP counters. No external dependency required; uses a
+ * self-cleaning `InMemoryStore` that purges expired windows every 5 minutes.
+ */
+
 import { Request, Response, NextFunction } from "express";
 
 // ── In-memory store ─────────────────────────────────────────────────────────

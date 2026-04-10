@@ -1,3 +1,11 @@
+/**
+ * rbac.middleware.ts — Role-based access control middleware for the src/ route layer.
+ *
+ * Exports `requireAdmin` and related role-guard helpers that decode the JWT,
+ * resolve the caller's roles from Prisma, and gate access to admin-only
+ * endpoints. Complements the higher-level RBAC policy in `rbac-policy.ts`.
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../../prismaClient';
 import { UserRole, normalizeRoleKeys } from '@shared/rbac';

@@ -1,3 +1,11 @@
+/**
+ * pool.service.ts — Open buyer-request pool service.
+ *
+ * Manages the shared pool of open buyer requests that agents can browse and
+ * claim. Provides filtering by city, price range, and property type, and
+ * handles pool-request lifecycle (open → claimed → closed).
+ */
+
 import { prisma } from "../../prismaClient";
 import { BuyerRequestStatus, Prisma } from "@prisma/client";
 

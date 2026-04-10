@@ -1,3 +1,10 @@
+/**
+ * vitest.config.ts — Vitest test-runner configuration for the API package.
+ *
+ * Configures path aliases (matching tsconfig paths) so unit tests can
+ * import `@shared/*` and `@api/*` without bundling the full application.
+ */
+
 import { defineConfig } from 'vitest/config';
 import path from 'path';
 

@@ -1,3 +1,11 @@
+/**
+ * locale.ts — Accept-Language locale detection middleware.
+ *
+ * Parses the `Accept-Language` request header and injects `req.locale` and a
+ * `req.t()` translation helper into every request. Defaults to Arabic (`ar`)
+ * when no preference is supplied, matching the primary Saudi market locale.
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import { t } from '../../i18n';
 

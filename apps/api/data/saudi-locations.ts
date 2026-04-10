@@ -1,3 +1,9 @@
+/**
+ * saudi-locations.ts — Static Saudi Arabian geographic reference data.
+ *
+ * Exports SAUDI_REGIONS (13 administrative regions) and their associated cities,
+ * used by listing forms, search filters, and spatial query helpers across the API.
+ */
 
 export const SAUDI_REGIONS = [
     { id: 1, nameAr: "الرياض", nameEn: "Riyadh", code: "RIY", population: 8591748, centerLatitude: 24.7136, centerLongitude: 46.6753 },

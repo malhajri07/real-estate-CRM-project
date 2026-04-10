@@ -87,7 +87,7 @@ export async function batchAssignLeads(req, res) { ... }
 | C6 | Backend — Marketing & inbox (campaigns, inbox, chatbot, messages, sequences, promotions) | 6 | ✅ |
 | C7 | Backend — Pool, tenancy, reports, notifications (buyer-pool, requests, broker-requests, tenancies, reports, custom-reports, notifications) | 7 | ✅ |
 | C8 | Backend — Billing, admin, CMS, all remaining routes (30 files) | 30 | ✅ |
-| C9 | Backend — `lib/` (validation, integrations, helpers) | ~15 | ⏳ |
+| C9 | Backend — lib/, services/, middleware/, validators/ (14 new headers, 51 already had) | 65 | ✅ |
 | C10 | Frontend — hooks (`hooks/api/*`, useAuth, useToast, useMobile…) | 10 | ⏳ |
 | C11 | Frontend — admin pages | 26 | ⏳ |
 | C12 | Frontend — platform CRM pages (dashboard, leads, customers, activities, calendar, pipeline) | ~10 | ⏳ |
@@ -275,7 +275,7 @@ export async function batchAssignLeads(req, res) { ... }
 - [ ] Run `/typecheck` — must be clean
 - [ ] Run `/coverage-report` — surface remaining undocumented exports
 - [ ] Run `npm run docs` — generate TypeDoc HTML at `docs/api/`
-- [ ] Spot-check 10 random files manually
+- [ ] Spot-check 40 random files manually
 - [ ] Commit final state with `/commit-and-track`
 - [ ] Add `Aqarkom_Knowledge/Reference/API Docs.md` linking to `docs/api/index.html`
 - [ ] Mark plan as ✅ complete

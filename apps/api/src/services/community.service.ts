@@ -1,3 +1,11 @@
+/**
+ * community.service.ts — Forum and community discussion service.
+ *
+ * Provides data-access methods for forum channels, posts, and replies.
+ * Consumed by the community/forum route handlers to power the in-platform
+ * agent discussion boards.
+ */
+
 import { basePrisma, prisma } from "../../prismaClient";
 
 export class CommunityService {

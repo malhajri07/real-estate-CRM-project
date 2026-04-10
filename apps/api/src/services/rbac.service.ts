@@ -1,3 +1,11 @@
+/**
+ * rbac.service.ts — Role-based access control management service.
+ *
+ * Handles user role assignment, invitation token generation, audit log
+ * retrieval, and user CRUD for the admin panel. Works alongside `rbac-policy.ts`
+ * (permission rules) and `rbac.middleware.ts` (request guards).
+ */
+
 import { prisma } from '../../prismaClient';
 import { UserRole, normalizeRoleKeys } from '@shared/rbac';
 import crypto from 'crypto';
