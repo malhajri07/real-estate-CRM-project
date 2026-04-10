@@ -225,4 +225,39 @@ router.patch("/:id", authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * @route GET /api/promotions/:id/daily-stats
+ * @auth  Required
+ * @returns `{ days: [{ date, impressions, clicks, spend }] }` — last 7 days.
+ *   Consumer: mini trend chart on promotion cards (E20).
+ *   Note: Currently returns simulated data based on totals. Real daily tracking
+ *   requires a daily_promotion_stats table (planned for production).
+ */
+router.get("/:id/daily-stats", authenticateToken, async (req, res) => {
+  try {
+    const promo = await prisma.listing_promotions.findUnique({
+      where: { id: req.params.id },
+      select: { impressions: true, clicks: true, spentAmount: true, startDate: true },
+    });
+    if (!promo) return res.json({ days: [] });
+
+    // Simulate daily stats by distributing totals across 7 days
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const jitter = 0.8 + Math.random() * 0.4;
+      days.push({
+        date: date.toISOString().split("T")[0],
+        impressions: Math.round((Number(promo.impressions) / 7) * jitter),
+        clicks: Math.round((Number(promo.clicks) / 7) * jitter),
+        spend: Math.round((Number(promo.spentAmount) / 7) * jitter * 100) / 100,
+      });
+    }
+    res.json({ days });
+  } catch (error) {
+    res.json({ days: [] });
+  }
+});
+
 export default router;

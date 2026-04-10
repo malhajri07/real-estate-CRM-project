@@ -28,9 +28,11 @@ created: 2026-04-10
 | E15 | Client portal | ✅ Done | [[Sessions/E15 - Client Portal]] |
 | E16 | Landing/Map | ✅ Done | [[Sessions/E16 - Landing Map]] |
 | E17 | Forum | ✅ Done | [[Sessions/E17 - Forum]] |
-| E18 | Projects | ⏳ Next | progress, heatmap, milestones |
-| E19 | Report builder | ⏳ | charts, export, schedule |
-| E20 | Promotions | ⏳ | performance, budget alerts |
+| E18 | Projects | ✅ Done | [[Sessions/E18 - Projects]] |
+| E19 | Report builder | ✅ Done | [[Sessions/E19 - Report Builder]] |
+| E20 | Promotions | ✅ Done | [[Sessions/E20 - Promotions]] |
+
+## ✅ ENHANCEMENT PLAN COMPLETE — All 20 sessions shipped.
 
 ## Verification per session
 

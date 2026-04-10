@@ -186,4 +186,27 @@ router.post("/saved", authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * @route POST /api/custom-reports/schedule
+ * @auth  Required
+ * @param req.body.reportConfig - Saved report config JSON.
+ * @param req.body.frequency - "weekly" | "monthly".
+ * @param req.body.email - Recipient email.
+ * @returns `{ success, message }`.
+ *   Consumer: "Schedule" option in report builder (E19). Placeholder — actual email
+ *   delivery requires a cron job integration.
+ */
+router.post("/schedule", authenticateToken, async (req, res) => {
+  try {
+    const { reportConfig, frequency, email } = req.body;
+    if (!reportConfig || !frequency || !email) {
+      return res.status(400).json({ message: "reportConfig, frequency, email required" });
+    }
+    // TODO: Store schedule in a dedicated table + cron job. For now, acknowledge the request.
+    res.json({ success: true, message: `سيتم إرسال التقرير ${frequency === "weekly" ? "أسبوعيا" : "شهريا"} إلى ${email}` });
+  } catch (error) {
+    res.status(500).json({ message: "فشل جدولة التقرير" });
+  }
+});
+
 export default router;

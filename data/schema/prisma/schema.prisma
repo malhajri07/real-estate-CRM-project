@@ -2206,6 +2206,8 @@ model projects {
   agentId        String
   organizationId String?
   coverImage     String?
+  /// Construction completion percentage 0-100 (E18). Consumer: progress bar on project cards.
+  constructionProgress Int    @default(0)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
