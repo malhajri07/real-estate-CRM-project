@@ -1,3 +1,25 @@
+/**
+ * routes/activities.ts — Agent task/follow-up CRUD.
+ *
+ * Mounted at `/api/activities` in `apps/api/routes.ts`.
+ *
+ * Activities are logged actions on a lead (calls, viewings, follow-ups).
+ * Stored in `audit_logs` via the `storage.createActivity` adapter — not a
+ * separate table, but reusing audit_logs with `entity = "lead"`.
+ *
+ * Endpoints:
+ * | Method | Path                 | Purpose                          |
+ * |--------|----------------------|----------------------------------|
+ * | GET    | /                    | List today's activities           |
+ * | GET    | /lead/:leadId        | Activities for a specific lead    |
+ * | GET    | /today               | Alias for /                       |
+ * | POST   | /                    | Create activity on a lead         |
+ * | PATCH  | /:id/toggle-complete | Toggle completed flag             |
+ *
+ * Consumer: `apps/web/src/pages/platform/activities/index.tsx`
+ *   (query key `['/api/activities']`).
+ */
+
 import express from 'express';
 import { z } from "zod";
 import { storage } from '../storage-prisma';
@@ -5,6 +27,7 @@ import { decodeAuth } from '../src/middleware/auth-helpers';
 
 const router = express.Router();
 
+/** Zod schema for creating an activity. Source: activities page "Add" form. */
 const insertActivitySchema = z.object({
     leadId: z.string().min(1),
     type: z.string().min(1),

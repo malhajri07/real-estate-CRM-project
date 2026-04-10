@@ -1,8 +1,20 @@
 /**
- * routes/lead-routing.ts — Lead Routing Engine
+ * routes/lead-routing.ts — Lead auto-assignment engine.
+ *
+ * Mounted at `/api/org/lead-routing` in `apps/api/routes.ts`.
  *
  * CORP_OWNER configures how new leads are distributed to agents.
- * Strategies: round_robin, territory, manual, first_to_claim
+ * Strategies:
+ * - `round_robin` — rotates among active org agents in creation order
+ * - `territory` — matches lead city to agent territories (falls back to round-robin)
+ * - `manual` — no auto-assignment, agent picks from their list
+ * - `first_to_claim` — leads go to a pool, first agent to claim wins
+ *
+ * Also exports {@link applyLeadRouting} for use by `POST /api/leads` after
+ * creating a new lead (see `routes/leads.ts`).
+ *
+ * Consumer: settings page "Lead Distribution" tab in
+ *   `apps/web/src/pages/platform/settings/index.tsx`.
  */
 
 import { Router } from "express";
@@ -77,8 +89,18 @@ router.put("/", authenticateToken, async (req, res) => {
 });
 
 /**
- * applyLeadRouting — Called after a new lead is created to auto-assign.
- * Exported for use in leads.ts POST handler.
+ * Auto-assign a newly created lead to an agent based on the org's routing rules.
+ *
+ * Called from `POST /api/leads` in `routes/leads.ts` after the lead row is created.
+ * If the org has no routing rule, routing is disabled, or strategy is `manual`,
+ * no assignment happens and the lead stays with the creating agent.
+ *
+ * @param lead - Minimal lead fields. Source: the just-created `leads` row.
+ * @returns The assigned agent's ID, or `null` if no assignment was made.
+ *   Consumer: `routes/leads.ts` ignores the return (fire-and-forget best-effort).
+ *
+ * @sideEffect Updates `leads.agentId` + `leads.assignedAt` on the new row.
+ *   Advances `lead_routing_rules.lastAssignedIdx` for round-robin.
  */
 export async function applyLeadRouting(
   lead: { id: string; organizationId?: string | null; city?: string | null },

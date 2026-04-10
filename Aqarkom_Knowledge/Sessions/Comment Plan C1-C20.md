@@ -82,7 +82,7 @@ export async function batchAssignLeads(req, res) { ... }
 | C1 | Convention + tooling + skill | ~6 | ✅ |
 | C2 | Prisma schema | 1 | ✅ |
 | C3 | Backend — auth + middleware | 6 | ✅ |
-| C4 | Backend — CRM (leads, customers, activities, contact-log, appointments) | 5 | ⏳ |
+| C4 | Backend — CRM (leads, activities, appointments, lead-routing) | 4 | ✅ |
 | C5 | Backend — Properties & deals (listings, deals, projects) | ~5 | ⏳ |
 | C6 | Backend — Marketing & inbox (campaigns, inbox, chatbot, messages, webhooks) | ~6 | ⏳ |
 | C7 | Backend — Pool, tenancy, reports, notifications | ~7 | ⏳ |

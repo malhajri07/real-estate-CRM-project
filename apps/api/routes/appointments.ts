@@ -1,3 +1,23 @@
+/**
+ * routes/appointments.ts — Viewing / meeting schedule CRUD + public booking.
+ *
+ * Mounted at `/api/appointments` in `apps/api/routes.ts`.
+ *
+ * Endpoints:
+ * | Method | Path             | Auth? | Purpose                                     |
+ * |--------|------------------|-------|---------------------------------------------|
+ * | GET    | /                | Yes   | List appointments (agent + org scoped)       |
+ * | POST   | /                | Yes   | Create appointment linked to customer/lead   |
+ * | PUT    | /:id             | Yes   | Update status / reschedule / reassign        |
+ * | POST   | /public-booking  | No    | Public property viewing request (creates     |
+ * |        |                  |       | customer + lead + appointment in one go)     |
+ *
+ * Consumer: calendar page `apps/web/src/pages/platform/calendar/index.tsx`
+ *   (query key `['/api/appointments']`).
+ *
+ * @see [[Features/CRM Core]]
+ */
+
 import { Router, Request, Response } from 'express';
 import { prisma } from '../prismaClient';
 import { z } from 'zod';
@@ -5,6 +25,7 @@ import { authenticateToken } from '../auth';
 
 const router = Router();
 
+/** Zod schema for authenticated appointment creation. */
 const AppointmentSchema = z.object({
     customerId: z.string().min(1),
     scheduledAt: z.string().datetime(),
@@ -137,7 +158,11 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
     }
 });
 
-// POST /api/appointments/public-booking — Public booking request (no auth required)
+/**
+ * Zod schema for the public (no-auth) booking form on the property detail page.
+ * Source: public property page at `apps/web/src/pages/platform/properties/detail.tsx`.
+ * Phone validated as Saudi mobile: `05XXXXXXXX` or `+9665XXXXXXXX`.
+ */
 const PublicBookingSchema = z.object({
     propertyId: z.string().min(1),
     agentId: z.string().min(1),
@@ -147,6 +172,15 @@ const PublicBookingSchema = z.object({
     notes: z.string().optional(),
 });
 
+/**
+ * @route POST /api/appointments/public-booking
+ * @auth  Not required (public website form)
+ * @param req.body - { propertyId, agentId, scheduledAt, customerName, customerPhone, notes? }
+ *   Source: public property detail "Book Viewing" form.
+ * @returns `{ success, appointmentId, message }`.
+ * @sideEffect Creates `customers` row if phone is new; creates `leads` row with
+ *   `source = 'public_booking'`; creates `appointments` row.
+ */
 router.post('/public-booking', async (req: Request, res: Response) => {
     try {
         const data = PublicBookingSchema.parse(req.body);
