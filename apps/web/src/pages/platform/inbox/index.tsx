@@ -19,6 +19,9 @@ import {
   CheckCheck,
   Check,
   AlertCircle,
+  Search,
+  Tag,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +50,17 @@ interface Conversation {
   lastMessageDirection: string;
   unreadCount: number;
   channel: string;
+  /** Labels applied to this conversation (E12). Source: conversation_labels table. */
+  labels?: string[];
 }
+
+/** Available conversation label options (E12). */
+const LABEL_OPTIONS = ["عميل ساخن", "متابعة", "مكتمل"] as const;
+const LABEL_COLORS: Record<string, string> = {
+  "عميل ساخن": "bg-destructive/10 text-destructive border-destructive/30",
+  "متابعة": "bg-[hsl(var(--warning)/0.1)] text-[hsl(var(--warning))] border-[hsl(var(--warning)/0.3)]",
+  "مكتمل": "bg-primary/10 text-primary border-primary/30",
+};
 
 interface Message {
   id: string;
@@ -109,6 +122,10 @@ export default function InboxPage() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messageText, setMessageText] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
+  /** Search query for filtering conversations (E12). */
+  const [searchQuery, setSearchQuery] = useState("");
+  /** Active label filter — null = show all (E12). */
+  const [labelFilter, setLabelFilter] = useState<string | null>(null);
 
   // ── Conversations list ─────────────────────────────────────────────────────
   const {
@@ -118,6 +135,23 @@ export default function InboxPage() {
     queryKey: ["/api/inbox"],
     queryFn: () => apiGet<Conversation[]>("/api/inbox"),
     refetchInterval: 10_000, // poll every 10s for new messages
+  });
+
+  /** Filter conversations by search query + label (E12). */
+  const filteredConversations = conversations.filter((c) => {
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      if (!c.contactName.toLowerCase().includes(q) && !c.lastMessageContent.toLowerCase().includes(q) && !(c.phone || "").includes(q)) return false;
+    }
+    if (labelFilter && !(c.labels || []).includes(labelFilter)) return false;
+    return true;
+  });
+
+  /** Add/remove label mutation (E12). */
+  const addLabelMutation = useMutation({
+    mutationFn: ({ key, label }: { key: string; label: string }) =>
+      apiPost(`/api/inbox/${key}/label`, { label }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/inbox"] }),
   });
 
   // Derive selected conversation metadata
@@ -183,22 +217,52 @@ export default function InboxPage() {
             <h3 className="text-sm font-semibold text-foreground">المحادثات</h3>
           </div>
 
+          {/* Search + label filter (E12) */}
+          <div className="p-2 space-y-2 border-b">
+            <div className="relative">
+              <Search className="absolute start-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                placeholder="بحث..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="ps-8 h-8 text-xs"
+              />
+            </div>
+            <div className="flex gap-1 flex-wrap">
+              {LABEL_OPTIONS.map((l) => (
+                <Badge
+                  key={l}
+                  variant="outline"
+                  className={cn("text-[10px] cursor-pointer", labelFilter === l ? LABEL_COLORS[l] : "opacity-50")}
+                  onClick={() => setLabelFilter(labelFilter === l ? null : l)}
+                >
+                  {l}
+                </Badge>
+              ))}
+              {labelFilter && (
+                <Badge variant="outline" className="text-[10px] cursor-pointer text-destructive border-0" onClick={() => setLabelFilter(null)}>
+                  <X className="h-3 w-3" />
+                </Badge>
+              )}
+            </div>
+          </div>
+
           {loadingConversations ? (
             <div className="flex-1 flex items-center justify-center">
               <Spinner size="lg" className="text-primary" />
             </div>
-          ) : conversations.length === 0 ? (
+          ) : filteredConversations.length === 0 ? (
             <div className="flex-1 flex items-center justify-center p-4">
               <EmptyState
                 icon={MessageSquare}
-                title="لا توجد محادثات"
-                description="ابدأ محادثة جديدة مع عميل"
+                title={searchQuery || labelFilter ? "لا توجد نتائج" : "لا توجد محادثات"}
+                description={!searchQuery && !labelFilter ? "ابدأ محادثة جديدة مع عميل" : undefined}
               />
             </div>
           ) : (
             <ScrollArea className="flex-1">
               <div className="divide-y">
-                {conversations.map((conv) => (
+                {filteredConversations.map((conv) => (
                   <button
                     key={conv.conversationKey}
                     onClick={() => setSelectedConversation(conv.conversationKey)}
@@ -241,6 +305,16 @@ export default function InboxPage() {
                             )}
                           </div>
                         </div>
+                        {/* Conversation labels (E12) */}
+                        {(conv.labels || []).length > 0 && (
+                          <div className="flex gap-1 mt-1">
+                            {conv.labels!.map((l) => (
+                              <Badge key={l} variant="outline" className={cn("text-[9px] h-4 px-1", LABEL_COLORS[l] || "")}>
+                                {l}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </button>

@@ -8,6 +8,9 @@
  * | GET    | /                        | Yes   | Conversation list (grouped by lead/phone)|
  * | GET    | /:leadId                 | Yes   | Full message thread for a lead           |
  * | POST   | /send                    | Yes   | Send outbound message                    |
+ * | GET    | /search?q=text           | Yes   | Search messages across conversations (E12)|
+ * | POST   | /:key/label              | Yes   | Add a label to a conversation (E12)       |
+ * | DELETE | /:key/label/:label       | Yes   | Remove a label (E12)                      |
  * | POST   | /webhooks/whatsapp       | No    | Inbound webhook from Unifonic/Twilio     |
  *
  * Messages are grouped into conversations by `leadId` (preferred) or `phone`
@@ -98,6 +101,19 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
       }
     }
 
+    // Fetch labels for all conversations (E12)
+    const convKeys = conversations.map((c) => c.conversationKey);
+    let labelsMap: Record<string, string[]> = {};
+    try {
+      const allLabels = await prisma.conversation_labels.findMany({
+        where: { conversationKey: { in: convKeys }, agentId },
+      });
+      for (const l of allLabels) {
+        if (!labelsMap[l.conversationKey]) labelsMap[l.conversationKey] = [];
+        labelsMap[l.conversationKey].push(l.label);
+      }
+    } catch { /* best effort */ }
+
     const result = conversations.map((c) => ({
       conversationKey: c.conversationKey,
       leadId: c.leadId,
@@ -108,10 +124,16 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
       lastMessageDirection: c.lastMessage.direction,
       unreadCount: c.unreadCount,
       channel: c.lastMessage.channel,
+      /** Labels applied to this conversation (E12). Consumer: label badges + filter. */
+      labels: labelsMap[c.conversationKey] || [],
     }));
 
-    // Sort by most recent message
-    result.sort((a, b) => new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime());
+    // Sort: unread first, then by most recent message
+    result.sort((a, b) => {
+      if (a.unreadCount > 0 && b.unreadCount === 0) return -1;
+      if (a.unreadCount === 0 && b.unreadCount > 0) return 1;
+      return new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime();
+    });
 
     res.json(result);
   } catch (error) {
@@ -290,6 +312,96 @@ router.post("/whatsapp", async (req: Request, res: Response) => {
     console.error("POST /api/webhooks/whatsapp error:", error);
     // Always return 200 to WhatsApp to prevent retries
     res.status(200).json({ status: "error" });
+  }
+});
+
+/**
+ * @route GET /api/inbox/search?q=text
+ * @auth  Required
+ * @returns Conversations matching the query in contact name or message content.
+ *   Consumer: inbox search bar (E12).
+ */
+router.get("/search", authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const q = (req.query.q as string || "").trim();
+    if (!q) return res.json([]);
+
+    const user = req.user!;
+    const messages: any[] = await (basePrisma as any).messages.findMany({
+      where: {
+        agentId: user.id,
+        content: { contains: q, mode: "insensitive" },
+      },
+      orderBy: { sentAt: "desc" },
+      take: 100,
+    });
+
+    // Group into unique conversation keys
+    const seen = new Set<string>();
+    const results = messages
+      .map((m) => ({
+        conversationKey: m.leadId || m.phone || m.id,
+        leadId: m.leadId,
+        phone: m.phone,
+        matchedContent: m.content.substring(0, 120),
+        sentAt: m.sentAt,
+        channel: m.channel,
+      }))
+      .filter((r) => {
+        if (seen.has(r.conversationKey)) return false;
+        seen.add(r.conversationKey);
+        return true;
+      });
+
+    res.json(results);
+  } catch (error) {
+    res.json([]);
+  }
+});
+
+/**
+ * @route POST /api/inbox/:key/label
+ * @auth  Required
+ * @param req.body.label - Label text. Source: label picker in inbox (E12).
+ * @sideEffect Creates a conversation_labels row.
+ */
+router.post("/:key/label", authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { key } = req.params;
+    const { label } = req.body;
+    if (!label) return res.status(400).json({ message: "label is required" });
+
+    await prisma.conversation_labels.upsert({
+      where: {
+        conversationKey_agentId_label: {
+          conversationKey: key,
+          agentId: req.user!.id,
+          label,
+        },
+      },
+      create: { conversationKey: key, agentId: req.user!.id, label },
+      update: {},
+    });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to add label" });
+  }
+});
+
+/**
+ * @route DELETE /api/inbox/:key/label/:label
+ * @auth  Required
+ * @sideEffect Deletes the conversation_labels row.
+ */
+router.delete("/:key/label/:label", authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const { key, label } = req.params;
+    await prisma.conversation_labels.deleteMany({
+      where: { conversationKey: key, agentId: req.user!.id, label },
+    });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to remove label" });
   }
 });
 

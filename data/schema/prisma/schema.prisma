@@ -2398,3 +2398,20 @@ model property_price_history {
   @@index([propertyId])
   @@index([changedAt])
 }
+
+// ── Conversation Labels (E12) ─────────────────────────────────────────────────
+
+/// Agent-applied labels on inbox conversations (E12).
+/// conversationKey is the leadId or phone that groups messages.
+/// Consumer: label filter + badges in inbox page.
+model conversation_labels {
+  id              String   @id @default(uuid())
+  conversationKey String   // leadId or phone number
+  agentId         String
+  label           String   // e.g. "عميل ساخن", "متابعة", "مكتمل"
+  createdAt       DateTime @default(now())
+
+  @@unique([conversationKey, agentId, label])
+  @@index([agentId])
+  @@index([conversationKey])
+}

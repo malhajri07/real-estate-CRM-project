@@ -22,8 +22,8 @@ created: 2026-04-10
 | E9 | Pool | ✅ Done | [[Sessions/E9 - Pool]] |
 | E10 | Broker requests | ✅ Done | [[Sessions/E10 - Broker Requests]] |
 | E11 | Campaigns | ✅ Done | [[Sessions/E11 - Campaigns]] |
-| E12 | Inbox | ⏳ Next | unread, search, labels |
-| E13 | Settings | ⏳ | completion actions, activity log |
+| E12 | Inbox | ✅ Done | [[Sessions/E12 - Inbox]] |
+| E13 | Settings | ⏳ Next | completion actions, activity log |
 | E14 | Tools | ⏳ | save calcs, share, compare |
 | E15 | Client portal | ⏳ | docs, history, rating |
 | E16 | Landing/Map | ⏳ | featured, autocomplete, recent |
