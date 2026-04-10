@@ -3,7 +3,8 @@
  *
  * Consumer: pages/platform/properties/index.tsx (grid view mode).
  */
-import { Trash2, Edit, Eye, Bed, Bath, Square, Share2, Sofa, ImageIcon } from "lucide-react";
+import { Trash2, Edit, Eye, Bed, Bath, Square, Share2, Sofa, ImageIcon, Clock } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { SarPrice } from "@/components/ui/sar-symbol";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,9 +72,18 @@ export default function PropertiesGrid({
               <h3 className="font-bold text-lg text-foreground line-clamp-1 tracking-tight">
                 {property.title}
               </h3>
-              <Badge variant={getPropertyStatusVariant(property.status)}>
-                {property.status}
-              </Badge>
+              <div className="flex items-center gap-1 shrink-0">
+                {/* Days on market badge (E7). Source: daysOnMarket from GET /api/listings. */}
+                {(property as any).daysOnMarket != null && (
+                  <Badge variant="outline" className={cn("text-[10px] gap-0.5", (property as any).daysOnMarket > 90 ? "border-destructive/30 text-destructive" : "")}>
+                    <Clock className="h-3 w-3" />
+                    {(property as any).daysOnMarket} يوم
+                  </Badge>
+                )}
+                <Badge variant={getPropertyStatusVariant(property.status)}>
+                  {property.status}
+                </Badge>
+              </div>
             </div>
 
             <p className="text-muted-foreground text-sm mb-4">

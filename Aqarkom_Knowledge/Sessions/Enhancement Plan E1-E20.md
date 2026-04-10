@@ -17,8 +17,8 @@ created: 2026-04-10
 | E4 | Calendar | ✅ Done | [[Sessions/E4 - Calendar]] |
 | E5 | Activities | ✅ Done | [[Sessions/E5 - Activities]] |
 | E6 | Tenants | ✅ Done | [[Sessions/E6 - Tenants]] |
-| E7 | Properties list | ⏳ Next | days-on-market, map view, saved filters |
-| E8 | Property detail | ⏳ | similar, price history, interested |
+| E7 | Properties list | ✅ Done | [[Sessions/E7 - Properties]] |
+| E8 | Property detail | ⏳ Next | similar, price history, interested |
 | E9 | Pool | ⏳ | match score, expiry countdown |
 | E10 | Broker requests | ⏳ | timeline, share |
 | E11 | Campaigns | ⏳ | analytics, A/B testing |

@@ -2366,3 +2366,18 @@ model property_warranties {
   @@index([propertyId])
   @@index([expiresAt])
 }
+
+// ── Saved Filter Presets (E7) ─────────────────────────────────────────────────
+
+/// Agent-saved filter presets for the properties list page (E7).
+/// filterConfig is a JSON object storing the active filter state.
+model saved_filters {
+  id           String   @id @default(uuid())
+  agentId      String
+  name         String
+  filterConfig String   @db.Text  // JSON: { city, type, listingType, minPrice, maxPrice, ... }
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([agentId])
+}

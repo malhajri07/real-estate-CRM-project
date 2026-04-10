@@ -42,6 +42,7 @@
 - [[Sessions/E4 - Calendar]]
 - [[Sessions/E5 - Activities]]
 - [[Sessions/E6 - Tenants]]
+- [[Sessions/E7 - Properties]]
 
 ### 📝 Documentation Plan
 - [[Sessions/Comment Plan C1-C20]] — adds TSDoc comments to every function (Source/Consumer data lineage)

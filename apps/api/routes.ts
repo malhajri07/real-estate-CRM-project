@@ -41,6 +41,7 @@ import supportRoutes          from "./routes/support";
 import appointmentsRoutes     from "./routes/appointments";
 import inquiriesRoutes        from "./routes/inquiries";
 import auditLogsRoutes        from "./routes/audit-logs";
+import savedFiltersRoutes     from "./routes/saved-filters";
 
 // ── Agent collaboration ──────────────────────────────────────────────────────
 import brokerRequestsRoutes   from "./routes/broker-requests";
@@ -150,6 +151,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/appointments",   appointmentsRoutes);
   app.use("/api/inquiries",      inquiriesRoutes);
   app.use("/api/audit-logs",     authenticateToken, auditLogsRoutes);
+  app.use("/api/saved-filters",  savedFiltersRoutes);
   app.use("/api/broker-requests", brokerRequestsRoutes);
   app.use("/api/nearby-places",  nearbyPlacesRoutes);
   app.use("/api/promotions",     promotionsRoutes);

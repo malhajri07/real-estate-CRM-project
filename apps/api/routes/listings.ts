@@ -132,6 +132,10 @@ router.get("/", async (req, res) => {
         photoUrls = item.imageGallery;
       }
 
+      /** Days on market — calculated from createdAt (E7). Consumer: property card badge. */
+      const createdDate = item.createdAt ? new Date(item.createdAt).getTime() : Date.now();
+      const daysOnMarket = Math.floor((Date.now() - createdDate) / (1000 * 60 * 60 * 24));
+
       return {
         ...item,
         propertyType: item.type ?? null,
@@ -140,6 +144,7 @@ router.get("/", async (req, res) => {
           : null,
         photoUrls,
         imageGallery: photoUrls,
+        daysOnMarket,
       };
     });
 

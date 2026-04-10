@@ -12,7 +12,8 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { Plus, SlidersHorizontal, LayoutGrid, List, Search, X, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Plus, SlidersHorizontal, LayoutGrid, List, Search, X, CheckCircle, XCircle, Clock, Save, Bookmark } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useLocation } from "wouter";
 import {
@@ -134,6 +135,46 @@ export default function Properties() {
     },
     onError: () => toast({ title: "خطأ", variant: "destructive" }),
   });
+
+  // ── Saved filter presets (E7) ───────────────────────────────────────────────
+
+  interface SavedFilter { id: string; name: string; filterConfig: Record<string, any> }
+
+  const { data: savedFilters } = useQuery<SavedFilter[]>({
+    queryKey: ["/api/saved-filters"],
+  });
+
+  /** Save the current filter state as a named preset (E7). */
+  const saveFilterMutation = useMutation({
+    mutationFn: (name: string) =>
+      fetch("/api/saved-filters", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+        body: JSON.stringify({
+          name,
+          filterConfig: { statusFilter, propertyTypeFilter, listingTypeFilter, cityFilter, districtFilter, minPrice, maxPrice, minBedrooms, minBathrooms, sortBy },
+        }),
+      }).then((r) => r.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/saved-filters"] });
+      toast({ title: "تم حفظ الفلتر" });
+    },
+  });
+
+  /** Load a saved filter preset into the current state (E7). */
+  const loadFilter = (config: Record<string, any>) => {
+    if (config.statusFilter) setStatusFilter(config.statusFilter);
+    if (config.propertyTypeFilter) setPropertyTypeFilter(config.propertyTypeFilter);
+    if (config.listingTypeFilter) setListingTypeFilter(config.listingTypeFilter);
+    if (config.cityFilter) setCityFilter(config.cityFilter);
+    if (config.districtFilter) setDistrictFilter(config.districtFilter);
+    if (config.minPrice) setMinPrice(config.minPrice);
+    if (config.maxPrice) setMaxPrice(config.maxPrice);
+    if (config.minBedrooms) setMinBedrooms(config.minBedrooms);
+    if (config.minBathrooms) setMinBathrooms(config.minBathrooms);
+    if (config.sortBy) setSortBy(config.sortBy);
+    setCurrentPage(1);
+  };
 
   // Pending approval listings (CORP_OWNER only)
   const pendingApproval = useMemo(() => {
@@ -355,6 +396,32 @@ export default function Properties() {
             الفلاتر
             {activeFilterCount > 0 && <Badge variant="default" className="text-[10px] px-1.5 h-5">{activeFilterCount}</Badge>}
           </Button>
+
+          {/* Saved filters (E7) */}
+          {activeFilterCount > 0 && (
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
+              const name = prompt("اسم الفلتر:");
+              if (name?.trim()) saveFilterMutation.mutate(name.trim());
+            }}>
+              <Save size={14} /> حفظ
+            </Button>
+          )}
+          {savedFilters && savedFilters.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5">
+                  <Bookmark size={14} /> المحفوظات
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {savedFilters.map((f) => (
+                  <DropdownMenuItem key={f.id} onClick={() => loadFilter(f.filterConfig)}>
+                    {f.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           <Button onClick={() => setAddPropertyDrawerOpen(true)} size="sm">
             <Plus className="me-1.5" size={16} />
