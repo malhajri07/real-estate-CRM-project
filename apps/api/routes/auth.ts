@@ -68,6 +68,13 @@ router.post('/login', async (req, res) => {
       req.session.authToken = result.token;
     }
 
+    // Record login event for activity log (E13)
+    if (result.user?.id) {
+      prisma.login_history.create({
+        data: { userId: result.user.id, ipAddress: req.ip, userAgent: req.headers["user-agent"] },
+      }).catch(() => {});
+    }
+
     res.json({ success: true, ...result });
 
   } catch (error) {
@@ -199,6 +206,11 @@ router.post('/verify-otp', async (req, res) => {
       req.session.user = user as any;
       req.session.authToken = token;
     }
+
+    // Record login event for activity log (E13)
+    prisma.login_history.create({
+      data: { userId: user.id, ipAddress: req.ip, userAgent: req.headers["user-agent"] },
+    }).catch(() => {});
 
     res.json({
       success: true,
@@ -516,6 +528,40 @@ router.get('/preferences', authenticateToken, async (req, res) => {
     res.status(500).json(getErrorResponse('FETCH_FAILED', locale));
   }
 });
+
+/**
+ * @route GET /api/auth/login-history
+ * @auth  Required
+ * @returns Last 10 login events with device + IP.
+ *   Consumer: "Activity Log" section in settings page (E13).
+ */
+router.get('/login-history', authenticateToken, async (req, res) => {
+  try {
+    const history = await prisma.login_history.findMany({
+      where: { userId: req.user!.id },
+      orderBy: { loginAt: 'desc' },
+      take: 10,
+    });
+    res.json(history.map((h) => ({
+      id: h.id,
+      loginAt: h.loginAt,
+      ipAddress: h.ipAddress,
+      device: parseUserAgent(h.userAgent),
+    })));
+  } catch (error) {
+    res.json([]);
+  }
+});
+
+/** Simple user-agent parser for display in activity log (E13). */
+function parseUserAgent(ua: string | null): string {
+  if (!ua) return "غير معروف";
+  if (ua.includes("Mobile")) return "جوال";
+  if (ua.includes("Chrome")) return "Chrome";
+  if (ua.includes("Firefox")) return "Firefox";
+  if (ua.includes("Safari")) return "Safari";
+  return "متصفح";
+}
 
 // POST /api/auth/logout
 router.post('/logout', authenticateToken, async (req, res) => {

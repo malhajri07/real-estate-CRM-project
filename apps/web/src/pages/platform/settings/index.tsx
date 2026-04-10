@@ -226,12 +226,26 @@ export default function Settings() {
               <div className="mt-4 pt-4 border-t border-border">
                 <p className="text-xs font-bold text-muted-foreground mb-2 px-3">أكمل ملفك</p>
                 <div className="space-y-1.5 px-3">
-                  {missing.slice(0, 4).map((item) => (
-                    <div key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--warning))]" />
-                      {item}
-                    </div>
-                  ))}
+                  {missing.slice(0, 4).map((item) => {
+                    /** Map missing field label to the settings section it belongs to (E13). */
+                    const sectionMap: Record<string, SectionKey> = {
+                      "الاسم الكامل": "profile", "البريد الإلكتروني": "profile",
+                      "رقم الجوال": "profile", "رقم واتساب": "profile",
+                      "رخصة فال": "professional", "نبذة مهنية": "professional",
+                      "التخصصات": "professional", "مناطق الخدمة": "professional",
+                      "سنوات الخبرة": "professional", "الآيبان": "payments",
+                    };
+                    return (
+                      <button
+                        key={item}
+                        className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors w-full text-start"
+                        onClick={() => handleNavClick(sectionMap[item] || "profile")}
+                      >
+                        <div className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--warning))]" />
+                        {item}
+                      </button>
+                    );
+                  })}
                   {missing.length > 4 && (
                     <p className="text-xs text-muted-foreground">+{missing.length - 4} أخرى</p>
                   )}

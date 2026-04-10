@@ -2415,3 +2415,18 @@ model conversation_labels {
   @@index([agentId])
   @@index([conversationKey])
 }
+
+// ── Login History (E13) ───────────────────────────────────────────────────────
+
+/// Tracks user login events with device + IP for the settings activity log (E13).
+/// Consumer: "Activity Log" section in settings page.
+model login_history {
+  id        String   @id @default(uuid())
+  userId    String
+  loginAt   DateTime @default(now())
+  ipAddress String?
+  userAgent String?
+
+  @@index([userId])
+  @@index([loginAt])
+}

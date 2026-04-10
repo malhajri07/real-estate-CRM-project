@@ -1,8 +1,9 @@
 /**
- * AccountSection.tsx — Password change + active sessions
+ * AccountSection.tsx — Password change + active sessions + login history (E13).
  */
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,9 +12,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Smartphone, Monitor, Clock } from "lucide-react";
-import { apiPut } from "@/lib/apiClient";
+import { Shield, Smartphone, Monitor, Clock, History } from "lucide-react";
+import { apiGet, apiPut } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
+import { formatDistanceToNow } from "date-fns";
+import { ar } from "date-fns/locale";
 
 const passwordSchema = z
   .object({
@@ -138,6 +141,55 @@ export default function AccountSection() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Login History (E13) */}
+      <LoginHistory />
     </div>
+  );
+}
+
+/**
+ * Login history section — last 10 login events with device + IP (E13).
+ * Source: GET /api/auth/login-history. Consumer: settings security tab.
+ */
+function LoginHistory() {
+  const { data: history } = useQuery<{ id: string; loginAt: string; ipAddress: string | null; device: string }[]>({
+    queryKey: ["/api/auth/login-history"],
+    queryFn: () => apiGet("/api/auth/login-history"),
+  });
+
+  if (!history || history.length === 0) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <History size={20} />
+          سجل الدخول
+        </CardTitle>
+        <CardDescription>آخر 10 عمليات تسجيل دخول</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          {history.map((h, i) => (
+            <div key={h.id} className="flex items-center justify-between rounded-lg border p-3">
+              <div className="flex items-center gap-3">
+                {h.device === "جوال" ? <Smartphone size={16} className="text-muted-foreground" /> : <Monitor size={16} className="text-muted-foreground" />}
+                <div>
+                  <p className="text-sm font-medium">{h.device}</p>
+                  <p className="text-[11px] text-muted-foreground">{h.ipAddress || "—"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {i === 0 && <Badge variant="default" className="text-[10px]">الأخير</Badge>}
+                <span className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(h.loginAt), { addSuffix: true, locale: ar })}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

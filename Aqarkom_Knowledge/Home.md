@@ -48,6 +48,7 @@
 - [[Sessions/E10 - Broker Requests]]
 - [[Sessions/E11 - Campaigns]]
 - [[Sessions/E12 - Inbox]]
+- [[Sessions/E13 - Settings]]
 
 ### 📝 Documentation Plan
 - [[Sessions/Comment Plan C1-C20]] — adds TSDoc comments to every function (Source/Consumer data lineage)
