@@ -7,7 +7,7 @@
  */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Check, Clock, Plus, Search, Phone, Mail, Users, CalendarDays, FileText, Trash2, Filter, ChevronDown, X } from "lucide-react";
+import { Check, Clock, Plus, Search, Phone, Mail, Users, CalendarDays, FileText, Trash2, Filter, ChevronDown, X, AlertTriangle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -101,6 +101,28 @@ export default function Activities() {
     },
   });
 
+  /**
+   * Set outcome on a completed activity (E5).
+   * Source: outcome dropdown in the table row.
+   * Consumer: invalidates ['/api/activities'] → table re-renders with badge.
+   */
+  const outcomeMutation = useMutation({
+    mutationFn: ({ id, outcome }: { id: string; outcome: string }) =>
+      apiPatch(`/api/activities/${id}/outcome`, { outcome }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/activities"] });
+      toast({ title: "تم تحديث النتيجة" });
+    },
+  });
+
+  /** Check if an activity is overdue: has scheduledDate in the past and not completed (E5). */
+  const isOverdue = (a: Activity) => {
+    if (a.completed) return false;
+    const scheduled = (a as any).scheduledDate || (a as any).scheduledAt;
+    if (!scheduled) return false;
+    return new Date(scheduled) < new Date();
+  };
+
   // Filters
   const filtered = (activities || []).filter(a => {
     if (searchQuery.trim()) {
@@ -117,6 +139,7 @@ export default function Activities() {
   const total = activities?.length || 0;
   const completed = activities?.filter(a => a.completed).length || 0;
   const pending = total - completed;
+  const overdueCount = activities?.filter(a => isOverdue(a)).length || 0;
   const todayCount = activities?.filter(a => {
     const d = a.scheduledDate || a.createdAt;
     if (!d) return false;
@@ -160,20 +183,21 @@ export default function Activities() {
       </PageHeader>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {[
-          { label: "الإجمالي", value: total, icon: FileText },
-          { label: "مكتمل", value: completed, icon: Check },
-          { label: "قيد الانتظار", value: pending, icon: Clock },
-          { label: "اليوم", value: todayCount, icon: CalendarDays },
+          { label: "الإجمالي", value: total, icon: FileText, color: "" },
+          { label: "مكتمل", value: completed, icon: Check, color: "" },
+          { label: "قيد الانتظار", value: pending, icon: Clock, color: "" },
+          { label: "متأخر", value: overdueCount, icon: AlertTriangle, color: overdueCount > 0 ? "text-destructive" : "" },
+          { label: "اليوم", value: todayCount, icon: CalendarDays, color: "" },
         ].map((s, i) => (
           <Card key={i}>
             <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <s.icon className="h-5 w-5 text-primary" />
+              <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center", s.color ? "bg-destructive/10" : "bg-primary/10")}>
+                <s.icon className={cn("h-5 w-5", s.color || "text-primary")} />
               </div>
               <div>
-                <p className="text-2xl font-black">{s.value}</p>
+                <p className={cn("text-2xl font-black", s.color)}>{s.value}</p>
                 <p className="text-xs text-muted-foreground">{s.label}</p>
               </div>
             </CardContent>
@@ -245,6 +269,7 @@ export default function Activities() {
                     <TableHead>العميل</TableHead>
                     <TableHead>التاريخ</TableHead>
                     <TableHead>الحالة</TableHead>
+                    <TableHead>النتيجة</TableHead>
                     <TableHead className="w-[60px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -280,9 +305,37 @@ export default function Activities() {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={activity.completed ? "default" : "secondary"}>
-                            {activity.completed ? "مكتمل" : "انتظار"}
-                          </Badge>
+                          <div className="flex items-center gap-1">
+                            <Badge variant={activity.completed ? "default" : "secondary"}>
+                              {activity.completed ? "مكتمل" : "انتظار"}
+                            </Badge>
+                            {isOverdue(activity) && (
+                              <Badge variant="destructive" className="text-[10px] gap-0.5">
+                                <AlertTriangle className="h-3 w-3" /> متأخر
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell onClick={(e) => e.stopPropagation()}>
+                          {activity.completed ? (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="h-7 text-xs gap-1">
+                                  {(activity as any).outcome || "النتيجة"}
+                                  <ChevronDown className="h-3 w-3 opacity-50" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent>
+                                {["مهتم", "غير مهتم", "معاودة الاتصال"].map((o) => (
+                                  <DropdownMenuItem key={o} onClick={() => outcomeMutation.mutate({ id: activity.id, outcome: o })}>
+                                    {o}
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
                         </TableCell>
                         <TableCell>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={(e) => { e.stopPropagation(); deleteMutation.mutate(activity.id); }}>
