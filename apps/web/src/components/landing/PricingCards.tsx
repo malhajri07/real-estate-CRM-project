@@ -1,3 +1,8 @@
+/**
+ * PricingCards — CMS-driven subscription tier cards shown on the public landing page.
+ *
+ * Consumer: pages/landing.tsx.
+ */
 import { motion } from "framer-motion";
 import { LandingPageContent, PricingPlan } from "@/lib/cms";
 import { CheckCircle2, Star, Sparkles } from "lucide-react";

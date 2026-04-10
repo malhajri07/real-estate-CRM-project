@@ -1,3 +1,8 @@
+/**
+ * AdminDialog — Accessible modal dialog wrapper for admin CRUD forms, built on top of Sheet.
+ *
+ * Consumer: admin management pages (user-management, role-management, etc.).
+ */
 import * as React from "react";
 import { Sheet, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription, SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";

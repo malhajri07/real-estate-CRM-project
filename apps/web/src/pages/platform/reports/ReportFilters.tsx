@@ -1,3 +1,8 @@
+/**
+ * ReportFilters — Filter bar for the reports page allowing date-range and category selection.
+ *
+ * Consumer: pages/platform/reports/index.tsx.
+ */
 import { Calendar } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 

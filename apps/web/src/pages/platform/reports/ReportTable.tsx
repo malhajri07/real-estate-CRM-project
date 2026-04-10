@@ -1,3 +1,8 @@
+/**
+ * ReportTable — Tabular view of aggregated report data with SAR price formatting and metric icons.
+ *
+ * Consumer: pages/platform/reports/index.tsx.
+ */
 import { SarPrice } from "@/components/ui/sar-symbol";
 import { Users, Building, Target, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -1,3 +1,8 @@
+/**
+ * use-toast — Thin wrapper around sonner that exposes a typed `toast` helper throughout the app.
+ *
+ * @returns `{ toast }` consumed by any component that needs to trigger notifications.
+ */
 import { toast as sonnerToast } from "sonner"
 
 type ToastProps = {

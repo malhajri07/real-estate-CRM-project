@@ -1,3 +1,8 @@
+/**
+ * FeatureGrid — CMS-driven feature grid section listing platform capabilities on the landing page.
+ *
+ * Consumer: pages/landing.tsx.
+ */
 import { motion } from "framer-motion";
 import { LandingPageContent } from "@/lib/cms";
 import { ArrowLeft, Sparkles } from "lucide-react";

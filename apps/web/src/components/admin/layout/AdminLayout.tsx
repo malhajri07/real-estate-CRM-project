@@ -1,3 +1,8 @@
+/**
+ * AdminLayout — Root shell that composes AdminSidebar + AdminHeader around page content.
+ *
+ * Consumer: all pages rendered under /admin/* routes.
+ */
 import { useState, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/components/auth/AuthProvider';

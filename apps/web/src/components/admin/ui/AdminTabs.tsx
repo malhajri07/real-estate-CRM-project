@@ -1,3 +1,8 @@
+/**
+ * AdminTabs — Themed tab group for admin pages, wraps shadcn Tabs with admin style tokens.
+ *
+ * Consumer: admin management pages that section content with tabs.
+ */
 import * as React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";

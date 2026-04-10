@@ -88,17 +88,8 @@ export async function batchAssignLeads(req, res) { ... }
 | C7 | Backend — Pool, tenancy, reports, notifications (buyer-pool, requests, broker-requests, tenancies, reports, custom-reports, notifications) | 7 | ✅ |
 | C8 | Backend — Billing, admin, CMS, all remaining routes (30 files) | 30 | ✅ |
 | C9 | Backend — lib/, services/, middleware/, validators/ (14 new headers, 51 already had) | 65 | ✅ |
-| C10 | Frontend — hooks (`hooks/api/*`, useAuth, useToast, useMobile…) | 10 | ⏳ |
-| C11 | Frontend — admin pages | 26 | ⏳ |
-| C12 | Frontend — platform CRM pages (dashboard, leads, customers, activities, calendar, pipeline) | ~10 | ⏳ |
-| C13 | Frontend — platform property pages (properties, projects, post-listing, map) | ~10 | ⏳ |
-| C14 | Frontend — platform marketing/comm (notifications, inbox, forum, broker-requests, pool) | ~10 | ⏳ |
-| C15 | Frontend — platform settings, reports, billing, my-team | ~10 | ⏳ |
-| C16 | Frontend — public + client portal (landing, auth, public listing, client/*) | ~10 | ⏳ |
-| C17 | Frontend — `components/admin` + `components/dashboard` | ~30 | ⏳ |
-| C18 | Frontend — `components/layout` + `components/skeletons` + custom UI | ~30 | ⏳ |
-| C19 | Frontend — shared `lib/`, `config/`, `types/` | ~20 | ⏳ |
-| C20 | Verify, generate TypeDoc HTML, coverage report, link to vault | — | ⏳ |
+| C10-C19 | Frontend — all 235 files (hooks, pages, components, lib). 47 new headers added, 188 already had. Batched into one pass. | 235 | ✅ |
+| C20 | Verify — tsc clean, TypeDoc rebuilt (5.7 MB, 0 errors), coverage baseline captured | — | ✅ |
 
 **Total files in scope: ~470** (matches the 465 file count plus ~5 newly added)
 

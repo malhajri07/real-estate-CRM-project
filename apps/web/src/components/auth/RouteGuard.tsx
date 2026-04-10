@@ -1,4 +1,8 @@
-
+/**
+ * RouteGuard — HOC that wraps lazy-loaded routes with auth/role checks and a Suspense boundary.
+ *
+ * Consumer: App.tsx route definitions for all authenticated platform and admin routes.
+ */
 import React, { ComponentType, LazyExoticComponent, Suspense } from 'react';
 import { useAuth, UserRole } from '@/components/auth/AuthProvider';
 import { useLocation } from 'wouter';

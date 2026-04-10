@@ -1,3 +1,8 @@
+/**
+ * PropertiesGrid — Card grid view for the platform properties list with quick-action overlays.
+ *
+ * Consumer: pages/platform/properties/index.tsx (grid view mode).
+ */
 import { Trash2, Edit, Eye, Bed, Bath, Square, Share2, Sofa, ImageIcon } from "lucide-react";
 import { SarPrice } from "@/components/ui/sar-symbol";
 import { Card, CardContent } from "@/components/ui/card";

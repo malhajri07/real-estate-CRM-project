@@ -1,3 +1,8 @@
+/**
+ * LandingFooter — CMS-driven footer with navigation links, social icons, and legal text.
+ *
+ * Consumer: pages/landing.tsx.
+ */
 import { motion } from "framer-motion";
 import { LandingPageContent } from "@/lib/cms";
 import { Separator } from "@/components/ui/separator";

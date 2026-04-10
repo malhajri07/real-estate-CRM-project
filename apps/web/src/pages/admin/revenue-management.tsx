@@ -1,3 +1,10 @@
+/**
+ * RevenueManagement — إدارة الإيرادات | Admin revenue dashboard with transaction tables and trend charts.
+ *
+ * @route /admin/revenue
+ * @auth WEBSITE_ADMIN
+ * @dataSources revenue/summary, revenue/transactions
+ */
 import { useLocation } from "wouter";
 import { MetricCard } from "@/components/admin";
 import { AdminTable, type AdminTableColumn } from "@/components/admin";

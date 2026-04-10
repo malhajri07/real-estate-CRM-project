@@ -1,3 +1,10 @@
+/**
+ * IntegrationsManagement — إدارة التكاملات | Admin page for connecting and monitoring third-party integrations.
+ *
+ * @route /admin/integrations
+ * @auth WEBSITE_ADMIN
+ * @dataSources integrations/list, integrations/status
+ */
 import { useLocation } from "wouter";
 import { MetricCard } from "@/components/admin";
 import { Card } from "@/components/ui/card";

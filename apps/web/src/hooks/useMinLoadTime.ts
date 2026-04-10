@@ -1,3 +1,8 @@
+/**
+ * useMinLoadTime — Ensures a loading state lasts at least N ms to prevent flash-of-content.
+ *
+ * @returns `isLoading` boolean consumed by page components that enforce a minimum spinner duration.
+ */
 import { useState, useEffect } from "react";
 
 /**

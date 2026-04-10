@@ -1,3 +1,8 @@
+/**
+ * table-skeleton — Configurable skeleton placeholder for data tables while data loads.
+ *
+ * Consumer: any page or component that renders a table with async data (leads, properties, etc.).
+ */
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 

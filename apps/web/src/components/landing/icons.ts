@@ -1,3 +1,8 @@
+/**
+ * icons — Named icon map used by CMS-driven landing sections to resolve icon keys to Lucide components.
+ *
+ * Consumer: components/landing/* sections that render dynamic icon keys from CMS content.
+ */
 import { ComponentType } from "react";
 import {
     Building, Building2, Users, TrendingUp, Shield, BarChart, BarChart3, MessageSquare, Phone, Mail,

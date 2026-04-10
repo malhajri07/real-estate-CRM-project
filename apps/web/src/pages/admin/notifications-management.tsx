@@ -1,3 +1,10 @@
+/**
+ * NotificationsManagement — إدارة الإشعارات | Admin page for managing system-wide notification templates and logs.
+ *
+ * @route /admin/notifications
+ * @auth WEBSITE_ADMIN
+ * @dataSources notifications/templates, notifications/logs
+ */
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/lib/apiClient";

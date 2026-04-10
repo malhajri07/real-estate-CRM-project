@@ -1,3 +1,10 @@
+/**
+ * Moderation — الإشراف على المحتوى | Admin content moderation queue for reviewing flagged listings and posts.
+ *
+ * @route /admin/moderation
+ * @auth WEBSITE_ADMIN
+ * @dataSources moderation/queue, moderation/metrics
+ */
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiGet, apiPost } from "@/lib/apiClient";

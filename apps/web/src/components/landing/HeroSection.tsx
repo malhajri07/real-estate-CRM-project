@@ -1,3 +1,8 @@
+/**
+ * HeroSection — Animated hero with parallax scroll, CTA buttons, and live metric badges.
+ *
+ * Consumer: pages/landing.tsx.
+ */
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

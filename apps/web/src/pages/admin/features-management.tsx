@@ -1,3 +1,10 @@
+/**
+ * FeaturesManagement — إدارة الميزات | Admin feature-flag dashboard for toggling platform features per tier.
+ *
+ * @route /admin/features
+ * @auth WEBSITE_ADMIN
+ * @dataSources features/list, subscription-tiers
+ */
 import { Fragment } from "react";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";

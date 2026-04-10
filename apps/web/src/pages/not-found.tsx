@@ -1,3 +1,10 @@
+/**
+ * NotFound — صفحة غير موجودة | 404 fallback page with navigation links back to home and login.
+ *
+ * @route /* (catch-all)
+ * @auth Public
+ * @dataSources none
+ */
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowRight, Search, LogIn } from "lucide-react";

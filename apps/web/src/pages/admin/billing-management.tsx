@@ -1,3 +1,10 @@
+/**
+ * BillingManagement — إدارة الفوترة | Admin page for managing subscription plans, invoices, and payment status.
+ *
+ * @route /admin/billing
+ * @auth WEBSITE_ADMIN
+ * @dataSources billing/plans, billing/invoices, billing/metrics
+ */
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/lib/apiClient";

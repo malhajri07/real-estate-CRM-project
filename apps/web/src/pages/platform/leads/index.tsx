@@ -1,3 +1,10 @@
+/**
+ * Leads — إدارة العملاء المحتملين | Lead table with bulk actions, status filters, and assignment workflow.
+ *
+ * @route /platform/leads
+ * @auth Required (agent)
+ * @dataSources leads/list, leads/create, leads/update, leads/delete
+ */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";

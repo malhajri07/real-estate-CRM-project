@@ -1,3 +1,8 @@
+/**
+ * ListInput — Reorderable string-list input used in CMS section editors for bullet-point fields.
+ *
+ * Consumer: pages/admin/cms-landing components that expose plain list fields.
+ */
 import React, { useEffect, useState } from "react";
 import { Plus, X, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";

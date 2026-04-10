@@ -1,3 +1,8 @@
+/**
+ * dashboard-skeleton — Full-page skeleton shimmer layout matching the platform dashboard structure.
+ *
+ * Consumer: pages/platform/dashboard.tsx Suspense fallback.
+ */
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**

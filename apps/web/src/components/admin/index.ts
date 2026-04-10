@@ -1,3 +1,8 @@
+/**
+ * admin/index — Barrel export for all admin UI components.
+ *
+ * Consumer: every admin page imports layout, data-display, and utility components from here.
+ */
 // Layout Components
 export { AdminBreadcrumbs } from './layout/AdminBreadcrumbs';
 

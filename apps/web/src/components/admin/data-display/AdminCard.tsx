@@ -1,3 +1,8 @@
+/**
+ * AdminCard — Themed card container for admin dashboard data blocks.
+ *
+ * Consumer: all admin management pages via the @/components/admin barrel.
+ */
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { formatNumber, formatPrice } from '@/lib/formatters';

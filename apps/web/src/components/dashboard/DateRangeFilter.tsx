@@ -1,4 +1,8 @@
-
+/**
+ * DateRangeFilter — Date-range picker control used to filter dashboard metrics by period.
+ *
+ * Consumer: pages/platform/dashboard.tsx, pages/platform/reports/index.tsx.
+ */
 import React, { useState } from 'react';
 import { CalendarIcon } from 'lucide-react';
 import { DateRange } from 'react-day-picker';

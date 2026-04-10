@@ -1,3 +1,6 @@
+/**
+ * landing-theme — Visual theme tokens (colours, gradients) used by landing page metric components.
+ */
 export const HERO_METRIC_THEME: Record<string, { bg: string; text: string; subText: string }> = {
     blue: { bg: "from-primary to-primary/70", text: "text-primary", subText: "text-primary" },
     green: { bg: "from-green-50 to-green-100", text: "text-green-600", subText: "text-green-700" },

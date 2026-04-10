@@ -1,3 +1,8 @@
+/**
+ * LinkListInput — Drag-and-drop list input for managing ordered link arrays in CMS section editors.
+ *
+ * Consumer: pages/admin/cms-landing components that expose link-list fields.
+ */
 import React, { useEffect, useState } from "react";
 import { Plus, X, GripVertical, Link as LinkIcon, Type } from "lucide-react";
 import { Button } from "@/components/ui/button";

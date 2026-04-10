@@ -1,3 +1,10 @@
+/**
+ * AnalyticsManagement — لوحة إدارة التحليلات | Admin analytics dashboard with traffic, conversion, and revenue charts.
+ *
+ * @route /admin/analytics
+ * @auth WEBSITE_ADMIN
+ * @dataSources analytics/overview, analytics/traffic, analytics/conversions, analytics/revenue
+ */
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiGet } from "@/lib/apiClient";

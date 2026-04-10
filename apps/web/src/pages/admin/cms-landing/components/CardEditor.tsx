@@ -1,3 +1,8 @@
+/**
+ * CardEditor — Inline editor for individual CMS landing-page cards within a section.
+ *
+ * Consumer: pages/admin/cms-landing/index.tsx via SectionEditor.
+ */
 import React from "react";
 import { Type, Save, Trash2, Smartphone, Globe, Shield, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";

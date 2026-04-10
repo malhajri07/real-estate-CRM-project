@@ -1,3 +1,10 @@
+/**
+ * ComplaintsManagement — إدارة الشكاوى | Admin page for reviewing, assigning, and resolving user complaints.
+ *
+ * @route /admin/complaints
+ * @auth WEBSITE_ADMIN
+ * @dataSources complaints/list, complaints/metrics
+ */
 import { useLocation } from "wouter";
 import { MetricCard } from "@/components/admin";
 import { Card } from "@/components/ui/card";

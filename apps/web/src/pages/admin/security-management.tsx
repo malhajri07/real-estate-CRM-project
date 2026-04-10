@@ -1,3 +1,10 @@
+/**
+ * SecurityManagement — إدارة الأمان | Admin security dashboard for audit logs, 2FA policy, and IP rules.
+ *
+ * @route /admin/security
+ * @auth WEBSITE_ADMIN
+ * @dataSources security/audit-logs, security/settings
+ */
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

@@ -1,3 +1,10 @@
+/**
+ * OrganizationManagement — إدارة المنظمات | Admin page for creating, editing, and suspending tenant organisations.
+ *
+ * @route /admin/organizations
+ * @auth WEBSITE_ADMIN
+ * @dataSources organizations/list, organizations/metrics
+ */
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

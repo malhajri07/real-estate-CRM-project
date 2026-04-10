@@ -1,3 +1,8 @@
+/**
+ * StatsBanner — Animated statistics strip rendered between sections on the public landing page.
+ *
+ * Consumer: pages/landing.tsx.
+ */
 import { motion } from "framer-motion";
 import { LandingPageContent } from "@/lib/cms";
 import { Card, CardContent } from "@/components/ui/card";

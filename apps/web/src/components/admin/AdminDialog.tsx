@@ -1,3 +1,8 @@
+/**
+ * AdminDialog — Legacy re-export shim for AdminDialog (deprecated entry point).
+ *
+ * Consumer: any admin page that imported AdminDialog from the old path.
+ */
 import * as React from "react";
 import {
     AdminDialog as Dialog,

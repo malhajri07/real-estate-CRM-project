@@ -1,3 +1,8 @@
+/**
+ * RevenueChart — Area chart visualising monthly revenue trends on the agent dashboard.
+ *
+ * Consumer: pages/platform/dashboard.tsx.
+ */
 import { useMemo } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts";
 import { CardContent } from "@/components/ui/card";

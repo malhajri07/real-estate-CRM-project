@@ -1,3 +1,10 @@
+/**
+ * Activities — سجل الأنشطة | Agent activity log with filtering, creation, and completion tracking.
+ *
+ * @route /platform/activities
+ * @auth Required (agent)
+ * @dataSources activities/list, activities/create, activities/update
+ */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Check, Clock, Plus, Search, Phone, Mail, Users, CalendarDays, FileText, Trash2, Filter, ChevronDown, X } from "lucide-react";

@@ -1,3 +1,8 @@
+/**
+ * PropertiesTable — Table view for the platform properties list with sortable columns and row actions.
+ *
+ * Consumer: pages/platform/properties/index.tsx (table view mode).
+ */
 import { SarPrice } from "@/components/ui/sar-symbol";
 import { Trash2, Edit, Eye, Bed, Bath, Square, Share2, Sofa } from "lucide-react";
 import { Button } from "@/components/ui/button";

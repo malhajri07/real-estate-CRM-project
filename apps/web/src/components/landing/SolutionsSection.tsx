@@ -1,3 +1,8 @@
+/**
+ * SolutionsSection — CMS-driven solutions overview section displayed on the public landing page.
+ *
+ * Consumer: pages/landing.tsx.
+ */
 import { motion } from "framer-motion";
 import { LandingPageContent } from "@/lib/cms";
 import { ComponentType } from "react";

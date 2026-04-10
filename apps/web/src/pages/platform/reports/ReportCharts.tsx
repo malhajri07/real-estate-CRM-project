@@ -1,3 +1,8 @@
+/**
+ * ReportCharts — Chart panel components (bar, pie, line, area) rendered inside the reports page tabs.
+ *
+ * Consumer: pages/platform/reports/index.tsx.
+ */
 import { TrendingUp, Users, Building, BarChart3, PieChart, LineChart, Activity, DollarSign, Target, Eye, MapPin, Filter } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";

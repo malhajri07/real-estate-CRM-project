@@ -1,3 +1,8 @@
+/**
+ * sidebar-utils — Utility functions that derive active state and breadcrumb data from adminSidebarConfig.
+ *
+ * Consumer: AdminSidebar and AdminBreadcrumbs components.
+ */
 import { adminSidebarConfig, type AdminSidebarItemConfig } from '@/config/admin-sidebar';
 import type { SidebarItem } from '../layout/AdminSidebar';
 

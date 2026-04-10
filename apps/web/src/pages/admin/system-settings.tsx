@@ -1,3 +1,10 @@
+/**
+ * SystemSettings — إعدادات النظام | Admin page for configuring global platform settings and environment values.
+ *
+ * @route /admin/settings
+ * @auth WEBSITE_ADMIN
+ * @dataSources settings/general, settings/email, settings/storage
+ */
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";

@@ -1,3 +1,8 @@
+/**
+ * AdminSheet — Admin-styled side-drawer built on shadcn Sheet with themed sizing variants.
+ *
+ * Consumer: admin pages that open detail/edit panels in a sliding drawer.
+ */
 import * as React from "react";
 import { Sheet, SheetPortal, SheetOverlay, SheetTrigger, SheetClose, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
