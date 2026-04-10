@@ -18,7 +18,7 @@ status: done
 - ✅ **Frontend:** Overlapping appointments highlighted with orange `ring-[hsl(var(--warning))]` border in both the grid and the sidebar
 - ✅ **Frontend:** Day headers clickable to switch the agenda sidebar; selected day shown with primary ring
 - ✅ **Frontend:** Duration picker in the create form (15/30/45/60/90/120 min)
-- ��� **Frontend:** Duration displayed in the appointment detail sheet
+- ✅ **Frontend:** Duration displayed in the appointment detail sheet
 - ✅ **Frontend:** Empty-day state in sidebar with quick "إضافة موعد" button
 
 ## Key code

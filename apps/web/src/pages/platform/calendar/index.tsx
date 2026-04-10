@@ -561,9 +561,6 @@ export default function CalendarPage() {
           {agendaAppointments.length === 0 ? (
             <div className="text-center py-6">
               <p className="text-sm text-muted-foreground">لا توجد مواعيد</p>
-              <Button size="sm" variant="outline" className="mt-2 gap-1" onClick={() => { setSelectedDate(agendaDay); setIsCreateOpen(true); }}>
-                <Plus className="h-3 w-3" /> إضافة مو��د
-              </Button>
             </div>
           ) : (
             <div className="space-y-2">
@@ -600,7 +597,7 @@ export default function CalendarPage() {
 
       </div>{/* end flex wrapper */}
 
-      {/* ── Appointment Detail Sheet ─────────��───────────────���────────────── */}
+      {/* ── Appointment Detail Sheet ──────────────────────────────────────── */}
       <Sheet open={!!selectedAppointment} onOpenChange={() => setSelectedAppointment(null)}>
         <SheetContent side="bottom">
           {selectedAppointment && (() => {
