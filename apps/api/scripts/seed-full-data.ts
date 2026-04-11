@@ -178,8 +178,12 @@ async function seedCorporateAgents(orgs: any[]) {
   console.log("  Seeding 200 corporate agents across 20 organizations...");
   const agents = [];
   const pw = hash("agent123");
+  // Track which orgs already have an owner — first agent per org becomes CORP_OWNER
+  const orgHasOwner = new Set<string>();
   for (let i = 0; i < 200; i++) {
     const org = orgs[i % orgs.length];
+    const isFirstInOrg = !orgHasOwner.has(org.id);
+    if (isFirstInOrg) orgHasOwner.add(org.id);
     const firstName = pick([...FIRST_NAMES_M, ...FIRST_NAMES_F]);
     const lastName = pick(LAST_NAMES);
     const user = await prisma.users.create({
@@ -190,7 +194,7 @@ async function seedCorporateAgents(orgs: any[]) {
         firstName,
         lastName,
         phone: saudiPhone(),
-        roles: JSON.stringify(i % 10 === 0 ? ["CORP_OWNER"] : ["CORP_AGENT"]),
+        roles: JSON.stringify(isFirstInOrg ? ["CORP_OWNER"] : ["CORP_AGENT"]),
         organizationId: org.id,
         isActive: true,
         approvalStatus: "APPROVED",
