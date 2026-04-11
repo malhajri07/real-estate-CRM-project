@@ -475,6 +475,12 @@ async function createLead(data: Record<string, string>, phone: string) {
 // ── Routes ───────────────────────────────────────────────────────────────
 
 // GET /api/chatbot/init — Start new conversation
+/**
+ * List init with optional filters.
+ *
+ * @route   GET /api/chatbot/init
+ * @auth    Public — no auth required
+ */
 router.get("/init", (_req, res) => {
   const sessionId = `chat-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   conversations.set(sessionId, { step: "greeting", data: {}, lastActivity: Date.now() });
@@ -489,6 +495,12 @@ router.get("/init", (_req, res) => {
 });
 
 // POST /api/chatbot/message — Process user message
+/**
+ * Create a new message record.
+ *
+ * @route   POST /api/chatbot/message
+ * @auth    Public — no auth required
+ */
 router.post("/message", async (req, res) => {
   try {
     const { sessionId, message } = z.object({

@@ -31,6 +31,7 @@ const transporter = nodemailer.createTransport({
   auth: SMTP_USER && SMTP_PASSWORD ? { user: SMTP_USER, pass: SMTP_PASSWORD } : undefined,
 });
 
+/** Send password change email. */
 export async function sendPasswordChangeEmail(options: {
   to: string;
   name?: string | null;

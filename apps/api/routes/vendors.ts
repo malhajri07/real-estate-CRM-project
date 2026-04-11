@@ -26,6 +26,12 @@ const VALID_SPECIALIZATIONS = [
 ] as const;
 
 // GET /api/vendors — List vendors
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/vendors/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -61,6 +67,12 @@ router.get("/", authenticateToken, async (req, res) => {
 });
 
 // POST /api/vendors — Create vendor
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/vendors/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -96,6 +108,12 @@ router.post("/", authenticateToken, async (req, res) => {
 });
 
 // PATCH /api/vendors/:id — Update vendor
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/vendors/:id
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -143,6 +161,12 @@ router.patch("/:id", authenticateToken, async (req, res) => {
 });
 
 // DELETE /api/vendors/:id — Delete vendor
+/**
+ * Delete a :id record.
+ *
+ * @route   DELETE /api/vendors/:id
+ * @auth    Required — any authenticated user
+ */
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;

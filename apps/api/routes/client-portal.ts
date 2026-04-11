@@ -24,6 +24,12 @@ import { authenticateToken } from "../src/middleware/auth.middleware";
 const router = Router();
 
 // GET /api/client/dashboard — Client's deals + upcoming appointments
+/**
+ * List dashboard with optional filters.
+ *
+ * @route   GET /api/client-portal/dashboard
+ * @auth    Required — any authenticated user
+ */
 router.get("/dashboard", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;

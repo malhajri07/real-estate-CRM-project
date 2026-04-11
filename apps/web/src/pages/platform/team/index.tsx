@@ -20,9 +20,9 @@
 import { useMemo, useState, useCallback, Fragment } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip,
-  ResponsiveContainer, PieChart, Pie, Cell, Legend,
-  LineChart, Line, Area, AreaChart,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  PieChart, Pie, Cell, Legend,
+  Area, AreaChart,
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 
@@ -60,7 +60,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from "@/components/ui/page-header";
 import EmptyState from "@/components/ui/empty-state";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
-import { AdminPageSkeleton } from "@/components/skeletons/page-skeletons";
+import { TeamPageSkeleton } from "@/components/skeletons/page-skeletons";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
@@ -773,7 +773,7 @@ export default function TeamPage() {
   if (teamError) {
     return (
       <div className={PAGE_WRAPPER}>
-        <PageHeader title="فريق العمل" />
+        <PageHeader title="إدارة فريق العمل" />
         <QueryErrorFallback message="فشل تحميل بيانات الفريق" onRetry={() => refetch()} />
       </div>
     );
@@ -782,8 +782,22 @@ export default function TeamPage() {
   if (teamLoading || showSkeleton) {
     return (
       <div className={PAGE_WRAPPER}>
-        <PageHeader title="فريق العمل" />
-        <AdminPageSkeleton />
+        <PageHeader title="إدارة فريق العمل" />
+        <TeamPageSkeleton />
+      </div>
+    );
+  }
+
+  // No organization linked to this account
+  if (teamData && !teamData.organizationId) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <PageHeader title="إدارة فريق العمل" />
+        <EmptyState
+          icon={Building2}
+          title="لا توجد منظمة مرتبطة بحسابك"
+          description="هذه الصفحة مخصصة لمدراء المنظمات لإدارة فرق العمل. يرجى التواصل مع مدير النظام لربط حسابك بمنظمة."
+        />
       </div>
     );
   }
@@ -1064,7 +1078,7 @@ export default function TeamPage() {
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                         <XAxis type="number" />
                         <YAxis dataKey="name" type="category" width={100} fontSize={12} />
-                        <ReTooltip content={<ChartTooltip content={<ChartTooltipContent />} />} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
                         <Bar dataKey="wonDeals" name="صفقات رابحة" fill={CHART_COLORS.tertiary} radius={[0, 6, 6, 0]} />
                         <Bar dataKey="deals" name="إجمالي الصفقات" fill={CHART_COLORS.secondary} radius={[0, 6, 6, 0]} />
                       </BarChart>
@@ -1582,7 +1596,7 @@ export default function TeamPage() {
                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
                           <XAxis dataKey="month" fontSize={11} tickLine={false} />
                           <YAxis fontSize={11} tickLine={false} />
-                          <ReTooltip content={<ChartTooltip content={<ChartTooltipContent />} />} />
+                          <ChartTooltip content={<ChartTooltipContent />} />
                           <Area type="monotone" dataKey="deals" name="الصفقات" stroke={CHART_COLORS.secondary} fill="url(#colorDeals)" strokeWidth={2} />
                           <Area type="monotone" dataKey="wonDeals" name="رابحة" stroke={CHART_COLORS.tertiary} fill="url(#colorWon)" strokeWidth={2} />
                           <Legend />
@@ -1612,7 +1626,7 @@ export default function TeamPage() {
                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
                           <XAxis dataKey="name" fontSize={11} tickLine={false} />
                           <YAxis fontSize={11} tickLine={false} tickFormatter={(v) => formatRevenue(v)} />
-                          <ReTooltip content={<ChartTooltip content={<ChartTooltipContent />} formatter={(v: number) => `${v.toLocaleString()}`} />} />
+                          <ChartTooltip content={<ChartTooltipContent formatter={(v) => `${Number(v).toLocaleString()}`} />} />
                           <Bar dataKey="revenue" name="الإيرادات" fill={CHART_COLORS.amber} radius={[6, 6, 0, 0]} />
                         </BarChart>
                       </ChartContainer>
@@ -1634,7 +1648,7 @@ export default function TeamPage() {
                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
                           <XAxis dataKey="name" fontSize={11} tickLine={false} />
                           <YAxis fontSize={11} tickLine={false} />
-                          <ReTooltip content={<ChartTooltip content={<ChartTooltipContent />} />} />
+                          <ChartTooltip content={<ChartTooltipContent />} />
                           <Bar dataKey="leads" name="عملاء" fill={CHART_COLORS.secondary} radius={[6, 6, 0, 0]} />
                         </BarChart>
                       </ChartContainer>
@@ -1670,13 +1684,7 @@ export default function TeamPage() {
                                 <Cell key={i} fill={CHART_COLOR_ARRAY[i % CHART_COLOR_ARRAY.length]} />
                               ))}
                             </Pie>
-                            <ReTooltip
-                              content={
-                                <ChartTooltip
-                                  formatter={(v: number) => `${v} صفقة`}
-                                />
-                              }
-                            />
+                            <ChartTooltip content={<ChartTooltipContent formatter={(v) => `${v} صفقة`} />} />
                             <Legend
                               formatter={(value: string) => STAGE_LABELS[value] || value}
                             />

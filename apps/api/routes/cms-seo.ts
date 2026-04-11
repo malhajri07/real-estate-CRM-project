@@ -33,6 +33,12 @@ function requireRole(roles: string[]) {
 }
 
 // Public: Get SEO settings for a page
+/**
+ * Fetch a single seo by ID.
+ *
+ * @route   GET /api/cms/seo/seo/:pagePath(*)
+ * @auth    Public — no auth required
+ */
 router.get("/seo/:pagePath(*)", async (req, res) => {
   try {
     const pagePath = `/${req.params.pagePath || ""}`;
@@ -135,6 +141,12 @@ router.get(
 );
 
 // Public: Get sitemap (no auth required)
+/**
+ * List sitemap.xml with optional filters.
+ *
+ * @route   GET /api/cms/seo/sitemap.xml
+ * @auth    Public — no auth required
+ */
 router.get("/sitemap.xml", async (req, res) => {
   try {
     const sitemap = await SEOService.generateSitemap();
@@ -150,6 +162,12 @@ router.get("/sitemap.xml", async (req, res) => {
 });
 
 // Public: Get robots.txt (no auth required) - Moved to sitemap.ts, keeping here for reference/backup or specific CMS access if needed w/ /seo prefix
+/**
+ * List seo with optional filters.
+ *
+ * @route   GET /api/cms/seo/seo/robots.txt
+ * @auth    Public — no auth required
+ */
 router.get("/seo/robots.txt", async (req, res) => {
   try {
     const robotsTxt = await SEOService.getRobotsTxt();

@@ -11,6 +11,7 @@ import { UserRole, normalizeRoleKeys } from '@shared/rbac';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 
+/** Rbac service. */
 export class RbacService {
     /**
      * Get system audit logs/activities

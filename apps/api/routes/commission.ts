@@ -24,6 +24,12 @@ import { authenticateToken } from "../src/middleware/auth.middleware";
 const router = Router();
 
 // GET /api/deals/:dealId/commission — Get commission splits for a deal
+/**
+ * Fetch a single :dealId by ID.
+ *
+ * @route   GET /api/commission/:dealId/commission
+ * @auth    Required — any authenticated user
+ */
 router.get("/:dealId/commission", authenticateToken, async (req, res) => {
   try {
     const { dealId } = req.params;
@@ -64,6 +70,12 @@ router.get("/:dealId/commission", authenticateToken, async (req, res) => {
 });
 
 // POST /api/deals/:dealId/commission — Create or update commission splits
+/**
+ * Create a new :dealId record.
+ *
+ * @route   POST /api/commission/:dealId/commission
+ * @auth    Required — any authenticated user
+ */
 router.post("/:dealId/commission", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -139,6 +151,12 @@ router.post("/:dealId/commission", authenticateToken, async (req, res) => {
 });
 
 // PATCH /api/deals/:dealId/commission/:splitId/status — Update split payment status
+/**
+ * Partially update a :dealId record.
+ *
+ * @route   PATCH /api/commission/:dealId/commission/:splitId/status
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:dealId/commission/:splitId/status", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;

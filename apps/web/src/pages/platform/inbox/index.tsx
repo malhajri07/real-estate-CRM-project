@@ -31,8 +31,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import EmptyState from "@/components/ui/empty-state";
 import PageHeader from "@/components/ui/page-header";
 import { Spinner } from "@/components/ui/spinner";
+import { InboxSkeleton } from "@/components/skeletons/page-skeletons";
 import { apiGet, apiPost } from "@/lib/apiClient";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -118,6 +120,7 @@ function ChannelBadge({ channel }: { channel: string }) {
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export default function InboxPage() {
+  const showSkeleton = useMinLoadTime();
   const queryClient = useQueryClient();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messageText, setMessageText] = useState("");
@@ -205,6 +208,15 @@ export default function InboxPage() {
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
+
+  if (loadingConversations || showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <PageHeader title="صندوق الرسائل" subtitle="المحادثات والرسائل" />
+        <InboxSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>

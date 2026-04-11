@@ -45,6 +45,12 @@ const needsModerationReview = (property: any): boolean => {
 };
 
 // GET /api/moderation — alias for /queue (default root)
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/moderation/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (_req, res) => {
   try {
     const all = await storage.getAllProperties();
@@ -57,6 +63,12 @@ router.get("/", async (_req, res) => {
 });
 
 // Simple moderation queue: listings awaiting moderation
+/**
+ * List queue with optional filters.
+ *
+ * @route   GET /api/moderation/queue
+ * @auth    Public — no auth required
+ */
 router.get("/queue", async (_req, res) => {
   try {
     const all = await storage.getAllProperties();
@@ -68,6 +80,12 @@ router.get("/queue", async (_req, res) => {
   }
 });
 
+/**
+ * List marketing-requests with optional filters.
+ *
+ * @route   GET /api/moderation/marketing-requests
+ * @auth    Public — no auth required
+ */
 router.get("/marketing-requests", async (_req, res) => {
   try {
     const queue = await storage.listMarketingRequests({
@@ -82,6 +100,12 @@ router.get("/marketing-requests", async (_req, res) => {
   }
 });
 
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/moderation/:id/approve
+ * @auth    Public — no auth required
+ */
 router.post("/:id/approve", async (req, res) => {
   try {
     const updated = await storage.updateProperty(req.params.id, { status: 'active', moderationStatus: 'approved' } as any);
@@ -93,6 +117,12 @@ router.post("/:id/approve", async (req, res) => {
   }
 });
 
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/moderation/:id/reject
+ * @auth    Public — no auth required
+ */
 router.post("/:id/reject", async (req, res) => {
   try {
     const updated = await storage.updateProperty(req.params.id, { status: 'paused', moderationStatus: 'rejected' } as any);

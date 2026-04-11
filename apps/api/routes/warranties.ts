@@ -19,6 +19,12 @@ import { authenticateToken } from "../src/middleware/auth.middleware";
 
 const router = Router();
 
+/**
+ * Fetch a single :propertyId by ID.
+ *
+ * @route   GET /api/warranties/:propertyId
+ * @auth    Required — any authenticated user
+ */
 router.get("/:propertyId", authenticateToken, async (req, res) => {
   try {
     const warranties = await prisma.property_warranties.findMany({
@@ -35,6 +41,12 @@ router.get("/:propertyId", authenticateToken, async (req, res) => {
   } catch (error) { res.status(500).json({ message: "فشل التحميل" }); }
 });
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/warranties/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const data = z.object({
@@ -57,6 +69,12 @@ router.post("/", authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * Delete a :id record.
+ *
+ * @route   DELETE /api/warranties/:id
+ * @auth    Required — any authenticated user
+ */
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     await prisma.property_warranties.delete({ where: { id: req.params.id } });
@@ -65,6 +83,12 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 });
 
 // GET /api/warranties/expiring — All warranties expiring within 90 days
+/**
+ * List expiring with optional filters.
+ *
+ * @route   GET /api/warranties/expiring/soon
+ * @auth    Required — any authenticated user
+ */
 router.get("/expiring/soon", authenticateToken, async (req, res) => {
   try {
     const now = new Date();

@@ -90,6 +90,12 @@ function requireRole(roles: string[]) {
   };
 }
 
+/**
+ * List landing with optional filters.
+ *
+ * @route   GET /api/cms/landing/landing/sections
+ * @auth    Public — no auth required
+ */
 router.get("/landing/sections", async (req, res) => {
   try {
     const status =

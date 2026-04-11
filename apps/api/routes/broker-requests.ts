@@ -50,6 +50,12 @@ const acceptSchema = z.object({
 
 // ── GET /api/broker-requests — List all open + own requests ────────────────
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/broker-requests/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -87,6 +93,12 @@ router.get("/", authenticateToken, async (req, res) => {
 
 // ── POST /api/broker-requests — Create a new broker request ────────────────
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/broker-requests/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, requireFalLicense, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -131,6 +143,12 @@ router.post("/", authenticateToken, requireFalLicense, async (req, res) => {
 
 // ── POST /api/broker-requests/:id/accept — Accept a broker request ─────────
 
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/broker-requests/:id/accept
+ * @auth    Required — any authenticated user
+ */
 router.post("/:id/accept", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -172,6 +190,12 @@ router.post("/:id/accept", authenticateToken, async (req, res) => {
 
 // ── PATCH /api/broker-requests/:id/acceptances/:acceptId — Approve/reject ──
 
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/broker-requests/:id/acceptances/:acceptId
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id/acceptances/:acceptId", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -209,6 +233,12 @@ router.patch("/:id/acceptances/:acceptId", authenticateToken, async (req, res) =
 
 // ── PATCH /api/broker-requests/:id — Update status (cancel, complete) ──────
 
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/broker-requests/:id
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -237,6 +267,12 @@ router.patch("/:id", authenticateToken, async (req, res) => {
 
 // ── POST /api/broker-requests/:id/acceptances/:acceptId/generate-agreement ──
 
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/broker-requests/:id/acceptances/:acceptId/generate-agreement
+ * @auth    Required — any authenticated user
+ */
 router.post("/:id/acceptances/:acceptId/generate-agreement", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -325,6 +361,12 @@ router.post("/:id/acceptances/:acceptId/generate-agreement", authenticateToken, 
 
 // ── PATCH /api/broker-requests/:id/acceptances/:acceptId/sign ───────────────
 
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/broker-requests/:id/acceptances/:acceptId/sign
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id/acceptances/:acceptId/sign", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -370,6 +412,12 @@ router.patch("/:id/acceptances/:acceptId/sign", authenticateToken, async (req, r
 
 // ── GET /api/broker-requests/:id/acceptances/:acceptId/agreement ────────────
 
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/broker-requests/:id/acceptances/:acceptId/agreement
+ * @auth    Required — any authenticated user
+ */
 router.get("/:id/acceptances/:acceptId/agreement", authenticateToken, async (req, res) => {
   try {
     const { acceptId } = req.params;

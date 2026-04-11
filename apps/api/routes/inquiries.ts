@@ -41,6 +41,12 @@ const InquiryUpdateSchema = z.object({
 }).passthrough();
 
 // GET /api/inquiries - List inquiries for the authenticated user
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/inquiries/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
   try {
     const auth = decodeAuth(req);
@@ -76,6 +82,12 @@ router.get("/", async (req, res) => {
 });
 
 // GET /api/inquiries/:id - Get a single inquiry
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/inquiries/:id
+ * @auth    Public — no auth required
+ */
 router.get("/:id", async (req, res) => {
   try {
     const auth = decodeAuth(req);
@@ -109,6 +121,12 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /api/inquiries - Create a new inquiry
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/inquiries/
+ * @auth    Public — no auth required
+ */
 router.post("/", async (req, res) => {
   try {
     const data = InquirySchema.parse(req.body);
@@ -150,6 +168,12 @@ router.post("/", async (req, res) => {
 });
 
 // PUT /api/inquiries/:id - Update an inquiry
+/**
+ * Update an existing :id record.
+ *
+ * @route   PUT /api/inquiries/:id
+ * @auth    Public — no auth required
+ */
 router.put("/:id", async (req, res) => {
   try {
     const auth = decodeAuth(req);
@@ -193,6 +217,12 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE /api/inquiries/:id - Delete an inquiry
+/**
+ * Delete a :id record.
+ *
+ * @route   DELETE /api/inquiries/:id
+ * @auth    Public — no auth required
+ */
 router.delete("/:id", async (req, res) => {
   try {
     const auth = decodeAuth(req);

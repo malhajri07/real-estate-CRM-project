@@ -28,6 +28,12 @@ import { insertMessageSchema } from "@shared/types";
 
 const router = express.Router();
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/messages/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
     try {
         const messages = await storage.getAllMessages();
@@ -37,6 +43,12 @@ router.get("/", async (req, res) => {
     }
 });
 
+/**
+ * Fetch a single lead by ID.
+ *
+ * @route   GET /api/messages/lead/:leadId
+ * @auth    Public — no auth required
+ */
 router.get("/lead/:leadId", async (req, res) => {
     try {
         const { leadId } = req.params;
@@ -47,6 +59,12 @@ router.get("/lead/:leadId", async (req, res) => {
     }
 });
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/messages/
+ * @auth    Public — no auth required
+ */
 router.post("/", async (req, res) => {
     try {
         const auth = decodeAuth(req);

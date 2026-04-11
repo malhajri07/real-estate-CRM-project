@@ -15,6 +15,7 @@ export interface NafathVerificationResult {
   error?: string;
 }
 
+/** Nafath service. */
 export class NafathService {
   private baseUrl = process.env.NAFATH_API_URL || "https://nafath.api.gov.sa";
   private apiKey = process.env.NAFATH_API_KEY || "";

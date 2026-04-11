@@ -25,6 +25,12 @@ function asCenter(latitude: number | null, longitude: number | null) {
 }
 
 // GET /api/locations — list all regions as default root response
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/locations/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (_req, res) => {
   try {
     const regions = await storage.getSaudiRegionsBasic();
@@ -35,6 +41,12 @@ router.get("/", async (_req, res) => {
   }
 });
 
+/**
+ * List regions with optional filters.
+ *
+ * @route   GET /api/locations/regions
+ * @auth    Public — no auth required
+ */
 router.get("/regions", async (req, res) => {
   try {
     const includeBoundary = req.query.includeBoundary === "true";
@@ -61,6 +73,12 @@ router.get("/regions", async (req, res) => {
   }
 });
 
+/**
+ * List cities with optional filters.
+ *
+ * @route   GET /api/locations/cities
+ * @auth    Public — no auth required
+ */
 router.get("/cities", async (req, res) => {
   try {
     let cities;
@@ -94,6 +112,12 @@ router.get("/cities", async (req, res) => {
   }
 });
 
+/**
+ * List districts with optional filters.
+ *
+ * @route   GET /api/locations/districts
+ * @auth    Public — no auth required
+ */
 router.get("/districts", async (req, res) => {
   try {
     const includeBoundary = req.query.includeBoundary === "true";
@@ -144,6 +168,12 @@ router.get("/districts", async (req, res) => {
 
 
 // Saudi Regions API
+/**
+ * List saudi-regions with optional filters.
+ *
+ * @route   GET /api/locations/saudi-regions
+ * @auth    Public — no auth required
+ */
 router.get("/saudi-regions", async (req, res) => {
   try {
     const regions = await storage.getAllSaudiRegions();
@@ -153,6 +183,12 @@ router.get("/saudi-regions", async (req, res) => {
   }
 });
 
+/**
+ * Create a new saudi-regions record.
+ *
+ * @route   POST /api/locations/saudi-regions/seed
+ * @auth    Public — no auth required
+ */
 router.post("/saudi-regions/seed", async (req, res) => {
   if (process.env.NODE_ENV === 'production') return res.status(403).json({ message: 'Disabled in production' });
   try {
@@ -166,6 +202,12 @@ router.post("/saudi-regions/seed", async (req, res) => {
 });
 
 // Saudi Cities API
+/**
+ * List saudi-cities with optional filters.
+ *
+ * @route   GET /api/locations/saudi-cities
+ * @auth    Public — no auth required
+ */
 router.get("/saudi-cities", async (req, res) => {
   try {
     const cities = await storage.getAllSaudiCities();
@@ -175,6 +217,12 @@ router.get("/saudi-cities", async (req, res) => {
   }
 });
 
+/**
+ * Fetch a single saudi-cities by ID.
+ *
+ * @route   GET /api/locations/saudi-cities/region/:regionCode
+ * @auth    Public — no auth required
+ */
 router.get("/saudi-cities/region/:regionCode", async (req, res) => {
   try {
     const cities = await storage.getCitiesByRegion(parseInt(req.params.regionCode));
@@ -184,6 +232,12 @@ router.get("/saudi-cities/region/:regionCode", async (req, res) => {
   }
 });
 
+/**
+ * Create a new saudi-cities record.
+ *
+ * @route   POST /api/locations/saudi-cities/seed
+ * @auth    Public — no auth required
+ */
 router.post("/saudi-cities/seed", async (req, res) => {
   if (process.env.NODE_ENV === 'production') return res.status(403).json({ message: 'Disabled in production' });
   try {
@@ -197,6 +251,12 @@ router.post("/saudi-cities/seed", async (req, res) => {
 });
 
 // Seed default data
+/**
+ * Create a new seed-defaults record.
+ *
+ * @route   POST /api/locations/seed-defaults
+ * @auth    Public — no auth required
+ */
 router.post("/seed-defaults", async (req, res) => {
   if (process.env.NODE_ENV === 'production') return res.status(403).json({ message: 'Disabled in production' });
   try {

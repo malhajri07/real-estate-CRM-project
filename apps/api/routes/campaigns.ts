@@ -63,6 +63,12 @@ const updateRuleSchema = z.object({
 
 // ── POST /api/campaigns — Create and send a campaign ─────────────────────────
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/campaigns/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -125,6 +131,12 @@ router.post("/", authenticateToken, async (req, res) => {
 
 // ── GET /api/campaigns — List agent's campaigns with stats ───────────────────
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/campaigns/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -175,6 +187,12 @@ router.get("/", authenticateToken, async (req, res) => {
 
 // ── GET /api/campaigns/:id — Campaign detail with recipients ─────────────────
 
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/campaigns/:id
+ * @auth    Required — any authenticated user
+ */
 router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -228,6 +246,12 @@ router.get("/:id/recipients", authenticateToken, async (req, res) => {
 
 // ── GET /api/campaigns/stats — Aggregate campaign stats ──────────────────────
 
+/**
+ * List stats with optional filters.
+ *
+ * @route   GET /api/campaigns/stats/summary
+ * @auth    Required — any authenticated user
+ */
 router.get("/stats/summary", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -260,6 +284,12 @@ router.get("/stats/summary", authenticateToken, async (req, res) => {
 
 // ── POST /api/campaigns/rules — Create automation rule ───────────────────────
 
+/**
+ * Create a new rules record.
+ *
+ * @route   POST /api/campaigns/rules
+ * @auth    Required — any authenticated user
+ */
 router.post("/rules", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -292,6 +322,12 @@ router.post("/rules", authenticateToken, async (req, res) => {
 
 // ── GET /api/campaigns/rules — List agent's automation rules ─────────────────
 
+/**
+ * List rules with optional filters.
+ *
+ * @route   GET /api/campaigns/rules
+ * @auth    Required — any authenticated user
+ */
 router.get("/rules", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -310,6 +346,12 @@ router.get("/rules", authenticateToken, async (req, res) => {
 
 // ── PATCH /api/campaigns/rules/:id — Update automation rule ──────────────────
 
+/**
+ * Partially update a rules record.
+ *
+ * @route   PATCH /api/campaigns/rules/:id
+ * @auth    Required — any authenticated user
+ */
 router.patch("/rules/:id", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -341,6 +383,12 @@ router.patch("/rules/:id", authenticateToken, async (req, res) => {
 
 // ── DELETE /api/campaigns/rules/:id — Delete automation rule ─────────────────
 
+/**
+ * Delete a rules record.
+ *
+ * @route   DELETE /api/campaigns/rules/:id
+ * @auth    Required — any authenticated user
+ */
 router.delete("/rules/:id", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;

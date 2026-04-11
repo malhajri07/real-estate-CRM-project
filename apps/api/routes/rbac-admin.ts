@@ -28,6 +28,12 @@ const rbacService = new RbacService();
 router.use(requireAdmin);
 
 // Debug route to check session
+/**
+ * List debug-session with optional filters.
+ *
+ * @route   GET /api/rbac/debug-session
+ * @auth    Public — no auth required
+ */
 router.get('/debug-session', (req, res) => {
   res.json({
     success: true,

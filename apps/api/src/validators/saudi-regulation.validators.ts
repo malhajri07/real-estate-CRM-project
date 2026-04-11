@@ -143,6 +143,7 @@ export function calculateCommission(
 export const EARNEST_MONEY_CAP_PERCENTAGE = 5;
 export const BROKER_EARNEST_SHARE = 0.25;
 
+/** Validate earnest money. */
 export function validateEarnestMoney(
   earnestAmount: number,
   transactionValue: number
@@ -169,6 +170,7 @@ export const RETT_RATE = 0.05;
 /** First-home exemption cap under Sakani program */
 export const FIRST_HOME_EXEMPTION_CAP = 1_000_000;
 
+/** Calculate r e t t. */
 export function calculateRETT(
   salePrice: number,
   isFirstHome: boolean = false

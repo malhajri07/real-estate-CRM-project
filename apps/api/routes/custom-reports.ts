@@ -30,6 +30,12 @@ const reportSchema = z.object({
 });
 
 // POST /api/reports/custom — Run a custom report
+/**
+ * Create a new custom record.
+ *
+ * @route   POST /api/custom-reports/custom
+ * @auth    Required — any authenticated user
+ */
 router.post("/custom", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -146,6 +152,12 @@ router.post("/custom", authenticateToken, async (req, res) => {
 });
 
 // GET /api/reports/saved — List saved custom reports
+/**
+ * List saved with optional filters.
+ *
+ * @route   GET /api/custom-reports/saved
+ * @auth    Required — any authenticated user
+ */
 router.get("/saved", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -165,6 +177,12 @@ router.get("/saved", authenticateToken, async (req, res) => {
 });
 
 // POST /api/reports/saved — Save a custom report config
+/**
+ * Create a new saved record.
+ *
+ * @route   POST /api/custom-reports/saved
+ * @auth    Required — any authenticated user
+ */
 router.post("/saved", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;

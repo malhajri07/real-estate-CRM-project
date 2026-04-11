@@ -118,6 +118,12 @@ async function fetchOverpass(lat: number, lon: number, radius: number): Promise<
 // ── Route ─────────────────────────────────────────────────────────────────
 
 // GET /api/nearby-places?propertyId=xxx  OR  ?lat=xx&lon=yy
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/nearby-places/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
   try {
     const propertyId = req.query.propertyId as string;

@@ -22,6 +22,12 @@ function getUserId(req: any): string | null {
   return req?.user?.id || req?.session?.user?.id || null;
 }
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/favorites/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -34,6 +40,12 @@ router.get("/", async (req, res) => {
   }
 });
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/favorites/
+ * @auth    Public — no auth required
+ */
 router.post("/", async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -48,6 +60,12 @@ router.post("/", async (req, res) => {
   }
 });
 
+/**
+ * Delete a :propertyId record.
+ *
+ * @route   DELETE /api/favorites/:propertyId
+ * @auth    Public — no auth required
+ */
 router.delete("/:propertyId", async (req, res) => {
   try {
     const userId = getUserId(req);

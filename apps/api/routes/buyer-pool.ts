@@ -58,6 +58,12 @@ const sendSmsSchema = z.object({
 });
 
 // GET /api/pool/health - Requires auth, returns DB counts (for debugging)
+/**
+ * List health with optional filters.
+ *
+ * @route   GET /api/buyer-pool/health
+ * @auth    Required — any authenticated user
+ */
 router.get('/health', authenticateToken, async (_req, res) => {
   try {
     const [seekerCount, buyerCount] = await Promise.all([
@@ -73,6 +79,12 @@ router.get('/health', authenticateToken, async (_req, res) => {
 });
 
 // GET /api/pool/search – Unified pool: customer requests (properties_seeker) first, then buyer_requests
+/**
+ * List search with optional filters.
+ *
+ * @route   GET /api/buyer-pool/search
+ * @auth    Required — any authenticated user
+ */
 router.get('/search', authenticateToken, async (req, res) => {
   try {
     // Validate price parameters
@@ -247,6 +259,12 @@ router.get('/search', authenticateToken, async (req, res) => {
 });
 
 // POST /api/pool/customer-requests/:id/send-sms
+/**
+ * Create a new customer-requests record.
+ *
+ * @route   POST /api/buyer-pool/customer-requests/:id/send-sms
+ * @auth    Required — any authenticated user
+ */
 router.post('/customer-requests/:id/send-sms', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -336,6 +354,12 @@ router.post('/customer-requests/:id/send-sms', authenticateToken, async (req, re
 });
 
 // POST /api/pool/customer-requests/:id/claim – Convert properties_seeker to buyer_request and claim
+/**
+ * Create a new customer-requests record.
+ *
+ * @route   POST /api/buyer-pool/customer-requests/:id/claim
+ * @auth    Required — any authenticated user
+ */
 router.post('/customer-requests/:id/claim', authenticateToken, async (req, res) => {
   try {
     const { id: seekerId } = req.params;
@@ -477,6 +501,12 @@ router.get('/:id/match-score', authenticateToken, async (req, res) => {
 });
 
 // POST /api/pool/buyers/:id/claim
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/buyer-pool/:id/claim
+ * @auth    Required — any authenticated user
+ */
 router.post('/:id/claim', authenticateToken, async (req, res) => {
   try {
     const { id: buyerRequestId } = req.params;
@@ -610,6 +640,12 @@ router.post('/:id/claim', authenticateToken, async (req, res) => {
 });
 
 // POST /api/pool/buyers/:id/release
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/buyer-pool/:id/release
+ * @auth    Required — any authenticated user
+ */
 router.post('/:id/release', authenticateToken, async (req, res) => {
   try {
     const { id: buyerRequestId } = req.params;

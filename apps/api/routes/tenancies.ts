@@ -26,6 +26,12 @@ import { authenticateToken } from "../src/middleware/auth.middleware";
 const router = Router();
 
 // GET /api/tenancies — List agent's tenancies
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/tenancies/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -81,6 +87,12 @@ router.get("/", authenticateToken, async (req, res) => {
 });
 
 // POST /api/tenancies — Create tenancy (usually from deal WON)
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/tenancies/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -142,6 +154,12 @@ router.post("/", authenticateToken, async (req, res) => {
 });
 
 // GET /api/tenancies/:id/payments — Get rent payment history
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/tenancies/:id/payments
+ * @auth    Required — any authenticated user
+ */
 router.get("/:id/payments", authenticateToken, async (req, res) => {
   try {
     const payments = await prisma.rent_payments.findMany({
@@ -155,6 +173,12 @@ router.get("/:id/payments", authenticateToken, async (req, res) => {
 });
 
 // PATCH /api/tenancies/:tenancyId/payments/:paymentId — Mark rent as paid
+/**
+ * Partially update a :tenancyId record.
+ *
+ * @route   PATCH /api/tenancies/:tenancyId/payments/:paymentId
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:tenancyId/payments/:paymentId", authenticateToken, async (req, res) => {
   try {
     const { status } = req.body;
@@ -220,6 +244,12 @@ router.post("/:id/send-reminder", authenticateToken, async (req, res) => {
 });
 
 // GET /api/tenancies/stats — Summary stats
+/**
+ * List stats with optional filters.
+ *
+ * @route   GET /api/tenancies/stats/summary
+ * @auth    Required — any authenticated user
+ */
 router.get("/stats/summary", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;

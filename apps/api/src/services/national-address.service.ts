@@ -16,6 +16,7 @@ export interface AddressSuggestion {
   fullAddress: string;
 }
 
+/** National address service. */
 export class NationalAddressService {
   private baseUrl = process.env.NATIONAL_ADDRESS_API_URL || "https://apina.address.gov.sa";
   private apiKey = process.env.NATIONAL_ADDRESS_API_KEY || "";

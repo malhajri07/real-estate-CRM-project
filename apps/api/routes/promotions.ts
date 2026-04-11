@@ -51,6 +51,12 @@ const updateSchema = z.object({
 
 // ── GET /api/promotions — List agent's promotions ────────────────────────
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/promotions/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -78,6 +84,12 @@ router.get("/", authenticateToken, async (req, res) => {
 
 // ── GET /api/promotions/stats — Aggregate stats ──────────────────────────
 
+/**
+ * List stats with optional filters.
+ *
+ * @route   GET /api/promotions/stats
+ * @auth    Required — any authenticated user
+ */
 router.get("/stats", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -105,6 +117,12 @@ router.get("/stats", authenticateToken, async (req, res) => {
 
 // ── GET /api/promotions/listings — Agent's listings available to promote ──
 
+/**
+ * List listings with optional filters.
+ *
+ * @route   GET /api/promotions/listings
+ * @auth    Required — any authenticated user
+ */
 router.get("/listings", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -145,6 +163,12 @@ router.get("/listings", authenticateToken, async (req, res) => {
 
 // ── POST /api/promotions — Create promotion ──────────────────────────────
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/promotions/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -196,6 +220,12 @@ router.post("/", authenticateToken, async (req, res) => {
 
 // ── PATCH /api/promotions/:id — Update promotion ─────────────────────────
 
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/promotions/:id
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;

@@ -33,6 +33,12 @@ import { authenticateToken } from "../src/middleware/auth.middleware";
 const router = Router();
 
 // ── GET /api/inbox — Conversation list ──────────────────────────────────────
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/inbox/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req: Request, res: Response) => {
   try {
     const user = req.user!;
@@ -143,6 +149,12 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
 });
 
 // ── GET /api/inbox/:leadId — Full message thread ────────────────────────────
+/**
+ * Fetch a single :leadId by ID.
+ *
+ * @route   GET /api/inbox/:leadId
+ * @auth    Required — any authenticated user
+ */
 router.get("/:leadId", authenticateToken, async (req: Request, res: Response) => {
   try {
     const { leadId } = req.params;
@@ -184,6 +196,12 @@ const sendSchema = z.object({
   phone: z.string().optional(),
 });
 
+/**
+ * Create a new send record.
+ *
+ * @route   POST /api/inbox/send
+ * @auth    Required — any authenticated user
+ */
 router.post("/send", authenticateToken, async (req: Request, res: Response) => {
   try {
     const user = req.user!;
@@ -235,6 +253,12 @@ router.post("/send", authenticateToken, async (req: Request, res: Response) => {
 });
 
 // ── POST /api/webhooks/whatsapp — Incoming webhook (no auth) ────────────────
+/**
+ * Create a new whatsapp record.
+ *
+ * @route   POST /api/inbox/whatsapp
+ * @auth    Public — no auth required
+ */
 router.post("/whatsapp", async (req: Request, res: Response) => {
   try {
     const body = req.body;

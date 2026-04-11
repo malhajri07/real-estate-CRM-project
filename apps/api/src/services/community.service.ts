@@ -8,6 +8,7 @@
 
 import { basePrisma, prisma } from "../../prismaClient";
 
+/** Community service. */
 export class CommunityService {
   /**
    * Get all forum channels with post counts

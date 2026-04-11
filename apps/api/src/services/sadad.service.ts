@@ -21,6 +21,7 @@ export interface SadadBillResult {
   error?: string;
 }
 
+/** Sadad service. */
 export class SadadService {
   private billerCode = process.env.SADAD_BILLER_CODE || "";
   private apiKey = process.env.SADAD_API_KEY || "";

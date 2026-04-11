@@ -36,6 +36,12 @@ function ownerWhere(user: any) {
 
 // ── GET / — List agent's projects ────────────────────────────────────────────
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/projects/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -74,6 +80,12 @@ router.get("/", authenticateToken, async (req, res) => {
 
 // ── GET /stats — Aggregate stats ─────────────────────────────────────────────
 
+/**
+ * List stats with optional filters.
+ *
+ * @route   GET /api/projects/stats
+ * @auth    Required — any authenticated user
+ */
 router.get("/stats", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -131,6 +143,12 @@ const createProjectSchema = z.object({
   coverImage: z.string().optional(),
 });
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/projects/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -164,6 +182,12 @@ router.post("/", authenticateToken, async (req, res) => {
 
 // ── GET /:id — Project with units ────────────────────────────────────────────
 
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/projects/:id
+ * @auth    Required — any authenticated user
+ */
 router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -194,6 +218,12 @@ router.get("/:id", authenticateToken, async (req, res) => {
 
 // ── GET /:id/units — List units ──────────────────────────────────────────────
 
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/projects/:id/units
+ * @auth    Required — any authenticated user
+ */
 router.get("/:id/units", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -238,6 +268,12 @@ const createUnitSchema = z.object({
   status: z.string().optional(),
 });
 
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/projects/:id/units
+ * @auth    Required — any authenticated user
+ */
 router.post("/:id/units", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -296,6 +332,12 @@ const updateUnitSchema = z.object({
   paymentSchedule: z.string().optional(),
 });
 
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/projects/:id/units/:unitId
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id/units/:unitId", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;

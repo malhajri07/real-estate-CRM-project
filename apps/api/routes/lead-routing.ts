@@ -25,6 +25,12 @@ import { authenticateToken } from "../src/middleware/auth.middleware";
 const router = Router();
 
 // GET /api/org/lead-routing — Get routing config for the org
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/lead-routing/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -42,6 +48,12 @@ router.get("/", authenticateToken, async (req, res) => {
 });
 
 // PUT /api/org/lead-routing — Update routing config (CORP_OWNER only)
+/**
+ * Update an existing  record.
+ *
+ * @route   PUT /api/lead-routing/
+ * @auth    Required — any authenticated user
+ */
 router.put("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;

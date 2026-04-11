@@ -14,6 +14,7 @@ import { JWT_SECRET as getJwtSecret } from '../../config/env';
 
 const JWT_SECRET = getJwtSecret();
 
+/** Require admin. */
 export const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
     console.log(`[RBAC-ADMIN] Request: ${req.method} ${req.path}`);
     try {

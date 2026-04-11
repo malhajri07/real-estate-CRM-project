@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TenantsSkeleton } from "@/components/skeletons/page-skeletons";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Progress } from "@/components/ui/progress";
 import PageHeader from "@/components/ui/page-header";
@@ -103,9 +104,7 @@ export default function TenantsPage() {
     return (
       <div className={PAGE_WRAPPER}>
         <PageHeader title="إدارة المستأجرين" subtitle="عقود الإيجار والمدفوعات والتجديدات" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => <Card key={i}><CardContent className="p-4"><Skeleton className="h-12 w-full" /></CardContent></Card>)}
-        </div>
+        <TenantsSkeleton />
       </div>
     );
   }

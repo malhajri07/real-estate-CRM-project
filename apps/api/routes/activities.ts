@@ -39,6 +39,12 @@ const insertActivitySchema = z.object({
 }).passthrough();
 
 // GET / - List activities (today's by default, supports activities page)
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/activities/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
     try {
         const activities = await storage.getTodaysActivities();
@@ -48,6 +54,12 @@ router.get("/", async (req, res) => {
     }
 });
 
+/**
+ * Fetch a single lead by ID.
+ *
+ * @route   GET /api/activities/lead/:leadId
+ * @auth    Public — no auth required
+ */
 router.get("/lead/:leadId", async (req, res) => {
     try {
         const activities = await storage.getActivitiesByLead(req.params.leadId);
@@ -57,6 +69,12 @@ router.get("/lead/:leadId", async (req, res) => {
     }
 });
 
+/**
+ * List today with optional filters.
+ *
+ * @route   GET /api/activities/today
+ * @auth    Public — no auth required
+ */
 router.get("/today", async (req, res) => {
     try {
         const activities = await storage.getTodaysActivities();
@@ -66,6 +84,12 @@ router.get("/today", async (req, res) => {
     }
 });
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/activities/
+ * @auth    Public — no auth required
+ */
 router.post("/", async (req, res) => {
     try {
         const validatedData = insertActivitySchema.parse(req.body);
@@ -141,6 +165,12 @@ router.patch("/:id/outcome", async (req, res) => {
 });
 
 // PATCH /:id/toggle-complete — Mark/unmark an activity as completed
+/**
+ * Toggle :id status.
+ *
+ * @route   PATCH /api/activities/:id/toggle-complete
+ * @auth    Public — no auth required
+ */
 router.patch("/:id/toggle-complete", async (req, res) => {
     try {
         const { id } = req.params;

@@ -17,6 +17,12 @@ import { decodeAuth } from '../src/middleware/auth-helpers';
 
 const router = express.Router();
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/landing/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
     try {
         const data = await LandingService.getPublicLanding();
@@ -36,6 +42,12 @@ router.get("/", async (req, res) => {
     }
 });
 
+/**
+ * List preview with optional filters.
+ *
+ * @route   GET /api/landing/preview
+ * @auth    Public — no auth required
+ */
 router.get("/preview", async (req, res) => {
     const previewToken = process.env.LANDING_PREVIEW_TOKEN;
     if (previewToken) {

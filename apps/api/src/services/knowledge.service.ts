@@ -24,6 +24,7 @@ export interface SearchMemoryInput {
     limit?: number;
 }
 
+/** Knowledge base service. */
 export class KnowledgeBaseService {
     /**
      * Log a new memory/action to the knowledge base

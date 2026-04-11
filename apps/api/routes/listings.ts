@@ -44,6 +44,12 @@ import { checkListingRegaCompliance } from "../src/validators/saudi-regulation.v
 const router = express.Router();
 
 // Simple query parsing and filtering for listings
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/listings/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
   try {
     const {
@@ -162,6 +168,12 @@ router.get("/", async (req, res) => {
 });
 
 // Map endpoint: return lightweight listing markers
+/**
+ * List map with optional filters.
+ *
+ * @route   GET /api/listings/map
+ * @auth    Public — no auth required
+ */
 router.get("/map", async (req, res) => {
   try {
     const { city, propertyType, propertyCategory, listingType } = req.query as Record<string, string | undefined>;
@@ -201,6 +213,12 @@ router.get("/map", async (req, res) => {
 });
 
 // Listing detail
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/listings/:id
+ * @auth    Public — no auth required
+ */
 router.get("/:id", async (req, res) => {
   try {
     const item = await storage.getProperty(req.params.id);
@@ -213,6 +231,12 @@ router.get("/:id", async (req, res) => {
 });
 
 // Similar listings
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/listings/:id/similar
+ * @auth    Public — no auth required
+ */
 router.get("/:id/similar", async (req, res) => {
   try {
     const current = await storage.getProperty(req.params.id);
@@ -269,6 +293,12 @@ router.get("/:id/price-history", async (req, res) => {
 });
 
 // Featured/new listings
+/**
+ * List featured with optional filters.
+ *
+ * @route   GET /api/listings/featured
+ * @auth    Public — no auth required
+ */
 router.get("/featured", async (req, res) => {
   try {
     const all = await storage.getAllProperties();
@@ -285,6 +315,12 @@ router.get("/featured", async (req, res) => {
 });
 
 // Create a new listing — requires FAL license per نظام الوساطة العقارية (Article 4)
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/listings/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, requireFalLicense, async (req, res) => {
   try {
     const data = listingSchemas.create.parse(req.body);
@@ -370,6 +406,12 @@ router.post("/", authenticateToken, requireFalLicense, async (req, res) => {
 });
 
 // Update a listing
+/**
+ * Update an existing :id record.
+ *
+ * @route   PUT /api/listings/:id
+ * @auth    Required — any authenticated user
+ */
 router.put("/:id", authenticateToken, async (req, res) => {
   try {
     const body = req.body;
@@ -410,6 +452,12 @@ router.put("/:id", authenticateToken, async (req, res) => {
 });
 
 // Update status/moderation
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/listings/:id/status
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id/status", authenticateToken, async (req, res) => {
   try {
     const { status, moderationStatus } = req.body || {};
@@ -426,6 +474,12 @@ router.patch("/:id/status", authenticateToken, async (req, res) => {
 });
 
 // CMA / Property valuation
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/listings/:id/valuation
+ * @auth    Public — no auth required
+ */
 router.get("/:id/valuation", async (req, res) => {
   try {
     const { valuationService } = await import("../src/services/valuation.service");
@@ -439,6 +493,12 @@ router.get("/:id/valuation", async (req, res) => {
 });
 
 // Match leads — find leads whose preferences match this listing and notify them
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/listings/:id/match-leads
+ * @auth    Required — any authenticated user
+ */
 router.post("/:id/match-leads", authenticateToken, async (req, res) => {
   try {
     const listing = await storage.getProperty(req.params.id);
@@ -506,6 +566,12 @@ router.post("/:id/match-leads", authenticateToken, async (req, res) => {
 });
 
 // Approve listing (CORP_OWNER only) — changes PENDING_APPROVAL → ACTIVE
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/listings/:id/approve
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id/approve", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -532,6 +598,12 @@ router.patch("/:id/approve", authenticateToken, async (req, res) => {
 });
 
 // Reject listing (CORP_OWNER only) — changes PENDING_APPROVAL → DRAFT with notes
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/listings/:id/reject
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id/reject", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -563,6 +635,12 @@ router.patch("/:id/reject", authenticateToken, async (req, res) => {
 });
 
 // Get pending approval count (for CORP_OWNER badge)
+/**
+ * List pending-approval with optional filters.
+ *
+ * @route   GET /api/listings/pending-approval/count
+ * @auth    Required — any authenticated user
+ */
 router.get("/pending-approval/count", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -578,6 +656,12 @@ router.get("/pending-approval/count", authenticateToken, async (req, res) => {
 });
 
 // Delete listing
+/**
+ * Delete a :id record.
+ *
+ * @route   DELETE /api/listings/:id
+ * @auth    Required — any authenticated user
+ */
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     await storage.deleteProperty(req.params.id);

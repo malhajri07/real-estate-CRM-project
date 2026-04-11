@@ -237,6 +237,7 @@ function getResourceBasePath(url: string): string {
 
 // ─── Cache Middleware ─────────────────────────────────────────────────────────
 
+/** Cache middleware. */
 export function cacheMiddleware(options: CacheOptions = {}) {
   const {
     ttl = 60,

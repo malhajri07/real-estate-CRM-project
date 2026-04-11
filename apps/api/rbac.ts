@@ -217,6 +217,7 @@ export function canAccessOrganization(organizationId: string) {
 }
 
 // Middleware to check if user can access resource
+/** Can access resource. */
 export function canAccessResource(resourceType: 'property' | 'listing' | 'lead' | 'claim') {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {

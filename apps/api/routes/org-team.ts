@@ -46,14 +46,9 @@ const requireOwnerOrAdmin = (req: Request, res: Response, next: any) => {
   next();
 };
 
-// Helper: get the caller's orgId or 400
-function getOrgId(req: Request, res: Response): string | null {
-  const orgId = req.user?.organizationId;
-  if (!orgId) {
-    res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
-    return null;
-  }
-  return orgId;
+// Helper: get the caller's orgId (returns null when the user has no org)
+function getOrgId(req: Request): string | null {
+  return req.user?.organizationId ?? null;
 }
 
 // Helper: verify agent belongs to org
@@ -66,10 +61,16 @@ async function verifyAgentInOrg(agentId: string, orgId: string) {
 // ────────────────────────────────────────────────────────────────────────────
 // GET /api/org/team — List ALL agents in my organization (incl. inactive)
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * List team with optional filters.
+ *
+ * @route   GET /api/org/team
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.get("/team", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.json({ organizationId: null, totalMembers: 0, members: [] });
 
     const members = await prisma.users.findMany({
       where: { organizationId: orgId },
@@ -146,10 +147,16 @@ router.get("/team", authenticateToken, requireOwnerOrAdmin, async (req: Request,
 // ────────────────────────────────────────────────────────────────────────────
 // GET /api/org/stats — Organization overview stats
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * List stats with optional filters.
+ *
+ * @route   GET /api/org/stats
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.get("/stats", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.json({ organization: null, stats: { totalAgents: 0, activeAgents: 0, inactiveAgents: 0, totalLeads: 0, totalDeals: 0, wonDeals: 0, conversionRate: 0, totalProperties: 0, totalAppointments: 0, totalRevenue: 0, recentHires: 0, unassignedLeads: 0 } });
 
     const [totalAgents, activeAgents, totalLeads, totalDeals, wonDeals, totalProperties, totalAppointments] = await Promise.all([
       prisma.users.count({ where: { organizationId: orgId } }),
@@ -221,10 +228,16 @@ router.get("/stats", authenticateToken, requireOwnerOrAdmin, async (req: Request
 // ────────────────────────────────────────────────────────────────────────────
 // GET /api/org/team/performance — Per-agent metrics for comparison charts
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * List team with optional filters.
+ *
+ * @route   GET /api/org/team/performance
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.get("/team/performance", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.json({ agentMetrics: [], dealStages: [], monthlyTrend: [] });
 
     const period = (req.query.period as string) || "all";
     let dateFilter: Date | null = null;
@@ -256,33 +269,41 @@ router.get("/team/performance", authenticateToken, requireOwnerOrAdmin, async (r
       select: { id: true, firstName: true, lastName: true },
     });
 
-    const agentMetrics = await Promise.all(
-      members.map(async (m) => {
-        const [leads, deals, wonDeals, appointments] = await Promise.all([
-          prisma.leads.count({ where: { agentId: m.id, ...dateWhere } }),
-          prisma.deals.count({ where: { agentId: m.id, ...dateWhere } }),
-          prisma.deals.count({ where: { agentId: m.id, stage: "WON", ...dateWhere } }),
-          prisma.appointments.count({ where: { agentId: m.id, ...dateWhere } }),
-        ]);
+    // Batch queries instead of N+1 per agent
+    const memberIds = members.map((m) => m.id);
+    const batchWhere = { agentId: { in: memberIds }, ...dateWhere };
 
-        // Sum agreed price for won deals
-        const revenueResult = await prisma.deals.aggregate({
-          where: { agentId: m.id, stage: "WON", ...dateWhere },
-          _sum: { agreedPrice: true },
-        });
+    const [leadCounts, dealCounts, wonDealCounts, appointmentCounts, revenueResults] = await Promise.all([
+      prisma.leads.groupBy({ by: ["agentId"], where: batchWhere, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: batchWhere, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { ...batchWhere, stage: "WON" }, _count: true }),
+      prisma.appointments.groupBy({ by: ["agentId"], where: batchWhere, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { ...batchWhere, stage: "WON" }, _sum: { agreedPrice: true } }),
+    ]);
 
-        return {
-          id: m.id,
-          name: `${m.firstName} ${m.lastName}`,
-          leads,
-          deals,
-          wonDeals,
-          appointments,
-          revenue: Number(revenueResult._sum.agreedPrice || 0),
-          conversionRate: deals > 0 ? Math.round((wonDeals / deals) * 100) : 0,
-        };
-      })
-    );
+    const leadMap = Object.fromEntries(leadCounts.map((r) => [r.agentId, r._count]));
+    const dealMap = Object.fromEntries(dealCounts.map((r) => [r.agentId, r._count]));
+    const wonMap = Object.fromEntries(wonDealCounts.map((r) => [r.agentId, r._count]));
+    const apptMap = Object.fromEntries(appointmentCounts.map((r) => [r.agentId, r._count]));
+    const revMap = Object.fromEntries(revenueResults.map((r) => [r.agentId, Number(r._sum.agreedPrice || 0)]));
+
+    const agentMetrics = members.map((m) => {
+      const leads = leadMap[m.id] || 0;
+      const deals = dealMap[m.id] || 0;
+      const wonDeals = wonMap[m.id] || 0;
+      const appointments = apptMap[m.id] || 0;
+      const revenue = revMap[m.id] || 0;
+      return {
+        id: m.id,
+        name: `${m.firstName} ${m.lastName}`,
+        leads,
+        deals,
+        wonDeals,
+        appointments,
+        revenue,
+        conversionRate: deals > 0 ? Math.round((wonDeals / deals) * 100) : 0,
+      };
+    });
 
     // Deal stage distribution for the entire org
     const dealStages = await Promise.all(
@@ -329,10 +350,16 @@ router.get("/team/performance", authenticateToken, requireOwnerOrAdmin, async (r
 // ────────────────────────────────────────────────────────────────────────────
 // GET /api/org/team/leaderboard — Agent leaderboard with period filter
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * List team with optional filters.
+ *
+ * @route   GET /api/org/team/leaderboard
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.get("/team/leaderboard", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.json({ period: req.query.period || "month", leaderboard: [] });
 
     const period = (req.query.period as string) || "month";
     let dateFilter = new Date();
@@ -361,37 +388,49 @@ router.get("/team/leaderboard", authenticateToken, requireOwnerOrAdmin, async (r
       select: { id: true, firstName: true, lastName: true, avatarUrl: true, department: true, jobTitle: true },
     });
 
-    const leaderboard = await Promise.all(
-      members.map(async (m) => {
-        const [leadsTotal, leadsConverted, deals, wonDeals, appointments, revenue] = await Promise.all([
-          prisma.leads.count({ where: { agentId: m.id, ...dateWhere } }),
-          prisma.leads.count({ where: { agentId: m.id, status: "WON", ...dateWhere } }),
-          prisma.deals.count({ where: { agentId: m.id, ...dateWhere } }),
-          prisma.deals.count({ where: { agentId: m.id, stage: "WON", ...dateWhere } }),
-          prisma.appointments.count({ where: { agentId: m.id, ...dateWhere } }),
-          prisma.deals.aggregate({
-            where: { agentId: m.id, stage: "WON", ...dateWhere },
-            _sum: { agreedPrice: true },
-          }),
-        ]);
+    // Batch queries instead of N+1 per agent
+    const memberIds = members.map((m) => m.id);
+    const batchWhere = { agentId: { in: memberIds }, ...dateWhere };
 
-        return {
-          id: m.id,
-          name: `${m.firstName} ${m.lastName}`,
-          avatarUrl: m.avatarUrl,
-          department: m.department,
-          jobTitle: m.jobTitle,
-          leadsTotal,
-          leadsConverted,
-          deals,
-          wonDeals,
-          appointments,
-          revenue: Number(revenue._sum.agreedPrice || 0),
-          conversionRate: deals > 0 ? Math.round((wonDeals / deals) * 100) : 0,
-          leadConversionRate: leadsTotal > 0 ? Math.round((leadsConverted / leadsTotal) * 100) : 0,
-        };
-      })
-    );
+    const [leadCounts, leadConvertedCounts, dealCounts, wonDealCounts, appointmentCounts, revenueResults] = await Promise.all([
+      prisma.leads.groupBy({ by: ["agentId"], where: batchWhere, _count: true }),
+      prisma.leads.groupBy({ by: ["agentId"], where: { ...batchWhere, status: "WON" }, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: batchWhere, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { ...batchWhere, stage: "WON" }, _count: true }),
+      prisma.appointments.groupBy({ by: ["agentId"], where: batchWhere, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { ...batchWhere, stage: "WON" }, _sum: { agreedPrice: true } }),
+    ]);
+
+    const leadMap = Object.fromEntries(leadCounts.map((r) => [r.agentId, r._count]));
+    const leadConvMap = Object.fromEntries(leadConvertedCounts.map((r) => [r.agentId, r._count]));
+    const dealMap = Object.fromEntries(dealCounts.map((r) => [r.agentId, r._count]));
+    const wonMap = Object.fromEntries(wonDealCounts.map((r) => [r.agentId, r._count]));
+    const apptMap = Object.fromEntries(appointmentCounts.map((r) => [r.agentId, r._count]));
+    const revMap = Object.fromEntries(revenueResults.map((r) => [r.agentId, Number(r._sum.agreedPrice || 0)]));
+
+    const leaderboard = members.map((m) => {
+      const leadsTotal = leadMap[m.id] || 0;
+      const leadsConverted = leadConvMap[m.id] || 0;
+      const deals = dealMap[m.id] || 0;
+      const wonDeals = wonMap[m.id] || 0;
+      const appointments = apptMap[m.id] || 0;
+      const revenue = revMap[m.id] || 0;
+      return {
+        id: m.id,
+        name: `${m.firstName} ${m.lastName}`,
+        avatarUrl: m.avatarUrl,
+        department: m.department,
+        jobTitle: m.jobTitle,
+        leadsTotal,
+        leadsConverted,
+        deals,
+        wonDeals,
+        appointments,
+        revenue,
+        conversionRate: deals > 0 ? Math.round((wonDeals / deals) * 100) : 0,
+        leadConversionRate: leadsTotal > 0 ? Math.round((leadsConverted / leadsTotal) * 100) : 0,
+      };
+    });
 
     // Sort by wonDeals desc, then revenue desc
     leaderboard.sort((a, b) => b.wonDeals - a.wonDeals || b.revenue - a.revenue);
@@ -406,14 +445,21 @@ router.get("/team/leaderboard", authenticateToken, requireOwnerOrAdmin, async (r
 // ────────────────────────────────────────────────────────────────────────────
 // GET /api/org/team/export — Export team data as CSV
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * List team with optional filters.
+ *
+ * @route   GET /api/org/team/export
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.get("/team/export", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.setHeader("Content-Type", "text/csv").send("");
 
     const members = await prisma.users.findMany({
       where: { organizationId: orgId },
       select: {
+        id: true,
         firstName: true,
         lastName: true,
         email: true,
@@ -431,25 +477,19 @@ router.get("/team/export", authenticateToken, requireOwnerOrAdmin, async (req: R
       orderBy: { createdAt: "desc" },
     });
 
-    // Get stats per member
-    const rows = await Promise.all(
-      members.map(async (m) => {
-        const [leads, deals, wonDeals, revenue] = await Promise.all([
-          prisma.leads.count({ where: { agentId: m.email || "" } }),
-          prisma.deals.count({ where: { agentId: m.email || "" } }),
-          prisma.deals.count({ where: { agentId: m.email || "", stage: "WON" } }),
-          prisma.deals.aggregate({ where: { agentId: m.email || "", stage: "WON" }, _sum: { agreedPrice: true } }),
-        ]);
+    // Batch queries for stats (was N+1 using m.email instead of m.id)
+    const memberIds = members.map((m) => m.id);
+    const [leadCounts, dealCounts, wonDealCounts, revenueResults] = await Promise.all([
+      prisma.leads.groupBy({ by: ["agentId"], where: { agentId: { in: memberIds } }, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { agentId: { in: memberIds } }, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { agentId: { in: memberIds }, stage: "WON" }, _count: true }),
+      prisma.deals.groupBy({ by: ["agentId"], where: { agentId: { in: memberIds }, stage: "WON" }, _sum: { agreedPrice: true } }),
+    ]);
 
-        return {
-          ...m,
-          leads,
-          deals,
-          wonDeals,
-          revenue: Number(revenue._sum.agreedPrice || 0),
-        };
-      })
-    );
+    const leadMap = Object.fromEntries(leadCounts.map((r) => [r.agentId, r._count]));
+    const dealMap = Object.fromEntries(dealCounts.map((r) => [r.agentId, r._count]));
+    const wonMap = Object.fromEntries(wonDealCounts.map((r) => [r.agentId, r._count]));
+    const revMap = Object.fromEntries(revenueResults.map((r) => [r.agentId, Number(r._sum.agreedPrice || 0)]));
 
     // Build CSV
     const BOM = "\uFEFF"; // For Arabic support in Excel
@@ -465,6 +505,10 @@ router.get("/team/export", authenticateToken, requireOwnerOrAdmin, async (req: R
       "رقم الرخصة",
       "المنطقة",
       "التخصص",
+      "العملاء المحتملون",
+      "الصفقات",
+      "صفقات رابحة",
+      "الإيرادات",
       "تاريخ الانضمام",
       "آخر دخول",
     ];
@@ -485,6 +529,10 @@ router.get("/team/export", authenticateToken, requireOwnerOrAdmin, async (req: R
           m.agent_profiles?.licenseNo || "",
           m.agent_profiles?.territories || "",
           m.agent_profiles?.specialties || "",
+          leadMap[m.id] || 0,
+          dealMap[m.id] || 0,
+          wonMap[m.id] || 0,
+          revMap[m.id] || 0,
           m.createdAt ? new Date(m.createdAt).toISOString().split("T")[0] : "",
           m.lastLoginAt ? new Date(m.lastLoginAt).toISOString().split("T")[0] : "",
         ]
@@ -506,10 +554,16 @@ router.get("/team/export", authenticateToken, requireOwnerOrAdmin, async (req: R
 // ────────────────────────────────────────────────────────────────────────────
 // GET /api/org/team/activity-log — Org-wide activity log
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * List team with optional filters.
+ *
+ * @route   GET /api/org/team/activity-log
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.get("/team/activity-log", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.json({ logs: [], total: 0, page: 1, pages: 0 });
 
     const page = parseInt(req.query.page as string) || 1;
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 100);
@@ -577,10 +631,16 @@ router.get("/team/activity-log", authenticateToken, requireOwnerOrAdmin, async (
 // ────────────────────────────────────────────────────────────────────────────
 // GET /api/org/team/:id/activity — Agent's recent activity (last 30 days)
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Fetch a single team by ID.
+ *
+ * @route   GET /api/org/team/:id/activity
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.get("/team/:id/activity", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const agentId = req.params.id;
 
@@ -695,10 +755,16 @@ router.get("/team/:id/activity", authenticateToken, requireOwnerOrAdmin, async (
 // ────────────────────────────────────────────────────────────────────────────
 // GET /api/org/team/:id/schedule — Agent's weekly schedule
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Fetch a single team by ID.
+ *
+ * @route   GET /api/org/team/:id/schedule
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.get("/team/:id/schedule", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const agentId = req.params.id;
     const agent = await verifyAgentInOrg(agentId, orgId);
@@ -770,10 +836,16 @@ router.get("/team/:id/schedule", authenticateToken, requireOwnerOrAdmin, async (
 // ────────────────────────────────────────────────────────────────────────────
 // GET /api/org/team/:id/notes — Get internal notes about agent
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Fetch a single team by ID.
+ *
+ * @route   GET /api/org/team/:id/notes
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.get("/team/:id/notes", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const agentId = req.params.id;
     const agent = await verifyAgentInOrg(agentId, orgId);
@@ -810,10 +882,16 @@ router.get("/team/:id/notes", authenticateToken, requireOwnerOrAdmin, async (req
 // ────────────────────────────────────────────────────────────────────────────
 // POST /api/org/team/invite — Add a new agent to the organization
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Create a new team record.
+ *
+ * @route   POST /api/org/team/invite
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.post("/team/invite", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const { firstName, lastName, email, phone, role, specialties, territories, department } = req.body;
 
@@ -893,10 +971,16 @@ router.post("/team/invite", authenticateToken, requireOwnerOrAdmin, async (req: 
 // ────────────────────────────────────────────────────────────────────────────
 // POST /api/org/team/invite-bulk — Bulk invite agents
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Bulk create/process team.
+ *
+ * @route   POST /api/org/team/invite-bulk
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.post("/team/invite-bulk", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const { agents } = req.body as {
       agents: { firstName: string; lastName: string; email: string; phone?: string; role?: string; department?: string }[];
@@ -981,10 +1065,16 @@ router.post("/team/invite-bulk", authenticateToken, requireOwnerOrAdmin, async (
 // ────────────────────────────────────────────────────────────────────────────
 // POST /api/org/team/:id/assign-leads — Bulk assign leads to agent
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Create a new team record.
+ *
+ * @route   POST /api/org/team/:id/assign-leads
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.post("/team/:id/assign-leads", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const agentId = req.params.id;
     const { leadIds } = req.body as { leadIds: string[] };
@@ -1039,10 +1129,16 @@ router.post("/team/:id/assign-leads", authenticateToken, requireOwnerOrAdmin, as
 // ────────────────────────────────────────────────────────────────────────────
 // POST /api/org/team/:id/transfer — Transfer agent's work to another
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Create a new team record.
+ *
+ * @route   POST /api/org/team/:id/transfer
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.post("/team/:id/transfer", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const sourceAgentId = req.params.id;
     const { targetAgentId, transferLeads, transferDeals, transferAppointments } = req.body as {
@@ -1123,10 +1219,16 @@ router.post("/team/:id/transfer", authenticateToken, requireOwnerOrAdmin, async 
 // ────────────────────────────────────────────────────────────────────────────
 // POST /api/org/team/:id/set-working-hours — Set agent working hours
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Create a new team record.
+ *
+ * @route   POST /api/org/team/:id/set-working-hours
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.post("/team/:id/set-working-hours", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const agentId = req.params.id;
     const { workingHours } = req.body as {
@@ -1172,10 +1274,16 @@ router.post("/team/:id/set-working-hours", authenticateToken, requireOwnerOrAdmi
 // ────────────────────────────────────────────────────────────────────────────
 // POST /api/org/team/:id/note — Add internal note about agent
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Create a new team record.
+ *
+ * @route   POST /api/org/team/:id/note
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.post("/team/:id/note", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const agentId = req.params.id;
     const { content } = req.body as { content: string };
@@ -1216,10 +1324,16 @@ router.post("/team/:id/note", authenticateToken, requireOwnerOrAdmin, async (req
 // ────────────────────────────────────────────────────────────────────────────
 // PUT /api/org/team/:id — Update agent details
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Update an existing team record.
+ *
+ * @route   PUT /api/org/team/:id
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.put("/team/:id", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const agentId = req.params.id;
 
@@ -1271,10 +1385,16 @@ router.put("/team/:id", authenticateToken, requireOwnerOrAdmin, async (req: Requ
 // ────────────────────────────────────────────────────────────────────────────
 // PATCH /api/org/team/:id/toggle-active — Enable/disable agent
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Toggle team status.
+ *
+ * @route   PATCH /api/org/team/:id/toggle-active
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.patch("/team/:id/toggle-active", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const agentId = req.params.id;
 
@@ -1320,10 +1440,16 @@ router.patch("/team/:id/toggle-active", authenticateToken, requireOwnerOrAdmin, 
 // ────────────────────────────────────────────────────────────────────────────
 // PATCH /api/org/team/:id/change-role — Promote/demote agent
 // ────────────────────────────────────────────────────────────────────────────
+/**
+ * Partially update a team record.
+ *
+ * @route   PATCH /api/org/team/:id/change-role
+ * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
+ */
 router.patch("/team/:id/change-role", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
   try {
-    const orgId = getOrgId(req, res);
-    if (!orgId) return;
+    const orgId = getOrgId(req);
+    if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
 
     const agentId = req.params.id;
     const { role } = req.body;

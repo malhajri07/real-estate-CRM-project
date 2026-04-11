@@ -284,6 +284,7 @@ function getUserFromRequest(req: Request): {
 
 // ─── Audit Logger Class ─────────────────────────────────────────────────────
 
+/** Audit logger. */
 export class AuditLogger {
   private buffer: AuditEntry[] = [];
   private config: AuditConfig;
@@ -388,6 +389,7 @@ export class AuditLogger {
 
 let globalAuditLogger: AuditLogger | null = null;
 
+/** Get audit logger. */
 export function getAuditLogger(config?: Partial<AuditConfig>): AuditLogger {
   if (!globalAuditLogger) {
     globalAuditLogger = new AuditLogger(config);
@@ -397,6 +399,7 @@ export function getAuditLogger(config?: Partial<AuditConfig>): AuditLogger {
 
 // ─── Standalone Audit Log Function ──────────────────────────────────────────
 
+/** Audit log. */
 export async function auditLog(input: AuditLogInput): Promise<void> {
   const logger = getAuditLogger();
   await logger.log(input);
@@ -421,6 +424,7 @@ export interface AuditMiddlewareOptions extends Partial<AuditConfig> {
   excludePaths?: string[];
 }
 
+/** Audit middleware. */
 export function auditMiddleware(options: AuditMiddlewareOptions = {}) {
   const {
     autoLogWrites = false,

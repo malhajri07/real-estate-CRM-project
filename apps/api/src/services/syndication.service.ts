@@ -30,6 +30,7 @@ interface SyndicationResult {
   error?: string;
 }
 
+/** Syndication service. */
 export class SyndicationService {
   /**
    * Map internal listing to Bayut format and push.

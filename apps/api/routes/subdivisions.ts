@@ -20,6 +20,12 @@ import { authenticateToken } from "../src/middleware/auth.middleware";
 
 const router = Router();
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/subdivisions/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -31,6 +37,12 @@ router.get("/", authenticateToken, async (req, res) => {
   } catch (error) { res.status(500).json({ message: "فشل التحميل" }); }
 });
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/subdivisions/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -54,6 +66,12 @@ router.post("/", authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/subdivisions/:id/lots/:lotId
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id/lots/:lotId", authenticateToken, async (req, res) => {
   try {
     const { status, buyerName, buyerPhone, price } = req.body;

@@ -47,6 +47,12 @@ const updateTicketSchema = z.object({
 });
 
 // GET /api/support-tickets
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/support/
+ * @auth    Required — any authenticated user
+ */
 router.get('/', authenticateToken, async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
@@ -78,6 +84,12 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // POST /api/support-tickets
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/support/
+ * @auth    Required — any authenticated user
+ */
 router.post('/', authenticateToken, async (req: Request, res: Response) => {
     try {
         const data = createTicketSchema.parse(req.body);
@@ -108,6 +120,12 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // PUT /api/support-tickets/:id
+/**
+ * Update an existing :id record.
+ *
+ * @route   PUT /api/support/:id
+ * @auth    Required — any authenticated user
+ */
 router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
     try {
         const validated = updateTicketSchema.parse(req.body);
@@ -148,6 +166,12 @@ router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
 
 
 // GET /api/support/categories
+/**
+ * List categories with optional filters.
+ *
+ * @route   GET /api/support/categories
+ * @auth    Public — no auth required
+ */
 router.get('/categories', async (_req, res) => {
     try {
         // Use casting until schema is generated
@@ -163,6 +187,12 @@ router.get('/categories', async (_req, res) => {
 });
 
 // GET /api/support/templates
+/**
+ * List templates with optional filters.
+ *
+ * @route   GET /api/support/templates
+ * @auth    Public — no auth required
+ */
 router.get('/templates', async (_req, res) => {
     try {
         // Use casting until schema is generated
@@ -178,6 +208,12 @@ router.get('/templates', async (_req, res) => {
 });
 
 // POST /api/support/seed (Moved down)
+/**
+ * Create a new seed record.
+ *
+ * @route   POST /api/support/seed
+ * @auth    Public — no auth required
+ */
 router.post('/seed', async (req: Request, res: Response) => {
     // Prevent seed endpoint in production
     if (process.env.NODE_ENV === 'production') {

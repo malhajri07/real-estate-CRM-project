@@ -31,6 +31,7 @@ export class AppError extends Error {
   }
 }
 
+/** Validation error. */
 export class ValidationError extends AppError {
   constructor(message: string, details?: any) {
     super(message, 400, 'VALIDATION_ERROR', details);
@@ -38,6 +39,7 @@ export class ValidationError extends AppError {
   }
 }
 
+/** Authentication error. */
 export class AuthenticationError extends AppError {
   constructor(message: string = 'Authentication required') {
     super(message, 401, 'AUTHENTICATION_ERROR');
@@ -45,6 +47,7 @@ export class AuthenticationError extends AppError {
   }
 }
 
+/** Authorization error. */
 export class AuthorizationError extends AppError {
   constructor(message: string = 'Insufficient permissions') {
     super(message, 403, 'AUTHORIZATION_ERROR');
@@ -52,6 +55,7 @@ export class AuthorizationError extends AppError {
   }
 }
 
+/** Not found error. */
 export class NotFoundError extends AppError {
   constructor(resource: string = 'Resource') {
     super(`${resource} not found`, 404, 'NOT_FOUND');
@@ -59,6 +63,7 @@ export class NotFoundError extends AppError {
   }
 }
 
+/** Conflict error. */
 export class ConflictError extends AppError {
   constructor(message: string, details?: any) {
     super(message, 409, 'CONFLICT_ERROR', details);
@@ -66,6 +71,7 @@ export class ConflictError extends AppError {
   }
 }
 
+/** Too many requests error. */
 export class TooManyRequestsError extends AppError {
   constructor(message: string = 'Too many requests') {
     super(message, 429, 'TOO_MANY_REQUESTS');

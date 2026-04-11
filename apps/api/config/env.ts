@@ -38,6 +38,7 @@ type RequireEnvOptions = {
   fallback?: string | (() => string);
 };
 
+/** Require env. */
 export function requireEnv(name: string, options: RequireEnvOptions = {}): string {
   if (cache.has(name)) {
     return cache.get(name)!;
@@ -71,18 +72,21 @@ export function requireEnv(name: string, options: RequireEnvOptions = {}): strin
   return normalized;
 }
 
+/** J w t_ s e c r e t. */
 export const JWT_SECRET = () =>
   requireEnv('JWT_SECRET', {
     allowInDev: true,
     fallback: () => `dev-jwt-${crypto.randomBytes(32).toString('hex')}`,
   });
 
+/** S e s s i o n_ s e c r e t. */
 export const SESSION_SECRET = () =>
   requireEnv('SESSION_SECRET', {
     allowInDev: true,
     fallback: () => `dev-session-${crypto.randomBytes(32).toString('hex')}`,
   });
 
+/** D a t a b a s e_ u r l. */
 export const DATABASE_URL = () => requireEnv('DATABASE_URL');
 
 /**
@@ -93,11 +97,13 @@ export const BACKEND_PORT = () => {
   return parseInt(port, 10);
 };
 
+/** F r o n t e n d_ p o r t. */
 export const FRONTEND_PORT = () => {
   const port = process.env.VITE_PORT || '3000';
   return parseInt(port, 10);
 };
 
+/** A p i_ p r o x y_ t a r g e t. */
 export const API_PROXY_TARGET = () => {
   const host = process.env.API_HOST || '127.0.0.1';
   const port = BACKEND_PORT();

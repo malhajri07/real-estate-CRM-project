@@ -27,6 +27,7 @@ export interface EjarRegistrationResult {
   error?: string;
 }
 
+/** Ejar service. */
 export class EjarService {
   private baseUrl = process.env.EJAR_API_URL || "https://api.ejar.sa";
   private apiKey = process.env.EJAR_API_KEY || "";

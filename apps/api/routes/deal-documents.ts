@@ -33,6 +33,12 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 }
 
 // GET /api/deals/:dealId/documents — List documents
+/**
+ * Fetch a single :dealId by ID.
+ *
+ * @route   GET /api/deal-documents/:dealId/documents
+ * @auth    Required — any authenticated user
+ */
 router.get("/:dealId/documents", authenticateToken, async (req, res) => {
   try {
     const docs = await prisma.deal_documents.findMany({
@@ -58,6 +64,12 @@ router.get("/:dealId/documents", authenticateToken, async (req, res) => {
 });
 
 // POST /api/deals/:dealId/documents — Upload document (base64)
+/**
+ * Create a new :dealId record.
+ *
+ * @route   POST /api/deal-documents/:dealId/documents
+ * @auth    Required — any authenticated user
+ */
 router.post("/:dealId/documents", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -106,6 +118,12 @@ router.post("/:dealId/documents", authenticateToken, async (req, res) => {
 });
 
 // DELETE /api/deals/:dealId/documents/:docId — Delete document
+/**
+ * Delete a :dealId record.
+ *
+ * @route   DELETE /api/deal-documents/:dealId/documents/:docId
+ * @auth    Required — any authenticated user
+ */
 router.delete("/:dealId/documents/:docId", authenticateToken, async (req, res) => {
   try {
     const doc = await prisma.deal_documents.findUnique({ where: { id: req.params.docId } });

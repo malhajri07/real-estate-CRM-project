@@ -9,6 +9,7 @@
 import { prisma } from "../../prismaClient";
 import { BuyerRequestStatus, Prisma } from "@prisma/client";
 
+/** Pool service. */
 export class PoolService {
     /**
      * Get available pool requests (Open Buyer Requests)

@@ -31,7 +31,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import PageHeader from "@/components/ui/page-header";
 import EmptyState from "@/components/ui/empty-state";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
-import { CardGridSkeleton } from "@/components/skeletons/page-skeletons";
+import { BrokerRequestsSkeleton } from "@/components/skeletons/page-skeletons";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { apiGet, apiPost, apiPatch } from "@/lib/apiClient";
@@ -298,10 +298,7 @@ export default function BrokerRequestsPage() {
     return (
       <div className={PAGE_WRAPPER}>
         <PageHeader title="طلبات التعاون" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => <Card key={i}><CardContent className="p-4"><Skeleton className="h-10 w-full" /></CardContent></Card>)}
-        </div>
-        <CardGridSkeleton />
+        <BrokerRequestsSkeleton />
       </div>
     );
   }

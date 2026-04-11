@@ -2,7 +2,7 @@
 tags: [plan, comments, documentation, baby-steps]
 created: 2026-04-10
 plan: C1-C20
-status: proposed
+status: complete
 ---
 
 # 📝 Comment Plan C1–C20 — Document All Code
@@ -81,17 +81,17 @@ export async function batchAssignLeads(req, res) { ... }
 |---|---|---|---|
 | C1 | Convention + tooling + skill | ~6 | ✅ |
 | C2 | Prisma schema | 1 | ✅ |
-| C3 | Backend — auth + middleware | 6 | ✅ |
-| C4 | Backend — CRM (leads, activities, appointments, lead-routing) | 4 | ✅ |
-| C5 | Backend — Properties & deals (listings, deals, projects, commission, property-categories/types, deal-documents) | 7 | ✅ |
-| C6 | Backend — Marketing & inbox (campaigns, inbox, chatbot, messages, sequences, promotions) | 6 | ✅ |
-| C7 | Backend — Pool, tenancy, reports, notifications (buyer-pool, requests, broker-requests, tenancies, reports, custom-reports, notifications) | 7 | ✅ |
-| C8 | Backend — Billing, admin, CMS, all remaining routes (30 files) | 30 | ✅ |
-| C9 | Backend — lib/, services/, middleware/, validators/ (14 new headers, 51 already had) | 65 | ✅ |
-| C10-C19 | Frontend — all 235 files (hooks, pages, components, lib). 47 new headers added, 188 already had. Batched into one pass. | 235 | ✅ |
-| C20 | Verify — tsc clean, TypeDoc rebuilt (5.7 MB, 0 errors), coverage baseline captured | — | ✅ |
+| C3 | Backend — auth + middleware (org-team.ts: 18 handlers) | 1 | ✅ Per-handler @route JSDoc |
+| C4 | Backend — CRM (activities, appointments, lead-routing) | 3 | ✅ 10 handler JSDoc blocks |
+| C5 | Backend — Properties & deals (listings, deals, deal-documents, projects, property-categories, property-types, commission) | 7 | ✅ 35 handler JSDoc blocks |
+| C6 | Backend — Marketing & inbox (campaigns, inbox, chatbot, messages, promotions, sequences) | 6 | ✅ 28 handler JSDoc blocks |
+| C7 | Backend — Pool, tenancy, reports, notifications (buyer-pool, broker-requests, tenancies, reports, custom-reports, notifications, requests) | 7 | ✅ 36 handler JSDoc blocks |
+| C8 | Backend — Admin, CMS, billing + all remaining routes (30 files) | 30 | ✅ 106 handler JSDoc blocks |
+| C9 | Backend — lib/, services/, middleware/, validators/, utils/ | 26 | ✅ 53 export JSDoc blocks |
+| C10-C19 | Frontend — all 235 files (hooks, pages, components, lib). 47 new headers added, 188 already had. Batched into one pass. | 235 | ✅ File headers |
+| C20 | Verify — tsc clean, 0 errors | — | ✅ |
 
-**Total files in scope: ~470** (matches the 465 file count plus ~5 newly added)
+**Total: 286 per-handler JSDoc blocks added (2026-04-11) + 470 file headers (prior)**
 
 ---
 
@@ -152,57 +152,61 @@ export async function batchAssignLeads(req, res) { ... }
 
 **Reusable:** the script at `/tmp/comment_schema.py` (move into `scripts/` if you want to keep it for future schema additions — it's idempotent and only inserts where no `///` exists above)
 
-### C3 — Backend: Auth + middleware
-**Goal:** The security perimeter is the most-read code in any review. Comment it first.
+### C3 — Backend: Auth + middleware ✅
 
-- [ ] `apps/api/routes/auth.ts` — OTP issue/verify, JWT refresh
-- [ ] `apps/api/routes/users.ts`
-- [ ] `apps/api/routes/organizations.ts`
-- [ ] `apps/api/middleware/auth.ts` — `authenticateToken`
-- [ ] `apps/api/middleware/org-isolation.ts` — `injectOrgFilter`, `injectWriteFilter`
-- [ ] `apps/api/middleware/rate-limit.ts`
+- [x] `routes/auth.ts` — had per-function JSDoc (prior)
+- [x] `routes/org-team.ts` — 18 handler JSDoc blocks added (2026-04-11)
+- [x] `src/middleware/*.ts` — 20 export JSDoc blocks added (2026-04-11)
 
-### C4 — Backend: CRM
-- [ ] `routes/leads.ts` (already has `leadScore` calc — document the formula)
-- [ ] `routes/customers.ts`
-- [ ] `routes/activities.ts`
-- [ ] `routes/contact-log.ts`
-- [ ] `routes/appointments.ts`
+### C4 — Backend: CRM ✅
 
-### C5 — Backend: Properties & deals
-- [ ] `routes/listings.ts` — REGA validation logic; document every check
-- [ ] `routes/deals.ts` — `stageEnteredAt`, `deal_stage_history`, forecast
-- [ ] `routes/projects.ts` — off-plan units
+- [x] `routes/leads.ts` — had per-function JSDoc (prior)
+- [x] `routes/activities.ts` — 5 handler blocks added
+- [x] `routes/appointments.ts` — 3 handler blocks added
+- [x] `routes/lead-routing.ts` — 2 handler blocks added
 
-### C6 — Backend: Marketing & inbox
-- [ ] `routes/campaigns.ts`
-- [ ] `routes/inbox.ts`
-- [ ] `routes/chatbot.ts`
-- [ ] `routes/messages.ts`
-- [ ] `routes/webhooks/*.ts` (WhatsApp inbound)
+### C5 — Backend: Properties & deals ✅
 
-### C7 — Backend: Pool, tenancy, reports, notifications
-- [ ] `routes/buyer-pool.ts`
-- [ ] `routes/broker-requests.ts`
-- [ ] `routes/tenancies.ts`
-- [ ] `routes/reports.ts` — period filtering, growth calc, stuck deals
-- [ ] `routes/custom-reports.ts`
-- [ ] `routes/notifications.ts` — `/count` aggregator
-- [ ] `routes/promotions.ts`
+- [x] `routes/listings.ts` — 14 handler blocks added
+- [x] `routes/deals.ts` — 5 handler blocks added
+- [x] `routes/deal-documents.ts` — 3 handler blocks added
+- [x] `routes/projects.ts` — 7 handler blocks added
+- [x] `routes/property-categories.ts` — handler blocks added
+- [x] `routes/property-types.ts` — handler blocks added
+- [x] `routes/commission.ts` — 3 handler blocks added
 
-### C8 — Backend: Billing, admin, remaining
-- [ ] `routes/subscriptions.ts`
-- [ ] `routes/invoices.ts`
-- [ ] `routes/transactions.ts`
-- [ ] `routes/admin.ts` (or per-domain admin routes)
-- [ ] All remaining route files (~10)
+### C6 — Backend: Marketing & inbox ✅
 
-### C9 — Backend: `lib/` & integrations
-- [ ] `lib/messaging/*` — Unifonic, Twilio adapters
-- [ ] `lib/validation/saudi-phone.ts`
-- [ ] `lib/pdf/*`
-- [ ] `lib/payments/*`
-- [ ] `lib/utils/*`
+- [x] `routes/campaigns.ts` — 8 handler blocks added
+- [x] `routes/inbox.ts` — 4 handler blocks added
+- [x] `routes/chatbot.ts` — 2 handler blocks added
+- [x] `routes/messages.ts` — 3 handler blocks added
+- [x] `routes/promotions.ts` — 5 handler blocks added
+- [x] `routes/sequences.ts` — 6 handler blocks added
+
+### C7 — Backend: Pool, tenancy, reports, notifications ✅
+
+- [x] `routes/buyer-pool.ts` — 6 handler blocks added
+- [x] `routes/broker-requests.ts` — 8 handler blocks added
+- [x] `routes/tenancies.ts` — 5 handler blocks added
+- [x] `routes/reports.ts` — 6 handler blocks added
+- [x] `routes/custom-reports.ts` — 3 handler blocks added
+- [x] `routes/notifications.ts` — 4 handler blocks added
+- [x] `routes/requests.ts` — 4 handler blocks added
+
+### C8 — Backend: Admin, CMS, billing + remaining ✅
+
+- [x] `routes/rbac-admin.ts`, `routes/billing.ts`, `routes/audit-logs.ts` — handler blocks added
+- [x] `routes/cms-*.ts` (6 files) — handler blocks added
+- [x] `routes/moderation.ts`, `routes/support.ts`, `routes/feedback.ts`, `routes/maintenance.ts`
+- [x] 19 remaining route files (agencies, csv, favorites, inquiries, locations, marketing-requests, search, sitemap, unverified-listings, landing, nearby-places, shortlists, subdivisions, vendors, warranties, saved-filters, client-portal, community, knowledge-base)
+
+### C9 — Backend: lib/, services/, middleware/ ✅
+
+- [x] `src/middleware/*.ts` — audit, auth, cache, error-handler, locale, rbac, request-logger
+- [x] `src/services/*.ts` — auth, community, ejar, knowledge, nafath, national-address, pool, rbac, rega, sadad, social-media, syndication, valuation
+- [x] `src/validators/*.ts` — saudi-regulation validators
+- [x] `utils/*.ts`, `config/*.ts`, `errors/*.ts`, `rbac.ts`, `i18n/index.ts`
 
 ### C10 — Frontend: hooks
 - [ ] `hooks/api/*` — react-query hooks (document query keys + invalidation)

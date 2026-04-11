@@ -33,6 +33,12 @@ const shortlists = new Map<string, {
 }>();
 
 // POST /api/shortlists — Create shortlist
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/shortlists/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -64,6 +70,12 @@ router.post("/", authenticateToken, async (req, res) => {
 });
 
 // GET /api/shortlists/:id — Get shortlist with properties (public — no auth)
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/shortlists/:id
+ * @auth    Public — no auth required
+ */
 router.get("/:id", async (req, res) => {
   try {
     const shortlist = shortlists.get(req.params.id);
@@ -100,6 +112,12 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /api/shortlists/:id/rate — Client rates a property (public)
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/shortlists/:id/rate
+ * @auth    Public — no auth required
+ */
 router.post("/:id/rate", async (req, res) => {
   try {
     const shortlist = shortlists.get(req.params.id);
@@ -120,6 +138,12 @@ router.post("/:id/rate", async (req, res) => {
 });
 
 // GET /api/shortlists — Agent's shortlists (authenticated)
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/shortlists/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req, res) => {
   const user = (req as any).user;
   const agentLists = Array.from(shortlists.values())

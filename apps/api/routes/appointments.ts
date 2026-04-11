@@ -43,6 +43,12 @@ const AppointmentSchema = z.object({
 });
 
 // GET /api/appointments
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/appointments/
+ * @auth    Required — any authenticated user
+ */
 router.get('/', authenticateToken, async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
@@ -72,6 +78,12 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // POST /api/appointments
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/appointments/
+ * @auth    Required — any authenticated user
+ */
 router.post('/', authenticateToken, async (req: Request, res: Response) => {
     try {
         const data = AppointmentSchema.parse(req.body);
@@ -139,6 +151,12 @@ router.post('/', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // PUT /api/appointments/:id
+/**
+ * Update an existing :id record.
+ *
+ * @route   PUT /api/appointments/:id
+ * @auth    Required — any authenticated user
+ */
 router.put('/:id', authenticateToken, async (req: Request, res: Response) => {
     try {
         const { status, scheduledAt, notes, agentId } = req.body;

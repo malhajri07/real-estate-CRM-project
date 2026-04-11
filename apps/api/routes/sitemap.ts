@@ -17,6 +17,12 @@ import { SEOService } from '../services/seoService';
 
 const router = express.Router();
 
+/**
+ * List sitemap.xml with optional filters.
+ *
+ * @route   GET /api/sitemap/sitemap.xml
+ * @auth    Public — no auth required
+ */
 router.get('/sitemap.xml', async (_req, res) => {
   try {
     const base = process.env.PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -41,6 +47,12 @@ router.get('/sitemap.xml', async (_req, res) => {
   }
 });
 
+/**
+ * List robots.txt with optional filters.
+ *
+ * @route   GET /api/sitemap/robots.txt
+ * @auth    Public — no auth required
+ */
 router.get('/robots.txt', async (_req, res) => {
   try {
     const robotsTxt = await SEOService.getRobotsTxt();

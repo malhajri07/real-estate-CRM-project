@@ -60,6 +60,12 @@ const updateChannelSchema = z.object({
 });
 
 // GET /api/community/channels
+/**
+ * List channels with optional filters.
+ *
+ * @route   GET /api/community/channels
+ * @auth    Required — any authenticated user
+ */
 router.get("/channels", authenticateToken, async (req, res) => {
   try {
     const channels = await communityService.getChannels();
@@ -71,6 +77,12 @@ router.get("/channels", authenticateToken, async (req, res) => {
 });
 
 // POST /api/community/channels
+/**
+ * Create a new channels record.
+ *
+ * @route   POST /api/community/channels
+ * @auth    Required — any authenticated user
+ */
 router.post("/channels", authenticateToken, async (req, res) => {
   try {
     const data = createChannelSchema.parse(req.body);
@@ -87,6 +99,12 @@ router.post("/channels", authenticateToken, async (req, res) => {
 });
 
 // GET /api/community/channels/:id
+/**
+ * Fetch a single channels by ID.
+ *
+ * @route   GET /api/community/channels/:id
+ * @auth    Required — any authenticated user
+ */
 router.get("/channels/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -100,6 +118,12 @@ router.get("/channels/:id", authenticateToken, async (req, res) => {
 });
 
 // PATCH /api/community/channels/:id
+/**
+ * Partially update a channels record.
+ *
+ * @route   PATCH /api/community/channels/:id
+ * @auth    Required — any authenticated user
+ */
 router.patch("/channels/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -118,6 +142,12 @@ router.patch("/channels/:id", authenticateToken, async (req, res) => {
 });
 
 // DELETE /api/community/channels/:id
+/**
+ * Delete a channels record.
+ *
+ * @route   DELETE /api/community/channels/:id
+ * @auth    Required — any authenticated user
+ */
 router.delete("/channels/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -132,6 +162,12 @@ router.delete("/channels/:id", authenticateToken, async (req, res) => {
 });
 
 // GET /api/community/feed
+/**
+ * List feed with optional filters.
+ *
+ * @route   GET /api/community/feed
+ * @auth    Required — any authenticated user
+ */
 router.get("/feed", authenticateToken, async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page as string) : 1;
@@ -149,6 +185,12 @@ router.get("/feed", authenticateToken, async (req, res) => {
 });
 
 // POST /api/community/post
+/**
+ * Create a new post record.
+ *
+ * @route   POST /api/community/post
+ * @auth    Required — any authenticated user
+ */
 router.post("/post", authenticateToken, async (req, res) => {
   try {
     const data = createPostSchema.parse(req.body);
@@ -173,6 +215,12 @@ router.post("/post", authenticateToken, async (req, res) => {
 });
 
 // POST /api/community/post/:id/like
+/**
+ * Create a new post record.
+ *
+ * @route   POST /api/community/post/:id/like
+ * @auth    Required — any authenticated user
+ */
 router.post("/post/:id/like", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
@@ -185,6 +233,12 @@ router.post("/post/:id/like", authenticateToken, async (req, res) => {
 });
 
 // POST /api/community/post/:id/comment
+/**
+ * Create a new post record.
+ *
+ * @route   POST /api/community/post/:id/comment
+ * @auth    Required — any authenticated user
+ */
 router.post("/post/:id/comment", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;

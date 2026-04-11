@@ -27,6 +27,12 @@ function getUserId(req: any): string | null {
   return req?.user?.id || req?.session?.user?.id || null;
 }
 
+/**
+ * List saved with optional filters.
+ *
+ * @route   GET /api/search/saved
+ * @auth    Public — no auth required
+ */
 router.get("/saved", async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -51,6 +57,12 @@ const SavedSearchSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
+/**
+ * Create a new saved record.
+ *
+ * @route   POST /api/search/saved
+ * @auth    Required — any authenticated user
+ */
 router.post("/saved", authenticateToken, async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -70,6 +82,12 @@ router.post("/saved", authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * Delete a saved record.
+ *
+ * @route   DELETE /api/search/saved/:id
+ * @auth    Required — any authenticated user
+ */
 router.delete("/saved/:id", authenticateToken, async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -84,6 +102,12 @@ router.delete("/saved/:id", authenticateToken, async (req, res) => {
 });
 
 // Simulate running saved search alerts (dev helper)
+/**
+ * Create a new run-alerts record.
+ *
+ * @route   POST /api/search/run-alerts
+ * @auth    Required — any authenticated user
+ */
 router.post("/run-alerts", authenticateToken, async (req, res) => {
   try {
     const userId = getUserId(req);

@@ -35,6 +35,12 @@ function requireRole(roles: string[]) {
 }
 
 // Public: Get published articles (or all for admin)
+/**
+ * List articles with optional filters.
+ *
+ * @route   GET /api/cms/articles/articles
+ * @auth    Public — no auth required
+ */
 router.get("/articles", async (req, res) => {
   try {
     const {
@@ -85,6 +91,12 @@ router.get("/articles", async (req, res) => {
 });
 
 // Public: Get article by slug (only published articles)
+/**
+ * Fetch a single articles by ID.
+ *
+ * @route   GET /api/cms/articles/articles/slug/:slug
+ * @auth    Public — no auth required
+ */
 router.get("/articles/slug/:slug", async (req, res) => {
   try {
     // For public access, only allow published articles
@@ -241,6 +253,12 @@ router.delete(
 );
 
 // Categories
+/**
+ * List articles with optional filters.
+ *
+ * @route   GET /api/cms/articles/articles/categories
+ * @auth    Public — no auth required
+ */
 router.get("/articles/categories", async (req, res) => {
   try {
     const categories = await ArticleService.listCategories();
@@ -269,6 +287,12 @@ router.post(
 );
 
 // Tags
+/**
+ * List articles with optional filters.
+ *
+ * @route   GET /api/cms/articles/articles/tags
+ * @auth    Public — no auth required
+ */
 router.get("/articles/tags", async (req, res) => {
   try {
     const tags = await ArticleService.listTags();

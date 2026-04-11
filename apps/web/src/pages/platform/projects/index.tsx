@@ -6,6 +6,8 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { ProjectsSkeleton } from "@/components/skeletons/page-skeletons";
 import {
   Building,
   Plus,
@@ -137,6 +139,7 @@ function formatDate(d?: string) {
 // ── Component ──────────────────────────────────────────────────────────────
 
 export default function ProjectsPage() {
+  const showSkeleton = useMinLoadTime();
   const queryClient = useQueryClient();
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [showCreateProject, setShowCreateProject] = useState(false);
@@ -274,6 +277,15 @@ export default function ProjectsPage() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   const isLoading = statsLoading || projectsLoading;
+
+  if (isLoading || showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <PageHeader title="المشاريع" subtitle="إدارة مشاريع البيع على الخارطة" />
+        <ProjectsSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>

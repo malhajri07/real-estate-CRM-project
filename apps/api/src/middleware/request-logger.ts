@@ -167,6 +167,7 @@ function colorizedLogFn(entry: RequestLogEntry): void {
 
 // ─── Middleware Factory ───────────────────────────────────────────────────────
 
+/** Request logger. */
 export function requestLogger(options: RequestLoggerOptions = {}) {
   const {
     slowThresholdMs = 1000,

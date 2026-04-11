@@ -56,6 +56,12 @@ function parseCSVLine(line: string): string[] {
 }
 
 // GET /api/csv/leads — export leads as CSV
+/**
+ * List leads with optional filters.
+ *
+ * @route   GET /api/csv/leads
+ * @auth    Required — any authenticated user
+ */
 router.get('/leads', authenticateToken, async (req: Request, res: Response) => {
     try {
         const orgId = req.user?.organizationId;
@@ -103,6 +109,12 @@ router.get('/leads', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // POST /api/csv/leads/import — import leads from CSV body
+/**
+ * Create a new leads record.
+ *
+ * @route   POST /api/csv/leads/import
+ * @auth    Required — any authenticated user
+ */
 router.post('/leads/import', authenticateToken, async (req: Request, res: Response) => {
     try {
         const orgId = req.user?.organizationId;
@@ -174,6 +186,12 @@ router.post('/leads/import', authenticateToken, async (req: Request, res: Respon
 });
 
 // GET /api/csv/listings — export listings as CSV
+/**
+ * List listings with optional filters.
+ *
+ * @route   GET /api/csv/listings
+ * @auth    Required — any authenticated user
+ */
 router.get('/listings', authenticateToken, async (req: Request, res: Response) => {
     try {
         const orgId = req.user?.organizationId;
@@ -209,6 +227,12 @@ router.get('/listings', authenticateToken, async (req: Request, res: Response) =
 });
 
 // GET /api/csv/deals — export deals as CSV
+/**
+ * List deals with optional filters.
+ *
+ * @route   GET /api/csv/deals
+ * @auth    Required — any authenticated user
+ */
 router.get('/deals', authenticateToken, async (req: Request, res: Response) => {
     try {
         const orgId = req.user?.organizationId;
@@ -252,6 +276,12 @@ router.get('/deals', authenticateToken, async (req: Request, res: Response) => {
 });
 
 // GET /api/csv/appointments — export appointments as CSV
+/**
+ * List appointments with optional filters.
+ *
+ * @route   GET /api/csv/appointments
+ * @auth    Required — any authenticated user
+ */
 router.get('/appointments', authenticateToken, async (req: Request, res: Response) => {
     try {
         const orgId = req.user?.organizationId;

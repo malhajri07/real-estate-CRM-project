@@ -34,6 +34,12 @@ function requireRole(roles: string[]) {
 }
 
 // Public: Get visible navigation links
+/**
+ * List navigation with optional filters.
+ *
+ * @route   GET /api/cms/navigation/navigation
+ * @auth    Public — no auth required
+ */
 router.get("/navigation", async (req, res) => {
   try {
     const links = await NavigationService.getVisibleNavigationLinks();
@@ -50,6 +56,12 @@ router.get("/navigation", async (req, res) => {
 });
 
 // Public: Get header configuration (logo, etc)
+/**
+ * List public with optional filters.
+ *
+ * @route   GET /api/cms/navigation/public/header-config
+ * @auth    Public — no auth required
+ */
 router.get("/public/header-config", async (req, res) => {
   try {
     // Import LandingService dynamically if needed or just use import

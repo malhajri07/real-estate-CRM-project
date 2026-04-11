@@ -26,6 +26,7 @@ function formatPrice(n: number): string {
   return `${n} ر.س`;
 }
 
+/** Generate instagram post. */
 export function generateInstagramPost(data: ListingPostData): string {
   const specs = [
     data.bedrooms && `🛏 ${data.bedrooms} غرف`,
@@ -49,6 +50,7 @@ ${features}
 #عقارات #${data.city.replace(/\s/g, "_")} #عقار_للبيع #عقاركم #سعودي #استثمار_عقاري`;
 }
 
+/** Generate twitter post. */
 export function generateTwitterPost(data: ListingPostData): string {
   return `🏠 ${data.type} ${data.bedrooms ? `${data.bedrooms} غرف` : ""} في ${data.city}
 💰 ${formatPrice(data.price)}
@@ -58,6 +60,7 @@ ${data.listingUrl || ""}
 #عقارات_السعودية`;
 }
 
+/** Generate whats app post. */
 export function generateWhatsAppPost(data: ListingPostData): string {
   const specs = [
     data.bedrooms && `غرف: ${data.bedrooms}`,

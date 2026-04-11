@@ -35,6 +35,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import PageHeader from "@/components/ui/page-header";
 import EmptyState from "@/components/ui/empty-state";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
+import { PoolSkeleton } from "@/components/skeletons/page-skeletons";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { apiGet, apiPost } from "@/lib/apiClient";
@@ -298,6 +299,15 @@ export default function PoolPage() {
   );
 
   // ── Render ───────────────────────────────────────────────────────────────
+
+  if ((buyerLoading && ownerLoading) || showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <PageHeader title="الطلبات العقارية" subtitle="طلبات الباحثين عن عقار وإعلانات الملاك الذين يبحثون عن وسيط" />
+        <PoolSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>

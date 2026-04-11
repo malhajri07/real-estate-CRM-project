@@ -16,6 +16,7 @@ export interface FalVerificationResult {
   error?: string;
 }
 
+/** Rega service. */
 export class RegaService {
   private baseUrl = process.env.REGA_API_URL || "https://api.rega.gov.sa";
   private apiKey = process.env.REGA_API_KEY || "";

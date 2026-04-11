@@ -29,6 +29,12 @@ const calculateBase64Size = (dataUrl: string): number => {
 };
 
 // GET route to fetch all unverified listings (for admin dashboard)
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/unverified-listings/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
   try {
     // Check if status query param exists in the URL (even if empty string)
@@ -52,6 +58,12 @@ router.get("/", async (req, res) => {
 });
 
 // GET route for a specific listing by ID
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/unverified-listings/:id
+ * @auth    Public — no auth required
+ */
 router.get("/:id", async (req, res) => {
   try {
     const id = req.params.id;
@@ -69,6 +81,12 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST route to accept a listing (approve and activate)
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/unverified-listings/:id/accept
+ * @auth    Public — no auth required
+ */
 router.post("/:id/accept", async (req, res) => {
   try {
     const id = req.params.id;
@@ -97,6 +115,12 @@ router.post("/:id/accept", async (req, res) => {
 });
 
 // POST route to reject a listing
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/unverified-listings/:id/reject
+ * @auth    Public — no auth required
+ */
 router.post("/:id/reject", async (req, res) => {
   try {
     const id = req.params.id;
@@ -125,6 +149,12 @@ router.post("/:id/reject", async (req, res) => {
   }
 });
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/unverified-listings/
+ * @auth    Public — no auth required
+ */
 router.post("/", async (req, res) => {
   try {
     // Schema matching property_listings table exactly

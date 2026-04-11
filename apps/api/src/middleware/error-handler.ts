@@ -26,6 +26,7 @@ import { ZodError, ZodIssue } from 'zod';
 
 // ─── Custom Error Classes ───────────────────────────────────────────────────
 
+/** App error. */
 export class AppError extends Error {
   public readonly statusCode: number;
   public readonly code: string;
@@ -49,6 +50,7 @@ export class AppError extends Error {
   }
 }
 
+/** Validation error. */
 export class ValidationError extends AppError {
   constructor(message: string = 'بيانات غير صالحة', details?: unknown) {
     super(message, 400, 'VALIDATION_ERROR', true, details);
@@ -56,6 +58,7 @@ export class ValidationError extends AppError {
   }
 }
 
+/** Not found error. */
 export class NotFoundError extends AppError {
   constructor(message: string = 'المورد المطلوب غير موجود') {
     super(message, 404, 'NOT_FOUND', true);
@@ -63,6 +66,7 @@ export class NotFoundError extends AppError {
   }
 }
 
+/** Unauthorized error. */
 export class UnauthorizedError extends AppError {
   constructor(message: string = 'غير مصرح — يرجى تسجيل الدخول') {
     super(message, 401, 'UNAUTHORIZED', true);
@@ -70,6 +74,7 @@ export class UnauthorizedError extends AppError {
   }
 }
 
+/** Forbidden error. */
 export class ForbiddenError extends AppError {
   constructor(message: string = 'ليس لديك صلاحية للوصول إلى هذا المورد') {
     super(message, 403, 'FORBIDDEN', true);
@@ -77,6 +82,7 @@ export class ForbiddenError extends AppError {
   }
 }
 
+/** Conflict error. */
 export class ConflictError extends AppError {
   constructor(message: string = 'تعارض في البيانات — السجل موجود مسبقاً') {
     super(message, 409, 'CONFLICT', true);
@@ -84,6 +90,7 @@ export class ConflictError extends AppError {
   }
 }
 
+/** Rate limit error. */
 export class RateLimitError extends AppError {
   constructor(message: string = 'تم تجاوز الحد المسموح من الطلبات — حاول مجدداً لاحقاً') {
     super(message, 429, 'RATE_LIMIT', true);
@@ -91,6 +98,7 @@ export class RateLimitError extends AppError {
   }
 }
 
+/** Service unavailable error. */
 export class ServiceUnavailableError extends AppError {
   constructor(message: string = 'الخدمة غير متاحة حالياً — يرجى المحاولة لاحقاً') {
     super(message, 503, 'SERVICE_UNAVAILABLE', true);
@@ -311,6 +319,7 @@ function defaultLogger(severity: ErrorSeverity, error: Error, req: Request): voi
 
 // ─── Main Error Handler Factory ─────────────────────────────────────────────
 
+/** Error handler. */
 export function errorHandler(options: ErrorHandlerOptions = {}) {
   const {
     includeStack = process.env.NODE_ENV === 'development',
@@ -413,6 +422,7 @@ export function errorHandler(options: ErrorHandlerOptions = {}) {
 
 // ─── 404 Handler (for unmatched routes) ─────────────────────────────────────
 
+/** Not found handler. */
 export function notFoundHandler() {
   return (req: Request, _res: Response, next: NextFunction): void => {
     const error = new NotFoundError(
@@ -430,6 +440,7 @@ type AsyncRouteHandler = (
   next: NextFunction
 ) => Promise<void | Response>;
 
+/** Async handler. */
 export function asyncHandler(fn: AsyncRouteHandler) {
   return (req: Request, res: Response, next: NextFunction): void => {
     Promise.resolve(fn(req, res, next)).catch(next);

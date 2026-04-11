@@ -27,6 +27,12 @@ const VALID_PRIORITIES = ["LOW", "MEDIUM", "HIGH", "URGENT"] as const;
 const VALID_STATUSES = ["SUBMITTED", "ASSIGNED", "IN_PROGRESS", "COMPLETED", "CANCELLED"] as const;
 
 // GET /api/maintenance/stats — Count by status
+/**
+ * List stats with optional filters.
+ *
+ * @route   GET /api/maintenance/stats
+ * @auth    Required — any authenticated user
+ */
 router.get("/stats", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -62,6 +68,12 @@ router.get("/stats", authenticateToken, async (req, res) => {
 });
 
 // GET /api/maintenance — List requests (filtered by agent's properties)
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/maintenance/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -100,6 +112,12 @@ router.get("/", authenticateToken, async (req, res) => {
 });
 
 // POST /api/maintenance — Create request
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/maintenance/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -138,6 +156,12 @@ router.post("/", authenticateToken, async (req, res) => {
 });
 
 // PATCH /api/maintenance/:id — Update status, assign vendor, add notes
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/maintenance/:id
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id", authenticateToken, async (req, res) => {
   try {
     const schema = z.object({

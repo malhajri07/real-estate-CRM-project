@@ -11,6 +11,7 @@ import { t } from '../../i18n';
 
 // Express Request interface is declared in auth.middleware.ts
 
+/** Locale middleware. */
 export const localeMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const header = req.headers['accept-language'];
     const locale = header?.split(',')[0]?.split('-')[0] || 'ar'; // Default to Arabic

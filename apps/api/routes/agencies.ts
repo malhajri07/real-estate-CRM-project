@@ -17,6 +17,12 @@ import { storage } from "../storage-prisma";
 
 const router = express.Router();
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/agencies/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (_req, res) => {
   try {
     const enriched = await storage.listAgenciesWithCounts();
@@ -27,6 +33,12 @@ router.get("/", async (_req, res) => {
   }
 });
 
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/agencies/:id
+ * @auth    Public — no auth required
+ */
 router.get("/:id", async (req, res) => {
   try {
     const agency = await storage.getAgency(req.params.id);
@@ -40,6 +52,12 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+/**
+ * Fetch a single agent by ID.
+ *
+ * @route   GET /api/agencies/agent/:id
+ * @auth    Public — no auth required
+ */
 router.get("/agent/:id", async (req, res) => {
   try {
     // Reuse general user fetch via storage.getUser

@@ -64,6 +64,12 @@ function parseDelay(delay: string): number {
 
 // ── GET /api/sequences — List agent's sequences ─────────────────────────────
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/sequences/
+ * @auth    Required — any authenticated user
+ */
 router.get("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -86,6 +92,12 @@ router.get("/", authenticateToken, async (req, res) => {
 
 // ── POST /api/sequences — Create sequence ───────────────────────────────────
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/sequences/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -122,6 +134,12 @@ router.post("/", authenticateToken, async (req, res) => {
 
 // ── PATCH /api/sequences/:id — Update sequence ─────────────────────────────
 
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/sequences/:id
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -167,6 +185,12 @@ router.patch("/:id", authenticateToken, async (req, res) => {
 
 // ── DELETE /api/sequences/:id — Delete sequence ─────────────────────────────
 
+/**
+ * Delete a :id record.
+ *
+ * @route   DELETE /api/sequences/:id
+ * @auth    Required — any authenticated user
+ */
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -188,6 +212,12 @@ router.delete("/:id", authenticateToken, async (req, res) => {
 
 // ── POST /api/sequences/:id/enroll — Enroll a lead ─────────────────────────
 
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/sequences/:id/enroll
+ * @auth    Required — any authenticated user
+ */
 router.post("/:id/enroll", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -236,6 +266,12 @@ router.post("/:id/enroll", authenticateToken, async (req, res) => {
 
 // ── POST /api/sequences/process — Process due enrollments (cron-like) ───────
 
+/**
+ * Create a new process record.
+ *
+ * @route   POST /api/sequences/process
+ * @auth    Required — any authenticated user
+ */
 router.post("/process", authenticateToken, async (req, res) => {
   try {
     const now = new Date();

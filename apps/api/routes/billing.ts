@@ -45,6 +45,12 @@ router.use(requireBillingAccess);
 
 // --- Billing Accounts ---
 
+/**
+ * List accounts with optional filters.
+ *
+ * @route   GET /api/billing/accounts
+ * @auth    Public — no auth required
+ */
 router.get('/accounts', async (req: any, res) => {
     try {
         const userId = req.user.id;
@@ -70,6 +76,12 @@ router.get('/accounts', async (req: any, res) => {
 
 // --- Invoices ---
 
+/**
+ * List invoices with optional filters.
+ *
+ * @route   GET /api/billing/invoices
+ * @auth    Public — no auth required
+ */
 router.get('/invoices', async (req: any, res) => {
     try {
         const userId = req.user.id;
@@ -92,6 +104,12 @@ router.get('/invoices', async (req: any, res) => {
     }
 });
 
+/**
+ * Fetch a single invoices by ID.
+ *
+ * @route   GET /api/billing/invoices/:id
+ * @auth    Public — no auth required
+ */
 router.get('/invoices/:id', async (req: any, res) => {
     try {
         const invoice = await prisma.billing_invoices.findUnique({
@@ -118,6 +136,12 @@ router.get('/invoices/:id', async (req: any, res) => {
 
 // --- Subscriptions ---
 
+/**
+ * List subscriptions with optional filters.
+ *
+ * @route   GET /api/billing/subscriptions
+ * @auth    Public — no auth required
+ */
 router.get('/subscriptions', async (req: any, res) => {
     try {
         const userId = req.user.id;
@@ -143,6 +167,12 @@ router.get('/subscriptions', async (req: any, res) => {
 
 // --- Analytics ---
 
+/**
+ * List analytics with optional filters.
+ *
+ * @route   GET /api/billing/analytics
+ * @auth    Public — no auth required
+ */
 router.get('/analytics', async (req: any, res) => {
     try {
         const userId = req.user?.id;
@@ -289,6 +319,12 @@ router.get('/analytics', async (req: any, res) => {
     }
 });
 
+/**
+ * List plans with optional filters.
+ *
+ * @route   GET /api/billing/plans
+ * @auth    Public — no auth required
+ */
 router.get('/plans', async (_req, res) => {
     try {
         const plans = await prisma.pricing_plans.findMany({
@@ -305,6 +341,12 @@ router.get('/plans', async (_req, res) => {
 
 // --- Seeding ---
 
+/**
+ * Create a new seed record.
+ *
+ * @route   POST /api/billing/seed
+ * @auth    Public — no auth required
+ */
 router.post('/seed', async (req: any, res) => {
     // Only admins can seed billing data
     if (!hasPermission(req.user?.roles, 'system:manage')) {

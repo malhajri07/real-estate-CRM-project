@@ -17,11 +17,13 @@ const messages = {
     en: { errors: enErrors }
 };
 
+/** T. */
 export const t = (key: MessageKey, locale: string = 'ar'): string => {
     const safeLocale = (['ar', 'en'].includes(locale) ? locale : 'ar') as Locale;
     return messages[safeLocale].errors[key] || messages['en'].errors[key] || key;
 };
 
+/** Get error response. */
 export const getErrorResponse = (key: MessageKey, locale: string = 'ar', details?: any) => {
     const message = t(key, locale);
     return {

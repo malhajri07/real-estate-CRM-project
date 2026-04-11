@@ -25,6 +25,7 @@ interface JWTPayload {
     exp?: number;
 }
 
+/** Auth service. */
 export class AuthService {
 
     static generateToken(user: {

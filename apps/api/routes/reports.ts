@@ -26,6 +26,12 @@ const ReportSchema = z.object({
   reason: z.string().min(3),
 });
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/reports/
+ * @auth    Public — no auth required
+ */
 router.post("/", async (req, res) => {
   try {
     const data = ReportSchema.parse(req.body);
@@ -44,6 +50,12 @@ router.post("/", async (req, res) => {
   }
 });
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/reports/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
   try {
     const { status } = req.query as Record<string, string | undefined>;
@@ -55,6 +67,12 @@ router.get("/", async (req, res) => {
   }
 });
 
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/reports/:id/resolve
+ * @auth    Public — no auth required
+ */
 router.post("/:id/resolve", async (req, res) => {
   try {
     const { note } = req.body || {};
@@ -78,6 +96,12 @@ function getDealStage(deal: any): string {
 // ?view=personal → always agent's own data (for CORP_AGENT personal cards)
 // ?view=org → org-wide data (for CORP_OWNER/CORP_AGENT aggregate cards)
 // Default: uses rbac scope (admin=global, corp=corporate, indiv=self)
+/**
+ * List dashboard with optional filters.
+ *
+ * @route   GET /api/reports/dashboard/metrics
+ * @auth    Required — any authenticated user
+ */
 router.get("/dashboard/metrics", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -203,6 +227,12 @@ router.get("/dashboard/metrics", authenticateToken, async (req, res) => {
 });
 
 // Monthly revenue chart data (last 12 months) — scoped to agent
+/**
+ * List dashboard with optional filters.
+ *
+ * @route   GET /api/reports/dashboard/revenue-chart
+ * @auth    Required — any authenticated user
+ */
 router.get("/dashboard/revenue-chart", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
@@ -257,6 +287,12 @@ router.get("/dashboard/revenue-chart", authenticateToken, async (req, res) => {
 });
 
 // Agent leaderboard — CORP_OWNER sees top agents by deals/revenue
+/**
+ * List dashboard with optional filters.
+ *
+ * @route   GET /api/reports/dashboard/leaderboard
+ * @auth    Required — any authenticated user
+ */
 router.get("/dashboard/leaderboard", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;

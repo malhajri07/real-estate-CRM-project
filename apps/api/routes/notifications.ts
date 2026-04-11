@@ -19,6 +19,12 @@ import { authenticateToken } from '../src/middleware/auth.middleware';
 const router = express.Router();
 
 // GET /api/notifications - Get all notifications for the authenticated user
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/notifications/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
     try {
         const auth = decodeAuth(req);
@@ -114,6 +120,12 @@ router.get("/count", async (req, res) => {
 });
 
 // GET /api/notifications/:id - Get a single notification
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/notifications/:id
+ * @auth    Public — no auth required
+ */
 router.get("/:id", async (req, res) => {
     try {
         const auth = decodeAuth(req);
@@ -144,6 +156,12 @@ router.get("/:id", async (req, res) => {
 });
 
 // PUT /api/notifications/:id - Mark notification as read
+/**
+ * Update an existing :id record.
+ *
+ * @route   PUT /api/notifications/:id
+ * @auth    Required — any authenticated user
+ */
 router.put("/:id", authenticateToken, async (req, res) => {
     try {
         const auth = decodeAuth(req);
@@ -185,6 +203,12 @@ router.put("/:id", authenticateToken, async (req, res) => {
 });
 
 // DELETE /api/notifications/:id - Dismiss/delete a notification
+/**
+ * Delete a :id record.
+ *
+ * @route   DELETE /api/notifications/:id
+ * @auth    Required — any authenticated user
+ */
 router.delete("/:id", authenticateToken, async (req, res) => {
     try {
         const auth = decodeAuth(req);

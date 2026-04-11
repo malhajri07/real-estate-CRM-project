@@ -28,6 +28,7 @@ export interface ValuationResult {
   methodology: string;
 }
 
+/** Valuation service. */
 export class ValuationService {
   /**
    * Find comparable properties and estimate value.

@@ -58,6 +58,12 @@ const updateDealSchema = z.object({
     agentId: z.string().optional(),
 });
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/deals/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
     try {
         const orgFilter = (req as any).orgFilter || {};
@@ -68,6 +74,12 @@ router.get("/", async (req, res) => {
     }
 });
 
+/**
+ * Fetch a single stage by ID.
+ *
+ * @route   GET /api/deals/stage/:stage
+ * @auth    Public — no auth required
+ */
 router.get("/stage/:stage", async (req, res) => {
     try {
         const orgFilter = (req as any).orgFilter || {};
@@ -78,6 +90,12 @@ router.get("/stage/:stage", async (req, res) => {
     }
 });
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/deals/
+ * @auth    Public — no auth required
+ */
 router.post("/", async (req, res) => {
     try {
         const validatedData = insertDealSchema.parse(req.body);
@@ -100,6 +118,12 @@ router.post("/", async (req, res) => {
     }
 });
 
+/**
+ * Update an existing :id record.
+ *
+ * @route   PUT /api/deals/:id
+ * @auth    Public — no auth required
+ */
 router.put("/:id", async (req, res) => {
     try {
         const validatedData = updateDealSchema.parse(req.body);
@@ -194,6 +218,12 @@ router.get("/forecast", async (req, res) => {
     }
 });
 
+/**
+ * Delete a :id record.
+ *
+ * @route   DELETE /api/deals/:id
+ * @auth    Public — no auth required
+ */
 router.delete("/:id", async (req, res) => {
     try {
         const auth = decodeAuth(req);

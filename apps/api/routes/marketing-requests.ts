@@ -79,6 +79,12 @@ function isAdminOrModerator(req: express.Request): boolean {
   return roles.includes("ADMIN") || roles.includes("SUPER_ADMIN") || roles.includes("MODERATOR") || roles.includes("CMS_ADMIN");
 }
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/marketing-requests/
+ * @auth    Public — no auth required
+ */
 router.post("/", async (req, res) => {
   try {
     const ownerId = getUserId(req);
@@ -109,6 +115,12 @@ router.post("/", async (req, res) => {
   }
 });
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/marketing-requests/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (req, res) => {
   try {
     const userId = getUserId(req);
@@ -148,6 +160,12 @@ router.get("/", async (req, res) => {
   }
 });
 
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/marketing-requests/:id
+ * @auth    Public — no auth required
+ */
 router.get("/:id", async (req, res) => {
   try {
     const includeOwner = req.query.includeOwner === "1" || req.query.includeOwner === "true";
@@ -166,6 +184,12 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/marketing-requests/:id/status
+ * @auth    Public — no auth required
+ */
 router.patch("/:id/status", async (req, res) => {
   try {
     const actorId = getUserId(req);
@@ -203,6 +227,12 @@ router.patch("/:id/status", async (req, res) => {
   }
 });
 
+/**
+ * Create a new :id record.
+ *
+ * @route   POST /api/marketing-requests/:id/proposals
+ * @auth    Public — no auth required
+ */
 router.post("/:id/proposals", async (req, res) => {
   try {
     const agentId = getUserId(req);
@@ -241,6 +271,12 @@ router.post("/:id/proposals", async (req, res) => {
   }
 });
 
+/**
+ * Fetch a single :id by ID.
+ *
+ * @route   GET /api/marketing-requests/:id/proposals
+ * @auth    Public — no auth required
+ */
 router.get("/:id/proposals", async (req, res) => {
   try {
     const request = await storage.getMarketingRequest(req.params.id);
@@ -255,6 +291,12 @@ router.get("/:id/proposals", async (req, res) => {
   }
 });
 
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/marketing-requests/:id/proposals/:proposalId
+ * @auth    Public — no auth required
+ */
 router.patch("/:id/proposals/:proposalId", async (req, res) => {
   try {
     const actorId = getUserId(req);

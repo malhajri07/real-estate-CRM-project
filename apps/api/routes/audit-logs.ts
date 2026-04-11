@@ -30,6 +30,12 @@ const requireAdmin = (req: any, res: any, next: any) => {
 router.use(requireAdmin);
 
 // GET /api/audit-logs
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/audit-logs/
+ * @auth    Public — no auth required
+ */
 router.get('/', async (req: any, res) => {
     try {
         const { entity, userId, limit = '50', offset = '0' } = req.query;

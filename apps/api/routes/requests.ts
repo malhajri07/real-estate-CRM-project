@@ -49,6 +49,12 @@ const RequestSchema = z.object({
   notes: z.string().trim().optional(),
 });
 
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/requests/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const data = RequestSchema.parse(req.body);
@@ -70,6 +76,12 @@ router.post("/", authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * List  with optional filters.
+ *
+ * @route   GET /api/requests/
+ * @auth    Public — no auth required
+ */
 router.get("/", async (_req, res) => {
   try {
     const items = await storage.getAllRealEstateRequests();
@@ -84,6 +96,12 @@ router.get("/", async (_req, res) => {
 export default router;
 
 // Admin: update status
+/**
+ * Partially update a :id record.
+ *
+ * @route   PATCH /api/requests/:id/status
+ * @auth    Required — any authenticated user
+ */
 router.patch("/:id/status", authenticateToken, async (req, res) => {
   try {
     const { status } = req.body || {};
@@ -98,6 +116,12 @@ router.patch("/:id/status", authenticateToken, async (req, res) => {
 });
 
 // Admin: export CSV
+/**
+ * List export with optional filters.
+ *
+ * @route   GET /api/requests/export
+ * @auth    Public — no auth required
+ */
 router.get("/export", async (_req, res) => {
   try {
     const items = await storage.getAllRealEstateRequests();

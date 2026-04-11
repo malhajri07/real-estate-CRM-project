@@ -23,6 +23,12 @@ const router = Router();
 const ratingField = z.number().int().min(1).max(5).nullable().optional();
 
 // GET /api/feedback/stats — Average ratings across all feedback
+/**
+ * List stats with optional filters.
+ *
+ * @route   GET /api/feedback/stats
+ * @auth    Required — any authenticated user
+ */
 router.get("/stats", authenticateToken, async (req, res) => {
   try {
     const agg = await prisma.viewing_feedback.aggregate({
@@ -51,6 +57,12 @@ router.get("/stats", authenticateToken, async (req, res) => {
 });
 
 // GET /api/feedback/:appointmentId — Get feedback for an appointment
+/**
+ * Fetch a single :appointmentId by ID.
+ *
+ * @route   GET /api/feedback/:appointmentId
+ * @auth    Required — any authenticated user
+ */
 router.get("/:appointmentId", authenticateToken, async (req, res) => {
   try {
     const feedback = await prisma.viewing_feedback.findUnique({
@@ -69,6 +81,12 @@ router.get("/:appointmentId", authenticateToken, async (req, res) => {
 });
 
 // POST /api/feedback — Submit feedback
+/**
+ * Create a new  record.
+ *
+ * @route   POST /api/feedback/
+ * @auth    Required — any authenticated user
+ */
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const user = (req as any).user;
