@@ -8,6 +8,8 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { PostListingSkeleton } from "@/components/skeletons/page-skeletons";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -166,6 +168,7 @@ const STEP_FIELDS: Record<number, (keyof FormData)[]> = {
 // ── Component ───────────────────────────────────────────────────────────────
 
 export default function PostListingPage() {
+  const showSkeleton = useMinLoadTime();
   const { dir } = useLanguage();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -243,6 +246,15 @@ export default function PostListingPage() {
             <Button onClick={() => setLocation("/home/platform/properties")}>عرض العقارات</Button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <PageHeader title="إضافة إعلان عقاري" subtitle="أنشئ إعلان عقاري متوافق مع متطلبات الهيئة العامة للعقار (REGA)" />
+        <PostListingSkeleton />
       </div>
     );
   }

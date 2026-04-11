@@ -6,6 +6,8 @@
 
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
+import { ReportBuilderSkeleton } from "@/components/skeletons/page-skeletons";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +61,7 @@ interface ReportResult {
 }
 
 export default function ReportBuilder() {
+  const showSkeleton = useMinLoadTime();
   const { toast } = useToast();
   const [entity, setEntity] = useState("deals");
   const [groupBy, setGroupBy] = useState("stage");
@@ -93,6 +96,15 @@ export default function ReportBuilder() {
   };
 
   const maxValue = result ? Math.max(...result.data.map((d) => d.value), 1) : 1;
+
+  if (showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <PageHeader title="منشئ التقارير" subtitle="أنشئ تقارير مخصصة بالأبعاد والمقاييس التي تختارها" />
+        <ReportBuilderSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>

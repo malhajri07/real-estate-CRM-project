@@ -12,12 +12,15 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Home, Calculator, BarChart3, Share2 } from "lucide-react";
 import PageHeader from "@/components/ui/page-header";
+import { ROISkeleton } from "@/components/skeletons/page-skeletons";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { cn } from "@/lib/utils";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
 
 export default function ROICalculator() {
+  const showSkeleton = useMinLoadTime();
   // ROI state
   const [purchasePrice, setPurchasePrice] = useState("1000000");
   const [annualRent, setAnnualRent] = useState("60000");
@@ -71,6 +74,15 @@ export default function ROICalculator() {
 
     return { monthly: Math.round(monthly), totalMortgage: Math.round(totalMortgage), totalRent: Math.round(totalRent), futureValue: Math.round(futureValue), equity: Math.round(equity), netCostBuy: Math.round(netCostBuy), buyIsBetter: netCostBuy < totalRent };
   }, [buyPrice, downPct, interestRate, monthlyRentCost, years, appreciation]);
+
+  if (showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <PageHeader title="الأدوات المالية" subtitle="حاسبة العائد الاستثماري ومقارنة الإيجار والشراء" />
+        <ROISkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>

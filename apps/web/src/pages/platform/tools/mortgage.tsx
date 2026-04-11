@@ -12,8 +12,10 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Calculator, Home, Percent, Calendar, Banknote, Share2, Save, History, Trash2 } from "lucide-react";
 import PageHeader from "@/components/ui/page-header";
+import { MortgageSkeleton } from "@/components/skeletons/page-skeletons";
 import { PAGE_WRAPPER } from "@/config/platform-theme";
 import { SarPrice } from "@/components/ui/sar-symbol";
+import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { cn } from "@/lib/utils";
 
 /** Saved mortgage calculation (E14). Stored in localStorage. */
@@ -21,6 +23,7 @@ interface SavedCalc { id: string; name: string; price: string; downPaymentPct: s
 const STORAGE_KEY = "aqarkom_mortgage_calcs";
 
 export default function MortgageCalculator() {
+  const showSkeleton = useMinLoadTime();
   const [price, setPrice] = useState("1000000");
   const [downPaymentPct, setDownPaymentPct] = useState("10");
   const [interestRate, setInterestRate] = useState("5.5");
@@ -93,6 +96,15 @@ export default function MortgageCalculator() {
     const text = `حاسبة التمويل العقاري\n\nسعر العقار: ${formatNum(Number(price))} ر.س\nالدفعة المقدمة: ${downPaymentPct}%\nنسبة الربح: ${interestRate}%\nالمدة: ${tenureYears} سنة\n\nالقسط الشهري: ${formatNum(result.monthly)} ر.س\nإجمالي المسدد: ${formatNum(result.total)} ر.س\nإجمالي الأرباح: ${formatNum(result.totalInterest)} ر.س`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   };
+
+  if (showSkeleton) {
+    return (
+      <div className={PAGE_WRAPPER}>
+        <PageHeader title="حاسبة التمويل العقاري" subtitle="احسب القسط الشهري والتكلفة الإجمالية للتمويل" />
+        <MortgageSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className={PAGE_WRAPPER}>
