@@ -111,6 +111,7 @@ router.get("/landing/sections", async (req, res) => {
   }
 });
 
+/** POST /landing/sections */
 router.post(
   "/landing/sections",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -139,6 +140,7 @@ router.post(
   }
 );
 
+/** PUT /landing/sections/:id */
 router.put(
   "/landing/sections/:id",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -163,6 +165,7 @@ router.put(
   }
 );
 
+/** PUT /landing/sections/reorder */
 router.put(
   "/landing/sections/reorder",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -186,6 +189,7 @@ router.put(
   }
 );
 
+/** POST /landing/sections/:id/publish */
 router.post(
   "/landing/sections/:id/publish",
   requireRole(["WEBSITE_ADMIN"]),
@@ -207,6 +211,7 @@ router.post(
   }
 );
 
+/** POST /landing/sections/:id/archive */
 router.post(
   "/landing/sections/:id/archive",
   requireRole(["WEBSITE_ADMIN"]),
@@ -226,6 +231,7 @@ router.post(
   }
 );
 
+/** DELETE /landing/sections/:id */
 router.delete(
   "/landing/sections/:id",
   requireRole(["WEBSITE_ADMIN"]),
@@ -242,6 +248,7 @@ router.delete(
   }
 );
 
+/** POST /landing/cards */
 router.post(
   "/landing/cards",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -266,6 +273,7 @@ router.post(
   }
 );
 
+/** PUT /landing/cards/:id */
 router.put(
   "/landing/cards/:id",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -290,6 +298,7 @@ router.put(
   }
 );
 
+/** PUT /landing/cards/reorder */
 router.put(
   "/landing/cards/reorder",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -314,6 +323,7 @@ router.put(
   }
 );
 
+/** POST /landing/cards/:id/publish */
 router.post(
   "/landing/cards/:id/publish",
   requireRole(["WEBSITE_ADMIN"]),
@@ -333,6 +343,7 @@ router.post(
   }
 );
 
+/** POST /landing/cards/:id/archive */
 router.post(
   "/landing/cards/:id/archive",
   requireRole(["WEBSITE_ADMIN"]),
@@ -352,6 +363,7 @@ router.post(
   }
 );
 
+/** DELETE /landing/cards/:id */
 router.delete(
   "/landing/cards/:id",
   requireRole(["WEBSITE_ADMIN"]),

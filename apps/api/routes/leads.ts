@@ -275,6 +275,7 @@ router.post("/batch/assign", authenticateToken, async (req, res) => {
   }
 });
 
+/** GET /search */
 router.get("/search", authenticateToken, async (req, res) => {
   try {
     const query = req.query.q as string;
@@ -288,6 +289,7 @@ router.get("/search", authenticateToken, async (req, res) => {
   }
 });
 
+/** GET /:id */
 router.get("/:id", authenticateToken, async (req, res) => {
   try {
     const lead = await storage.getLead(req.params.id);
@@ -300,6 +302,7 @@ router.get("/:id", authenticateToken, async (req, res) => {
   }
 });
 
+/** PUT /:id */
 router.put("/:id", authenticateToken, requireAnyPerm(['requests:manage:all', 'requests:manage:corporate', 'requests:pool:pickup']), async (req, res) => {
   try {
     const validatedData = leadSchemas.update.parse(req.body);
@@ -354,6 +357,7 @@ router.put("/:id", authenticateToken, requireAnyPerm(['requests:manage:all', 're
   }
 });
 
+/** DELETE /:id */
 router.delete("/:id", authenticateToken, requireAnyPerm(['requests:manage:all', 'requests:manage:corporate', 'requests:pool:pickup']), async (req, res) => {
   try {
     await storage.deleteLead(req.params.id);

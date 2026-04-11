@@ -85,6 +85,7 @@ router.get("/public/header-config", async (req, res) => {
 });
 
 // Admin: Get all navigation links (including hidden)
+/** GET /navigation/all */
 router.get(
   "/navigation/all",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -105,6 +106,7 @@ router.get(
 );
 
 // Admin: Update all navigation links
+/** PUT /navigation */
 router.put(
   "/navigation",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -130,6 +132,7 @@ router.put(
 );
 
 // Admin: Create navigation link
+/** POST /navigation */
 router.post(
   "/navigation",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -155,6 +158,7 @@ router.post(
 );
 
 // Admin: Update navigation link
+/** PUT /navigation/:id */
 router.put(
   "/navigation/:id",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -181,6 +185,7 @@ router.put(
 );
 
 // Admin: Delete navigation link
+/** DELETE /navigation/:id */
 router.delete(
   "/navigation/:id",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -201,6 +206,7 @@ router.delete(
 );
 
 // Admin: Reorder navigation links
+/** POST /navigation/reorder */
 router.post(
   "/navigation/reorder",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),

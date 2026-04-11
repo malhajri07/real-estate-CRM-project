@@ -236,6 +236,7 @@ router.post('/verify-otp', async (req, res) => {
 });
 
 // POST /api/auth/register
+/** POST /register */
 router.post('/register', async (req, res) => {
   try {
     const data = authSchemas.register.parse(req.body);
@@ -259,12 +260,14 @@ router.post('/register', async (req, res) => {
 });
 
 // GET /api/auth/me
+/** GET /me */
 router.get('/me', authenticateToken, (req, res) => {
   res.json({ success: true, user: req.user });
 });
 
 // GET /api/auth/user
 // Keeping this signature as it was in original file (returns user directly)
+/** GET /user */
 router.get('/user', authenticateToken, async (req, res) => {
   try {
     const user = await prisma.users.findUnique({
@@ -282,6 +285,7 @@ router.get('/user', authenticateToken, async (req, res) => {
 });
 
 // POST /api/auth/impersonate
+/** POST /impersonate */
 router.post('/impersonate', authenticateToken, async (req, res) => {
   try {
     // Enforce admin check inline or via middleware (AuthService also checks, but good to check here too if desired)
@@ -317,6 +321,7 @@ router.post('/impersonate', authenticateToken, async (req, res) => {
 });
 
 // PUT /api/auth/user — update current user's profile
+/** PUT /user */
 router.put('/user', authenticateToken, async (req, res) => {
   try {
     const schema = z.object({
@@ -364,6 +369,7 @@ router.put('/user', authenticateToken, async (req, res) => {
 });
 
 // PUT /api/auth/agent-profile — update agent professional profile + FAL license
+/** PUT /agent-profile */
 router.put('/agent-profile', authenticateToken, async (req, res) => {
   try {
     const schema = z.object({
@@ -430,6 +436,7 @@ router.put('/agent-profile', authenticateToken, async (req, res) => {
 });
 
 // PUT /api/auth/password — change current user's password
+/** PUT /password */
 router.put('/password', authenticateToken, async (req, res) => {
   try {
     const schema = z.object({
@@ -467,6 +474,7 @@ router.put('/password', authenticateToken, async (req, res) => {
 });
 
 // PUT /api/auth/preferences — save notification preferences in user metadata
+/** PUT /preferences */
 router.put('/preferences', authenticateToken, async (req, res) => {
   try {
     const schema = z.object({
@@ -505,6 +513,7 @@ router.put('/preferences', authenticateToken, async (req, res) => {
 });
 
 // GET /api/auth/preferences — load notification preferences
+/** GET /preferences */
 router.get('/preferences', authenticateToken, async (req, res) => {
   try {
     const user = await prisma.users.findUnique({ where: { id: req.user!.id } });
@@ -564,6 +573,7 @@ function parseUserAgent(ua: string | null): string {
 }
 
 // POST /api/auth/logout
+/** POST /logout */
 router.post('/logout', authenticateToken, async (req, res) => {
   // Client-side token removal mostly
   const locale = (req as any).locale || 'ar';
@@ -571,6 +581,7 @@ router.post('/logout', authenticateToken, async (req, res) => {
 });
 
 // Dev-only helper to ensure a primary admin exists
+/** POST /ensure-primary-admin */
 router.post('/ensure-primary-admin', async (req, res) => {
   try {
     if (process.env.NODE_ENV === 'production' && process.env.ALLOW_ADMIN_RESET !== 'true') {

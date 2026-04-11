@@ -112,6 +112,7 @@ router.get("/articles/slug/:slug", async (req, res) => {
 });
 
 // Admin: Get article by ID
+/** GET /articles/:id */
 router.get(
   "/articles/:id",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -130,6 +131,7 @@ router.get(
 );
 
 // Admin: Create article
+/** POST /articles */
 router.post(
   "/articles",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -157,6 +159,7 @@ router.post(
 );
 
 // Admin: Update article
+/** PUT /articles/:id */
 router.put(
   "/articles/:id",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -184,6 +187,7 @@ router.put(
 );
 
 // Admin: Publish article
+/** POST /articles/:id/publish */
 router.post(
   "/articles/:id/publish",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -207,6 +211,7 @@ router.post(
 );
 
 // Admin: Archive article
+/** POST /articles/:id/archive */
 router.post(
   "/articles/:id/archive",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -230,6 +235,7 @@ router.post(
 );
 
 // Admin: Delete article
+/** DELETE /articles/:id */
 router.delete(
   "/articles/:id",
   requireRole(["WEBSITE_ADMIN"]),
@@ -269,6 +275,7 @@ router.get("/articles/categories", async (req, res) => {
   }
 });
 
+/** POST /articles/categories */
 router.post(
   "/articles/categories",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -303,6 +310,7 @@ router.get("/articles/tags", async (req, res) => {
   }
 });
 
+/** POST /articles/tags */
 router.post(
   "/articles/tags",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -321,6 +329,7 @@ router.post(
 );
 
 // Admin: Get article versions
+/** GET /articles/:id/versions */
 router.get(
   "/articles/:id/versions",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -340,6 +349,7 @@ router.get(
 );
 
 // Admin: Restore article version
+/** POST /articles/:id/versions/:version/restore */
 router.post(
   "/articles/:id/versions/:version/restore",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -365,6 +375,7 @@ router.post(
 );
 
 // Admin: Bulk actions (publish, archive, delete)
+/** POST /articles/bulk */
 router.post(
   "/articles/bulk",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),

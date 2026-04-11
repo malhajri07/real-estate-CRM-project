@@ -34,6 +34,11 @@ function requireRole(roles: string[]) {
 }
 
 // List templates
+/**
+ * GET /api/cms/templates/templates
+ *
+ * @route   GET /api/cms/templates/templates
+ */
 router.get(
   "/templates",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -67,6 +72,11 @@ router.get(
 );
 
 // Get template by ID
+/**
+ * GET /api/cms/templates/templates/:id
+ *
+ * @route   GET /api/cms/templates/templates/:id
+ */
 router.get(
   "/templates/:id",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -85,6 +95,11 @@ router.get(
 );
 
 // Get template by slug
+/**
+ * GET /api/cms/templates/templates/slug/:slug
+ *
+ * @route   GET /api/cms/templates/templates/slug/:slug
+ */
 router.get(
   "/templates/slug/:slug",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -103,6 +118,11 @@ router.get(
 );
 
 // Create template
+/**
+ * POST /api/cms/templates/templates
+ *
+ * @route   POST /api/cms/templates/templates
+ */
 router.post(
   "/templates",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -129,6 +149,11 @@ router.post(
 );
 
 // Update template
+/**
+ * PUT /api/cms/templates/templates/:id
+ *
+ * @route   PUT /api/cms/templates/templates/:id
+ */
 router.put(
   "/templates/:id",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -155,6 +180,11 @@ router.put(
 );
 
 // Clone template
+/**
+ * POST /api/cms/templates/templates/:id/clone
+ *
+ * @route   POST /api/cms/templates/templates/:id/clone
+ */
 router.post(
   "/templates/:id/clone",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -178,6 +208,11 @@ router.post(
 );
 
 // Delete template
+/**
+ * DELETE /api/cms/templates/templates/:id
+ *
+ * @route   DELETE /api/cms/templates/templates/:id
+ */
 router.delete(
   "/templates/:id",
   requireRole(["WEBSITE_ADMIN"]),

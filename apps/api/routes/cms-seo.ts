@@ -54,6 +54,7 @@ router.get("/seo/:pagePath(*)", async (req, res) => {
 });
 
 // Admin: Get all SEO settings
+/** GET /seo */
 router.get(
   "/seo",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -74,6 +75,7 @@ router.get(
 );
 
 // Admin: Update SEO settings
+/** PUT /seo/:pagePath(*) */
 router.put(
   "/seo/:pagePath(*)",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -101,6 +103,7 @@ router.put(
 );
 
 // Admin: Delete SEO settings
+/** DELETE /seo/:pagePath(*) */
 router.delete(
   "/seo/:pagePath(*)",
   requireRole(["WEBSITE_ADMIN"]),
@@ -122,6 +125,7 @@ router.delete(
 );
 
 // Admin: Generate sitemap
+/** GET /seo/sitemap.xml */
 router.get(
   "/seo/sitemap.xml",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -180,6 +184,7 @@ router.get("/seo/robots.txt", async (req, res) => {
 });
 
 // Admin: Update robots.txt
+/** PUT /seo/robots.txt */
 router.put(
   "/seo/robots.txt",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -202,6 +207,7 @@ router.put(
 );
 
 // Admin: Get robots.txt content
+/** GET /seo/robots.txt/content */
 router.get(
   "/seo/robots.txt/content",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),

@@ -101,6 +101,11 @@ async function getImageDimensions(
 }
 
 // List media
+/**
+ * GET /api/cms/media/media
+ *
+ * @route   GET /api/cms/media/media
+ */
 router.get(
   "/media",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -134,6 +139,11 @@ router.get(
 );
 
 // Get media by ID
+/**
+ * GET /api/cms/media/media/:id
+ *
+ * @route   GET /api/cms/media/media/:id
+ */
 router.get(
   "/media/:id",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -151,6 +161,11 @@ router.get(
 );
 
 // Upload media
+/**
+ * POST /api/cms/media/media
+ *
+ * @route   POST /api/cms/media/media
+ */
 router.post(
   "/media",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -193,6 +208,11 @@ router.post(
 );
 
 // Update media metadata
+/**
+ * PUT /api/cms/media/media/:id
+ *
+ * @route   PUT /api/cms/media/media/:id
+ */
 router.put(
   "/media/:id",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -217,6 +237,11 @@ router.put(
 );
 
 // Delete media
+/**
+ * DELETE /api/cms/media/media/:id
+ *
+ * @route   DELETE /api/cms/media/media/:id
+ */
 router.delete(
   "/media/:id",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN"]),
@@ -235,6 +260,11 @@ router.delete(
 );
 
 // Track media usage
+/**
+ * POST /api/cms/media/media/:id/usage
+ *
+ * @route   POST /api/cms/media/media/:id/usage
+ */
 router.post(
   "/media/:id/usage",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
@@ -258,6 +288,11 @@ router.post(
 );
 
 // Remove media usage
+/**
+ * DELETE /api/cms/media/media/:id/usage
+ *
+ * @route   DELETE /api/cms/media/media/:id/usage
+ */
 router.delete(
   "/media/:id/usage",
   requireRole(["WEBSITE_ADMIN", "CMS_ADMIN", "EDITOR"]),
