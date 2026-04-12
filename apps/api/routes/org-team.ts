@@ -34,14 +34,28 @@ import { normalizeRoleKeys, UserRole } from "@shared/rbac";
 const router = Router();
 
 // ────────────────────────────────────────────────────────────────────────────
-// Middleware: require CORP_OWNER or WEBSITE_ADMIN
+// Middleware: require org membership (any corp role) — for read endpoints
+// ────────────────────────────────────────────────────────────────────────────
+const requireOrgMember = (req: Request, res: Response, next: any) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ message: "Authentication required" });
+  const roles = normalizeRoleKeys(user.roles);
+  const isOrgMember = roles.includes(UserRole.CORP_OWNER) || roles.includes(UserRole.CORP_AGENT) || roles.includes(UserRole.WEBSITE_ADMIN);
+  if (!isOrgMember) {
+    return res.status(403).json({ message: "يجب أن تكون عضواً في منظمة للوصول لهذه الصفحة" });
+  }
+  next();
+};
+
+// ────────────────────────────────────────────────────────────────────────────
+// Middleware: require CORP_OWNER or WEBSITE_ADMIN — for write endpoints
 // ────────────────────────────────────────────────────────────────────────────
 const requireOwnerOrAdmin = (req: Request, res: Response, next: any) => {
   const user = req.user;
   if (!user) return res.status(401).json({ message: "Authentication required" });
   const roles = normalizeRoleKeys(user.roles);
   if (!roles.includes(UserRole.CORP_OWNER) && !roles.includes(UserRole.WEBSITE_ADMIN)) {
-    return res.status(403).json({ message: "يجب أن تكون مالك المنظمة للوصول لهذه الصفحة" });
+    return res.status(403).json({ message: "يجب أن تكون مالك المنظمة لتنفيذ هذا الإجراء" });
   }
   next();
 };
@@ -67,7 +81,7 @@ async function verifyAgentInOrg(agentId: string, orgId: string) {
  * @route   GET /api/org/team
  * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
  */
-router.get("/team", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
+router.get("/team", authenticateToken, requireOrgMember, async (req: Request, res: Response) => {
   try {
     const orgId = getOrgId(req);
     if (!orgId) return res.json({ organizationId: null, totalMembers: 0, members: [] });
@@ -153,7 +167,7 @@ router.get("/team", authenticateToken, requireOwnerOrAdmin, async (req: Request,
  * @route   GET /api/org/stats
  * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
  */
-router.get("/stats", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
+router.get("/stats", authenticateToken, requireOrgMember, async (req: Request, res: Response) => {
   try {
     const orgId = getOrgId(req);
     if (!orgId) return res.json({ organization: null, stats: { totalAgents: 0, activeAgents: 0, inactiveAgents: 0, totalLeads: 0, totalDeals: 0, wonDeals: 0, conversionRate: 0, totalProperties: 0, totalAppointments: 0, totalRevenue: 0, recentHires: 0, unassignedLeads: 0 } });
@@ -234,7 +248,7 @@ router.get("/stats", authenticateToken, requireOwnerOrAdmin, async (req: Request
  * @route   GET /api/org/team/performance
  * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
  */
-router.get("/team/performance", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
+router.get("/team/performance", authenticateToken, requireOrgMember, async (req: Request, res: Response) => {
   try {
     const orgId = getOrgId(req);
     if (!orgId) return res.json({ agentMetrics: [], dealStages: [], monthlyTrend: [] });
@@ -356,7 +370,7 @@ router.get("/team/performance", authenticateToken, requireOwnerOrAdmin, async (r
  * @route   GET /api/org/team/leaderboard
  * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
  */
-router.get("/team/leaderboard", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
+router.get("/team/leaderboard", authenticateToken, requireOrgMember, async (req: Request, res: Response) => {
   try {
     const orgId = getOrgId(req);
     if (!orgId) return res.json({ period: req.query.period || "month", leaderboard: [] });
@@ -451,7 +465,7 @@ router.get("/team/leaderboard", authenticateToken, requireOwnerOrAdmin, async (r
  * @route   GET /api/org/team/export
  * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
  */
-router.get("/team/export", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
+router.get("/team/export", authenticateToken, requireOrgMember, async (req: Request, res: Response) => {
   try {
     const orgId = getOrgId(req);
     if (!orgId) return res.setHeader("Content-Type", "text/csv").send("");
@@ -560,7 +574,7 @@ router.get("/team/export", authenticateToken, requireOwnerOrAdmin, async (req: R
  * @route   GET /api/org/team/activity-log
  * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
  */
-router.get("/team/activity-log", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
+router.get("/team/activity-log", authenticateToken, requireOrgMember, async (req: Request, res: Response) => {
   try {
     const orgId = getOrgId(req);
     if (!orgId) return res.json({ logs: [], total: 0, page: 1, pages: 0 });
@@ -637,7 +651,7 @@ router.get("/team/activity-log", authenticateToken, requireOwnerOrAdmin, async (
  * @route   GET /api/org/team/:id/activity
  * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
  */
-router.get("/team/:id/activity", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
+router.get("/team/:id/activity", authenticateToken, requireOrgMember, async (req: Request, res: Response) => {
   try {
     const orgId = getOrgId(req);
     if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
@@ -761,7 +775,7 @@ router.get("/team/:id/activity", authenticateToken, requireOwnerOrAdmin, async (
  * @route   GET /api/org/team/:id/schedule
  * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
  */
-router.get("/team/:id/schedule", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
+router.get("/team/:id/schedule", authenticateToken, requireOrgMember, async (req: Request, res: Response) => {
   try {
     const orgId = getOrgId(req);
     if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
@@ -842,7 +856,7 @@ router.get("/team/:id/schedule", authenticateToken, requireOwnerOrAdmin, async (
  * @route   GET /api/org/team/:id/notes
  * @auth    Required — WEBSITE_ADMIN or CORP_OWNER
  */
-router.get("/team/:id/notes", authenticateToken, requireOwnerOrAdmin, async (req: Request, res: Response) => {
+router.get("/team/:id/notes", authenticateToken, requireOrgMember, async (req: Request, res: Response) => {
   try {
     const orgId = getOrgId(req);
     if (!orgId) return res.status(400).json({ message: "لا توجد منظمة مرتبطة بحسابك" });
