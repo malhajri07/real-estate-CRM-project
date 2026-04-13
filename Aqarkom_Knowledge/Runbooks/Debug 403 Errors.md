@@ -56,4 +56,4 @@ curl -s -w " [%{http_code}]" "http://localhost:3000/api/{endpoint}" \
 
 ## Related
 - [[Architecture/Authentication & RBAC]]
-- [[History/Incidents/2026-04-11 Team Page 403]]
+- [[History/Incidents/2026-04-11 Team Page Freeze]]
