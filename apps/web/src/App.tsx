@@ -332,7 +332,7 @@ function Router() {
       { path: '/home/platform/pool', component: PoolPage, aliases: ['/pool'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/projects', component: ProjectsPage, aliases: ['/projects'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/forum', component: ForumPage, aliases: ['/forum'], allowedRoles: PLATFORM_CORE_ROLES },
-      { path: '/home/platform/inbox', component: InboxPage, aliases: ['/inbox'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/inbox', component: InboxPage, aliases: ['/inbox'], allowedRoles: EXTENDED_PLATFORM_ROLES },
     ];
 
   const platformDynamicRoutes: Array<{

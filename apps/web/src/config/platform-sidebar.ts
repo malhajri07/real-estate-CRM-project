@@ -394,6 +394,14 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         allowedRoles: BUYER_ROLES,
       },
       {
+        id: "buyer-messages",
+        label: "الرسائل",
+        path: "/home/platform/inbox",
+        icon: MessageSquare,
+        matchPaths: ["/inbox"],
+        allowedRoles: BUYER_ROLES,
+      },
+      {
         id: "buyer-favorites",
         label: "المفضلة",
         path: "/home/platform/favorites",
@@ -440,6 +448,14 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/client",
         icon: LayoutDashboard,
         matchPaths: ["/client", "/client/dashboard"],
+        allowedRoles: SELLER_ROLES,
+      },
+      {
+        id: "seller-messages",
+        label: "الرسائل",
+        path: "/home/platform/inbox",
+        icon: MessageSquare,
+        matchPaths: ["/inbox"],
         allowedRoles: SELLER_ROLES,
       },
       {
