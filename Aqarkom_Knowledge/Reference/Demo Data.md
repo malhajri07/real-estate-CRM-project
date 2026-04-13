@@ -9,9 +9,10 @@ The seed script (`apps/api/seed.ts`) populates the database with realistic Saudi
 
 ## What gets seeded
 
-- 1 platform admin
-- 3 organizations (different sizes)
-- ~15 agents across the orgs (mix of CORP_AGENT, CORP_OWNER, INDIV_AGENT)
+- 1 platform admin (username: `admin`, password: `admin123`)
+- 102 organizations (20 real Saudi company names × 5 each + 2 special)
+- ~1,003 corporate users: **1 CORP_OWNER + 9 CORP_AGENT per org** (password: `agent123`)
+- 50 individual agents (INDIV_AGENT, password: `agent123`)
 - ~50 customers with Saudi phone numbers
 - ~80 leads in various stages
 - ~40 listings across all 5 REGA categories
@@ -19,6 +20,14 @@ The seed script (`apps/api/seed.ts`) populates the database with realistic Saudi
 - Sample appointments, activities, contact log entries
 - 1 chatbot conversation transcript
 - A handful of buyer pool requests + claims
+
+## Role distribution per org
+
+Each organization follows a realistic structure:
+- **1 CORP_OWNER** — the earliest-created member (the "founder")
+- **9 CORP_AGENT** — team members
+
+The seed script tracks this with `orgHasOwner` Set — first agent per org gets CORP_OWNER, rest get CORP_AGENT.
 
 ## Reset
 

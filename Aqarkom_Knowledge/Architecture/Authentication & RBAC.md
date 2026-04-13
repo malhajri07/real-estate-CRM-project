@@ -27,9 +27,19 @@ created: 2026-04-10
 A user can hold multiple roles (`user_roles` join table).
 
 ## Permission gating
-- Frontend: route guards in `apps/web/src/lib/auth.ts`
-- Backend: middleware checks `req.user.roles`
+- Frontend: `RouteGuard` in `apps/web/src/components/auth/RouteGuard.tsx` checks `allowedRoles`
+- Frontend: `useAuth().hasRole()` hides owner-only UI (e.g. team page management buttons)
+- Backend: middleware checks `req.user.roles` — two tiers:
+  - `requireOrgMember` — any CORP_OWNER / CORP_AGENT / WEBSITE_ADMIN (read access)
+  - `requireOwnerOrAdmin` — only CORP_OWNER / WEBSITE_ADMIN (write access)
 - See [[Architecture/Org Isolation]] for tenant scoping
+
+## Team page access model (org-team.ts)
+| Endpoint | CORP_OWNER | CORP_AGENT | WEBSITE_ADMIN |
+|---|---|---|---|
+| GET (view team, stats, leaderboard, performance) | ✅ | ✅ read-only | ✅ |
+| POST/PUT/PATCH (invite, edit, toggle, transfer) | ✅ | ❌ hidden + 403 | ✅ |
+| Frontend buttons (invite, edit, hours, role change) | visible | hidden | visible |
 
 ## Login flow
 1. User enters Saudi mobile (+966)

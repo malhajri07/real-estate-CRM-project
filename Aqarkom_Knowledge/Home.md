@@ -69,9 +69,13 @@
   - S8: Identity & Polish (Days 55-62)
 
 ### 📝 Documentation Plan
-- [[Sessions/Comment Plan C1-C20]] — adds TSDoc comments to every function (Source/Consumer data lineage)
+- [[Sessions/Comment Plan C1-C20]] — TSDoc comments on every function — **COMPLETE** ✅
+  - 350 backend route handlers documented with `@route` JSDoc
+  - 53 lib/middleware/service exports documented
+  - 235 frontend files with file headers
+  - API coverage: **89.1%** · Overall: **59.2%**
 
-### 📜 History (487 commits, 3 sessions)
+### 📜 History (521 commits, 3 sessions)
 - [[History/Index]] — History MOC
 - [[History/Timeline]] — unified commit + session view
 - [[History/Changelog/Index]] — month-by-month log
@@ -80,7 +84,8 @@
 
 ### ⚙️ Engineering
 - [[Engineering/Comment Style]] — TSDoc convention with Source/Consumer lineage
-- [[Engineering/Coverage Report]] — Comment Plan **COMPLETE** ✅ — 358 files, 175 new headers, TypeDoc rebuilt
+- [[Engineering/Coverage Report]] — API 89.1%, Schema 100%, Frontend 18.8% (headers), Overall 59.2%
+- [[Engineering/Skeleton Audit]] — all 25 platform sidebar pages have layout-accurate skeletons
 
 ### 📐 Decisions
 - [[Decisions/ADR Index]]
@@ -92,4 +97,4 @@
 - [[Reference/Useful Commands]]
 
 ---
-*Last updated: 2026-04-11 — 91 notes, 40 skills, Advanced Sprint Plan S1-S8 created*
+*Last updated: 2026-04-13 — 521 commits, 42 skills, E1-E20 ✅, C1-C20 ✅, S1-S8 planned*

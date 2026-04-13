@@ -7,7 +7,7 @@ created: 2026-04-10
 
 Unified view: every git commit and every Claude session, month by month.
 
-**Span:** 2025-08-11 → 2026-04-09 (487 commits, 3 captured sessions)
+**Span:** 2025-08-11 → 2026-04-13 (521 commits, 4 captured sessions)
 
 ## 2025-08
 
@@ -84,6 +84,13 @@ Unified view: every git commit and every Claude session, month by month.
     - `ddd2238` 2026-04-02 — activities page — full CRUD with create form synced to PostgreSQL
     - `2c2e961` 2026-04-02 — 100% shadcn across entire application — landing, signup, public pages
     - *…and 14 more — see month note*
+- 💬 **2026-04-11 → 2026-04-13** · Session 05 — Team page fix, skeletons overhaul, Comment Plan completion, Sprint Plan S1-S8, role-based UI
+  - `727fcb3` complete C3-C9 JSDoc (286 handlers), fix team page freeze, layout-accurate skeletons, Sprint Plan S1-S8 + 10 new skills
+  - `db8ccfa` fix 50 remaining JSDoc gaps in auth, leads, CMS routes
+  - `e78651d` add skeletons to mortgage, ROI, report builder, post-listing (25/25 pages)
+  - `a9f451a` fix seed data: 1 CORP_OWNER + N CORP_AGENT per org (102 orgs)
+  - `37ca5e7` split org-team middleware: requireOrgMember (read) vs requireOwnerOrAdmin (write)
+  - `b97f9cc` hide owner-only actions from CORP_AGENT on team page (useAuth + canManage flag)
 
 ## Related
 - [[History/Index|← History MOC]]
