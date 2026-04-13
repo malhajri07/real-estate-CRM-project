@@ -8,7 +8,7 @@ skill: comment-batch
 
 > **Canonical source:** `.claude/skills/comment-batch/SKILL.md`
 >
-> Part of the [[Sessions/Comment Plan C1-C20]] tooling. Follows the convention at [[Engineering/Comment Style]].
+> Part of the [[Plans/Comment Plan C1-C20]] tooling. Follows the convention at [[Engineering/Comment Style]].
 
 ## Description
 
@@ -16,6 +16,6 @@ Run /comment-file across a glob of files (e.g., one Comment Plan session at a ti
 
 ## Related
 - [[Skills/Index|← Skills MOC]]
-- [[Sessions/Comment Plan C1-C20]]
+- [[Plans/Comment Plan C1-C20]]
 - [[Engineering/Comment Style]]
 - [[Decisions/008 - TSDoc with Source-Consumer Lineage]]

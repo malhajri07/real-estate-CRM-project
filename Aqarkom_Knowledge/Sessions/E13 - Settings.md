@@ -26,4 +26,4 @@ status: done
 
 ## Related
 - [[Architecture/Authentication & RBAC]]
-- [[Sessions/Enhancement Plan E1-E20]]
+- [[Plans/Enhancement Plan E1-E20]]

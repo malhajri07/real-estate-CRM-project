@@ -42,5 +42,5 @@ The `--reset` flag drops and re-seeds. **Do not run against production.**
 Demo data uses real Saudi cities: الرياض, جدة, الدمام, مكة, المدينة, الخبر, تبوك, أبها, الطائف.
 
 ## Related
-- [[Reference/Useful Commands]]
+- [[Runbooks/Useful Commands]]
 - [[Reference/Admin Credentials]]

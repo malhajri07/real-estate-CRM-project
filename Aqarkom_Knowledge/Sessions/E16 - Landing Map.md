@@ -16,4 +16,4 @@ status: done
 - `apps/web/src/pages/landing.tsx` — FeaturedListings component + recently-viewed tracking
 
 ## Related
-- [[Sessions/Enhancement Plan E1-E20]]
+- [[Plans/Enhancement Plan E1-E20]]

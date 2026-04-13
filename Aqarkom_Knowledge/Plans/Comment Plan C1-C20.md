@@ -7,7 +7,7 @@ status: complete
 
 # 📝 Comment Plan C1–C20 — Document All Code
 
-> Sister plan to [[Sessions/Enhancement Plan E1-E20|Enhancement Plan E1-E20]]. While the E plan **adds features**, this plan **adds documentation** — TSDoc/JSDoc comments on every function, route, hook, and component so future-Claude (and future-you) can read any file and immediately know **what it does, where its inputs come from, and where its outputs go**.
+> Sister plan to [[Plans/Enhancement Plan E1-E20|Enhancement Plan E1-E20]]. While the E plan **adds features**, this plan **adds documentation** — TSDoc/JSDoc comments on every function, route, hook, and component so future-Claude (and future-you) can read any file and immediately know **what it does, where its inputs come from, and where its outputs go**.
 
 ## Goal
 
@@ -279,6 +279,6 @@ After this plan, every function reads as a **contract**: source → transform �
 Run alongside the E plan, not before — features ship faster than documentation, and you don't want stale docs from day one.
 
 ## Related
-- [[Sessions/Enhancement Plan E1-E20]]
+- [[Plans/Enhancement Plan E1-E20]]
 - [[Skills/Index]]
 - [[Decisions/ADR Index]]

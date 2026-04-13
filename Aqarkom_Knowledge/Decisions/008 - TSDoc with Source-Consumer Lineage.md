@@ -19,7 +19,7 @@ The user explicitly asked for a comment plan that answers: *"what is this code d
 
 Adopt **TSDoc** as the formal comment style across the monorepo, with one project-specific extension: **every `@param` includes a `Source:` line and every `@returns` includes a `Consumer:` line**. This provides explicit data lineage at the function boundary.
 
-The full convention is at [[Engineering/Comment Style]]. The rollout plan is [[Sessions/Comment Plan C1-C20]].
+The full convention is at [[Engineering/Comment Style]]. The rollout plan is [[Plans/Comment Plan C1-C20]].
 
 ### The 4 questions every block answers
 
@@ -46,7 +46,7 @@ The full convention is at [[Engineering/Comment Style]]. The rollout plan is [[S
 - Tooling (lint + coverage) is incremental and doesn't block adoption
 
 ### Negative
-- ~470 files to back-fill — paced as 20 sessions in [[Sessions/Comment Plan C1-C20]]
+- ~470 files to back-fill — paced as 20 sessions in [[Plans/Comment Plan C1-C20]]
 - Requires discipline on every new function going forward (enforced via `eslint-plugin-tsdoc` once installed in C1)
 - More verbose than standard TSDoc — Source/Consumer lines add 2-4 lines per function
 - Risk of stale comments if not maintained — same problem as any docs
@@ -65,6 +65,6 @@ The full convention is at [[Engineering/Comment Style]]. The rollout plan is [[S
 ## Related
 
 - [[Engineering/Comment Style]] — the convention guide
-- [[Sessions/Comment Plan C1-C20]] — the rollout
+- [[Plans/Comment Plan C1-C20]] — the rollout
 - [[Skills/comment-file]] · [[Skills/comment-batch]] · [[Skills/coverage-report]]
 - [[Decisions/ADR Index]]

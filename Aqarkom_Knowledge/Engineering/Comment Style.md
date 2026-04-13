@@ -8,7 +8,7 @@ status: canonical
 
 The single source of truth for **how we comment code in this project**. Every TSDoc/JSDoc block in `apps/web/`, `apps/api/`, and `data/schema/` must conform to this guide.
 
-> This is the convention. The plan that applies it across the codebase is [[Sessions/Comment Plan C1-C20]].
+> This is the convention. The plan that applies it across the codebase is [[Plans/Comment Plan C1-C20]].
 > The decision behind it lives in [[Decisions/008 - TSDoc with Source-Consumer Lineage]].
 
 ## The 4 questions every block must answer
@@ -164,6 +164,6 @@ export default function PipelinePage() { ... }
 - **Auto-add**: `/comment-file <path>` skill — adds blocks following this guide
 
 ## Related
-- [[Sessions/Comment Plan C1-C20]] — the rollout plan
+- [[Plans/Comment Plan C1-C20]] — the rollout plan
 - [[Decisions/008 - TSDoc with Source-Consumer Lineage]] — the decision
 - [[Skills/comment-file]] · [[Skills/comment-batch]] · [[Skills/coverage-report]]

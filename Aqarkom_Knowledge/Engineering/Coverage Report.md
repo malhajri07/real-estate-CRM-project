@@ -1,8 +1,15 @@
+---
+tags: [engineering, documentation, coverage]
+created: 2026-04-10
+updated: 2026-04-13
+status: complete
+---
+
 # Coverage Report — Final (Comment Plan C1-C20 Complete)
 
 **Generated:** 2026-04-10 | **Updated:** 2026-04-11
 **Convention:** [[Engineering/Comment Style]]
-**Plan:** [[Sessions/Comment Plan C1-C20]] — **ALL 20 SESSIONS COMPLETE** ✅
+**Plan:** [[Plans/Comment Plan C1-C20]] — **ALL 20 SESSIONS COMPLETE** ✅
 
 ## File-level header coverage
 
@@ -66,6 +73,6 @@ overall    517/  873  ( 59.2%)  ████████████████
 | C20 ✅ | Verify | — | tsc clean, TypeDoc rebuilt, this report |
 
 ## Related
-- [[Sessions/Comment Plan C1-C20]]
+- [[Plans/Comment Plan C1-C20]]
 - [[Engineering/Comment Style]]
 - [[Decisions/008 - TSDoc with Source-Consumer Lineage]]

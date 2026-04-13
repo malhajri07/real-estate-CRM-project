@@ -39,5 +39,5 @@ After any meaningful work session:
 
 ## Related
 - [[Home]]
-- [[Sessions/Enhancement Plan E1-E20]]
+- [[Plans/Enhancement Plan E1-E20]]
 - [[Decisions/ADR Index]]

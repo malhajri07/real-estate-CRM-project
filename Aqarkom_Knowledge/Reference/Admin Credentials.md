@@ -34,4 +34,4 @@ PostgreSQL connection string lives in `.env` (`DATABASE_URL`). Use `npx prisma s
 
 ## Related
 - [[Architecture/Authentication & RBAC]]
-- [[Reference/Useful Commands]]
+- [[Runbooks/Useful Commands]]

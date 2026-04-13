@@ -5,7 +5,7 @@ created: 2026-04-10
 
 # 🛠️ Skills — Map of Content
 
-**30 skills total** — 22 project-specific + 5 vault-management ([kepano/obsidian-skills](https://github.com/kepano/obsidian-skills)) + 3 documentation skills for [[Sessions/Comment Plan C1-C20|the Comment Plan]]. Each is a reusable workflow that bakes vault + memory updates into the development cycle so knowledge stays fresh automatically.
+**30 skills total** — 22 project-specific + 5 vault-management ([kepano/obsidian-skills](https://github.com/kepano/obsidian-skills)) + 3 documentation skills for [[Plans/Comment Plan C1-C20|the Comment Plan]]. Each is a reusable workflow that bakes vault + memory updates into the development cycle so knowledge stays fresh automatically.
 
 **Location:** `.claude/skills/<name>/SKILL.md` (project-scoped) and `Aqarkom_Knowledge/.claude/skills/` (vault canonical for kepano set)
 **Invocation:** `/<name>` from any prompt (e.g. `/add-page`, `/typecheck`, `/comment-file`)
@@ -62,7 +62,7 @@ Run before declaring work "done". Required preconditions for `/complete-session`
 
 ## 📝 Documentation (3)
 
-> Tooling for [[Sessions/Comment Plan C1-C20]]. Convention at [[Engineering/Comment Style]] · Decision at [[Decisions/008 - TSDoc with Source-Consumer Lineage]]
+> Tooling for [[Plans/Comment Plan C1-C20]]. Convention at [[Engineering/Comment Style]] · Decision at [[Decisions/008 - TSDoc with Source-Consumer Lineage]]
 
 | Skill | What it does |
 |---|---|
@@ -138,5 +138,5 @@ After adding a skill file, also add a row to the table above and link it.
 
 ## Related
 - [[Home]]
-- [[Sessions/Enhancement Plan E1-E20]]
+- [[Plans/Enhancement Plan E1-E20]]
 - [[History/Index]]

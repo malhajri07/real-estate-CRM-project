@@ -45,4 +45,4 @@ const calcGrowth = (current: number, previous: number) => {
 - Three-tone system needed: up / neutral / down
 
 ## Related
-- [[Sessions/Enhancement Plan E1-E20]]
+- [[Plans/Enhancement Plan E1-E20]]

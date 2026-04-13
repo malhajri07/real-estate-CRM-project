@@ -8,7 +8,7 @@ skill: coverage-report
 
 > **Canonical source:** `.claude/skills/coverage-report/SKILL.md`
 >
-> Part of the [[Sessions/Comment Plan C1-C20]] tooling. Follows the convention at [[Engineering/Comment Style]].
+> Part of the [[Plans/Comment Plan C1-C20]] tooling. Follows the convention at [[Engineering/Comment Style]].
 
 ## Description
 
@@ -16,6 +16,6 @@ Report TSDoc/JSDoc coverage across the codebase — what % of exported symbols h
 
 ## Related
 - [[Skills/Index|← Skills MOC]]
-- [[Sessions/Comment Plan C1-C20]]
+- [[Plans/Comment Plan C1-C20]]
 - [[Engineering/Comment Style]]
 - [[Decisions/008 - TSDoc with Source-Consumer Lineage]]

@@ -22,4 +22,4 @@ status: done
 - `apps/web/src/pages/platform/tools/roi.tsx` — share button
 
 ## Related
-- [[Sessions/Enhancement Plan E1-E20]]
+- [[Plans/Enhancement Plan E1-E20]]

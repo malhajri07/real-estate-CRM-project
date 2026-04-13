@@ -1,6 +1,13 @@
+---
+tags: [index, moc]
+created: 2026-04-10
+updated: 2026-04-13
+---
+
 # 🏠 Aqarkom Knowledge Vault
 
 > Knowledge base for **عقاركم (Aqarkom)** — Saudi real estate CRM platform.
+> 521 commits · 113K LOC · 42 skills · 78 tables · 57 routes · 25 pages
 
 ## Map of Content
 
@@ -10,91 +17,62 @@
 - [[02 - Glossary]]
 
 ### 🏗️ Architecture
-- [[Architecture/Database Schema]]
-- [[Architecture/API Routes]]
-- [[Architecture/Authentication & RBAC]]
-- [[Architecture/Org Isolation]]
-- [[Architecture/Frontend Structure]]
+- [[Architecture/Database Schema]] — 78 Prisma models
+- [[Architecture/API Routes]] — 57 Express endpoints
+- [[Architecture/Authentication & RBAC]] — roles, JWT, team page access model
+- [[Architecture/Org Isolation]] — multi-tenant scoping
+- [[Architecture/Frontend Structure]] — React + shadcn + TanStack Query
 
 ### ✨ Features
-- [[Features/CRM Core]]
-- [[Features/Properties & Listings]]
-- [[Features/Pipeline & Deals]]
-- [[Features/Marketing & Campaigns]]
-- [[Features/Chatbot]]
-- [[Features/Buyer Pool]]
+- [[Features/CRM Core]] · [[Features/Properties & Listings]] · [[Features/Pipeline & Deals]]
+- [[Features/Marketing & Campaigns]] · [[Features/Chatbot]] · [[Features/Buyer Pool]]
 - [[Features/REGA Compliance]]
 
-### 🛠️ Skills (40 — `/skill-name`)
-- [[Skills/Index]] — Skills MOC + workflow diagram
-- Scaffolding: [[Skills/add-page|/add-page]] · [[Skills/add-api-route|/add-api-route]] · [[Skills/add-prisma-model|/add-prisma-model]] · [[Skills/add-feature|/add-feature]] · [[Skills/add-react-query|/add-react-query]] · [[Skills/add-adr|/add-adr]] · [[Skills/add-arabic|/add-arabic]]
-- Workflow: [[Skills/next-session|/next-session]] · [[Skills/complete-session|/complete-session]] · [[Skills/enhance-page|/enhance-page]] · [[Skills/session-retro|/session-retro]] · [[Skills/track-change|/track-change]] · [[Skills/start-dev|/start-dev]] · [[Skills/commit-and-track|/commit-and-track]]
-- Quality: [[Skills/typecheck|/typecheck]] · [[Skills/audit-org-isolation|/audit-org-isolation]] · [[Skills/audit-rtl|/audit-rtl]] · [[Skills/audit-tokens|/audit-tokens]] · [[Skills/rega-check|/rega-check]] · [[Skills/find-callers|/find-callers]] · [[Skills/audit-skeleton|/audit-skeleton]]
-- Database: [[Skills/db-push|/db-push]] · [[Skills/seed-reset|/seed-reset]]
-- Documentation: [[Skills/comment-file|/comment-file]] · [[Skills/comment-batch|/comment-batch]] · [[Skills/coverage-report|/coverage-report]]
-- Vault (kepano): [[Skills/obsidian-markdown|/obsidian-markdown]] · [[Skills/obsidian-bases|/obsidian-bases]] · [[Skills/json-canvas|/json-canvas]] · [[Skills/obsidian-cli|/obsidian-cli]] · [[Skills/defuddle|/defuddle]]
+### 🛠️ Skills (42 — `/skill-name`)
+- [[Skills/Index]] — full catalog + workflow diagram
+- **Scaffolding:** `/add-page` · `/add-api-route` · `/add-prisma-model` · `/add-feature` · `/add-react-query` · `/add-adr` · `/add-arabic`
+- **Workflow:** `/next-session` · `/complete-session` · `/enhance-page` · `/session-retro` · `/track-change` · `/start-dev` · `/commit-and-track`
+- **Quality:** `/typecheck` · `/audit-org-isolation` · `/audit-rtl` · `/audit-tokens` · `/audit-skeleton` · `/rega-check` · `/find-callers`
+- **Database:** `/db-push` · `/seed-reset`
+- **Documentation:** `/comment-file` · `/comment-batch` · `/coverage-report`
+- **Vault:** `/obsidian-markdown` · `/obsidian-bases` · `/json-canvas` · `/obsidian-cli` · `/defuddle`
 - **Advanced (S1-S8):** `/add-ai-endpoint` · `/add-websocket-event` · `/add-workflow-trigger` · `/add-pdf-report` · `/add-payment-flow` · `/add-cron-job` · `/add-analytics-widget` · `/add-embedding-search` · `/add-map-layer` · `/add-pwa-feature`
 
-### 🚀 Enhancement Sessions
-- [[Sessions/Enhancement Plan E1-E20]] — adds features, page by page
-- [[Sessions/E1 - Dashboard]]
-- [[Sessions/E2 - Leads]]
-- [[Sessions/E3 - Pipeline]]
-- [[Sessions/E4 - Calendar]]
-- [[Sessions/E5 - Activities]]
-- [[Sessions/E6 - Tenants]]
-- [[Sessions/E7 - Properties]]
-- [[Sessions/E8 - Property Detail]]
-- [[Sessions/E9 - Pool]]
-- [[Sessions/E10 - Broker Requests]]
-- [[Sessions/E11 - Campaigns]]
-- [[Sessions/E12 - Inbox]]
-- [[Sessions/E13 - Settings]]
-- [[Sessions/E14 - Tools]]
-- [[Sessions/E15 - Client Portal]]
-- [[Sessions/E16 - Landing Map]]
-- [[Sessions/E17 - Forum]]
-- [[Sessions/E18 - Projects]] · [[Sessions/E19 - Report Builder]] · [[Sessions/E20 - Promotions]]
-- **ENHANCEMENT PLAN E1-E20 COMPLETE** ✅
+### 📋 Plans
+- [[Plans/Enhancement Plan E1-E20]] — page-by-page enhancements — **COMPLETE** ✅
+- [[Plans/Comment Plan C1-C20]] — TSDoc on every function — **COMPLETE** ✅ (API 89.1%)
+- [[Plans/Advanced Sprint Plan S1-S8]] — AI, real-time, automation, Saudi integrations (62 days)
 
-### 🚀 Advanced Sprint Plan
-- [[Sessions/Advanced Sprint Plan S1-S8]] — AI, real-time, automation, payments, Saudi integrations
-  - S1: Intelligence & Scoring (Days 1-7)
-  - S2: Real-Time & Notifications (Days 8-14)
-  - S3: Documents & Campaigns (Days 15-22)
-  - S4: AI Core (Days 23-30)
-  - S5: Automation Engine (Days 31-40)
-  - S6: Analytics & Geospatial (Days 41-46)
-  - S7: Saudi Integrations (Days 47-54)
-  - S8: Identity & Polish (Days 55-62)
-
-### 📝 Documentation Plan
-- [[Sessions/Comment Plan C1-C20]] — TSDoc comments on every function — **COMPLETE** ✅
-  - 350 backend route handlers documented with `@route` JSDoc
-  - 53 lib/middleware/service exports documented
-  - 235 frontend files with file headers
-  - API coverage: **89.1%** · Overall: **59.2%**
-
-### 📜 History (521 commits, 3 sessions)
-- [[History/Index]] — History MOC
-- [[History/Timeline]] — unified commit + session view
-- [[History/Changelog/Index]] — month-by-month log
-- [[History/Conversations/Index]] — per-session retros
-- [[History/Claude-Mem Status]]
+### 📓 Sessions (E1-E20 retros)
+- [[Sessions/E1 - Dashboard]] · [[Sessions/E2 - Leads]] · [[Sessions/E3 - Pipeline]] · [[Sessions/E4 - Calendar]]
+- [[Sessions/E5 - Activities]] · [[Sessions/E6 - Tenants]] · [[Sessions/E7 - Properties]] · [[Sessions/E8 - Property Detail]]
+- [[Sessions/E9 - Pool]] · [[Sessions/E10 - Broker Requests]] · [[Sessions/E11 - Campaigns]] · [[Sessions/E12 - Inbox]]
+- [[Sessions/E13 - Settings]] · [[Sessions/E14 - Tools]] · [[Sessions/E15 - Client Portal]] · [[Sessions/E16 - Landing Map]]
+- [[Sessions/E17 - Forum]] · [[Sessions/E18 - Projects]] · [[Sessions/E19 - Report Builder]] · [[Sessions/E20 - Promotions]]
 
 ### ⚙️ Engineering
-- [[Engineering/Comment Style]] — TSDoc convention with Source/Consumer lineage
-- [[Engineering/Coverage Report]] — API 89.1%, Schema 100%, Frontend 18.8% (headers), Overall 59.2%
-- [[Engineering/Skeleton Audit]] — all 25 platform sidebar pages have layout-accurate skeletons
+- [[Engineering/Comment Style]] — TSDoc convention (Source/Consumer lineage)
+- [[Engineering/Coverage Report]] — API 89.1%, Schema 100%, Overall 59.2%
+- [[Engineering/Skeleton Audit]] — 25/25 platform pages with layout-accurate skeletons
+
+### 📜 History
+- [[History/Index]] — History MOC
+- [[History/Timeline]] — 521 commits, 5 sessions
+- [[History/Changelog/Index]] — month-by-month log
+- [[History/Conversations/Index]] — per-session retros
+- [[History/Incidents/Index]] — post-mortems (team page freeze, seed roles bug)
 
 ### 📐 Decisions
 - [[Decisions/ADR Index]]
 - [[Decisions/008 - TSDoc with Source-Consumer Lineage]]
 
+### 📘 Runbooks
+- [[Runbooks/Index]] — operational how-to guides
+- [[Runbooks/Useful Commands]] · [[Runbooks/Reset Demo Data]] · [[Runbooks/Debug 403 Errors]] · [[Runbooks/Add a New Page]]
+
 ### 🔗 Reference
 - [[Reference/Admin Credentials]]
-- [[Reference/Demo Data]]
-- [[Reference/Useful Commands]]
+- [[Reference/Demo Data]] — 102 orgs, 1 CORP_OWNER + 9 CORP_AGENT each
 
 ---
 *Last updated: 2026-04-13 — 521 commits, 42 skills, E1-E20 ✅, C1-C20 ✅, S1-S8 planned*

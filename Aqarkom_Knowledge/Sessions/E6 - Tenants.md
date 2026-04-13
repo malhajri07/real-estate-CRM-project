@@ -28,4 +28,4 @@ status: done
 
 ## Related
 - [[Features/CRM Core]]
-- [[Sessions/Enhancement Plan E1-E20]]
+- [[Plans/Enhancement Plan E1-E20]]

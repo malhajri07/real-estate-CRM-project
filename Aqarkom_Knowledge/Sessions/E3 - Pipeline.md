@@ -62,4 +62,4 @@ const leads = useMemo(() => {
 
 ## Related
 - [[Features/Pipeline & Deals]]
-- [[Sessions/Enhancement Plan E1-E20]]
+- [[Plans/Enhancement Plan E1-E20]]

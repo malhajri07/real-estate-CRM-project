@@ -25,4 +25,4 @@ Property photos already included in the broker_requests query via `property: { s
 
 ## Related
 - [[Features/Buyer Pool]]
-- [[Sessions/Enhancement Plan E1-E20]]
+- [[Plans/Enhancement Plan E1-E20]]

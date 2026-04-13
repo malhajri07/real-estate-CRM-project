@@ -16,4 +16,4 @@ status: done
 - `apps/api/routes/community.ts` — trending endpoint + TSDoc
 
 ## Related
-- [[Sessions/Enhancement Plan E1-E20]]
+- [[Plans/Enhancement Plan E1-E20]]
