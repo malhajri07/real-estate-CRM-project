@@ -413,6 +413,7 @@ model properties {
   favorites                   favorites[]
   broker_requests             broker_requests[]
   tenancies                   tenancies[]
+  clientOffers                client_offers[]
 
   @@index([agentId])
   @@index([organizationId])
@@ -654,6 +655,7 @@ model deals {
   agent                users?              @relation(fields: [agentId], references: [id], onDelete: SetNull)
   commissionSplits     commission_splits[]
   documents            deal_documents[]
+  stageHistory         deal_stage_history[]
 
   @@index([organizationId])
   @@index([customerId])
@@ -785,6 +787,7 @@ model users {
   tenancies                tenancies[]                @relation("TenancyAgent")
   sequences                campaign_sequences[]       @relation("SequenceAgent")
   uploadedDocuments        deal_documents[]           @relation("DocumentUploader")
+  clientOffers             client_offers[]            @relation("BuyerOffers")
 
   @@index([approvalStatus])
   @@index([email])
@@ -2161,6 +2164,48 @@ model deal_documents {
 
   @@index([dealId])
   @@index([uploadedBy])
+}
+
+// ── Deal Stage History ─────────────────────────────────────────────────────────
+
+/// Tracks every stage transition for a deal. Powers the visual deal progress tracker
+/// in the client portal. Each row = one stage the deal entered, with timestamp.
+model deal_stage_history {
+  id        String   @id @default(uuid())
+  dealId    String
+  stage     String
+  enteredAt DateTime @default(now())
+  changedBy String?
+
+  deal deals @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  @@index([dealId])
+  @@index([enteredAt])
+}
+
+// ── Client Offers ──────────────────────────────────────────────────────────────
+
+/// Buyer-submitted offers on properties. Visible to the listing agent for review.
+/// Status: PENDING → ACCEPTED / REJECTED / EXPIRED / WITHDRAWN.
+model client_offers {
+  id           String   @id @default(uuid())
+  propertyId   String
+  buyerUserId  String
+  offerPrice   Decimal  @db.Decimal(14, 2)
+  conditions   String?
+  message      String?
+  status       String   @default("PENDING")
+  agentNotes   String?
+  respondedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  property properties @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  buyer    users      @relation("BuyerOffers", fields: [buyerUserId], references: [id])
+
+  @@index([propertyId])
+  @@index([buyerUserId])
+  @@index([status])
 }
 
 // ── WhatsApp / Omnichannel Inbox Messages ──────────────────────────────────────

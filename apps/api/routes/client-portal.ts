@@ -18,7 +18,7 @@
  */
 
 import { Router } from "express";
-import { prisma } from "../prismaClient";
+import { prisma, basePrisma } from "../prismaClient";
 import { authenticateToken } from "../src/middleware/auth.middleware";
 
 const router = Router();
@@ -311,6 +311,400 @@ router.get("/my-properties", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Client my-properties error:", error);
     res.status(500).json({ message: "فشل تحميل العقارات" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// GET /api/client/deal-progress/:id — Deal with stage history for progress tracker
+// ────────────────────────────────────────────────────────────────────────────
+/**
+ * Fetch a deal's full progress — current stage + stage history timeline.
+ *
+ * @route   GET /api/client/deal-progress/:id
+ * @auth    Required — any authenticated user
+ */
+router.get("/deal-progress/:id", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const deal = await prisma.deals.findUnique({
+      where: { id: req.params.id },
+      include: {
+        property: { select: { title: true, city: true, district: true, type: true, price: true, photos: true } },
+        agent: { select: { firstName: true, lastName: true, phone: true, email: true } },
+        documents: { orderBy: { createdAt: "desc" } },
+        stageHistory: { orderBy: { enteredAt: "asc" } },
+      },
+    });
+
+    if (!deal) return res.status(404).json({ message: "الصفقة غير موجودة" });
+
+    res.json({
+      id: deal.id,
+      stage: deal.stage,
+      stageEnteredAt: deal.stageEnteredAt,
+      agreedPrice: deal.agreedPrice,
+      currency: deal.currency,
+      expectedCloseDate: deal.expectedCloseDate,
+      createdAt: deal.createdAt,
+      wonAt: deal.wonAt,
+      notes: deal.notes,
+      property: deal.property,
+      agent: deal.agent ? { name: `${deal.agent.firstName} ${deal.agent.lastName}`, phone: deal.agent.phone, email: deal.agent.email } : null,
+      documents: deal.documents,
+      stageHistory: deal.stageHistory,
+    });
+  } catch (error) {
+    console.error("Deal progress error:", error);
+    res.status(500).json({ message: "فشل تحميل تقدم الصفقة" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// GET /api/client/listing-stats/:id — Listing performance for sellers
+// ────────────────────────────────────────────────────────────────────────────
+/**
+ * Property performance stats — views, favorites, inquiries, quality score.
+ *
+ * @route   GET /api/client/listing-stats/:id
+ * @auth    Required — any authenticated user
+ */
+router.get("/listing-stats/:id", authenticateToken, async (req, res) => {
+  try {
+    const property = await prisma.properties.findUnique({
+      where: { id: req.params.id },
+      select: {
+        id: true, title: true, city: true, district: true, type: true, status: true,
+        price: true, areaSqm: true, bedrooms: true, bathrooms: true,
+        photos: true, description: true, features: true,
+        createdAt: true,
+        favorites: { select: { id: true } },
+        inquiries: { select: { id: true, createdAt: true } },
+        appointments: { select: { id: true, status: true } },
+      },
+    });
+
+    if (!property) return res.status(404).json({ message: "العقار غير موجود" });
+
+    // Quality score: how complete is the listing? (0-100)
+    let qualityScore = 0;
+    const tips: string[] = [];
+    if (property.title) qualityScore += 10; else tips.push("أضف عنواناً للعقار");
+    if (property.description && property.description.length > 50) qualityScore += 15; else tips.push("أضف وصفاً تفصيلياً (50+ حرف)");
+    if (property.price) qualityScore += 10; else tips.push("حدد سعر العقار");
+    if (property.areaSqm) qualityScore += 5; else tips.push("أضف المساحة بالمتر المربع");
+    if (property.bedrooms) qualityScore += 5; else tips.push("أضف عدد الغرف");
+    if (property.bathrooms) qualityScore += 5; else tips.push("أضف عدد دورات المياه");
+    if (property.city) qualityScore += 5; else tips.push("حدد المدينة");
+    if (property.district) qualityScore += 5; else tips.push("حدد الحي");
+    if (property.features) qualityScore += 10; else tips.push("أضف مميزات العقار");
+
+    // Photos scoring
+    let photoCount = 0;
+    try {
+      const parsed = property.photos ? (typeof property.photos === "string" ? JSON.parse(property.photos) : property.photos) : [];
+      photoCount = Array.isArray(parsed) ? parsed.length : 0;
+    } catch {}
+    if (photoCount >= 10) qualityScore += 30;
+    else if (photoCount >= 5) { qualityScore += 20; tips.push(`أضف ${10 - photoCount} صور أخرى للحصول على نقاط أعلى`); }
+    else if (photoCount >= 1) { qualityScore += 10; tips.push(`أضف ${10 - photoCount} صور أخرى — العقارات بـ 10+ صور تحصل على 3x مشاهدات`); }
+    else tips.push("أضف صور للعقار — الإعلانات بصور تحصل على 5x مشاهدات");
+
+    const daysOnMarket = Math.floor((Date.now() - new Date(property.createdAt!).getTime()) / 86400000);
+
+    res.json({
+      id: property.id,
+      title: property.title,
+      status: property.status,
+      daysOnMarket,
+      photoCount,
+      favoriteCount: property.favorites.length,
+      inquiryCount: property.inquiries.length,
+      viewingCount: property.appointments.length,
+      qualityScore: Math.min(qualityScore, 100),
+      tips,
+      // Weekly inquiry trend (last 4 weeks)
+      weeklyInquiries: [0, 1, 2, 3].map((weeksAgo) => {
+        const start = new Date(); start.setDate(start.getDate() - (weeksAgo + 1) * 7);
+        const end = new Date(); end.setDate(end.getDate() - weeksAgo * 7);
+        return property.inquiries.filter((inq) => {
+          const d = new Date(inq.createdAt);
+          return d >= start && d < end;
+        }).length;
+      }).reverse(),
+    });
+  } catch (error) {
+    console.error("Listing stats error:", error);
+    res.status(500).json({ message: "فشل تحميل إحصائيات العقار" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// GET /api/client/documents — All documents across client's deals
+// ────────────────────────────────────────────────────────────────────────────
+/**
+ * List all documents shared with the client across their deals.
+ *
+ * @route   GET /api/client/documents
+ * @auth    Required — any authenticated user
+ */
+router.get("/documents", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+
+    const customers = await prisma.customers.findMany({
+      where: { OR: [...(user.phone ? [{ phone: user.phone }] : []), ...(user.email ? [{ email: user.email }] : [])] },
+      select: { id: true },
+    });
+    const customerIds = customers.map((c) => c.id);
+
+    const deals = await prisma.deals.findMany({
+      where: { customerId: { in: customerIds } },
+      select: {
+        id: true,
+        stage: true,
+        property: { select: { title: true, city: true } },
+        documents: { orderBy: { createdAt: "desc" } },
+      },
+    });
+
+    const documents = deals.flatMap((deal) =>
+      deal.documents.map((doc) => ({
+        ...doc,
+        dealId: deal.id,
+        dealStage: deal.stage,
+        propertyTitle: deal.property?.title || "عقار",
+        propertyCity: deal.property?.city || "",
+      }))
+    );
+
+    res.json(documents);
+  } catch (error) {
+    console.error("Client documents error:", error);
+    res.status(500).json({ message: "فشل تحميل المستندات" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// POST /api/client/viewing-note — Save viewing rating + notes
+// ────────────────────────────────────────────────────────────────────────────
+/**
+ * Submit or update viewing notes and property ratings for an appointment.
+ *
+ * @route   POST /api/client/viewing-note
+ * @auth    Required — any authenticated user
+ */
+router.post("/viewing-note", authenticateToken, async (req, res) => {
+  try {
+    const { appointmentId, locationRating, conditionRating, priceRating, overallRating, comments } = req.body;
+    if (!appointmentId) return res.status(400).json({ message: "appointmentId مطلوب" });
+
+    const existing = await prisma.viewing_feedback.findUnique({ where: { appointmentId } });
+    if (existing) {
+      await prisma.viewing_feedback.update({
+        where: { appointmentId },
+        data: { locationRating, conditionRating, priceRating, overallRating, comments },
+      });
+    } else {
+      await prisma.viewing_feedback.create({
+        data: { appointmentId, customerId: (req as any).user.id, locationRating, conditionRating, priceRating, overallRating, comments },
+      });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Viewing note error:", error);
+    res.status(500).json({ message: "فشل حفظ الملاحظات" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// GET /api/client/viewings — Past viewings with notes/ratings
+// ────────────────────────────────────────────────────────────────────────────
+/**
+ * List the client's past viewings with their feedback.
+ *
+ * @route   GET /api/client/viewings
+ * @auth    Required — any authenticated user
+ */
+router.get("/viewings", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+
+    const customers = await prisma.customers.findMany({
+      where: { OR: [...(user.phone ? [{ phone: user.phone }] : []), ...(user.email ? [{ email: user.email }] : [])] },
+      select: { id: true },
+    });
+    const customerIds = customers.map((c) => c.id);
+
+    const appointments = await prisma.appointments.findMany({
+      where: { customerId: { in: customerIds } },
+      orderBy: { scheduledAt: "desc" },
+      select: {
+        id: true, status: true, scheduledAt: true, location: true, notes: true,
+        property: { select: { id: true, title: true, city: true, district: true, type: true, photos: true, price: true } },
+        agent: { select: { firstName: true, lastName: true, phone: true } },
+      },
+    });
+
+    // Attach viewing feedback
+    const appointmentIds = appointments.map((a) => a.id);
+    const feedback = await prisma.viewing_feedback.findMany({
+      where: { appointmentId: { in: appointmentIds } },
+    });
+    const feedbackMap = Object.fromEntries(feedback.map((f) => [f.appointmentId, f]));
+
+    const result = appointments.map((a) => ({
+      ...a,
+      agent: a.agent ? { name: `${a.agent.firstName} ${a.agent.lastName}`, phone: a.agent.phone } : null,
+      feedback: feedbackMap[a.id] || null,
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Client viewings error:", error);
+    res.status(500).json({ message: "فشل تحميل المعاينات" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// POST /api/client/offers — Submit an offer on a property
+// ────────────────────────────────────────────────────────────────────────────
+/**
+ * Submit a buyer offer on a property.
+ *
+ * @route   POST /api/client/offers
+ * @auth    Required — any authenticated user
+ */
+router.post("/offers", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const { propertyId, offerPrice, conditions, message } = req.body;
+
+    if (!propertyId || !offerPrice) return res.status(400).json({ message: "العقار والسعر مطلوبان" });
+
+    const property = await prisma.properties.findUnique({ where: { id: propertyId }, select: { id: true, title: true } });
+    if (!property) return res.status(404).json({ message: "العقار غير موجود" });
+
+    const offer = await basePrisma.client_offers.create({
+      data: {
+        propertyId,
+        buyerUserId: user.id,
+        offerPrice: parseFloat(offerPrice),
+        conditions: conditions || null,
+        message: message || null,
+      },
+    });
+
+    res.status(201).json(offer);
+  } catch (error) {
+    console.error("Client offer error:", error);
+    res.status(500).json({ message: "فشل تقديم العرض" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// GET /api/client/offers — List buyer's submitted offers
+// ────────────────────────────────────────────────────────────────────────────
+/**
+ * List the buyer's submitted offers with property details and status.
+ *
+ * @route   GET /api/client/offers
+ * @auth    Required — any authenticated user
+ */
+router.get("/offers", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+
+    const offers = await basePrisma.client_offers.findMany({
+      where: { buyerUserId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        property: { select: { id: true, title: true, city: true, district: true, type: true, price: true, photos: true } },
+      },
+    });
+
+    res.json(offers);
+  } catch (error) {
+    console.error("Client offers error:", error);
+    res.status(500).json({ message: "فشل تحميل العروض" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// GET /api/client/agent-activity — What my agent did this week (seller view)
+// ────────────────────────────────────────────────────────────────────────────
+/**
+ * Activity report of the seller's assigned agent — calls, viewings, marketing.
+ *
+ * @route   GET /api/client/agent-activity
+ * @auth    Required — any authenticated user
+ */
+router.get("/agent-activity", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+
+    // Find properties this user owns (agentId = user.id for agents, or linked via deals for sellers)
+    const myProperties = await prisma.properties.findMany({
+      where: { agentId: user.id },
+      select: { id: true, agentId: true },
+    });
+
+    // If seller: find deals where they're the customer, get the agent
+    const customers = await prisma.customers.findMany({
+      where: { OR: [...(user.phone ? [{ phone: user.phone }] : []), ...(user.email ? [{ email: user.email }] : [])] },
+      select: { id: true },
+    });
+    const customerIds = customers.map((c) => c.id);
+
+    const deals = await prisma.deals.findMany({
+      where: { customerId: { in: customerIds } },
+      select: { agentId: true, propertyId: true },
+    });
+
+    const agentIds = [...new Set([...myProperties.map((p) => p.agentId), ...deals.map((d) => d.agentId)].filter(Boolean))] as string[];
+    const propertyIds = [...new Set([...myProperties.map((p) => p.id), ...deals.map((d) => d.propertyId)].filter(Boolean))] as string[];
+
+    if (agentIds.length === 0) return res.json({ activities: [], summary: { calls: 0, viewings: 0, totalActions: 0 } });
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    // Get agent's recent activity from audit_logs
+    const activities = await prisma.audit_logs.findMany({
+      where: {
+        userId: { in: agentIds },
+        createdAt: { gte: sevenDaysAgo },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+      include: { users: { select: { firstName: true, lastName: true } } },
+    });
+
+    // Count viewings (appointments on seller's properties)
+    const viewings = await prisma.appointments.count({
+      where: {
+        propertyId: { in: propertyIds },
+        scheduledAt: { gte: sevenDaysAgo },
+      },
+    });
+
+    res.json({
+      activities: activities.map((a) => ({
+        id: a.id,
+        action: a.action,
+        entity: a.entity,
+        createdAt: a.createdAt,
+        agentName: `${a.users.firstName} ${a.users.lastName}`,
+      })),
+      summary: {
+        totalActions: activities.length,
+        viewings,
+        calls: activities.filter((a) => a.action === "CALL" || a.entity === "contact_log").length,
+      },
+    });
+  } catch (error) {
+    console.error("Agent activity error:", error);
+    res.status(500).json({ message: "فشل تحميل نشاط الوسيط" });
   }
 });
 
