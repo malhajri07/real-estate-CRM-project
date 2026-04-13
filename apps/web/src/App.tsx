@@ -45,6 +45,33 @@ import { logger } from "@/lib/logger";
 import { RouteGuard } from "@/components/auth/RouteGuard";
 import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 
+// ── Stable Suspense wrappers (MUST live outside Router to avoid remount on every render) ──
+const fullScreenFallback = <div className="min-h-screen bg-background" />;
+
+function withSuspense(
+  Component: ComponentType<any> | LazyExoticComponent<ComponentType<any>>,
+  fallback: ReactNode = fullScreenFallback
+): ComponentType<any> {
+  const Wrapped: ComponentType<any> = (props: any) => (
+    <Suspense fallback={fallback}>
+      <Component {...props} />
+    </Suspense>
+  );
+  return Wrapped;
+}
+
+// Pre-built Suspended wrappers — stable references, never recreated
+const SuspendedRBACLoginPage = withSuspense(lazy(() => import("@/pages/auth/login")));
+const SuspendedRBACDashboard = withSuspense(lazy(() => import("@/pages/admin/dashboard")));
+const SuspendedPlatformPage = withSuspense(lazy(() => import("@/pages/platform/home")));
+const SuspendedUnverifiedListingPage = withSuspense(lazy(() => import("@/pages/unverified-listing")));
+const SuspendedUnverifiedListingsManagementPage = withSuspense(lazy(() => import("@/pages/admin/unverified-listings-management")));
+const SuspendedMarketingRequestSubmissionPage = withSuspense(lazy(() => import("@/pages/marketing/submission")));
+const SuspendedSearchPropertiesPage = withSuspense(lazy(() => import("@/pages/map")));
+const SuspendedRealEstateRequestsPage = withSuspense(lazy(() => import("@/pages/requests/real-estate")));
+const SuspendedBlogPage = withSuspense(lazy(() => import("@/pages/blog")));
+const SuspendedPublicListingPage = withSuspense(lazy(() => import("@/pages/listing")));
+
 // Core page imports - loaded immediately for critical public routes
 import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
@@ -62,7 +89,6 @@ import { adminSidebarConfig } from "@/config/admin-sidebar";
 // Lazy-loaded page imports - loaded on demand for better performance
 const CMSAdmin = lazy(() => import("@/pages/admin/cms"));
 const Dashboard = lazy(() => import("@/pages/platform/dashboard"));
-const MapPage = lazy(() => import("@/pages/map"));
 const Leads = lazy(() => import("@/pages/platform/leads"));
 // Removed: Customers was duplicate re-export of Leads
 const Properties = lazy(() => import("@/pages/platform/properties"));
@@ -72,12 +98,6 @@ const Reports = lazy(() => import("@/pages/platform/reports"));
 const Notifications = lazy(() => import("@/pages/platform/notifications"));
 const Settings = lazy(() => import("@/pages/platform/settings"));
 const PropertyDetail = lazy(() => import("@/pages/platform/properties/detail"));
-const LazyRBACDashboard = lazy(() => import("@/pages/admin/dashboard"));
-const LazyRBACLoginPage = lazy(() => import("@/pages/auth/login"));
-const LazyPlatformPage = lazy(() => import("@/pages/platform/home"));
-const LazyUnverifiedListingPage = lazy(() => import("@/pages/unverified-listing"));
-const LazyUnverifiedListingsManagementPage = lazy(() => import("@/pages/admin/unverified-listings-management"));
-const LazyMarketingRequestSubmissionPage = lazy(() => import("@/pages/marketing/submission"));
 const LazyMarketingRequestsBoardPage = lazy(() => import("@/pages/marketing/board"));
 const FavoritesPage = lazy(() => import("@/pages/platform/favorites"));
 const ComparePage = lazy(() => import("@/pages/platform/compare"));
@@ -91,8 +111,6 @@ const TeamPage = lazy(() => import("@/pages/platform/team"));
 const AgentPage = lazy(() => import("@/pages/platform/agents/detail"));
 const PublicListingPage = lazy(() => import("@/pages/listing"));
 const SavedSearchesPage = lazy(() => import("@/pages/platform/saved-searches"));
-const BlogPage = lazy(() => import("@/pages/blog"));
-const RealEstateRequestsPage = lazy(() => import("@/pages/requests/real-estate"));
 const CustomerRequestsPage = lazy(() => import("@/pages/platform/requests/customer"));
 const BrokerRequestsPage = lazy(() => import("@/pages/platform/broker-requests"));
 const ActivitiesPage = lazy(() => import("@/pages/platform/activities"));
@@ -151,33 +169,8 @@ function Router() {
   const [location, setLocation] = useLocation();
   const isAdmin = !!user?.roles?.includes?.(UserRole.WEBSITE_ADMIN); // Helper flag to distinguish admin flow from standard platform users.
 
-  // Suspense fallbacks are minimal — each page handles its own skeleton via useMinLoadTime
+  // withSuspense + Suspended* wrappers are now module-level (stable references, no remount on re-render)
   const fullScreenSuspenseFallback = <div className="min-h-screen bg-background" />;
-  const shellSuspenseFallback = <div className="h-full" />;
-
-  type LoadableComponent = ComponentType<any> | LazyExoticComponent<ComponentType<any>>;
-
-  const withSuspense = (
-    Component: LoadableComponent,
-    fallback: ReactNode = fullScreenSuspenseFallback
-  ): ComponentType<any> => {
-    const SuspendedComponent: ComponentType<any> = (props: any) => (
-      <Suspense fallback={fallback}>
-        <Component {...props} />
-      </Suspense>
-    );
-    return SuspendedComponent;
-  };
-
-  const SuspendedRBACLoginPage = withSuspense(LazyRBACLoginPage);
-  const SuspendedRBACDashboard = withSuspense(LazyRBACDashboard);
-  const SuspendedPlatformPage = withSuspense(LazyPlatformPage);
-  const SuspendedUnverifiedListingPage = withSuspense(LazyUnverifiedListingPage);
-  const SuspendedUnverifiedListingsManagementPage = withSuspense(LazyUnverifiedListingsManagementPage);
-  const SuspendedMarketingRequestSubmissionPage = withSuspense(LazyMarketingRequestSubmissionPage);
-  const SuspendedSearchPropertiesPage = withSuspense(MapPage);
-  const SuspendedRealEstateRequestsPage = withSuspense(RealEstateRequestsPage);
-  const SuspendedBlogPage = withSuspense(BlogPage);
 
   const PLATFORM_CORE_ROLES: readonly UserRole[] = [
     UserRole.WEBSITE_ADMIN,
@@ -331,14 +324,14 @@ function Router() {
       { path: '/home/platform/reports', component: Reports, aliases: ['/reports'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/notifications', component: Notifications, aliases: ['/notifications'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/settings', component: Settings, aliases: ['/settings'], allowedRoles: PLATFORM_CORE_ROLES },
-      { path: '/home/platform/team', component: withSuspense(TeamPage), aliases: ['/team'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/team', component: TeamPage, aliases: ['/team'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/moderation', component: ModerationQueuePage, aliases: ['/moderation'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/cms', component: CMSAdmin, aliases: ['/cms'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/marketing-requests', component: LazyMarketingRequestsBoardPage, aliases: ['/marketing-requests'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/unverified-listings', component: SuspendedUnverifiedListingsManagementPage, allowedRoles: PLATFORM_CORE_ROLES },
-      { path: '/home/platform/pool', component: withSuspense(PoolPage), aliases: ['/pool'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/pool', component: PoolPage, aliases: ['/pool'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/projects', component: ProjectsPage, aliases: ['/projects'], allowedRoles: PLATFORM_CORE_ROLES },
-      { path: '/home/platform/forum', component: withSuspense(ForumPage), aliases: ['/forum'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/forum', component: ForumPage, aliases: ['/forum'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/home/platform/inbox', component: InboxPage, aliases: ['/inbox'], allowedRoles: PLATFORM_CORE_ROLES },
     ];
 
@@ -367,8 +360,8 @@ function Router() {
       { path: '/home/platform/favorites', component: FavoritesPage, aliases: ['/favorites'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/compare', component: ComparePage, aliases: ['/compare'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/post-listing', component: PostListingPage, aliases: ['/post-listing'], allowedRoles: EXTENDED_PLATFORM_ROLES },
-      { path: '/home/platform/tools/mortgage', component: MortgageCalculator, aliases: ['/tools/mortgage'], allowedRoles: PLATFORM_CORE_ROLES },
-      { path: '/home/platform/tools/roi', component: ROICalculator, aliases: ['/tools/roi'], allowedRoles: PLATFORM_CORE_ROLES },
+      { path: '/home/platform/tools/mortgage', component: MortgageCalculator, aliases: ['/tools/mortgage'], allowedRoles: EXTENDED_PLATFORM_ROLES },
+      { path: '/home/platform/tools/roi', component: ROICalculator, aliases: ['/tools/roi'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/reports/builder', component: ReportBuilderPage, aliases: ['/reports/builder'], allowedRoles: PLATFORM_CORE_ROLES },
       { path: '/client', component: ClientPortal, aliases: ['/client/dashboard'], allowedRoles: EXTENDED_PLATFORM_ROLES },
       { path: '/home/platform/tenants', component: TenantsPage, aliases: ['/tenants'], allowedRoles: PLATFORM_CORE_ROLES },
@@ -429,8 +422,6 @@ function Router() {
 
   // Helper function to render public routes (used in multiple places)
   // Routes ordered from most specific to least specific for optimal matching
-  const SuspendedPublicListingPage = withSuspense(PublicListingPage);
-
   const renderPublicRoutes = () => (
     <>
       {/* Specific routes first */}
@@ -682,17 +673,22 @@ function Router() {
             </>
           )}
 
-          {/* Seller/Buyer Routes - Limited access for now */}
+          {/* Seller/Buyer Routes — client portal + tools + public */}
           {isSellerBuyer && (
             <>
-              <Route path="/login" component={createRedirectComponent('/home/platform', 'جاري التوجيه إلى لوحة التحكم...')} />
-              <Route path="/rbac-login" component={createRedirectComponent('/home/platform', 'جاري التوجيه إلى لوحة التحكم...')} />
-              <Route path="/home/platform" component={SuspendedPlatformPage} />
-              <Route path="/unverified-listings" component={SuspendedUnverifiedListingPage} />
+              <Route path="/login" component={createRedirectComponent('/client', 'جاري التوجيه إلى بوابة العميل...')} />
+              <Route path="/rbac-login" component={createRedirectComponent('/client', 'جاري التوجيه إلى بوابة العميل...')} />
+              <Route path="/home/platform" component={createRedirectComponent('/client', 'جاري التوجيه إلى بوابة العميل...')} />
 
-              {/* Redirect seller/buyer users from admin routes to platform dashboard */}
+              {/* Client portal + tools + property browsing */}
+              {renderPlatformRoutes(true)}
+
+              {/* Public routes (map, listings, etc.) */}
+              {renderPublicRoutes()}
+
+              {/* Redirect admin routes to client portal */}
               {ADMIN_DASHBOARD_ROUTES.map((path) => (
-                <Route key={`redirect-admin-sb-${path}`} path={path} component={createRedirectComponent('/home/platform', 'جاري التوجيه إلى لوحة التحكم...')} />
+                <Route key={`redirect-admin-sb-${path}`} path={path} component={createRedirectComponent('/client', 'جاري التوجيه إلى بوابة العميل...')} />
               ))}
             </>
           )}

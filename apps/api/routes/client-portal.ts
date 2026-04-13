@@ -179,4 +179,139 @@ router.post("/rate-agent", authenticateToken, async (req, res) => {
   }
 });
 
+// ────────────────────────────────────────────────────────────────────────────
+// POST /api/client/property-request — Buyer submits "I'm looking for X"
+// ────────────────────────────────────────────────────────────────────────────
+/**
+ * Submit a property request to the buyer pool.
+ *
+ * @route   POST /api/client/property-request
+ * @auth    Required — BUYER role
+ * @param   req.body.city - Target city. **Source:** client portal request form.
+ * @param   req.body.type - Buy or Rent.
+ * @param   req.body.minPrice - Minimum budget.
+ * @param   req.body.maxPrice - Maximum budget.
+ * @param   req.body.minBedrooms - Minimum bedrooms.
+ * @param   req.body.notes - Free-text description.
+ * @returns Created buyer_request record.
+ *   **Consumer:** client portal "My Requests" section.
+ * @sideEffect Creates buyer_requests row with OPEN status.
+ */
+router.post("/property-request", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+    const { city, type, minPrice, maxPrice, minBedrooms, maxBedrooms, notes, contactPreference } = req.body;
+
+    if (!city || !type) {
+      return res.status(400).json({ message: "المدينة ونوع الطلب مطلوبان" });
+    }
+
+    const request = await prisma.buyer_requests.create({
+      data: {
+        createdByUserId: user.id,
+        city,
+        type,
+        minPrice: minPrice ? parseFloat(minPrice) : null,
+        maxPrice: maxPrice ? parseFloat(maxPrice) : null,
+        minBedrooms: minBedrooms ? parseInt(minBedrooms) : null,
+        maxBedrooms: maxBedrooms ? parseInt(maxBedrooms) : null,
+        notes: notes || null,
+        contactPreferences: contactPreference || "phone",
+        maskedContact: user.phone ? user.phone.replace(/(\d{3})\d{4}(\d{3})/, "$1****$2") : "****",
+        fullContactJson: JSON.stringify({ phone: user.phone, email: user.email, name: `${user.firstName} ${user.lastName}` }),
+        status: "OPEN",
+      },
+    });
+
+    res.status(201).json(request);
+  } catch (error) {
+    console.error("Client property request error:", error);
+    res.status(500).json({ message: "فشل إنشاء الطلب" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// GET /api/client/my-requests — Buyer's submitted property requests
+// ────────────────────────────────────────────────────────────────────────────
+/**
+ * List the buyer's own property requests with claim status.
+ *
+ * @route   GET /api/client/my-requests
+ * @auth    Required — any authenticated user
+ * @returns Array of buyer_requests with claim count.
+ *   **Consumer:** client portal "My Requests" tab.
+ */
+router.get("/my-requests", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+
+    const requests = await prisma.buyer_requests.findMany({
+      where: { createdByUserId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        claims: {
+          select: { id: true, status: true, agentId: true },
+        },
+      },
+    });
+
+    res.json(requests);
+  } catch (error) {
+    console.error("Client my-requests error:", error);
+    res.status(500).json({ message: "فشل تحميل الطلبات" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// GET /api/client/my-properties — Seller's listed properties with stats
+// ────────────────────────────────────────────────────────────────────────────
+/**
+ * List the seller's own properties with view counts and inquiry stats.
+ *
+ * @route   GET /api/client/my-properties
+ * @auth    Required — any authenticated user
+ * @returns Array of properties with inquiry and favorite counts.
+ *   **Consumer:** client portal "My Properties" tab for sellers.
+ */
+router.get("/my-properties", authenticateToken, async (req, res) => {
+  try {
+    const user = (req as any).user;
+
+    // Find properties linked to this user (as agent or via deals)
+    const properties = await prisma.properties.findMany({
+      where: { agentId: user.id },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        city: true,
+        district: true,
+        type: true,
+        status: true,
+        price: true,
+        areaSqm: true,
+        bedrooms: true,
+        bathrooms: true,
+        photos: true,
+        createdAt: true,
+        favorites: { select: { id: true } },
+        inquiries: { select: { id: true } },
+      },
+    });
+
+    const result = properties.map((p) => ({
+      ...p,
+      favoriteCount: p.favorites.length,
+      inquiryCount: p.inquiries.length,
+      favorites: undefined,
+      inquiries: undefined,
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error("Client my-properties error:", error);
+    res.status(500).json({ message: "فشل تحميل العقارات" });
+  }
+});
+
 export default router;
