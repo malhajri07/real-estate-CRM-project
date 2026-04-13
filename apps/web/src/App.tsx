@@ -412,7 +412,8 @@ function Router() {
   );
 
   const createRedirectComponent = (target: string, message: string) => () => {
-    setLocation(target, { replace: true });
+    // Use useEffect-style redirect to avoid setState-during-render warning
+    setTimeout(() => setLocation(target, { replace: true }), 0);
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-sm text-muted-foreground">{message}</div>
@@ -673,23 +674,21 @@ function Router() {
             </>
           )}
 
-          {/* Seller/Buyer Routes — client portal + tools + public */}
+          {/* Seller/Buyer Routes — only pages they have access to */}
           {isSellerBuyer && (
             <>
               <Route path="/login" component={createRedirectComponent('/client', 'جاري التوجيه إلى بوابة العميل...')} />
               <Route path="/rbac-login" component={createRedirectComponent('/client', 'جاري التوجيه إلى بوابة العميل...')} />
               <Route path="/home/platform" component={createRedirectComponent('/client', 'جاري التوجيه إلى بوابة العميل...')} />
 
-              {/* Client portal + tools + property browsing */}
+              {/* Client portal + tools + pages buyers/sellers can access */}
               {renderPlatformRoutes(true)}
 
               {/* Public routes (map, listings, etc.) */}
               {renderPublicRoutes()}
 
-              {/* Redirect admin routes to client portal */}
-              {ADMIN_DASHBOARD_ROUTES.map((path) => (
-                <Route key={`redirect-admin-sb-${path}`} path={path} component={createRedirectComponent('/client', 'جاري التوجيه إلى بوابة العميل...')} />
-              ))}
+              {/* Catch-all: any unmatched route → /client */}
+              <Route component={createRedirectComponent('/client', 'جاري التوجيه إلى بوابة العميل...')} />
             </>
           )}
 
