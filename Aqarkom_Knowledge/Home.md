@@ -7,7 +7,7 @@ updated: 2026-04-13
 # 🏠 Aqarkom Knowledge Vault
 
 > Knowledge base for **عقاركم (Aqarkom)** — Saudi real estate CRM platform.
-> 521 commits · 113K LOC · 42 skills · 78 tables · 57 routes · 25 pages
+> 530 commits · 113K LOC · 42 skills · 80 tables · 65 routes · 25 pages
 
 ## Map of Content
 
@@ -57,7 +57,7 @@ updated: 2026-04-13
 
 ### 📜 History
 - [[History/Index]] — History MOC
-- [[History/Timeline]] — 521 commits, 5 sessions
+- [[History/Timeline]] — 530 commits, 6 sessions
 - [[History/Changelog/Index]] — month-by-month log
 - [[History/Conversations/Index]] — per-session retros
 - [[History/Incidents/Index]] — post-mortems (team page freeze, seed roles bug)
@@ -75,4 +75,4 @@ updated: 2026-04-13
 - [[Reference/Demo Data]] — 102 orgs, 1 CORP_OWNER + 9 CORP_AGENT each
 
 ---
-*Last updated: 2026-04-13 — 521 commits, 42 skills, E1-E20 ✅, C1-C20 ✅, S1-S8 planned*
+*Last updated: 2026-04-14 — 530 commits, 42 skills, E1-E20 ✅, C1-C20 ✅, S1-S8 planned, client portal redesigned*

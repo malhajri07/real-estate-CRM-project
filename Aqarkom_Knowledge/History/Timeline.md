@@ -7,7 +7,7 @@ created: 2026-04-10
 
 Unified view: every git commit and every Claude session, month by month.
 
-**Span:** 2025-08-11 → 2026-04-13 (521 commits, 4 captured sessions)
+**Span:** 2025-08-11 → 2026-04-14 (530 commits, 6 captured sessions)
 
 ## 2025-08
 
@@ -91,6 +91,13 @@ Unified view: every git commit and every Claude session, month by month.
   - `a9f451a` fix seed data: 1 CORP_OWNER + N CORP_AGENT per org (102 orgs)
   - `37ca5e7` split org-team middleware: requireOrgMember (read) vs requireOwnerOrAdmin (write)
   - `b97f9cc` hide owner-only actions from CORP_AGENT on team page (useAuth + canManage flag)
+- 💬 **2026-04-13 → 2026-04-14** · Session 06 — Client portal redesign, buyer/seller RBAC, vault reorganization
+  - `6851a29` vault reorganization: Plans/, Runbooks/, Incidents/, _Templates/ (47 files)
+  - `3d08516` role-based client portal: buyer requests, seller properties, tool access
+  - `7bd1b11` buyer/seller sidebar sections (بوابة المشتري + بوابة البائع)
+  - `87e13ce` messaging (inbox) access for buyers and sellers
+  - `d01de95` complete client portal redesign: 8 new API endpoints, tabbed UI, deal progress stepper, viewing ratings, offers, agent activity, document center
+  - 2 new DB models: `deal_stage_history`, `client_offers`
 
 ## Related
 - [[History/Index|← History MOC]]
