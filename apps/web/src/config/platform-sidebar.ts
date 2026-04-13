@@ -16,17 +16,20 @@
 import {
   BarChart3,
   Building,
+  Calculator,
   Calendar,
   CheckSquare,
   ClipboardList,
   FileText,
   Globe2,
   Handshake,
+  Heart,
   Home,
   Inbox,
   LayoutDashboard,
   Megaphone,
   MessageSquare,
+  Search,
   Settings,
   ShieldCheck,
   Users,
@@ -76,6 +79,16 @@ const EXTENDED_PLATFORM_ROLES = [
   UserRole.INDIV_AGENT,
   UserRole.SELLER,
   UserRole.BUYER,
+];
+
+const BUYER_ROLES = [
+  UserRole.BUYER,
+  UserRole.WEBSITE_ADMIN,
+];
+
+const SELLER_ROLES = [
+  UserRole.SELLER,
+  UserRole.WEBSITE_ADMIN,
 ];
 
 export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
@@ -358,7 +371,105 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
     ],
   },
 
-  // ── 9. Settings ───────────────────────────────────────────────────────
+  // ── 9. Buyer Portal ─────────────────────────────────────────────────
+  {
+    id: "buyer-portal",
+    label: "بوابة المشتري",
+    icon: Search,
+    children: [
+      {
+        id: "client-dashboard",
+        label: "لوحة العميل",
+        path: "/client",
+        icon: LayoutDashboard,
+        matchPaths: ["/client", "/client/dashboard"],
+        allowedRoles: BUYER_ROLES,
+      },
+      {
+        id: "browse-properties",
+        label: "تصفح العقارات",
+        path: "/map",
+        icon: Building,
+        matchPaths: ["/map"],
+        allowedRoles: BUYER_ROLES,
+      },
+      {
+        id: "buyer-favorites",
+        label: "المفضلة",
+        path: "/home/platform/favorites",
+        icon: Heart,
+        matchPaths: ["/favorites"],
+        allowedRoles: BUYER_ROLES,
+      },
+      {
+        id: "buyer-saved-searches",
+        label: "بحث محفوظ",
+        path: "/home/platform/saved-searches",
+        icon: Search,
+        matchPaths: ["/saved-searches"],
+        allowedRoles: BUYER_ROLES,
+      },
+      {
+        id: "buyer-mortgage",
+        label: "حاسبة التمويل",
+        path: "/home/platform/tools/mortgage",
+        icon: Calculator,
+        matchPaths: ["/tools/mortgage"],
+        allowedRoles: BUYER_ROLES,
+      },
+      {
+        id: "buyer-roi",
+        label: "العائد الاستثماري",
+        path: "/home/platform/tools/roi",
+        icon: BarChart3,
+        matchPaths: ["/tools/roi"],
+        allowedRoles: BUYER_ROLES,
+      },
+    ],
+  },
+
+  // ── 10. Seller Portal ────────────────────────────────────────────────
+  {
+    id: "seller-portal",
+    label: "بوابة البائع",
+    icon: Home,
+    children: [
+      {
+        id: "seller-dashboard",
+        label: "لوحة العميل",
+        path: "/client",
+        icon: LayoutDashboard,
+        matchPaths: ["/client", "/client/dashboard"],
+        allowedRoles: SELLER_ROLES,
+      },
+      {
+        id: "seller-post-listing",
+        label: "إضافة إعلان",
+        path: "/home/platform/post-listing",
+        icon: Megaphone,
+        matchPaths: ["/post-listing"],
+        allowedRoles: SELLER_ROLES,
+      },
+      {
+        id: "seller-compare",
+        label: "مقارنة العقارات",
+        path: "/home/platform/compare",
+        icon: BarChart3,
+        matchPaths: ["/compare"],
+        allowedRoles: SELLER_ROLES,
+      },
+      {
+        id: "seller-mortgage",
+        label: "حاسبة التمويل",
+        path: "/home/platform/tools/mortgage",
+        icon: Calculator,
+        matchPaths: ["/tools/mortgage"],
+        allowedRoles: SELLER_ROLES,
+      },
+    ],
+  },
+
+  // ── 11. Settings ──────────────────────────────────────────────────────
   {
     id: "settings-group",
     labelKey: "sidebar.settings",
@@ -371,7 +482,7 @@ export const platformSidebarConfig: PlatformSidebarGroupConfig[] = [
         path: "/home/platform/settings",
         icon: Settings,
         matchPaths: ["/settings"],
-        allowedRoles: PLATFORM_CORE_ROLES,
+        allowedRoles: EXTENDED_PLATFORM_ROLES,
       },
     ],
   },
