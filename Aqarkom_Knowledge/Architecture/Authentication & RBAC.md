@@ -34,6 +34,20 @@ A user can hold multiple roles (`user_roles` join table).
   - `requireOwnerOrAdmin` — only CORP_OWNER / WEBSITE_ADMIN (write access)
 - See [[Architecture/Org Isolation]] for tenant scoping
 
+## Client portal access model (client-portal.ts)
+
+| Feature | BUYER | SELLER | Agent |
+|---|---|---|---|
+| Dashboard (deals, appointments) | ✅ | ✅ | ✅ (demo) |
+| Submit property request | ✅ | ❌ | ❌ |
+| My requests + agent claims | ✅ | ❌ | ❌ |
+| My properties + stats | ❌ | ✅ | ❌ |
+| Rate agent | ✅ | ✅ | ❌ |
+| Mortgage / ROI calculators | ✅ | ✅ | ✅ |
+| Favorites / Compare / Saved searches | ✅ | ✅ | ✅ |
+| Post listing | ❌ | ✅ | ✅ |
+| Login redirect | → /client | → /client | → /home/platform |
+
 ## Team page access model (org-team.ts)
 | Endpoint | CORP_OWNER | CORP_AGENT | WEBSITE_ADMIN |
 |---|---|---|---|
