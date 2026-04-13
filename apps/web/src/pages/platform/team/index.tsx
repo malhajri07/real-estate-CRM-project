@@ -62,6 +62,7 @@ import EmptyState from "@/components/ui/empty-state";
 import { QueryErrorFallback } from "@/components/ui/query-error-fallback";
 import { TeamPageSkeleton } from "@/components/skeletons/page-skeletons";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { SarSymbol } from "@/components/ui/sar-symbol";
@@ -413,8 +414,10 @@ function MiniSparkline({ data, color = CHART_COLORS.primary }: { data: number[];
 export default function TeamPage() {
   const { dir, language } = useLanguage();
   const { toast } = useToast();
+  const { hasRole } = useAuth();
   const queryClient = useQueryClient();
   const showSkeleton = useMinLoadTime();
+  const canManage = hasRole(["CORP_OWNER" as any, "WEBSITE_ADMIN" as any]);
 
   // -- State --
   const [activeTab, setActiveTab] = useState("overview");
@@ -1177,8 +1180,8 @@ export default function TeamPage() {
 
             <div className="flex-1" />
 
-            {/* Bulk Actions */}
-            {someSelected && (
+            {/* Bulk Actions (owner only) */}
+            {canManage && someSelected && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm" className="gap-1.5">
@@ -1201,10 +1204,12 @@ export default function TeamPage() {
               <Download className="h-4 w-4" /> تصدير CSV
             </Button>
 
-            {/* Add Agent */}
-            <Button onClick={() => { setInviteForm(emptyInviteForm); setBulkInviteMode(false); setInviteOpen(true); }} className="gap-1.5">
-              <UserPlus className="h-4 w-4" /> إضافة وكيل
-            </Button>
+            {/* Add Agent (owner only) */}
+            {canManage && (
+              <Button onClick={() => { setInviteForm(emptyInviteForm); setBulkInviteMode(false); setInviteOpen(true); }} className="gap-1.5">
+                <UserPlus className="h-4 w-4" /> إضافة وكيل
+              </Button>
+            )}
           </div>
 
           {/* Table */}
@@ -1221,12 +1226,14 @@ export default function TeamPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className={TABLE_STYLES.header}>
-                      <TableHead className="w-[40px]">
-                        <Checkbox
-                          checked={allSelected}
-                          onCheckedChange={toggleSelectAll}
-                        />
-                      </TableHead>
+                      {canManage && (
+                        <TableHead className="w-[40px]">
+                          <Checkbox
+                            checked={allSelected}
+                            onCheckedChange={toggleSelectAll}
+                          />
+                        </TableHead>
+                      )}
                       <TableHead className={TABLE_STYLES.headerCell}>الوكيل</TableHead>
                       <TableHead className={TABLE_STYLES.headerCell}>الحالة</TableHead>
                       <TableHead className={TABLE_STYLES.headerCell}>الدور</TableHead>
@@ -1263,13 +1270,15 @@ export default function TeamPage() {
                             )}
                             onClick={() => setExpandedAgentId(isExpanded ? null : member.id)}
                           >
-                            {/* Checkbox */}
-                            <TableCell onClick={(e) => e.stopPropagation()}>
-                              <Checkbox
-                                checked={selectedIds.has(member.id)}
-                                onCheckedChange={() => toggleSelectOne(member.id)}
-                              />
-                            </TableCell>
+                            {/* Checkbox (owner only) */}
+                            {canManage && (
+                              <TableCell onClick={(e) => e.stopPropagation()}>
+                                <Checkbox
+                                  checked={selectedIds.has(member.id)}
+                                  onCheckedChange={() => toggleSelectOne(member.id)}
+                                />
+                              </TableCell>
+                            )}
 
                             {/* Agent Name */}
                             <TableCell>
@@ -1353,19 +1362,8 @@ export default function TeamPage() {
                                   <DropdownMenuItem onClick={() => openActivity(member.id)}>
                                     <Eye className="h-4 w-4 me-2" /> عرض النشاط
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => openEdit(member)}>
-                                    <Edit className="h-4 w-4 me-2" /> تعديل البيانات
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => openWorkingHours(member.id)}>
-                                    <Clock className="h-4 w-4 me-2" /> ساعات العمل
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem onClick={() => openTransfer(member.id)}>
-                                    <ArrowRightLeft className="h-4 w-4 me-2" /> نقل الأعمال
-                                  </DropdownMenuItem>
                                   {member.phone && (
                                     <>
-                                      <DropdownMenuSeparator />
                                       <DropdownMenuItem onClick={() => window.open(`https://wa.me/${member.phone?.replace(/[^0-9]/g, "")}`, "_blank")}>
                                         <MessageSquare className="h-4 w-4 me-2" /> واتساب
                                       </DropdownMenuItem>
@@ -1374,41 +1372,55 @@ export default function TeamPage() {
                                       </DropdownMenuItem>
                                     </>
                                   )}
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    onClick={() => {
-                                      setConfirmDialog({
-                                        open: true,
-                                        title: member.isActive ? "تعطيل الحساب" : "تفعيل الحساب",
-                                        description: member.isActive
-                                          ? `هل تريد تعطيل حساب ${member.firstName} ${member.lastName}؟ لن يتمكن من الدخول.`
-                                          : `هل تريد تفعيل حساب ${member.firstName} ${member.lastName}؟`,
-                                        onConfirm: () => toggleActiveMutation.mutate(member.id),
-                                      });
-                                    }}
-                                  >
-                                    <Power className="h-4 w-4 me-2" />
-                                    {member.isActive ? "تعطيل الحساب" : "تفعيل الحساب"}
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    onClick={() => {
-                                      setConfirmDialog({
-                                        open: true,
-                                        title: "تغيير الدور",
-                                        description: isOwner
-                                          ? `هل تريد تخفيض ${member.firstName} ${member.lastName} من مالك إلى وكيل؟`
-                                          : `هل تريد ترقية ${member.firstName} ${member.lastName} من وكيل إلى مالك؟`,
-                                        onConfirm: () =>
-                                          changeRoleMutation.mutate({
-                                            id: member.id,
-                                            role: isOwner ? "CORP_AGENT" : "CORP_OWNER",
-                                          }),
-                                      });
-                                    }}
-                                  >
-                                    <ArrowUpDown className="h-4 w-4 me-2" />
-                                    {isOwner ? "تخفيض إلى وكيل" : "ترقية إلى مالك"}
-                                  </DropdownMenuItem>
+                                  {canManage && (
+                                    <>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem onClick={() => openEdit(member)}>
+                                        <Edit className="h-4 w-4 me-2" /> تعديل البيانات
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => openWorkingHours(member.id)}>
+                                        <Clock className="h-4 w-4 me-2" /> ساعات العمل
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem onClick={() => openTransfer(member.id)}>
+                                        <ArrowRightLeft className="h-4 w-4 me-2" /> نقل الأعمال
+                                      </DropdownMenuItem>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem
+                                        onClick={() => {
+                                          setConfirmDialog({
+                                            open: true,
+                                            title: member.isActive ? "تعطيل الحساب" : "تفعيل الحساب",
+                                            description: member.isActive
+                                              ? `هل تريد تعطيل حساب ${member.firstName} ${member.lastName}؟ لن يتمكن من الدخول.`
+                                              : `هل تريد تفعيل حساب ${member.firstName} ${member.lastName}؟`,
+                                            onConfirm: () => toggleActiveMutation.mutate(member.id),
+                                          });
+                                        }}
+                                      >
+                                        <Power className="h-4 w-4 me-2" />
+                                        {member.isActive ? "تعطيل الحساب" : "تفعيل الحساب"}
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem
+                                        onClick={() => {
+                                          setConfirmDialog({
+                                            open: true,
+                                            title: "تغيير الدور",
+                                            description: isOwner
+                                              ? `هل تريد تخفيض ${member.firstName} ${member.lastName} من مالك إلى وكيل؟`
+                                              : `هل تريد ترقية ${member.firstName} ${member.lastName} من وكيل إلى مالك؟`,
+                                            onConfirm: () =>
+                                              changeRoleMutation.mutate({
+                                                id: member.id,
+                                                role: isOwner ? "CORP_AGENT" : "CORP_OWNER",
+                                              }),
+                                          });
+                                        }}
+                                      >
+                                        <ArrowUpDown className="h-4 w-4 me-2" />
+                                        {isOwner ? "تخفيض إلى وكيل" : "ترقية إلى مالك"}
+                                      </DropdownMenuItem>
+                                    </>
+                                  )}
                                 </DropdownMenuContent>
                               </DropdownMenu>
                             </TableCell>
@@ -1493,15 +1505,19 @@ export default function TeamPage() {
                                         <Button variant="outline" size="sm" className="text-xs gap-1" onClick={(e) => { e.stopPropagation(); openActivity(member.id); }}>
                                           <Eye className="h-3 w-3" /> التفاصيل
                                         </Button>
-                                        <Button variant="outline" size="sm" className="text-xs gap-1" onClick={(e) => { e.stopPropagation(); openEdit(member); }}>
-                                          <Edit className="h-3 w-3" /> تعديل
-                                        </Button>
-                                        <Button variant="outline" size="sm" className="text-xs gap-1" onClick={(e) => { e.stopPropagation(); openWorkingHours(member.id); }}>
-                                          <Clock className="h-3 w-3" /> الساعات
-                                        </Button>
-                                        <Button variant="outline" size="sm" className="text-xs gap-1" onClick={(e) => { e.stopPropagation(); openTransfer(member.id); }}>
-                                          <ArrowRightLeft className="h-3 w-3" /> نقل
-                                        </Button>
+                                        {canManage && (
+                                          <>
+                                            <Button variant="outline" size="sm" className="text-xs gap-1" onClick={(e) => { e.stopPropagation(); openEdit(member); }}>
+                                              <Edit className="h-3 w-3" /> تعديل
+                                            </Button>
+                                            <Button variant="outline" size="sm" className="text-xs gap-1" onClick={(e) => { e.stopPropagation(); openWorkingHours(member.id); }}>
+                                              <Clock className="h-3 w-3" /> الساعات
+                                            </Button>
+                                            <Button variant="outline" size="sm" className="text-xs gap-1" onClick={(e) => { e.stopPropagation(); openTransfer(member.id); }}>
+                                              <ArrowRightLeft className="h-3 w-3" /> نقل
+                                            </Button>
+                                          </>
+                                        )}
                                       </div>
                                       {member.phone && (
                                         <div className="flex gap-2">
