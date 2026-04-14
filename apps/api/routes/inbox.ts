@@ -228,7 +228,16 @@ router.get("/:leadId", authenticateToken, async (req: Request, res: Response) =>
       });
     }
 
-    res.json(messages);
+    // Tag each message with `isMine` relative to the viewer
+    const enriched = messages.map((m: any) => {
+      // Agent viewing: OUTBOUND messages they sent are "mine"
+      const agentSent = m.agentId === user.id && m.direction === "OUTBOUND";
+      // Seller/buyer viewing: INBOUND messages (their replies) are "mine"
+      const recipientSent = isRecipientByPhone && m.direction === "INBOUND";
+      return { ...m, isMine: agentSent || recipientSent };
+    });
+
+    res.json(enriched);
   } catch (error) {
     console.error("GET /api/inbox/:leadId error:", error);
     res.status(500).json({ error: "فشل في جلب الرسائل" });

@@ -77,6 +77,7 @@ interface Message {
   sentAt: string;
   deliveredAt: string | null;
   readAt: string | null;
+  isMine?: boolean;
   metadata: string | null;
 }
 
@@ -379,19 +380,19 @@ export default function InboxPage() {
                 ) : (
                   <div className="space-y-3">
                     {messages.map((msg) => {
-                      const isOutbound = msg.direction === "OUTBOUND";
+                      const mine = msg.isMine ?? msg.direction === "OUTBOUND";
                       return (
                         <div
                           key={msg.id}
                           className={cn(
                             "flex",
-                            isOutbound ? "justify-end" : "justify-start"
+                            mine ? "justify-end" : "justify-start"
                           )}
                         >
                           <div
                             className={cn(
                               "max-w-[70%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
-                              isOutbound
+                              mine
                                 ? "bg-primary/15 text-foreground rounded-se-sm border border-primary/20"
                                 : "bg-accent text-accent-foreground rounded-ss-sm border border-border"
                             )}
@@ -404,7 +405,7 @@ export default function InboxPage() {
                                   minute: "2-digit",
                                 })}
                               </span>
-                              {isOutbound && <MessageStatusIcon status={msg.status} />}
+                              {mine && <MessageStatusIcon status={msg.status} />}
                             </div>
                           </div>
                         </div>
