@@ -385,24 +385,19 @@ export default function InboxPage() {
                           key={msg.id}
                           className={cn(
                             "flex",
-                            isOutbound ? "justify-start" : "justify-end"
+                            isOutbound ? "justify-end" : "justify-start"
                           )}
                         >
                           <div
                             className={cn(
                               "max-w-[70%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
                               isOutbound
-                                ? "bg-primary text-primary-foreground rounded-bl-sm"
-                                : "bg-muted text-foreground rounded-br-sm"
+                                ? "bg-primary/15 text-foreground rounded-se-sm border border-primary/20"
+                                : "bg-accent text-accent-foreground rounded-ss-sm border border-border"
                             )}
                           >
                             <p className="whitespace-pre-wrap">{msg.content}</p>
-                            <div
-                              className={cn(
-                                "flex items-center gap-1 mt-1 text-[10px]",
-                                isOutbound ? "text-primary-foreground/70" : "text-muted-foreground"
-                              )}
-                            >
+                            <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground">
                               <span>
                                 {new Date(msg.sentAt).toLocaleTimeString("ar-SA", {
                                   hour: "2-digit",
