@@ -43,10 +43,18 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
   try {
     const user = req.user!;
     const agentId = user.id;
+    const userPhone = (user as any).phone;
 
-    // Fetch all messages for this agent, ordered newest-first
+    // Fetch messages where:
+    // 1. Current user is the agent (agentId) — for agents
+    // 2. Current user's phone matches the message phone — for buyers/sellers receiving messages
     const allMessages: any[] = await (basePrisma as any).messages.findMany({
-      where: { agentId },
+      where: {
+        OR: [
+          { agentId },
+          ...(userPhone ? [{ phone: userPhone }] : []),
+        ],
+      },
       orderBy: { sentAt: "desc" },
       take: 5000, // safety cap
     });
@@ -120,19 +128,39 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
       }
     } catch { /* best effort */ }
 
-    const result = conversations.map((c) => ({
-      conversationKey: c.conversationKey,
-      leadId: c.leadId,
-      phone: c.phone,
-      contactName: (c.leadId && leadNameMap[c.leadId]) || c.phone || "غير معروف",
-      lastMessageContent: c.lastMessage.content,
-      lastMessageAt: c.lastMessage.sentAt,
-      lastMessageDirection: c.lastMessage.direction,
-      unreadCount: c.unreadCount,
-      channel: c.lastMessage.channel,
-      /** Labels applied to this conversation (E12). Consumer: label badges + filter. */
-      labels: labelsMap[c.conversationKey] || [],
-    }));
+    // For sellers/buyers: resolve agent names so they see who messaged them
+    const agentIds = [...new Set(allMessages.map((m: any) => m.agentId).filter(Boolean))];
+    let agentNameMap: Record<string, string> = {};
+    if (agentIds.length > 0) {
+      const agents = await prisma.users.findMany({
+        where: { id: { in: agentIds } },
+        select: { id: true, firstName: true, lastName: true },
+      });
+      agentNameMap = Object.fromEntries(agents.map((a) => [a.id, [a.firstName, a.lastName].filter(Boolean).join(" ") || "وسيط"]));
+    }
+
+    const result = conversations.map((c) => {
+      // If the current user's phone matches the conversation phone, they're the seller/buyer
+      // → show the agent's name as the contact
+      const isRecipient = userPhone && c.phone === userPhone;
+      const agentName = c.lastMessage.agentId ? agentNameMap[c.lastMessage.agentId] : null;
+      const contactName = isRecipient && agentName
+        ? agentName
+        : (c.leadId && leadNameMap[c.leadId]) || c.phone || "غير معروف";
+
+      return {
+        conversationKey: c.conversationKey,
+        leadId: c.leadId,
+        phone: c.phone,
+        contactName,
+        lastMessageContent: c.lastMessage.content,
+        lastMessageAt: c.lastMessage.sentAt,
+        lastMessageDirection: c.lastMessage.direction,
+        unreadCount: c.unreadCount,
+        channel: c.lastMessage.channel,
+        labels: labelsMap[c.conversationKey] || [],
+      };
+    });
 
     // Sort: unread first, then by most recent message
     result.sort((a, b) => {
@@ -160,10 +188,13 @@ router.get("/:leadId", authenticateToken, async (req: Request, res: Response) =>
     const { leadId } = req.params;
     const user = req.user!;
 
+    const userPhone = (user as any).phone;
     const messages: any[] = await (basePrisma as any).messages.findMany({
       where: {
-        agentId: user.id,
-        OR: [{ leadId }, { phone: leadId }],
+        OR: [
+          { agentId: user.id, OR: [{ leadId }, { phone: leadId }] },
+          ...(userPhone ? [{ phone: userPhone, OR: [{ leadId }, { phone: leadId }] }] : []),
+        ],
       },
       orderBy: { sentAt: "asc" },
       take: 500,
@@ -227,11 +258,29 @@ router.post("/send", authenticateToken, async (req: Request, res: Response) => {
       }
     }
 
+    // Determine direction: if the sender's phone matches the target phone,
+    // they're a seller/buyer replying (INBOUND from platform perspective).
+    // Otherwise it's an agent sending (OUTBOUND).
+    const senderPhone = (user as any).phone;
+    const isSenderTheRecipient = senderPhone && resolvedPhone && senderPhone === resolvedPhone;
+
+    // For seller/buyer replies: find the original agent who messaged them
+    let agentId = user.id;
+    if (isSenderTheRecipient && resolvedPhone) {
+      // Find the last outbound message to this phone to get the original agent
+      const lastOutbound = await (basePrisma as any).messages.findFirst({
+        where: { phone: resolvedPhone, direction: "OUTBOUND" },
+        orderBy: { sentAt: "desc" },
+        select: { agentId: true },
+      });
+      if (lastOutbound?.agentId) agentId = lastOutbound.agentId;
+    }
+
     const message = await (basePrisma as any).messages.create({
       data: {
         leadId: data.leadId ?? null,
-        agentId: user.id,
-        direction: "OUTBOUND",
+        agentId,
+        direction: isSenderTheRecipient ? "INBOUND" : "OUTBOUND",
         channel: data.channel,
         content: data.content,
         phone: resolvedPhone ?? null,

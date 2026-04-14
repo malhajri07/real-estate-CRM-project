@@ -19,6 +19,7 @@ export interface AuthenticatedUser {
     name: string | null;
     firstName: string | null;
     lastName: string | null;
+    phone: string | null;
     userLevel: number;
     tenantId: string;
     accountOwnerId: string | null;
@@ -53,7 +54,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
             where: { id: payload.userId },
             select: {
                 id: true, email: true, username: true, firstName: true, lastName: true,
-                roles: true, organizationId: true, isActive: true
+                phone: true, roles: true, organizationId: true, isActive: true
             }
         });
 
@@ -68,6 +69,7 @@ export const authenticateToken = async (req: Request, res: Response, next: NextF
             name: displayName || user.username || null,
             firstName: user.firstName,
             lastName: user.lastName,
+            phone: user.phone ?? null,
             userLevel: 1,
             tenantId: user.organizationId || user.id,
             accountOwnerId: null,

@@ -35,6 +35,8 @@ export interface AuthenticatedUser {
     name: string | null;
     firstName: string | null;
     lastName: string | null;
+    /** User's phone number — used for inbox message matching (buyers/sellers). */
+    phone: string | null;
     /** Reserved for future tier-based gating; currently always `1`. */
     userLevel: number;
     /** Effective tenant key — falls back to `id` for individual agents with no org. */

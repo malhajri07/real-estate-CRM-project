@@ -131,6 +131,7 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
         username: true,
         firstName: true,
         lastName: true,
+        phone: true,
         roles: true,
         organizationId: true,
         isActive: true
@@ -156,6 +157,7 @@ export async function authenticateToken(req: Request, res: Response, next: NextF
       name: displayName.length ? displayName : (user.username ?? user.email ?? null),
       firstName: user.firstName,
       lastName: user.lastName,
+      phone: user.phone ?? null,
       userLevel: 1,
       tenantId: user.organizationId ?? user.id,
       accountOwnerId: null,
@@ -200,6 +202,7 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
         username: true,
         firstName: true,
         lastName: true,
+        phone: true,
         roles: true,
         organizationId: true,
         isActive: true
@@ -221,6 +224,7 @@ export async function optionalAuth(req: Request, res: Response, next: NextFuncti
         name: displayName.length ? displayName : (user.username ?? user.email ?? null),
         firstName: user.firstName,
         lastName: user.lastName,
+        phone: user.phone ?? null,
         userLevel: 1,
         tenantId: user.organizationId ?? user.id,
         accountOwnerId: null,
