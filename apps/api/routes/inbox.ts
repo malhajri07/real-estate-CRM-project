@@ -82,8 +82,13 @@ router.get("/", authenticateToken, async (req: Request, res: Response) => {
           unreadCount: 0,
         });
       }
-      // Count inbound messages that haven't been read
-      if (msg.direction === "INBOUND" && msg.status !== "READ") {
+      // Count unread messages directed AT the current user:
+      // - Agent: unread INBOUND messages (from sellers/buyers)
+      // - Seller/buyer: unread OUTBOUND messages (from agents to them)
+      const isUnread = msg.status !== "READ";
+      const isForAgent = msg.agentId === agentId && msg.direction === "INBOUND";
+      const isForRecipient = userPhone && msg.phone === userPhone && msg.direction === "OUTBOUND";
+      if (isUnread && (isForAgent || isForRecipient)) {
         const conv = convMap.get(key)!;
         conv.unreadCount++;
       }
@@ -200,10 +205,21 @@ router.get("/:leadId", authenticateToken, async (req: Request, res: Response) =>
       take: 500,
     });
 
-    // Mark inbound messages as read
+    // Mark messages as read:
+    // - For agents: mark INBOUND messages (from sellers/buyers) as read
+    // - For sellers/buyers: mark OUTBOUND messages (from agents to them) as read
+    const isRecipientByPhone = userPhone && messages.some((m: any) => m.phone === userPhone);
+
     const unreadIds = messages
-      .filter((m) => m.direction === "INBOUND" && m.status !== "READ")
-      .map((m) => m.id);
+      .filter((m: any) => {
+        if (m.status === "READ") return false;
+        // Agent reading → mark inbound as read
+        if (m.agentId === user.id && m.direction === "INBOUND") return true;
+        // Seller/buyer reading → mark outbound (from agent to them) as read
+        if (isRecipientByPhone && m.direction === "OUTBOUND") return true;
+        return false;
+      })
+      .map((m: any) => m.id);
 
     if (unreadIds.length > 0) {
       await (basePrisma as any).messages.updateMany({
