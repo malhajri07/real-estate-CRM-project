@@ -393,12 +393,12 @@ export default function InboxPage() {
                             className={cn(
                               "max-w-[70%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
                               mine
-                                ? "bg-primary/15 text-foreground rounded-se-sm border border-primary/20"
-                                : "bg-accent text-accent-foreground rounded-ss-sm border border-border"
+                                ? "bg-primary text-primary-foreground rounded-se-sm"
+                                : "bg-muted text-foreground rounded-ss-sm"
                             )}
                           >
                             <p className="whitespace-pre-wrap">{msg.content}</p>
-                            <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground">
+                            <div className={cn("flex items-center gap-1 mt-1 text-[10px]", mine ? "text-primary-foreground/70" : "text-muted-foreground")}>
                               <span>
                                 {new Date(msg.sentAt).toLocaleTimeString("ar-SA", {
                                   hour: "2-digit",
