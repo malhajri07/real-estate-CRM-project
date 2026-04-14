@@ -43,6 +43,7 @@ import { toast } from "sonner";
 import { useMinLoadTime } from "@/hooks/useMinLoadTime";
 import { SarPrice } from "@/components/ui/sar-symbol";
 import { cn } from "@/lib/utils";
+import { PROPERTY_TYPE, getLocalizedLabel } from "@/constants/labels";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -164,6 +165,12 @@ export default function PoolPage() {
   const [ownerStatusFilter, setOwnerStatusFilter] = useState<string>("Pending");
   const [detailOwner, setDetailOwner] = useState<OwnerListing | null>(null);
 
+  // ── Message compose state ──
+  const [messageText, setMessageText] = useState("");
+  const [messageOpen, setMessageOpen] = useState(false);
+  const [messagePhone, setMessagePhone] = useState("");
+  const [messageName, setMessageName] = useState("");
+
   // SMS sheet
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsTargetId, setSmsTargetId] = useState<string | null>(null);
@@ -226,6 +233,25 @@ export default function PoolPage() {
     onSuccess: () => { toast.success("تم إرسال الرسالة"); smsForm.reset(); setSmsOpen(false); },
     onError: () => toast.error("فشل إرسال الرسالة"),
   });
+
+  const sendInboxMessage = useMutation({
+    mutationFn: async ({ phone, content }: { phone: string; content: string }) =>
+      apiPost("api/inbox/send", { phone, channel: "whatsapp", content }),
+    onSuccess: () => {
+      toast.success("تم إرسال الرسالة — ستظهر في صندوق الرسائل");
+      setMessageText("");
+      setMessageOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/inbox"] });
+    },
+    onError: () => toast.error("فشل إرسال الرسالة"),
+  });
+
+  const openMessageCompose = (phone: string, name: string) => {
+    setMessagePhone(phone);
+    setMessageName(name);
+    setMessageText("");
+    setMessageOpen(true);
+  };
 
   // ── Buyer computed ───────────────────────────────────────────────────────
 
@@ -554,7 +580,7 @@ export default function PoolPage() {
                           <p className="font-bold text-sm truncate max-w-[200px]">{listing.title || "بدون عنوان"}</p>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="text-[10px]">{listing.propertyType || listing.listingType || "—"}</Badge>
+                          <Badge variant="outline" className="text-[10px]">{getLocalizedLabel(PROPERTY_TYPE, listing.propertyType || listing.listingType, "ar")}</Badge>
                         </TableCell>
                         <TableCell>
                           <span className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-muted-foreground" />{listing.city || "—"}</span>
@@ -680,7 +706,7 @@ export default function PoolPage() {
                   {/* Price + Type header */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {l.propertyType && <Badge variant="secondary">{l.propertyType}</Badge>}
+                      {l.propertyType && <Badge variant="secondary">{getLocalizedLabel(PROPERTY_TYPE, l.propertyType, "ar")}</Badge>}
                       {l.propertyCategory && <Badge variant="outline">{l.propertyCategory}</Badge>}
                     </div>
                     {l.price && (
@@ -786,9 +812,14 @@ export default function PoolPage() {
 
                       <div className="flex gap-2 pt-1">
                         {phone && (
-                          <Button className="flex-1 gap-2" onClick={() => window.open(`https://wa.me/${phone.replace(/\D/g, "")}`, "_blank")}>
+                          <Button className="flex-1 gap-2" onClick={() => openMessageCompose(phone, l.contactName || "المالك")}>
                             <MessageSquare className="h-4 w-4" />
-                            تواصل واتساب — عرض خدمة الوساطة
+                            أرسل رسالة — عرض خدمة الوساطة
+                          </Button>
+                        )}
+                        {phone && (
+                          <Button variant="outline" className="gap-2" onClick={() => window.open(`https://wa.me/${phone.replace(/\D/g, "")}`, "_blank")}>
+                            <MessageSquare className="h-4 w-4" />واتساب
                           </Button>
                         )}
                         {phone && (
@@ -799,7 +830,7 @@ export default function PoolPage() {
                       </div>
 
                       <p className="text-[11px] text-muted-foreground">
-                        تواصل مع المالك لعرض خدماتك كوسيط عقاري معتمد. اشرح خبرتك في المنطقة واعرض عليه عقد وساطة حصري.
+                        أرسل رسالة للمالك عبر المنصة. ستظهر الرسالة في صندوق الرسائل ويمكنكما متابعة المحادثة هناك.
                       </p>
                     </CardContent>
                   </Card>
@@ -833,6 +864,41 @@ export default function PoolPage() {
               </SheetFooter>
             </form>
           </Form>
+        </SheetContent>
+      </Sheet>
+      {/* ── Message Compose Drawer ─────────────────────────────────────── */}
+      <Sheet open={messageOpen} onOpenChange={setMessageOpen}>
+        <SheetContent side="bottom" className="max-h-[50vh]">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-primary" />
+              إرسال رسالة إلى {messageName}
+            </SheetTitle>
+            <SheetDescription>
+              سيتم إرسال الرسالة عبر المنصة وستظهر في صندوق الرسائل
+              {messagePhone && <span className="font-mono text-xs ms-2" dir="ltr">{messagePhone}</span>}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="py-4 max-w-lg mx-auto space-y-4">
+            <Textarea
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              placeholder={`مرحباً ${messageName}، أنا وسيط عقاري معتمد وأود عرض خدماتي لتسويق عقارك...`}
+              rows={4}
+              className="text-sm"
+            />
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setMessageOpen(false)}>إلغاء</Button>
+              <Button
+                disabled={!messageText.trim() || sendInboxMessage.isPending}
+                onClick={() => sendInboxMessage.mutate({ phone: messagePhone, content: messageText.trim() })}
+                className="gap-2"
+              >
+                <MessageSquare className="h-4 w-4" />
+                {sendInboxMessage.isPending ? "جاري الإرسال..." : "إرسال الرسالة"}
+              </Button>
+            </div>
+          </div>
         </SheetContent>
       </Sheet>
     </div>
