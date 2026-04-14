@@ -369,36 +369,10 @@ export default function InboxPage() {
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const MAX_RECORDING_SECONDS = 60;
 
-  const startRecording = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
+  // Flag to auto-send when stop is called from the timer
+  const autoSendRef = useRef(false);
 
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) audioChunksRef.current.push(e.data);
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-      setRecordingDuration(0);
-
-      recordingTimerRef.current = setInterval(() => {
-        setRecordingDuration((prev) => {
-          if (prev >= MAX_RECORDING_SECONDS - 1) {
-            stopRecording(true);
-            return MAX_RECORDING_SECONDS;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-    } catch {
-      toast.error("لم يتم السماح بالوصول إلى الميكروفون");
-    }
-  }, []);
-
-  const stopRecording = useCallback((autoSend = false) => {
+  const stopRecording = useCallback(() => {
     const recorder = mediaRecorderRef.current;
     if (!recorder || recorder.state === "inactive") return;
 
@@ -407,35 +381,87 @@ export default function InboxPage() {
       recordingTimerRef.current = null;
     }
 
-    recorder.onstop = async () => {
-      const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-      recorder.stream.getTracks().forEach((t) => t.stop());
-
-      if (autoSend || blob.size > 0) {
-        // Convert to base64 data URL
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64 = reader.result as string;
-          if (selectedConv) {
-            sendMutation.mutate({
-              leadId: selectedConv.leadId ?? undefined,
-              channel: selectedConv.channel || "whatsapp",
-              content: `🎤 [audio:${base64}]`,
-              phone: selectedConv.phone ?? undefined,
-            });
-          }
-        };
-        reader.readAsDataURL(blob);
-      }
-
-      setIsRecording(false);
-      setRecordingDuration(0);
-    };
-
     recorder.stop();
-  }, [selectedConv, sendMutation]);
+  }, []);
+
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Pick a supported mime type
+      const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+        ? "audio/webm;codecs=opus"
+        : MediaRecorder.isTypeSupported("audio/webm")
+          ? "audio/webm"
+          : MediaRecorder.isTypeSupported("audio/mp4")
+            ? "audio/mp4"
+            : "";
+
+      const mediaRecorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
+
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+      autoSendRef.current = false;
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const type = mediaRecorder.mimeType || "audio/webm";
+        const blob = new Blob(audioChunksRef.current, { type });
+        stream.getTracks().forEach((t) => t.stop());
+
+        if (blob.size > 0 && autoSendRef.current) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = reader.result as string;
+            if (selectedConv) {
+              sendMutation.mutate({
+                leadId: selectedConv.leadId ?? undefined,
+                channel: selectedConv.channel || "whatsapp",
+                content: `🎤 [audio:${base64}]`,
+                phone: selectedConv.phone ?? undefined,
+              });
+            }
+          };
+          reader.readAsDataURL(blob);
+        }
+
+        setIsRecording(false);
+        setRecordingDuration(0);
+        audioChunksRef.current = [];
+      };
+
+      mediaRecorder.start(1000); // collect data every second
+      setIsRecording(true);
+      setRecordingDuration(0);
+
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingDuration((prev) => {
+          if (prev >= MAX_RECORDING_SECONDS - 1) {
+            autoSendRef.current = true;
+            stopRecording();
+            return MAX_RECORDING_SECONDS;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (err) {
+      console.error("Microphone error:", err);
+      toast.error("لم يتم السماح بالوصول إلى الميكروفون");
+    }
+  }, [selectedConv, sendMutation, stopRecording]);
+
+  const sendRecording = useCallback(() => {
+    autoSendRef.current = true;
+    stopRecording();
+  }, [stopRecording]);
 
   const cancelRecording = useCallback(() => {
+    autoSendRef.current = false;
     const recorder = mediaRecorderRef.current;
     if (recorder && recorder.state !== "inactive") {
       recorder.stream.getTracks().forEach((t) => t.stop());
@@ -450,12 +476,12 @@ export default function InboxPage() {
     audioChunksRef.current = [];
   }, []);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
-      if (mediaRecorderRef.current?.state !== "inactive") {
-        mediaRecorderRef.current?.stream.getTracks().forEach((t) => t.stop());
+      const r = mediaRecorderRef.current;
+      if (r && r.state !== "inactive") {
+        r.stream.getTracks().forEach((t) => t.stop());
       }
     };
   }, []);
@@ -975,7 +1001,7 @@ export default function InboxPage() {
                     </span>
                   </div>
 
-                  <Button size="icon" className="h-9 w-9 rounded-full flex-shrink-0" onClick={() => stopRecording(true)} title="إرسال">
+                  <Button size="icon" className="h-9 w-9 rounded-full flex-shrink-0" onClick={sendRecording} title="إرسال">
                     <Send className="h-4 w-4 rtl:-scale-x-100" />
                   </Button>
                 </div>
