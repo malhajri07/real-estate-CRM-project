@@ -7,7 +7,7 @@ created: 2026-04-10
 
 Unified view: every git commit and every Claude session, month by month.
 
-**Span:** 2025-08-11 → 2026-04-14 (530 commits, 6 captured sessions)
+**Span:** 2025-08-11 → 2026-04-15 (539 commits, 7 captured sessions)
 
 ## 2025-08
 
@@ -98,6 +98,15 @@ Unified view: every git commit and every Claude session, month by month.
   - `87e13ce` messaging (inbox) access for buyers and sellers
   - `d01de95` complete client portal redesign: 8 new API endpoints, tabbed UI, deal progress stepper, viewing ratings, offers, agent activity, document center
   - 2 new DB models: `deal_stage_history`, `client_offers`
+- 💬 **2026-04-14 → 2026-04-15** · Session 07 — Messaging overhaul, audio recording, DB cleanup
+  - `0534051` in-app messaging from pool page to sellers (bottom drawer compose)
+  - `39cd324` seller inbox: phone-based message matching, bidirectional conversations
+  - `928168a` bidirectional read markers for agent and seller/buyer
+  - `ef83667` per-viewer message perspective (isMine flag from API)
+  - `37ed3e2` chat bubble colors: sender=primary, receiver=muted
+  - `c6d8446` + `24ebfa7` audio recording up to 60s with cross-browser support
+  - DB cleanup: 1260→43 users, 102→2 orgs, added 10 sellers + 10 buyers
+  - Auth: added `phone` to AuthenticatedUser for inbox matching
 
 ## Related
 - [[History/Index|← History MOC]]
